@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.energyict.mdc.device.topology.rest.impl.TopologyGraphApplication;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +15,7 @@ import java.util.Properties;
  * Date: 3/01/2017
  * Time: 11:18
  */
-public abstract class AbstractGraphLayer implements GraphLayer{
+public abstract class AbstractGraphLayer implements GraphLayer, TranslationKeyProvider {
 
     private Properties properties = new Properties();
 
@@ -32,11 +34,18 @@ public abstract class AbstractGraphLayer implements GraphLayer{
     }
 
     @Override
+    public String getComponentName() {
+        return TopologyGraphApplication.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
     public boolean equals(Object o){
-        if (o instanceof GraphLayer){
-            return this.getName().equals(((GraphLayer) o).getName()) && this.getType().equals(((GraphLayer) o).getType());
-        }
-        return false;
+        return (o instanceof GraphLayer) && getName().equals(((GraphLayer) o).getName()) && getType().equals(((GraphLayer) o).getType());
     }
 
     @Override

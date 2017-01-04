@@ -1,23 +1,19 @@
 package com.energyict.mdc.device.topology.rest.impl;
 
 import com.elster.jupiter.util.streams.Predicates;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphFactory;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
-import com.energyict.mdc.device.topology.rest.info.LinkInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import com.google.common.collect.Range;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -52,7 +48,7 @@ public class DefaultGraphFactory implements GraphFactory{
 
     public GraphInfo from(DeviceTopology deviceTopology){
         final NodeInfo rootNode = new NodeInfo(deviceTopology.getRoot());
-        graphLayerService.getGraphLayers().stream().forEach(graphLayer -> rootNode.addLayer(graphLayer));
+        graphLayerService.getGraphLayers().stream().forEach(rootNode::addLayer);
 
         GraphInfo graphInfo = new GraphInfo();
         graphInfo.setRootNode(rootNode);
@@ -71,13 +67,13 @@ public class DefaultGraphFactory implements GraphFactory{
         List<Device> intermediates = new ArrayList<>(topologyService.getCommunicationPath(gateway, device).getIntermediateDevices());
         while (!intermediates.isEmpty()) {
             final NodeInfo child = new NodeInfo(intermediates.get(0));
-            graphLayerService.getGraphLayers().stream().forEach(graphLayer -> child.addLayer(graphLayer));
+            graphLayerService.getGraphLayers().stream().forEach(child::addLayer);
             root.addChild(child);
             root = child;
             intermediates.remove(0);
         }
         final NodeInfo leaf = new NodeInfo(device);
-        graphLayerService.getGraphLayers().stream().forEach(graphLayer -> leaf.addLayer(graphLayer));
+        graphLayerService.getGraphLayers().stream().forEach(leaf::addLayer);
         root.addChild(new NodeInfo(device));
     }
 

@@ -3,7 +3,9 @@ package com.energyict.mdc.device.topology.rest.layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
-import com.energyict.mdc.device.topology.rest.layer.AbstractGraphLayer;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * GraphLayer - Device Info
@@ -13,13 +15,13 @@ import com.energyict.mdc.device.topology.rest.layer.AbstractGraphLayer;
  */
 public class DeviceInfoLayer extends AbstractGraphLayer {
 
-    private final static String NAME = "topology.graphLayer.Nodes.deviceInfo";
+    private final static String NAME = "topology.graphLayer.deviceInfo";
 
     public enum PropertyNames implements TranslationKey {
-        DEVICE_NAME("topology.graphLayer.Nodes.deviceInfo.name", "Name"),
-        DEVICE_SERIAL("topology.graphLayer.Nodes.deviceInfo.serialNumber", "Serial number"),
-        DEVICE_TYPE("topology.graphLayer.Nodes.deviceInfo.deviceType", "Device type"),
-        DEVICE_CONFIGURATION("topology.graphLayer.Nodes.deviceInfo.deviceConfiguration", "Device configuration");
+        DEVICE_NAME(NAME + "node.name", "Name"),
+        DEVICE_SERIAL(NAME + "node.serialNumber", "Serial number"),
+        DEVICE_TYPE(NAME + "node.deviceType", "Device type"),
+        DEVICE_CONFIGURATION(NAME + "node.deviceConfiguration", "Device configuration");
 
         private String key;
         private String defaultFormat;
@@ -39,8 +41,6 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
             return defaultFormat;
         }
     }
-
-    public DeviceInfoLayer(){}
 
     public DeviceInfoLayer(Device device){
         super();
@@ -74,6 +74,11 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
 
     public void setDeviceConfiguration(String deviceConfigurationName){
         setProperty(PropertyNames.DEVICE_CONFIGURATION.getDefaultFormat(), deviceConfigurationName);
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(PropertyNames.values());
     }
 
 }

@@ -1,11 +1,14 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 
 import org.osgi.service.component.annotations.Component;
 
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -33,5 +36,9 @@ public class DemoPluggableLayer extends AbstractGraphLayer {
         return NAME ;
     }
 
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Collections.emptyList();
+    }
 
 }

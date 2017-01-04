@@ -6,12 +6,9 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.impl.DefaultConnectionTaskCreateEventHandler;
-import com.energyict.mdc.device.topology.rest.GraphFactory;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

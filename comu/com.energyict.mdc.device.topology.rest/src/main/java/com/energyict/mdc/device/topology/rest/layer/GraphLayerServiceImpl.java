@@ -20,7 +20,7 @@ import java.util.Optional;
  * Time: 16:11
  */
 @Component(name = "com.energyict.mdc.device.topology.graphlayer.service", service = {GraphLayerService.class}, property = "name=" + GraphLayerService.COMPONENT_NAME)
-public class GraphLayerServiceImpl implements GraphLayerService {
+public class GraphLayerServiceImpl implements GraphLayerService  {
     private final OptionalServiceContainer<GraphLayer> graphLayerServices = new CopyOnWriteServiceContainer<>();
 
     @Override

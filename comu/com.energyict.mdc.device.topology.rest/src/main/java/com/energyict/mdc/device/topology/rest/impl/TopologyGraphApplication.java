@@ -10,7 +10,6 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
 
@@ -99,6 +98,7 @@ public class TopologyGraphApplication extends Application implements Translation
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>(Arrays.asList(LinkQualityLayer.PropertyNames.values()));
+
         return keys;
     }
 

@@ -9,5 +9,5 @@ package com.energyict.mdc.device.topology.rest;
  */
 public enum GraphLayerType {
     NODE,
-    LINK;
+    LINK
 }
