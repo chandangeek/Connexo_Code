@@ -6,7 +6,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         'Uni.graphvisualiser.VisualiserMenu',
         'Uni.graphvisualiser.VisualiserPropertyViewer'
     ],
-    //layout: 'fit',
     layout: {
         type: 'border'
     },
@@ -26,7 +25,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             splitterResize: false,
             layout: {
                 type: 'table',
-                columns: 16 // legend icon = one column & legend text = another column
+                columns: 24 // legend icon = one column & legend text = another column
             }
         }
     ],
@@ -39,14 +38,20 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         items: []
     },
     activeLayers: [],
+    propertyViewerTitle: Uni.I18n.translate('general.propertyViewer', 'UNI', 'Property viewer'),
 
     gatewayIcon: 'icon-diamond4',
     deviceIcon: 'icon-circle2',
-    hopLevelIcon: 'icon-radio-unchecked',
+    linkIcon: 'icon-arrow-down-right2',
+    issueAlarmIcon: 'icon-circle-small',
+    failedCommunicationIcon: 'icon-circle',
 
     neutralColor: '#006699',
     whiteColor: '#FFFFFF',
     issueAlarmColor: '#FF0000',
+    failedCommunicationStatusColor: '#FF0000',
+    goodLinkQualityColor: '#70BB51',
+    badLinkQualityColor: '#EB5642',
     colors: [
             "#BEE64B",
             "#33CC99",
@@ -69,21 +74,15 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             "#93DFB8"
     ],
 
-    //html: "<div id='graph-drawing-area' style='top: 0; bottom: 0; left: 0; right: 0; position: absolute;'></div>",
-
-    LAYER_DEVICETYPE: 'deviceType',
-
     listeners: {
         boxready: function (panel) {
             this.initCanvas(panel);
             this.sideMenu = Ext.create(this.menu, {visualiser: this});
             this.sideMenu.show().alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
-            this.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer');
+            this.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer', {
+                title: panel.propertyViewerTitle
+            });
             this.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
-            //this.legend = Ext.create('Uni.graphvisualiser.VisualiserLegend');
-            //this.legend.show();
-            //this.legend.doAlign();
-            //this.propertyViewer.displayProperties();
         }
 
         ,
@@ -91,7 +90,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             KeyLines.setSize('graph-drawing-area',w-10,h);
             this.sideMenu.alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
             this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
-            //this.legend.doAlign();
             if(this.chart){
                 this.doLayout();
             }
@@ -99,29 +97,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         beforedestroy: function(){
             Ext.ComponentQuery.query('#uni-visualiser-menu')[0].destroy();
             Ext.ComponentQuery.query('#uni-property-viewer')[0].destroy();
-            //Ext.ComponentQuery.query('#visualiser-legend')[0].destroy();
         }
-    },
-
-    initComponent: function () {
-        var me = this;
-
-        //Ext.Ajax.request({
-        //    url: '/api/ddr/devices/d3?page=1&start=0&limit=200',
-        //    method: 'GET',
-        //    success: function (operation) {
-        //        me.data = JSON.parse(operation.responseText);
-        //        //me.on('resize', me.initCanvas(me));
-        //        me.initCanvas(me);
-        //
-        //    }
-        //});
-
-
-        me.callParent(arguments);
-
-
-        //me.initCanvas(me);
     },
 
     initCanvas: function (me) {
@@ -280,7 +256,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             showGatewayLegend = false,
             showDeviceLegend = false;
 
-        me.top = ["1"];
+        me.top = [nodes.data.items[0].get('id')+'']; // Assumption: the first node is the top node
         nodes.each(function(node){
             nodeStoreForComboBox.add({
                 id: node.get('id'),
@@ -307,10 +283,13 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     fb: true, // label in bold
                     d: {
                         name: node.get('name'),
-                        type: node.get('deviceType'),
+                        serialNumber: node.get('serialNumber'),
+                        deviceType: node.get('deviceType'),
+                        deviceConfiguration: node.get('deviceConfiguration'),
                         gateway: Ext.isEmpty(node.get('gateWay')) ? false : node.get('gateWay'),
                         alarms: node.get('alarms'),
-                        issues: node.get('issues')
+                        issues: node.get('issues'),
+                        failedComTasks: node.get('failedComTasks')
                     },
                     pos: {
                         lat: 50.82979 + (Math.random() * 0.1 - 0.05),
