@@ -1,12 +1,35 @@
 Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.visualiserpanel',
+    alias: 'widget.uniVisualiserPanel',
     itemId: 'VisualiserPanel',
     requires: [
         'Uni.graphvisualiser.VisualiserMenu',
         'Uni.graphvisualiser.VisualiserPropertyViewer'
     ],
-    layout: 'fit',
+    //layout: 'fit',
+    layout: {
+        type: 'border'
+    },
+    items: [
+        {
+            xtype: 'container',
+            html: "<div id='graph-drawing-area' style='top: 0; bottom: 0; left: 0; right: 0; position: absolute;'></div>",
+            region: 'center'
+        },
+        {
+            itemId: 'uni-visualiser-legend-table',
+            title: Uni.I18n.translate('general.legend', 'UNI', 'Legend'),
+            region: 'south',
+            //height: 120,
+            collapsible: true,
+            split: true,
+            splitterResize: false,
+            layout: {
+                type: 'table',
+                columns: 16 // legend icon = one column & legend text = another column
+            }
+        }
+    ],
     padding: 10,
     device: null,
     router: null,
@@ -17,6 +40,13 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     },
     activeLayers: [],
 
+    gatewayIcon: 'icon-diamond4',
+    deviceIcon: 'icon-circle2',
+    hopLevelIcon: 'icon-radio-unchecked',
+
+    neutralColor: '#006699',
+    whiteColor: '#FFFFFF',
+    issueAlarmColor: '#FF0000',
     colors: [
             "#BEE64B",
             "#33CC99",
@@ -39,16 +69,20 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             "#93DFB8"
     ],
 
-    html: "<div id='graph-drawing-area' style='top: 0; bottom: 0; left: 0; right: 0; position: absolute;'></div>",
+    //html: "<div id='graph-drawing-area' style='top: 0; bottom: 0; left: 0; right: 0; position: absolute;'></div>",
+
+    LAYER_DEVICETYPE: 'deviceType',
 
     listeners: {
         boxready: function (panel) {
             this.initCanvas(panel);
-            //this.sideMenu = Ext.create('Uni.graphvisualiser.VisualiserMenu');
             this.sideMenu = Ext.create(this.menu, {visualiser: this});
             this.sideMenu.show().alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
             this.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer');
-            this.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr');
+            this.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
+            //this.legend = Ext.create('Uni.graphvisualiser.VisualiserLegend');
+            //this.legend.show();
+            //this.legend.doAlign();
             //this.propertyViewer.displayProperties();
         }
 
@@ -56,14 +90,16 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         resize: function(panel,w,h){
             KeyLines.setSize('graph-drawing-area',w-10,h);
             this.sideMenu.alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
-            this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr');
+            this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
+            //this.legend.doAlign();
             if(this.chart){
                 this.doLayout();
             }
         },
         beforedestroy: function(){
-            Ext.ComponentQuery.query('#visualiser-menu')[0].destroy();
-            Ext.ComponentQuery.query('#property-viewer')[0].destroy();
+            Ext.ComponentQuery.query('#uni-visualiser-menu')[0].destroy();
+            Ext.ComponentQuery.query('#uni-property-viewer')[0].destroy();
+            //Ext.ComponentQuery.query('#visualiser-legend')[0].destroy();
         }
     },
 
@@ -92,11 +128,11 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         var me = this;
 
         KeyLines.paths({assets: 'resources/js/keylines/assets/'});
-        KeyLines.create({id: 'graph-drawing-area', options:{navigation: {p: 'se'},iconFontFamily: 'Icomoon'}},function(err, chart) {
+        KeyLines.create({id: 'graph-drawing-area', options:{navigation: {p: 'se', y: -150},iconFontFamily: 'Icomoon'}},function(err, chart) {
             me.chart = chart;
-            me.chart.bind('click',me.upStreamFromNode,me);
-            me.chart.bind('dblclick',me.combine,me);
-            me.chart.bind('contextmenu',me.contextMenu,me);
+            me.chart.bind('click', me.upStreamFromNode, me);
+            me.chart.bind('dblclick', me.combine, me);
+            me.chart.bind('contextmenu', me.contextMenu, me);
             me.chart.load({
                 type: 'LinkChart'
             });
@@ -140,15 +176,16 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     },
 
     collapsePropertyViewer: function(){
-        Ext.ComponentQuery.query('#property-viewer')[0].collapse();
+        Ext.ComponentQuery.query('#uni-property-viewer')[0].collapse();
     },
 
     upStreamFromNode: function(id){
-        var me = this;
-        var neighbours = {};
-        function areNeighboursOf(item){
-            return neighbours[item.id];
-        }
+        var me = this,
+            neighbours = {},
+            areNeighboursOf = function(item) {
+                return neighbours[item.id];
+            };
+
         if(id === null) {
             me.chart.foreground(function(){ return true; }, {type: 'all'});
             me.collapsePropertyViewer();
@@ -161,8 +198,10 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 });
                 neighbours[id] = true;
                 me.chart.foreground(areNeighboursOf, {type: 'all'});
+                me.displayNodeProperties(id);
+            } else {
+                me.collapsePropertyViewer();
             }
-            me.displayNodeProperties(id);
         }
     },
 
@@ -226,83 +265,121 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     },
 
     displayNodeProperties: function(id){
-        Ext.ComponentQuery.query('#property-viewer')[0].displayProperties(this.chart.getItem(id).d);
+        Ext.ComponentQuery.query('#uni-property-viewer')[0].displayProperties(this.chart.getItem(id).d);
     },
 
 
-
     loadData: function(){
-        var nodes = this.store.data.items[0].nodes();
-        var links = this.store.data.items[0].links();
-        var me = this;
-        var nodeStoreForComboBox = new Ext.data.SimpleStore({
-            fields: ['id', 'name']
-        });
+        var me = this,
+            nodes = this.store.data.items[0].nodes(),
+            links = this.store.data.items[0].links(),
+            nodeStoreForComboBox = new Ext.data.SimpleStore({
+                fields: ['id', 'name']
+            }),
+            icon,
+            showGatewayLegend = false,
+            showDeviceLegend = false;
+
         me.top = ["1"];
         nodes.each(function(node){
             nodeStoreForComboBox.add({
                 id: node.get('id'),
                 name: node.get('name')
             });
-            me.chartData.items.push({
-                        id: node.get('id'),
-                        type: 'node',
-                       // t: node.deviceType,
-                        b: "#BEE64B",
-                        c: "#BEE64B",
-                        t: node.get('name'),
-                        e: 1,
-                        fb: true,
-                        //fs: 24,
-                        d: {
-                            type: node.get('type'),
-                            alarms: node.get('alarms')
-                        },
-                        pos: {
-                            lat: 50.82979 + (Math.random() * 0.1 - 0.05),
-                            lng: 3.30008 + (Math.random() * 0.1 - 0.05)
-                        }
-                    });
+            if(!Ext.isEmpty(node.get('gateWay')) && node.get('gateWay')){
+                icon = KeyLines.getFontIcon(me.gatewayIcon);
+                showGatewayLegend = true;
+            } else {
+                icon = KeyLines.getFontIcon(me.deviceIcon);
+                showDeviceLegend = true;
+            }
+            me.chartData.items.push(
+                {
+                    id: node.get('id'),
+                    type: 'node',
+                    b: null, // no border (color)
+                    c: me.whiteColor, // fill color
+                    t: node.get('name'),
+                    fi: {
+                        c: me.neutralColor,
+                        t: icon
+                    },
+                    fb: true, // label in bold
+                    d: {
+                        name: node.get('name'),
+                        type: node.get('deviceType'),
+                        gateway: Ext.isEmpty(node.get('gateWay')) ? false : node.get('gateWay'),
+                        alarms: node.get('alarms'),
+                        issues: node.get('issues')
+                    },
+                    pos: {
+                        lat: 50.82979 + (Math.random() * 0.1 - 0.05),
+                        lng: 3.30008 + (Math.random() * 0.1 - 0.05)
+                    }
+                }
+            );
         });
         links.each(function(link){
-            me.chartData.items.push({
-                        id: link.get('source') + '-' + link.get('target'),
-                        type: 'link',
-                        id1: link.get('source'),
-                        id2: link.get('target'),
-                        w: 2,
-                        a2: true,
-                        d: {
-                            linkQuality: link.get('linkQuality')
-                        }
-                    });
+            me.chartData.items.push(
+                {
+                    id: link.get('source') + '-' + link.get('target'),
+                    type: 'link',
+                    id1: link.get('source'),
+                    id2: link.get('target'),
+                    w: 2,
+                    a2: true,
+                    d: {
+                        linkQuality: link.get('linkQuality')
+                    }
+                }
+            );
         });
         me.chart.load(me.chartData, function () {
-                    me.chart.layout();
-                });
+            me.chart.layout();
+            if (showGatewayLegend) {
+                icon = '<span class="' + me.gatewayIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+                me.addLegendItem(icon, Uni.I18n.translate('general.gateway', 'UNI', 'Gateway'));
+            }
+            if (showDeviceLegend) {
+                icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+                me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
+            }
+        });
         me.sideMenu.down('combobox').bindStore(nodeStoreForComboBox);
-     //   debugger;
     },
 
     clearLayers: function(){
         var me = this;
-        var items = [];
         me.activeLayers = [];
+        me.clearAllLegendItems();
         me.setDefaultStyle();
     },
 
     setDefaultStyle: function(){
-        var me = this;
-        var items = [];
+        var me = this,
+            items = [],
+            icon,
+            showGatewayLegend = false,
+            showDeviceLegend = false;
+
         me.chart.each({type: 'node'},function(node){
             if(!me.chart.combo().isCombo(node.id)) {
-                items.push({
+                if(node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway){
+                    icon = KeyLines.getFontIcon(me.gatewayIcon);
+                    showGatewayLegend = true;
+                } else {
+                    icon = KeyLines.getFontIcon(me.deviceIcon);
+                    showDeviceLegend = true;
+                }
+                items.push(
+                    {
                     id: node.id,
-                    b: "rgb(0, 102, 153)",
-                    c: "rgb(255,255,255)",
-                    e: 1,
-                    fi: null,
-                    //g: null,
+                    b: null, // no border (color)
+                    c: me.whiteColor, // fill color
+                    fi: {
+                        c: me.neutralColor,
+                        t: icon
+                    },
                     ha0: null,
                     g: me.chart.combo().isCombo(node.id) ? comboGlyph : null
                 });
@@ -319,6 +396,15 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             });
         });
         me.chart.setProperties(items, false);
+
+        if (showGatewayLegend) {
+            icon = '<span class="' + me.gatewayIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+            me.addLegendItem(icon, Uni.I18n.translate('general.gateway', 'UNI', 'Gateway'));
+        }
+        if (showDeviceLegend) {
+            icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+            me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
+        }
     },
 
     forEachNode: function(fNode){
@@ -380,7 +466,40 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             top: this.top
         };
         this.chart.layout(this.graphLayout,options);
-    }
+    },
 
+    addLegendItem: function(icon, text) {
+        this.addLegendItems([
+            {
+                xtype: 'displayfield',
+                fieldLabel: '',
+                labelWidth: 0,
+                margin: '0 5 0 0',
+                iconForRenderer: icon, // to make it work when the legend panel is collapsed and the rendering is done later on when the panel expands
+                renderer: function(raw, displayField) {
+                    return displayField.iconForRenderer;
+                }
+            },
+            {
+                xtype: 'displayfield',
+                fieldLabel: '',
+                labelWidth: 0,
+                margin: '0 15 0 0',
+                value: text
+            }
+        ]);
+    },
+
+    addLegendItems: function(items) {
+        var me = this,
+            legendTable = me.down('#uni-visualiser-legend-table');
+        Ext.Array.each(items, function(item){
+            legendTable.add(item);
+        });
+    },
+
+    clearAllLegendItems: function() {
+        this.down('#uni-visualiser-legend-table').removeAll();
+    }
 
 });

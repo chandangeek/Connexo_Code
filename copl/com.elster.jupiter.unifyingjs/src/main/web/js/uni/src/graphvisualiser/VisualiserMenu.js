@@ -1,96 +1,80 @@
 Ext.define('Uni.graphvisualiser.VisualiserMenu', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.visualisermenu',
-    itemId: 'visualiser-menu',
+    itemId: 'uni-visualiser-menu',
     //width: 300,
     //height: 400,
     floating: true,
-    border: false,
     //collapsed: true,
     style: {
         'background-color': 'white'
     },
-    //collapsible: true,
-    //title: 'visualisation',
-    // ui: 'small',
-    items: [
-        {
-            xtype: 'form',
-            ui: 'small',
-            items: [
-                {
-                    xtype: 'combobox',
-                    queryMode: 'local',
-                    displayField: 'name',
-                    valueField: 'id',
-                    typeAhead: true,
-                    listeners: {
-                        focus: function () {
-                            if (this.value) {
-                                var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
-                                visualiser.upStreamFromNode(this.value);
-                            }
-                        },
-                        select: function (combo, records) {
-                            var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
-                            visualiser.upStreamFromNode(records[0].get('id'));
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            xtype: 'panel',
-            ui: 'small',
-            title: 'visualisation',
-            collapsible: true,
-            style: {
-                'background-color': 'white'
+    collapsible: true,
+    title: Uni.I18n.translate('general.visualisation', 'UNI', 'Visualisation'),
+    ui: 'small',
+    items: [{
+        layout: 'vbox',
+        items: [
+            {
+                xtype: 'form',
+                itemId: 'uni-layer-section'
             },
-            layout: 'vbox',
-            items: [
-                {
-                    xtype: 'form',
-                    itemId: 'layer-section'
-                },
-                {
-                    xtype: 'form',
-                    title: ' options',
-                    items: [
-                        {
-                            xtype: 'radiogroup',
-                            fieldLabel: 'Lay out',
-                            columns: 1,
-                            vertical: true,
-                            items: [
-                                {boxLabel: 'Standard', name: 'rb', inputValue: '1', checked: true},
-                                {boxLabel: 'Cluster', name: 'rb', inputValue: '2'},
-                                {boxLabel: 'Radial', name: 'rb', inputValue: '3'},
-                                {boxLabel: 'Tree', name: 'rb', inputValue: '4'}
-                            ],
-                            listeners: {
-                                change: function (group, value) {
-                                    var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
-                                    switch (value.rb) {
-                                        case '1':
-                                            visualiser.doLayout('standard');
-                                            break;
-                                        case '2':
-                                            visualiser.doLayout('structural');
-                                            break;
-                                        case '3':
-                                            visualiser.doLayout('radial');
-                                            break;
-                                        case '4':
-                                            visualiser.doLayout('hierarchy');
-                                            break;
-                                    }
+            {
+                xtype: 'form',
+                margin: '10 0 0 0',
+                title: Uni.I18n.translate('general.options', 'UNI', 'Options'),
+                items: [
+                    {
+                        xtype: 'radiogroup',
+                        fieldLabel: Uni.I18n.translate('general.layout', 'UNI', 'Layout'),
+                        labelWidth: 50,
+                        columns: 1,
+                        vertical: true,
+                        items: [
+                            {
+                                boxLabel: Uni.I18n.translate('general.layout.standard', 'UNI', 'Standard'),
+                                name: 'rb',
+                                inputValue: '1',
+                                checked: true
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('general.layout.cluster', 'UNI', 'Cluster'),
+                                name: 'rb',
+                                inputValue: '2'
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('general.layout.radial', 'UNI', 'Radial'),
+                                name: 'rb',
+                                inputValue: '3'
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('general.layout.tree', 'UNI', 'Tree'),
+                                name: 'rb',
+                                inputValue: '4'
+                            }
+                        ],
+                        listeners: {
+                            change: function(group,value){
+                                var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
+                                switch(value.rb){
+                                    case '1':
+                                        visualiser.doLayout('standard');
+                                        break;
+                                    case '2':
+                                        visualiser.doLayout('structural');
+                                        break;
+                                    case '3':
+                                        visualiser.doLayout('radial');
+                                        break;
+                                    case '4':
+                                        visualiser.doLayout('hierarchy');
+                                        break;
                                 }
                             }
                         }
-                    ]
-                }
-            ]
-        }
-    ]
+                    }
+                ]
+            }
+        ]
+    }]
 });
