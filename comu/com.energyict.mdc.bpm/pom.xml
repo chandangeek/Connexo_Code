@@ -71,6 +71,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issue.datacollection</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.alarms</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
