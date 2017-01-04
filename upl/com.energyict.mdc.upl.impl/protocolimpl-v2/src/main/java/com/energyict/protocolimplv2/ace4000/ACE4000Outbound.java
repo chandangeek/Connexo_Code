@@ -250,18 +250,14 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return Collections.singletonList(new ACE4000DeviceProtocolDialect());
     }
 
-
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.singletonList(
-                    UPLPropertySpecFactory
-                        .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, this.getPropertySpecService()::stringSpec)
-                        .finish());
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
-        return this.getProperties().getPropertySpecs();
+    public List<PropertySpec> getPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(
+                UPLPropertySpecFactory
+                    .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, this.getPropertySpecService()::stringSpec)
+                    .finish());
+        return propertySpecs;
     }
 
     @Override

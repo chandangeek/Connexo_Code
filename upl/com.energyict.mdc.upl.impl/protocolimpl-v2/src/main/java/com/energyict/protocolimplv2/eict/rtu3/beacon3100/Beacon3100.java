@@ -6,10 +6,6 @@ import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.security.SecuritySuite;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -34,7 +30,11 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
 
 import com.energyict.cbo.ObservationTimestampPropertyImpl;
 import com.energyict.dlms.CipheringType;
@@ -124,7 +124,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 		 * @param 	id						Client ID.
 		 * @param 	frameCounterOBIS		Frame counter OBIS code.
 		 */
-		private ClientConfiguration(final int id, final ObisCode frameCounterOBIS) {
+        ClientConfiguration(final int id, final ObisCode frameCounterOBIS) {
 			this.clientId = id;
 			this.frameCounterOBIS = frameCounterOBIS;
 		}
@@ -188,7 +188,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * @param clientId - DLMS Client ID used in association
      * @return - the correct obis code for this client
      */
-    private final ObisCode getFrameCounterObisCode(final int clientId) {
+    private ObisCode getFrameCounterObisCode(final int clientId) {
         final ClientConfiguration client = ClientConfiguration.getByID(clientId);
 
         if (client == null) {

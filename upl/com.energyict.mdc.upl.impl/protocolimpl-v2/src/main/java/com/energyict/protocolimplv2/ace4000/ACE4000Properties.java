@@ -2,13 +2,13 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -24,15 +24,17 @@ public class ACE4000Properties {
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal("30000");
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal("3");
 
+    private final PropertySpecService propertySpecService;
     public Properties properties;
 
-    ACE4000Properties() {
+    ACE4000Properties(PropertySpecService propertySpecService) {
         super();
+        this.propertySpecService = propertySpecService;
         this.properties = new Properties();
     }
 
-    private ACE4000Properties(TypedProperties properties) {
-        this();
+    private ACE4000Properties(TypedProperties properties, PropertySpecService propertySpecService) {
+        this(propertySpecService);
         this.copyProperties(properties);
     }
 
@@ -68,14 +70,6 @@ public class ACE4000Properties {
 
     private PropertySpec retriesPropertySpec() {
         return UPLPropertySpecFactory.bigDecimal(RETRIES, false, DEFAULT_RETRIES);
-    }
-
-    List<PropertySpec> getOptionalKeys() {
-        return Collections.singletonList(UPLPropertySpecFactory.bigDecimal(TIMEOUT, false));
-    }
-
-    List<PropertySpec> getRequiredKeys() {
-        return Collections.emptyList();
     }
 
     public int getTimeout() {

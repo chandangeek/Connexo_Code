@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
@@ -143,8 +144,15 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
         return serialNumber;
     }
 
+    // Making super's implementation public
     @Override
-    public void addProperties(TypedProperties properties) {
+    public List<PropertySpec> getPropertySpecs() {
+        return super.getPropertySpecs();
+    }
+
+    @Override
+    public void setProperties(TypedProperties properties) {
+        this.addProperties(properties);
     }
 
 }
