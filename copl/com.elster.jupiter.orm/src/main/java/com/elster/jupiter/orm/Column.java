@@ -83,6 +83,12 @@ public interface Column {
 		VirtualBuilder as(String formula);
 		Column add();
 
+		/**
+		 * This method allows you specify a default value for a to-be-added column. The value will be inserted as-is in SQL,
+		 * this is a deliberate sql injection hook that allows calculating initial values using SQL formulas.
+		 * As a side effect, if the initial value is a String, it needs to be surrounded by single quotes!
+		 * @param value The SQL formula to calculate the initial value, constants are allowed, string constants need to be encapsulated by single quotes
+         */
 		Builder installValue(String value);
 	}
 
