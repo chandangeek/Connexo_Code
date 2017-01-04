@@ -10,13 +10,13 @@ import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
@@ -24,7 +24,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -47,8 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -58,7 +55,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
     public static final String LOGGER = "LOGGER";
-    public static final String PRIORITYSPEC = "PRIORITYSPEC";
+    public static final String PRIORITY = ".priority";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -187,12 +184,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
         //TODO - update code
-        Optional<PropertySpec> prioritySpec = template.getPropertySpecs().stream()
-                .filter(property -> property.getName().equals(PRIORITYSPEC))
-                .findAny();
-        if (prioritySpec.isPresent() && prioritySpec.get().getPossibleValues().getAllValues().size() == 2) {
-            baseIssue.setPriority(Priority.get(Integer.parseInt(String.valueOf(prioritySpec.get().getPossibleValues().getAllValues().get(0))),
-                    Integer.parseInt(String.valueOf(prioritySpec.get().getPossibleValues().getAllValues().get(1)))));
+        Optional<String> priority = firedRule.getProperties().entrySet().stream().filter(entry -> entry.getKey().endsWith(PRIORITY)).findFirst().map(found -> String.valueOf(found.getValue()));
+        if (priority.isPresent()) {
+            baseIssue.setPriority(Priority.fromStringValue(priority.get()) == null ? Priority.get(25, 5) : Priority.fromStringValue(priority.get()));
         } else {
             baseIssue.setPriority(Priority.get(25, 5));
         }

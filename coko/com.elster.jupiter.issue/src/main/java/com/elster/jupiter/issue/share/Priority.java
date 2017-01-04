@@ -3,6 +3,8 @@ package com.elster.jupiter.issue.share;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.xml.bind.annotation.XmlTransient;
+import java.math.BigDecimal;
+import java.util.Arrays;
 
 public final class Priority implements Comparable<Priority>, Cloneable {
     @Valid
@@ -31,6 +33,8 @@ public final class Priority implements Comparable<Priority>, Cloneable {
         }
     }
 
+    private static String SEPARATOR = ":";
+
 
     public Priority() {
     }
@@ -42,20 +46,26 @@ public final class Priority implements Comparable<Priority>, Cloneable {
             case 1:
             case 2:
                 this.rank = Rank.VERY_LOW;
+                break;
             case 3:
             case 4:
-                this.rank = Rank.VERY_LOW;
+                this.rank = Rank.LOW;
+                break;
             case 5:
             case 6:
                 this.rank = Rank.MEDIUM;
+                break;
             case 7:
             case 8:
                 this.rank = Rank.HIGH;
+                break;
             case 9:
             case 10:
                 this.rank = Rank.VERY_HIGH;
+                break;
             default:
                 this.rank = Rank.LOW;
+                break;
         }
     }
 
@@ -76,11 +86,11 @@ public final class Priority implements Comparable<Priority>, Cloneable {
     }
 
     public boolean isHighest() {
-        return urgency > 50;
+        return urgency > 50 || impact > 50;
     }
 
     public boolean isLowest() {
-        return urgency < 0 || impact < 0;
+        return urgency < 1 || impact < 1;
     }
 
     public void increaseUrgency() {
@@ -133,6 +143,32 @@ public final class Priority implements Comparable<Priority>, Cloneable {
         return urgency == 0 && impact == 0;
     }
 
+    public static Priority fromStringValue(String stringValue) {
+        if (stringValue == null || stringValue.isEmpty() || !stringValue.contains(SEPARATOR)) {
+            return null;
+        }
+        String[] parts = stringValue.split(SEPARATOR);
+        if (parts.length < 2) {
+            throw new IllegalArgumentException("Incorrectly formatted priority.Please check format and range.");
+        }
+
+        if (Arrays.asList(parts)
+                .stream()
+                .anyMatch(element -> element.split(",").length > 2
+                        || element.split(".").length > 2)) {
+            throw new IllegalArgumentException("Incorrectly formatted priority.Please check format and range.");
+        }
+
+
+        int urgency = Integer.valueOf(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
+        int impact = Integer.valueOf(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
+
+        if (urgency > 50 || impact > 50 || urgency < 1 || impact < 1) {
+            throw new IllegalArgumentException("Incorrectly formatted priority.Please check format and range.");
+        }
+
+        return new Priority(urgency,impact);
+    }
 
     @Override
     public boolean equals(Object o) {
