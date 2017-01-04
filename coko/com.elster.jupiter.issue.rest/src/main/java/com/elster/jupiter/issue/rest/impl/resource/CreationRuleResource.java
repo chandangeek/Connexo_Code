@@ -65,7 +65,8 @@ public class CreationRuleResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({ Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE })
     public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams) {
-        Query<CreationRule> query = getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
+        Query<CreationRule> query =
+                getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
         List<CreationRule> rules;
         Condition conditionAlarm = where("template").isEqualToIgnoreCase("BasicDeviceAlarmRuleTemplate");
         if (queryParams.getStart().isPresent()) {
@@ -84,9 +85,11 @@ public class CreationRuleResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({ Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE })
     public Response getCreationRule(@PathParam(ID) long id) {
-        CreationRule rule = getIssueCreationService().findCreationRuleById(id)
+        CreationRule rule =
+                getIssueCreationService().findCreationRuleById(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return Response.ok(ruleInfoFactory.asInfo(rule)).build();
+        return
+                Response.ok(ruleInfoFactory.asInfo(rule)).build();
     }
 
     @DELETE
