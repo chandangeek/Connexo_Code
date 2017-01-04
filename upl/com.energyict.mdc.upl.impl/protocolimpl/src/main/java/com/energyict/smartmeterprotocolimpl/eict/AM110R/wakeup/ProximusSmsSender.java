@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.wakeup;
 
-import com.energyict.cbo.Sms;
+import com.energyict.mdc.upl.properties.Sms;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 import org.w3c.dom.DOMException;
@@ -13,7 +14,12 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -47,7 +53,7 @@ public class ProximusSmsSender {
     public void sendSMS(Sms sms) throws ConnectionException {
         logger.log(Level.SEVERE, "Sending out SMS.");
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         try {
             // 1. Construct data
             Properties params = new Properties();
@@ -73,13 +79,13 @@ public class ProximusSmsSender {
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             while ((line = rd.readLine()) != null) {
-                sb.append(line);
+                builder.append(line);
             }
             wr.close();
             rd.close();
 
             // 4. Parse the response
-            parseResponseMessage(sb.toString());
+            parseResponseMessage(builder.toString());
             logger.log(Level.INFO, "Successful send out SMS.");
         } catch (Exception e) {
             String msg = "Failed to send out SMS - An error occurred while sending out the SMS message: " + e.getMessage();
@@ -109,12 +115,8 @@ public class ProximusSmsSender {
      * E.g.: <?xml version="1.0" encoding="UTF-8"?><status><ok/></status>
      *
      * @param xml - the response XML content
-     * @throws javax.xml.parsers.ParserConfigurationException
      *
-     * @throws org.xml.sax.SAXException when the xml parsing fails
-     * @throws java.io.IOException              when the communication fails
-     * @throws com.energyict.cbo.BusinessException
-     *
+     * @throws ConnectionException
      */
     protected void parseResponseMessage(String xml) throws ConnectionException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -124,27 +126,15 @@ public class ProximusSmsSender {
 
             Element rootElement = document.getDocumentElement();
             Node statusNode = rootElement.getFirstChild();
-            if (statusNode.getNodeName().equals("error")) {
+            if ("error".equals(statusNode.getNodeName())) {
                 Node errorCodeNode = statusNode.getAttributes().getNamedItem("code");
                 String errorCode = errorCodeNode.getTextContent();
                 String errorDescription = statusNode.getFirstChild().getTextContent();
                 throwError(errorCode, errorDescription);
-            } else if (statusNode.getNodeName().equals("ok")) {
+            } else if ("ok".equals(statusNode.getNodeName())) {
                 return;
             }
-        } catch (ParserConfigurationException e) {
-            String msg = "Failed to send out SMS - An error occurred while parsing the response message: " + e.getMessage();
-            logger.log(Level.SEVERE, msg);
-            throw new ConnectionException(msg);
-        } catch (SAXException e) {
-            String msg = "Failed to send out SMS - An error occurred while parsing the response message: " + e.getMessage();
-            logger.log(Level.SEVERE, msg);
-            throw new ConnectionException(msg);
-        } catch (IOException e) {
-            String msg = "Failed to send out SMS - An error occurred while parsing the response message: " + e.getMessage();
-            logger.log(Level.SEVERE, msg);
-            throw new ConnectionException(msg);
-        } catch (DOMException e) {
+        } catch (ParserConfigurationException | SAXException | IOException | DOMException e) {
             String msg = "Failed to send out SMS - An error occurred while parsing the response message: " + e.getMessage();
             logger.log(Level.SEVERE, msg);
             throw new ConnectionException(msg);
@@ -203,11 +193,11 @@ public class ProximusSmsSender {
      */
     private String getHexStringFromBytes(byte[] byteBuffer) {
         int i;
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (i = 1; i <= byteBuffer.length; i++) {
-            strBuff.append(outputHexString((int) byteBuffer[i - 1] & 0x000000FF));
+            builder.append(outputHexString((int) byteBuffer[i - 1] & 0x000000FF));
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     /**
