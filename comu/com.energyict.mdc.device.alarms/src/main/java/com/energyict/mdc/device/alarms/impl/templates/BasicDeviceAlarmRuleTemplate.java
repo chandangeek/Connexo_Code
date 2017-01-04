@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.alarms.impl.templates;
 
-import com.elster.jupiter.issue.impl.service.IssueCreationServiceImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.PriorityInfo;
+import com.elster.jupiter.issue.share.PriorityInfoValueFactory;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -12,9 +13,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;
@@ -30,14 +28,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
@@ -49,7 +42,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     public static final String EVENTTYPE = NAME + ".eventType";
 
-    private String SEPARATOR = ",";
+    private String SEPARATOR = ":";
 
     public static final String PRIORITY = NAME + ".priority";
 
@@ -153,16 +146,15 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .addValues(eventTypes.getEventTypes())
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
-        builder.add(
-                propertySpecService
-                        .specForValuesOf(new PriorityInfoValueFactory())
-                        .named(PRIORITY, TranslationKeys.PRIORITY)
-                        .fromThesaurus(this.thesaurus)
-                        .markRequired()
-                        .markMultiValued(",")
-                        .addValues(possibleValues)
-                        .markExhaustive(PropertySelectionMode.LIST)
-                        .finish());
+        builder.add(propertySpecService
+                .specForValuesOf(new PriorityInfoValueFactory())
+                .named(PRIORITY, TranslationKeys.PRIORITY)
+                .fromThesaurus(this.thesaurus)
+                .markRequired()
+                .markMultiValued(",")
+                .addValues(possibleValues)
+                .markExhaustive(PropertySelectionMode.LIST)
+                .finish());
         return builder.build();
     }
 
@@ -180,7 +172,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         return openIssue;
     }
 
-
+/*
     private class PriorityInfoValueFactory implements ValueFactory<HasName> {
 
 
@@ -196,7 +188,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
         @Override
         public String toStringValue(HasName object) {
-            return String.valueOf(object.getName());
+            return String.valueOf(((PriorityInfo)object).getPriority().toString());
         }
 
         @Override
@@ -235,6 +227,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             this.priority = priority;
         }
 
+        public Priority getPriority(){
+            return priority;
+        }
+
 
         public Integer getUrgency() {
             return priority.getUrgency();
@@ -268,6 +264,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         public String getName() {
             return PRIORITY;
         }
-    }
+    } */
 
 }
