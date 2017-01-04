@@ -15,6 +15,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.YellowfinService;
 import com.energyict.mdc.app.MdcAppService;
+import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.engine.monitor.app.MdcMonitorAppService;
@@ -54,6 +55,7 @@ public class MdcAppInstaller {
     private volatile FirmwareService firmwareService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MdcMonitorAppService mdcMonitorAppService;
+    private volatile CommandRuleService commandRuleService;
 
 
     @Activate
@@ -292,6 +294,11 @@ public class MdcAppInstaller {
     @Reference
     public void setMdcMonitorAppService(MdcMonitorAppService mdcMonitorAppService) {
         this.mdcMonitorAppService = mdcMonitorAppService;
+    }
+
+    @Reference
+    public void setCommandRuleService(CommandRuleService commandRuleService) {
+        this.commandRuleService = commandRuleService;
     }
 
 }
