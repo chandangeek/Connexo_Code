@@ -2,16 +2,17 @@ package com.energyict.protocolimplv2.edp.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -49,14 +50,16 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     private final Converter converter;
     private final AbstractMessageExecutor messageExecutor;
     private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public EDPMessaging(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, AbstractMessageExecutor messageExecutor, TariffCalendarExtractor calendarExtractor) {
+    public EDPMessaging(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, AbstractMessageExecutor messageExecutor, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         super(messageExecutor.getProtocol());
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
         this.messageExecutor = messageExecutor;
         this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     private DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
@@ -89,13 +92,13 @@ public class EDPMessaging extends AbstractDlmsMessaging implements DeviceMessage
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case activityCalendarCodeTableAttributeName:
-                EDPActivityCalendarParser parser = new EDPActivityCalendarParser((Code) messageAttribute, this.calendarExtractor);
+                EDPActivityCalendarParser parser = new EDPActivityCalendarParser((TariffCalendar) messageAttribute, this.calendarExtractor);
                 return convertCodeTableToAXDR(parser);
             case specialDaysCodeTableAttributeName:
-                return parseSpecialDays((Code) messageAttribute, this.calendarExtractor);
+                return parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
             case configUserFileAttributeName:
             case firmwareUpdateUserFileAttributeName:
-                return new String(((UserFile) messageAttribute).loadFileInByteArray());
+                return this.messageFileExtractor.contents((DeviceMessageFile) messageAttribute);
             case activityCalendarActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());     //Epoch
             default:

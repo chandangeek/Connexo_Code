@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -65,12 +66,14 @@ public class CX20009 extends AbstractDlmsProtocol {
     private final NlsService nlsService;
     private final Converter converter;
     private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public CX20009(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor) {
+    public CX20009(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
         this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
     }
 
     @Override
@@ -250,7 +253,12 @@ public class CX20009 extends AbstractDlmsProtocol {
                             this.getPropertySpecService(),
                             this.nlsService,
                             this.converter,
-                            new EDPMessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory()), this.calendarExtractor);
+                            new EDPMessageExecutor(
+                                    this,
+                                    this.getCollectedDataFactory(),
+                                    this.getIssueFactory()),
+                            this.calendarExtractor,
+                            this.messageFileExtractor);
         }
         return edpMessaging;
     }

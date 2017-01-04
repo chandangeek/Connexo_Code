@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.inbound.dlms.aso;
+package com.energyict.mdc.protocol.inbound.dlms;
 
 import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 
@@ -12,11 +12,11 @@ import com.energyict.protocolimpl.properties.PropertySpecPossibleValuesImpl;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-04 (13:50)
  */
-public class ObisCodeWithDefaultValuePropertySpec extends ObisCodePropertySpec {
+class ObisCodeWithDefaultValuePropertySpec extends ObisCodePropertySpec {
 
     private final ObisCode defaultValue;
 
-    public ObisCodeWithDefaultValuePropertySpec(String name, ObisCode defaultValue) {
+    ObisCodeWithDefaultValuePropertySpec(String name, ObisCode defaultValue) {
         super(name, false);
         this.defaultValue = defaultValue;
     }
@@ -25,7 +25,7 @@ public class ObisCodeWithDefaultValuePropertySpec extends ObisCodePropertySpec {
     public PropertySpecPossibleValues getPossibleValues() {
         PropertySpecPossibleValuesImpl possibleValues = new PropertySpecPossibleValuesImpl();
         possibleValues.setDefault(this.defaultValue);
-        return possibleValues;
+        return super.getPossibleValues();
     }
 
 }

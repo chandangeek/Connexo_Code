@@ -2,13 +2,12 @@ package com.energyict.mdc.protocol.inbound.dlms;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.dlms.aso.ObisCodeWithDefaultValuePropertySpec;
 import com.energyict.mdc.protocol.inbound.dlms.aso.SimpleApplicationServiceObject;
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.protocol.inbound.general.InboundConnection;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -64,7 +63,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     }
 
     @Override
-    public InboundDeviceProtocol.DiscoverResultType doDiscovery() {
+    public DiscoverResultType doDiscovery() {
         try {
             setInboundConnection();
             init();
@@ -200,7 +199,8 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
                         .specBuilder(DlmsProtocolProperties.SERVER_MAC_ADDRESS, false, propertySpecService::bigDecimalSpec)
                         .setDefaultValue(DEFAULT_SERVER_ADDRESS)
                         .finish());
-        propertySpecs.add(new ObisCodeWithDefaultValuePropertySpec(DEVICE_ID_OBISCODE_KEY, DEFAULT_DEVICE_ID_OBISCODE));
+        PropertySpec obisCodePropertySpec = new ObisCodeWithDefaultValuePropertySpec(DEVICE_ID_OBISCODE_KEY, DEFAULT_DEVICE_ID_OBISCODE);
+        propertySpecs.add(obisCodePropertySpec);
         return propertySpecs;
     }
 
