@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.topology.rest.info;
 
-import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 

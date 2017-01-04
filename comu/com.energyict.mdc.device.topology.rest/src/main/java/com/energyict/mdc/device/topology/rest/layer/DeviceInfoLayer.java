@@ -10,9 +10,7 @@ import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,10 +54,6 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
         public String getDefaultFormat() {
             return defaultFormat;
         }
-    }
-
-    public DeviceInfoLayer(){
-        super();
     }
 
     @Reference

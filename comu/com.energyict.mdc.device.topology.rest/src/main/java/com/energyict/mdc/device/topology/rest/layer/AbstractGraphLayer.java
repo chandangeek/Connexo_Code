@@ -1,18 +1,12 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.impl.TopologyGraphApplication;
-import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
-import javax.inject.Inject;
+
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**

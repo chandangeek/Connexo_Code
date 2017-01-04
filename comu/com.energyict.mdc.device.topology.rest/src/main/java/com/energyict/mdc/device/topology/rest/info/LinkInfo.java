@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
-import jdk.nashorn.internal.runtime.regexp.joni.NodeOptInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;

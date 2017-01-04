@@ -36,9 +36,6 @@ public class NodeInfo {
 
     public NodeInfo(Device device) {
         this.id = device.getId();
-       // DeviceInfoLayer deviceInfoLayer = new DeviceInfoLayer(device);
-       // this.addLayer(deviceInfoLayer);
-       // this.setActiveLayer(deviceInfoLayer);
     }
 
     public boolean addLayer(GraphLayer graphLayer){
