@@ -91,11 +91,11 @@ public class InstallerImpl implements FullInstaller {
     private void createMasterData(String adminPassword, Logger logger) {
         InternalDirectoryImpl directory = (InternalDirectoryImpl) userService.findUserDirectory(userService.getRealm())
                 .orElseGet(this::createDirectory);
-        GroupImpl administrators = (GroupImpl) userService.findGroup(UserService.USER_ADMIN_ROLE)
+        GroupImpl administrators = (GroupImpl) userService.findGroup(UserService.DEFAULT_ADMIN_ROLE)
                 .orElseGet(() -> createAdministratorGroup(logger));
 
         doTry(
-                "Grant system administrator privileges to " + UserService.USER_ADMIN_ROLE,
+                "Grant system administrator privileges to " + UserService.DEFAULT_ADMIN_ROLE,
                 () -> grantSystemAdministratorPrivileges(administrators),
                 logger
         );
@@ -124,8 +124,8 @@ public class InstallerImpl implements FullInstaller {
     private Group createAdministratorGroup(Logger logger) {
 
         return doTry(
-                "Create " + UserService.USER_ADMIN_ROLE + " user group.",
-                () -> userService.createGroup(UserService.USER_ADMIN_ROLE, UserService.USER_ADMIN_ROLE_DESCRIPTION),
+                "Create " + UserService.DEFAULT_ADMIN_ROLE + " user group.",
+                () -> userService.createGroup(UserService.DEFAULT_ADMIN_ROLE, UserService.DEFAULT_ADMIN_ROLE_DESCRIPTION),
                 logger
         );
     }
