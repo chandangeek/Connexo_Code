@@ -36,6 +36,9 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
@@ -44,14 +47,11 @@ import java.util.Optional;
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     static final String NAME = "BasicDeviceAlarmRuleTemplate";
 
-    public static final String PRIORITY = NAME + ".priority";
-
     public static final String EVENTTYPE = NAME + ".eventType";
 
-    private String SEPARATOR = ":";
+    private String SEPARATOR = ",";
 
-    // To move
-    public static final String PRIORITYSPEC = "PRIORITYSPEC";
+    public static final String PRIORITY = NAME + ".priority";
 
     //for OSGI
     public BasicDeviceAlarmRuleTemplate() {
@@ -139,7 +139,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PriorityInfo[] possibleValues = new PriorityInfo[0];
+        PriorityInfo[] possibleValues = IntStream.rangeClosed(1, 50).mapToObj(urgency ->
+                IntStream.concat(IntStream.rangeClosed(1, urgency), IntStream.rangeClosed(urgency + 1, 50))
+                        .mapToObj(impact -> new PriorityInfo(Priority.get(urgency, impact))))
+                .flatMap(Function.identity()).toArray(PriorityInfo[]::new);
         Builder<PropertySpec> builder = ImmutableList.builder();
         EventTypes eventTypes = new EventTypes(getThesaurus(), DeviceAlarmEventDescription.values());
         builder.add(propertySpecService
@@ -153,7 +156,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         builder.add(
                 propertySpecService
                         .specForValuesOf(new PriorityInfoValueFactory())
-                        .named(PRIORITYSPEC, TranslationKeys.PRIORITYSPEC)
+                        .named(PRIORITY, TranslationKeys.PRIORITY)
                         .fromThesaurus(this.thesaurus)
                         .markRequired()
                         .markMultiValued(",")
@@ -263,7 +266,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
         @Override
         public String getName() {
-            return IssueCreationServiceImpl.PRIORITYSPEC;
+            return PRIORITY;
         }
     }
 

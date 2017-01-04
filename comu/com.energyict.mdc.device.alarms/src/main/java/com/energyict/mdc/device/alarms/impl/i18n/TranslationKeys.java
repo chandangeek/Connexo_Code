@@ -21,7 +21,7 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_CLOSE_ISSUE("alarm.action.closeAlarm", "Close alarm"),
     ALARM_REASON(ModuleConstants.ALARM_REASON, "Alarm reason"),
     ALARM_REASON_DESCRIPTION(ModuleConstants.ALARM_REASON_DESCRIPTION, "Alarm reason Description"),
-    PRIORITYSPEC("PrioritySpec", "Priority Property Specifications");
+    PRIORITY(BasicDeviceAlarmRuleTemplate.PRIORITY, "Priority");
     //TODO - update list
 ;
     private final String key;
