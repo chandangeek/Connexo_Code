@@ -4,6 +4,7 @@ import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
@@ -29,8 +30,8 @@ import java.util.List;
  */
 public class ACE4000MBus extends ACE4000Outbound {
 
-    public ACE4000MBus(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory);
+    public ACE4000MBus(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor) {
+        super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor);
     }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {

@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -82,13 +83,15 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private final IssueFactory issueFactory;
     private final NlsService nlsService;
     private final Converter converter;
+    private final TariffCalendarExtractor calendarExtractor;
 
-    public ACE4000Outbound(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public ACE4000Outbound(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor) {
         super(propertySpecService);
         this.nlsService = nlsService;
         this.converter = converter;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.calendarExtractor = calendarExtractor;
     }
 
     @Override
@@ -406,7 +409,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     public ACE4000Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new ACE4000Messaging(this, collectedDataFactory, issueFactory, this.getPropertySpecService(), this.nlsService, this.converter);
+            this.messageProtocol = new ACE4000Messaging(this, collectedDataFactory, issueFactory, this.getPropertySpecService(), this.nlsService, this.converter, calendarExtractor);
         }
         return messageProtocol;
     }

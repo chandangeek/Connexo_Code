@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.common.objectserialization.codetable.objects;
 
-import com.energyict.mdw.core.CodeDayType;
-import com.energyict.mdw.core.CodeDayTypeDef;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -42,18 +43,11 @@ public class CodeDayTypeObject implements Serializable {
     private String externalName;
     private List<CodeDayTypeDefObject> dayTypeDefs = new ArrayList<CodeDayTypeDefObject>();
 
-    public static CodeDayTypeObject fromCodeDayType(CodeDayType dayType) {
+    public static CodeDayTypeObject fromCodeDayType(TariffCalendarExtractor.CalendarDayType dayType) {
         CodeDayTypeObject dt = new CodeDayTypeObject();
-        dt.setId(dayType.getId());
-        dt.setName(dayType.getName());
-        dt.setExternalName(dayType.getExternalName());
-        dt.setDayTypeDefs(new ArrayList<CodeDayTypeDefObject>());
-        List definitions = dayType.getDefinitions();
-        for (Object definition : definitions) {
-            if (definition instanceof CodeDayTypeDef) {
-                dt.getDayTypeDefs().add(CodeDayTypeDefObject.fromCodeDayTypeDef((CodeDayTypeDef) definition));
-            }
-        }
+        dt.setId(Integer.parseInt(dayType.id()));
+        dt.setName(dayType.name());
+        dt.setDayTypeDefs(dayType.slices().stream().map(CodeDayTypeDefObject::fromCodeDayTypeDef).collect(Collectors.toList()));
         return dt;
     }
 

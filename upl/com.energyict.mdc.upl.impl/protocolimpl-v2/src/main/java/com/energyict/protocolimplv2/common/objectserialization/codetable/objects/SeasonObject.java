@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.common.objectserialization.codetable.objects;
 
-import com.energyict.mdw.core.Season;
-import com.energyict.mdw.core.SeasonTransition;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -22,16 +22,12 @@ public class SeasonObject implements Serializable {
     public SeasonObject() {
     }
 
-    public static SeasonObject fromSeason(Season season) {
-        SeasonObject so = new SeasonObject();
-        so.setId(season.getId());
-        so.setName(season.getName());
-        so.setTransitions(new ArrayList<SeasonTransitionObject>());
-        List<SeasonTransition> eis = season.getTransitions();
-        for (SeasonTransition trans : eis) {
-            so.getTransitions().add(SeasonTransitionObject.fromSeasonTransition(trans));
-        }
-        return so;
+    public static SeasonObject fromSeason(TariffCalendarExtractor.CalendarSeason uplSeason) {
+        SeasonObject season = new SeasonObject();
+        season.setId(Integer.parseInt(uplSeason.id()));
+        season.setName(uplSeason.name());
+        season.setTransitions(uplSeason.transistions().stream().map(SeasonTransitionObject::fromSeasonTransition).collect(Collectors.toList()));
+        return season;
     }
 
     public List<SeasonTransitionObject> getTransitions() {

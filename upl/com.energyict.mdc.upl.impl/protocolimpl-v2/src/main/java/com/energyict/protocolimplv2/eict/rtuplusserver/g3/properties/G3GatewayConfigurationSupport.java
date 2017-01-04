@@ -72,7 +72,7 @@ public class G3GatewayConfigurationSupport {
 
     private PropertySpec forcedDelayPropertySpec() {
         return this.durationPropertySpecBuilder(FORCED_DELAY)
-                .setDefaultValue(Duration.ofMillis(DEFAULT_FORCED_DELAY.longValue()))
+                .setDefaultValue(DEFAULT_FORCED_DELAY)
                 .finish();
     }
 

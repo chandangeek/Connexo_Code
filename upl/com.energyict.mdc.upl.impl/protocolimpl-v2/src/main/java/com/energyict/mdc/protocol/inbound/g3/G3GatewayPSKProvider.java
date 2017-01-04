@@ -2,9 +2,7 @@ package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
-import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
@@ -14,6 +12,7 @@ import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
@@ -35,16 +34,14 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.google.common.collect.Range;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -100,18 +97,15 @@ public class G3GatewayPSKProvider {
         } catch (CommunicationException e) {
             communicationError("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.");
             throw e;
+        } catch (PropertyValidationException e) {
+            communicationError("Unexpected property validation exception occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.");
+            throw CommunicationException.protocolConnectFailed(e);
         }
 
         if (joiningMacAddresses.isEmpty()) {
             context.getLogger().info(() -> "Successfully provided PSKs for all joining nodes, releasing the association and closing the TCP connection.");
         } else {
-            StringBuilder notJoinedMacAddresses = new StringBuilder();
-            Iterator it = joiningMacAddresses.iterator();
-            while(it.hasNext()){
-                notJoinedMacAddresses.append(it.next());
-                notJoinedMacAddresses.append(", ");
-            }
-            context.getLogger().info(() -> "Unable to provide PSKs for following joining nodes: "+ notJoinedMacAddresses +" the association will be released.");
+            context.getLogger().info(() -> "Unable to provide PSKs for following joining nodes: " + joiningMacAddresses.stream().collect(Collectors.joining(", ")) + " the association will be released.");
         }
         closeConnection();
     }
@@ -173,7 +167,7 @@ public class G3GatewayPSKProvider {
      * Lazy initialization.
      * No need to associate again to the Beacon if the protocol instance already exists.
      */
-    private DeviceProtocol getGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) {
+    private DeviceProtocol getGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) throws PropertyValidationException {
         if (gatewayProtocol == null) {
             gatewayProtocol = initializeGatewayProtocol(securityPropertySet);
         }
@@ -184,7 +178,7 @@ public class G3GatewayPSKProvider {
      * Create a protocol instance that will setup a DLMS session to the RTU+Server
      * JUnit test overrides this
      */
-    protected DeviceProtocol initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) {
+    protected DeviceProtocol initializeGatewayProtocol(DeviceProtocolSecurityPropertySet securityPropertySet) throws PropertyValidationException {
         DeviceProtocol gatewayProtocol = newGatewayProtocol();
         final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
         TypedProperties protocolProperties = deviceProtocolProperties == null ? com.energyict.protocolimpl.properties.TypedProperties.empty() : deviceProtocolProperties;
@@ -214,12 +208,7 @@ public class G3GatewayPSKProvider {
      */
     private void addDefaultValuesIfNecessary(DeviceProtocol gatewayProtocol, TypedProperties dialectProperties) {
         DeviceProtocolDialect theActualDialect = gatewayProtocol.getDeviceProtocolDialects().get(0);
-        for (PropertySpec propertySpec : theActualDialect.getOptionalProperties()) {
-            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
-                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
-            }
-        }
-        for (PropertySpec propertySpec : theActualDialect.getRequiredProperties()) {
+        for (PropertySpec propertySpec : theActualDialect.getPropertySpecs()) {
             if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
                 dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
             }
@@ -234,12 +223,9 @@ public class G3GatewayPSKProvider {
             context.getLogger().info(() -> "Setting up a new TLS connection to Beacon device '" + getDeviceIdentifier().toString() + "', to provide the PSK key(s)");
         }
         context.getLogger().info(() -> "Setting up a new outbound TCP connection to Beacon device '" + getDeviceIdentifier().toString() + "', to provide the PSK key(s)");
-        List<ConnectionTaskProperty> connectionTaskProperties = toPropertySpecs(new Date(), connectionProperties);
 
         try {
-            InboundComPort comPort = context.getComPort();         //Note that this is indeed the INBOUND comport, it is only used for logging purposes in the ComChannel
-            tcpComChannel = tlsConnection ? new TLSConnectionType().connect(comPort, connectionTaskProperties) :
-                    new OutboundTcpIpConnectionType().connect(comPort, connectionTaskProperties);
+            tcpComChannel = tlsConnection ? new TLSConnectionType().connect() : new OutboundTcpIpConnectionType().connect();
         } catch (ConnectionException e) {
             throw ConnectionSetupException.connectionSetupFailed(e);
         }
@@ -333,11 +319,4 @@ public class G3GatewayPSKProvider {
         }
     }
 
-    private List<ConnectionTaskProperty> toPropertySpecs(Date now, TypedProperties typedProperties) {
-        List<ConnectionTaskProperty> properties = new ArrayList<>();
-        for (String propertyName : typedProperties.propertyNames()) {
-            properties.add(new ConnectionTaskPropertyPlaceHolder(propertyName, typedProperties.getProperty(propertyName), Range.atLeast(now.toInstant())));
-        }
-        return properties;
-    }
 }

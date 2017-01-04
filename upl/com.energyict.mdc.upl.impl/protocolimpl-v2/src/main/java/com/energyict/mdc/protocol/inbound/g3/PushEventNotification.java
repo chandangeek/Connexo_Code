@@ -6,10 +6,11 @@ import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.CommunicationException;
 
@@ -170,18 +171,13 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setProperties(TypedProperties properties) throws PropertyValidationException {
         //No properties
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
     }
 
     @Override

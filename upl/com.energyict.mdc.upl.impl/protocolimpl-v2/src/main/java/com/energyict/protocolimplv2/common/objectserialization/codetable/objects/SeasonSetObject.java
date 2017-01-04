@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.common.objectserialization.codetable.objects;
 
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.Season;
-import com.energyict.mdw.core.SeasonSet;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -20,19 +20,14 @@ public class SeasonSetObject implements Serializable {
     private List<SeasonObject> seasons;
 
     public SeasonSetObject() {
-
     }
 
-    public static SeasonSetObject fromSeasonSet(SeasonSet seasonSet) {
-        SeasonSetObject ss = new SeasonSetObject();
-        ss.setId(seasonSet.getId());
-        ss.setName(seasonSet.getName());
-        List<Season> eiserverSeasons = seasonSet.getSeasons();
-        ss.setSeasons(new ArrayList<SeasonObject>());
-        for (Season eis : eiserverSeasons) {
-            ss.getSeasons().add(SeasonObject.fromSeason(eis));
-        }
-        return ss;
+    public static SeasonSetObject fromSeasonSet(TariffCalendarExtractor.CalendarSeasonSet uplSeasonSet) {
+        SeasonSetObject seasonSet = new SeasonSetObject();
+        seasonSet.setId(Integer.parseInt(uplSeasonSet.id()));
+        seasonSet.setName(uplSeasonSet.name());
+        seasonSet.setSeasons(uplSeasonSet.seasons().stream().map(SeasonObject::fromSeason).collect(Collectors.toList()));
+        return seasonSet;
     }
 
     public int getId() {

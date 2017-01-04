@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.common.objectserialization.codetable.objects;
 
-import com.energyict.mdw.core.CodeDayTypeDef;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 import java.io.Serializable;
+import java.time.LocalTime;
 
 /**
  * Copyrights EnergyICT
@@ -16,12 +17,13 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
     private int from;
     private int codeValue;
 
-    public static CodeDayTypeDefObject fromCodeDayTypeDef(CodeDayTypeDef def) {
+    public static CodeDayTypeDefObject fromCodeDayTypeDef(TariffCalendarExtractor.CalendarDayTypeSlice slice) {
         CodeDayTypeDefObject dtd = new CodeDayTypeDefObject();
-        dtd.setCodeValue(def.getCodeValue());
-        dtd.setFrom(def.getTstampFrom());
-        dtd.setDayTypeId(def.getDayType().getId());
-        dtd.setDayTypeName(def.getDayType().getName());
+        dtd.setCodeValue(Integer.parseInt(slice.tariffCode()));
+        LocalTime start = slice.start();
+        dtd.setFrom(start.getHour() * 10000 + start.getMinute() * 100 + start.getSecond());
+        dtd.setDayTypeId(Integer.parseInt(slice.dayTypeId()));
+        dtd.setDayTypeName(slice.dayTypeName());
         return dtd;
     }
 

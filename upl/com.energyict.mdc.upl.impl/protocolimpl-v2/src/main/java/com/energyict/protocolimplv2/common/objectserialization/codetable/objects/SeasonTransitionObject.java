@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.common.objectserialization.codetable.objects;
 
-import com.energyict.mdw.core.SeasonTransition;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 import java.io.Serializable;
 import java.util.Calendar;
@@ -18,14 +18,13 @@ public class SeasonTransitionObject implements Serializable {
     private Date startDate;
 
     public SeasonTransitionObject() {
-
     }
 
-    public static SeasonTransitionObject fromSeasonTransition(SeasonTransition trans) {
+    public static SeasonTransitionObject fromSeasonTransition(TariffCalendarExtractor.CalendarSeasonTransition transition) {
         SeasonTransitionObject sto = new SeasonTransitionObject();
-        sto.setSeasonId(trans.getSeasonId());
-        sto.setSeasonName(trans.getSeason().getName());
-        sto.setStartDate(trans.getStartDate() != null ? new Date(trans.getStartDate().getTime()) : null);
+        sto.setSeasonId(0);
+        sto.setSeasonName(null);
+        sto.setStartDate(transition.start().map(Date::from).orElse(null));
         return sto;
     }
 

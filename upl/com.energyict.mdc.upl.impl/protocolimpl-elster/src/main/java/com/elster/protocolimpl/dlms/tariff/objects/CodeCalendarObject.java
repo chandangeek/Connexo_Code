@@ -41,6 +41,7 @@ public class CodeCalendarObject implements Serializable {
 
     public static CodeCalendarObject fromCodeCalendar(TariffCalendarExtractor.CalendarRule rule) {
         CodeCalendarObject cc = new CodeCalendarObject();
+        cc.setCodeId(Integer.parseInt(rule.calendarId()));
         cc.setDayTypeName(rule.dayTypeName());
         cc.setYear(rule.year());
         cc.setMonth(rule.month());
