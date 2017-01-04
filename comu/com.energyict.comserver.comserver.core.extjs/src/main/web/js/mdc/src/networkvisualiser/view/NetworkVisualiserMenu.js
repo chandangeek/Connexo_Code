@@ -102,7 +102,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                     me.addLayer(me.showDeviceType);
                     break;
                 case "2":
-                    me.addLayer(me.showAlarms);
+                    me.addLayer(me.showIssuesAndAlarms);
                     break;
                 case "3":
                     deviceTypeCheckBox.setDisabled(true);
@@ -115,6 +115,9 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserMenu', {
                 case "5":
                     deviceTypeCheckBox.setDisabled(true);
                     hopsCheckBox.setDisabled(true);
+                    break;
+                case "6":
+                    me.addLayer(me.showCommunicationStatus);
                     break;
             }
         });

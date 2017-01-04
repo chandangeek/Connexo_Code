@@ -13,24 +13,27 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             }
         }
     ],
-
+    propertyViewerTitle: Uni.I18n.translate('general.deviceSummary', 'UNI', 'Device summary'),
 
     initComponent: function () {
         this.callParent();
     },
 
     showLinkQuality: function(){
-        var me = this,
-            linkColors = ['#FF0000','#CC3300','#996600','#669900','#33CC00'];
+        var me = this;
 
         me.forEachLink(function(link){
             return {
                 id: link.id,
-                w: link.d.linkQuality*2,
-                c: linkColors[link.d.linkQuality-1],
-                t: link.d.linkQuality
+                w: 2,
+                c: link.d.linkQuality <= 51 ? me.badLinkQualityColor : me.goodLinkQualityColor
             };
-        })
+        });
+
+        var icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+me.badLinkQualityColor+'"></span>';
+        me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.bad', 'MDC', 'Link quality <= 51'));
+        icon = '<span class="'+me.linkIcon+'" style="display:inline-block; font-size:16px; color:'+me.goodLinkQualityColor+'"></span>';
+        me.addLegendItem(icon, Uni.I18n.translate('legend.link.quality.good', 'MDC', 'Link quality > 51'));
     },
 
     showDeviceType: function(){
@@ -41,31 +44,30 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
 
         me.forEachNode(function(node){
             if(node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway){
-                icon = KeyLines.getFontIcon('icon-diamond4');
+                icon = KeyLines.getFontIcon(me.gatewayIcon);
             } else {
-                icon = KeyLines.getFontIcon('icon-circle2');
+                icon = KeyLines.getFontIcon(me.deviceIcon);
             }
-            if (Ext.isEmpty(deviceTypeColors[node.d.type])) {
-                deviceTypeColors[node.d.type] = me.colors[colorIndex++];
+            if (Ext.isEmpty(deviceTypeColors[node.d.deviceType])) {
+                deviceTypeColors[node.d.deviceType] = me.colors[colorIndex++];
             }
             return {
-                        id: node.id,
-                        b: null,
-                        fi: {
-                            //c: '#8e8e8e',
-                            c: deviceTypeColors[node.d.type],
-                            t: icon
-                        }
+                id: node.id,
+                b: null,
+                fi: {
+                    c: deviceTypeColors[node.d.deviceType],
+                    t: icon
+                }
             }
         });
 
-        for (type in deviceTypeColors) {
+        for (var type in deviceTypeColors) {
             icon = '<span class="'+me.deviceIcon+'" style="display:inline-block; font-size:16px; color:'+deviceTypeColors[type]+'"></span>';
             me.addLegendItem(icon, type);
         }
     },
 
-    showAlarms: function(){
+    showIssuesAndAlarms: function(){
         var me = this,
             glyphs;
 
@@ -104,39 +106,131 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                 return {
                     id: node.id,
                     g: glyphs
-                    // No halo for the Issues/Alarms layer
-                    //ha0: {
-                    //    c: me.issueAlarmColor,
-                    //    r: 50,
-                    //    w: 3
-                    //}
                 };
             }
         });
+
+        var icon = '<span class="'+me.issueAlarmIcon+'" style="display:inline-block; margin-bottom: 22px; font-size:16px; color:'+me.issueAlarmColor+'"></span>';
+        me.addLegendItem(icon, Uni.I18n.translate('legend.alarms', 'MDC', '# Alarms'));
+        icon = '</sub><span class="'+me.issueAlarmIcon+'" style="display:inline-block; margin-top: 7px; font-size:16px; color:'+me.issueAlarmColor+'"></span>';
+        me.addLegendItem(icon, Uni.I18n.translate('legend.issues', 'MDC', '# Issues'));
     },
 
     showHopLevel: function(){
         var me = this,
-            graphDistances = me.chart.graph().distances(this.top),
-            hopColors = {},
+            hopLevelsByNodeIds = me.chart.graph().distances(this.top),
             hopLevel,
-            labels = Object.keys(graphDistances).map(function(key) {
-                hopLevel = graphDistances[key];
-                if (Ext.isEmpty(hopColors[hopLevel])) {
-                    hopColors[hopLevel] = me.colors[hopLevel];
-                }
-                return {
-                    id: key,
-                    c: me.colors[hopLevel]
-                };
-            }),
+            hopLevelColors = {},
             icon;
 
-        me.chart.setProperties(labels);
+        // Determine the hopLevelColors
+        Ext.Array.each(Object.keys(hopLevelsByNodeIds), function(nodeId) {
+            hopLevel = hopLevelsByNodeIds[nodeId];
+            if (Ext.isEmpty(hopLevelColors[hopLevel])) {
+                hopLevelColors[hopLevel] = me.colors[hopLevel];
+            }
+        });
 
-        for (hopLevel in hopColors) {
-            icon = '<span class="'+ me.hopLevelIcon +'" style="display:inline-block; font-size:20px; color:'+hopColors[hopLevel]+'"></span>';
-            me.addLegendItem(icon, hopLevel);
+        me.forEachNode(function(node){
+            if(node.d && !Ext.isEmpty(node.d.gateway) && node.d.gateway){
+                icon = KeyLines.getFontIcon(me.gatewayIcon);
+            } else {
+                icon = KeyLines.getFontIcon(me.deviceIcon);
+            }
+            return {
+                id: node.id,
+                b: null,
+                fi: {
+                    c: hopLevelColors[hopLevelsByNodeIds[node.id]],
+                    t: icon
+                }
+            }
+        });
+
+        for (hopLevel in hopLevelColors) {
+            icon = '<span class="'+me.deviceIcon+'" style="display:inline-block; font-size:16px; color:'+hopLevelColors[hopLevel]+'"></span>';
+            me.addLegendItem(icon, Uni.I18n.translatePlural('legend.hop.level', Number(hopLevel), 'MDC', 'No hops', '{0} hop', '{0} hops'));
         }
+    },
+
+    showCommunicationStatus: function() {
+        var me = this;
+
+        me.forEachNode(function(node){
+            if (!Ext.isEmpty(node.d.failedComTasks)) {
+                return {
+                    id: node.id,
+                    ha0: {
+                        c: me.failedCommunicationStatusColor,
+                        r: 34,
+                        w: 3
+                    }
+                };
+            }
+        });
+
+        var icon = '<span class="'+me.failedCommunicationIcon+'" style="display:inline-block; font-size:16px; color:'+me.failedCommunicationStatusColor+'"></span>';
+        me.addLegendItem(icon, Uni.I18n.translate('legend.failingComTasks', 'MDC', 'Failed communication tasks'));
+    },
+
+    displayNodeProperties: function(id){
+        var graphData = this.chart.getItem(id).d,
+            propertiesToDisplay = {};
+
+        // 1. Prepare the properties to display (in the right format)
+        for (var property in graphData) {
+            if (graphData.hasOwnProperty(property)) {
+                var fieldLabel = undefined,
+                    htmlEncode = true,
+                    graphDataPropertyValue = graphData[property];
+                switch(property) {
+                    case 'name':
+                        fieldLabel = Uni.I18n.translate('general.name', 'UNI', 'Name');
+                        break;
+                    case 'deviceType':
+                        fieldLabel = Uni.I18n.translate('general.deviceType', 'UNI', 'Device type');
+                        break;
+                    case 'deviceConfiguration':
+                        fieldLabel = Uni.I18n.translate('general.deviceConfiguration', 'UNI', 'Device configuration');
+                        break;
+                    case 'serialNumber':
+                        fieldLabel = Uni.I18n.translate('general.serialNumber', 'UNI', 'Serial number');
+                        break;
+                    case 'alarms':
+                        fieldLabel = Uni.I18n.translate('general.alarms', 'UNI', 'Alarms');
+                        if (graphDataPropertyValue === 0) {
+                            graphDataPropertyValue = '-';
+                        }
+                        break;
+                    case 'failedComTasks':
+                        fieldLabel = Uni.I18n.translate('general.failedCommunicationTasks', 'UNI', 'Failed communication tasks');
+                        if (Ext.isArray(graphDataPropertyValue)) {
+                            if (graphDataPropertyValue.length > 1) {
+                                var formattedResult = '';
+                                Ext.Array.each(graphDataPropertyValue, function (value) {
+                                    formattedResult += (value + '</br>');
+                                });
+                                graphDataPropertyValue = formattedResult;
+                                htmlEncode = false;
+                            } else {
+                                graphDataPropertyValue = graphDataPropertyValue[0];
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                if (!Ext.isEmpty(fieldLabel)) {
+                    propertiesToDisplay[fieldLabel] = {
+                        value: graphDataPropertyValue,
+                        htmlEncode: htmlEncode
+                    };
+                }
+            }
+        }
+
+        // 2. Display them
+        Ext.ComponentQuery.query('#uni-property-viewer')[0].displayProperties(propertiesToDisplay);
     }
+
 });
