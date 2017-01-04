@@ -36,7 +36,16 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
                 text: Uni.I18n.translate('deviceconfiguration.deviceAttributes.editAttributes', 'MDC', 'Edit attributes'),
                 section: me.SECTION_EDIT
             },
-            changeConfigItem
+            changeConfigItem,
+            {
+                itemId: 'mdc-show-device-network',
+                // privileges: Mdc.privileges.Device.editDeviceAttributes,
+                handler: function() {
+                    me.router.getRoute('devices/device/network').forward();
+                },
+                text: Uni.I18n.translate('general.showNetwork', 'MDC', 'Show network'),
+                section: me.SECTION_VIEW
+            }
         ];
 
         me.actionsStore.each(function(item) {

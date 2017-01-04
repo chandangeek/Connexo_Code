@@ -290,6 +290,13 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Mdc.privileges.Device.administrateDeviceData,
                             action: 'showChangeDeviceConfigurationView'
                         },
+                        network: {
+                            title: Uni.I18n.translate('general.network', 'MDC', 'Network'),
+                            route: 'network',
+                            controller: 'Mdc.networkvisualiser.controller.NetworkVisualiser',
+                            // privileges: Mdc.privileges.Device.administrateDevice,
+                            action: 'showNetwork'
+                        },
                         connectionmethods: {
                             title: Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'),
                             route: 'connectionmethods',

@@ -7,7 +7,8 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
 
     ],
     stores: [
-        'Uni.graphvisualiser.store.GraphStore'
+        'Uni.graphvisualiser.store.GraphStore',
+        'Mdc.networkvisualiser.store.NetworkNodes'
     ],
     views: [
         'Mdc.networkvisualiser.view.NetworkVisualiserView'
@@ -18,10 +19,18 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
 
     showVisualiser: function(){
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            widget;
-        widget = Ext.widget('visualiserpanel');
+            widget = Ext.widget('visualiserpanel');
         widget.store = Ext.getStore('Uni.graphvisualiser.store.GraphStore');
         me.getApplication().fireEvent('changecontentevent', widget);
+    },
+
+    showNetwork: function(deviceId) {
+        var me = this,
+            widget = Ext.widget('visualiserpanel');
+        widget.store = Ext.getStore('Mdc.networkvisualiser.store.NetworkNodes');
+        widget.store.getProxy().setUrl(deviceId);
+        widget.store.load(function() {
+            me.getApplication().fireEvent('changecontentevent', widget);
+        });
     }
 });
