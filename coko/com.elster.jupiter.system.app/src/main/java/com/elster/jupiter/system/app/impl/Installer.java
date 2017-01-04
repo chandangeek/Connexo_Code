@@ -36,7 +36,7 @@ final class Installer implements FullInstaller, Upgrader {
 
     private void grantPrivileges() {
         String[] adminPrivileges = userAdminPrivileges();
-        userService.grantGroupWithPrivilege(UserService.USER_ADMIN_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
         userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, SysAppService.APPLICATION_KEY, adminPrivileges);
         userService.grantGroupWithPrivilege(UserService.DEFAULT_INSTALLER_ROLE, SysAppService.APPLICATION_KEY, installerPrivileges());
         userService.grantGroupWithPrivilege(UserService.SYSTEM_ADMIN_ROLE, SysAppService.APPLICATION_KEY, getAdminPrivileges());
