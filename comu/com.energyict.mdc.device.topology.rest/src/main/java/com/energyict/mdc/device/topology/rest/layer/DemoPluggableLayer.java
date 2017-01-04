@@ -23,7 +23,7 @@ public class DemoPluggableLayer extends AbstractGraphLayer {
 
     public DemoPluggableLayer(){
         super();
-        setProperty("is Demo", ""+Boolean.TRUE);
+        setProperty("usagePoint", "The device's usagepoint name");
     }
 
     @Override

@@ -1,15 +1,11 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
-
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * GraphLayer - Link quality properties
@@ -19,28 +15,33 @@ import java.util.stream.Collectors;
  */
 public class LinkQualityLayer extends AbstractGraphLayer {
 
-    private final static String NAME = PropertyNames.LINK_QUALITY.key;
+    private final static String NAME = "topology.GraphLayer.Links.linkQuality";
 
     public enum PropertyNames implements TranslationKey{
-        LINK_QUALITY("topology.GraphLayer.Links.linkQuality", "linkQuality");
+        LINK_QUALITY("linkQuality", "link Quality");
 
-        private String key;
+        private String propertyName;
         private String defaultFormat;
 
-        PropertyNames(String key, String defaultFormat){
-            this.key = key;
+        PropertyNames(String propertyName, String defaultFormat){
+            this.propertyName = propertyName;
             this.defaultFormat = defaultFormat;
         }
 
         @Override
         public String getKey() {
-            return key;
+            return NAME + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
+        }
+
+        public String getPropertyName(){
+            return propertyName;
         }
 
         @Override
         public String getDefaultFormat() {
             return defaultFormat;
         }
+
     }
 
     public LinkQualityLayer(){}
@@ -61,7 +62,7 @@ public class LinkQualityLayer extends AbstractGraphLayer {
     }
 
     public void setLinkQuality(int quality){
-        this.setProperty(PropertyNames.LINK_QUALITY.getDefaultFormat(), "" + quality);
+        this.setProperty(PropertyNames.LINK_QUALITY.getPropertyName(), "" + quality);
     }
 
     @Override

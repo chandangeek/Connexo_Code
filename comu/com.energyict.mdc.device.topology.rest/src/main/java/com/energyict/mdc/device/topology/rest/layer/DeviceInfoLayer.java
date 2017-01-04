@@ -18,22 +18,26 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
     private final static String NAME = "topology.graphLayer.deviceInfo";
 
     public enum PropertyNames implements TranslationKey {
-        DEVICE_NAME(NAME + "node.name", "Name"),
-        DEVICE_SERIAL(NAME + "node.serialNumber", "Serial number"),
-        DEVICE_TYPE(NAME + "node.deviceType", "Device type"),
-        DEVICE_CONFIGURATION(NAME + "node.deviceConfiguration", "Device configuration");
+        DEVICE_NAME("name", "Name"),
+        DEVICE_SERIAL("serialNumber", "Serial number"),
+        DEVICE_TYPE("deviceType", "Device type"),
+        DEVICE_CONFIGURATION("deviceConfiguration", "Device configuration");
 
-        private String key;
+        private String propertyName;
         private String defaultFormat;
 
-        PropertyNames(String key, String defaultFormat){
-            this.key = key;
+        PropertyNames(String propertyName, String defaultFormat){
+            this.propertyName = propertyName;
             this.defaultFormat = defaultFormat;
         }
 
         @Override
         public String getKey() {
-            return key;
+            return NAME + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
+        }
+
+        public String getPropertyName(){
+            return propertyName;
         }
 
         @Override
@@ -61,19 +65,19 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
     }
 
     public void setDeviceName(String name){
-        setProperty(PropertyNames.DEVICE_NAME.getDefaultFormat(), name);
+        setProperty(PropertyNames.DEVICE_NAME.getPropertyName(), name);
     }
 
     public void setDeviceType(String deviceTypeName){
-        setProperty(PropertyNames.DEVICE_TYPE.getDefaultFormat(), deviceTypeName);
+        setProperty(PropertyNames.DEVICE_TYPE.getPropertyName(), deviceTypeName);
     }
 
     public void setSerialNumber(String serialNumber){
-        setProperty(PropertyNames.DEVICE_SERIAL.getDefaultFormat(), serialNumber);
+        setProperty(PropertyNames.DEVICE_SERIAL.getPropertyName(), serialNumber);
     }
 
     public void setDeviceConfiguration(String deviceConfigurationName){
-        setProperty(PropertyNames.DEVICE_CONFIGURATION.getDefaultFormat(), deviceConfigurationName);
+        setProperty(PropertyNames.DEVICE_CONFIGURATION.getPropertyName(), deviceConfigurationName);
     }
 
     @Override

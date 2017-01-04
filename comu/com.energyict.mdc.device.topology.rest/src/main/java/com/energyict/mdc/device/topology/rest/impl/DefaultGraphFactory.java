@@ -14,6 +14,7 @@ import com.google.common.collect.Range;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -47,8 +48,7 @@ public class DefaultGraphFactory implements GraphFactory{
     }
 
     public GraphInfo from(DeviceTopology deviceTopology){
-        final NodeInfo rootNode = new NodeInfo(deviceTopology.getRoot());
-        graphLayerService.getGraphLayers().stream().forEach(rootNode::addLayer);
+        final NodeInfo rootNode = newNode(deviceTopology.getRoot(), Optional.empty());
 
         GraphInfo graphInfo = new GraphInfo();
         graphInfo.setRootNode(rootNode);
@@ -66,15 +66,19 @@ public class DefaultGraphFactory implements GraphFactory{
         NodeInfo root = nodeInfo;
         List<Device> intermediates = new ArrayList<>(topologyService.getCommunicationPath(gateway, device).getIntermediateDevices());
         while (!intermediates.isEmpty()) {
-            final NodeInfo child = new NodeInfo(intermediates.get(0));
-            graphLayerService.getGraphLayers().stream().forEach(child::addLayer);
-            root.addChild(child);
-            root = child;
+            root = newNode(intermediates.get(0), Optional.of(root));
             intermediates.remove(0);
         }
-        final NodeInfo leaf = new NodeInfo(device);
-        graphLayerService.getGraphLayers().stream().forEach(leaf::addLayer);
-        root.addChild(new NodeInfo(device));
+        newNode(device, Optional.of(root));
+    }
+
+    private NodeInfo newNode(Device device, Optional<NodeInfo> parent){
+        final NodeInfo node = new NodeInfo(device);
+        graphLayerService.getGraphLayers().stream().forEach(node::addLayer);
+        if (parent.isPresent()){
+            parent.get().addChild(node);
+        }
+        return node;
     }
 
 }

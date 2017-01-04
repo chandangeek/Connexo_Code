@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.topology.graph", service = {Application.class}, immediate = true, property = {"alias=/dtg", "app="+TopologyGraphApplication.APP_KEY, "name=" + TopologyGraphApplication.COMPONENT_NAME})
-public class TopologyGraphApplication extends Application implements TranslationKeyProvider,MessageSeedProvider {
+public class TopologyGraphApplication extends Application implements MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DTG";
@@ -88,18 +88,6 @@ public class TopologyGraphApplication extends Application implements Translation
     @Override
     public Layer getLayer() {
         return Layer.REST;
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>(Arrays.asList(LinkQualityLayer.PropertyNames.values()));
-
-        return keys;
     }
 
     @Override
