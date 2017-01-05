@@ -509,7 +509,7 @@ public class TableImpl<T> implements Table<T> {
         this.encrypter = Objects.requireNonNull(encrypter);
         return column("MAC")
                 .varChar(4000)
-                .notNull()
+//                .notNull()
                 .map(Column.MACFIELDNAME)
                 .add();
     }
