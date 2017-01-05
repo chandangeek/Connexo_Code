@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -164,13 +165,13 @@ public class IssueCreationServiceImplTest extends BaseTest {
         List<CreationRuleProperty> properties = rule.getCreationRuleProperties();
 
         assertThat(properties).hasSize(2);
-        assertThat(properties.get(0).getName()).isEqualTo(STRING_PROPERTY_NAME);
-        assertThat(properties.get(0).getValue()).isEqualTo("string");
-        assertThat(properties.get(1).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
-        assertThat(properties.get(1).getValue()).isEqualTo(BigDecimal.valueOf(10));
+        assertThat(properties.get(0).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
+        assertThat(properties.get(0).getValue()).isEqualTo(BigDecimal.valueOf(10));
+        assertThat(properties.get(1).getName()).isEqualTo(STRING_PROPERTY_NAME);
+        assertThat(properties.get(1).getValue()).isEqualTo("string");
 
         //update both properties
-        Map<String, Object> props = new HashMap<>();
+        Map<String, Object> props = new LinkedHashMap<>();
         props.put(STRING_PROPERTY_NAME, "new string");
         props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(12));
         rule.startUpdate().setProperties(props).complete();
@@ -184,7 +185,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(properties.get(1).getValue()).isEqualTo(BigDecimal.valueOf(12));
 
         //update one property and remove another one
-        props = new HashMap<>();
+        props = new LinkedHashMap<>();
         props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(15));
 
         rule.startUpdate().setProperties(props).complete();
@@ -196,7 +197,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(properties.get(0).getValue()).isEqualTo(BigDecimal.valueOf(15));
 
         //add property
-        props = new HashMap<>();
+        props = new LinkedHashMap<>();
         props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(17));
         props.put(STRING_PROPERTY_NAME, "string again");
 
@@ -205,10 +206,11 @@ public class IssueCreationServiceImplTest extends BaseTest {
         rule = getIssueCreationService().findCreationRuleById(rule.getId()).orElse(null);
         properties = rule.getCreationRuleProperties();
         assertThat(properties).hasSize(2);
-        assertThat(properties.get(0).getName()).isEqualTo(STRING_PROPERTY_NAME);
-        assertThat(properties.get(0).getValue()).isEqualTo("string again");
-        assertThat(properties.get(1).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
-        assertThat(properties.get(1).getValue()).isEqualTo(BigDecimal.valueOf(17));
+        assertThat(properties.get(0).getName()).isEqualTo(DECIMAL_PROPERTY_NAME);
+        assertThat(properties.get(0).getValue()).isEqualTo(BigDecimal.valueOf(17));
+        assertThat(properties.get(1).getName()).isEqualTo(STRING_PROPERTY_NAME);
+        assertThat(properties.get(1).getValue()).isEqualTo("string again");
+
     }
 
     @Test
@@ -486,7 +488,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         builder.setDueInTime(DueInType.DAY, 15L);
         builder.setTemplate(template.getName());
-        Map<String, Object> props = new HashMap<>();
+        Map<String, Object> props = new LinkedHashMap<>();
         props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10));
         props.put(STRING_PROPERTY_NAME, "string");
         builder.setProperties(props);

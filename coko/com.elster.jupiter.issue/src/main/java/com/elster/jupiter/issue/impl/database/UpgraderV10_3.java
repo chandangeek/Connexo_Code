@@ -76,8 +76,8 @@ public class UpgraderV10_3 implements Upgrader {
     }
 
     private void upgradeOpenIssue(Connection connection) {
-        String[] sqlStatements = {"ALTER TABLE ISU_ISSUE_HISTORY DROP COLUMN ASSIGNEE_TYPE",
-                "ALTER TABLE ISU_ISSUE_OPEN DROP COLUMN ASSIGNEE_TYPE"};
+        String[] sqlStatements = { "ALTER TABLE ISU_ISSUE_HISTORY DROP COLUMN ASSIGNEE_TYPE",
+        "ALTER TABLE ISU_ISSUE_OPEN DROP COLUMN ASSIGNEE_TYPE", "CREATE OR REPLACE VIEW ISU_ISSUE_ALL AS SELECT * FROM ISU_ISSUE_OPEN UNION SELECT * FROM ISU_ISSUE_HISTORY"};
         for (String sqlStatement : sqlStatements) {
             try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
                 statement.executeUpdate();
