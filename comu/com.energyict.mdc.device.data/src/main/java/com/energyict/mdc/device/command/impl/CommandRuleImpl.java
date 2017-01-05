@@ -245,6 +245,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         if (this.getId() > 0) {
             doUpdate();
         } else {
+            this.numberOfCommands = commands.size();
             doSave();
         }
         dataModel.touch(this);
