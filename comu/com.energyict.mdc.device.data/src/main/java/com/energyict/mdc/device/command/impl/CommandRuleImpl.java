@@ -242,10 +242,10 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     }
 
     public void save() {
-        this.numberOfCommands = commands.size();
         if (this.getId() > 0) {
             doUpdate();
         } else {
+            this.numberOfCommands = commands.size();
             doSave();
         }
         dataModel.touch(this);
@@ -336,6 +336,8 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
             weekLimit = commandRulePendingUpdate.getWeekLimit();
             monthLimit = commandRulePendingUpdate.getMonthLimit();
             active = commandRulePendingUpdate.isActive();
+            this.numberOfCommands = commandRulePendingUpdate.getCommands().stream().count();
+            this.save();
             this.commands.clear();
             commandRulePendingUpdate.getCommands()
                     .stream()
