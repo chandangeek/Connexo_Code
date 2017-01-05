@@ -82,7 +82,7 @@ Ext.define('Mdc.model.CommandLimitRule', {
                 if (data.monthLimit === 0) {
                     return Uni.I18n.translate('general.none', 'MDC', 'None');
                 } else if (!data.currentCounts) {
-                    return data.montLimit;
+                    return data.monthLimit;
                 } else {
                     var count = data.monthLimit,
                         icon,
