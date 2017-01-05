@@ -99,7 +99,7 @@ public class TransparentGateway extends AbstractGateway {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 
@@ -119,7 +119,7 @@ public class TransparentGateway extends AbstractGateway {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // Do nothing
     }
 
