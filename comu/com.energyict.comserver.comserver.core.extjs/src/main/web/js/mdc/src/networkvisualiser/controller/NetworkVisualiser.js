@@ -19,14 +19,16 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
 
     showVisualiser: function(){
         var me = this,
-            widget = Ext.widget('visualiserpanel');
+            widget = Ext.create('Mdc.networkvisualiser.view.NetworkVisualiserView');
+        widget.clearGraph();
         widget.store = Ext.getStore('Uni.graphvisualiser.store.GraphStore');
         me.getApplication().fireEvent('changecontentevent', widget);
     },
 
     showNetwork: function(deviceId) {
         var me = this,
-            widget = Ext.widget('visualiserpanel');
+            widget = Ext.create('Mdc.networkvisualiser.view.NetworkVisualiserView');
+        widget.clearGraph();
         widget.store = Ext.getStore('Mdc.networkvisualiser.store.NetworkNodes');
         widget.store.getProxy().setUrl(deviceId);
         widget.store.load(function() {

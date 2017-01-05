@@ -6,14 +6,26 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     ],
     itemId: 'visualiserpanel',
     menu: 'Mdc.networkvisualiser.view.NetworkVisualiserMenu',
-    //contextMenuItems: [
-    //    {
-    //        text: 'TestComponent',
-    //        handler: function(menuItem) {
-    //            menuItem.visualiser.showLinkQuality(menuItem.graphId);
-    //        }
-    //    }
-    //],
+    contextMenuItems: [
+        {
+            xtype: 'menuitem',
+            text: 'Navigate to device landing page',
+            section: 3, /*SECTION_VIEW*/
+            handler: function(menuItem) {
+                menuItem.visualiser.showNotYetImplementedMessage();
+                //menuItem.visualiser.showLinkQuality(menuItem.graphId);
+            }
+        },
+        {
+            xtype: 'menuitem',
+            text: 'Navigate to communication topology',
+            section: 3, /*SECTION_VIEW*/
+            handler: function(menuItem) {
+                menuItem.visualiser.showNotYetImplementedMessage();
+                //menuItem.visualiser.showLinkQuality(menuItem.graphId);
+            }
+        }
+    ],
     propertyViewerTitle: Uni.I18n.translate('general.deviceSummary', 'UNI', 'Device summary'),
 
     initComponent: function () {
@@ -26,7 +38,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
         me.forEachLink(function(link){
             return {
                 id: link.id,
-                w: 2,
+                w: 3,
                 c: link.d.linkQuality <= 51 ? me.badLinkQualityColor : me.goodLinkQualityColor
             };
         });
@@ -175,36 +187,58 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
     },
 
     displayNodeProperties: function(id){
-        var graphData = this.chart.getItem(id).d,
-            propertiesToDisplay = {};
+        var me = this,
+            graphData = this.chart.getItem(id).d,
+            propertiesToDisplay = {},
+            downStream = me.getDownStreamNodesLinks(id),
+            shortestPaths = me.chart.graph().shortestPaths(me.top[0], id, {direction: 'any'}),
+            parentIndex = shortestPaths.one.length-2,
+            orderOfProperties = [
+                'name',
+                'serialNumber',
+                'deviceType',
+                'deviceConfiguration',
+                'parent',
+                'hopLevel',
+                'descendants',
+                'alarms',
+                'issues',
+                'failedComTasks'
+            ],
+            fieldLabels = [
+                Uni.I18n.translate('general.name', 'UNI', 'Name'),
+                Uni.I18n.translate('general.serialNumber', 'UNI', 'Serial number'),
+                Uni.I18n.translate('general.deviceType', 'UNI', 'Device type'),
+                Uni.I18n.translate('general.deviceConfiguration', 'UNI', 'Device configuration'),
+                Uni.I18n.translate('general.parent', 'UNI', 'Parent'),
+                Uni.I18n.translate('general.numberOfHops', 'UNI', 'Number of hops'),
+                Uni.I18n.translate('general.totalDescendants', 'UNI', 'Total descendants'),
+                Uni.I18n.translate('general.alarms', 'UNI', 'Alarms'),
+                Uni.I18n.translate('general.issues', 'UNI', 'Issues'),
+                Uni.I18n.translate('general.failedCommunicationTasks', 'UNI', 'Failed communication tasks')
+            ];
 
         // 1. Prepare the properties to display (in the right format)
+        graphData.parent = parentIndex<0 ? '-' : this.chart.getItem(shortestPaths.one[parentIndex]).d.name;
+        graphData.hopLevel = shortestPaths.one.length-1;
+        graphData.descendants = downStream.nodes.length;
+
         for (var property in graphData) {
             if (graphData.hasOwnProperty(property)) {
-                var fieldLabel = undefined,
+                var propertyIndex = orderOfProperties.indexOf(property),
+                    fieldLabel = propertyIndex<0 ? undefined : fieldLabels[propertyIndex],
                     htmlEncode = true,
                     graphDataPropertyValue = graphData[property];
+
                 switch(property) {
-                    case 'name':
-                        fieldLabel = Uni.I18n.translate('general.name', 'UNI', 'Name');
-                        break;
-                    case 'deviceType':
-                        fieldLabel = Uni.I18n.translate('general.deviceType', 'UNI', 'Device type');
-                        break;
-                    case 'deviceConfiguration':
-                        fieldLabel = Uni.I18n.translate('general.deviceConfiguration', 'UNI', 'Device configuration');
-                        break;
-                    case 'serialNumber':
-                        fieldLabel = Uni.I18n.translate('general.serialNumber', 'UNI', 'Serial number');
-                        break;
                     case 'alarms':
-                        fieldLabel = Uni.I18n.translate('general.alarms', 'UNI', 'Alarms');
+                    case 'issues':
                         if (graphDataPropertyValue === 0) {
-                            graphDataPropertyValue = '-';
+                            graphDataPropertyValue = undefined; // Display a zero value as a dash
                         }
                         break;
                     case 'failedComTasks':
-                        fieldLabel = Uni.I18n.translate('general.failedCommunicationTasks', 'UNI', 'Failed communication tasks');
+                        graphDataPropertyValue = undefined;
                         if (Ext.isArray(graphDataPropertyValue)) {
                             if (graphDataPropertyValue.length > 1) {
                                 var formattedResult = '';
@@ -213,7 +247,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                                 });
                                 graphDataPropertyValue = formattedResult;
                                 htmlEncode = false;
-                            } else {
+                            } else if (graphDataPropertyValue.length === 1) {
                                 graphDataPropertyValue = graphDataPropertyValue[0];
                             }
                         }
@@ -224,7 +258,8 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                 if (!Ext.isEmpty(fieldLabel)) {
                     propertiesToDisplay[fieldLabel] = {
                         value: graphDataPropertyValue,
-                        htmlEncode: htmlEncode
+                        htmlEncode: htmlEncode,
+                        order: propertyIndex
                     };
                 }
             }
@@ -232,6 +267,35 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
 
         // 2. Display them
         Ext.ComponentQuery.query('#uni-property-viewer')[0].displayProperties(propertiesToDisplay);
+    },
+
+    showNotYetImplementedMessage: function() {
+        var box = Ext.create('Ext.window.MessageBox', {
+                buttons: [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
+                        action: 'close',
+                        name: 'close',
+                        ui: 'remove',
+                        handler: function () {
+                            box.close();
+                        }
+                    }
+                ]
+            }),
+            config = {};
+
+        Ext.apply(config, {
+            title: 'To be implemented',
+            msg: 'Not yet implemented',
+            modal: false,
+            ui: 'message-error',
+            icon: 'icon-warning2',
+            style: 'font-size: 34px;'
+        });
+
+        box.show(config);
     }
 
 });
