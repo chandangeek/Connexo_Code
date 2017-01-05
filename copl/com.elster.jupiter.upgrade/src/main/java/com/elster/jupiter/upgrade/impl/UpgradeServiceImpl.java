@@ -314,10 +314,6 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         dataModelUpgrader.upgrade(dataModel, Version.version(version));
     }
 
-    public void runDifferences() {
-        ormService.getDataModelDifferences(logger).findDifferences();
-    }
-
     private interface State {
         void perform(Flyway flyway, InstallIdentifier installIdentifier);
 
