@@ -127,6 +127,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
+        </dependency>
 
         <!-- Test -->
         <dependency>

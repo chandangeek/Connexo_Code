@@ -2,14 +2,21 @@ package com.energyict.mdc.device.alarms.rest.resource;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
+import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
+import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -19,8 +26,14 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.alarms.rest.request.AssignSingleDeviceAlarmRequest;
+import com.energyict.mdc.device.alarms.rest.request.SingleDeviceAlarmRequest;
+import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmActionInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
+import com.energyict.mdc.device.alarms.rest.transactions.AssignToMeSingleDeviceAlarmTransaction;
+import com.energyict.mdc.device.alarms.rest.transactions.UnassignSingleDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -29,6 +42,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -38,8 +52,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,10 +67,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class DeviceAlarmResource extends BaseAlarmResource{
 
     private final DeviceAlarmInfoFactory deviceAlarmInfoFactory;
-
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public DeviceAlarmResource(DeviceAlarmInfoFactory deviceAlarmInfoFactory){
+    public DeviceAlarmResource(DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+        this.conflictFactory = conflictFactory;
         this.deviceAlarmInfoFactory = deviceAlarmInfoFactory;
     }
 
@@ -108,6 +126,116 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         IssueComment comment = deviceAlarm.addComment(request.getComment(), author)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
         return Response.ok(new IssueCommentInfo(comment)).status(Response.Status.CREATED).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/{id}/actions")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
+    public PagedInfoList getActions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+        DeviceAlarm deviceAlarm = getDeviceAlarmService().findAlarm(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<DeviceAlarmActionInfo> issueActions = getListOfAvailableDeviceAlarmActions(deviceAlarm, securityContext);
+        return PagedInfoList.fromCompleteList("issueActions", issueActions, queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Path("/{id}/actions/{key}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
+    public Response getActionTypeById(@PathParam("id") long id, @PathParam("key") long actionId, @Context SecurityContext securityContext) {
+        DeviceAlarm deviceAlarm = getDeviceAlarmService().findAlarm(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return Response.ok(getDeviceAlarmActionById(deviceAlarm, actionId, securityContext)).build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{id}/actions/{key}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ALARM)
+    public Response performAction(@PathParam("id") long id, @PathParam("key") long actionId, PerformActionRequest request) {
+        DeviceAlarm deviceAlarm = getDeviceAlarmService().findAndLockDeviceAlarmByIdAndVersion(id, request.issue.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
+                        .withActualVersion(() -> getDeviceAlarmService().findAlarm(id)
+                                .map(DeviceAlarm::getVersion)
+                                .orElse(null))
+                        .supplier());
+        request.id = actionId;
+        return Response.ok(performIssueAction(deviceAlarm, request)).build();
+    }
+
+    @PUT
+    @Path("/assigntome/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ALARM)
+    public Response postAssignToMe(@PathParam("id") long id, AssignSingleDeviceAlarmRequest request, @Context SecurityContext securityContext) {
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, DeviceAlarm> issueProvider = result -> getDeviceAlarm(id, result);
+        ActionInfo info = getTransactionService().execute(new AssignToMeSingleDeviceAlarmTransaction(performer, issueProvider, getThesaurus()));
+        return Response.ok().entity(info).build();
+    }
+
+    @PUT
+    @Path("/unassign/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ALARM)
+    public Response postUnassign(@PathParam("id") long id, SingleDeviceAlarmRequest request, @Context SecurityContext securityContext) {
+        Function<ActionInfo, DeviceAlarm> issueProvider = result -> getDeviceAlarm(id, result);
+        ActionInfo info = getTransactionService().execute(new UnassignSingleDeviceAlarmTransaction(issueProvider, getThesaurus()));
+        return Response.ok().entity(info).build();
+    }
+
+    private DeviceAlarm getDeviceAlarm(Long id, ActionInfo result) {
+        DeviceAlarm deviceAlarm = getDeviceAlarmService().findAlarm(id).orElse(null);
+        if (deviceAlarm == null) {
+            result.addFail(getThesaurus().getFormat(MessageSeeds.ALARM_DOES_NOT_EXIST).format(), id, "Alarm (id = " + id + ")");
+        }
+        return deviceAlarm;
+    }
+
+    public List<DeviceAlarmActionInfo> getListOfAvailableDeviceAlarmActions(DeviceAlarm deviceAlarm, SecurityContext securityContext) {
+        return getListOfAvailableDeviceAlarmActionsTypes(deviceAlarm, securityContext).stream().map(actionType ->
+                new DeviceAlarmActionInfo(deviceAlarm, actionType, getPropertyValueInfoService())).collect(Collectors.toList());
+    }
+
+    public List<IssueActionType> getListOfAvailableDeviceAlarmActionsTypes(DeviceAlarm deviceAlarm, SecurityContext securityContext) {
+        User user = ((User) securityContext.getUserPrincipal());
+        Query<IssueActionType> query = getIssueService().query(IssueActionType.class, IssueType.class);
+        IssueReason reason = deviceAlarm.getReason();
+        IssueType type = reason.getIssueType();
+
+
+        Condition condition = where("issueType").isEqualTo(type).and(where("issueReason").isEqualTo(reason));
+        return query.select(condition).stream()
+                .filter(actionType -> actionType.createIssueAction()
+                        .map(action -> action.isApplicable(deviceAlarm) && action.isApplicableForUser(user))
+                        .orElse(false))
+                .collect(Collectors.toList());
+    }
+
+    public DeviceAlarmActionInfo getDeviceAlarmActionById(DeviceAlarm deviceAlarm, long actionId, SecurityContext securityContext) {
+        return getListOfAvailableDeviceAlarmActionsTypes(deviceAlarm, securityContext).stream().filter(action -> action.getId() == actionId)
+                .map(actionType -> new DeviceAlarmActionInfo(deviceAlarm, actionType, getPropertyValueInfoService())).findFirst().get();
+    }
+
+    public IssueActionResult performIssueAction(DeviceAlarm deviceAlarm, PerformActionRequest request) {
+        IssueActionType action = getIssueActionService().findActionType(request.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<PropertySpec> propertySpecs = action.createIssueAction().get().setIssue(deviceAlarm).getPropertySpecs();
+        Map<String, Object> properties = new HashMap<>();
+        if (propertySpecs != null && !propertySpecs.isEmpty()) {
+            for (PropertySpec propertySpec : propertySpecs) {
+                Object value = getPropertyValueInfoService().findPropertyValue(propertySpec, request.properties);
+                if (value != null) {
+                    properties.put(propertySpec.getName(), value);
+                }
+            }
+        }
+        return getIssueActionService().executeAction(action, deviceAlarm, properties);
     }
 
     public List<IssueCommentInfo> getAlarmComments(DeviceAlarm deviceAlarm) {

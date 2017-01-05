@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.alarms.rest;
 
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -8,6 +9,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -52,6 +54,8 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile IssueActionService issueActionService;
 
     public DeviceAlarmApplication(){
 
@@ -129,12 +133,18 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     @Reference
     public void setIssueService(IssueService issueService){
         this.issueService = issueService;
+        this.issueActionService = issueService.getIssueActionService();
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(DEVICE_ALARMS_REST_COMPONENT, Layer.REST);
+    }
+
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
     }
 
     class HK2Binder extends AbstractBinder {
@@ -147,10 +157,12 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(DeviceAlarmInfoFactory.class).to(DeviceAlarmInfoFactory.class);
             bind(logBookService).to(LogBookService.class);
             bind(issueService).to(IssueService.class);
+            bind(issueActionService).to(IssueActionService.class);
             bind(meteringService).to(MeteringService.class);
             bind(userService).to(UserService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
+            bind(propertyValueInfoService).to(PropertyValueInfoService.class);
         }
     }
 }

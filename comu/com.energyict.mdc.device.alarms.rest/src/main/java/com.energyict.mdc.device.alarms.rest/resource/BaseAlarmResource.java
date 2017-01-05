@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.alarms.rest.resource;
 
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 
@@ -16,6 +19,9 @@ public class BaseAlarmResource {
     private MeteringService meteringService;
     private UserService userService;
     private Thesaurus thesaurus;
+    private PropertyValueInfoService propertyValueInfoService;
+    private IssueActionService issueActionService;
+    private TransactionService transactionService;
 
     public BaseAlarmResource(){
 
@@ -64,5 +70,32 @@ public class BaseAlarmResource {
 
     protected UserService getUserService() {
         return userService;
+    }
+
+    public PropertyValueInfoService getPropertyValueInfoService() {
+        return propertyValueInfoService;
+    }
+
+    @Inject
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    public IssueActionService getIssueActionService() {
+        return issueActionService;
+    }
+
+    @Inject
+    public void setIssueActionService(IssueActionService issueActionService) {
+        this.issueActionService = issueActionService;
+    }
+
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
+    @Inject
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 }

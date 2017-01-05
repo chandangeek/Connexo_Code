@@ -9,7 +9,11 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed {
 
-    NO_APPSERVER(1, "NoAppServer", "There is no active application server that can handle this request")
+    NO_APPSERVER(1, "NoAppServer", "There is no active application server that can handle this request"),
+    ALARM_DOES_NOT_EXIST(2, "AlarmDoesNotExist", "Alarm doesn't exist", Level.SEVERE),
+    ACTION_ALARM_WAS_UNASSIGNED(3, "action.alarm.was.unassigned", "Alarm was unassigned", Level.INFO),
+    ACTION_ALARM_WAS_ASSIGNED_USER(4, "action.alarm.was.assigned.user", "Alarm was assigned to user {0}", Level.INFO),
+    INVALID_VALUE(5, "InvalidValue", "Invalid value", Level.SEVERE)
     ;
 
     private final int number;
