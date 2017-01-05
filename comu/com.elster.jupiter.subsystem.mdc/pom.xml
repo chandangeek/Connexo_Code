@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>mdc</artifactId>
-    <version>1.3.0${revision}</version>
+    <version>1.3.-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.mdc</name>
 
@@ -18,7 +18,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.parent</artifactId>
-                <version>1.3.0${revision}</version>
+                <version>1.3.-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -51,14 +51,14 @@
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>kore</artifactId>
-            <version>1.3.0${revision}</version>
+            <version>1.3.-SNAPSHOT</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.parent</artifactId>
-            <version>1.3.0${revision}</version>
+            <version>1.3.-SNAPSHOT</version>
             <type>pom</type>
         </dependency>
         <!-- Third parties -->
