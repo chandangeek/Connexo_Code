@@ -50,6 +50,7 @@ public class TopologyGraphResource {
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
    // @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    // @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response getTopologyGraphByName(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParams) {
         Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
         GraphInfo graphInfo =  new DefaultGraphFactory(this.topologyService, this.graphLayerService, this.clock).from(device);

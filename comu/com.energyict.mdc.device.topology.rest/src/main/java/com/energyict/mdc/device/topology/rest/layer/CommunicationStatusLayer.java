@@ -1,41 +1,41 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.impl.ServerTopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
+import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
-
 
 /**
- * GraphLayer - Link quality properties
  * Copyrights EnergyICT
- * Date: 3/01/2017
- * Time: 11:13
+ * Date: 5/01/2017
+ * Time: 10:44
  */
-@Component(name = "com.energyict.mdc.device.topology.LinkQualityLayer", service = GraphLayer.class, immediate = true)
-public class LinkQualityLayer extends AbstractGraphLayer {
+@Component(name = "com.energyict.mdc.device.topology.CommunicationStatusLayer", service = GraphLayer.class, immediate = true)
+public class CommunicationStatusLayer extends AbstractGraphLayer {
 
+    private Clock clock;
     private DeviceService deviceService;
     private TopologyService topologyService;
 
     private final static String NAME = "topology.GraphLayer.Links.linkQuality";
 
-    public enum PropertyNames implements TranslationKey{
-        LINK_QUALITY("linkQuality", "Link quality");
+    public enum PropertyNames implements TranslationKey {
+        COMMUNICATION_STATUS("failedCommunications", "Failed communications");
 
         private String propertyName;
         private String defaultFormat;
@@ -63,7 +63,7 @@ public class LinkQualityLayer extends AbstractGraphLayer {
 
     @Override
     public GraphLayerType getType() {
-        return GraphLayerType.LINK;
+        return GraphLayerType.NODE;
     }
 
     @Override
@@ -77,24 +77,29 @@ public class LinkQualityLayer extends AbstractGraphLayer {
     }
 
     @Reference
-    public void setTopologyService(TopologyService topologyService){
+    public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
     }
 
-    public void calculateLinkQuality(NodeInfo info){
-//        Random random = new Random();
-//        this.setLinkQuality(random.nextInt(100));
-        getNeighbor(info).ifPresent((x) -> setLinkQuality(x.getLinkQualityIndicator()));
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    public void checkCommunicationStatus(NodeInfo info){
+        Optional<Device> device = deviceService.findDeviceById(info.getId());
+        device.ifPresent((d) -> setFailedCommunications(this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.COMMUNICATION_FAILURE, d,
+                Interval.of(Range.lessThan(clock.instant())))));
     }
 
     @Override
     public Map<String, Object> getProperties(NodeInfo info) {
-        calculateLinkQuality(info);
+        checkCommunicationStatus(info);
         return propertyMap();
     }
 
-    public void setLinkQuality(int quality){
-        this.setProperty(PropertyNames.LINK_QUALITY.getPropertyName(), "" + quality);
+    public void setFailedCommunications(int errors){
+        this.setProperty(PropertyNames.COMMUNICATION_STATUS.getPropertyName(), ""+errors);
     }
 
     @Override
@@ -102,8 +107,4 @@ public class LinkQualityLayer extends AbstractGraphLayer {
         return Arrays.asList(PropertyNames.values());
     }
 
-    private Optional<G3Neighbor> getNeighbor(NodeInfo info){
-        Optional<Device> device = deviceService.findDeviceById(info.getId());
-        return device.map((x) ->  topologyService.findG3Neighbors(x).stream().filter((n) -> n.getNeighbor().getId() == info.getParent().getId()).findFirst().orElse(null));
-    }
 }
