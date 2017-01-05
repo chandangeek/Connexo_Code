@@ -90,9 +90,9 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest{
 
         List<?> releatedEvents = (List<?>) alarmMap.get("relatedEvents");
         Map<?, ?> releatedEventMap = (Map<?, ?>) releatedEvents.get(0);
-        assertThat(releatedEventMap.get("deviceType")).isEqualTo("Collector");
-        assertThat(releatedEventMap.get("domain")).isEqualTo("Battery");
-        assertThat(releatedEventMap.get("subDomain")).isEqualTo("Activation");
+        assertThat(releatedEventMap.get("deviceType")).isEqualTo("Collector (10)");
+        assertThat(releatedEventMap.get("domain")).isEqualTo("Battery (2)");
+        assertThat(releatedEventMap.get("subDomain")).isEqualTo("Activation (283)");
         assertThat(releatedEventMap.get("eventDate")).isEqualTo(1451606400000L);
 
     }

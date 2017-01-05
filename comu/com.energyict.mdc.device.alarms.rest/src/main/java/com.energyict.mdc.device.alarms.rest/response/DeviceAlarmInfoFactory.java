@@ -89,7 +89,7 @@ public class DeviceAlarmInfoFactory implements InfoFactory<DeviceAlarm> {
                 .stream()
                 .map(DeviceAlarmRelatedEvent::getEventRecord)
                 .collect(Collectors.toList());
-        info.relatedEvents = relatedEvents.stream().map(RelatedEventsInfo::new).collect(Collectors.toList());
+        info.relatedEvents = relatedEvents.stream().map(RelatedEventsInfo::new).sorted((r1, r2) -> Long.compare(r2.eventDate, r1.eventDate)).collect(Collectors.toList());
     }
 
 }
