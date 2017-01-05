@@ -82,7 +82,7 @@ Ext.define('Uni.property.view.property.UserAssigneeCombo', {
                     };
                 }
             });
-            //me.loadStore();
+            me.loadStore();
         },
 
         change: function (combo, newValue) {
@@ -107,6 +107,7 @@ Ext.define('Uni.property.view.property.UserAssigneeCombo', {
 
         workgroupChanged: function (workgroupId) {
             var me = this;
+
             me.workgroupId = workgroupId;
             me.checked = false;
             me.setUncheckTemplate();

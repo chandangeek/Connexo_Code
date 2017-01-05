@@ -1,15 +1,8 @@
 Ext.define('Uni.property.view.property.Assign', {
     extend: 'Uni.property.view.property.Base',
-
     requires: [
-        //'Uni.util.FormErrorMessage',
         'Uni.property.view.property.UserAssigneeCombo'
-        //'Isu.store.UserList'
-        //'Isu.store.IssueWorkgroupAssignees'
     ],
-    //alias: 'widget.assign-item',
-    //router: null,
-
     configUrl: [
         {
             id: 'AssignIssueAction.assignee',
@@ -25,6 +18,7 @@ Ext.define('Uni.property.view.property.Assign', {
     getEditCmp: function () {
         var me = this;
 
+        me.resolveConfig();
         me.layout = 'vbox';
         return [
             {
@@ -40,7 +34,7 @@ Ext.define('Uni.property.view.property.Assign', {
                         valueField: 'id',
                         displayField: 'name',
                         allowBlank: false,
-                        store: me.getWorkgroupStore(), //'Isu.store.IssueWorkgroupAssignees',
+                        store: me.getWorkgroupStore(),
                         emptyText: Uni.I18n.translate('assign.startTypingForWorkgroup', 'UNI', 'Start typing for workgroup'),
                         msgTarget: 'under',
                         editable: false,
@@ -48,7 +42,7 @@ Ext.define('Uni.property.view.property.Assign', {
                             render: function () {
                                 this.store.load();
                             },
-                            change: function (combo, newValue) {
+                            change1: function (combo, newValue) {
                                 this.ownerCt.down('#cbo-user-assignee').fireEvent('workgroupChanged', newValue);
                             },
                             select: function (combo, newValue) {
@@ -69,7 +63,7 @@ Ext.define('Uni.property.view.property.Assign', {
                         allowBlank: false,
                         editable: false,
                         configUrl: me.getConfig(),
-                        store: me.getUserStore(), //'Isu.store.UserList',
+                        store: me.getUserStore(),
                         emptyText: Uni.I18n.translate('assign.startTypingForUsers', 'UNI', 'Start typing for users'),
                         msgTarget: 'under'
                     },
@@ -173,5 +167,21 @@ Ext.define('Uni.property.view.property.Assign', {
                 limitParam: false
             }
         });
+    },
+
+    resolveConfig: function () {
+        var me = this;
+
+        if (me.getProperty().get('key') == 'AssignAlarmAction.assignee') {
+            me.configUrl = [
+                {
+                    id: 'AssignAlarmAction.assignee',
+                    workgroupUrl: '/api/dal/workgroups',
+                    userUrl: '/api/dal/assignees',
+                    workroupUsersUrl: '/api/dal/workgroups/{0}/users'
+                }
+            ];
+        }
     }
+
 });
