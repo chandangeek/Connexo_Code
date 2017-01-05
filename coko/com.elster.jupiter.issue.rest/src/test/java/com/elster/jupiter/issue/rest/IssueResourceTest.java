@@ -386,7 +386,9 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         when(transactionService.getContext()).thenReturn(context);
 
         String filter = URLEncoder.encode("[{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":[\"datacollection\"]}]");
-
+        Query<IssueType> query = mock(Query.class);
+        when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueType>emptyList());
+        when(issueService.query(IssueType.class)).thenReturn(query);
         Map<?, ?> map = target("issues/groupedlist")
                 .queryParam("start", 0).queryParam("limit", 1).queryParam("filter", filter).request().get(Map.class);
 
