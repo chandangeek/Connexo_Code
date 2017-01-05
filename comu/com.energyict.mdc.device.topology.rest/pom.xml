@@ -79,6 +79,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.topology</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
@@ -108,11 +112,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap.h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>orm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

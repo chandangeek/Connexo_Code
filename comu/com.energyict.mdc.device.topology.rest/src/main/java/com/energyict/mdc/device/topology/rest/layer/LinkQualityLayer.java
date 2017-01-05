@@ -1,15 +1,22 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.G3Neighbor;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.impl.ServerTopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 
@@ -21,6 +28,9 @@ import java.util.Random;
  */
 @Component(name = "com.energyict.mdc.device.topology.LinkQualityLayer", service = GraphLayer.class, immediate = true)
 public class LinkQualityLayer extends AbstractGraphLayer {
+
+    private DeviceService deviceService;
+    private TopologyService topologyService;
 
     private final static String NAME = "topology.GraphLayer.Links.linkQuality";
 
@@ -61,9 +71,20 @@ public class LinkQualityLayer extends AbstractGraphLayer {
         return NAME;
     }
 
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService){
+        this.topologyService = topologyService;
+    }
+
     public void calculateLinkQuality(NodeInfo info){
-        Random random = new Random();
-        this.setLinkQuality(random.nextInt(100));
+//        Random random = new Random();
+//        this.setLinkQuality(random.nextInt(100));
+        getNeighbor(info).ifPresent((x) -> setLinkQuality(x.getLinkQualityIndicator()));
     }
 
     @Override
@@ -79,5 +100,10 @@ public class LinkQualityLayer extends AbstractGraphLayer {
     @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(PropertyNames.values());
+    }
+
+    private Optional<G3Neighbor> getNeighbor(NodeInfo info){
+        Optional<Device> device = deviceService.findDeviceById(info.getId());
+        return device.map((x) ->  topologyService.findG3Neighbors(x).stream().filter((n) -> n.getNeighbor().getId() == info.getParent().getId()).findFirst().orElse(null));
     }
 }
