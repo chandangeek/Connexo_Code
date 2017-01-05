@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 public class DataMapperReader<T> implements TupleParser<T> {
     private final DataMapperImpl<T> dataMapper;
+    private boolean noMacCheck = false;
 
     DataMapperReader(DataMapperImpl<T> dataMapper) {
         this.dataMapper = dataMapper;
@@ -160,6 +161,15 @@ public class DataMapperReader<T> implements TupleParser<T> {
         }
         return find(fragments, orders, LockMode.NONE);
     }
+
+
+    List<T> findWithoutMacCheck() throws SQLException {
+        this.noMacCheck = true;
+        List<T> result = find((String[]) null, (Object[]) null, Order.NOORDER);
+        noMacCheck = false;
+        return result;
+    }
+
 
     List<T> find(Instant instant, Map<String, Object> valueMap) throws SQLException {
         List<SqlFragment> fragments = new ArrayList<>();
@@ -333,8 +343,8 @@ public class DataMapperReader<T> implements TupleParser<T> {
             constraint.setReverseField(result);
         }
 
-        if (macColumn != null) {
-            if (!macColumn.verifyMacValue(mac, result)) {
+        if (macColumn != null && !noMacCheck) {
+            if (mac == null || !macColumn.verifyMacValue(mac, result)) {
                 throw new MacException();
             }
         }

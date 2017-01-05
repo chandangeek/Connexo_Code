@@ -502,6 +502,9 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         DifferenceImpl.DifferenceBuilder upgradeDdl1 = DifferenceImpl.builder("Table " + table.getName() + " : New column " + toColumn
                 .getName());
         upgradeDdl1.add(getAddDdl(toColumn, table.getName()));
+        if(toColumn.isMAC()) {
+            toColumn.getTable().macColumnAdded();
+        }
         if (table.hasJournal()) {
             upgradeDdl1.add(getAddDdl(toColumn, table.getJournalTableName()));
         }

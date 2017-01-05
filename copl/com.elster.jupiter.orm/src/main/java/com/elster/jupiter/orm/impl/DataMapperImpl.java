@@ -254,6 +254,14 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 	}
 
+	protected List<T> findWithoutMacCheck() {
+		try {
+			return reader.findWithoutMacCheck();
+		} catch(SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
+
     @Override
     public List<JournalEntry<T>> getJournal(Object... values) {
         try {
