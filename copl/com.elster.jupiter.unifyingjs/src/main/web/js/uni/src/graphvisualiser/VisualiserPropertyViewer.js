@@ -17,20 +17,28 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
     },
 
     displayProperties: function(properties){
-        this.removeAll();
+        var itemsToAdd = [];
         if(properties){
             for (var property in properties) {
                 if (properties.hasOwnProperty(property)) {
-                    this.add({
+                    itemsToAdd.push({
                         xtype: 'displayfield',
                         value: properties[property].value,
                         htmlEncode: properties[property].htmlEncode,
+                        order: properties[property].order,
                         fieldLabel: property,
                         labelWidth: 150
                     });
                 }
             }
         }
+        // Sort them by their order attribute
+        Ext.Array.sort(itemsToAdd, function(item1, item2){
+            return item1.order - item2.order;
+        });
+
+        this.removeAll();
+        this.add(itemsToAdd);
         this.doLayout();
         this.expand();
     }

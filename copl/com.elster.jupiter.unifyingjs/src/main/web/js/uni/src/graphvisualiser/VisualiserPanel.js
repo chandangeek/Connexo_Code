@@ -49,6 +49,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     neutralColor: '#006699',
     whiteColor: '#FFFFFF',
+    blackColor: '#000000',
     collapsedColor: '#8e8e8e',
     issueAlarmColor: '#FF0000',
     failedCommunicationStatusColor: '#FF0000',
@@ -106,9 +107,16 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         KeyLines.paths({assets: 'resources/js/keylines/assets/'});
         KeyLines.create({id: 'graph-drawing-area', options:{navigation: {p: 'se', y: -150},iconFontFamily: 'Icomoon'}},function(err, chart) {
             me.chart = chart;
-            me.chart.bind('click', me.upStreamFromNode, me);
+
+            // Set the chart options
+            var options = {};
+            options.selectionColour = me.neutralColor;
+            me.chart.options(options);
+
+            me.chart.bind('click', me.highlightUpStreamFromNode, me);
             me.chart.bind('dblclick', me.combine, me);
             me.chart.bind('contextmenu', me.contextMenu, me);
+            me.chart.bind('delete', function() { return true; }); // prevent deleting nodes
             me.chart.load({
                 type: 'LinkChart'
             });
@@ -120,22 +128,28 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         if(id) {
             var visualiser = Ext.ComponentQuery.query('visualiserpanel')[0];
             var items = [
-                //{
-                //    text: 'Upstream',
-                //    handler: function () {
-                //        visualiser.upStreamFromNode(id);
-                //    }
-                //},
-                //{
-                //    text: 'Downstream',
-                //    handler: function () {
-                //        visualiser.downStreamFromNode(id);
-                //    }
-                //},
                 {
+                    xtype: 'menuitem',
+                    text: Uni.I18n.translate('general.highlight.upstream', 'UNI', 'Highlight upstream'),
+                    section: 1, /*SECTION_ACTION*/
+                    handler: function () {
+                        visualiser.highlightUpStreamFromNode(id);
+                    }
+                },
+                {
+                    xtype: 'menuitem',
+                    text: Uni.I18n.translate('general.highlight.downstream', 'UNI', 'Highlight downstream'),
+                    section: 1, /*SECTION_ACTION*/
+                    handler: function () {
+                        visualiser.highlightDownStreamFromNode(id);
+                    }
+                },
+                {
+                    xtype: 'menuitem',
                     text: visualiser.chart.combo().isCombo(id)
                         ? Uni.I18n.translate('general.expand', 'UNI', 'Expand')
                         : Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'),
+                    section: 1, /*SECTION_ACTION*/
                     handler: function () {
                         visualiser.combine(id);
                     }
@@ -168,7 +182,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         Ext.ComponentQuery.query('#uni-property-viewer')[0].collapse();
     },
 
-    upStreamFromNode: function(id){
+    highlightUpStreamFromNode: function(id){
         var me = this,
             neighbours = {},
             areNeighboursOf = function(item) {
@@ -216,7 +230,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     c: null,
                     fi: {
                         c: me.collapsedColor,
-                        t:  KeyLines.getFontIcon('icon-plus')
+                        t: KeyLines.getFontIcon('icon-plus')
                     }
                 }
 
@@ -226,7 +240,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         }
     },
 
-    downStreamFromNode: function(id){
+    highlightDownStreamFromNode: function(id){
         var me = this;
         var neighbours = {};
         function areNeighboursOf(item){
@@ -246,12 +260,13 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 });
                 neighbours[id] = true;
                 me.chart.foreground(areNeighboursOf, {type: 'all'});
+                me.displayNodeProperties(id);
             }
         }
     },
 
     getDownStreamNodesLinks: function(id){
-            return this.chart.graph().neighbours(id, {direction: 'from',hops: 1000});
+        return this.chart.graph().neighbours(id, {direction: 'from', hops: 1000});
     },
 
     displayNodeProperties: function(id){
@@ -493,6 +508,16 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
 
     clearAllLegendItems: function() {
         this.down('#uni-visualiser-legend-table').removeAll();
+    },
+
+    clearGraph: function() {
+        this.chartData = {
+            type: 'LinkChart',
+            items: []
+        };
+        if (this.chart) {
+            this.chart.clear();
+        }
     }
 
 });

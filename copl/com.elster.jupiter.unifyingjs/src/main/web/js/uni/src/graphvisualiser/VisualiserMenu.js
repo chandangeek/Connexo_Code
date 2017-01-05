@@ -17,17 +17,17 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
         items: [
             {
                 xtype: 'form',
+                title: Uni.I18n.translate('general.layers', 'UNI', 'Layers'),
                 itemId: 'uni-layer-section'
             },
             {
                 xtype: 'form',
-                margin: '10 0 0 0',
+                margin: '15 0 0 0',
                 title: Uni.I18n.translate('general.options', 'UNI', 'Options'),
                 items: [
                     {
                         xtype: 'radiogroup',
-                        fieldLabel: Uni.I18n.translate('general.layout', 'UNI', 'Layout'),
-                        labelWidth: 50,
+                        margin: '0 0 0 0',
                         columns: 1,
                         vertical: true,
                         items: [
