@@ -5,7 +5,8 @@ Ext.define('Dal.controller.Alarms', {
         'Dal.view.NoAlarmsFoundPanel',
         'Dal.view.Preview',
         'Dal.store.Alarms',
-        'Dal.view.Grid'
+        'Dal.view.Grid',
+        'Dal.view.ActionMenu'
     ],
 
     stores: [

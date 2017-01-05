@@ -16,6 +16,7 @@ Ext.define('Dal.view.EventsAlarmDetailsForm', {
                 xtype: 'alarm-preview',
                 itemId: 'alarm-detail-form',
                 router: me.router,
+                showTools: false,
                 frame: false
             },
             {

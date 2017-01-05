@@ -15,7 +15,8 @@ Ext.define('Dal.controller.Main', {
     controllers: [
         'Dal.controller.history.Workspace',
         'Dal.controller.Alarms',
-        'Dal.controller.Detail'
+        'Dal.controller.Detail',
+        'Dal.controller.ApplyAction'
     ],
 
     stores: [

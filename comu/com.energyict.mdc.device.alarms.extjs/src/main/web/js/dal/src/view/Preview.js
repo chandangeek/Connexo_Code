@@ -3,7 +3,8 @@ Ext.define('Dal.view.Preview', {
     requires: [
         'Uni.form.field.FilterDisplay',
         'Dal.privileges.Alarm',
-        'Uni.store.Apps'
+        'Uni.store.Apps',
+        'Dal.view.ActionMenu'
     ],
     alias: 'widget.alarm-preview',
     layout: 'column',
@@ -15,9 +16,31 @@ Ext.define('Dal.view.Preview', {
     frame: true,
     router: null,
     fieldxtype: 'displayfield',
+    showTools: true,
 
     initComponent: function () {
         var me = this;
+
+        if (me.showTools) {
+            me.tools = [
+                {
+                    xtype: 'uni-button-action',
+                    itemId: 'alarm-preview-actions-button',
+                    privileges: Dal.privileges.Alarm.adminDevice,
+                    menu: {
+                        xtype: 'alarms-action-menu',
+                        itemId: 'alarm-overview-action-menu',
+                        router: me.router
+                    },
+                    listeners: {
+                        click: function () {
+                            this.showMenu();
+                        }
+                    }
+                }
+            ];
+        }
+
         me.items = [
             {
                 defaults: {

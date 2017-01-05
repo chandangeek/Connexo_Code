@@ -52,7 +52,14 @@ Ext.define('Dal.model.Alarm', {
                 return value ? value : Uni.I18n.translate('device.alarms.user.unassigned', 'DAL', 'Unassigned');
             }
         },
-
+        {
+            name: 'userId',
+            persist: false,
+            convert: function (value, record) {
+                var userId = record.get('userAssignee').id;
+                return userId ? userId : -1;
+            }
+        },
         {name: 'workGroupAssignee', type: 'auto'},
         {
             name: 'workgroup',
@@ -83,7 +90,7 @@ Ext.define('Dal.model.Alarm', {
         {name: 'status_name', persist: false, mapping: 'status.name'},
         {name: 'deviceName', persist: false, mapping: 'device.name'},
         {name: 'usage_point', persist: false, mapping: 'device.usagePoint.info'},
-        {name: 'relatedEvents',}
+        {name: 'relatedEvents'}
     ],
     associations: [
         {

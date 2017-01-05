@@ -27,6 +27,21 @@ Ext.define('Dal.controller.history.Workspace', {
                             return true;
                         }, {single: true});
                         return this;
+                    },
+                    items: {
+                        action: {
+                            title: Uni.I18n.translate('general.action', 'DAL', 'Action'),
+                            route: 'action/{actionId}',
+                            controller: 'Dal.controller.ApplyAction',
+                            privileges: Dal.privileges.Alarm.viewAdminAlarm,
+                            callback: function (route) {
+                                this.getApplication().on('issueActionLoad', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            }
+                        }
                     }
                 }
             }
