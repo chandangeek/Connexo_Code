@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.meterdata.Register;
 import com.energyict.mdc.protocol.api.codetables.Code;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
