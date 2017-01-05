@@ -26,6 +26,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         }
     ],
 
+    actionUrl: '/api/isu/issues/{0}/actions',
+    assignUrl: '/api/isu/issues/{0}/{1}',
     init: function () {
         this.control({
             'issue-action-view issue-action-form #issue-action-apply': {
@@ -87,8 +89,9 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             actionRecord,
             issueRecord;
 
+
         mainView.setLoading();
-        actionModel.getProxy().url = '/api/isu/issues/' + issueId + '/actions';
+        actionModel.getProxy().url = Ext.String.format(me.actionUrl, issueId);
         actionModel.load(actionId, {
             success: function (record) {
                 actionRecord = record;
@@ -100,6 +103,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             issueModel = me.getModel('Idc.model.Issue');
         } else if (issueType == 'datavalidation') {
             issueModel = me.getModel('Idv.model.Issue');
+        } else {
+            issueModel = me.getModel(me.issueModel);
         }
         issueModel.load(issueId, {
             success: function (record) {
@@ -182,6 +187,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             issueModel = 'Idc.model.Issue';
         } else if (issueType === 'datavalidation') {
             issueModel = 'Idv.model.Issue';
+        } else {
+            issueModel = me.issueModel;
         }
 
         Ext.ModelManager.getModel(issueModel).load(issueId, {
@@ -265,22 +272,31 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             issueId = record.get('id');
 
         Ext.Ajax.request({
-            url: '/api/isu/issues/' + assign + '/' + issueId,
+            url: Ext.String.format(me.assignUrl, assign, issueId),
             method: 'PUT',
             success: function (response) {
                 var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
 
-                if (decoded.data.success) {
+                if (decoded.data && decoded.data.success) {
                     me.getApplication().fireEvent('acknowledge', decoded.data.success[0].title);
                 }
+                else if (decoded.success) {
+                    me.getApplication().fireEvent('acknowledge', decoded.success[0].title);
+                }
+
 
                 var mainView = Ext.ComponentQuery.query('#contentPanel')[0];
                 if (mainView && mainView.down('issues-grid')) {
                     var grid = mainView.down('issues-grid');
                     grid.getStore().load();
                 }
+                else if (mainView && mainView.down('alarms-grid')) {
+                    var grid = mainView.down('alarms-grid');
+                    grid.getStore().load();
+                }
                 else {
-                    var detail = Ext.ComponentQuery.query('issue-detail-top')[0];
+                    var detail = Ext.ComponentQuery.query('issue-detail-top')[0] ||
+                        Ext.ComponentQuery.query('alarm-detail-top')[0];
                     if (detail) {
                         var router = me.getController('Uni.controller.history.Router'),
                             issueType = router.queryParams.issueType,
@@ -291,6 +307,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         } else if (issueType == 'datavalidation') {
                             issueModel = me.getModel('Idv.model.Issue');
                         }
+                        else {
+                            issueModel = me.issueModel;
+                        }
+
                         Ext.ModelManager.getModel(issueModel).load(issueId, {
                             success: function (issue) {
                                 if (issueType == 'datacollection') {
@@ -298,6 +318,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                                     Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
                                 } else if (issueType == 'datavalidation') {
 
+                                }
+                                else {
+                                    Ext.ComponentQuery.query('#alarm-detail-form')[0].loadRecord(issue);
+                                    Ext.ComponentQuery.query('#alarm-detail-action-menu')[0].record = issue;
                                 }
                             }
                         })

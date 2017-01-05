@@ -15,17 +15,18 @@ Ext.define('Isu.view.issues.ActionMenu', {
         bindable: 'Ext.util.Bindable'
     },
     currentUserId: -1,
+    urlStoreProxy: '/api/isu/issues/{0}/actions',
     predefinedItems: [
         {
             text: Uni.I18n.translate('issues.actionMenu.assignToMe', 'ISU', 'Assign to me'),
-            privileges: Isu.privileges.Issue.Assign,
+            privileges: Isu.privileges.Issue.assign,
             action: 'assignIssueToMe',
             itemId: 'assign-to-me',
             hidden: true
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.unassign', 'ISU', 'Unassign'),
-            privileges: Isu.privileges.Issue.Assign,
+            privileges: Isu.privileges.Issue.assign,
             action: 'unassign',
             itemId: 'unassign',
             hidden: true
@@ -44,7 +45,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 me.removeAll();
                 if (me.record) {
                     me.setLoading(true);
-                    me.store.getProxy().url = '/api/isu/issues/' + me.record.getId() + '/actions';
+                    me.store.getProxy().url = Ext.String.format(me.urlStoreProxy, me.record.getId());
                     me.store.load(function () {
                         me.onLoad();
                         me.setLoading(false);
@@ -106,14 +107,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     },
 
     onLoad: function () {
-        var me = this,
-            issueId = me.record.getId(),
-            issueType = me.record.get('issueType').uid,
-            deviceName,
-            comTaskId,
-            comTaskSessionId,
-            connectionTaskId,
-            comSessionId;
+        var me = this;
 
         if (!me.router) {
             return
@@ -121,6 +115,16 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
         Ext.suspendLayouts();
         me.removeAll();
+        me.addDynamicActions();
+        me.addPredefinedActions();
+        me.addSpecificActions();
+        Ext.resumeLayouts(true);
+    },
+
+    addDynamicActions: function () {
+        var me = this,
+            issueId = me.record.getId(),
+            issueType = me.record.get('issueType').uid;
 
         // add dynamic actions
         me.store.each(function (record) {
@@ -162,6 +166,12 @@ Ext.define('Isu.view.issues.ActionMenu', {
             }
             me.add(menuItem);
         });
+    },
+
+    addPredefinedActions: function () {
+        var me = this,
+            issueId = me.record.getId(),
+            issueType = me.record.get('issueType').uid;
 
         // show/hide 'Assign to me and' and 'Unassign' menu items
         var assignIssueToMe = me.predefinedItems.filter(function (menu) {
@@ -228,6 +238,17 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 details: false
             });
         }
+    },
+
+    addSpecificActions: function () {
+        var me = this,
+            issueId = me.record.getId(),
+            issueType = me.record.get('issueType').uid,
+            deviceName,
+            comTaskId,
+            comTaskSessionId,
+            connectionTaskId,
+            comSessionId;
 
         // add specific actions
         if (Isu.privileges.Device.viewDeviceCommunication) {
@@ -272,7 +293,5 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 }
             }
         }
-
-        Ext.resumeLayouts(true);
     }
 });
