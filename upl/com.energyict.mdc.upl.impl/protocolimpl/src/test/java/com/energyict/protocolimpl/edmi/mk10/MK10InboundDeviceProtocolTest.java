@@ -86,7 +86,7 @@ public class MK10InboundDeviceProtocolTest {
         properties.setProperty(TIMEOUT_KEY, new BigDecimal(5000));
         properties.setProperty(RETRIES_KEY, BigDecimal.ZERO);
         MK10InboundDeviceProtocol inboundDeviceProtocol = new MK10InboundDeviceProtocol(propertySpecService);
-        inboundDeviceProtocol.setProperties(properties);
+        inboundDeviceProtocol.setUPLProperties(properties);
         return inboundDeviceProtocol;
     }
 

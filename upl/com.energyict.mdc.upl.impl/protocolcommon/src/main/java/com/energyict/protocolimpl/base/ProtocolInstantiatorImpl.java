@@ -202,7 +202,7 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.configurationSupport.getPropertySpecs();
+        return this.configurationSupport.getUPLPropertySpecs();
     }
 
     private Object getInstance(String className) throws IOException {

@@ -54,7 +54,7 @@ public class SampleProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 
@@ -204,7 +204,7 @@ public class SampleProtocol implements DeviceProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
 
     }
 

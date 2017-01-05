@@ -94,12 +94,12 @@ public class A100C extends AbstractMbusDevice {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // Ignore since there are not properties
     }
 

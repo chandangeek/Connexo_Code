@@ -145,7 +145,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(NODEID.getName()),
@@ -172,7 +172,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
     }
 
     @Override
-    public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         try {
             if (p.getTypedProperty(Property.ADDRESS.getName()) != null) {
                 pAddress = p.getTypedProperty(Property.ADDRESS.getName());
@@ -355,7 +355,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         p.setProperty("SecurityLevel", "0");
         p.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         p.setProperty("IEC1107Compatible", "1");
-        setProperties(p);
+        setUPLProperties(p);
 
         init(cChannel.getInputStream(), cChannel.getOutputStream(), null, null);
         enableHHUSignOn(cChannel);

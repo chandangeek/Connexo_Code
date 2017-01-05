@@ -180,8 +180,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec("C12User", false));
         propertySpecs.add(this.integerSpec("C12UserId", false));
         propertySpecs.add(this.integerSpec("PasswordBinary", false));
@@ -193,8 +193,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "10").trim()));
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
         c12User = properties.getTypedProperty("C12User", "");

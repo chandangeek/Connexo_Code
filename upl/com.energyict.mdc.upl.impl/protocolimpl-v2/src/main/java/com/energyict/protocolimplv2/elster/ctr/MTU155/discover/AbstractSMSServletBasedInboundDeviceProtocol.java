@@ -57,12 +57,12 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
         this.properties = TypedProperties.copyOf(properties);
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                     sourcePropertySpec(),
                     authenticationPropertySpec());

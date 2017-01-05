@@ -17,7 +17,7 @@ import java.util.List;
 public class IDISGatewayConfigurationSupport extends DlmsConfigurationSupport {
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),

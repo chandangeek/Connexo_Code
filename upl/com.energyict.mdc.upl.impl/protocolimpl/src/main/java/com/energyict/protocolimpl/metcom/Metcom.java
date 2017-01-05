@@ -486,7 +486,7 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(PASSWORD.getName()),
@@ -522,7 +522,7 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());

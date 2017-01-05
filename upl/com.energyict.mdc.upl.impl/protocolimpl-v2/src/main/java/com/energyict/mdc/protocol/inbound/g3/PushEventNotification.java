@@ -170,12 +170,12 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 
     @Override
-    public void setProperties(TypedProperties properties) {
+    public void setUPLProperties(TypedProperties properties) {
         //No properties
     }
 

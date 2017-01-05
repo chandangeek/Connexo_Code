@@ -2,12 +2,13 @@ package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Properties;
+
+import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -26,7 +27,7 @@ public class LZQJTest {
             LZQJ protocol = new LZQJ();
             Properties props = new Properties();
             props.put("DataReadout", "1");
-            protocol.setProperties(props);
+            protocol.setUPLProperties(props);
             DummyFlagConnection dConnection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
             protocol.setConnection(dConnection);
             protocol.setDataReadout(dataDump1.getBytes());
@@ -80,7 +81,7 @@ public class LZQJTest {
             LZQJ protocol = new LZQJ();
             Properties props = new Properties();
             props.put("DataReadout", "1");
-            protocol.setProperties(props);
+            protocol.setUPLProperties(props);
             DummyFlagConnection dConnection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
             protocol.setConnection(dConnection);
             dConnection.setDataReadOut(dataDump2.getBytes());

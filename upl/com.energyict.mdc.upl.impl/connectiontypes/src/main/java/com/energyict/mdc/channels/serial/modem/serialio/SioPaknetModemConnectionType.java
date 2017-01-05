@@ -56,9 +56,9 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(new TypedPaknetModemProperties().getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
+        propertySpecs.addAll(new TypedPaknetModemProperties().getUPLPropertySpecs());
         return propertySpecs;
     }
 

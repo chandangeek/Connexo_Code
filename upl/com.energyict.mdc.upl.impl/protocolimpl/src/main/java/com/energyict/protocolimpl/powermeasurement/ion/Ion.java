@@ -172,7 +172,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.integerSpec(PK_NODEID),
                 this.stringSpec(PK_USER_ID),
@@ -203,7 +203,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             pNodeId = Integer.parseInt(properties.getTypedProperty(NODEID.getName()));
             if (properties.getTypedProperty(PK_USER_ID) != null) {
@@ -587,7 +587,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         p.setProperty("SecurityLevel", "0");
         p.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
 
-        setProperties(p);
+        setUPLProperties(p);
 
         init(cChannel.getInputStream(), cChannel.getOutputStream(), null, null);
         enableHHUSignOn(cChannel);

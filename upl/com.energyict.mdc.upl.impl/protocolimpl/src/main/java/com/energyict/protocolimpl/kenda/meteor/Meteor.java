@@ -355,7 +355,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.integerSpec(NODEID.getName()),
                 this.integerSpec(TIMEOUT.getName()),
@@ -373,7 +373,7 @@ public class Meteor extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             this.outstationID = Integer.parseInt(properties.getTypedProperty(NODEID.getName()));
             this.destinationCode = Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));

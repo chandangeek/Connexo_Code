@@ -63,7 +63,7 @@ public class Generic extends MBus {
     	if (discoverResults==null) {
     		discoverResults = new ArrayList<>();
 	        try {
-                setProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
+                setUPLProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
 	            init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
 
 	            getMBusConnection().setRTUAddress(253);
@@ -165,7 +165,7 @@ public class Generic extends MBus {
         DiscoverResult discoverResult = new DiscoverResult();
         discoverResult.setProtocolMBUS();
         try {
-            setProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
+            setUPLProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
             init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
             connect();
 
@@ -248,8 +248,8 @@ public class Generic extends MBus {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
     	if (getInfoTypeSecondaryAddressing() == 1) {
     		setInfoTypeDeviceID("253");
     	}

@@ -89,15 +89,15 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
     }
 
 	@Override
-	public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+	public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec("RS485RtuPlusServer", false));
         return propertySpecs;
 	}
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "10").trim()));
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
         c12User = properties.getTypedProperty("C12User", "");

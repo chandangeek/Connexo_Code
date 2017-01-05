@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.serial.direct.rxtx;
 
 import com.energyict.cpo.PropertySpec;
+
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -23,10 +24,10 @@ public class RxTxSerialConnectionTypePropertiesTest {
     public void testAllOptionalPropertiesAreReturnedByGetPropertySpec () {
         RxTxSerialConnectionType connectionType = new RxTxSerialConnectionType();
         for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).
+            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).
                     as("Property " + optionalPropertySpec.getName() + " is not returned by getPropertySpec").
                     isNotNull();
-            assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
+            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
         }
     }
 
@@ -50,10 +51,10 @@ public class RxTxSerialConnectionTypePropertiesTest {
     public void testAllRequiredPropertiesAreReturnedByGetPropertySpec () {
         RxTxSerialConnectionType connectionType = new RxTxSerialConnectionType();
         for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).
+            assertThat(connectionType.getUPLPropertySpec(requiredPropertySpec.getName())).
                     as("Property " + requiredPropertySpec.getName() + " is not returned by getPropertySpec").
                     isNotNull();
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).isEqualTo(requiredPropertySpec);
+            assertThat(connectionType.getUPLPropertySpec(requiredPropertySpec.getName())).isEqualTo(requiredPropertySpec);
         }
     }
 

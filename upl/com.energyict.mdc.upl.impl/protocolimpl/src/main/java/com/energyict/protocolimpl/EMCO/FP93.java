@@ -78,9 +78,9 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
-        super.getPropertySpecs()
+        super.getUPLPropertySpecs()
                 .stream()
                 .filter(propertySpec -> !propertySpec.getName().equals(ADDRESS.getName()))
                 .forEach(propertySpecs::add);
@@ -92,8 +92,8 @@ public class FP93 extends AbstractProtocol implements MessageProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         try {
             this.deviceID = Integer.parseInt(getInfoTypeDeviceID());
         } catch (NumberFormatException e) {

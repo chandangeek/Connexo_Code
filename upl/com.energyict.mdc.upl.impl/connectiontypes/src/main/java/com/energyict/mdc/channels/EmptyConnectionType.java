@@ -41,7 +41,7 @@ public class EmptyConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 

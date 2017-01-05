@@ -193,7 +193,7 @@ public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProt
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getProperties().getUPLPropertySpecs();
     }
 }

@@ -55,13 +55,13 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getProperties().getUPLPropertySpecs();
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        getProperties().setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        getProperties().setUPLProperties(properties);
     }
 
     public DlmsSession getSession() {

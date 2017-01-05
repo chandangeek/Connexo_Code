@@ -71,7 +71,7 @@ public class Vectron extends SchlumbergerProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         allowClockSet = Integer.parseInt(properties.getTypedProperty(ALLOW_CLOCK_SET, "0").trim()) == 1;
         setDelayAfterConnect(Integer.parseInt(properties.getTypedProperty(DELAY_AFTER_CONNECT, "2000").trim()));
     }

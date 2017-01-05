@@ -43,8 +43,8 @@ public class PM750 extends Modbus  {
 	}
 
 	@Override
-	public void setProperties(TypedProperties properties) throws PropertyValidationException {
-		super.setProperties(properties);
+	public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+		super.setUPLProperties(properties);
 		setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "50").trim()));
 	}
 

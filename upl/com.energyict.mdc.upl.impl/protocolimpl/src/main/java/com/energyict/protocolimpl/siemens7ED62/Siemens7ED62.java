@@ -433,7 +433,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         throw new UnsupportedException();
     }
 
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> specs = new ArrayList<>();
         this.getIntegerPropertyNames()
                 .stream()
@@ -523,7 +523,7 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     public void initializeDevice() throws IOException {
     }
 
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         validateProperties(properties.toStringProperties());
     }
 

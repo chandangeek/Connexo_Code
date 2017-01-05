@@ -47,7 +47,7 @@ public class UkHubProperties extends DlmsProtocolProperties {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.integerSpec(SECURITY_LEVEL, true),
                 this.integerSpec(ADDRESSING_MODE, false),

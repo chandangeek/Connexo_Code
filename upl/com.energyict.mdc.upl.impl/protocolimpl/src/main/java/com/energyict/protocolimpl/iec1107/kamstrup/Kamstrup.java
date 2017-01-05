@@ -191,7 +191,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(PASSWORD.getName()),
@@ -220,7 +220,7 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
             strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());

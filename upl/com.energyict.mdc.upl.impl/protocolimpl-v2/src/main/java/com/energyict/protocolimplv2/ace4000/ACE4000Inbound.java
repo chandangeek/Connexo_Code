@@ -146,12 +146,12 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
 
     // Making super's implementation public
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return super.getPropertySpecs();
     }
 
     @Override
-    public void setProperties(TypedProperties properties) {
+    public void setUPLProperties(TypedProperties properties) {
         this.addProperties(properties);
     }
 

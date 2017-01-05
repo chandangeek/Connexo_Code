@@ -232,8 +232,8 @@ public class G3B extends AbstractDLMSProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(this.stringSpec("Connection", false));
         propertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), false));
         propertySpecs.add(this.stringSpec("ClientMacAddress", false));

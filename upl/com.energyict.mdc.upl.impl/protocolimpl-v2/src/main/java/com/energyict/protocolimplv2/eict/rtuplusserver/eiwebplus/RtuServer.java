@@ -108,7 +108,7 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 
@@ -265,7 +265,7 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // nothing much to do
     }
 

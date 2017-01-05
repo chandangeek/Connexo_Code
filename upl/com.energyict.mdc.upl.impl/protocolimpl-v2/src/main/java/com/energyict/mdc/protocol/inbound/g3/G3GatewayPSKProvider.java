@@ -191,7 +191,7 @@ public class G3GatewayPSKProvider {
         createTcpComChannel();
         context.getLogger().info(() -> "Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().toString() + "', to provide the PSK key(s)");
         gatewayProtocol.setDeviceCache(dummyCache);
-        gatewayProtocol.setProperties(protocolProperties);
+        gatewayProtocol.setUPLProperties(protocolProperties);
         gatewayProtocol.addDeviceProtocolDialectProperties(dialectProperties);
         gatewayProtocol.setSecurityPropertySet(securityPropertySet);
         gatewayProtocol.init(offlineDevice, tcpComChannel);

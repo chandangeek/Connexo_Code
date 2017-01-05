@@ -11,6 +11,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
  */
 public interface ProtocolProperties extends HasDynamicProperties {
 
-    void setProperties(TypedProperties properties) throws PropertyValidationException;
+    void setUPLProperties(TypedProperties properties) throws PropertyValidationException;
 
 }

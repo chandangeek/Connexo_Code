@@ -48,13 +48,13 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         getProtocolProperties().put(DlmsProtocolProperties.SECURITY_LEVEL, getSecurityLevel());
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.spec(PK_RETRIES, this.propertySpecService::integerSpec),
                 this.spec(PK_TIMEOUT, this.propertySpecService::integerSpec),

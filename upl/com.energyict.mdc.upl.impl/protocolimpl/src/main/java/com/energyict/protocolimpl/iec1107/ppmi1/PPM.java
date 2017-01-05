@@ -246,7 +246,7 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(NODEID.getName()),
@@ -274,7 +274,7 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         if (p.getTypedProperty(ADDRESS.getName()) != null) {
             this.pAddress = p.getTypedProperty(ADDRESS.getName());
         }

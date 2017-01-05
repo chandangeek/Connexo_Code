@@ -39,6 +39,6 @@ public class MBusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) {
+    public void setUPLProperties(TypedProperties properties) {
     }
 }

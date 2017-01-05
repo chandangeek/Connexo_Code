@@ -322,8 +322,8 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec(DlmsProtocolProperties.ADDRESSING_MODE, false));
         propertySpecs.add(this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec(DlmsProtocolProperties.CONNECTION, false));
@@ -337,8 +337,8 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         try {
             this.forcedToReadCache = !properties.getTypedProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase(Integer.toString(DEFAULT_FORCED_TO_READ_CACHE));
             this.maxRecPduSize = Integer.parseInt(properties.getTypedProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(DEFAULT_MAX_PDU_SIZE)));

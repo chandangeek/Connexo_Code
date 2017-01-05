@@ -241,7 +241,7 @@ public class RequestDiscoverTest {
         properties.setProperty(AbstractDiscover.TIMEOUT_KEY, TimeDuration.seconds(1));
         properties.setProperty(AbstractDiscover.RETRIES_KEY, BigDecimal.ZERO);
         RequestDiscover requestDiscover = new RequestDiscover(propertySpecService, collectedDataFactory, issueFactory);
-        requestDiscover.setProperties(properties);
+        requestDiscover.setUPLProperties(properties);
         return requestDiscover;
     }
 

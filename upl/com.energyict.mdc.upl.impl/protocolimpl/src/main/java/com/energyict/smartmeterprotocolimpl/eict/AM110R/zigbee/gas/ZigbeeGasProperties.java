@@ -51,7 +51,7 @@ public class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
                 this.integerSpec(SECURITY_LEVEL, true),

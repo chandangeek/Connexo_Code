@@ -95,8 +95,8 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(
                 UPLPropertySpecFactory
                         .specBuilder(DEVICE_TYPE_KEY, true, this.getPropertySpecService()::stringSpec)

@@ -710,7 +710,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(NODEID.getName()),
                 this.stringSpecOfMaxLength(ADDRESS.getName(), 16),
@@ -755,7 +755,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         try {
             this.doSetProperties(properties);
             this.properties = properties.toStringProperties();

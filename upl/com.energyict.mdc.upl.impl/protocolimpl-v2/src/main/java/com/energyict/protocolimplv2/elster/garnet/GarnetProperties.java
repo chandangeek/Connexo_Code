@@ -175,7 +175,7 @@ public class GarnetProperties implements HasDynamicProperties {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(this.deviceIdPropertySpec(), this.timeZonePropertySpec());
     }
 
@@ -192,7 +192,7 @@ public class GarnetProperties implements HasDynamicProperties {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.addProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties));
     }
 

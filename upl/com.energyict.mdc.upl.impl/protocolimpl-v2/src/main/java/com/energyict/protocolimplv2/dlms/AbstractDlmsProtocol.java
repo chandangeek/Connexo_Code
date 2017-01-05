@@ -123,7 +123,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.getDlmsSessionProperties().addProperties(properties);
     }
 
@@ -342,8 +342,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getDlmsConfigurationSupport().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getDlmsConfigurationSupport().getUPLPropertySpecs();
     }
 
     public boolean hasBreaker() {

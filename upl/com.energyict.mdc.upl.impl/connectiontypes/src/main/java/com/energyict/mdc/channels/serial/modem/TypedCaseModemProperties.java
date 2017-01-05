@@ -56,7 +56,7 @@ public class TypedCaseModemProperties extends AbstractCaseModemProperties implem
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 modemAddressSelectorSpec(),
                 atConnectTimeoutSpec(),
@@ -72,7 +72,7 @@ public class TypedCaseModemProperties extends AbstractCaseModemProperties implem
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = properties;
     }
 

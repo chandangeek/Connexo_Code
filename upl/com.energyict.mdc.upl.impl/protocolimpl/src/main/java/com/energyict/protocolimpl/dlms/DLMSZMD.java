@@ -370,8 +370,8 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec(PROPNAME_EVENT_ID_INDEX));
         return propertySpecs;
     }

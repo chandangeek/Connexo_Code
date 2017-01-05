@@ -92,12 +92,12 @@ public class EIWebPlusConnectionType implements ConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.singletonList(this.ipAddressPropertySpec());
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = properties;
     }
 }

@@ -352,8 +352,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        Stream<PropertySpec> propertySpecs = super.getPropertySpecs().stream().filter(propertySpec -> !propertySpec.getName().equals(SECURITYLEVEL.getName()));
+    public List<PropertySpec> getUPLPropertySpecs() {
+        Stream<PropertySpec> propertySpecs = super.getUPLPropertySpecs().stream().filter(propertySpec -> !propertySpec.getName().equals(SECURITYLEVEL.getName()));
         PropertySpecService propertySpecService = this.getPropertySpecService();
         List<PropertySpec> myPropertySpecs = new ArrayList<>();
         myPropertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), true));
@@ -388,8 +388,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         this.properties = properties.toStringProperties();
         String securityLevelPropertyValue = properties.getTypedProperty(SECURITYLEVEL.getName(), "0");
         String[] securityLevel = securityLevelPropertyValue.split(":");

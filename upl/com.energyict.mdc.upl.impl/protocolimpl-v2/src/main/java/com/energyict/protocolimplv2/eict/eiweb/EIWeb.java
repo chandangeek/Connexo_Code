@@ -96,7 +96,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.singletonList(getPhoneNumberPropertySpec());
     }
 
@@ -257,7 +257,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // nothing much to do
     }
 

@@ -102,14 +102,14 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         getEdpProperties().addProperties(properties.toStringProperties());
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.addAll(this.getEdpProperties().getPropertySpecs());
         return propertySpecs;
     }

@@ -65,7 +65,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.singletonList(
                 UPLPropertySpecFactory
                         .specBuilder(MAX_IDLE_TIME, false, this.propertySpecService::bigDecimalSpec)
@@ -74,7 +74,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // Properties are not used in this class.
         // Note that the maxIdleTime property is used while setting up the Jetty servlet.
     }

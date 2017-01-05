@@ -57,7 +57,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         this.logger = protocol.getLogger();
         this.iskra = protocol;
         if (mbus != null) {
-            setProperties(mbus.getProtocolProperties());
+            setUPLProperties(mbus.getProtocolProperties());
         }
     }
 
@@ -79,7 +79,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return "$Date: 2015-03-10 09:02:30 +0100 (Tue, 10 Mar 2015) $";
     }
 
-    public void setProperties(TypedProperties properties) {
+    public void setUPLProperties(TypedProperties properties) {
         rtuType = properties.getTypedProperty("DeviceType", "mbus");
     }
 

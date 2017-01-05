@@ -16,8 +16,8 @@ public class AM100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String READCACHE_PROPERTY = "ReadCache";
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(readCachePropertySpec());
         return propertySpecs;
     }

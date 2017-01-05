@@ -57,7 +57,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 

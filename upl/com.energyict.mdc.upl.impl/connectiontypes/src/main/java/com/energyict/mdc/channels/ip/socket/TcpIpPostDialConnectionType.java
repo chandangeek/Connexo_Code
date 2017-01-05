@@ -124,8 +124,8 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(postDialDelayPropertySpec());
         propertySpecs.add(postDialRetriesPropertySpec());
         propertySpecs.add(postDialCommandPropertySpec());

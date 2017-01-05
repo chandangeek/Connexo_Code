@@ -248,7 +248,7 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getProperties().getUPLPropertySpecs();
     }
 }

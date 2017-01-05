@@ -144,8 +144,8 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec("C12User", false));
         propertySpecs.add(this.integerSpec("C12UserId", false));
         propertySpecs.add(this.integerSpec("UseSnapshotProcedure", false));
@@ -158,8 +158,8 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "64"));
         c12User = properties.getTypedProperty("C12User", "");
         c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId", "0").trim());

@@ -21,8 +21,8 @@ public class Dsmr40Properties extends Dsmr23Properties {
     private static final String CumulativeCaptureTimeChannel = "CumulativeCaptureTimeChannel";
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(UPLPropertySpecFactory.string(DSMR_40_HEX_PASSWORD, false));
         propertySpecs.add(UPLPropertySpecFactory.integer(PROPERTY_FORCED_TO_READ_CACHE, false));
         propertySpecs.add(UPLPropertySpecFactory.integer(CumulativeCaptureTimeChannel, false));

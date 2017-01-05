@@ -41,8 +41,8 @@ public class EIMeter extends Modbus {
     protected void doTheDisConnect() throws IOException { /* relax */ }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
         setInfoTypeMeterFirmwareVersion(properties.getTypedProperty(PK_METER_FIRMWARE_VERSION, "1.07"));
         if (Float.parseFloat(getInfoTypeMeterFirmwareVersion()) >= 1.07) {

@@ -253,7 +253,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
         propertySpecs.add(
                 UPLPropertySpecFactory
@@ -263,7 +263,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.getProperties().setAllProperties(properties);
     }
 

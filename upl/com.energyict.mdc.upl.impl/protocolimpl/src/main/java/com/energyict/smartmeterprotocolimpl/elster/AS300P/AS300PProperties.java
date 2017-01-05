@@ -43,7 +43,7 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
                 UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),

@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -47,14 +46,14 @@ public class SioSerialConnectionTypeTest {
 
         // asserts
         assertThat(serialConnectionType.getOptionalProperties()).isNotEmpty();
-        assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
+        assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getUPLPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
     }
 
     @Test
     public void getPossibleValuesInCorrectOrderTest() {
         SioSerialConnectionType serialConnectionType = new SioSerialConnectionType();
 
-        PropertySpec baudrate = serialConnectionType.getPropertySpec(SerialPortConfiguration.BAUDRATE_NAME);
+        PropertySpec baudrate = serialConnectionType.getUPLPropertySpec(SerialPortConfiguration.BAUDRATE_NAME);
 
         assertThat(baudrate.getPossibleValues().getAllValues().get(0)).isEqualTo(new BigDecimal(150));
         assertThat(baudrate.getPossibleValues().getAllValues().get(1)).isEqualTo(new BigDecimal(300));

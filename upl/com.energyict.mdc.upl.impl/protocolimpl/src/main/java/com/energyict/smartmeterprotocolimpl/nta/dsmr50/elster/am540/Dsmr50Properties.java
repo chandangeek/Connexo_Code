@@ -37,8 +37,8 @@ public class Dsmr50Properties extends Dsmr40Properties {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(UPLPropertySpecFactory.string(PROP_LASTSEENDATE, false));
         propertySpecs.add(UPLPropertySpecFactory.integer(AARQ_RETRIES, false));
         propertySpecs.add(UPLPropertySpecFactory.integer(AARQ_TIMEOUT, false));

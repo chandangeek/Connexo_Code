@@ -147,7 +147,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.integerSpec("HalfDuplex"),
                 this.integerSpec("ForcedDelay"),
@@ -183,7 +183,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         long llPassword;
         int liNodeID;
         int liProtocolTimeoutProperty;

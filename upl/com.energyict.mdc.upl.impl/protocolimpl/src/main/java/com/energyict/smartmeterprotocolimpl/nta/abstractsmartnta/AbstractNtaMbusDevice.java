@@ -244,7 +244,7 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.singletonList(this.spec(DlmsProtocolProperties.NTA_SIMULATION_TOOL, this.propertySpecService::stringSpec));
     }
 

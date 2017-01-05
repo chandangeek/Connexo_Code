@@ -75,7 +75,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getProperties().getUPLPropertySpecs();
     }
 }

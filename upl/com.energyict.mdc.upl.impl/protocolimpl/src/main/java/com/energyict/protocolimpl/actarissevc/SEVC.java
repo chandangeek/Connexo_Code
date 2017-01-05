@@ -294,7 +294,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(PASSWORD.getName()),
@@ -319,7 +319,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
@@ -385,7 +385,7 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
         properties.setProperty(PASSWORD.getName(), "PASS");
-        setProperties(properties);
+        setUPLProperties(properties);
         init(commChannel.getInputStream(), commChannel.getOutputStream(), null, null);
         enableHHUSignOn(commChannel);
         connect();

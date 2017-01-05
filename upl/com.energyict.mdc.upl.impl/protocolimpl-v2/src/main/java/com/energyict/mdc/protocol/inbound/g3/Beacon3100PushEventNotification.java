@@ -47,8 +47,8 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
-        List<com.energyict.mdc.upl.properties.PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        List<com.energyict.mdc.upl.properties.PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(
                 UPLPropertySpecFactory
                         .specBuilder(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, false, this.propertySpecService::booleanSpec)
@@ -63,8 +63,8 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
-        super.setProperties(properties);
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+        super.setUPLProperties(properties);
         this.provideProtocolJavaClasName = properties.getTypedProperty(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, true);
     }
 

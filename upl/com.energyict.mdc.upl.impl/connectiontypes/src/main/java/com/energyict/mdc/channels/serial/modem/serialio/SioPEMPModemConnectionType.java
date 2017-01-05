@@ -56,9 +56,9 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(new TypedPEMPModemProperties().getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
+        propertySpecs.addAll(new TypedPEMPModemProperties().getUPLPropertySpecs());
         return propertySpecs;
     }
 }

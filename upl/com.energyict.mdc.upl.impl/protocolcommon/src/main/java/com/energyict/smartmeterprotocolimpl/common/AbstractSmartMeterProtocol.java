@@ -31,13 +31,13 @@ public abstract class AbstractSmartMeterProtocol implements SmartMeterProtocol {
     protected abstract ProtocolProperties getProtocolProperties();
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
-        getProtocolProperties().setProperties(properties);
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+        getProtocolProperties().setUPLProperties(properties);
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getProtocolProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getProtocolProperties().getUPLPropertySpecs();
     }
 
     public void validateProperties() throws InvalidPropertyException, MissingPropertyException {

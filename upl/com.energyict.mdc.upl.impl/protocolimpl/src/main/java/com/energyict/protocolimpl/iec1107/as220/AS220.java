@@ -243,7 +243,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(PASSWORD.getName()),
@@ -293,7 +293,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             this.strID = properties.getTypedProperty(ADDRESS.getName(), "");
             this.strPassword = properties.getTypedProperty(PASSWORD.getName());

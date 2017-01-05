@@ -246,8 +246,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> myPropertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> myPropertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         myPropertySpecs.add(this.integerSpec(READCACHE_PROPERTY, false));
         myPropertySpecs.add(this.integerSpec(LIMITMAXNROFDAYS_PROPERTY, false));
         myPropertySpecs.add(this.stringSpec(CALLING_AP_TITLE, false));
@@ -269,8 +269,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         readCache = Integer.parseInt(properties.getTypedProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE).trim()) == 1;
         limitMaxNrOfDays = Integer.parseInt(properties.getTypedProperty(LIMITMAXNROFDAYS_PROPERTY, MAX_NR_OF_DAYS_DEFAULT).trim());
         String callingAPTitle = properties.getTypedProperty(CALLING_AP_TITLE, CALLING_AP_TITLE_DEFAULT).trim();

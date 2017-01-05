@@ -165,8 +165,8 @@ public abstract class SchlumbergerProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec(UNIT_TYPE, false));
         propertySpecs.add(this.stringSpec(UNIT_ID, false));
         propertySpecs.add(this.stringSpec(NODE_ADDRESS, false));
@@ -181,8 +181,8 @@ public abstract class SchlumbergerProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getTypedProperty(FORCED_DELAY,"0").trim()));
         setInfoTypeSecurityLevel(Integer.parseInt(properties.getTypedProperty(SECURITY_LEVEL, "1").trim()));
         setUnitType(properties.getTypedProperty(UNIT_TYPE));

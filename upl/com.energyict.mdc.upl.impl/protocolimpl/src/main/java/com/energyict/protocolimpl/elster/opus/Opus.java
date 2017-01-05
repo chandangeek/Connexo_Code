@@ -237,8 +237,8 @@ public class Opus extends AbstractProtocol {
 	}
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(ProtocolChannelMap.propertySpec("ChannelMap", false));
         propertySpecs.add(this.integerSpec("NodeAddress", true));
         return propertySpecs;
@@ -250,8 +250,8 @@ public class Opus extends AbstractProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         this.outstationID = Integer.parseInt(properties.getTypedProperty("NodeAddress"));
 		this.channelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap","1"));
 		this.timeOut = Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "5000"));

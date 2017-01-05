@@ -28,7 +28,7 @@ public class SDKSmartMeterProperties extends AbstractProtocolProperties {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.singletonList(
                 UPLPropertySpecFactory
                         .specBuilder(SIMULATE_REAL_COMMUNICATION, false, this.propertySpecService::integerSpec)

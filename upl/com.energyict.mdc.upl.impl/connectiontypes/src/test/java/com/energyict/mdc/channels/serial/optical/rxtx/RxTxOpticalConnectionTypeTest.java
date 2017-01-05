@@ -42,7 +42,7 @@ public class RxTxOpticalConnectionTypeTest {
 
         // asserts
         assertThat(opticalConnectionType.getOptionalProperties()).isNotEmpty();
-        assertThat(opticalConnectionType.getOptionalProperties()).contains(opticalConnectionType.getPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
+        assertThat(opticalConnectionType.getOptionalProperties()).contains(opticalConnectionType.getUPLPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
     }
 
 }

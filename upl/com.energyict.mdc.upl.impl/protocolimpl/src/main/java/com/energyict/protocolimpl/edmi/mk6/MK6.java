@@ -85,8 +85,8 @@ public class MK6 extends AbstractProtocol implements Serializable {
 	}
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(this.stringSpec("EventLogName", false));
         propertySpecs.add(this.stringSpec("LoadSurveyName", false));
         propertySpecs.add(this.integerSpec("StatusFlagChannel", false));
@@ -96,8 +96,8 @@ public class MK6 extends AbstractProtocol implements Serializable {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
 		setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "1"));
 		setEventLogName(properties.getTypedProperty("EventLogName", "Event Log"));
 		setLoadSurveyName(properties.getTypedProperty("LoadSurveyName", "Load_Survey"));

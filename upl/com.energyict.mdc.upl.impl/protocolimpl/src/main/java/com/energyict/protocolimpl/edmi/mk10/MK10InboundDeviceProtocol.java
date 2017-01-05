@@ -159,7 +159,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
         this.typedProperties = TypedProperties.copyOf(properties);
     }
 
@@ -173,7 +173,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory
                         .specBuilder(TIMEOUT_KEY, false, this.propertySpecService::durationSpec)

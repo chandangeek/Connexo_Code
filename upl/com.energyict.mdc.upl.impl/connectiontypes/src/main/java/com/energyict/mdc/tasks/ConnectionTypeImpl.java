@@ -38,7 +38,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = properties;
     }
 

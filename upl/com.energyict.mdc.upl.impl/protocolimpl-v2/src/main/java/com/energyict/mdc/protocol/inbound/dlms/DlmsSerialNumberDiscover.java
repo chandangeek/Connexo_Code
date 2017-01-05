@@ -186,8 +186,8 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
-        List<com.energyict.mdc.upl.properties.PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        List<com.energyict.mdc.upl.properties.PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         PropertySpecService propertySpecService = this.getPropertySpecService();
         propertySpecs.add(
                 UPLPropertySpecFactory

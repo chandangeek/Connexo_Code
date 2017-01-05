@@ -42,6 +42,6 @@ public class RxTxSerialConnectionTypeTest {
 
         // asserts
         assertThat(serialConnectionType.getOptionalProperties()).isNotEmpty();
-        assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
+        assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getUPLPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
     }
 }

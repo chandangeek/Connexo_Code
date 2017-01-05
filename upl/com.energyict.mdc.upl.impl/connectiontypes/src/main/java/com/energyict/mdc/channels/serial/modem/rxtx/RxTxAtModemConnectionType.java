@@ -56,9 +56,9 @@ public class RxTxAtModemConnectionType extends RxTxSerialConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(new TypedAtModemProperties().getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
+        propertySpecs.addAll(new TypedAtModemProperties().getUPLPropertySpecs());
         return propertySpecs;
     }
 

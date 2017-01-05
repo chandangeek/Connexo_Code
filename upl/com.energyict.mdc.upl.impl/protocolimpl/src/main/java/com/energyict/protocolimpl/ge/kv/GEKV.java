@@ -130,15 +130,15 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec("C12User", false));
         propertySpecs.add(this.integerSpec("C12UserId", false));
         return propertySpecs;
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "64"));
         c12User = properties.getTypedProperty("C12User","");

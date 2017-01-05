@@ -143,7 +143,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpecOfMaxLength(ADDRESS.getName(), MAX_ADDRESS_LENGTH),
                 this.stringSpec(NODEID.getName()),
@@ -181,7 +181,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         try {
             this.strID = properties.getTypedProperty(ADDRESS.getName());
             this.nodeId = properties.getTypedProperty(NODEID.getName(), "");

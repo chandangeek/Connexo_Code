@@ -511,7 +511,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private String firmwareVersion;
 
     /**
-     * This one indicates if we have set the properties yet. It is used to make sure {@link HasDynamicProperties#setProperties(TypedProperties)} is called before {@link #init(InputStream, OutputStream, TimeZone, Logger)},
+     * This one indicates if we have set the properties yet. It is used to make sure {@link HasDynamicProperties#setUPLProperties(TypedProperties)} is called before {@link #init(InputStream, OutputStream, TimeZone, Logger)},
      * as one would assume the sequence to be the other way around.
      */
     private transient boolean propertiesSet = false;
@@ -1365,7 +1365,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpecOfMaxLength(ADDRESS.getName(), 16),
                 this.stringSpec(PASSWORD.getName()),
@@ -1416,7 +1416,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     @Override
-    public final void setProperties(final TypedProperties properties) throws InvalidPropertyException {
+    public final void setUPLProperties(final TypedProperties properties) throws InvalidPropertyException {
         try {
             this.deviceId = properties.getTypedProperty(ADDRESS.getName());
             this.password = properties.getTypedProperty(PASSWORD.getName());

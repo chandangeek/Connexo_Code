@@ -1336,7 +1336,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpecOfMaxLength(ADDRESS.getName(), 16),
                 this.stringSpec(PASSWORD.getName()),
@@ -1374,7 +1374,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());

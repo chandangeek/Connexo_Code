@@ -88,8 +88,8 @@ public abstract class MBus extends AbstractProtocol implements Discover {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(this.integerSpec("SecondaryAddressing", false));
         propertySpecs.add(this.integerSpec("VirtualLoadProfile", false));
         propertySpecs.add(this.integerSpec("DataQuantitiesAreZeroBased", false));
@@ -100,8 +100,8 @@ public abstract class MBus extends AbstractProtocol implements Discover {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "3000").trim()));
         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "2").trim()));
         setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));

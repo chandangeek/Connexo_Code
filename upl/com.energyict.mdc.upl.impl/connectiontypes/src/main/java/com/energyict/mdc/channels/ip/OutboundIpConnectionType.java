@@ -67,7 +67,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.hostPropertySpec(),
                 this.portNumberPropertySpec(),

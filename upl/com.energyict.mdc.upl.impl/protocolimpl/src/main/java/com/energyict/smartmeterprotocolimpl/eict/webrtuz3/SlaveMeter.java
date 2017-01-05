@@ -106,12 +106,12 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter, Seria
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
 
     }
 }

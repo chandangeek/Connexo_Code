@@ -65,12 +65,12 @@ public class DataPushNotification implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         // No properties
     }
 

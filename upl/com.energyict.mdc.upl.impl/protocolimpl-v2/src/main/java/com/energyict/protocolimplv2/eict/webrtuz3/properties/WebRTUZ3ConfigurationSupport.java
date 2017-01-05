@@ -36,7 +36,7 @@ public class WebRTUZ3ConfigurationSupport implements HasDynamicProperties {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -105,7 +105,7 @@ public class WebRTUZ3ConfigurationSupport implements HasDynamicProperties {
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.typedProperties = TypedProperties.copyOf(properties);
     }
 

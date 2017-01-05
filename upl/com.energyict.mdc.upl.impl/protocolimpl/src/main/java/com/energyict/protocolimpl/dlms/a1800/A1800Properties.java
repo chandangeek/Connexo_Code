@@ -46,7 +46,7 @@ class A1800Properties extends DlmsProtocolProperties implements DlmsSessionPrope
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.integerSpec(SECURITY_LEVEL),
                 this.integerSpec(CLIENT_MAC_ADDRESS),

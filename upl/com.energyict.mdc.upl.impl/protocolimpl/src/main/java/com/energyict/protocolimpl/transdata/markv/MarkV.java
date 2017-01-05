@@ -115,15 +115,15 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec("VerifyTimeDelay", false));
         return propertySpecs;
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         verifyTimeDelay=Integer.parseInt(properties.getTypedProperty("VerifyTimeDelay", "2000").trim());
     }
 
@@ -185,7 +185,7 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
         if ((discoverInfo.getNodeId()!= null) && ("".compareTo(discoverInfo.getNodeId()) != 0)) {
             properties.setProperty(Property.NODEID.getName(), discoverInfo.getNodeId());
         }
-        setProperties(properties);
+        setUPLProperties(properties);
         init(discoverInfo.getCommChannel().getInputStream(),discoverInfo.getCommChannel().getOutputStream(),null,null);
         connect();
         BufferedReader br = new BufferedReader(new StringReader(new String(markVConnection.receiveWithTimeout("ID"))));

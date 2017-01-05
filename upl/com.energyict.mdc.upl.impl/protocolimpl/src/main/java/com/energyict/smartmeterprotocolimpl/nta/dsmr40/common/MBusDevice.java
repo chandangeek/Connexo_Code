@@ -40,7 +40,7 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
     }
 
     public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
