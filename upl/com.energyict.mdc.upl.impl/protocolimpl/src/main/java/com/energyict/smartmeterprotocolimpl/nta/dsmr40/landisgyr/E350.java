@@ -129,7 +129,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getProperties().getUPLPropertySpecs();
     }
 }

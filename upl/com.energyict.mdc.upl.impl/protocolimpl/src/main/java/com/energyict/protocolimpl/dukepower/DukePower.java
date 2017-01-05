@@ -756,7 +756,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpecOfExactLength(ADDRESS.getName(), 7),
                 this.stringSpecOfExactLength(PASSWORD.getName(), 4),
@@ -791,7 +791,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());

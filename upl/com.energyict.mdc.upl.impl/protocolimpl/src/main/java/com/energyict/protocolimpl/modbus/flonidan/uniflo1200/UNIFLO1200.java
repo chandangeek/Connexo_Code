@@ -164,9 +164,9 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 	}
 
 	@Override
-	public List<PropertySpec> getPropertySpecs() {
+	public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs =
-                super.getPropertySpecs()
+                super.getUPLPropertySpecs()
                         .stream()
                         .filter(propertySpec -> !propertySpec.getName().equals(PASSWORD.getName()))
                         .collect(Collectors.toList());
@@ -184,8 +184,8 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 	}
 
 	@Override
-	public void setProperties(TypedProperties properties) throws PropertyValidationException {
-		super.setProperties(properties);
+	public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+		super.setUPLProperties(properties);
 		sendDebug("setProperties()", 5);
         try {
             setLoadProfileNumber(Integer.parseInt(properties.getTypedProperty("LoadProfileNumber", "1").trim()));

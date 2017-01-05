@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
@@ -68,11 +69,12 @@ public class RequestDiscoverTest {
     protected IssueFactory issueFactory;
     @Mock
     private CollectedRegisterList collectedRegisterList;
+    @Mock
+    private PropertySpecService propertySpecService;
 
     protected int count;
-    protected byte[] inboundFrame;
 
-    private static final int LOGBOOK_ID = 10;
+    protected byte[] inboundFrame;
 
     @Before
     public void initialize() {
@@ -189,7 +191,7 @@ public class RequestDiscoverTest {
                     return false;
                 }
                 MeterProtocolEvent meterProtocolEvent = meterProtocolEvents.get(0);
-                return meterProtocolEvent.getMessage().equalsIgnoreCase("Last gas power outage")
+                return "Last gas power outage".equalsIgnoreCase(meterProtocolEvent.getMessage())
                         && meterProtocolEvent.getTime().getTime() == 1259629910000L;
             }
         }));
@@ -238,8 +240,8 @@ public class RequestDiscoverTest {
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty(AbstractDiscover.TIMEOUT_KEY, TimeDuration.seconds(1));
         properties.setProperty(AbstractDiscover.RETRIES_KEY, BigDecimal.ZERO);
-        RequestDiscover requestDiscover = new RequestDiscover(collectedDataFactory, issueFactory);
-        requestDiscover.addProperties(properties);
+        RequestDiscover requestDiscover = new RequestDiscover(propertySpecService, collectedDataFactory, issueFactory);
+        requestDiscover.setUPLProperties(properties);
         return requestDiscover;
     }
 

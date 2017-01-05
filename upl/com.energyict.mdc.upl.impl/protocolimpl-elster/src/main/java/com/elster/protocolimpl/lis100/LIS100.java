@@ -95,7 +95,7 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
@@ -103,7 +103,7 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());

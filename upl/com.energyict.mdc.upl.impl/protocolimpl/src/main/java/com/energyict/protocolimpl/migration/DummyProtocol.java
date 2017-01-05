@@ -30,12 +30,12 @@ import java.util.logging.Logger;
  */
 public class DummyProtocol implements MeterProtocol {
 
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 

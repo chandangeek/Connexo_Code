@@ -43,8 +43,8 @@ public class EPM2200 extends Modbus implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "50").trim()));
     }
 
@@ -101,7 +101,7 @@ public class EPM2200 extends Modbus implements SerialNumberSupport {
         discoverResult.setProtocolMODBUS();
 
         try {
-            setProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
+            setUPLProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
             if (getInfoTypeHalfDuplex() != 0) {
                 setHalfDuplexController(discoverTools.getDialer().getHalfDuplexController());
             }

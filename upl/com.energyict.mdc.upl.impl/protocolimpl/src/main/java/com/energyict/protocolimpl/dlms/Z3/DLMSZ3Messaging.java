@@ -221,7 +221,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(PASSWORD.getName()),
                 this.integerSpec(SECURITYLEVEL.getName()),
@@ -249,7 +249,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         this.password = properties.getTypedProperty(PASSWORD.getName(), "");
         this.securityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "0"));
         this.connectionMode = Integer.parseInt(properties.getTypedProperty("ConnectionMode", "1"));

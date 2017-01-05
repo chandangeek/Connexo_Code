@@ -29,8 +29,8 @@ public class IDISConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> result = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> result = new ArrayList<>(super.getUPLPropertySpecs());
         result.add(this.swapServerAndClientAddress());
         result.add(this.ignoreCallingAPTitle());
         result.add(this.useLogicalDeviceNameAsSerialNumber());

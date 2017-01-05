@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,10 +25,15 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     public static final String SOURCE_PROPERTY_NAME = "API_source";
     public static final String AUTHENTICATION_PROPERTY_NAME = "API_authentication";
 
+    private final PropertySpecService propertySpecService;
     protected TypedProperties properties;
     protected HttpServletRequest request;
     protected HttpServletResponse response;
     protected InboundDiscoveryContext context;
+
+    protected AbstractSMSServletBasedInboundDeviceProtocol(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
@@ -46,34 +52,24 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     }
 
     @Override
-    public String getVersion() {
-        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
-    }
-
-    @Override
     public InboundDiscoveryContext getContext() {
         return this.context;
     }
 
     @Override
-    public void addProperties(TypedProperties properties) {
-        this.properties = properties;
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+        this.properties = TypedProperties.copyOf(properties);
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                sourcePropertySpec(),
-                authenticationPropertySpec());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<>();
+                    sourcePropertySpec(),
+                    authenticationPropertySpec());
     }
 
     private PropertySpec sourcePropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(SOURCE_PROPERTY_NAME);
+        return this.stringSpec(SOURCE_PROPERTY_NAME);
     }
 
     protected String sourcePropertyValue() {
@@ -81,7 +77,7 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
     }
 
     private PropertySpec authenticationPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(AUTHENTICATION_PROPERTY_NAME);
+        return this.stringSpec(AUTHENTICATION_PROPERTY_NAME);
     }
 
     protected String authenticationPropertyValue() {
@@ -92,6 +88,11 @@ public abstract class AbstractSMSServletBasedInboundDeviceProtocol implements Se
         return this.properties.getProperty(propertyName);
     }
 
+    protected PropertySpec stringSpec(String name) {
+        return UPLPropertySpecFactory
+                    .specBuilder(name, true, this.propertySpecService::stringSpec)
+                    .finish();
+    }
     @Override
     public boolean hasSupportForRequestsOnInbound() {
         return false;

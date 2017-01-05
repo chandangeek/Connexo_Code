@@ -12,6 +12,8 @@ import java.time.LocalTime;
  */
 public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTypeDefObject> {
 
+    private int dayTypeId;
+    private String dayTypeName;
     private int from;
     private int codeValue;
 
@@ -19,6 +21,8 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
         CodeDayTypeDefObject dtd = new CodeDayTypeDefObject();
         dtd.setCodeValue(slice.tariffCode());
         dtd.setFrom(slice.start());
+        dtd.setDayTypeId(Integer.parseInt(slice.dayTypeId()));
+        dtd.setDayTypeName(slice.dayTypeName());
         return dtd;
     }
 
@@ -34,6 +38,14 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
         this.setCodeValue(Integer.parseInt(codeValue));
     }
 
+    public int getDayTypeId() {
+        return dayTypeId;
+    }
+
+    public void setDayTypeId(int dayTypeId) {
+        this.dayTypeId = dayTypeId;
+    }
+
     public int getFrom() {
         return from;
     }
@@ -46,10 +58,20 @@ public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTyp
         this.setFrom(from.getHour() * 10_000 + from.getMinute() * 100 + from.getSecond());
     }
 
+    public String getDayTypeName() {
+        return dayTypeName;
+    }
+
+    public void setDayTypeName(String dayTypeName) {
+        this.dayTypeName = dayTypeName;
+    }
+
     @Override
     public String toString() {
         return "CodeDayTypeDefObject" +
                 "{codeValue=" + codeValue +
+                ", dayTypeId=" + dayTypeId +
+                ", dayTypeName='" + dayTypeName + '\'' +
                 ", from=" + from +
                 '}';
     }

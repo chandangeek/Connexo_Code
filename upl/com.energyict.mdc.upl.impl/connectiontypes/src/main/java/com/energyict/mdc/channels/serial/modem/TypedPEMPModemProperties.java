@@ -52,7 +52,7 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(atConnectTimeoutSpec(),
                 atCommandPrefixSpec(),
                 atModemInitStringSpec(),
@@ -66,7 +66,7 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = properties;
     }
 

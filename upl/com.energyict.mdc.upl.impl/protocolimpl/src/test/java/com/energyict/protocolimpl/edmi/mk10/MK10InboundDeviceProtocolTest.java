@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.edmi.mk10;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.TypedProperties;
@@ -21,8 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 /**
- * @author: sva
- * @since: 29/10/12 (14:09)
+ * @author sva
+ * @since 29/10/12 (14:09)
  */
 @RunWith(PowerMockRunner.class)
 public class MK10InboundDeviceProtocolTest {
@@ -51,7 +52,9 @@ public class MK10InboundDeviceProtocolTest {
     protected byte[] inboundFrame;
 
     @Mock
-    protected ComChannel comChannel;
+    private ComChannel comChannel;
+    @Mock
+    private PropertySpecService propertySpecService;
 
     @Test
     public void heartBeatPacketHandlingTest() {
@@ -81,9 +84,9 @@ public class MK10InboundDeviceProtocolTest {
     private MK10InboundDeviceProtocol getProtocolInstance() {
         TypedProperties properties = TypedProperties.empty();
         properties.setProperty(TIMEOUT_KEY, new BigDecimal(5000));
-        properties.setProperty(RETRIES_KEY, new BigDecimal(0));
-        MK10InboundDeviceProtocol inboundDeviceProtocol = new MK10InboundDeviceProtocol();
-        inboundDeviceProtocol.addProperties(properties);
+        properties.setProperty(RETRIES_KEY, BigDecimal.ZERO);
+        MK10InboundDeviceProtocol inboundDeviceProtocol = new MK10InboundDeviceProtocol(propertySpecService);
+        inboundDeviceProtocol.setUPLProperties(properties);
         return inboundDeviceProtocol;
     }
 

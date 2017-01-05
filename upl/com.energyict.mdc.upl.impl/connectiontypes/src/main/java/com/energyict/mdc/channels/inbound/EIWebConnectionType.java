@@ -90,12 +90,12 @@ public class EIWebConnectionType implements ConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(this.ipAddressPropertySpec(), this.macAddressPropertySpec());
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = properties;
 
     }

@@ -1,13 +1,16 @@
 package com.energyict.protocolimplv2.common.objectserialization.codetable.objects;
 
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.CodeDayType;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
+import com.google.common.collect.Range;
 
 import java.io.Serializable;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -15,6 +18,9 @@ import java.util.TimeZone;
  * Time: 11:52
  */
 public class CodeObject implements Serializable {
+
+    public static final int MIN_START_YEAR = 2000;
+    public static final int MAX_START_YEAR = 2099;
 
     private int id;
     private String name;
@@ -34,32 +40,30 @@ public class CodeObject implements Serializable {
     public CodeObject() {
     }
 
-    public static CodeObject fromCode(Code code) {
+    public static CodeObject fromCode(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         CodeObject co = new CodeObject();
-        co.setId(code.getId());
-        co.setName(code.getName());
-        co.setExternalName(code.getExternalName());
-        co.setYearFrom(code.getYearFrom());
-        co.setYearTo(code.getYearTo());
-        co.setInterval(code.getIntervalInSeconds());
-        co.setVerified(code.getVerified());
-        co.setRebuilt(code.getRebuilt());
-        co.setDestinationTimeZone(code.getDestinationTimeZone());
-        co.setDefinitionTimeZone(code.getDefinitionTimeZone());
-        co.setSeasonSet(SeasonSetObject.fromSeasonSet(code.getSeasonSet()));
-
-        co.setDayTypes(new ArrayList<CodeDayTypeObject>());
-        List<CodeDayType> dt = code.getDayTypes();
-        for (CodeDayType codeDayType : dt) {
-            co.getDayTypes().add(CodeDayTypeObject.fromCodeDayType(codeDayType));
+        co.setId(Integer.parseInt(extractor.id(calendar)));
+        co.setName(extractor.name(calendar));
+        co.setExternalName(null);
+        Range<Year> range = extractor.range(calendar);
+        if (range.hasLowerBound()) {
+            co.setYearFrom(range.lowerEndpoint().getValue());
+        } else {
+            co.setYearFrom(MIN_START_YEAR);
         }
-
-        co.setCalendars(new ArrayList<CodeCalendarObject>());
-        List<CodeCalendar> cal = code.getCalendars();
-        for (CodeCalendar codeCalendar : cal) {
-            co.getCalendars().add(CodeCalendarObject.fromCodeCalendar(codeCalendar));
+        if (range.hasUpperBound()) {
+            co.setYearTo(range.upperEndpoint().getValue());
+        } else {
+            co.setYearTo(MAX_START_YEAR);
         }
-
+        co.setInterval(extractor.intervalInSeconds(calendar));
+        co.setVerified(true);
+        co.setRebuilt(true);
+        co.setDestinationTimeZone(extractor.destinationTimeZone(calendar));
+        co.setDefinitionTimeZone(extractor.definitionTimeZone(calendar));
+        extractor.season(calendar).map(SeasonSetObject::fromSeasonSet).ifPresent(co::setSeasonSet);
+        co.setDayTypes(extractor.dayTypes(calendar).stream().map(CodeDayTypeObject::fromCodeDayType).collect(Collectors.toList()));
+        co.setCalendars(extractor.rules(calendar).stream().map(CodeCalendarObject::fromCodeCalendar).collect(Collectors.toList()));
         return co;
     }
 

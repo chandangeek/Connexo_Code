@@ -2,10 +2,11 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
@@ -13,6 +14,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -23,8 +25,8 @@ import java.util.TimeZone;
  * Extra requests are sent in the normal protocol session (e.g. fetch meter data).
  * <p/>
  *
- * @author: sva
- * @since: 26/10/12 (11:40)
+ * @author sva
+ * @since 26/10/12 (11:40)
  */
 public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
@@ -34,6 +36,10 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
     DeviceIdentifier deviceIdentifier;
     private RequestFactory requestFactory;
+
+    public CtrInboundDeviceProtocol(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public DiscoverResultType doDiscovery() {
@@ -89,10 +95,16 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> requiredProperties = super.getRequiredProperties();
-        requiredProperties.add(PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DEVICE_TYPE_KEY, MTU155_DEVICE_TYPE, MTU155_DEVICE_TYPE, EK155_DEVICE_TYPE));
-        return requiredProperties;
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
+        propertySpecs.add(
+                UPLPropertySpecFactory
+                        .specBuilder(DEVICE_TYPE_KEY, true, this.getPropertySpecService()::stringSpec)
+                        .setDefaultValue(MTU155_DEVICE_TYPE)
+                        .addValues(MTU155_DEVICE_TYPE, EK155_DEVICE_TYPE)
+                        .markExhaustive()
+                        .finish());
+        return propertySpecs;
     }
 
     public String getDeviceTypeProperty() {
@@ -107,4 +119,5 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     public String getVersion() {
         return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
+
 }

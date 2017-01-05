@@ -1,16 +1,15 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.SecurityProperty;
 
-import com.energyict.cbo.Sms;
-import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -26,7 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,25 +68,29 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
     private final IssueFactory issueFactory;
 
     public ProximusSMSInboundDeviceProtocol(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService);
         this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
     }
 
     @Override
-    public void initializeDiscoveryContext(InboundDiscoveryContext context) {
-        context.setCryptographer(new CTRCryptographer());
-        super.initializeDiscoveryContext(context);
+    public String getVersion() {
+        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
     }
 
     @Override
     public DiscoverResultType doDiscovery() {
         try {
-            Sms sms = readParameters(this.request);
+            byte[] sms = readParameters(this.request);
 
             TypedProperties allRelevantProperties = TypedProperties.empty();
-            TypedProperties deviceProtocolProperties = getContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
-            TypedProperties deviceConnectionTypeProperties = getContext().getInboundDAO().getDeviceConnectionTypeProperties(getDeviceIdentifier(), getContext().getComPort());
+            TypedProperties deviceProtocolProperties = TypedProperties.copyOf(getContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier()));
+            TypedProperties deviceConnectionTypeProperties =
+                    getContext()
+                            .getConnectionTypeProperties(getDeviceIdentifier())
+                            .map(TypedProperties::copyOf)
+                            .orElseGet(TypedProperties::empty);
             if (deviceProtocolProperties == null || deviceConnectionTypeProperties == null) {
                 throw NotFoundException.notFound(Device.class, getDeviceIdentifier().toString());
             }
@@ -96,9 +99,10 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
             allRelevantProperties.setAllProperties(deviceConnectionTypeProperties);
             allRelevantProperties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), getDeviceSerialNumber());
 
-            List<SecurityProperty> protocolSecurityProperties = getContext().getInboundDAO().getDeviceProtocolSecurityProperties(this.deviceIdentifier, getContext().getComPort());
+            List<SecurityProperty> protocolSecurityProperties = getContext().getProtocolSecurityProperties(this.deviceIdentifier).orElseGet(Collections::emptyList);
             MTU155Properties mtu155Properties = new MTU155Properties(new Mtu155SecuritySupport(propertySpecService).convertToTypedProperties(protocolSecurityProperties));
-            SMSFrame smsFrame = ((CTRCryptographer) getContext().getCryptographer()).decryptSMS(mtu155Properties, sms.getMessage());
+            CTRCryptographer cryptographer = new CTRCryptographer();
+            SMSFrame smsFrame = cryptographer.decryptSMS(mtu155Properties, sms);
 
             SmsHandler smsHandler = new SmsHandler(getDeviceIdentifier(), allRelevantProperties, collectedDataFactory, issueFactory);
             smsHandler.parseSMSFrame(smsFrame);
@@ -117,7 +121,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
      * @param request: containing the parameters
      * @return the sms object
      */
-    private Sms readParameters(HttpServletRequest request) {
+    private byte[] readParameters(HttpServletRequest request) {
         setDeviceIdentifier(new CTRPhoneNumberDeviceIdentifier(checkParameter(request.getParameter(SENDER), SENDER)));
         String auth = checkParameter(request.getParameter(AUTH), AUTH);
         String source = checkParameter(request.getParameter(SOURCE), SOURCE);
@@ -138,11 +142,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
         String from = checkParameter(request.getParameter(SENDER), SENDER);
         String id = checkParameter(request.getParameter(ID), ID);
         String to = checkParameter(request.getParameter(RECIPIENT), RECIPIENT);
-        byte[] message = getMessageContent(checkParameter(request.getParameter(MESSAGE), MESSAGE), type, MESSAGE);
-        Date date = new Date();  //current date
-
-        Sms sms = new Sms(from, to, date, source, id, BITS, message);
-        return sms;
+        return getMessageContent(checkParameter(request.getParameter(MESSAGE), MESSAGE), type, MESSAGE);
     }
 
     /**

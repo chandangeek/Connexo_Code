@@ -123,7 +123,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(NODEID.getName()),
@@ -152,7 +152,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
     }
 
     @Override
-    public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         try {
             if (p.getTypedProperty(ADDRESS.getName()) != null) {
                 pAddress = p.getTypedProperty(ADDRESS.getName());
@@ -330,7 +330,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
 
         TypedProperties p = com.energyict.cpo.TypedProperties.empty();
         p.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
-        setProperties(p);
+        setUPLProperties(p);
 
         init(cChannel.getInputStream(), cChannel.getOutputStream(), null, null);
         connect();

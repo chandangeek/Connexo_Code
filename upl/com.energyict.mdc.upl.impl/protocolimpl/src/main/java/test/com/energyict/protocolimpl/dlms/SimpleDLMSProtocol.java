@@ -204,7 +204,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), false),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
@@ -228,7 +228,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             String[] securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), "0").split(":");
             this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);

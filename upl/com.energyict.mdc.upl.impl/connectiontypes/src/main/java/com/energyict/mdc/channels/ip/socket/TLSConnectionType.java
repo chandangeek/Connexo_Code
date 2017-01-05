@@ -81,8 +81,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(tlsVersionPropertySpec());
         propertySpecs.add(preferredCipheringSuitesPropertySpec());
         propertySpecs.add(tlsAliasPropertySpec());

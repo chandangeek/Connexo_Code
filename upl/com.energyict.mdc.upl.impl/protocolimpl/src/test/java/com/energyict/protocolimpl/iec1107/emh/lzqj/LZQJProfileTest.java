@@ -46,7 +46,7 @@ public class LZQJProfileTest {
 			properties.setProperty("ChannelMap", "0+8,0+8,0+8,0+8");
 			properties.setProperty("FixedProfileTimeZone", "0");
 			properties.setProperty("ProfileInterval", "300");
-			lzqj.setProperties(properties);
+			lzqj.setUPLProperties(properties);
 			lzqj.setTimeZone(TimeZone.getTimeZone("Europe/Brussels"));
 			lzqjRegistry = new LZQJRegistry(lzqj, lzqj);
 			lzqjProfile = new LZQJProfile(lzqj, lzqj, lzqjRegistry);

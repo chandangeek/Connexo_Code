@@ -110,16 +110,16 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec("WhoAreYouTimeout", false));
         propertySpecs.add(this.integerSpec("TotalRegisterRate", false));
         return propertySpecs;
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));
         whoAreYouTimeout = Integer.parseInt(properties.getTypedProperty("WhoAreYouTimeout","300").trim());
         totalRegisterRate = Integer.parseInt(properties.getTypedProperty("TotalRegisterRate","1").trim());
@@ -201,7 +201,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
             try {
                 TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
                 properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), password);
-                setProperties(properties);
+                setUPLProperties(properties);
                 init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);
                 connect();
                 return Long.toString(getClassFactory().getSerialNumber());

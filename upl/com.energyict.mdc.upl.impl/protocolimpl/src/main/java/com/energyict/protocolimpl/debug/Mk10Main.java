@@ -148,7 +148,7 @@ public class Mk10Main {
 	public static void main(String[] args) throws LinkException, IOException {
 
 		try {
-			getMk10().setProperties(TypedProperties.copyOf(getProperties()));
+			getMk10().setUPLProperties(TypedProperties.copyOf(getProperties()));
 			getMk10().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, LOGGER);
 			getMk10().connect();
 

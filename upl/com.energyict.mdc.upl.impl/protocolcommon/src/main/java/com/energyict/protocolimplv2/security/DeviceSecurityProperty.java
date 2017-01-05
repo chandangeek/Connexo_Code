@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.Certificate;
+import com.energyict.mdc.upl.security.CertificateWrapper;
 
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -208,7 +208,7 @@ public enum DeviceSecurityProperty {
 
     protected static PropertySpecBuilder certificatePropertySpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
         return propertySpecService
-                    .referenceSpec(Certificate.class.getName())
+                    .referenceSpec(CertificateWrapper.class.getName())
                     .named(name.toString(), name.toString())
                     .describedAs("Description for " + name.toString());
     }

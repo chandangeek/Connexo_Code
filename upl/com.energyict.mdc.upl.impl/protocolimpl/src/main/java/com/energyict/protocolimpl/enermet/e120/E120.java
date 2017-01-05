@@ -154,16 +154,16 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec(PK_USER_ID, true));
         propertySpecs.add(ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, true));
         return propertySpecs;
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         pUserId = properties.getTypedProperty(PK_USER_ID);
         pPassword = properties.getTypedProperty(PK_PASSWORD);
         pChannelMap = new ProtocolChannelMap(((String) properties.getTypedProperty(PK_CHANNEL_MAP)));

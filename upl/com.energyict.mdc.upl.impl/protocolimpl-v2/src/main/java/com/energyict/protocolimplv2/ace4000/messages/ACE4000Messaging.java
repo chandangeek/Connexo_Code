@@ -3,16 +3,17 @@ package com.energyict.protocolimplv2.ace4000.messages;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdw.core.Code;
 import com.energyict.protocol.properties.UplToMdwPropertySpecAdapter;
 import com.energyict.protocolimplv2.ace4000.ACE4000MessageExecutor;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
@@ -43,14 +44,16 @@ public class ACE4000Messaging implements DeviceMessageSupport {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final TariffCalendarExtractor calendarExtractor;
 
-    public ACE4000Messaging(ACE4000Outbound protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public ACE4000Messaging(ACE4000Outbound protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor) {
         this.protocol = protocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.calendarExtractor = calendarExtractor;
     }
 
     public ACE4000MessageExecutor getMessageExecutor() {
@@ -113,8 +116,8 @@ public class ACE4000Messaging implements DeviceMessageSupport {
         } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(CODE_TABLE_ID)) {
-            Code codeTable = ((Code) messageAttribute);
-            return CodeTableBase64Builder.getXmlStringFromCodeTable(codeTable);
+            TariffCalendar codeTable = ((TariffCalendar) messageAttribute);
+            return CodeTableBase64Builder.getXmlStringFromCodeTable(codeTable, this.calendarExtractor);
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
         }

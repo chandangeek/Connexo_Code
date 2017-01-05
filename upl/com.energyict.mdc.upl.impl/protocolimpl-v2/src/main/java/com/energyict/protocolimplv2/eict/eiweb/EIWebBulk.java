@@ -1,21 +1,22 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,16 +32,20 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     private static final String MAX_IDLE_TIME = "maxIdleTime";
     private static final BigDecimal MAX_IDLE_TIME_DEFAULT_VALUE = BigDecimal.valueOf(200000);
 
+    private final PropertySpecService propertySpecService;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private InboundDiscoveryContext context;
     private ProtocolHandler protocolHandler;
     private ResponseWriter responseWriter;
 
+    public EIWebBulk(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
         this.context = context;
-        this.context.setCryptographer(new EIWebCryptographer(context.getInboundDAO(), context.getComPort()));
     }
 
     @Override
@@ -54,25 +59,22 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
         this.response = response;
     }
 
-
     @Override
     public String getVersion() {
         return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<>(0);
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return Collections.singletonList(
+                UPLPropertySpecFactory
+                        .specBuilder(MAX_IDLE_TIME, false, this.propertySpecService::bigDecimalSpec)
+                        .setDefaultValue(MAX_IDLE_TIME_DEFAULT_VALUE)
+                        .finish());
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        PropertySpec maxIdleTimePropertySpec = PropertySpecFactory.bigDecimalPropertySpec(MAX_IDLE_TIME, MAX_IDLE_TIME_DEFAULT_VALUE);
-        return Arrays.asList(maxIdleTimePropertySpec);
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // Properties are not used in this class.
         // Note that the maxIdleTime property is used while setting up the Jetty servlet.
     }

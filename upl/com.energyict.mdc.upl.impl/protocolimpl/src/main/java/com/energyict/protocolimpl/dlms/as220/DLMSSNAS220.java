@@ -437,7 +437,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(NODEID.getName()),
                 this.stringSpec(SERIALNUMBER.getName()),
@@ -493,7 +493,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             nodeId = properties.getTypedProperty(Property.NODEID.getName(), "");
             serialNumber = properties.getTypedProperty(Property.SERIALNUMBER.getName(), "");

@@ -128,7 +128,7 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         getProtocolProperties().putAll(properties.toStringProperties());
     }
 

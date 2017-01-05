@@ -111,7 +111,7 @@ public class AbntProperties implements HasDynamicProperties {
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.addProperties(TypedProperties.copyOf(properties));
     }
 
@@ -138,7 +138,7 @@ public class AbntProperties implements HasDynamicProperties {
 
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.timeZonePropertySpec(),
                 this.readerSerialNumberPropertySpec()

@@ -253,7 +253,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         throw CodingException.unsupportedMethod(this.getClass(), "setProperties");
     }
 

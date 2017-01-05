@@ -36,7 +36,7 @@ class IskraMT880Properties extends DlmsProtocolProperties {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
                 UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),

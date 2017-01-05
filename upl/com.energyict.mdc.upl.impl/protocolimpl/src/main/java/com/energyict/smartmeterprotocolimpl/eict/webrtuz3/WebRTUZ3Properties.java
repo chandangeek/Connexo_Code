@@ -26,7 +26,7 @@ class WebRTUZ3Properties extends DlmsProtocolProperties {
     private static final String DefaultZ3BulkRequesSupport = "1";
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
                 UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),

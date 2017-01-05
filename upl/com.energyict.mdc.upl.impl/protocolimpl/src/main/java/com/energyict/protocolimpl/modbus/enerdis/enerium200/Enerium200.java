@@ -57,8 +57,8 @@ public class Enerium200 extends Modbus implements SerialNumberSupport {
 	protected void doTheDisConnect() throws IOException {}
 
     @Override
-	public void setProperties(TypedProperties properties) throws PropertyValidationException {
-		super.setProperties(properties);
+	public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+		super.setUPLProperties(properties);
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "500").trim()));
         setInfoTypePhysicalLayer(Integer.parseInt(properties.getTypedProperty(PK_PHYSICAL_LAYER, "1").trim()));
         setInfoTypeResponseTimeout(Integer.parseInt(properties.getTypedProperty(PK_RESPONSE_TIMEOUT, "2000").trim()));

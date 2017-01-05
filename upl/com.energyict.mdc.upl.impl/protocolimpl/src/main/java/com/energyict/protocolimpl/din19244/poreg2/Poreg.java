@@ -113,16 +113,16 @@ public abstract class Poreg extends AbstractProtocol implements MessageProtocol,
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec("ApparentEnergyResultLevel", false));
         propertySpecs.add(this.stringSpec("SystemAddress", false));
         return propertySpecs;
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         apparentEnergyResultLevel = Integer.parseInt(properties.getTypedProperty("ApparentEnergyResultLevel", "0").trim());
         systemAddress = properties.getTypedProperty("SystemAddress", "00000000").trim();
     }

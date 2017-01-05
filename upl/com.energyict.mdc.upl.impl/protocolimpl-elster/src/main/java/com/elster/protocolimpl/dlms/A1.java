@@ -118,15 +118,15 @@ public class A1 extends Dlms {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(UPLPropertySpecFactory.string(PROP_SCALERVALUE, false));
         return propertySpecs;
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         archiveStructure = properties.getTypedProperty(Dlms.ARCHIVESTRUCTURE, "");
         logStructure = properties.getTypedProperty(Dlms.LOGSTRUCTURE, "");
         String s = properties.getTypedProperty(PROP_SCALERVALUE, "");

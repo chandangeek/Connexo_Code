@@ -111,7 +111,7 @@ public class UNIFLO1200Main {
 
 
 		try {
-			getUniflo1200().setProperties(TypedProperties.copyOf(getProperties()));
+			getUniflo1200().setUPLProperties(TypedProperties.copyOf(getProperties()));
 			getUniflo1200().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getUniflo1200().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
 			getUniflo1200().connect();

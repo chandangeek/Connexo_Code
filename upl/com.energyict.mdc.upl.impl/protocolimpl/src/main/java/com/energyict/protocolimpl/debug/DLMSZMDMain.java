@@ -64,7 +64,7 @@ public class DLMSZMDMain {
         virtualDeviceDialer.setShowCommunication(true);
 
 		try {
-			getZmd().setProperties(TypedProperties.copyOf(getProperties()));
+			getZmd().setUPLProperties(TypedProperties.copyOf(getProperties()));
 			getZmd().init(virtualDeviceDialer.getInputStream(), virtualDeviceDialer.getOutputStream(), TimeZone.getTimeZone("GMT+01"), getLogger());
 //			getZmd().enableHHUSignOn(virtualDeviceDialer.getSerialCommunicationChannel(), false);
 			getZmd().connect();

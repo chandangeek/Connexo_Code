@@ -61,7 +61,7 @@ public class PrimeProperties extends DlmsProtocolProperties {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.integerSpec(CLIENT_MAC_ADDRESS),
                 this.stringSpec(SERVER_MAC_ADDRESS),

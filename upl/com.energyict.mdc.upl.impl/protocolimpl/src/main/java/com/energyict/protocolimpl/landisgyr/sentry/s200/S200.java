@@ -68,16 +68,16 @@ public class S200 extends AbstractProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(this.integerSpec("CRNInitialValue", false));
         propertySpecs.add(this.integerSpec("ModeOfOperation", false));
         return propertySpecs;
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0000000"));
         setInfoTypePassword(properties.getTypedProperty(PASSWORD.getName(), "0000"));
         setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0")));

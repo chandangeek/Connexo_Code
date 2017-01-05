@@ -552,7 +552,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getProperties().getUPLPropertySpecs();
     }
 }

@@ -27,7 +27,7 @@ class ZMDProperties extends DlmsProtocolProperties {
     private SecurityProvider securityProvider;
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.integer(SECURITY_LEVEL, false),
                 UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),

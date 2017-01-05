@@ -59,8 +59,8 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(bufferSizePropertySpec());
         return propertySpecs;
     }

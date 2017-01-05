@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.protocol.ComChannel;
@@ -16,6 +15,7 @@ import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -82,13 +82,15 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private final IssueFactory issueFactory;
     private final NlsService nlsService;
     private final Converter converter;
+    private final TariffCalendarExtractor calendarExtractor;
 
-    public ACE4000Outbound(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public ACE4000Outbound(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor) {
         super(propertySpecService);
         this.nlsService = nlsService;
         this.converter = converter;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.calendarExtractor = calendarExtractor;
     }
 
     @Override
@@ -251,25 +253,17 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+        propertySpecs.add(
+                UPLPropertySpecFactory
+                    .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, this.getPropertySpecService()::stringSpec)
+                    .finish());
+        return propertySpecs;
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.singletonList(
-                    UPLPropertySpecFactory
-                        .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, this.getPropertySpecService()::stringSpec)
-                        .finish());
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
-        return this.getProperties().getPropertySpecs();
-    }
-
-    @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.getProperties().setAllProperties(properties);
     }
 
@@ -409,12 +403,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Collections.singletonList(new InboundIpConnectionType());
+        return Collections.emptyList();
     }
 
     public ACE4000Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new ACE4000Messaging(this, collectedDataFactory, issueFactory, this.getPropertySpecService(), this.nlsService, this.converter);
+            this.messageProtocol = new ACE4000Messaging(this, collectedDataFactory, issueFactory, this.getPropertySpecService(), this.nlsService, this.converter, calendarExtractor);
         }
         return messageProtocol;
     }

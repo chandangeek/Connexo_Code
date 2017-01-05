@@ -128,7 +128,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        this.setProperties(offlineDevice.getAllProperties());
+        this.setUPLProperties(offlineDevice.getAllProperties());
         updateRequestFactory(comChannel);
     }
 
@@ -143,7 +143,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return this.getMTU155Properties().getPropertySpecs(this.propertySpecService);
     }
 
@@ -317,7 +317,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
         if (this.allProperties != null) {
             this.allProperties.setAllProperties(TypedProperties.copyOf(properties)); // this will add the properties to the existing properties
         } else {

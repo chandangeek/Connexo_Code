@@ -90,8 +90,8 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(new ChannelMappingPropertySpec("NexusChannelMapping", false));
         propertySpecs.add(this.stringSpec("Delta Wired", false));
         return propertySpecs;
@@ -103,8 +103,8 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         channelMapping = properties.getTypedProperty("NexusChannelMapping", "");
         if (channelMapping != null && !channelMapping.isEmpty()) {
             chnlpMap = ChannelMappingPropertySpec.parse(channelMapping);

@@ -48,8 +48,8 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = getActualConnectionType().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = getActualConnectionType().getUPLPropertySpecs();
         propertySpecs.addAll(Arrays.asList(getAddressingModePropertySpec(),
                 getConnectionPropertySpec(),
                 getServerMacAddress(),

@@ -198,7 +198,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
                 UPLPropertySpecFactory.integer(RETRIES.getName(), false),
@@ -219,7 +219,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         try {
             strPassword = properties.getTypedProperty(PASSWORD.getName());
             protocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());

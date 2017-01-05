@@ -2,13 +2,13 @@ package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
-import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.SecurityProperty;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Copyrights EnergyICT
@@ -94,7 +95,6 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         super(comChannel, context);
         this.comChannel = comChannel;
         this.inboundDAO = context.getInboundDAO();
-        this.inboundComPort = context.getComPort();
         this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
     }
 
@@ -102,7 +102,6 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         super(comChannel, context);
         this.comChannel = comChannel;
         this.inboundDAO = context.getInboundDAO();
-        this.inboundComPort = context.getComPort();
         this.logbookObisCode = logbookObisCode;
     }
 
@@ -165,7 +164,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         inboundFrame.get(remaining);
         byte[] generalGlobalResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING}, remaining);
 
-        ByteBuffer decryptedFrame = null;
+        ByteBuffer decryptedFrame;
         try {
             decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(securityContext, generalGlobalResponse));
         } catch (DLMSConnectionException e) {
@@ -185,7 +184,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         inboundFrame.get(remaining);
         byte[] generalCipheredResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_CIPHERING}, remaining);
 
-        ByteBuffer decryptedFrame = null;
+        ByteBuffer decryptedFrame;
         try {
             decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(securityContext, generalCipheredResponse));
         } catch (DLMSConnectionException e) {
@@ -336,7 +335,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         Date dateTime = parseDateTime(new OctetString(octetString));
 
         /* notification-body*/
-        Structure structure = null;
+        Structure structure;
         try {
             structure = AXDRDecoder.decode(inboundFrame.array(), inboundFrame.position(), 1, Structure.class);
         } catch (ProtocolException e) {
@@ -349,10 +348,10 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             throw DataParseException.ioException(new ProtocolException("Expected a structure with 3 elements, but received a structure with " + nrOfDataTypes + " element(s)"));
         }
 
-        parseWrappedMeterEvent(structure, dateTime);
+        parseWrappedMeterEvent(structure);
     }
 
-    private void parseWrappedMeterEvent(Structure structure, Date dateTime) {
+    private void parseWrappedMeterEvent(Structure structure) {
         OctetString equipmentIdentifier = structure.getDataType(0).getOctetString();
         if (equipmentIdentifier == null) {
             throw DataParseException.ioException(new ProtocolException("Expected the first element of the received structure (equipment identifier) to be of type OctetString"));
@@ -562,13 +561,18 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     }
 
     protected Boolean getInboundComTaskOnHold() {
-        return inboundDAO.getInboundComTaskOnHold(deviceIdentifier, inboundComPort);
+        return getContext()
+                    .isInboundOnHold(deviceIdentifier)
+                    .orElse(Boolean.FALSE); // Avoid NPE down the line that may naively unbox in if-then constructs
     }
 
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         if (securityPropertySet == null) {
-            List<SecurityProperty> securityProperties = inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, inboundComPort);
-            if (securityProperties != null && !securityProperties.isEmpty()) {
+            List<SecurityProperty> securityProperties =
+                    getContext()
+                            .getProtocolSecurityProperties(deviceIdentifier)
+                            .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
+            if (!securityProperties.isEmpty()) {
                 this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(securityProperties);
             } else {
                 throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
@@ -580,9 +584,10 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     public ByteBuffer readInboundFrame() {
         byte[] header = new byte[8];
         getComChannel().startReading();
-        int readBytes = getComChannel().read(header);
+        final int readBytes = getComChannel().read(header);
 
-        log("Received frame header ["+readBytes+"]: " + ProtocolTools.getHexStringFromBytes(header));
+        Supplier<String> message2 = () -> "Received frame header [" + readBytes + "]: " + ProtocolTools.getHexStringFromBytes(header);
+        getContext().getLogger().info(message2);
 
         if (readBytes != 8) {
             throw DataParseException.ioException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
@@ -590,24 +595,28 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
         setSourceSAP(ProtocolTools.getIntFromBytes(header, 2, 2));
         setDestinationSAP(ProtocolTools.getIntFromBytes(header, 4, 2));
-        log(" - sourceSAP="+getSourceSAP()+", destinationSAP:"+getDestinationSAP());
+        Supplier<String> message1 = () -> " - sourceSAP="+getSourceSAP()+", destinationSAP:"+getDestinationSAP();
+        getContext().getLogger().info(message1);
         if (getSourceSAP() == 1) {
             setNotificatioType(INTERNAL_EVENT);
-            log(" - this frame is an internal event");
+            Supplier<String> message = () -> " - this frame is an internal event";
+            getContext().getLogger().info(message);
         } else {
             setNotificatioType(RELAYED_EVENT);
-            log(" - this frame is a relayed event");
+            Supplier<String> message = () -> " - this frame is a relayed event";
+            getContext().getLogger().info(message);
         }
 
         int length = ProtocolTools.getIntFromBytes(header, 6, 2);
 
         byte[] frame = new byte[length];
-        readBytes = getComChannel().read(frame);
+        final int moreReadBytes = getComChannel().read(frame);
 
-        log("Received frame ["+readBytes+"]: " + ProtocolTools.getHexStringFromBytes(frame));
+        Supplier<String> message = () -> "Received frame [" + moreReadBytes + "]: " + ProtocolTools.getHexStringFromBytes(frame);
+        getContext().getLogger().info(message);
 
-        if (readBytes != length) {
-            throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
+        if (moreReadBytes != length) {
+            throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + moreReadBytes + " bytes instead..."));
         }
         return ByteBuffer.wrap(ProtocolTools.concatByteArrays(header, frame));
     }
@@ -702,7 +711,8 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         }
 
         deviceIdentifier = new DeviceIdentifierBySerialNumber(equipmentIdentifier.stringValue());
-        log(" - this notification is relayed by "+deviceIdentifier.toString());
+        Supplier<String> message = () -> " - this notification is relayed by " + deviceIdentifier.toString();
+        getContext().getLogger().info(message);
         if (getNotificatioType() == RELAYED_EVENT) {
             Unsigned16 logicalDeviceId = eventWrapper.getDataType(1).getUnsigned16();
             if (logicalDeviceId == null) {
@@ -765,7 +775,8 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
             byte[] logicalDeviceNameBytes = logicalDeviceName.getOctetStr();
             byte[] logicalNameMacBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX.length(), GATEWAY_LOGICAL_DEVICE_PREFIX.length() + MAC_ADDRESS_LENGTH);
             String macAddress = ProtocolTools.getHexStringFromBytes(logicalNameMacBytes, "");
-            log(" - event is from device with MAC " + macAddress);
+            Supplier<String> message = () -> " - event is from device with MAC " + macAddress;
+            getContext().getLogger().info(message);
             deviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
         }
         Date dateTime = Calendar.getInstance().getTime();//TODO: see what timezone should be used

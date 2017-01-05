@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -69,7 +68,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
 
     public ACE4000Properties getProperties() {
         if (properties == null) {
-            properties = new ACE4000Properties();
+            properties = new ACE4000Properties(this.getPropertySpecService());
         }
         return properties;
     }
@@ -78,12 +77,8 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
         getProperties().setAllProperties(properties);
     }
 
-    public List<PropertySpec> getRequiredProperties() {
-        return getProperties().getRequiredKeys();
-    }
-
-    public List<PropertySpec> getOptionalProperties() {
-        return getProperties().getOptionalKeys();
+    protected List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+        return this.getProperties().getPropertySpecs();
     }
 
     //Gather all collected registers from the ObjectFactory

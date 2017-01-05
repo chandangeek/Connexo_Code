@@ -140,7 +140,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.singletonList(UPLPropertySpecFactory.booleanValue(DEFAULT_OPTIONAL_PROPERTY_NAME, false));
     }
 
@@ -347,7 +347,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.logger.log(Level.INFO, "Adding the properties to the DeviceProtocol instance.");
         this.typedProperties.setAllProperties(TypedProperties.copyOf(properties));
     }
@@ -436,12 +436,12 @@ public class SDKDeviceProtocol implements DeviceProtocol {
             }
 
             @Override
-            public List<PropertySpec> getPropertySpecs() {
+            public List<PropertySpec> getUPLPropertySpecs() {
                 return Collections.emptyList();
             }
 
             @Override
-            public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+            public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
 
             }
         });

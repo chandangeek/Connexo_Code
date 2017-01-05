@@ -32,7 +32,7 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.integer(SECURITY_LEVEL, securityLevelIsRequired()),
                 UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),

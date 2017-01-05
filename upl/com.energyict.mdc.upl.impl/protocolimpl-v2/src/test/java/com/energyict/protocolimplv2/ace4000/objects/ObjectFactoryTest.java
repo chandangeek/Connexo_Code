@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.mdc.protocol.DummyComChannel;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -48,13 +49,15 @@ public class ObjectFactoryTest {
     private NlsService nlsService;
     @Mock
     private Converter converter;
+    @Mock
+    private TariffCalendarExtractor calendarExtractor;
 
     private static final String LOAD_PROFILE_DATA = "<MPush><MD><M>0505514284386660</M><LPA>V3MPgA8nAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAAC</LPA></MD></MPush>";
     private static final String SERIAL_NUMBER = "0505514284386660";
 
     @Test
     public void testProfileData() {
-        ACE4000Outbound ace4000 = new ACE4000Outbound(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory);
+        ACE4000Outbound ace4000 = new ACE4000Outbound(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getSerialNumber()).thenReturn(SERIAL_NUMBER);
         when(offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());

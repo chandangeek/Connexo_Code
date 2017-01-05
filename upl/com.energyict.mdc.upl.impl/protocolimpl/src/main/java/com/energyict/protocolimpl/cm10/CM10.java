@@ -89,8 +89,8 @@ public class CM10 extends AbstractProtocol {
 	}
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec("DelayAfterConnect", false));
         propertySpecs.add(this.integerSpec(IS_C10_METER, false));
         return propertySpecs;
@@ -102,8 +102,8 @@ public class CM10 extends AbstractProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         this.outstationID = Integer.parseInt(properties.getTypedProperty("SerialNumber"));
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "5000").trim()));
         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "3").trim()));

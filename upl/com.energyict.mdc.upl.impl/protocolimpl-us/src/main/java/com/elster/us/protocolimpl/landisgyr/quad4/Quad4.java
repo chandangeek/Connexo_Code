@@ -160,7 +160,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
                 UPLPropertySpecFactory.stringOfExactLength(NODEID.getName(), false, 7),
@@ -179,7 +179,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     }
 
     @Override
-    public void setProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
         try {
             if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
                 pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());

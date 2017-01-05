@@ -176,8 +176,8 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec(PROFILE_REQUEST_BLOCK_SIZE, false));
         propertySpecs.add(this.integerSpec(DISABLE_AUTO_LOGOFF, false));
         propertySpecs.add(this.integerSpec(SUPPRESS_WAKEUP_SEQUENCE, false));
@@ -197,8 +197,8 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+        super.setUPLProperties(properties);
         try {
             securityLevel = Integer.parseInt(properties.getTypedProperty("SecurityLevel", "0").trim());  //Default
             this.profileRequestBlockSize = Integer.parseInt(properties.getTypedProperty(PROFILE_REQUEST_BLOCK_SIZE, "10"));

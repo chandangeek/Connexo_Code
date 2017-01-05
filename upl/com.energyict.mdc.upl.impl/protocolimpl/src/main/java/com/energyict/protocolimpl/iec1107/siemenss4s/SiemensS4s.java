@@ -93,8 +93,8 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 	}
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+        super.setUPLProperties(properties);
         try {
             this.deviceId = properties.getTypedProperty(ADDRESS.getName());
             this.passWord = properties.getTypedProperty(PASSWORD.getName(), "4281602592");

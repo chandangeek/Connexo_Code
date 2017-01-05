@@ -29,7 +29,7 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(phoneNumberPropertySpec(), callHomeIdPropertySpec());
     }
 

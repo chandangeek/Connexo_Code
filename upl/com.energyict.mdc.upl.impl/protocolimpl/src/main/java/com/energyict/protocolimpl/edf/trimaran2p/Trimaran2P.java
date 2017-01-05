@@ -121,8 +121,8 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink, Serial
 	}
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec("T1Timeout", false));
         propertySpecs.add(this.integerSpec("STSAP", false));
         propertySpecs.add(this.integerSpec("DTSAP", false));
@@ -134,8 +134,8 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink, Serial
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
 		setT1Timeout(Integer.parseInt(properties.getTypedProperty("T1Timeout", "5000").trim()));
 		setSourceTransportAddress(Integer.parseInt(properties.getTypedProperty("STSAP", "0").trim()));
 		setDestinationTransportAddress(Integer.parseInt(properties.getTypedProperty("DTSAP", "2").trim()));

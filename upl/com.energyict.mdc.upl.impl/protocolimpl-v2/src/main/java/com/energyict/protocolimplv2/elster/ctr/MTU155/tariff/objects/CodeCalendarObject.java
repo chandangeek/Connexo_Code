@@ -16,6 +16,7 @@ import java.util.Date;
  */
 public class CodeCalendarObject implements Serializable {
 
+    private int codeId;
     private String dayTypeName;
     private int year;
     private int month;
@@ -39,6 +40,7 @@ public class CodeCalendarObject implements Serializable {
 
     public static CodeCalendarObject fromCodeCalendar(TariffCalendarExtractor.CalendarRule rule) {
         CodeCalendarObject cc = new CodeCalendarObject();
+        cc.setCodeId(Integer.parseInt(rule.calendarId()));
         cc.setDayTypeName(rule.dayTypeName());
         cc.setYear(rule.year());
         cc.setMonth(rule.month());
@@ -46,6 +48,14 @@ public class CodeCalendarObject implements Serializable {
         cc.setDayOfWeek(rule.dayOfWeek());
         cc.setSeasonId(rule.seasonId().orElse("0"));
         return cc;
+    }
+
+    public int getCodeId() {
+        return codeId;
+    }
+
+    public void setCodeId(int codeId) {
+        this.codeId = codeId;
     }
 
     public int getDay() {

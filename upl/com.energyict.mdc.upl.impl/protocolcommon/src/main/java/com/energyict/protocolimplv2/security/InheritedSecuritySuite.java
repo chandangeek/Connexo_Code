@@ -1,12 +1,12 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.security.SecuritySuite;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
 
 import java.util.Collections;
 import java.util.List;

@@ -50,16 +50,16 @@ public class A1800 extends AbstractDLMS {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false));
         propertySpecs.add(this.stringSpec(PROPERTY_LP_MULTIPLIER, false));
         return propertySpecs;
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty("LoadProfileObisCode", LOAD_PROFILE_PULSES.toString())));
         applyMultiplier = !"0".equals(properties.getProperty(PROPERTY_LP_MULTIPLIER, "0"));
 

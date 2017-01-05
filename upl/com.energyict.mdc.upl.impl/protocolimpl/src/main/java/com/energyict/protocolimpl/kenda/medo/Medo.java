@@ -269,7 +269,7 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(NODEID.getName()),
                 ProtocolChannelMap.propertySpec("ChannelMap", false),
@@ -291,7 +291,7 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException {
         try {
             this.outstationID = Integer.parseInt(properties.getTypedProperty(NODEID.getName()));
             this.destinationCode = Parsers.parseCArraytoBArray(Parsers.parseShortToChar((short) outstationID));

@@ -223,8 +223,8 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(new ObisCodePropertySpec("LoadProfileObisCode", false));
         propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
         propertySpecs.add(this.integerSpec("EnableMultiFrameMode", false));
@@ -246,8 +246,8 @@ public abstract class WaveFlow extends AbstractProtocol implements ProtocolLink,
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
         correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
         multiFrame = Integer.parseInt(properties.getTypedProperty("EnableMultiFrameMode", "0")) == 1;

@@ -561,7 +561,7 @@
 #	public *;
 #}
 
-# Keep annotations, 
+# Keep annotations,
 -keepattributes *Annotation*
 -keepattributes Exceptions
 -keepattributes Signature
@@ -758,3 +758,5 @@
 -keepnames class com.energyict.protocolimpl.modbus.emco.FP93B
 -keepnames class com.energyict.protocolimpl.modbus.spiraxsarco.VLM20
 -keepnames class com.energyict.protocolimpl.modbus.spiraxsarco.RIM20
+
+-keepnames class com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec

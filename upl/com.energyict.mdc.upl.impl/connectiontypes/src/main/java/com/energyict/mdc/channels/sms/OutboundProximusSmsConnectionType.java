@@ -96,7 +96,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
         propertySpecs.add(this.phoneNumberPropertySpec());
         propertySpecs.add(this.connectionURLPropertySpec());

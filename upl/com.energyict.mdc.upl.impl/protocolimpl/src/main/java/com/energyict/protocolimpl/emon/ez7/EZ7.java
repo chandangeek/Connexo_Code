@@ -116,8 +116,8 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0) && (getInfoTypePassword().length() != 16)) {
             throw new InvalidPropertyException("EZ7, doValidateProperties, password length error! Password must have a length of 16 characters!");
         }
@@ -252,7 +252,7 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
 
-        setProperties(properties);
+        setUPLProperties(properties);
         init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);
         connect();
         // disconnect(); // no disconnect because the meter will hangup the link... disconnect contains an EZ7 protocol command to the meter that hangup the link!

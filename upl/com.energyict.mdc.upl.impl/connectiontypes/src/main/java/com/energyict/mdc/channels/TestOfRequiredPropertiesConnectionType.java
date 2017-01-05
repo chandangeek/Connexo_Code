@@ -66,7 +66,7 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                     BIG_DECIMAL_PROPERTY_SPEC,
                     BOOLEAN_PROPERTY_SPEC,

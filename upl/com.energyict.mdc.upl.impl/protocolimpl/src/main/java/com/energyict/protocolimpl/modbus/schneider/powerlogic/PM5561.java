@@ -48,8 +48,8 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setTimeZone(properties.getTypedProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "UTC"));
         setConnectionMode(Integer.parseInt(properties.getTypedProperty("Connection", "1").trim()));
         setInfoTypePhysicalLayer(Integer.parseInt(properties.getTypedProperty("PhysicalLayer", "1").trim()));

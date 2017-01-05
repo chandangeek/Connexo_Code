@@ -212,7 +212,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(NODEID.getName()),
@@ -246,7 +246,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     @Override
-    public void setProperties(TypedProperties p) throws MissingPropertyException, InvalidPropertyException {
+    public void setUPLProperties(TypedProperties p) throws MissingPropertyException, InvalidPropertyException {
         try {
             if (p.getTypedProperty(ADDRESS.getName()) != null) {
                 pAddress = p.getTypedProperty(ADDRESS.getName());
@@ -558,7 +558,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         properties.setProperty("SecurityLevel", "0");
         properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");
-        setProperties(properties);
+        setUPLProperties(properties);
         init(commChannel.getInputStream(), commChannel.getOutputStream(), null, null);
         enableHHUSignOn(commChannel);
         connect(baudrate);

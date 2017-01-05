@@ -24,8 +24,8 @@ public class WatchTalkProperties extends Dsmr23Properties {
     private static final String DEFAULT_IGNORE_DST_STATUS_CODE = "1";
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(UPLPropertySpecFactory.integer(PROPERTY_IGNORE_DST_STATUS_CODE, false));
         propertySpecs.add(UPLPropertySpecFactory.integer(PROPERTY_FORCED_TO_READ_CACHE, false));
         propertySpecs.add(UPLPropertySpecFactory.integer(VALIDATE_INVOKE_ID, false));

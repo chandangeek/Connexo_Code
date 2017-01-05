@@ -79,7 +79,7 @@ public abstract class AbstractSmartDebuggingMain<P extends SmartMeterProtocol> {
     }
 
     public void initAndConnectMeterProtocol() throws LinkException, IOException, BusinessException {
-        getMeterProtocol().setProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(getProperties()));
+        getMeterProtocol().setUPLProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(getProperties()));
 
         boolean wakeUpSuccess = true;
         if (getMeterProtocol() instanceof WakeUpProtocolSupport) {

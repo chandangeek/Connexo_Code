@@ -124,7 +124,7 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.string(PASSWORD.getName(), false),
                 UPLPropertySpecFactory.string(TIMEOUT.getName(), false),
@@ -136,7 +136,7 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             strPassword = properties.getTypedProperty(PASSWORD.getName());
             protocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());

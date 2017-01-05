@@ -127,7 +127,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(NODEID.getName()),
@@ -157,7 +157,7 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException {
         try {
             if (properties.getTypedProperty(ADDRESS.getName()) != null) {
                 pAddress = properties.getTypedProperty(ADDRESS.getName());

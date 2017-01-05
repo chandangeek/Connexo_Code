@@ -318,7 +318,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getProperties().getUPLPropertySpecs();
     }
 }

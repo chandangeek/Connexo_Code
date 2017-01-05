@@ -309,8 +309,8 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
         propertySpecs.add(this.integerSpec("correctWaveflowTime", false));
         propertySpecs.add(this.stringSpec("verifyProfileInterval", false));
@@ -323,8 +323,8 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "40000").trim()));
         correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
         correctWaveflowTime = Integer.parseInt(properties.getTypedProperty("correctWaveflowTime", "0"));

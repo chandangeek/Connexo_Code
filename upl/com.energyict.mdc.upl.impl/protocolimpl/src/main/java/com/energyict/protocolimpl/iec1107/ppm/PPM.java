@@ -240,7 +240,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName()),
                 this.stringSpec(NODEID.getName()),
@@ -275,7 +275,7 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         try {
             if (properties.getTypedProperty(ADDRESS.getName()) != null) {
                 this.pAddress = properties.getTypedProperty(ADDRESS.getName());

@@ -95,7 +95,7 @@ public class PPM1Main {
 		getDialer().connect();
 
 		try {
-			getPPM().setProperties(TypedProperties.copyOf(getProperties()));
+			getPPM().setUPLProperties(TypedProperties.copyOf(getProperties()));
 			getPPM().init(getDialer().getInputStream(), getDialer().getOutputStream(), DEFAULT_TIMEZONE, getLogger());
 			getPPM().enableHHUSignOn(getDialer().getSerialCommunicationChannel());
 			getPPM().connect();

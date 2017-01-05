@@ -1,15 +1,14 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.protocol.inbound.crypto.ServerCryptographer;
-import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.security.SecurityProperty;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.util.List;
@@ -31,35 +30,29 @@ public class EIWebCryptographer implements ServerCryptographer {
      */
     private static final String EIWEB_PROTOCOL_PASSWORD_PROPERTY_NAME = SecurityPropertySpecName.PASSWORD.toString();
 
-    private InboundDAO inboundDAO;
-    private InboundComPort comPort;
+    private final InboundDiscoveryContext inboundDiscoveryContext;
     private int usageCount = 0;
 
-    public EIWebCryptographer(InboundDAO inboundDAO, InboundComPort comPort) {
-        super();
-        this.inboundDAO = inboundDAO;
-        this.comPort = comPort;
+    public EIWebCryptographer(InboundDiscoveryContext inboundDiscoveryContext) {
+        this.inboundDiscoveryContext = inboundDiscoveryContext;
     }
 
     @Override
     public MD5Seed buildMD5Seed(DeviceIdentifier deviceIdentifier, String source) {
         this.usageCount++;
-        TypedProperties connectionTypeProperties = this.inboundDAO.getDeviceConnectionTypeProperties(deviceIdentifier, this.comPort);
-        if (connectionTypeProperties == null) {
-            throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
-        } else {
-            List<SecurityProperty> securityProperties = this.inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, this.comPort);
-            if (securityProperties != null) {
-                String encryptionPassword = this.getEncryptionPassword(securityProperties);
-                String macAddress = connectionTypeProperties.getStringProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME);
-                StringBuilder md5SeedBuilder = new StringBuilder(source);
-                md5SeedBuilder.append(macAddress);
-                md5SeedBuilder.append(encryptionPassword);
-                return new StringBasedMD5Seed(md5SeedBuilder.toString());
-            } else {
-                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
-            }
-        }
+        TypedProperties connectionTypeProperties =
+                this.inboundDiscoveryContext
+                        .getConnectionTypeProperties(deviceIdentifier)
+                        .map(TypedProperties::copyOf)
+                        .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
+        List<SecurityProperty> securityProperties =
+                this.inboundDiscoveryContext
+                        .getProtocolSecurityProperties(deviceIdentifier)
+                        .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
+        String encryptionPassword = this.getEncryptionPassword(securityProperties);
+        String macAddress = connectionTypeProperties.getStringProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME);
+        String md5SeedBuilder = source + macAddress + encryptionPassword;
+        return new StringBasedMD5Seed(md5SeedBuilder);
     }
 
     private String getEncryptionPassword(List<SecurityProperty> securityProperties) {

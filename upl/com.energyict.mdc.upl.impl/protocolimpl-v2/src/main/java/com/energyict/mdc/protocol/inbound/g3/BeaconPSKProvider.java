@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.DeviceProtocol;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -70,7 +70,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
 
         //Only add the protcool java class name if it is indicated by the property.
         if (provideProtocolJavaClasName) {
-            macAndKeyPair.addDataType(OctetString.fromString(context.getInboundDAO().getDeviceProtocol(slaveDeviceIdentifier)));
+            macAndKeyPair.addDataType(OctetString.fromString(context.getInboundDAO().getDeviceProtocolClassName(slaveDeviceIdentifier)));
         }
 
         return macAndKeyPair;

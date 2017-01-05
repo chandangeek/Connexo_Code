@@ -2,12 +2,10 @@ package com.energyict.mdc.protocol.inbound.idis;
 
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.io.NestedIOException;
-import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.InboundDAO;
-import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.g3.DummyComChannel;
-import com.energyict.mdc.protocol.security.SecurityProperty;
+import com.energyict.mdc.upl.InboundDAO;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -16,6 +14,7 @@ import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.SecurityProperty;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -49,7 +48,6 @@ import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.logging.Level;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
@@ -70,7 +68,6 @@ public class DataPushNotificationParser {
     private CollectedRegisterList collectedRegisters;
     private ComChannel comChannel;
     public InboundDAO inboundDAO;
-    public InboundComPort inboundComPort;
     protected final ObisCode logbookObisCode;
     protected DeviceIdentifier deviceIdentifier;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
@@ -82,7 +79,6 @@ public class DataPushNotificationParser {
         this.comChannel = comChannel;
         this.collectedDataFactory = context.getCollectedDataFactory();
         this.inboundDAO = context.getInboundDAO();
-        this.inboundComPort = context.getComPort();
         this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
         this.context = context;
     }
@@ -95,13 +91,6 @@ public class DataPushNotificationParser {
         return collectedDataFactory;
     }
 
-    protected void log(String message){
-        log(message, Level.INFO);
-    }
-
-    protected void log(String message, Level level){
-        getContext().logOnAllLoggerHandlers(message, level);
-    }
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serverSystemTitle = ProtocolTools.getHexStringFromBytes(systemTitle, "");
         serverSystemTitle = serverSystemTitle.replace("454C53", "ELS-");      // Replace HEX 454C53 by its ASCII 'ELS'
@@ -229,8 +218,11 @@ public class DataPushNotificationParser {
 
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         if (securityPropertySet == null) {
-            List<SecurityProperty> securityProperties = inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, inboundComPort);
-            if (securityProperties != null && !securityProperties.isEmpty()) {
+            List<SecurityProperty> securityProperties =
+                    context
+                        .getProtocolSecurityProperties(deviceIdentifier)
+                        .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
+            if (!securityProperties.isEmpty()) {
                 this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(securityProperties);
             } else {
                 throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);

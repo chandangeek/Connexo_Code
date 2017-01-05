@@ -58,7 +58,7 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -86,7 +86,7 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
     }
 

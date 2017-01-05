@@ -30,10 +30,10 @@ public class SioAtModemConnectionTypePropertiesTest extends AbstractModemTests{
     public void testAllOptionalPropertiesAreReturnedByGetPropertySpec () {
         SioAtModemConnectionType connectionType = new SioAtModemConnectionType();
         for (PropertySpec optionalPropertySpec : connectionType.getOptionalProperties()) {
-            assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).
+            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).
                     as("Property " + optionalPropertySpec.getName() + " is not returned by getPropertySpec").
                     isNotNull();
-            assertThat(connectionType.getPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
+            assertThat(connectionType.getUPLPropertySpec(optionalPropertySpec.getName())).isEqualTo(optionalPropertySpec);
         }
     }
 
@@ -57,10 +57,10 @@ public class SioAtModemConnectionTypePropertiesTest extends AbstractModemTests{
     public void testAllRequiredPropertiesAreReturnedByGetPropertySpec () {
         SioAtModemConnectionType connectionType = new SioAtModemConnectionType();
         for (PropertySpec requiredPropertySpec : connectionType.getRequiredProperties()) {
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).
+            assertThat(connectionType.getUPLPropertySpec(requiredPropertySpec.getName())).
                     as("Property " + requiredPropertySpec.getName() + " is not returned by getPropertySpec").
                     isNotNull();
-            assertThat(connectionType.getPropertySpec(requiredPropertySpec.getName())).isEqualTo(requiredPropertySpec);
+            assertThat(connectionType.getUPLPropertySpec(requiredPropertySpec.getName())).isEqualTo(requiredPropertySpec);
         }
     }
 

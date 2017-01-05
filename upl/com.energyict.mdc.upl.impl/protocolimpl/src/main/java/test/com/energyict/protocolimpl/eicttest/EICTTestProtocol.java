@@ -540,16 +540,16 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec(PK_TEST_PROPERTY, false));
         propertySpecs.add(new ObisCodePropertySpec(PK_TEST_PROPERTY, false));
         return propertySpecs;
     }
 
     @Override
-	public void setProperties(TypedProperties properties) throws PropertyValidationException {
-		super.setProperties(properties);
+	public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+		super.setUPLProperties(properties);
         setEICTTestProperty(Integer.parseInt(properties.getTypedProperty(PK_TEST_PROPERTY, "123")));
        	setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty(PK_LOAD_PROFILE_OBIS_CODE, "0.0.99.1.0.255")));
     }

@@ -26,8 +26,8 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
     public static final String GATEWAY_LOGICAL_DEVICE_ID = "GatewayLogicalDeviceId";
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = super.getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(pskPropertySpec());
         propertySpecs.add(aarqTimeoutPropertySpec());
         propertySpecs.add(aarqRetriesPropertySpec());

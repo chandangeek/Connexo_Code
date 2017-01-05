@@ -56,9 +56,9 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.addAll(new TypedCaseModemProperties().getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
+        propertySpecs.addAll(new TypedCaseModemProperties().getUPLPropertySpecs());
         return propertySpecs;
     }
 }

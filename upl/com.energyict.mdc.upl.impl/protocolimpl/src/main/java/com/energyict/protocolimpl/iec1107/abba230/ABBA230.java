@@ -216,7 +216,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 UPLPropertySpecFactory.string(ADDRESS.getName(), false),
                 UPLPropertySpecFactory.string(NODEID.getName(), false),
@@ -242,7 +242,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     }
 
     @Override
-    public void setProperties(TypedProperties p) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties p) throws PropertyValidationException {
         try {
             if (p.getTypedProperty(ADDRESS.getName()) != null) {
                 this.pAddress = p.getTypedProperty(ADDRESS.getName());
@@ -552,7 +552,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         properties.setProperty("SecurityLevel", "0");
         properties.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");
-        setProperties(properties);
+        setUPLProperties(properties);
         init(commChannel.getInputStream(), commChannel.getOutputStream(), null, null);
         enableHHUSignOn(commChannel);
         connect(baudrate);

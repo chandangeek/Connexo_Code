@@ -40,7 +40,7 @@ class SL7000Properties extends DlmsProtocolProperties {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.integerSpec(PK_TIMEOUT),
                 this.integerSpec(PK_RETRIES),

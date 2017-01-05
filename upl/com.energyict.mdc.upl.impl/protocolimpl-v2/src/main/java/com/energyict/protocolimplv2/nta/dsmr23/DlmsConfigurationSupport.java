@@ -48,7 +48,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
@@ -67,7 +67,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         // currently no properties are set ...
     }
 

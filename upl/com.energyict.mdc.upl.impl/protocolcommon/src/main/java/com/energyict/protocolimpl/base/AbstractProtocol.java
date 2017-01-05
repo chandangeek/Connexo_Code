@@ -236,7 +236,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), false),
                 this.stringSpec(PASSWORD.getName(), this.passwordIsRequired()),
@@ -289,7 +289,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());

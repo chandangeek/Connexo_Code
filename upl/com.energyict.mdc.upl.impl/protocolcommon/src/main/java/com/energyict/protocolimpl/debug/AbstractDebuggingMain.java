@@ -77,7 +77,7 @@ public abstract class AbstractDebuggingMain<P extends MeterProtocol> {
     }
 
     public void initAndConnectMeterProtocol() throws LinkException, IOException, ParseException {
-        getMeterProtocol().setProperties(TypedProperties.copyOf(getProperties()));
+        getMeterProtocol().setUPLProperties(TypedProperties.copyOf(getProperties()));
         getMeterProtocol().init(getDialer().getInputStream(), getDialer().getOutputStream(), getTimeZone(), getLogger());
         if (getDialer() instanceof Optical) {
             if (getMeterProtocol() instanceof HHUEnabler) {

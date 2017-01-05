@@ -201,7 +201,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return this.getWaveFlowProperties().getPropertySpecs();
     }
 
@@ -379,7 +379,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.getWaveFlowProperties().addProperties(TypedProperties.copyOf(properties));
     }
 

@@ -132,13 +132,13 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return this.getProperties().getUPLPropertySpecs();
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        this.getProperties().setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        this.getProperties().setUPLProperties(properties);
     }
 
     @Override

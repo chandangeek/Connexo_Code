@@ -61,12 +61,12 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 
     @Override
-    public void setProperties(TypedProperties properties) {
+    public void setUPLProperties(TypedProperties properties) {
         // Nothing to do because we don't have any properties
     }
 

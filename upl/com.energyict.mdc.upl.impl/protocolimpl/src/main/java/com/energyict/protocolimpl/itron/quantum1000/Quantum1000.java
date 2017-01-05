@@ -110,8 +110,8 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec(PROPERTY_APPLY_DEMAND_REGISTER_MULTIPLIER, false));
         propertySpecs.add(this.stringSpec(PROPERTY_APPLY_ENERGY_REGISTER_MULTIPLIER, false));
         propertySpecs.add(this.stringSpec(PROPERTY_APPLY_SELF_READ_REGISTER_MULTIPLIER, false));
@@ -123,8 +123,8 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         clientAddress = Integer.parseInt(properties.getTypedProperty("ClientAddress", "254"));
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "01"));
         setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));

@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
-import com.energyict.mdc.upl.properties.PrivateKeyAlias;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.PrivateKeyAlias;
 
 import com.energyict.cbo.CertificateWrapperId;
 import com.energyict.dlms.DLMSConnectionException;

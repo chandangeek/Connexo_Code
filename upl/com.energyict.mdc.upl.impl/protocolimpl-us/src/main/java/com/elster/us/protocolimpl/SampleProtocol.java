@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  */
 public class SampleProtocol implements MeterProtocol {
 
-    public void setProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
 
     }
 
@@ -101,7 +101,7 @@ public class SampleProtocol implements MeterProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();
     }
 

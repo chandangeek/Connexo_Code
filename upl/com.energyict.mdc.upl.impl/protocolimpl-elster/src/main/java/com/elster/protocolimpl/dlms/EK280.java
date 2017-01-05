@@ -239,15 +239,15 @@ public class EK280 extends Dlms {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(UPLPropertySpecFactory.string(ARCHIVESTRUCTUREVERSION, false));
         return propertySpecs;
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         String archiveStructureVersion = properties.getTypedProperty(EK280.ARCHIVESTRUCTUREVERSION, "");
         if ("V2".equalsIgnoreCase(archiveStructureVersion)) {
             archiveStructure = V2ARCHIVESTRUCTURE;

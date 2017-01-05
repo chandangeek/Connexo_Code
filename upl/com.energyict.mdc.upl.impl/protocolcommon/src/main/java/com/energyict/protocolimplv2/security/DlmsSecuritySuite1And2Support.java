@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.security.SecuritySuite;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,11 +42,6 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
         propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(this.propertySpecService));
         propertySpecs.add(getClientMacAddressPropertySpec());
         return propertySpecs;
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.DLMS_SUITE_1_AND_2_SECURITY.toString();
     }
 
     /**

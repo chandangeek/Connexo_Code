@@ -180,7 +180,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(PK_SERIALNUMBER),
                 this.stringSpecofExactLength(PK_NODEID, 7),
@@ -214,7 +214,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         if (properties.getTypedProperty(PK_SERIALNUMBER) != null) {
             pSerialNumber = properties.getTypedProperty(PK_SERIALNUMBER);
         }

@@ -326,7 +326,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getProperties().getUPLPropertySpecs();
     }
 }

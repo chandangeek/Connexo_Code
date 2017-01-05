@@ -4,11 +4,13 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.InboundFrameException;
 
 /**
- * In the case of RequestDiscover, a meter starts an inbound session and pushes its serial number and meter data.
+ * In the case of RequestDiscover, a meter starts an inbound session
+ * and pushes its serial number and meter data.
  * There are no extra requests sent by the comserver.
  * <p/>
  * Copyrights EnergyICT
@@ -20,7 +22,8 @@ public class RequestDiscover extends AbstractDiscover {
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
-    public RequestDiscover(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public RequestDiscover(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+        super(propertySpecService);
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
     }

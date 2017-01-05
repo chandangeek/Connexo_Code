@@ -199,8 +199,8 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec(LOAD_PROFILE_OBIS_CODE_PROPERTY, false));
         propertySpecs.add(this.stringSpec(READ_LOAD_PROFILE_PROPERTY, false));
         propertySpecs.add(this.integerSpec(CORRECTTIME.getName(), false));
@@ -211,8 +211,8 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "40000").trim()));
         setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, "0.0.99.1.0.255")));
         readLoadProfile = "1".equals(properties.getTypedProperty(READ_LOAD_PROFILE_PROPERTY, "1"));

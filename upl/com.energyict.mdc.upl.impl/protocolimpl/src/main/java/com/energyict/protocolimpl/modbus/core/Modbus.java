@@ -133,8 +133,8 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec(PK_INTERFRAME_TIMEOUT, false));
         propertySpecs.add(this.stringSpec("NetworkId", false));
         propertySpecs.add(this.integerSpec("VirtualLoadProfile", false));
@@ -150,8 +150,8 @@ public abstract class Modbus extends AbstractProtocol implements Discover, Messa
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "15").trim()));
         setNetworkId(properties.getTypedProperty("NetworkId", ""));

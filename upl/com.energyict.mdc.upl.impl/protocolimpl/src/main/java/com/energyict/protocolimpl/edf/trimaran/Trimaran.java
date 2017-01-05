@@ -85,8 +85,8 @@ public class Trimaran extends AbstractProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec("HalfDuplex", false));
         propertySpecs.add(this.integerSpec("ACKTimeoutTL", false));
         propertySpecs.add(this.integerSpec("InterCharTimeout", false));
@@ -96,8 +96,8 @@ public class Trimaran extends AbstractProtocol {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay","300").trim())); // TE
         setInfoTypeHalfDuplex(Integer.parseInt(properties.getTypedProperty("HalfDuplex","50").trim())); // TC
 

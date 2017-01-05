@@ -97,8 +97,8 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.getProperties().getPropertySpecs();
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return this.getProperties().getUPLPropertySpecs();
     }
 
     @Override
@@ -232,8 +232,8 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        getRequestFactory().getProperties().setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        getRequestFactory().getProperties().setUPLProperties(properties);
     }
 
     @Override

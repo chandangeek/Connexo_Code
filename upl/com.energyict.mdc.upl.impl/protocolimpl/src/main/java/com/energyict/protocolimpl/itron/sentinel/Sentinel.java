@@ -147,8 +147,8 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec("C12User", false));
         propertySpecs.add(this.integerSpec("C12UserId", false));
         propertySpecs.add(this.integerSpec("MaxNrPackets", false));
@@ -159,8 +159,8 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         try {
             setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
             setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));

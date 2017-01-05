@@ -98,8 +98,8 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
 	}
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(
 		        UPLPropertySpecFactory
                         .specBuilder("LoadSurveyNumber", true, this.getPropertySpecService()::integerSpec)
@@ -113,9 +113,9 @@ public class MK10 extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         sendDebug("setProperties()");
-        super.setProperties(properties);
+        super.setUPLProperties(properties);
 		setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "1"));
 		setLoadSurveyNumber(Integer.parseInt(((String) properties.getTypedProperty("LoadSurveyNumber")).trim())-1);
 		setLogOffDisabled(Integer.parseInt(properties.getTypedProperty("DisableLogOff", "0").trim()));

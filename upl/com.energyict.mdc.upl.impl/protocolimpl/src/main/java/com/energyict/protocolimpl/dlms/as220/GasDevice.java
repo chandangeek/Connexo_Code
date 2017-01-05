@@ -139,9 +139,9 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
     }
 
 	@Override
-	public void setProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+	public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
 		validateProperties(properties);
-		super.setProperties(properties);
+		super.setUPLProperties(properties);
 	}
 
 	private void validateProperties(TypedProperties properties) {

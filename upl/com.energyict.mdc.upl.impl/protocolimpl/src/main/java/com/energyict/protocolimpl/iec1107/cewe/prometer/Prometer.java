@@ -522,8 +522,8 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
+    public List<PropertySpec> getUPLPropertySpecs() {
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec("Software7E1", false));
         propertySpecs.add(this.integerSpec(PK_LOGGER, false));
         return propertySpecs;
@@ -535,8 +535,8 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    public void setProperties(TypedProperties properties) throws PropertyValidationException {
-        super.setProperties(properties);
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
         String extendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
         pExtendedLogging = (extendedLogging == null) ? 0 : Integer.parseInt(extendedLogging);
 
