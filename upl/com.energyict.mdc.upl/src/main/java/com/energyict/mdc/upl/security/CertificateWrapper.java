@@ -6,5 +6,5 @@ package com.energyict.mdc.upl.security;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-25 (08:53)
  */
-public interface Certificate {
+public interface CertificateWrapper {
 }
