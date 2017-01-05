@@ -6,6 +6,7 @@ import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DdlDifference;
 import com.elster.jupiter.orm.Difference;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
@@ -169,8 +170,8 @@ public class TableDdlGeneratorJournalingDiffsIT {
 
         assertThat(differences).hasSize(1);
         Difference difference = differences.get(0);
-        assertThat(difference.ddl()).hasSize(1);
-        String createTableDdl = difference.ddl().get(0);
+        assertThat(((DdlDifference)difference).ddl()).hasSize(1);
+        String createTableDdl = ((DdlDifference)difference).ddl().get(0);
         assertThat(createTableDdl.toUpperCase()).startsWith("create table TST_MOVIEJRNL ".toUpperCase());
 
     }
@@ -193,7 +194,7 @@ public class TableDdlGeneratorJournalingDiffsIT {
 
         // Asserts
         assertThat(differences).hasSize(2);
-        Difference difference = differences.get(1);
+        DdlDifference difference = (DdlDifference) differences.get(1);
         assertThat(difference.ddl()).hasSize(1);
         String createTableDdl = difference.ddl().get(0);
         assertThat(createTableDdl.toUpperCase()).startsWith("create table TST_MOVIEJRNL ".toUpperCase());
@@ -219,7 +220,7 @@ public class TableDdlGeneratorJournalingDiffsIT {
 
         // Asserts
         assertThat(differences).hasSize(2);
-        Difference difference = differences.get(1);
+        DdlDifference difference = (DdlDifference) differences.get(1);
         assertThat(difference.ddl()).hasSize(1);
         String createTableDdl = difference.ddl().get(0);
         assertThat(createTableDdl.toUpperCase()).startsWith("create table TST_MOVIEJRNL ".toUpperCase());
@@ -252,7 +253,7 @@ public class TableDdlGeneratorJournalingDiffsIT {
 
         // Asserts
         assertThat(differences).hasSize(1);
-        Difference difference = differences.get(0);
+        DdlDifference difference = (DdlDifference) differences.get(0);
         assertThat(difference.ddl()).hasSize(1);
         String dropTableDdl = difference.ddl().get(0);
         assertThat(dropTableDdl.toUpperCase()).startsWith("drop table TST_MOVIEJRNL".toUpperCase());

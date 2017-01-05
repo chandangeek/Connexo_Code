@@ -2,6 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DdlDifference;
 import com.elster.jupiter.orm.Difference;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
@@ -268,7 +269,9 @@ public class DataModelImpl implements DataModel {
 
     private void executeSqlStatements(Statement statement, List<Difference> differences) throws SQLException {
         differences.stream()
-                .map(Difference::ddl)
+                .filter(difference -> difference instanceof DdlDifference)
+                .map(DdlDifference.class::cast)
+                .map(DdlDifference::ddl)
                 .flatMap(List::stream)
                 .forEach(perform(this::executeSqlStatement).on(statement));
     }

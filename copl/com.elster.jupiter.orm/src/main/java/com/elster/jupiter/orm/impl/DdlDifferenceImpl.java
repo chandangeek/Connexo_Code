@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.DdlDifference;
 import com.elster.jupiter.orm.Difference;
 
 import java.util.ArrayList;
@@ -8,12 +9,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-final class DifferenceImpl implements Difference {
+final class DdlDifferenceImpl implements DdlDifference {
 
     private final String description;
     private final List<String> ddl;
 
-    private DifferenceImpl(String description, List<String> ddl) {
+    private DdlDifferenceImpl(String description, List<String> ddl) {
         this.description = description;
         this.ddl = Collections.unmodifiableList(ddl);
     }
@@ -36,7 +37,7 @@ final class DifferenceImpl implements Difference {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DifferenceImpl that = (DifferenceImpl) o;
+        DdlDifferenceImpl that = (DdlDifferenceImpl) o;
         return Objects.equals(ddl, that.ddl);
     }
 
@@ -67,7 +68,7 @@ final class DifferenceImpl implements Difference {
             if (ddls.isEmpty()) {
                 return Optional.empty();
             }
-            return Optional.of(new DifferenceImpl(description, ddls));
+            return Optional.of(new DdlDifferenceImpl(description, ddls));
         }
     }
 }

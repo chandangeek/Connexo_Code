@@ -17,8 +17,6 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
 
-import com.google.common.base.Objects;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,7 +31,11 @@ import java.util.stream.Collectors;
 
 public class DataMapperReader<T> implements TupleParser<T> {
     private final DataMapperImpl<T> dataMapper;
-    private boolean noMacCheck = false;
+
+    enum MACEnforcementMode {
+        Secure,
+        Unsecure
+    }
 
     DataMapperReader(DataMapperImpl<T> dataMapper) {
         this.dataMapper = dataMapper;
@@ -146,6 +148,9 @@ public class DataMapperReader<T> implements TupleParser<T> {
     }
 
     List<T> find(String[] fieldNames, Object[] values, Order... orders) throws SQLException {
+        return find(fieldNames, values, MACEnforcementMode.Secure, orders);
+    }
+    List<T> find(String[] fieldNames, Object[] values, MACEnforcementMode macEnforcementMode, Order... orders) throws SQLException {
         if (fieldNames != null && fieldNames.length == 1 && (orders == null || orders.length == 0)) {
             Order listOrder = getListOrder(fieldNames[0]);
             if (listOrder != null) {
@@ -159,19 +164,19 @@ public class DataMapperReader<T> implements TupleParser<T> {
                 addFragments(fragments, fieldNames[i], values[i]);
             }
         }
-        return find(fragments, orders, LockMode.NONE);
+        return find(fragments, orders, LockMode.NONE, macEnforcementMode);
     }
 
 
     List<T> findWithoutMacCheck() throws SQLException {
-        this.noMacCheck = true;
-        List<T> result = find((String[]) null, (Object[]) null, Order.NOORDER);
-        noMacCheck = false;
-        return result;
+        return find((String[])null, (Object[])null, MACEnforcementMode.Unsecure, Order.NOORDER);
     }
 
+    List<T> find(Instant instant, Map<String, Object> valueMap, Order[] noorder) throws SQLException {
+        return find(instant, valueMap, MACEnforcementMode.Secure, noorder);
+    }
 
-    List<T> find(Instant instant, Map<String, Object> valueMap) throws SQLException {
+    List<T> find(Instant instant, Map<String, Object> valueMap, MACEnforcementMode macEnforcementMode, Order[] noorder) throws SQLException {
         List<SqlFragment> fragments = new ArrayList<>();
         getMapperType().addSqlFragment(fragments, dataMapper.getApi(), getAlias());
         if (valueMap != null) {
@@ -192,12 +197,16 @@ public class DataMapperReader<T> implements TupleParser<T> {
                 return index;
             }
         });
-        return find(fragments, null, LockMode.NONE);
+        return find(fragments, null, LockMode.NONE, macEnforcementMode);
     }
 
     private List<T> find(List<SqlFragment> fragments, Order[] orders, LockMode lockMode) throws SQLException {
+        return find(fragments, orders, lockMode, MACEnforcementMode.Secure);
+    }
+
+    private List<T> find(List<SqlFragment> fragments, Order[] orders, LockMode lockMode, MACEnforcementMode macEnforcementMode) throws SQLException {
         SqlBuilder builder = selectSql(fragments, orders, lockMode);
-        return doFind(fragments, builder);
+        return doFind(fragments, builder, macEnforcementMode);
     }
 
     private List<JournalEntry<T>> findJournal(List<SqlFragment> fragments, Order[] orders, LockMode lockMode) throws SQLException {
@@ -208,7 +217,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
                         Instant journalTime = Instant.ofEpochMilli(resultSet.getLong(1));
-                        T entry = construct(resultSet, 2);
+                        T entry = construct(resultSet, 2, MACEnforcementMode.Secure);
                         result.add(new JournalEntry<>(journalTime, entry));
                     }
                 }
@@ -218,7 +227,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
 
     }
 
-    private List<T> doFind(List<SqlFragment> fragments, SqlBuilder builder) throws SQLException {
+    private List<T> doFind(List<SqlFragment> fragments, SqlBuilder builder, MACEnforcementMode macEnforcementMode) throws SQLException {
         List<Setter> setters = getSetters(fragments);
         List<T> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
@@ -228,7 +237,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
                 }
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
-                        result.add(construct(resultSet, setters));
+                        result.add(construct(resultSet, setters, macEnforcementMode));
                     }
                 }
             }
@@ -300,7 +309,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
     }
 
     public T construct(ResultSet rs) throws SQLException {
-        return construct(rs, 1);
+        return construct(rs, 1, MACEnforcementMode.Secure);
     }
 
     Fetcher<T> fetcher(SqlBuilder builder) throws SQLException {
@@ -314,7 +323,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
         }
     }
 
-    T construct(ResultSet rs, int startIndex) throws SQLException {
+    T construct(ResultSet rs, int startIndex, MACEnforcementMode macEnforcementMode) throws SQLException {
         T result = getMapperType().hasMultiple() ? newInstance(rs, startIndex) : dataMapper.cast(getMapperType().newInstance());
         List<Pair<ColumnImpl, Object>> columnValues = new ArrayList<>();
 
@@ -343,7 +352,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
             constraint.setReverseField(result);
         }
 
-        if (macColumn != null && !noMacCheck) {
+        if (macColumn != null && MACEnforcementMode.Secure.equals(macEnforcementMode)) {
             if (mac == null || !macColumn.verifyMacValue(mac, result)) {
                 throw new MacException();
             }
@@ -374,8 +383,8 @@ public class DataMapperReader<T> implements TupleParser<T> {
         return KeyValue.of(result);
     }
 
-    private T construct(ResultSet rs, List<Setter> setters) throws SQLException {
-        T result = construct(rs, 1);
+    private T construct(ResultSet rs, List<Setter> setters, MACEnforcementMode macEnforcementMode) throws SQLException {
+        T result = construct(rs, 1, macEnforcementMode);
         for (Setter setter : setters) {
             setter.set(result);
         }

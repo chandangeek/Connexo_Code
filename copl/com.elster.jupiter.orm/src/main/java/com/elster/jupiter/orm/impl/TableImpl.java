@@ -107,8 +107,6 @@ public class TableImpl<T> implements Table<T> {
     private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
     private List<ColumnImpl> realColumns;
 
-    private boolean shouldRecalculateMac = false;
-
     private TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
@@ -208,17 +206,6 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public void doNotAutoInstall() {
         this.autoInstall = false;
-    }
-
-    protected void recalculateMacs() {
-        if(shouldRecalculateMac) {
-            getDataMapper().persist((getDataMapper().findWithoutMacCheck()));
-        }
-        shouldRecalculateMac = false;
-    }
-
-    protected void macColumnAdded() {
-        shouldRecalculateMac = true;
     }
 
     Column add(ColumnImpl column) {
@@ -522,7 +509,6 @@ public class TableImpl<T> implements Table<T> {
         this.encrypter = Objects.requireNonNull(encrypter);
         return column("MAC")
                 .varChar(4000)
-//                .notNull()
                 .map(Column.MACFIELDNAME)
                 .add();
     }

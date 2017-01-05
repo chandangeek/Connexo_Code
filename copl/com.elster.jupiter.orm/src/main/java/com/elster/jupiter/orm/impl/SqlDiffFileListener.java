@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.DdlDifference;
 import com.elster.jupiter.orm.Difference;
 import com.elster.jupiter.orm.DifferencesListener;
 import com.elster.jupiter.orm.UnderlyingIOException;
@@ -24,7 +25,9 @@ class SqlDiffFileListener implements DifferencesListener {
     private class SubsequentState implements DifferencesListener {
         @Override
         public void onDifference(Difference difference) {
-            writeEntry(buildEntryString(difference));
+            if (difference instanceof DdlDifference) {
+                writeEntry(buildEntryString((DdlDifference) difference));
+            }
         }
 
         private void writeEntry(String entry) {
@@ -35,7 +38,7 @@ class SqlDiffFileListener implements DifferencesListener {
             }
         }
 
-        private String buildEntryString(Difference difference) {
+        private String buildEntryString(DdlDifference difference) {
             String entryPrefix = new StringJoiner("", "---- ", " start ----\n").add(difference.description()).toString();
             String entrySuffix = new StringJoiner("", ";\n---- ", "  end  ----\n").add(difference.description()).toString();
             return difference.ddl()

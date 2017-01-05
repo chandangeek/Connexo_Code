@@ -3,7 +3,9 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelDifferencesLister;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.DdlDifference;
 import com.elster.jupiter.orm.Difference;
+import com.elster.jupiter.orm.DifferenceCommand;
 import com.elster.jupiter.orm.DifferencesListener;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -74,9 +76,15 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
         @Override
         public void handleDifferences(Context context, List<Difference> differences) {
             differences.stream()
-                    .map(Difference::ddl)
+                    .filter(difference -> difference instanceof DdlDifference)
+                    .map(DdlDifference.class::cast)
+                    .map(DdlDifference::ddl)
                     .flatMap(List::stream)
                     .forEach(each -> execute(context, each));
+            differences.stream()
+                    .filter(difference -> difference instanceof DifferenceCommand)
+                    .map(DifferenceCommand.class::cast)
+                    .forEach(DifferenceCommand::execute);
         }
 
         private void execute(Context context, String each) {
@@ -167,7 +175,7 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
 
         @Override
         public Optional<Difference> removeTable(TableImpl<?> table) {
-            return DifferenceImpl.builder("Table " + table.getName() + " : Removed table")
+            return DdlDifferenceImpl.builder("Table " + table.getName() + " : Removed table")
                     .add("drop table " + table.getName().toUpperCase() + " cascade constraints")
                     .build();
         }
@@ -333,14 +341,17 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
     }
 
     private Difference createTable(TableImpl<?> table, Version version) {
-        DifferenceImpl.DifferenceBuilder difference = DifferenceImpl.builder("Table " + table.getName() + " : Added table");
+        DdlDifferenceImpl.DifferenceBuilder difference = DdlDifferenceImpl.builder("Table " + table.getName() + " : Added table");
         table.getDdl(version).forEach(difference::add);
         return difference.build().get();
     }
 
     private List<Difference> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) {
         List<Difference> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable);
-        toTable.recalculateMacs();
+        if (toTable.getColumns(version).stream().anyMatch(ColumnImpl::isMAC)) {
+            upgradeDdl.add(new MacDifference(toTable));
+        }
+
         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
             if (sequenceColumn.getQualifiedSequenceName() != null) {
                 long sequenceValue = getLastSequenceValue(context, sequenceColumn.getQualifiedSequenceName());
@@ -382,4 +393,21 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
         }
     }
 
+    private class MacDifference implements DifferenceCommand {
+        private final TableImpl table;
+
+        public MacDifference(TableImpl table) {
+            this.table = table;
+        }
+
+        @Override
+        public String description() {
+            return "MAC recalculation for table "+table.getDataMapper().getAlias()+":"+table.getName();
+        }
+
+        @Override
+        public void execute() {
+            table.getDataMapper().update(table.getDataMapper().findWithoutMacCheck());
+        }
+    }
 }

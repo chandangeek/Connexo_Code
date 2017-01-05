@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -280,7 +279,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     }
 
     public T construct(ResultSet rs, int startIndex) throws SQLException {
-		return reader.construct(rs,startIndex);
+		return reader.construct(rs,startIndex, DataMapperReader.MACEnforcementMode.Secure);
 	}
 
 	private void preventIfChild() {
@@ -600,7 +599,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		@Override
 		public List<JournalEntry<T>> find(Map<String, Object> valueMap) {
 	        try {
-	        	Stream<JournalEntry<T>> current = reader.find(instant, valueMap).stream().map(JournalEntry::new);
+	        	Stream<JournalEntry<T>> current = reader.find(instant, valueMap, Order.NOORDER).stream().map(JournalEntry::new);
 	        	Stream<JournalEntry<T>> old = reader.findJournals(instant, valueMap).stream();
 	        	return Stream.concat(current, old).collect(Collectors.toList());
 	        } catch (SQLException e) {
