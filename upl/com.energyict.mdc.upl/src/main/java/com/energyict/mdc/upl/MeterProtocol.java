@@ -111,7 +111,7 @@ public interface MeterProtocol extends HasDynamicProperties {
      * @param properties contains a set of protocol specific key value pairs
      * @see com.energyict.mdc.upl.properties.PropertySpec#validateValue(Object)
      */
-    void setProperties(TypedProperties properties) throws PropertyValidationException;
+    void setUPLProperties(TypedProperties properties) throws PropertyValidationException;
 
     /**
      * <p>

@@ -19,7 +19,7 @@ public interface HasDynamicProperties {
      *
      * @return The List of PropertySpec
      */
-    List<PropertySpec> getPropertySpecs();
+    List<PropertySpec> getUPLPropertySpecs();
 
     /**
      * Returns the {@link PropertySpec} with the specified name
@@ -29,8 +29,8 @@ public interface HasDynamicProperties {
      * @return The PropertySpec or <code>Optional.empty()</code>
      * if no such PropertySpec exists
      */
-    default Optional<PropertySpec> getPropertySpec(String name) {
-        return getPropertySpecs()
+    default Optional<PropertySpec> getUPLPropertySpec(String name) {
+        return getUPLPropertySpecs()
                 .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
                 .findAny();
@@ -49,6 +49,6 @@ public interface HasDynamicProperties {
      * @param properties contains a set of protocol specific key value pairs
      * @see com.energyict.mdc.upl.properties.PropertySpec#validateValue(Object)
      */
-    void setProperties(TypedProperties properties) throws PropertyValidationException;
+    void setUPLProperties(TypedProperties properties) throws PropertyValidationException;
 
 }
