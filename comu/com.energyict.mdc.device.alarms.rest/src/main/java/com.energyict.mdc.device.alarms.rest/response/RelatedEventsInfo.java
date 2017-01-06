@@ -12,7 +12,6 @@ public class RelatedEventsInfo {
     public String subDomain;
     public String eventOrAction;
     public long eventDate;
-    //FixMe add device code ? ;
 
     public RelatedEventsInfo(EndDeviceEventRecord endDeviceEventRecord){
         EndDeviceEventType endDeviceEventType = endDeviceEventRecord.getEventType();

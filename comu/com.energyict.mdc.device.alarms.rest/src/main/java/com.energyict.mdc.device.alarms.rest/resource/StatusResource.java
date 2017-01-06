@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-//FixMe do we need new statuses for alarms?
 @Path("/statuses")
 public class StatusResource  extends BaseAlarmResource{
 
