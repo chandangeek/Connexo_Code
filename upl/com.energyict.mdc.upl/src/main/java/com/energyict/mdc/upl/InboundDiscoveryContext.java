@@ -52,6 +52,8 @@ public interface InboundDiscoveryContext {
 
     CollectedDataFactory getCollectedDataFactory();
 
+    ObjectMapperService getObjectMapperService();
+
     IssueFactory getIssueFactory();
 
     PropertySpecService getPropertySpecService();
@@ -67,6 +69,8 @@ public interface InboundDiscoveryContext {
     HttpServletResponse getServletResponse();
 
     DeviceGroupExtractor getDeviceGroupExtractor();
+
+    DeviceMasterDataExtractor getDeviceMasterDataExtractor();
 
     DeviceExtractor getDeviceExtractor();
 
