@@ -18,7 +18,7 @@ public abstract class AbstractGraphLayer implements GraphLayer, TranslationKeyPr
 
     private Properties properties = new Properties();
 
-    public void setProperty(String propertyName, String propertyValue){
+    public void setProperty(String propertyName, Object propertyValue){
         this.properties.put(propertyName, propertyValue);
     }
 

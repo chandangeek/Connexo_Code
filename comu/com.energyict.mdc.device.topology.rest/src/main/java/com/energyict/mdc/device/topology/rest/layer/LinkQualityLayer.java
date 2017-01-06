@@ -5,7 +5,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.device.topology.impl.ServerTopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
@@ -17,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 
 
 /**
@@ -32,7 +30,7 @@ public class LinkQualityLayer extends AbstractGraphLayer {
     private DeviceService deviceService;
     private TopologyService topologyService;
 
-    private final static String NAME = "topology.GraphLayer.Links.linkQuality";
+    private final static String NAME = "topology.GraphLayer.linkQuality";
 
     public enum PropertyNames implements TranslationKey{
         LINK_QUALITY("linkQuality", "Link quality");
@@ -47,7 +45,7 @@ public class LinkQualityLayer extends AbstractGraphLayer {
 
         @Override
         public String getKey() {
-            return NAME + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
+            return NAME + ".link." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
         }
 
         public String getPropertyName(){

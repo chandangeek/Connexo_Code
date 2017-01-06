@@ -87,6 +87,26 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle.config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.issue.datacollection</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.lifecycle.config.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
@@ -195,11 +215,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tasks</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.issue.datacollection</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -32,7 +32,7 @@ public class CommunicationStatusLayer extends AbstractGraphLayer {
     private DeviceService deviceService;
     private TopologyService topologyService;
 
-    private final static String NAME = "topology.GraphLayer.Links.linkQuality";
+    private final static String NAME = "topology.GraphLayer.CommunicationStatus";
 
     public enum PropertyNames implements TranslationKey {
         COMMUNICATION_STATUS("failedCommunications", "Failed communications");
@@ -47,7 +47,7 @@ public class CommunicationStatusLayer extends AbstractGraphLayer {
 
         @Override
         public String getKey() {
-            return NAME + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
+            return NAME + ".node." + propertyName;    //topology.graphLayer.deviceInfo.node.xxxx
         }
 
         public String getPropertyName(){
@@ -98,7 +98,7 @@ public class CommunicationStatusLayer extends AbstractGraphLayer {
         return propertyMap();
     }
 
-    public void setFailedCommunications(int errors){
+    private void setFailedCommunications(int errors){
         this.setProperty(PropertyNames.COMMUNICATION_STATUS.getPropertyName(), ""+errors);
     }
 
