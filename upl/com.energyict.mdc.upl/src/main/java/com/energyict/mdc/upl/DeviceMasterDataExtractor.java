@@ -36,20 +36,24 @@ public interface DeviceMasterDataExtractor {
 
     DeviceConfiguration configuration(Device device);
 
+    String protocolJavaClassName(Device device);
+
     Collection<SecurityPropertySet> securityPropertySets(Device device);
+
+    Collection<SecurityProperty> securityProperties(Device device, SecurityPropertySet securityPropertySet);
+
+    TypedProperties properties(Device device);
+
+    TypedProperties protocolProperties(Device device);
+
+    Optional<TypedProperties> dialectProperties(Device device, String dialectName);
 
     /**
      * Extracts the {@link Device}s that use the master device as a gateway.
      */
     List<Device> downstreamDevices(Device master);
 
-    TypedProperties properties(Device device);
-
-    Collection<SecurityProperty> securityProperties(Device device, SecurityPropertySet securityPropertySet);
-
     Optional<Device> gateway(Device device);
-
-    String protocolJavaClassName(Device device);
 
     interface DeviceConfiguration {
         long id();
