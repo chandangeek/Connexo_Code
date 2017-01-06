@@ -5,10 +5,12 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides functionality to handle the {@link DeviceMessageSpec}s.
@@ -79,12 +81,14 @@ public interface DeviceMessageSupport {
     String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute);
 
     /**
-     * Request the protocol implementation to prepare and add extra context to the message.
-     * This context is kept in a String field on the offlineDeviceMessage instance, so it is available to the message executor.
-     * <p/>
-     * Note that this method is called in the "going offline" phase of the DeviceMessage. This always runs in the online comserver environment,
-     * meaning that the implementors can use factories to access extra information from the EIServer database.
+     * Request this protocol to prepare {@link OfflineDeviceMessage#getPreparedContext() extra context} for the message
+     * that is being taken offline.
+     *
+     * @param device The Device for which the DeviceMessage is intended
+     * @param offlineDevice The offline version of the Device
+     * @param deviceMessage The DeviceMessage
+     * @return The prepared context or <code>Optional.empty()</code> if there was nothing to prepare
      */
-    String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage);
+    Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage);
 
 }

@@ -30,10 +30,12 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class Services {
 
+    private static AtomicReference<ObjectMapperService> OBJECT_MAPPER_SERVICE = new AtomicReference<>();
     private static AtomicReference<PropertySpecService> PROPERTY_SPEC_SERVICE = new AtomicReference<>();
     private static AtomicReference<NlsService> NLS_SERVICE = new AtomicReference<>();
     private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
+    private static AtomicReference<DeviceMasterDataExtractor> DEVICE_MASTER_DATA_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<DeviceExtractor> DEVICE_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<DeviceGroupExtractor> DEVICE_GROUP_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<RegisterExtractor> REGISTER_EXTRACTOR = new AtomicReference<>();
@@ -51,6 +53,8 @@ public class Services {
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
             return propertySpecService();
+        } else if (ObjectMapperService.class.equals(serviceType)) {
+            return objectMapperService();
         } else if (NlsService.class.equals(serviceType)) {
             return nlsService();
         } else if (SecurityService.class.equals(serviceType)) {
@@ -61,6 +65,8 @@ public class Services {
             return numberLookupExtractor();
         } else if (LoadProfileExtractor.class.equals(serviceType)) {
             return loadProfileExtractor();
+        } else if (DeviceMasterDataExtractor.class.equals(serviceType)) {
+            return deviceMasterDataExtractor();
         } else if (DeviceExtractor.class.equals(serviceType)) {
             return deviceExtractor();
         } else if (DeviceGroupExtractor.class.equals(serviceType)) {
@@ -92,6 +98,14 @@ public class Services {
 
     public static void propertySpecService(PropertySpecService propertySpecService) {
         PROPERTY_SPEC_SERVICE.set(propertySpecService);
+    }
+
+    public static ObjectMapperService objectMapperService() {
+        return OBJECT_MAPPER_SERVICE.get();
+    }
+
+    public static void objectMapperService(ObjectMapperService objectMapperService) {
+        OBJECT_MAPPER_SERVICE.set(objectMapperService);
     }
 
     public static NlsService nlsService() {
@@ -140,6 +154,14 @@ public class Services {
 
     public static void numberLookupExtractor(NumberLookupExtractor extractor) {
         NUMBER_LOOKUP_EXTRACTOR.set(extractor);
+    }
+
+    public static DeviceMasterDataExtractor deviceMasterDataExtractor() {
+        return DEVICE_MASTER_DATA_EXTRACTOR.get();
+    }
+
+    public static void deviceMasterDataExtractor(DeviceMasterDataExtractor extractor) {
+        DEVICE_MASTER_DATA_EXTRACTOR.set(extractor);
     }
 
     public static DeviceExtractor deviceExtractor() {
