@@ -3,11 +3,13 @@ package com.elster.jupiter.users.rest.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.FailToActivateUser;
+import com.elster.jupiter.users.GrantRefusedException;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -118,10 +120,10 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
-    public UserInfos updateUser(UserInfo info, @PathParam("id") long id) {
-        info.id = id;
-        transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
-        return getUser(info.id);
+    public Response updateUser(UserInfo info, @PathParam("id") long id) {
+            info.id = id;
+            transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
+            return Response.ok(getUser(info.id)).build();
     }
 
     @PUT
