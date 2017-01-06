@@ -18,8 +18,8 @@ public interface UserService {
 
     String SYSTEM_ADMIN_ROLE = "System administrator";
     String SYSTEM_ADMIN_ROLE_DESCRIPTION = "System administrative privileges";
-    String USER_ADMIN_ROLE = "User administrator";
-    String USER_ADMIN_ROLE_DESCRIPTION = "User administrative privileges";
+    String DEFAULT_ADMIN_ROLE = "User administrator";
+    String DEFAULT_ADMIN_ROLE_DESCRIPTION = "User administrative privileges";
     String DEFAULT_INSTALLER_ROLE = "Installer";
     String DEFAULT_INSTALLER_ROLE_DESCRIPTION = "Installation privileges";
     String BATCH_EXECUTOR_ROLE = "Batch executor";
