@@ -556,6 +556,26 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
+    public Finder<? extends Issue> findAlarms(Class<?>... eagers) {
+        Condition condition = Condition.TRUE;
+        Optional<IssueType> alarmIssueType = getAllIssueTypes().stream()
+                .filter(issueType -> issueType.getPrefix().equals("ALM"))
+                .findFirst();
+        if(alarmIssueType.isPresent()){
+            condition = condition.and(where("reason.issueType").isEqualTo(alarmIssueType.get()));
+        }else{
+            condition = Condition.FALSE;
+        }
+        List<Class<?>> eagerClasses = new ArrayList<>();
+        eagerClasses.add(OpenIssue.class);
+        if (eagers != null && eagers.length > 0) {
+            eagerClasses.addAll(Arrays.asList(eagers));
+        }
+        eagerClasses.addAll(Arrays.asList(IssueReason.class, IssueType.class));
+        return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+    }
+
+    @Override
     public Optional<? extends Issue> findAndLockIssueByIdAndVersion(long id, long version) {
         Optional<? extends Issue> issue = findOpenIssue(id);
         if (issue.isPresent()) {
