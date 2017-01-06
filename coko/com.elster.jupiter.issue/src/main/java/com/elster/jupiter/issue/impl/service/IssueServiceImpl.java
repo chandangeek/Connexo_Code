@@ -607,10 +607,12 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
         //filter by assignee
         if (!filter.getAssignees().isEmpty()) {
-            condition = condition.and(where("user").in(filter.getAssignees()));
+            Condition userCondition = Condition.TRUE;
+            userCondition = userCondition.and(where("user").in(filter.getAssignees()));
             if (filter.isUnassignedSelected()) {
-                condition = condition.or(where("user").isNull());
+                userCondition = userCondition.or(where("user").isNull());
             }
+            condition = condition.and(userCondition);
         }
         if (filter.getAssignees().isEmpty() && filter.isUnassignedSelected()) {
             condition = condition.and(where("user").isNull());
