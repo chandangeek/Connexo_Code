@@ -27,9 +27,9 @@ public class CronTabStyleConverter {
 
             Calendar localTime = Calendar.getInstance();
             localTime.setTimeZone(localTimezone);
-            if(every.getTimeUnitCode() == TimeDuration.MONTHS){
+            if (every.getTimeUnitCode() == TimeDuration.MONTHS){
                 localTime.set(Calendar.DAY_OF_MONTH, offset.getDays() + 1); //+1 because EiServer has 0-based days
-            } else if(every.getTimeUnitCode() == TimeDuration.WEEKS){
+            } else if (every.getTimeUnitCode() == TimeDuration.WEEKS){
                 localTime.set(Calendar.DAY_OF_WEEK, offset.getDays() + 1);
             }
             localTime.set(Calendar.HOUR_OF_DAY, offset.getHours());

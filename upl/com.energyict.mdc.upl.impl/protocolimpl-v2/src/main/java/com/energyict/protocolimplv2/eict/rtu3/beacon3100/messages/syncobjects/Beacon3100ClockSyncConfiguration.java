@@ -20,6 +20,10 @@ public class Beacon3100ClockSyncConfiguration {
     private int minTimeDiff;
     private int maxTimeDiff;
 
+    public Beacon3100ClockSyncConfiguration(boolean setClock, long minTimeDiff, long maxTimeDiff) {
+        this(setClock, (int) minTimeDiff, (int) maxTimeDiff);
+    }
+
     public Beacon3100ClockSyncConfiguration(boolean setClock, int minTimeDiff, int maxTimeDiff) {
         this.setClock = setClock;
         this.minTimeDiff = minTimeDiff;
@@ -27,7 +31,7 @@ public class Beacon3100ClockSyncConfiguration {
     }
 
     //JSon constructor
-    private Beacon3100ClockSyncConfiguration() {
+    public Beacon3100ClockSyncConfiguration() {
     }
 
     public Structure toStructure() {

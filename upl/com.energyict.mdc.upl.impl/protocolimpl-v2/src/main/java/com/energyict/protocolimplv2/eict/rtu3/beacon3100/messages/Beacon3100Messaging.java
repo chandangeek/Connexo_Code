@@ -1,8 +1,11 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -124,6 +127,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -178,9 +182,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
 
+    private final ObjectMapperService objectMapperService;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final DeviceMasterDataExtractor extractor;
 
     /**
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
@@ -190,11 +196,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
-    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor extractor) {
         super(protocol, collectedDataFactory, issueFactory);
+        this.objectMapperService = objectMapperService;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.extractor = extractor;
     }
 
     @Override
@@ -396,20 +404,22 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
+    public Optional<String> prepareMessageContext(com.energyict.mdc.upl.meterdata.Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        MasterDataSerializer masterDataSerializer = new MasterDataSerializer(this.objectMapperService, this.propertySpecService, this.extractor);
+        MulticastSerializer multicastSerializer = masterDataSerializer.multicastSerializer();
         if (deviceMessage.getMessageId() == DeviceActionMessage.SyncMasterdataForDC.id()) {
-            return MasterDataSerializer.serializeMasterData(offlineDevice.getId());
+            return Optional.of(masterDataSerializer.serializeMasterData(device));
         } else if (deviceMessage.getMessageId() == DeviceActionMessage.SyncDeviceDataForDC.id()) {
-            return MasterDataSerializer.serializeMeterDetails(offlineDevice.getId());
+            return Optional.of(masterDataSerializer.serializeMeterDetails(device));
         } else if (deviceMessage.getMessageId() == DeviceActionMessage.SyncOneConfigurationForDC.id()) {
             int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
-            return MasterDataSerializer.serializeMasterDataForOneConfig(configId);
+            return Optional.of(masterDataSerializer.serializeMasterDataForOneConfig(configId));
         } else if (deviceMessage.getMessageId() == FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade.id()) {
-            return MulticastSerializer.serialize(offlineDevice, deviceMessage);
+            return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage));
         } else if (deviceMessage.getMessageId() == FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.id()) {
-            return MulticastSerializer.serialize(offlineDevice, deviceMessage);
+            return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage));
         } else {
-            return "";
+            return Optional.empty();
         }
     }
 
