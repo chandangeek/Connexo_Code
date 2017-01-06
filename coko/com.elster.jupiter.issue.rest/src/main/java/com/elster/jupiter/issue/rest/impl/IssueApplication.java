@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.rest.impl.resource.MeterResource;
 import com.elster.jupiter.issue.rest.impl.resource.ReasonResource;
 import com.elster.jupiter.issue.rest.impl.resource.RuleResource;
 import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
+import com.elster.jupiter.issue.rest.impl.resource.TopIssuesAndAlarmsResource;
 import com.elster.jupiter.issue.rest.impl.resource.WorkGroupsResource;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
@@ -82,6 +83,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
                     IssueTypeResource.class,
                     ActionResource.class,
                     WorkGroupsResource.class,
+                    TopIssuesAndAlarmsResource.class,
                     IssueResource.class);
     }
 
