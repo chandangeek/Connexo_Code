@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class Services {
 
+    private static AtomicReference<RuntimeEnvironment> RUNTIME_ENVIRONMENT = new AtomicReference<>();
     private static AtomicReference<ObjectMapperService> OBJECT_MAPPER_SERVICE = new AtomicReference<>();
     private static AtomicReference<PropertySpecService> PROPERTY_SPEC_SERVICE = new AtomicReference<>();
     private static AtomicReference<NlsService> NLS_SERVICE = new AtomicReference<>();
@@ -52,6 +53,8 @@ public class Services {
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
             return propertySpecService();
+        } else if (RuntimeEnvironment.class.equals(serviceType)) {
+            return runtimeEnvironment();
         } else if (ObjectMapperService.class.equals(serviceType)) {
             return objectMapperService();
         } else if (NlsService.class.equals(serviceType)) {
@@ -97,6 +100,14 @@ public class Services {
 
     public static void propertySpecService(PropertySpecService propertySpecService) {
         PROPERTY_SPEC_SERVICE.set(propertySpecService);
+    }
+
+    public static RuntimeEnvironment runtimeEnvironment() {
+        return RUNTIME_ENVIRONMENT.get();
+    }
+
+    public static void runtimeEnvironment(RuntimeEnvironment runtimeEnvironment) {
+        RUNTIME_ENVIRONMENT.set(runtimeEnvironment);
     }
 
     public static ObjectMapperService objectMapperService() {
