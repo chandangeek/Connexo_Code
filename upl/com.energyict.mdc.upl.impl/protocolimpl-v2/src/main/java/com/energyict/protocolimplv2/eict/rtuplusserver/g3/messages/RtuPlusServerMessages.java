@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -9,7 +10,6 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceGroupExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;

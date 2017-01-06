@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
@@ -186,7 +187,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
-    private final DeviceMasterDataExtractor extractor;
+    private final DeviceMasterDataExtractor deviceMasterDataExtractor;
+    private final DeviceGroupExtractor deviceGroupExtractor;
 
     /**
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
@@ -196,13 +198,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
-    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor extractor) {
+    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor) {
         super(protocol, collectedDataFactory, issueFactory);
         this.objectMapperService = objectMapperService;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
-        this.extractor = extractor;
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
+        this.deviceGroupExtractor = deviceGroupExtractor;
     }
 
     @Override
@@ -334,7 +337,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
-            return DeviceInfoSerializer.serializeDeviceInfo(messageAttribute);
+            DeviceInfoSerializer serializer = new DeviceInfoSerializer(this.deviceMasterDataExtractor, this.deviceGroupExtractor, this.objectMapperService);
+            return serializer.serializeDeviceInfo(messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.timeout)) {
             return String.valueOf(((TimeDuration) messageAttribute).getMilliSeconds()); //Return value in ms
@@ -405,7 +409,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     @Override
     public Optional<String> prepareMessageContext(com.energyict.mdc.upl.meterdata.Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        MasterDataSerializer masterDataSerializer = new MasterDataSerializer(this.objectMapperService, this.propertySpecService, this.extractor);
+        MasterDataSerializer masterDataSerializer = new MasterDataSerializer(this.objectMapperService, this.propertySpecService, this.deviceMasterDataExtractor);
         MulticastSerializer multicastSerializer = masterDataSerializer.multicastSerializer();
         if (deviceMessage.getMessageId() == DeviceActionMessage.SyncMasterdataForDC.id()) {
             return Optional.of(masterDataSerializer.serializeMasterData(device));

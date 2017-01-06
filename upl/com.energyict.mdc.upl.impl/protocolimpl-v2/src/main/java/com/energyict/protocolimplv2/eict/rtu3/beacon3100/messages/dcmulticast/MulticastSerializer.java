@@ -77,7 +77,7 @@ public class MulticastSerializer {
                             device,
                             Beacon3100ConfigurationSupport.DLMS_METER_KEK,
                             TypedProperties
-                                    .copyOf(this.extractor.properties(beaconDevice))
+                                    .copyOf(this.extractor.protocolProperties(beaconDevice))
                                     .getStringProperty(Beacon3100ConfigurationSupport.DLMS_METER_KEK));
             String macAddress = this.serializer.parseCallHomeId(slaveDevice);
 

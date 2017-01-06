@@ -141,7 +141,7 @@ public class MasterDataSerializer {
             final Beacon3100DeviceType beacon3100DeviceType = new Beacon3100DeviceType(deviceTypeConfigId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration);
             allMasterData.getDeviceTypes().add(beacon3100DeviceType);
 
-            final TimeZone beaconTimeZone = this.extractor.properties(device).getTypedProperty(DlmsProtocolProperties.TIMEZONE);
+            final TimeZone beaconTimeZone = this.extractor.protocolProperties(device).getTypedProperty(DlmsProtocolProperties.TIMEZONE);
             final TimeZone localTimeZone = this.extractor.timeZone(device);
 
             //Now add all information about the comtasks (get from configuration level, so it's the same for every device of the same device type)
@@ -194,7 +194,7 @@ public class MasterDataSerializer {
         final long configurationId = this.extractor.configuration(device).id();
 
         String deviceTimeZone = DlmsProtocolProperties.DEFAULT_TIMEZONE;
-        final TimeZone timeZone = this.extractor.properties(device).getTypedProperty(DlmsProtocolProperties.TIMEZONE);
+        final TimeZone timeZone = this.extractor.protocolProperties(device).getTypedProperty(DlmsProtocolProperties.TIMEZONE);
         if (timeZone != null) {
             deviceTimeZone = timeZone.getID();
         }
@@ -229,7 +229,7 @@ public class MasterDataSerializer {
         byte[] ak = null;
         byte[] ek = null;
         List<Beacon3100ClientDetails> clientDetails = new ArrayList<>();
-        final long initialFrameCounter = this.extractor.properties(device).getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(-1)).longValue();
+        final long initialFrameCounter = this.extractor.protocolProperties(device).getTypedProperty(AM540ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(-1)).longValue();
 
         for (DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet : this.extractor.securityPropertySets(device)) {
             for (DeviceMasterDataExtractor.SecurityProperty protocolSecurityProperty : this.extractor.securityProperties(device, securityPropertySet)) {
@@ -259,7 +259,7 @@ public class MasterDataSerializer {
     }
 
     public String parseCallHomeId(Device device) {
-        final String callHomeId = TypedProperties.copyOf(this.extractor.properties(device)).getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+        final String callHomeId = TypedProperties.copyOf(this.extractor.protocolProperties(device)).getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
         if (callHomeId == null) {
             throw missingProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
         }
@@ -626,7 +626,7 @@ public class MasterDataSerializer {
     }
 
     public byte[] parseKey(Device device, String propertyName) {
-        return this.parseKey(device, propertyName, TypedProperties.copyOf(this.extractor.properties(device)).getStringProperty(propertyName));
+        return this.parseKey(device, propertyName, TypedProperties.copyOf(this.extractor.protocolProperties(device)).getStringProperty(propertyName));
     }
 
     public byte[] parseKey(Device device, String propertyName, String propertyValue) {

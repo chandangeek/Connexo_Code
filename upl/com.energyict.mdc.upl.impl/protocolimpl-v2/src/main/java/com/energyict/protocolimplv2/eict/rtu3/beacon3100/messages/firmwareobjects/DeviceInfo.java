@@ -19,9 +19,9 @@ public class DeviceInfo {
     private TypedProperties generalProperties;
     private TypedProperties dialectProperties;
     private List<SecurityProperty> securityProperties;
-    private int deviceID;
+    private long deviceID;
 
-    public DeviceInfo(TypedProperties generalProperties, TypedProperties dialectProperties, List<SecurityProperty> securityProperties, int deviceID) {
+    public DeviceInfo(TypedProperties generalProperties, TypedProperties dialectProperties, List<SecurityProperty> securityProperties, long deviceID) {
         this.generalProperties = generalProperties;
         this.dialectProperties = dialectProperties;
         this.securityProperties = securityProperties;
@@ -33,7 +33,7 @@ public class DeviceInfo {
     }
 
     @XmlAttribute
-    public int getDeviceID() {
+    public long getDeviceID() {
         return deviceID;
     }
 
