@@ -195,7 +195,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name) {
+    protected PropertySpec stringSpec(String name) {
         return this.spec(name, this.propertySpecService::stringSpec);
     }
 

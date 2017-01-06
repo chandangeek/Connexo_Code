@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.lis200.register;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.elster.protocolimpl.lis200.DL240;
 import com.elster.protocolimpl.lis200.objects.ClockObject;
 import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
@@ -29,6 +31,9 @@ import static junit.framework.Assert.assertEquals;
  * Time: 16:34
  */
 public class TestDl240 extends DL240 {
+    public TestDl240(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Test
     public void RegisterReaderTestWithDLData() throws IOException {

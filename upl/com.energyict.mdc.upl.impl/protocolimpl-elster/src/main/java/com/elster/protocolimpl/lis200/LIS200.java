@@ -178,15 +178,15 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(PROFILE_REQUEST_BLOCK_SIZE, false));
-        propertySpecs.add(this.integerSpec(DISABLE_AUTO_LOGOFF, false));
-        propertySpecs.add(this.integerSpec(SUPPRESS_WAKEUP_SEQUENCE, false));
-        propertySpecs.add(this.stringSpec(USE_LOCK, false));
+        propertySpecs.add(this.integerSpec(PROFILE_REQUEST_BLOCK_SIZE));
+        propertySpecs.add(this.integerSpec(DISABLE_AUTO_LOGOFF));
+        propertySpecs.add(this.integerSpec(SUPPRESS_WAKEUP_SEQUENCE));
+        propertySpecs.add(this.stringSpec(USE_LOCK));
         propertySpecs.add(this.integerRangeSpec(METER_INDEX, false, Range.closed(1, this.maxMeterIndex)));
         propertySpecs.add(this.integerRangeSpec(ARCHIVE_TO_READOUT, false, Range.atLeast(1)));
         propertySpecs.add(this.integerRangeSpec(ARCHIVE_STRUCTURE, false, Range.atLeast(1)));
         propertySpecs.add(LIS200Utils.propertySpec(ARCHIVE_INTERVAL_ADDRESS, false));
-        propertySpecs.add(this.integerSpec(DELAY_AFTER_CHECK, false));
+        propertySpecs.add(this.integerSpec(DELAY_AFTER_CHECK));
         return propertySpecs;
     }
 
@@ -221,17 +221,17 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
                 if (usedLock == null)
                 {
                     StringBuilder msg = new StringBuilder("Incorrect UseLock property. Valid value are: ");
-                    boolean first = true;
+                    boolean notFirst = false;
                     for (LockObject lock : getLockObjects())
                     {
-                        if (!first)
+                        if (notFirst)
                         {
                             msg.append(",");
                         }
                         msg.append("'");
                         msg.append(lock.getName());
                         msg.append("'");
-                        first = false;
+                        notFirst = true;
                     }
                     msg.append(". If UseLock is empty, then default 'CustomerLock' will be used.");
 

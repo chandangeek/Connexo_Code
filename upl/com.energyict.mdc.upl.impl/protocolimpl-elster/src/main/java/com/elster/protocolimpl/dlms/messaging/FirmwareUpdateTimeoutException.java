@@ -1,6 +1,6 @@
 package com.elster.protocolimpl.dlms.messaging;
 
-import com.energyict.cbo.BusinessException;
+import java.io.IOException;
 
 /**
  * User: heuckeg
@@ -8,18 +8,21 @@ import com.energyict.cbo.BusinessException;
  * Time: 08:57
  */
 @SuppressWarnings({"unused"})
-public class FirmwareUpdateTimeoutException extends BusinessException {
+public class FirmwareUpdateTimeoutException extends IOException {
 
     public FirmwareUpdateTimeoutException() {
         super();
     }
 
-    public FirmwareUpdateTimeoutException(String msg) {
-        super(msg);
+    public FirmwareUpdateTimeoutException(String message) {
+        super(message);
     }
 
-    public FirmwareUpdateTimeoutException(Throwable ex) {
-        super(ex);
+    public FirmwareUpdateTimeoutException(String message, Throwable cause) {
+        super(message, cause);
     }
 
+    public FirmwareUpdateTimeoutException(Throwable cause) {
+        super(cause);
+    }
 }

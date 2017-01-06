@@ -6,7 +6,6 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleImageTransferObject;
 import com.elster.protocols.streams.TimeoutIOException;
-import com.energyict.cbo.BusinessException;
 import sun.misc.BASE64Decoder;
 
 import java.io.ByteArrayInputStream;
@@ -51,14 +50,13 @@ public abstract class FirmwareUpdateMessage extends AbstractDlmsMessage {
 
             writeFirmware(decodedBytes, identifier);
         } catch (FWUpdateTimeoutException te) {
-            throw new FirmwareUpdateTimeoutException(te.getMessage());
+            throw new FirmwareUpdateTimeoutException(te.getMessage(), te);
         } catch (Exception e) {
             String msg = e.getMessage();
             if (msg == null) {
                 msg = e.getClass().getSimpleName();
-                e.printStackTrace();
             }
-            throw new BusinessException("Firmwareupdate: " + msg);
+            throw new IOException("Firmwareupdate: " + msg, e);
         }
     }
 
