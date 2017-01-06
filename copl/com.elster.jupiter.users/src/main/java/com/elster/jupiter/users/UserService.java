@@ -14,6 +14,7 @@ import java.util.Set;
 @ProviderType
 public interface UserService {
 
+    String DEFAULT_CATEGORY_NAME = "Default";
     String COMPONENTNAME = "USR";
 
     String SYSTEM_ADMIN_ROLE = "System administrator";
