@@ -24,7 +24,8 @@ public class UnassignSingleDeviceAlarmTransaction implements Transaction<ActionI
         ActionInfo response = new ActionInfo();
 
         Issue issue = deviceAlarmProvider.apply(response);
-        issue.assignTo(-1L, issue.getAssignee().getWorkGroup().getId());
+        Long workGroupId = issue.getAssignee().getWorkGroup() != null ? issue.getAssignee().getWorkGroup().getId() : -1L;
+        issue.assignTo(-1L, workGroupId);
         issue.update();
         response.addSuccess(issue.getId(), thesaurus.getFormat(MessageSeeds.ACTION_ALARM_WAS_UNASSIGNED).format());
 

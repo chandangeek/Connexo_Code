@@ -29,7 +29,9 @@ public class AssignToMeSingleDeviceAlarmTransaction implements Transaction<Actio
         ActionInfo response = new ActionInfo();
 
         Issue issue = deviceAlarmProvider.apply(response);
-        issue.assignTo(performer.getId(), issue.getAssignee().getWorkGroup().getId());
+        Long userId = performer.getId();
+        Long workGroupId = issue.getAssignee().getWorkGroup() != null ? issue.getAssignee().getWorkGroup().getId() : -1L;
+        issue.assignTo(userId, workGroupId);
         issue.update();
         response.addSuccess(issue.getId(), thesaurus.getFormat(MessageSeeds.ACTION_ALARM_WAS_ASSIGNED_USER).format(issue.getAssignee().getUser().getName()));
 
