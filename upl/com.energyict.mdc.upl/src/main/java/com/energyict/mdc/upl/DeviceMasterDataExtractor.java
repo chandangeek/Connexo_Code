@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * Extracts master data information that pertains to {@link Device}s.
@@ -28,6 +29,8 @@ public interface DeviceMasterDataExtractor {
     long id(Device device);
 
     String serialNumber(Device device);
+
+    TimeZone timeZone(Device device);
 
     Optional<DeviceConfiguration> configuration(long id);
 
@@ -102,6 +105,7 @@ public interface DeviceMasterDataExtractor {
         long id();
         String displayName();
         SchedulingSpecificationType type();
+        String toCronExpression(TimeZone targetTimeZone, TimeZone definitionTimeZone);
     }
 
     interface CommunicationTask {
