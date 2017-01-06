@@ -92,7 +92,7 @@ public class RetryEstimationAction extends AbstractIssueAction {
                 Optional<? extends MeterActivation> meterActivation = meter.get().getCurrentMeterActivation();
                 if (meterActivation.isPresent()) {
                     EstimationReport estimationReport = estimationService.previewEstimate(QualityCodeSystem.MDC,
-                            meterActivation.get(),
+                            channel.getChannelsContainer(),
                             Range.openClosed(block.getStartTime(), block.getEndTime()));
 
                     List<BaseReading> editedBulkReadings = new ArrayList<>();
