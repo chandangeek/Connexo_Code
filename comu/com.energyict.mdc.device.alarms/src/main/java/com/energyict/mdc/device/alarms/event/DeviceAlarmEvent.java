@@ -91,8 +91,11 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
 
 
     protected void getEventDevice(Map<?, ?> rawEvent) {
-        Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
-        device = deviceService.findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
+        Optional<Long> endDeviceId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
+        EndDevice endDevice = meteringService.findEndDeviceById(endDeviceId.orElse(0L))
+                .orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, endDeviceId));
+        long amrId = Long.parseLong(endDevice.getAmrId());
+        device = deviceService.findDeviceById(amrId).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
     }
 
     protected void getEventTimestamp(Map<?, ?> rawEvent) {
