@@ -6,6 +6,8 @@
 
 package com.energyict.dialer.coreimpl;
 
+import com.energyict.mdc.upl.RuntimeEnvironment;
+
 import com.energyict.dialer.serialserviceprovider.SerialPort;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,34 +29,32 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
     protected int halfDuplex = 0;
     boolean boolVirtualOpen = false;
 
-    /**
-     * Creates a new instance of StreamPortConnection
-     */
-    public StreamPortConnection(String ipPort) {
+    public StreamPortConnection(String ipPort, RuntimeEnvironment runtimeEnvironment) {
+        super(runtimeEnvironment);
         this.ipPort = ipPort;
         boolOpen = false;
     }
 
     // KV 03102005
 
-    public StreamPortConnection(Socket socket) {
+    public StreamPortConnection(Socket socket, RuntimeEnvironment runtimeEnvironment) {
+        super(runtimeEnvironment);
         this.socket = socket;
         boolOpen = false;
     }
 
-    public StreamPortConnection(UDPSession udpSession) {
+    public StreamPortConnection(UDPSession udpSession, RuntimeEnvironment runtimeEnvironment) {
+        super(runtimeEnvironment);
         this.udpSession = udpSession;
         boolOpen = false;
     }
 
+    @Override
     public Socket getSocket() {
         return socket;
     }
 
-    //****************************************************************************
-    // Delegate of implementation of interface SerialCommunicationChannel
-    //****************************************************************************
-
+    @Override
     protected void doSetParams(int baudrate, int databits, int parity, int stopbits) throws IOException {
         // send escape commands to set parameters
         if (strComPort != null) {
@@ -66,12 +66,12 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
 
     }
 
+    @Override
     protected void doSetComPort(String strComPort) {
         // use strcomPort...
         // send escape commands
         // <ESC>comPort=COM1,...</ESC>
     }
-
 
     private boolean getResponse() throws IOException {
         int count = 0;
@@ -93,24 +93,28 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
         throw new IOException("SocketStreamConnection, getResponse() timeout...");
     }
 
+    @Override
     protected boolean doSigCD() throws IOException {
         String escapeSequence = "<ESC>" + COMPORT_SIG_CD + "</ESC>";
         getOutputStream().write(escapeSequence.getBytes());
         return getResponse();
     }
 
+    @Override
     protected boolean doSigCTS() throws IOException {
         String escapeSequence = "<ESC>" + COMPORT_SIG_CTS + "</ESC>";
         getOutputStream().write(escapeSequence.getBytes());
         return getResponse();
     }
 
+    @Override
     protected boolean doSigDSR() throws IOException {
         String escapeSequence = "<ESC>" + COMPORT_SIG_DSR + "</ESC>";
         getOutputStream().write(escapeSequence.getBytes());
         return getResponse();
     }
 
+    @Override
     protected boolean doSigRing() throws IOException {
         String escapeSequence = "<ESC>" + COMPORT_SIG_RI + "</ESC>";
         getOutputStream().write(escapeSequence.getBytes());
@@ -128,6 +132,7 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected void doSetDTR(boolean dtr) throws IOException {
         // send escape commands
         // <ESC>setDTR=true</ESC>
@@ -135,6 +140,7 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
         getOutputStream().write(escapeSequence.getBytes());
     }
 
+    @Override
     protected void doSetRTS(boolean rts) throws IOException {
         // send escape commands
         // <ESC>setRTS=true</ESC>
@@ -142,10 +148,7 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
         getOutputStream().write(escapeSequence.getBytes());
     }
 
-    //****************************************************************************************
-    // Delegate of implementation of interface HalfDuplexController
-    //****************************************************************************************
-
+    @Override
     protected void doRequest2Send(int nrOfBytes) {
         try {
             if (halfDuplex == 0) {
@@ -162,10 +165,12 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected void doRequest2Receive(int nrOfBytes) {
         // rts set to false is done in the virtual com port! Yes, otherwise we encounter lots of timing problems!!
     }
 
+    @Override
     protected void doRequest2SendV25(int nrOfBytes) {
         try {
             if (halfDuplex == 0) {
@@ -182,10 +187,12 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected void doRequest2ReceiveV25(int nrOfBytes) {
         // rts set to false is done in the virtual com port! Yes, otherwise we encounter lots of timing problems!!
     }
 
+    @Override
     protected void doRequest2SendRS485() {
         try {
             if (halfDuplex == 0) {
@@ -200,6 +207,7 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected void doRequest2ReceiveRS485(int nrOfBytes) {
         // rts set to false is done in the virtual com port! Yes, otherwise we encounter lots of timing problems!!
     }
@@ -225,6 +233,7 @@ public abstract class StreamPortConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected SerialPort doGetSerialPort() {
         return null;
     }

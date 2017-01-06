@@ -4,8 +4,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
@@ -30,10 +28,6 @@ public class EIMeterFlexSlaveModule extends Modbus {
 
     /** The name of the register that contains the meter model. */
     private static final String METERMODEL_REGISTER_NAME = "MeterModel";
-
-    public final DiscoverResult discover(final DiscoverTools discoverTools) {
-        return null;
-    }
 
     public EIMeterFlexSlaveModule(PropertySpecService propertySpecService) {
         super(propertySpecService);

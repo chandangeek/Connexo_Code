@@ -19,8 +19,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -203,12 +201,6 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 	protected void initRegisterFactory() {
 		sendDebug("initRegisterFactory()", 5);
         setRegisterFactory(new UNIFLO1200RegisterFactory(this));
-	}
-
-    @Override
-	public DiscoverResult discover(DiscoverTools discoverTools) {
-		sendDebug("discover()", 5);
-		return null;
 	}
 
     @Override

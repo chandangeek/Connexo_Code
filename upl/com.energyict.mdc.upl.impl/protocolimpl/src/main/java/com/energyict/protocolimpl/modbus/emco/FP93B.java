@@ -12,8 +12,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
@@ -73,11 +71,6 @@ public class FP93B extends Modbus {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-11-26 15:02:16 +0200 (Thu, 26 Nov 2015)$";
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        return null;
     }
 
     @Override

@@ -8,8 +8,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -93,11 +91,6 @@ public class Enerium200 extends Modbus implements SerialNumberSupport {
 	protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
         getRegisterFactory().setZeroBased(false);
-	}
-
-    @Override
-	public DiscoverResult discover(DiscoverTools discoverTools) {
-        return new DiscoverResult();
 	}
 
 	private RegisterFactory getRegFactory() {

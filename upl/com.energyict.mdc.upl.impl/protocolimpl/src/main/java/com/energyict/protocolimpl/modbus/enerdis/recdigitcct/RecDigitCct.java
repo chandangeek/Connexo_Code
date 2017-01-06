@@ -15,8 +15,6 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.iec1107.Channel;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -671,11 +669,6 @@ public class RecDigitCct extends Modbus {
         if( debug ) {
 			System.out.println(msg);
 		}
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        return null;
     }
 
     public int getLimitMaxNrOfDays() {

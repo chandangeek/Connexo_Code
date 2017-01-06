@@ -11,8 +11,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
@@ -417,11 +415,6 @@ public class RecDigitCdtPr extends RecDigitCdt {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2016-06-06 09:40:43 +0300 (Mon, 06 Jun 2016)$";
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        return null;
     }
 
     public int getLimitMaxNrOfDays() {

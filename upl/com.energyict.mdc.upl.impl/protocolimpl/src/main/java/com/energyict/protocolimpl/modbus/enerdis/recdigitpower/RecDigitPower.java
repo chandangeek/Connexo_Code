@@ -15,8 +15,6 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
@@ -513,11 +511,6 @@ public class RecDigitPower extends Modbus {
         int [] values = readRawValue( address, type.wordSize() );
         return getRecFactory().toBigDecimal(type, values);
 
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        return null;
     }
 
     private int getLimitMaxNrOfDays() {

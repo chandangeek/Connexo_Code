@@ -128,8 +128,8 @@ public class SiemensSCTM {
     private int forcedDelay;
     /**
      * Class constructor.
-     * @param inputStream InputStream for the active connection, e.g. established with ATDialer.
-     * @param outputStream OutputStream for the active connection, e.g. established with ATDialer.
+     * @param inputStream InputStream for the active connection
+     * @param outputStream OutputStream for the active connection
      * @param iTimeout Time in ms. for a request to wait for a response before returning an timeout error.
      * @exception SiemensSCTMException
      */

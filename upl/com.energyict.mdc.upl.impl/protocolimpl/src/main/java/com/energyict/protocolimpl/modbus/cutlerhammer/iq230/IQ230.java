@@ -13,8 +13,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
 import java.io.IOException;
@@ -64,12 +62,6 @@ public class IQ230 extends Modbus {
     @Override
     public Date getTime() throws IOException {
         return new Date();
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        // discovery is implemented in the GenericModbusDiscover protocol
-        return null;
     }
 
     public BigDecimal getRegisterMultiplier(int address) throws IOException {

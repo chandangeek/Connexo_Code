@@ -5,8 +5,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
 import java.io.IOException;
@@ -52,11 +50,6 @@ public class Ci extends Modbus {
 	@Override
 	protected void initRegisterFactory() {
 		setRegisterFactory(new RegisterFactory(this));
-	}
-
-    @Override
-	public DiscoverResult discover(DiscoverTools discoverTools) {
-		return null;
 	}
 
     @Override

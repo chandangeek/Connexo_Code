@@ -12,8 +12,6 @@ package com.energyict.protocolimpl.mbus.hydrometer.sharky770;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.mbus.core.MBus;
 
 import java.io.IOException;
@@ -27,12 +25,6 @@ public class Sharky770 extends MBus {
 
     public Sharky770(PropertySpecService propertySpecService) {
         super(propertySpecService);
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        // discovery is implemented in the GenericModbusDiscover protocol
-        return null;
     }
 
     @Override

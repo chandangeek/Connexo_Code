@@ -12,8 +12,6 @@ package com.energyict.protocolimpl.modbus.eictmodbusrtu;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris.RegisterFactory;
 
@@ -45,11 +43,6 @@ public class EictModbusRtu extends Modbus {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        return null;
     }
 
 }

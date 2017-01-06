@@ -201,8 +201,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
     /**
      * Class constructor.
-     * @param inputStream  InputStream for the active connection, e.g. established with ATDialer.
-     * @param outputStream OutputStream for the active connection, e.g. established with ATDialer.
+     * @param inputStream  InputStream for the active connection
+     * @param outputStream OutputStream for the active connection
      * @param iTimeout     Time in ms. for a request to wait for a response before returning an timeout error.
      * @param lForceDelay  Force delay (in ms) before each frame send (e.g. SL7000 meter needs at lease 100 ms.).
      * @exception DLMSConnectionException

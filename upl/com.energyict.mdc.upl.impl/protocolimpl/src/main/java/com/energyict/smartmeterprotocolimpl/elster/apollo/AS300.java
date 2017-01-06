@@ -23,7 +23,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
@@ -41,7 +40,7 @@ import java.util.List;
  * Date: 29-jun-2011
  * Time: 11:32:30
  */
-public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport, SerialNumberSupport {
+public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, SerialNumberSupport {
 
     protected AS300Properties properties;
     private AS300ObjectFactory objectFactory;
