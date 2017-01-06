@@ -16,11 +16,11 @@ import java.io.IOException;
 /**
  * @author Koen
  */
-abstract public class DialerImpl extends LinkImpl implements Dialer {
+public abstract class DialerImpl extends LinkImpl implements Dialer {
 
-    abstract protected void doConnect(String strDialAddress1, String strDialAddress2, int iTimeout) throws IOException, LinkException;
+    protected abstract void doConnect(String strDialAddress1, String strDialAddress2, int iTimeout) throws IOException, LinkException;
 
-    abstract protected void doDisConnect() throws IOException, LinkException;
+    protected abstract void doDisConnect() throws IOException, LinkException;
 
     // forward a dialer
     Dialer dialer = null;

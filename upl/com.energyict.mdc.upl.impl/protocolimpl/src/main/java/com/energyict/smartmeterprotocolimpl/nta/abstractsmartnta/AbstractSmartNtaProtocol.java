@@ -1,13 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
@@ -40,7 +39,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -104,7 +102,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     /**
      * A list of slaveDevices
      */
-    private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<AbstractNtaMbusDevice>();
+    private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<>();
 
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
@@ -119,9 +117,6 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return this.properties;
     }
 
-    /**
-     * Initialization method right after we are connected to the physical device.
-     */
     @Override
     protected void initAfterConnect() throws ConnectionException {
         searchForSlaveDevices();
@@ -130,11 +125,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
 //        }
     }
 
-    /**
-     * Tests if the Device wants to use the bulkRequests
-     *
-     * @return true if the Device wants to use BulkRequests, false otherwise
-     */
+    @Override
     public boolean supportsBulkRequests() {
         return getProperties().isBulkRequest();
     }
@@ -151,12 +142,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return meterInfo;
     }
 
-    /**
-     * Get the firmware version of the meter
-     *
-     * @return the version of the meter firmware
-     * @throws java.io.IOException Thrown in case of an exception
-     */
+    @Override
     public String getFirmwareVersion() throws IOException {
         try {
             return getMeterInfo().getFirmwareVersion();
@@ -167,12 +153,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         }
     }
 
-    /**
-     * Get the SerialNumber of the device
-     *
-     * @return the serialNumber of the device
-     * @throws java.io.IOException thrown in case of an exception
-     */
+    @Override
     public String getMeterSerialNumber() throws IOException {
         try {
             return getMeterInfo().getSerialNr();
@@ -201,68 +182,27 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return getRegisterFactory().translateRegister(register);
     }
 
-    /**
-     * Request an array of RegisterValue objects for an given List of ObisCodes. If the ObisCode is not
-     * supported, there should not be a register value in the list.
-     *
-     * @param registers The Registers for which to request a RegisterValues
-     * @return List<RegisterValue> for an List of ObisCodes
-     * @throws java.io.IOException Thrown in case of an exception
-     */
     @Override
     public List<RegisterValue> readRegisters(final List<Register> registers) throws IOException {
         return getRegisterFactory().readRegisters(registers);
     }
 
-    /**
-     * Get all the meter events from the device starting from the given date.
-     *
-     * @param lastLogbookDate the date of the last <CODE>MeterEvent</CODE> stored in the database
-     * @return a list of <CODE>MeterEvents</CODE>
-     * @throws java.io.IOException when a logical error occurred
-     */
+    @Override
     public List<MeterEvent> getMeterEvents(final Date lastLogbookDate) throws IOException {
         return getEventProfile().getEvents(lastLogbookDate);
     }
 
-    /**
-     * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles from the meter.
-     * Build up a list of <CODE>LoadProfileConfiguration</CODE> objects and return them so the
-     * framework can validate them to the configuration in EIServer
-     *
-     * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
-     * @return a list of <CODE>LoadProfileConfiguration</CODE> objects corresponding with the meter
-     * @throws java.io.IOException if a communication or parsing error occurred
-     */
+    @Override
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(final List<LoadProfileReader> loadProfilesToRead) throws IOException {
         return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
-    /**
-     * <p>
-     * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
-     * channels({@link com.energyict.protocol.LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
-     * if not then all channels may be returned in the <CODE>ProfileData</CODE>. If {@link LoadProfileReader#channelInfos} contains an empty list
-     * or null, then all channels from the corresponding LoadProfile should be fetched.
-     * </p>
-     * <p>
-     * <b>Implementors should throw an exception if all data since {@link LoadProfileReader#getStartReadingTime()} can NOT be fetched</b>,
-     * as the collecting system will update its lastReading setting based on the returned ProfileData
-     * </p>
-     *
-     * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
-     * @return a list of <CODE>ProfileData</CODE> objects containing interval records
-     * @throws java.io.IOException if a communication or parsing error occurred
-     */
+    @Override
     public List<ProfileData> getLoadProfileData(final List<LoadProfileReader> loadProfiles) throws IOException {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
-    /**
-     * Returns the implementation version
-     *
-     * @return a version string
-     */
+    @Override
     public String getVersion() {
         return "$Date: 2015-11-26 15:24:28 +0200 (Thu, 26 Nov 2015)$";
     }
@@ -274,20 +214,12 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return registerFactory;
     }
 
-    /**
-     * The serialNumber of the meter
-     *
-     * @return the serialNumber of the meter
-     */
+    @Override
     public String getSerialNumber() {
         return getProperties().getSerialNumber();
     }
 
-    /**
-     * Get the physical address of the Meter. Mostly this will be an index of the meterList
-     *
-     * @return the physical Address of the Meter.
-     */
+    @Override
     public int getPhysicalAddress() {
         return 0; // the 'Master' has physicalAddress 0
     }
@@ -355,9 +287,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return eventProfile;
     }
 
-    /**
-     * Search for local slave devices so a general topology can be build up
-     */
+    @Override
     public void searchForSlaveDevices() throws ConnectionException {
         getMeterTopology().searchForSlaveDevices();
     }
@@ -369,60 +299,34 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return meterTopology;
     }
 
-    /**
-     * Provides the full list of outstanding messages to the protocol.
-     * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
-     * At a later timestamp the framework will query each {@link MessageEntry} (see {@link #queryMessage(MessageEntry)}) to actually
-     * perform the message.
-     *
-     * @param messageEntries a list of {@link MessageEntry}s
-     * @throws java.io.IOException if a logical error occurs
-     */
+    @Override
     public void applyMessages(final List messageEntries) throws IOException {
         getMessageProtocol().applyMessages(messageEntries);
     }
 
-    /**
-     * Indicates that each message has to be executed by the protocol.
-     *
-     * @param messageEntry a definition of which message needs to be sent
-     * @return a state of the message which was just sent
-     * @throws java.io.IOException if a logical error occurs
-     */
+    @Override
     public MessageResult queryMessage(final MessageEntry messageEntry) throws IOException {
         return getMessageProtocol().queryMessage(messageEntry);
     }
 
-    public List getMessageCategories() {
+    @Override
+    public List<MessageCategorySpec> getMessageCategories() {
         return getMessageProtocol().getMessageCategories();
     }
 
+    @Override
     public String writeMessage(final Message msg) {
         return getMessageProtocol().writeMessage(msg);
     }
 
+    @Override
     public String writeTag(final MessageTag tag) {
         return getMessageProtocol().writeTag(tag);
     }
 
+    @Override
     public String writeValue(final MessageValue value) {
         return getMessageProtocol().writeValue(value);
-    }
-
-    /**
-     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
-     *
-     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
-     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
-     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
-     *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws com.energyict.cbo.BusinessException
-     *                               if a business exception occurred
-     * @throws java.io.IOException   if an io exception occurred
-     */
-    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
-        return true;
     }
 
     public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
@@ -452,4 +356,5 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     public void setHasBreaker(boolean hasBreaker) {
         this.hasBreaker = hasBreaker;
     }
+
 }

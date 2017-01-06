@@ -10,13 +10,10 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.IF2HHUSignon;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
@@ -42,7 +39,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * GB Smart Enhanced Credit - AM110R HUB protocol
@@ -274,17 +270,6 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
 
     public void setReboot(boolean reboot) {
         this.reboot = reboot;
-    }
-
-    @Override
-    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
-        //This method is not used anymore
-        return true;
-    }
-
-    protected void reInitDlmsSession(final Link link) throws ConnectionException {
-        this.dlmsSession = new DlmsSession(link.getInputStream(), link.getOutputStream(), getLogger(), getProperties(), getTimeZone());
-        enableHHUSignOn(link.getSerialCommunicationChannel(), false);
     }
 
     @Override

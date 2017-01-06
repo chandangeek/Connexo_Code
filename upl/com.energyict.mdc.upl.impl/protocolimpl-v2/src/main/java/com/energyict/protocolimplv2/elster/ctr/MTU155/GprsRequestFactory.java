@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.protocol.ComChannel;
 
-import com.energyict.dialer.core.Link;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.properties.TypedProperties;
@@ -96,7 +95,6 @@ public class GprsRequestFactory implements RequestFactory {
     private TimeZone timeZone;
     private int writeDataBlockID;
     private IdentificationResponseStructure identificationStructure = null;
-    private Link link;
 
     private static final int REF_DATE_DAYS_AHEAD = 0;
     public static final int LENGTH_CODE_PER_REQUEST_LONG_FRAMES = 1000;

@@ -29,13 +29,13 @@ import java.util.StringTokenizer;
 /**
  * @author Koen
  */
-abstract public class LinkImpl implements Link {
+public abstract class LinkImpl implements Link {
 
     private static final Log logger = LogFactory.getLog(LinkImpl.class);
 
-    abstract public void disConnect() throws IOException, LinkException; // KV 03102005
+    public abstract void disConnect() throws IOException, LinkException; // KV 03102005
 
-    abstract public void connect() throws IOException, LinkException; // KV 03102005
+    public abstract void connect() throws IOException, LinkException; // KV 03102005
 
     String connectionString = null;
     protected String strModemInitCommPort = null;
