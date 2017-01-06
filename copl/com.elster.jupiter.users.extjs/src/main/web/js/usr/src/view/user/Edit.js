@@ -15,19 +15,19 @@ Ext.define('Usr.view.user.Edit', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                layout: 'vbox',
+                layout: {
+                    type: 'vbox'
+                },
                 title: Uni.I18n.translate('users.editUser','USR','Edit user'),
 
                 items: [
                     {
                         xtype: 'form',
-                        width: 650,
                         itemId: 'editForm',
                         hydrator: 'Uni.util.Hydrator',
                         buttonAlign: 'left',
                         layout: {
-                            type: 'vbox',
-                            align: 'stretch'
+                            type: 'vbox'
                         },
                         defaults: {
                             xtype: 'textfield',
@@ -39,12 +39,20 @@ Ext.define('Usr.view.user.Edit', {
                                 itemId: 'alertmessageuser',
                                 title: Uni.I18n.translate('user.cannot.edit.title', 'USR', 'This user cannot be changed.'),
                                 text:Uni.I18n.translate('user.cannot.edit.message', 'USR', 'Only the description and the language are editable.'),
+                                hidden: true,
+                                width: 650
+                            },
+                            {
+                                xtype: 'uni-form-error-message',
+                                name: 'form-errors',
+                                itemId: 'form-errors',
+                                margin: '10 0 10 0',
                                 hidden: true
-
                             },
                             {
                                 name: 'authenticationName',
-                                fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name')
+                                fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
+                                width: 650
                             },
                             {
                                 name: 'description',
@@ -55,11 +63,13 @@ Ext.define('Usr.view.user.Edit', {
                                     afterrender: function (field) {
                                         field.focus(false, 200);
                                     }
-                                }
+                                },
+                                width: 650
                             },
                             {
                                 name: 'domain',
-                                fieldLabel: Uni.I18n.translate('user.userdirectory', 'USR', 'User directory')
+                                fieldLabel: Uni.I18n.translate('user.userdirectory', 'USR', 'User directory'),
+                                width: 650
                             },
                             {
                                 xtype: 'combobox',
@@ -78,7 +88,8 @@ Ext.define('Usr.view.user.Edit', {
                                             }
                                         }
                                     }
-                                }
+                                },
+                                width: 650
                             },
                             {
                                 xtype: 'checkboxstore',
@@ -92,8 +103,17 @@ Ext.define('Usr.view.user.Edit', {
                                 valueField:'id',
                                 displayField:'name',
                                 vertical: true,
-                                name: 'groups'
+                                name: 'groups',
+                                width: 650
                             },
+                            {
+                                xtype: 'label',
+                                cls: 'x-form-invalid-under',
+                                itemId: 'rolesError',
+                                hidden: true,
+                                margin: '-10 0 0 270'
+                            }
+                            ,
                             {
                                 xtype: 'fieldcontainer',
                                 fieldLabel: '&nbsp',

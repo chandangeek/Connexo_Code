@@ -249,6 +249,12 @@ Ext.define('Usr.controller.GroupEdit', {
                         var json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {
                             form.getForm().markInvalid(json.errors);
+                            var privilegesError = Ext.Array.findBy(json.errors, function (item) { return item.id == 'privileges';});
+                            if(privilegesError) {
+                                form.down('#privilegesError').setText(privilegesError.msg);
+                                form.down('#privilegesError').show();
+                                formErrorsPanel.show();
+                            }
                         }
                         formErrorsPanel.show();
                     }

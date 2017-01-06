@@ -101,8 +101,11 @@ Ext.define('Usr.controller.UserEdit', {
         var me = this,
             form = button.up('form'),
             record = form.getRecord(),
-            language = me.getStore('Usr.store.Locales').getById(form.down('[name=language]').getValue());
+            language = me.getStore('Usr.store.Locales').getById(form.down('[name=language]').getValue()),
+            formErrorsPanel = form.down('[name=form-errors]');
 
+        formErrorsPanel.hide();
+        form.down('#rolesError').hide();
         form.updateRecord(record);
         if (language) {
             record.set('language', language.getData());
@@ -117,7 +120,13 @@ Ext.define('Usr.controller.UserEdit', {
                 if (operation.response.status === 400) {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
-                        form.markInvalid(json.errors);
+                        if(json.errors.length > 0) {
+                            if(json.errors[0].id === 'roles') {
+                                form.down('#rolesError').setText(json.errors[0].msg);
+                                form.down('#rolesError').show();
+                                formErrorsPanel.show();
+                            }
+                        }
                     }
                 }
             }
