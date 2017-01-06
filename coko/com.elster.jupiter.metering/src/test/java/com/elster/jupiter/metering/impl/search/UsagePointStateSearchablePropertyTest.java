@@ -1,8 +1,7 @@
 package com.elster.jupiter.metering.impl.search;
 
-import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -14,11 +13,13 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MetrologyPurposeSearchablePropertyTest {
+public class UsagePointStateSearchablePropertyTest {
     @Mock
     private UsagePointSearchDomain domain;
     @Mock
@@ -48,13 +49,11 @@ public class MetrologyPurposeSearchablePropertyTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private MetrologyPurpose metrologyPurpose;
+    private UsagePointState usagePointState;
     @Mock
-    private ServerMetrologyConfigurationService metrologyConfigurationService;
+    private UsagePointLifeCycle usagePointLifeCycle;
     @Mock
-    private ServerMeteringService meteringService;
-    @Mock
-    private Clock clock;
+    private UsagePointLifeCycleConfigurationService configurationService;
 
     private BeanService beanService = new DefaultBeanService();
     private PropertySpecService propertySpecService;
@@ -63,13 +62,16 @@ public class MetrologyPurposeSearchablePropertyTest {
     public void initializeMocks() {
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(this.messageFormat);
-        when(this.messageFormat.format(anyVararg())).thenReturn("Translation not support in unit tests");
-        when(this.metrologyConfigurationService.getThesaurus()).thenReturn(this.thesaurus);
+        when(this.messageFormat.format(anyVararg())).thenReturn("No translation");
+        Finder statesFinder = FakeBuilder.initBuilderStub(Collections.singletonList(this.usagePointState), Finder.class);
+        when(this.configurationService.getUsagePointStates()).thenReturn(statesFinder);
+        when(this.usagePointState.getLifeCycle()).thenReturn(this.usagePointLifeCycle);
+        when(this.usagePointLifeCycle.getName()).thenReturn("life cycle");
     }
 
     @Test
     public void testGetDomain() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -80,7 +82,7 @@ public class MetrologyPurposeSearchablePropertyTest {
 
     @Test
     public void testNoGroup() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
@@ -91,7 +93,7 @@ public class MetrologyPurposeSearchablePropertyTest {
 
     @Test
     public void testStickyVisibility() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
@@ -101,8 +103,8 @@ public class MetrologyPurposeSearchablePropertyTest {
     }
 
     @Test
-    public void testSingleSelection() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+    public void testMultiSelection() {
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
@@ -113,18 +115,18 @@ public class MetrologyPurposeSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.USAGEPOINT_PURPOSE);
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.USAGEPOINT_STATE);
     }
 
     @Test
-    public void specificationIsNotAReference() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+    public void specificationIsAReference() {
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -132,12 +134,12 @@ public class MetrologyPurposeSearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isTrue();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(MetrologyPurpose.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(UsagePointState.class);
     }
 
     @Test
     public void getPossibleValues() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -148,7 +150,7 @@ public class MetrologyPurposeSearchablePropertyTest {
 
     @Test
     public void noConstraints() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -159,7 +161,7 @@ public class MetrologyPurposeSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
@@ -171,7 +173,7 @@ public class MetrologyPurposeSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
+        UsagePointStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -181,16 +183,16 @@ public class MetrologyPurposeSearchablePropertyTest {
 
     @Test
     public void displayString() {
-        MetrologyPurposeSearchableProperty property = this.getTestInstance();
-        when(metrologyPurpose.getName()).thenReturn("name");
+        UsagePointStateSearchableProperty property = this.getTestInstance();
+        when(usagePointState.getName()).thenReturn("name");
         // Business method
-        String displayValue = property.toDisplay(metrologyPurpose);
+        String displayValue = property.toDisplay(usagePointState);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(metrologyPurpose.getName());
+        assertThat(displayValue).isEqualTo(usagePointState.getName() + " (life cycle)");
     }
 
-    private MetrologyPurposeSearchableProperty getTestInstance() {
-        return new MetrologyPurposeSearchableProperty(this.domain, this.propertySpecService, this.metrologyConfigurationService, this.meteringService, this.clock);
+    private UsagePointStateSearchableProperty getTestInstance() {
+        return new UsagePointStateSearchableProperty(this.domain, this.propertySpecService, this.thesaurus, this.configurationService);
     }
 }

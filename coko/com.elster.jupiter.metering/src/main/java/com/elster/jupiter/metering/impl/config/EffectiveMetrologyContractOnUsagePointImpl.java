@@ -8,7 +8,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
 
 public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetrologyContractOnUsagePoint {
 
@@ -30,6 +34,7 @@ public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetr
     }
 
     private final DataModel dataModel;
+    private final Clock clock;
 
     private long id;
     private Interval interval;
@@ -38,16 +43,45 @@ public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetr
     private Reference<ChannelsContainer> channelsContainer = ValueReference.absent();
 
     @Inject
-    public EffectiveMetrologyContractOnUsagePointImpl(DataModel dataModel) {
+    public EffectiveMetrologyContractOnUsagePointImpl(DataModel dataModel, Clock clock) {
         this.dataModel = dataModel;
+        this.clock = clock;
     }
 
     public EffectiveMetrologyContractOnUsagePointImpl init(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration, MetrologyContract metrologyContract) {
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.metrologyContract.set(metrologyContract);
         this.interval = metrologyConfiguration.getInterval();
-        this.channelsContainer.set(this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class).init(this));
+        MetrologyContractChannelsContainerImpl channelsContainer = this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class)
+                .init(this);
+        dataModel.persist(channelsContainer);
+        this.channelsContainer.set(channelsContainer);
         return this;
+    }
+
+    public EffectiveMetrologyContractOnUsagePointImpl init(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration, MetrologyContract metrologyContract, Range<Instant> interval) {
+        this.metrologyConfiguration.set(metrologyConfiguration);
+        this.metrologyContract.set(metrologyContract);
+        this.interval = Interval.of(interval);
+        ChannelsContainer channelsContainer = metrologyConfiguration.getChannelsContainer(metrologyContract)
+                .orElseGet(() -> {
+                    MetrologyContractChannelsContainerImpl newChannelsContainer = this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class)
+                            .init(this);
+                    dataModel.persist(newChannelsContainer);
+                    return newChannelsContainer;
+                });
+
+        this.channelsContainer.set(channelsContainer);
+        return this;
+    }
+
+    @Override
+    public void close(Instant closingDate) {
+        if (!isEffectiveAt(closingDate)) {
+            throw new IllegalArgumentException();
+        }
+        this.interval = this.interval.withEnd(closingDate);
+        this.dataModel.update(this);
     }
 
     @Override

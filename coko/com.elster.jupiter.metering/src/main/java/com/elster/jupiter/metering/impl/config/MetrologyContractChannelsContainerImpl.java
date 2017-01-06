@@ -14,15 +14,17 @@ import com.elster.jupiter.metering.impl.ChannelImpl;
 import com.elster.jupiter.metering.impl.ChannelsContainerImpl;
 import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.time.Interval;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +49,7 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     }
 
     private final Provider<ChannelImpl> channelFactory;
-    private Reference<EffectiveMetrologyContractOnUsagePoint> effectiveMetrologyContract = ValueReference.absent();
+    private List<EffectiveMetrologyContractOnUsagePoint> effectiveMetrologyContract = new ArrayList<>();
     private List<Channel> mappedChannels;
 
     @Inject
@@ -57,7 +59,7 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     }
 
     public MetrologyContractChannelsContainerImpl init(EffectiveMetrologyContractOnUsagePoint effectiveMetrologyContract) {
-        this.effectiveMetrologyContract.set(effectiveMetrologyContract);
+        this.effectiveMetrologyContract.add(effectiveMetrologyContract);
         // Each channel must have just one reading type (main), which is equal to reading type from deliverable.
         effectiveMetrologyContract.getMetrologyContract().getDeliverables()
                 .stream()
@@ -67,11 +69,14 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
 
     @Override
     public Interval getInterval() {
-        return this.effectiveMetrologyContract.get().getInterval();
+        return Interval.of(this.effectiveMetrologyContract.stream()
+                .map(Effectivity::getRange)
+                .reduce(Range::span)
+                .get());
     }
 
     public MetrologyContract getMetrologyContract() {
-        return this.effectiveMetrologyContract.get().getMetrologyContract();
+        return this.effectiveMetrologyContract.get(0).getMetrologyContract();
     }
 
     @Override
@@ -87,13 +92,16 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     @Override
     public Optional<UsagePoint> getUsagePoint() {
         return this.effectiveMetrologyContract
+                .stream()
                 .map(EffectiveMetrologyContractOnUsagePoint::getMetrologyConfigurationOnUsagePoint)
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getUsagePoint);
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getUsagePoint)
+                .findFirst();
     }
 
     @Override
     public Optional<UsagePoint> getUsagePoint(Instant instant) {
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = this.effectiveMetrologyContract.get().getMetrologyConfigurationOnUsagePoint();
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = this.effectiveMetrologyContract.get(0)
+                .getMetrologyConfigurationOnUsagePoint();
         if (effectiveMetrologyConfiguration.getRange().contains(instant)) {
             return Optional.of(effectiveMetrologyConfiguration.getUsagePoint());
         }
@@ -109,7 +117,10 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
             this.mappedChannels = getMetrologyContract().getDeliverables()
                     .stream()
                     .map(deliverable -> getMeteringService().getDataModel().getInstance(AggregatedChannelImpl.class)
-                            .init((ChannelContract) channelMap.get(deliverable.getReadingType()), deliverable, this.effectiveMetrologyContract.get()))
+                            .init((ChannelContract) channelMap.get(deliverable.getReadingType()), deliverable,
+                                    this.effectiveMetrologyContract.get(0).getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
+                                    this.effectiveMetrologyContract.get(0).getMetrologyContract(),
+                                    this))
                     .collect(Collectors.toList());
         }
         return this.mappedChannels;
@@ -122,6 +133,9 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
 
     @Override
     public ZoneId getZoneId() {
-        return this.effectiveMetrologyContract.get().getMetrologyConfigurationOnUsagePoint().getUsagePoint().getZoneId();
+        return this.effectiveMetrologyContract.get(0)
+                .getMetrologyConfigurationOnUsagePoint()
+                .getUsagePoint()
+                .getZoneId();
     }
 }
