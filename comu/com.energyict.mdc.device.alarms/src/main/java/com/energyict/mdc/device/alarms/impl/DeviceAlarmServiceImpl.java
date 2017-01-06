@@ -46,6 +46,7 @@ import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.install.Installer;
 import com.energyict.mdc.device.alarms.impl.install.UpgraderV10_3;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
+import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.common.collect.ImmutableMap;
@@ -60,6 +61,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
@@ -279,20 +283,27 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         if (filter.getAlarmId() != null) {
             String[] alarmIdPart = filter.getAlarmId().split("-");
             if (alarmIdPart.length == 2) {
-                condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(alarmIdPart[1])));
-            } else {
-                condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(filter.getAlarmId())));
+                if(alarmIdPart[0].toLowerCase().equals("alm")) {
+                    condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(alarmIdPart[1])));
+                } else{
+                    condition = condition.and(where("id").isEqualTo(0));
+                }
+            } else{
+                condition = condition.and(where("id").isEqualTo(0));
             }
         }
         //filter by user assignee
-        Condition assigneeCondition = Condition.TRUE;
-        if (filter.getUserAssignee().isPresent()) {
-            assigneeCondition = where("baseIssue.user").isEqualTo(filter.getUserAssignee().get());
+        if (!filter.getUserAssignee().isEmpty()) {
+            Condition userCondition = Condition.TRUE;
+            userCondition = userCondition.and(where("baseIssue.user").in(filter.getUserAssignee()));
+            if (filter.isUnassignedOnly()) {
+                userCondition = userCondition.or(where("baseIssue.user").isNull());
+            }
+            condition = condition.and(userCondition);
         }
-        if (filter.isUnassignedOnly()) {
-            assigneeCondition = where("baseIssue.user").isNull();
+        if (filter.getUserAssignee().isEmpty() && filter.isUnassignedOnly()) {
+            condition = condition.and(where("baseIssue.user").isNull());
         }
-        condition = condition.and(assigneeCondition);
         //filter by reason
         if (!filter.getAlarmReasons().isEmpty()) {
             condition = condition.and(where("baseIssue.reason").in(filter.getAlarmReasons()));
@@ -309,6 +320,9 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 wgCondition = wgCondition.or(where("baseIssue.workGroup").isNull());
             }
             condition = condition.and(wgCondition);
+        }
+        if (filter.getWorkGroupAssignees().isEmpty() && filter.isUnassignedWorkGroupSelected()) {
+            condition = condition.and(where("baseIssue.workGroup").isNull());
         }
         //filter by device
         if (!filter.getDevices().isEmpty()) {
@@ -349,7 +363,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Stream.of(
+                Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
