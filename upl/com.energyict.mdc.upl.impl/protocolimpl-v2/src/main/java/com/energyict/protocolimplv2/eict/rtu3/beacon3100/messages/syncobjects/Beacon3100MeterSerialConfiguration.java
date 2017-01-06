@@ -18,9 +18,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Beacon3100MeterSerialConfiguration {
 
     private ObisCode serialNumberObisCode;
-    private int clientTypeId;
+    private long clientTypeId;
 
-    public Beacon3100MeterSerialConfiguration(ObisCode serialNumberObisCode, int clientTypeId) {
+    public Beacon3100MeterSerialConfiguration(ObisCode serialNumberObisCode, long clientTypeId) {
         this.serialNumberObisCode = serialNumberObisCode;
         this.clientTypeId = clientTypeId;
     }
@@ -42,7 +42,7 @@ public class Beacon3100MeterSerialConfiguration {
     }
 
     @XmlAttribute
-    public int getClientTypeId() {
+    public long getClientTypeId() {
         return clientTypeId;
     }
 }

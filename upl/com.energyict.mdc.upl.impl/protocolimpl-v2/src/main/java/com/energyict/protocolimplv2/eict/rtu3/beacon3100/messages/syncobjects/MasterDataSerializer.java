@@ -141,7 +141,8 @@ public class MasterDataSerializer {
             final Beacon3100DeviceType beacon3100DeviceType = new Beacon3100DeviceType(deviceTypeConfigId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration);
             allMasterData.getDeviceTypes().add(beacon3100DeviceType);
 
-            final TimeZone localTimeZone = this.extractor.properties(device).getTypedProperty(DlmsProtocolProperties.TIMEZONE);
+            final TimeZone beaconTimeZone = this.extractor.properties(device).getTypedProperty(DlmsProtocolProperties.TIMEZONE);
+            final TimeZone localTimeZone = this.extractor.timeZone(device);
 
             //Now add all information about the comtasks (get from configuration level, so it's the same for every device of the same device type)
             for (DeviceMasterDataExtractor.CommunicationTask enabledTask : deviceConfiguration.enabledTasks()) {
@@ -160,7 +161,7 @@ public class MasterDataSerializer {
                                 new Beacon3100Schedule(
                                         scheduleId,
                                         getScheduleName(enabledTask),
-                                        CronTabStyleConverter.convert(nextExecutionSpecs, beaconTimeZone.getTimeZone(), localTimeZone));
+                                        enabledTask.nextExecutionSpecs().get().toCronExpression(beaconTimeZone, localTimeZone));
                         allMasterData.getSchedules().add(beacon3100Schedule);
                     }
                 }
@@ -171,7 +172,7 @@ public class MasterDataSerializer {
 
     private boolean isMeterDataTask(DeviceMasterDataExtractor.CommunicationTask task, List<Beacon3100Schedulable> schedulables) {
         for (Beacon3100Schedulable schedulable : schedulables) {
-            if (schedulable.getComTaskEnablement().getId() == task.id()) {
+            if (schedulable.getOriginalId() == task.id()) {
                 return true;
             }
         }
@@ -350,7 +351,7 @@ public class MasterDataSerializer {
                 }
 
                 if (isReadMeterDataTask(loadProfileObisCodes, registerObisCodes, logBookObisCodes)) {
-                    final Beacon3100Schedulable schedulable = new Beacon3100Schedulable(enabledTask, scheduleId, logicalDeviceId, clientTypeId, loadProfileObisCodes, registerObisCodes, logBookObisCodes);
+                    final Beacon3100Schedulable schedulable = new Beacon3100Schedulable(enabledTask.id(), scheduleId, logicalDeviceId, clientTypeId, loadProfileObisCodes, registerObisCodes, logBookObisCodes);
                     schedulables.add(schedulable);
                 }
             }
