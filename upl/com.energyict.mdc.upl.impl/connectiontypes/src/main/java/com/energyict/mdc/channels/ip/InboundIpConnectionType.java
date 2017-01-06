@@ -20,7 +20,6 @@ import java.util.Set;
 @XmlRootElement
 public class InboundIpConnectionType extends ConnectionTypeImpl {
 
-
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Collections.emptyList();

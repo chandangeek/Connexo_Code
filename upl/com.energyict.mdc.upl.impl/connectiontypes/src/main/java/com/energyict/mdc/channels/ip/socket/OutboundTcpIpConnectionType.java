@@ -12,7 +12,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for TCP/IP.
+ * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType} interface for TCP/IP.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (14:59)

@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Groups common behavior for outbound IP related connectionTypes
+ * Groups common behavior for outbound IP related connectionTypes.
  * <p>
  * Copyrights EnergyICT
  * Date: 9/11/12
