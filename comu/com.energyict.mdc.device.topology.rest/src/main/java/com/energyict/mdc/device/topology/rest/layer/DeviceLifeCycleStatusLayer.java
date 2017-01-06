@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
@@ -31,7 +33,7 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer {
     private final static String NAME = "topology.GraphLayer.DeviceLifeCycleStatu";
 
     public enum PropertyNames implements TranslationKey {
-        ISSUE_COUNT("deviceLifecycleStatus", "Device life cycle status");
+        LIFECYCLE_STATUS("deviceLifecycleStatus", "Device life cycle status");
 
         private String propertyName;
         private String defaultFormat;
@@ -80,14 +82,16 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer {
     @Override
     public Map<String, Object> getProperties(NodeInfo info) {
         Optional<Device> device = deviceService.findDeviceById(info.getId());
-        if (device.isPresent())
-            setDeviceLifecycle(new DeviceLifeCycleStateInfo(deviceLifeCycleConfigurationService, null, device.get().getState()));
+        if (device.isPresent()) {
+            State state = device.get().getState();
+            setDeviceLifecycleState(DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName));
+        }
         return propertyMap();
     }
 
-    private void setDeviceLifecycle(DeviceLifeCycleStateInfo deviceLifeCycleStateInfo) {
-        if (deviceLifeCycleStateInfo != null)
-            this.setProperty(PropertyNames.ISSUE_COUNT.getPropertyName(), deviceLifeCycleStateInfo);
+    private void setDeviceLifecycleState(String stateName) {
+        if (stateName != null)
+            this.setProperty(PropertyNames.LIFECYCLE_STATUS.getPropertyName(), stateName);
     }
 
     @Override
