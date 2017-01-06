@@ -3,11 +3,11 @@ package com.energyict.mdc.device.topology.rest.layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
+import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import com.google.common.collect.Range;
@@ -18,7 +18,6 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -26,10 +25,10 @@ import java.util.Optional;
  * Time: 10:44
  */
 @Component(name = "com.energyict.mdc.device.topology.CommunicationStatusLayer", service = GraphLayer.class, immediate = true)
-public class CommunicationStatusLayer extends AbstractGraphLayer {
+@SuppressWarnings("unused")
+public class CommunicationStatusLayer extends AbstractGraphLayer<Device> {
 
     private Clock clock;
-    private DeviceService deviceService;
     private TopologyService topologyService;
 
     private final static String NAME = "topology.GraphLayer.CommunicationStatus";
@@ -72,11 +71,6 @@ public class CommunicationStatusLayer extends AbstractGraphLayer {
     }
 
     @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
-    }
-
-    @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
     }
@@ -86,15 +80,15 @@ public class CommunicationStatusLayer extends AbstractGraphLayer {
         this.clock = clock;
     }
 
-    public void checkCommunicationStatus(NodeInfo info){
-        Optional<Device> device = deviceService.findDeviceById(info.getId());
-        device.ifPresent((d) -> setFailedCommunications(this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.COMMUNICATION_FAILURE, d,
-                Interval.of(Range.lessThan(clock.instant())))));
+    public void checkCommunicationStatus(DeviceNodeInfo info){
+        Device device = info.getDevice();
+        setFailedCommunications(this.topologyService.countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(CommunicationErrorType.COMMUNICATION_FAILURE, device,
+                Interval.of(Range.lessThan(clock.instant()))));
     }
 
     @Override
-    public Map<String, Object> getProperties(NodeInfo info) {
-        checkCommunicationStatus(info);
+    public Map<String, Object> getProperties(NodeInfo<Device> info) {
+        checkCommunicationStatus((DeviceNodeInfo) info);
         return propertyMap();
     }
 

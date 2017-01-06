@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
@@ -17,7 +18,8 @@ import java.util.Map;
  * Time: 17:00
  */
 @Component(name = "com.energyict.mdc.demo.DemoPluggableLayer", service = GraphLayer.class, immediate = true)
-public class DemoPluggableLayer extends AbstractGraphLayer {
+@SuppressWarnings("unused")
+public class DemoPluggableLayer extends AbstractGraphLayer<Device> {
 
     private final static String NAME = "Demo Pluggable";
 

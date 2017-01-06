@@ -53,7 +53,7 @@ public class TopologyGraphResource {
     // @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response getTopologyGraphByName(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParams) {
         Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
-        GraphInfo graphInfo =  new DefaultGraphFactory(this.topologyService, this.graphLayerService, this.clock).from(device);
+        GraphInfo graphInfo =  new DeviceGraphFactory(this.topologyService, this.graphLayerService, this.clock).from(device);
         return Response.ok(graphInfo).build();
     }
 

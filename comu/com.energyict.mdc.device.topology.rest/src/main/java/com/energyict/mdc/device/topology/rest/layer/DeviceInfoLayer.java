@@ -2,18 +2,16 @@ package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
+import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * GraphLayer - Device Info
@@ -22,9 +20,9 @@ import java.util.Optional;
  * Time: 14:34
  */
 @Component(name = "com.energyict.mdc.device.topology.DeviceInfoLayer", service = GraphLayer.class, immediate = true)
-public class DeviceInfoLayer extends AbstractGraphLayer {
+@SuppressWarnings("unused")
+public class DeviceInfoLayer extends AbstractGraphLayer<Device> {
 
-    private DeviceService deviceService;
     private final static String NAME = "topology.graphLayer.deviceInfo";
 
     public enum PropertyNames implements TranslationKey {
@@ -54,11 +52,6 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
         public String getDefaultFormat() {
             return defaultFormat;
         }
-    }
-
-    @Reference
-    public void setDeviceService(DeviceService deviceService){
-        this.deviceService = deviceService;
     }
 
     @Override
@@ -92,14 +85,13 @@ public class DeviceInfoLayer extends AbstractGraphLayer {
         return Arrays.asList(PropertyNames.values());
     }
 
-    public Map<String, Object> getProperties(NodeInfo nodeInfo) {
-        Optional<Device> device = deviceService.findDeviceById(nodeInfo.getId());
-        if (device.isPresent()) {
-            this.setDeviceName(device.get().getName());
-            this.setSerialNumber(device.get().getSerialNumber());
-            this.setDeviceType(device.get().getDeviceType().getName());
-            this.setDeviceConfiguration(device.get().getDeviceConfiguration().getName());
-        }
+    public Map<String, Object> getProperties(NodeInfo<Device> nodeInfo) {
+        Device device = ((DeviceNodeInfo) nodeInfo).getDevice();
+        this.setDeviceName(device.getName());
+        this.setSerialNumber(device.getSerialNumber());
+        this.setDeviceType(device.getDeviceType().getName());
+        this.setDeviceConfiguration(device.getDeviceConfiguration().getName());
+
         return propertyMap();
     }
 

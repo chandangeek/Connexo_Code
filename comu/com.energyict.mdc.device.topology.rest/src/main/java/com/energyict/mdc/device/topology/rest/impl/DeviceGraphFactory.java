@@ -8,6 +8,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphFactory;
 import com.energyict.mdc.device.topology.rest.GraphLayerService;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
+import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.GraphInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
@@ -24,7 +25,7 @@ import java.util.Optional;
  * Time: 17:16
  */
 
-public class DefaultGraphFactory implements GraphFactory{
+public class DeviceGraphFactory implements GraphFactory{
 
     private final TopologyService topologyService;
     private final GraphLayerService graphLayerService;
@@ -32,7 +33,7 @@ public class DefaultGraphFactory implements GraphFactory{
 
     private Device gateway;
 
-    public DefaultGraphFactory(TopologyService topologyService, GraphLayerService graphLayerService, Clock clock){
+    public DeviceGraphFactory(TopologyService topologyService, GraphLayerService graphLayerService, Clock clock){
         this.topologyService = topologyService;
         this.graphLayerService = graphLayerService;
         this.clock = clock;
@@ -40,32 +41,26 @@ public class DefaultGraphFactory implements GraphFactory{
 
     public GraphInfo from(Device device){
         this.gateway = this.topologyService.getPhysicalGateway(device).orElse(device);
-
-//        this.graphInfo = new GraphInfo();
-//        NodeInfo rootNode = new NodeInfo(gateway);
-//        this.graphInfo.setRootNode(rootNode);
-//        this.topologyService.findPhysicalConnectedDevices(gateway).stream().forEach(each -> rootNode.addChild(new NodeInfo(each)));
-
         return from(this.topologyService.getPhysicalTopology(gateway, Range.atLeast(clock.instant())));
     }
 
     public GraphInfo from(DeviceTopology deviceTopology){
-        final NodeInfo rootNode = newNode(deviceTopology.getRoot(), Optional.empty());
+        final DeviceNodeInfo rootNode = newNode(deviceTopology.getRoot(), Optional.empty());
 
-        GraphInfo graphInfo = new GraphInfo(this.graphLayerService);
+        GraphInfo<Device> graphInfo = new GraphInfo<>(this.graphLayerService);
         graphInfo.setRootNode(rootNode);
         addChilds(rootNode, deviceTopology);
         return graphInfo;
     }
 
-    private void addChilds(final NodeInfo nodeInfo, DeviceTopology deviceTopology){
+    private void addChilds(final DeviceNodeInfo nodeInfo, DeviceTopology deviceTopology){
         List<DeviceTopology> children = new ArrayList<>(deviceTopology.getChildren());
         deviceTopology.getDevices().forEach(device -> this.addCommunicationPathNodes(nodeInfo, device));
         children.stream().filter(Predicates.not(DeviceTopology::isLeaf)).forEach(child -> addChilds(nodeInfo, child));
     }
 
-    private void addCommunicationPathNodes(NodeInfo nodeInfo, Device device){
-        NodeInfo root = nodeInfo;
+    private void addCommunicationPathNodes(DeviceNodeInfo nodeInfo, Device device){
+        DeviceNodeInfo root = nodeInfo;
         G3CommunicationPath communicationPath = topologyService.getCommunicationPath(gateway, device);
         List<Device> intermediates = new ArrayList<>(communicationPath.getIntermediateDevices());
         while (!intermediates.isEmpty()) {
@@ -75,8 +70,8 @@ public class DefaultGraphFactory implements GraphFactory{
         newNode(device, Optional.of(root));
     }
 
-    private NodeInfo newNode(Device device, Optional<NodeInfo> parent){
-        final NodeInfo node = new NodeInfo(device);
+    private DeviceNodeInfo newNode(Device device, Optional<DeviceNodeInfo> parent){
+        final DeviceNodeInfo node = new DeviceNodeInfo(device);
         graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.NODE).forEach(node::addLayer);
         if (parent.isPresent()){
             parent.get().addChild(node);

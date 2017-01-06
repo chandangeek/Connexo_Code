@@ -2,6 +2,7 @@ package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.impl.TopologyGraphApplication;
 
@@ -14,7 +15,7 @@ import java.util.Properties;
  * Date: 3/01/2017
  * Time: 11:18
  */
-public abstract class AbstractGraphLayer implements GraphLayer, TranslationKeyProvider {
+public abstract class AbstractGraphLayer<T extends HasId> implements GraphLayer<T>, TranslationKeyProvider {
 
     private Properties properties = new Properties();
 

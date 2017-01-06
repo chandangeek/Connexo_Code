@@ -1,14 +1,12 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
+import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import org.osgi.service.component.annotations.Component;
@@ -17,7 +15,6 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -25,9 +22,9 @@ import java.util.Optional;
  * Time: 10:48
  */
 @Component(name = "com.energyict.mdc.device.topology.DeviceLifeCycleStatusLayer", service = GraphLayer.class, immediate = true)
-public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer {
+@SuppressWarnings("unused")
+public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
 
-    private DeviceService deviceService;
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private final static String NAME = "topology.GraphLayer.DeviceLifeCycleStatu";
@@ -70,22 +67,16 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer {
     }
 
     @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
-    }
-
-    @Reference
+    @SuppressWarnings("unused")
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Override
-    public Map<String, Object> getProperties(NodeInfo info) {
-        Optional<Device> device = deviceService.findDeviceById(info.getId());
-        if (device.isPresent()) {
-            State state = device.get().getState();
-            setDeviceLifecycleState(DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName));
-        }
+    public Map<String, Object> getProperties(NodeInfo<Device> info) {
+        Device device = ((DeviceNodeInfo) info).getDevice();
+        setDeviceLifecycleState(DefaultState.from(device.getState()).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(device.getState()::getName));
+
         return propertyMap();
     }
 

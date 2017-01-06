@@ -2,11 +2,11 @@ package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
+import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 
 import org.osgi.service.component.annotations.Component;
@@ -25,9 +25,9 @@ import java.util.Optional;
  * Time: 11:13
  */
 @Component(name = "com.energyict.mdc.device.topology.LinkQualityLayer", service = GraphLayer.class, immediate = true)
-public class LinkQualityLayer extends AbstractGraphLayer {
+@SuppressWarnings("unused")
+public class LinkQualityLayer extends AbstractGraphLayer<Device> {
 
-    private DeviceService deviceService;
     private TopologyService topologyService;
 
     private final static String NAME = "topology.GraphLayer.linkQuality";
@@ -70,23 +70,19 @@ public class LinkQualityLayer extends AbstractGraphLayer {
     }
 
     @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
-    }
-
-    @Reference
+    @SuppressWarnings("unused")
     public void setTopologyService(TopologyService topologyService){
         this.topologyService = topologyService;
     }
 
-    public void calculateLinkQuality(NodeInfo info){
+    public void calculateLinkQuality(NodeInfo<Device> info){
 //        Random random = new Random();
 //        this.setLinkQuality(random.nextInt(100));
-        getNeighbor(info).ifPresent((x) -> setLinkQuality(x.getLinkQualityIndicator()));
+        getNeighbor((DeviceNodeInfo) info).ifPresent((x) -> setLinkQuality(x.getLinkQualityIndicator()));
     }
 
     @Override
-    public Map<String, Object> getProperties(NodeInfo info) {
+    public Map<String, Object> getProperties(NodeInfo<Device> info) {
         calculateLinkQuality(info);
         return propertyMap();
     }
@@ -100,8 +96,8 @@ public class LinkQualityLayer extends AbstractGraphLayer {
         return Arrays.asList(PropertyNames.values());
     }
 
-    private Optional<G3Neighbor> getNeighbor(NodeInfo info){
-        Optional<Device> device = deviceService.findDeviceById(info.getId());
-        return device.map((x) ->  topologyService.findG3Neighbors(x).stream().filter((n) -> n.getNeighbor().getId() == info.getParent().getId()).findFirst().orElse(null));
+    private Optional<G3Neighbor> getNeighbor(DeviceNodeInfo info){
+        // downstream link
+        return topologyService.findG3Neighbors(((DeviceNodeInfo)info.getParent()).getDevice()).stream().filter((n) -> n.getNeighbor().getId() == info.getId()).findFirst();
     }
 }

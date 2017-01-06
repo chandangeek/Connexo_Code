@@ -4,9 +4,9 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
+import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
@@ -19,7 +19,6 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -27,9 +26,9 @@ import java.util.Optional;
  * Time: 15:05
  */
 @Component(name = "com.energyict.mdc.device.topology.IssuesAndAlarmsLayer", service = GraphLayer.class, immediate = true)
-public class IssuesAndAlarmsLayer  extends AbstractGraphLayer {
+@SuppressWarnings("unused")
+public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
 
-    private DeviceService deviceService;
     private IssueService issueService;
     private IssueDataCollectionService issueDataCollectionService;
 
@@ -74,11 +73,6 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer {
     }
 
     @Reference
-    public void setDeviceService(DeviceService deviceService) {
-        this.deviceService = deviceService;
-    }
-
-    @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
@@ -88,23 +82,21 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer {
         this.issueDataCollectionService = issueDataCollectionService;
     }
 
-    private void countIssuesAndAlarms(NodeInfo info) {
-        Optional<Device> device = deviceService.findDeviceById(info.getId());
-        if (device.isPresent()) {
-            IssueDataCollectionFilter filter = new IssueDataCollectionFilter();
-            filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-            filter.addDevice(device.get().getCurrentMeterActivation().get().getMeter().get());
-            Finder<? extends IssueDataCollection> finder = issueDataCollectionService.findIssues(filter);
-            setIssues(finder.stream().count());
+    private void countIssuesAndAlarms(DeviceNodeInfo info) {
+        Device device = info.getDevice();
+        IssueDataCollectionFilter filter = new IssueDataCollectionFilter();
+        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
+        filter.addDevice(device.getCurrentMeterActivation().get().getMeter().get());
+        Finder<? extends IssueDataCollection> finder = issueDataCollectionService.findIssues(filter);
+        setIssues(finder.stream().count());
 //            //Todo
 //            setAlarms(-1);
 
-        }
     }
 
     @Override
-    public Map<String, Object> getProperties(NodeInfo info) {
-        countIssuesAndAlarms(info);
+    public Map<String, Object> getProperties(NodeInfo<Device> info) {
+        countIssuesAndAlarms(((DeviceNodeInfo) info));
         return propertyMap();
     }
 
