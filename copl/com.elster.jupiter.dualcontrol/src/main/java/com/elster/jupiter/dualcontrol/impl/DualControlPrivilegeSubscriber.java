@@ -1,6 +1,11 @@
 package com.elster.jupiter.dualcontrol.impl;
 
 import com.elster.jupiter.dualcontrol.DualControlService;
+import com.elster.jupiter.dualcontrol.Privileges;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.PrivilegeThesaurus;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.users.GrantRefusedException;
 import com.elster.jupiter.users.Group;
@@ -8,7 +13,9 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegeCategory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -22,6 +29,18 @@ import java.util.stream.Stream;
 public class DualControlPrivilegeSubscriber implements Subscriber {
 
     private volatile UserService userService;
+    private volatile Thesaurus thesaurus;
+    private PrivilegeThesaurus privilegeThesaurus;
+
+    public DualControlPrivilegeSubscriber() {
+        //for OSGI purposes
+    }
+
+    @Inject
+    public DualControlPrivilegeSubscriber(Thesaurus thesaurus, PrivilegeThesaurus privilegeThesaurus) {
+        this.thesaurus = thesaurus;
+        this.privilegeThesaurus = privilegeThesaurus;
+    }
 
     @Override
     public void handle(Object notification, Object... notificationDetails) {
@@ -29,55 +48,57 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
             User user = (User) notification;
             Group group = (Group) notificationDetails[0];
 
-            Set<PrivilegeCategory> dualControlCategories = Stream.of(
+            Set<Privilege> dualControlPrivileges = Stream.of(
                     user.getPrivileges().stream(),
                     group.getPrivileges(null).stream()
             )
                     .flatMap(Function.identity())
-                    .map(Privilege::getCategory)
                     .filter(isDualControlApprove().or(isDualControlGrant()))
                     .collect(Collectors.toSet());
-            if (dualControlCategories.stream().anyMatch(isDualControlApprove()) && dualControlCategories.stream().anyMatch(isDualControlGrant())) {
-                throw new GrantRefusedException();
+            if (dualControlPrivileges.stream().anyMatch(isDualControlApprove()) && dualControlPrivileges.stream().anyMatch(isDualControlGrant())) {
+                Privilege approvePrivilege = dualControlPrivileges.stream().filter(isDualControlApprove()).findFirst().get();
+                Privilege grantPrivilege = dualControlPrivileges.stream().filter(isDualControlGrant()).findFirst().get();
+                throw new GrantRefusedException(MessageSeeds.CANT_COMBINE_ROLES_WITH_PRIVILEGES_X_AND_Y, "roles",
+                        privilegeThesaurus.translatePrivilegeKey(grantPrivilege.getName()), privilegeThesaurus.translatePrivilegeKey(approvePrivilege.getName()));
             }
         }
         if (notification instanceof Group && notificationDetails.length == 1 && notificationDetails[0] instanceof Privilege) {
             Group group = (Group) notification;
             Privilege privilege = (Privilege) notificationDetails[0];
 
-            if (isDualControlApprove().test(privilege.getCategory())) {
+            if (isDualControlApprove().test(privilege)) {
                 // no user in this group may already have dual control grant privilege
                 boolean aUserAlreadyHasGrant = userService.findUsers(group)
                         .stream()
                         .map(User::getPrivileges)
                         .flatMap(Set::stream)
-                        .map(Privilege::getCategory)
                         .anyMatch(isDualControlGrant());
                 if (aUserAlreadyHasGrant) {
-                    throw new GrantRefusedException();
+                    throw new GrantRefusedException(MessageSeeds.CANT_COMBINE_WITH_GRANT, "privileges"
+                           , privilegeThesaurus.translatePrivilegeKey(privilege.getName()), privilegeThesaurus.translatePrivilegeKey(Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey()));
                 }
             }
-            if (isDualControlGrant().test(privilege.getCategory())) {
+            if (isDualControlGrant().test(privilege)) {
                 // no user in this group may already have dual control approve privilege
                 boolean aUserAlreadyHasApprove = userService.findUsers(group)
                         .stream()
                         .map(User::getPrivileges)
                         .flatMap(Set::stream)
-                        .map(Privilege::getCategory)
                         .anyMatch(isDualControlApprove());
                 if (aUserAlreadyHasApprove) {
-                    throw new GrantRefusedException();
+                    throw new GrantRefusedException(MessageSeeds.CANT_COMBINE_WITH_APPROVE, "privileges"
+                            , privilegeThesaurus.translatePrivilegeKey(privilege.getName()));
                 }
             }
         }
     }
 
-    private Predicate<PrivilegeCategory> isDualControlApprove() {
-        return category -> category.getName().equals(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY);
+    private Predicate<Privilege> isDualControlApprove() {
+        return privilege -> privilege.getCategory().getName().equals(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY);
     }
 
-    private Predicate<PrivilegeCategory> isDualControlGrant() {
-        return category -> category.getName().equals(DualControlService.DUAL_CONTROL_GRANT_CATEGORY);
+    private Predicate<Privilege> isDualControlGrant() {
+        return privilege -> privilege.getCategory().getName().equals(DualControlService.DUAL_CONTROL_GRANT_CATEGORY);
     }
 
     @Override
@@ -88,8 +109,14 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
         };
     }
 
-    @Reference
+    @Reference(name = "AUserService")
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference(name = "ZNlsService")
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DualControlService.COMPONENT_NAME, Layer.DOMAIN.DOMAIN).join(userService.getThesaurus());
+        this.privilegeThesaurus = nlsService.getPrivilegeThesaurus();
     }
 }

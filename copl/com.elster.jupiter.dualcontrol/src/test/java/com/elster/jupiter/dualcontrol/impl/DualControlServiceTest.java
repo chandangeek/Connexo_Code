@@ -4,6 +4,7 @@ import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.dualcontrol.State;
 import com.elster.jupiter.dualcontrol.UserAction;
 import com.elster.jupiter.dualcontrol.UserOperation;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.impl.ThreadPrincipalServiceImpl;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -28,6 +29,8 @@ public class DualControlServiceTest {
     private UserService userService;
     @Mock
     private UpgradeService upgradeService;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Test
     public void testActivation() {

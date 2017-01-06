@@ -11,7 +11,7 @@ public enum Privileges implements TranslationKey {
     RESOURCE_DUAL_CONTROL_DESCRIPTION("dualcontrol.description", "Manage dual control"),
 
     //Privileges
-    GRANT_DUAL_CONTROL_APPROVAL(Constants.GRANT_APPROVAL, "Grant privileges to approve dual controlled entities.")
+    GRANT_DUAL_CONTROL_APPROVAL(Constants.GRANT_APPROVAL, "Grant privileges to approve dual controlled entities")
     ;
 
     private final String key;

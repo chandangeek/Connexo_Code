@@ -4,6 +4,7 @@ import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.dualcontrol.Privileges;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
@@ -12,6 +13,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -19,13 +21,14 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.dualcontrol", service = {DualControlService.class, TranslationKeyProvider.class}, property = {"name=" + DualControlService.COMPONENT_NAME}, immediate = true)
-public class DualControlServiceImpl implements DualControlService, TranslationKeyProvider {
+@Component(name = "com.elster.jupiter.dualcontrol", service = {DualControlService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = {"name=" + DualControlService.COMPONENT_NAME}, immediate = true)
+public class DualControlServiceImpl implements DualControlService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DataModel dataModel;
@@ -80,11 +83,18 @@ public class DualControlServiceImpl implements DualControlService, TranslationKe
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(Privileges.values());
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
-    @Reference
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(Privileges.values()));
+        return keys;
+    }
+
+    @Reference(name = "ZUserService")
     public void setUserService(UserService userService) {
         this.userService = userService;
     }

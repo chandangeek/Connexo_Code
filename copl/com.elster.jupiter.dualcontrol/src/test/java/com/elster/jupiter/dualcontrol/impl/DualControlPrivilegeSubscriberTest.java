@@ -1,6 +1,10 @@
 package com.elster.jupiter.dualcontrol.impl;
 
 import com.elster.jupiter.dualcontrol.DualControlService;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.PrivilegeThesaurus;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.GrantRefusedException;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
@@ -18,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.Expects.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +41,10 @@ public class DualControlPrivilegeSubscriberTest {
     private PrivilegeCategory grantCategory, approveCategory, innocuousCategory;
     @Mock
     private UserService userService;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private PrivilegeThesaurus privilegeThesaurus;
 
     @Before
     public void setUp() {
@@ -47,8 +57,12 @@ public class DualControlPrivilegeSubscriberTest {
         when(approveCategory.getName()).thenReturn(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY);
         when(grantCategory.getName()).thenReturn(DualControlService.DUAL_CONTROL_GRANT_CATEGORY);
         when(innocuousCategory.getName()).thenReturn("Innocuous");
+        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);;
+        when(thesaurus.getFormat((TranslationKey) any())).thenReturn(nlsMessageFormat);
+        when(nlsMessageFormat.format()).thenReturn("");
+        when(privilegeThesaurus.translatePrivilegeKey(anyString())).thenReturn("privilegeKey");
 
-        dualControlPrivilegeSubscriber = new DualControlPrivilegeSubscriber();
+        dualControlPrivilegeSubscriber = new DualControlPrivilegeSubscriber(thesaurus, privilegeThesaurus);
         dualControlPrivilegeSubscriber.setUserService(userService);
     }
 
