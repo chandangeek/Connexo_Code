@@ -60,7 +60,6 @@ public class DeviceAlarmFilter {
         }
     }
 
-    public List<User> getUserAssignee() {
     public List<Priority> getPriorities() {
         return Collections.unmodifiableList(priorities);
     }
@@ -69,7 +68,7 @@ public class DeviceAlarmFilter {
         this.priorities.add(priority);
     }
 
-    public Optional<User> getUserAssignee() {
+    public List<User> getUserAssignee() {
         return userAssignee;
     }
 
