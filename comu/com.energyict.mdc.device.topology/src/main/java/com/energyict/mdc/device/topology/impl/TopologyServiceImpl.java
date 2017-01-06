@@ -19,6 +19,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
@@ -802,7 +803,9 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         sqlBuilder.append(") connect by (cps.srcdevice = prior cps.nexthopdevice and cps.targetdevice = ");
         sqlBuilder.addLong(target.getId());
         sqlBuilder.append(")");
-        mapper.fetcher(sqlBuilder).forEach(communicationPath::addSegment);
+        try (Fetcher<G3CommunicationPathSegment> fetcher = mapper.fetcher(sqlBuilder)) {
+           fetcher.forEach(communicationPath::addSegment);
+        }
         return communicationPath;
     }
 
