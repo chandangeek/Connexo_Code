@@ -1,8 +1,7 @@
 package com.elster.jupiter.issue.impl.service;
 
-import com.elster.jupiter.issue.impl.actions.AssignToMeIssueAction;
+import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
-import com.elster.jupiter.issue.impl.actions.UnassignIssueAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
@@ -129,8 +128,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     private void addDefaultActions() {
         try {
             actionProviders.put(CommentIssueAction.class.getName(), injector.getProvider(CommentIssueAction.class));
-            actionProviders.put(AssignToMeIssueAction.class.getName(), injector.getProvider(AssignToMeIssueAction.class));
-            actionProviders.put(UnassignIssueAction.class.getName(), injector.getProvider(UnassignIssueAction.class));
+            actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

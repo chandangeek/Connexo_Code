@@ -1,8 +1,7 @@
 package com.elster.jupiter.issue.impl.database;
 
 
-import com.elster.jupiter.issue.impl.actions.AssignToMeIssueAction;
-import com.elster.jupiter.issue.impl.actions.UnassignIssueAction;
+import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
@@ -46,8 +45,10 @@ public class UpgraderV10_3 implements Upgrader {
     }
 
     private void updateActiontypes(Connection connection) {
-        String[] sqlStatements = { "DELETE FROM ISU_CREATIONRULEACTION WHERE ACTIONTYPE = (SELECT ID FROM ISU_ACTIONTYPE WHERE CLASS_NAME = 'com.elster.jupiter.issue.impl.actions.AssignIssueAction')",
-                "DELETE FROM ISU_ACTIONTYPE WHERE CLASS_NAME = 'com.elster.jupiter.issue.impl.actions.AssignIssueAction'"};
+        String[] sqlStatements = {
+                "DELETE FROM ISU_CREATIONRULEACTION WHERE ACTIONTYPE IN (SELECT ID FROM ISU_ACTIONTYPE WHERE CLASS_NAME IN ('com.elster.jupiter.issue.impl.actions.AssignToMeIssueAction', 'com.elster.jupiter.issue.impl.actions.UnassignIssueAction'))",
+                "DELETE FROM ISU_ACTIONTYPE WHERE CLASS_NAME IN ('com.elster.jupiter.issue.impl.actions.AssignToMeIssueAction', 'com.elster.jupiter.issue.impl.actions.UnassignIssueAction')"
+        };
         for (String sqlStatement : sqlStatements) {
             try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
                 statement.executeUpdate();
@@ -58,15 +59,11 @@ public class UpgraderV10_3 implements Upgrader {
 
         IssueActionService issueActionService = this.dataModel.getInstance(IssueActionService.class);
         IssueType issueType = null;
-        Condition conditionAssignToMeIssueAction = Operator.EQUALIGNORECASE.compare("className", AssignToMeIssueAction.class.getName());
-        Condition conditionUnassignIssueAction = Operator.EQUALIGNORECASE.compare("className", UnassignIssueAction.class.getName());
+        Condition conditionAssignIssueAction = Operator.EQUALIGNORECASE.compare("className", AssignIssueAction.class.getName());
+
         if (issueActionService.getActionTypeQuery()
-                .select(conditionAssignToMeIssueAction).isEmpty()) {
-            issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignToMeIssueAction.class.getName(), issueType);
-        }
-        if (issueActionService.getActionTypeQuery()
-                .select(conditionUnassignIssueAction).isEmpty()){
-            issueActionService.createActionType(IssueDefaultActionsFactory.ID, UnassignIssueAction.class.getName(), issueType);
+                .select(conditionAssignIssueAction).isEmpty()) {
+            issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), issueType);
         }
     }
 

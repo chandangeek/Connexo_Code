@@ -1,14 +1,14 @@
 package com.elster.jupiter.issue.share;
 
-import java.util.Map;
-
-import aQute.bnd.annotation.ConsumerType;
-
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.properties.HasDynamicPropertiesWithValues;
 import com.elster.jupiter.users.User;
 
-@ConsumerType
+import aQute.bnd.annotation.ProviderType;
+
+import java.util.Map;
+
+@ProviderType
 public interface IssueAction extends HasDynamicPropertiesWithValues {
     
     String getDisplayName();
@@ -21,4 +21,7 @@ public interface IssueAction extends HasDynamicPropertiesWithValues {
     
     IssueActionResult execute(Issue issue);
 
+    default IssueAction setIssue(Issue issue) {
+        return this;
+    }
 }

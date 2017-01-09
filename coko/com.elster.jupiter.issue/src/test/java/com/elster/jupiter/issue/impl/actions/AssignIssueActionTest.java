@@ -1,8 +1,6 @@
 package com.elster.jupiter.issue.impl.actions;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.service.BaseTest;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.IssueAction;
@@ -30,7 +28,7 @@ public class AssignIssueActionTest extends BaseTest {
 
     @Before
     public void setUp() throws Exception {
-        action = getDefaultActionsFactory().createIssueAction(AssignToMeIssueAction.class.getName());
+        action = getDefaultActionsFactory().createIssueAction(AssignIssueAction.class.getName());
     }
     
     @Test
@@ -74,7 +72,7 @@ public class AssignIssueActionTest extends BaseTest {
 
         assertThat(issue.getAssignee().getUser()).isNull();
         assertThat(issue.getAssignee().getWorkGroup()).isNull();
-        IssueAction actionAssignToMe = getDefaultActionsFactory().createIssueAction(AssignToMeIssueAction.class.getName());
+        IssueAction actionAssignToMe = getDefaultActionsFactory().createIssueAction(AssignIssueAction.class.getName());
 
         IssueActionResult actionResult = actionAssignToMe.initAndValidate(properties).execute(issue);
 
@@ -99,8 +97,8 @@ public class AssignIssueActionTest extends BaseTest {
 
         assertThat(issue.getAssignee().getUser()).isNull();
         assertThat(issue.getAssignee().getWorkGroup()).isNull();
-        IssueAction actionAssignToMe = getDefaultActionsFactory().createIssueAction(AssignToMeIssueAction.class.getName());
-        IssueAction actionUnssign = getDefaultActionsFactory().createIssueAction(UnassignIssueAction.class.getName());
+        IssueAction actionAssignToMe = getDefaultActionsFactory().createIssueAction(AssignIssueAction.class.getName());
+        IssueAction actionUnssign = getDefaultActionsFactory().createIssueAction(AssignIssueAction.class.getName());
         IssueActionResult actionResult = actionAssignToMe.initAndValidate(properties).execute(issue);
 
         assertThat(actionResult.isSuccess()).isTrue();

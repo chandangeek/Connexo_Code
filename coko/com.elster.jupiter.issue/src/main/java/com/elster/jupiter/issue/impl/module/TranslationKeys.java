@@ -18,8 +18,6 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_STATUS_WONT_FIX("issue.status.wont.fix", "Won''t fix"), // intentionally two '
     ISSUE_STATUS_IN_PROGRESS("issue.status.in.progress", "Ongoing"),
     ACTION_ASSIGN_ISSUE("issue.action.assignIssue", "Assign issue"),
-    ACTION_ASSIGN_TO_ME_ISSUE("issue.action.assignToMeIssue", "Assign to me"),
-    ACTION_UNASSIGN_ISSUE("issue.action.unassign", "Unassign"),
     ACTION_COMMENT_ISSUE("issue.action.commentIssue", "Comment issue"),
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
