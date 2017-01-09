@@ -48,6 +48,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.bpm.impl.alarms.DeviceAlarmProcessAssociationProvider;
 import com.energyict.mdc.bpm.impl.device.DeviceProcessAssociationProvider;
 import com.energyict.mdc.bpm.impl.issue.datacollection.IssueProcessAssociationProvider;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -117,6 +118,7 @@ public class InMemoryPersistence {
     //private DataModel dataModel;
     private DeviceProcessAssociationProvider deviceProvider;
     private IssueProcessAssociationProvider issueProvider;
+    private DeviceAlarmProcessAssociationProvider alarmProvider;
 
     private InMemoryPersistence(Supplier<List<Module>> modulesSupplier) {
         super();
@@ -207,6 +209,7 @@ public class InMemoryPersistence {
             this.injector.getInstance(MasterDataService.class);
             this.deviceProvider = this.injector.getInstance(DeviceProcessAssociationProvider.class);
             this.issueProvider = this.injector.getInstance(IssueProcessAssociationProvider.class);
+            this.alarmProvider = this.injector.getInstance(DeviceAlarmProcessAssociationProvider.class);
             ctx.commit();
         }
     }
@@ -246,6 +249,10 @@ public class InMemoryPersistence {
 
     public ProcessAssociationProvider getIssueAssociationProvider() {
         return this.issueProvider;
+    }
+
+    public ProcessAssociationProvider getDeviceAlarmAssociationProvider() {
+        return this.alarmProvider;
     }
 
     public <T> T getService(Class<T> serviceClass) {
