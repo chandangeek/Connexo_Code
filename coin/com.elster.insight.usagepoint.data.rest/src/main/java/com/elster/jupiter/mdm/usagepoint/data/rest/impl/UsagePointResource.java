@@ -8,7 +8,7 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
@@ -147,7 +147,7 @@ public class UsagePointResource {
     private final ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory;
     private final ResourceHelper resourceHelper;
     private final MetrologyConfigurationService metrologyConfigurationService;
-    private final UsagePointDataService usagePointDataService;
+    private final UsagePointDataCompletionService usagePointDataCompletionService;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
 
@@ -165,7 +165,7 @@ public class UsagePointResource {
                               Thesaurus thesaurus,
                               ResourceHelper resourceHelper,
                               MetrologyConfigurationService metrologyConfigurationService,
-                              UsagePointDataService usagePointDataService,
+                              UsagePointDataCompletionService usagePointDataCompletionService,
                               Provider<GoingOnResource> goingOnResourceProvider,
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
                               ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
@@ -192,7 +192,7 @@ public class UsagePointResource {
         this.resourceHelper = resourceHelper;
         this.goingOnResourceProvider = goingOnResourceProvider;
         this.metrologyConfigurationService = metrologyConfigurationService;
-        this.usagePointDataService = usagePointDataService;
+        this.usagePointDataCompletionService = usagePointDataCompletionService;
         this.usagePointOutputResourceProvider = usagePointOutputResourceProvider;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
@@ -228,7 +228,7 @@ public class UsagePointResource {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @RolesAllowed({Privileges.Constants.MANAGE_USAGE_POINT_ATTRIBUTES})
     @Transactional
     public UsagePointInfo updateUsagePoint(UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
@@ -689,7 +689,7 @@ public class UsagePointResource {
             interval = interval.intersection(upToNow); // find out interval in past, or else throw an exception
             if (!interval.isEmpty()) {
                 interval = UsagePointOutputResource.getUsagePointAdjustedDataRange(usagePoint, interval).orElse(Range.openClosed(now, now));
-                List<ChannelDataValidationSummaryInfo> result = usagePointDataService
+                List<ChannelDataValidationSummaryInfo> result = usagePointDataCompletionService
                         .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
                         .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
                         .collect(Collectors.toList());
