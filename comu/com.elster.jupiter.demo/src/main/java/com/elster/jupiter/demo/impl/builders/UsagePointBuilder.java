@@ -3,6 +3,7 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -75,7 +76,7 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
         UsagePoint usagePoint = usagePointBuilder.create();
         switch (serviceCategory.getKind()) {
             case ELECTRICITY:
-                usagePoint.newElectricityDetailBuilder(installationTime).create();
+                usagePoint.newElectricityDetailBuilder(installationTime).withPhaseCode(PhaseCode.S1N).create();
                 break;
             case GAS:
                 usagePoint.newGasDetailBuilder(installationTime).create();
