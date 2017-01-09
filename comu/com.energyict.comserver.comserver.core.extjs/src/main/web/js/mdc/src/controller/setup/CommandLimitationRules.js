@@ -307,12 +307,18 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             record.set('name', formValues.name);
             if (!formValues.noDayLimit && !Ext.isEmpty(formValues.dayLimit)) {
                 record.set('dayLimit', formValues.dayLimit);
+            } else {
+                record.set('dayLimit', 0);
             }
             if (!formValues.noWeekLimit && !Ext.isEmpty(formValues.weekLimit)) {
                 record.set('weekLimit', formValues.weekLimit);
+            } else {
+                record.set('weekLimit', 0);
             }
             if (!formValues.noMonthLimit && !Ext.isEmpty(formValues.monthLimit)) {
                 record.set('monthLimit', formValues.monthLimit);
+            } else {
+                record.set('monthLimit', 0);
             }
             if (!Ext.isEmpty(me.commandRuleBeingEdited)) {
                 record.commands().removeAll();
