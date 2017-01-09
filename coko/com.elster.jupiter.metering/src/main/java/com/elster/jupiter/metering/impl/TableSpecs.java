@@ -304,7 +304,7 @@ public enum TableSpecs {
 
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
-            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).since(version(10, 2, 1)).upTo(version(10, 3)).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).during(Range.closedOpen(version(10, 2, 1), version(10, 3))).add();
             table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn, obsoleteTime).since(version(10, 3)).add();
             table.foreignKey("FK_MTR_USAGEPOINTSERVICECAT")
                     .on(serviceKindColumn)

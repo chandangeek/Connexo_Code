@@ -257,7 +257,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     /**
      * Makes this UsagePoint obsolete.
      * This UsagePoint will no longer show up in queries
-     * except the one that is looking for a UsagePoint by its database id.
+     * except the one that is looking for a UsagePoint by its database id or mrid.
      */
     void makeObsolete();
 

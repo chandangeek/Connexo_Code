@@ -46,7 +46,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -127,8 +126,6 @@ public class DataAggregationServiceImplCalculateTest {
     private MeteringDataModelService meteringDataModelService;
     @Mock
     private NlsService nlsService;
-    @Mock
-    private Clock clock;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     private SqlBuilder withClauseBuilder;
