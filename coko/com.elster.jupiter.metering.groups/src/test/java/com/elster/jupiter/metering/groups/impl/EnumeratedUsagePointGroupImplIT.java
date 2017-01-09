@@ -33,6 +33,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 
@@ -83,41 +85,57 @@ public class EnumeratedUsagePointGroupImplIT {
         }
     }
 
-    @BeforeClass
-    public static void setUp() throws SQLException {
-        injector = Guice.createInjector(
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new InMemoryMessagingModule(),
-                new IdsModule(),
-                new MeteringModule(),
-                new BasicPropertiesModule(),
-                new TimeModule(),
-                new MeteringGroupsModule(),
-                new SearchModule(),
-                new PartyModule(),
-                new EventsModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new UtilModule(),
-                new ThreadSecurityModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new NlsModule(),
-                new FiniteStateMachineModule(),
-                new DataVaultModule(),
-                new CustomPropertySetsModule()
-        );
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringGroupsService.class);
-            return null;
+    @Before
+    public void setUp() throws SQLException {
+        when(this.bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(this.serviceRegistration);
+        try {
+            injector = Guice.createInjector(
+                    new MockModule(),
+                    inMemoryBootstrapModule,
+                    new InMemoryMessagingModule(),
+                    new IdsModule(),
+                    new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
+                    new MeteringModule(),
+                    new BasicPropertiesModule(),
+                    new TimeModule(),
+                    new MeteringGroupsModule(),
+                    new SearchModule(),
+                    new PartyModule(),
+                    new EventsModule(),
+                    new DomainUtilModule(),
+                    new OrmModule(),
+                    new UtilModule(),
+                    new ThreadSecurityModule(),
+                    new PubSubModule(),
+                    new TransactionModule(),
+                    new NlsModule(),
+                    new DataVaultModule(),
+                    new CustomPropertySetsModule()
+
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
+            @Override
+            public Void perform() {
+                injector.getInstance(FiniteStateMachineService.class);
+                injector.getInstance(MeteringGroupsService.class);
+                setupDefaultUsagePointLifeCycle();
+                return null;
+            }
         });
     }
 
     @AfterClass
     public static void tearDown() throws SQLException {
         inMemoryBootstrapModule.deactivate();
+    }
+
+    private void setupDefaultUsagePointLifeCycle() {
+        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+        usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
     }
 
     @Test

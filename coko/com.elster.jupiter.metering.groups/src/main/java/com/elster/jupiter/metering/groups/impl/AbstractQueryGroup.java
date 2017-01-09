@@ -247,4 +247,8 @@ abstract class AbstractQueryGroup<T extends HasId & IdentifiedObject> extends Ab
     }
 
     abstract Class<? extends QueryGroupCondition> getConditionApiClass();
+
+    final Thesaurus getThesaurus() {
+        return this.thesaurus;
+    }
 }

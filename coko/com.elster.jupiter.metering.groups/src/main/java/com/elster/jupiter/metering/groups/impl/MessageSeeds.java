@@ -14,6 +14,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     SEARCH_DOMAIN_NOT_FOUND(1001, "searchDomainNotFound", "Search domain with id = ''{0}'' not found", Level.SEVERE),
     INVALID_SEARCH_CRITERIA(1002, "invalidSearchCriteria", "Invalid search criteria", Level.SEVERE),
     NO_QUERY_PROVIDER_FOUND(1003, "noQueryProviderFound", "No query provider with name ", Level.SEVERE),
+    GROUP_IS_USED_BY_ANOTHER_GROUP(1004, "groupIsUsedByAnotherGroup", "The group is used by another group", Level.SEVERE),
     ;
 
     private final int number;
