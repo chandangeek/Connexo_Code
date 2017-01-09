@@ -8,11 +8,12 @@ import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocol.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,19 +28,19 @@ import java.util.logging.Logger;
 
 /**
  * Simple class representing a MeterProtocol. Is only used for testing.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 15/01/13
  * Time: 10:13
  */
 public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol {
 
+    public SimpleTestMeterProtocol() {
+    }
+
     @Override
     public String getProtocolDescription() {
         return this.getClass().getName();
-    }
-
-    public SimpleTestMeterProtocol() {
     }
 
     @Override
@@ -55,6 +56,16 @@ public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol {
     @Override
     public void connect() throws IOException {
         // nothing to set
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
     }
 
     @Override
@@ -138,13 +149,13 @@ public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol {
     }
 
     @Override
-    public void setCache(Object cacheObject) {
-        // nothing to set
+    public Object getCache() {
+        return null;          // nothing to set
     }
 
     @Override
-    public Object getCache() {
-        return null;          // nothing to set
+    public void setCache(Object cacheObject) {
+        // nothing to set
     }
 
     @Override

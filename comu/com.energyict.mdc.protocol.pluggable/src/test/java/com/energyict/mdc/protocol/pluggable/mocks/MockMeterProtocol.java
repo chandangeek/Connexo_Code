@@ -10,15 +10,14 @@ import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocol.ProfileData;
 
@@ -63,6 +62,21 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     @Override
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
 
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -212,12 +226,12 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+    public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.emptyList();
     }
 
     @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+    public List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
     }
 

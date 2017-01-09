@@ -14,9 +14,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -34,6 +32,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -291,12 +290,12 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+    public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.singletonList(new NoAuthentication());
     }
 
     @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+    public List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.singletonList(new NoMessageEncryption());
     }
 
@@ -417,7 +416,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
         }
     }
 
-    protected class NoAuthentication implements AuthenticationDeviceAccessLevel {
+    protected class NoAuthentication implements com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -425,18 +424,23 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
         }
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "Mocked Security Support with bogus authentication level " + getId();
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(clientMacAddressPropertySpec());
+        public String getDefaultTranslation() {
+            return "Mocked Security Support with bogus authentication level " + getId();
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+            return Collections.singletonList(new ConnexoToUPLPropertSpecAdapter(clientMacAddressPropertySpec()));
         }
 
     }
 
-    protected class NoMessageEncryption implements EncryptionDeviceAccessLevel {
+    protected class NoMessageEncryption implements com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -444,15 +448,19 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
         }
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "Mocked Security Support with bogus encryption level " + getId();
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(clientMacAddressPropertySpec());
+        public String getDefaultTranslation() {
+            return "Mocked Security Support with bogus encryption level " + getId();
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+            return Collections.singletonList(new ConnexoToUPLPropertSpecAdapter(clientMacAddressPropertySpec()));
         }
 
     }
-
 }

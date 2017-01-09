@@ -88,6 +88,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.Singleton;
@@ -110,6 +111,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Provides an interface for the {@link ProtocolPluggableService} interface.
@@ -861,7 +864,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         //TODO need a proper implementation of the DataVault!
         this.dataModel.register(this.getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", ProtocolPluggableService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", ProtocolPluggableService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
 
         this.installed = true;
         this.registerAllPluggableClasses();
