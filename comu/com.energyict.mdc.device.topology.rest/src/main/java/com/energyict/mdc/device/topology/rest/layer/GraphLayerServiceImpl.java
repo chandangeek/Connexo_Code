@@ -24,7 +24,7 @@ public class GraphLayerServiceImpl implements GraphLayerService  {
     private final OptionalServiceContainer<GraphLayer> graphLayerServices = new CopyOnWriteServiceContainer<>();
 
     @Override
-    @Reference(name = "DTG-layer", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(name = "Graphlayers", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void register(GraphLayer graphLayer) {
         this.graphLayerServices.register(graphLayer);
     }

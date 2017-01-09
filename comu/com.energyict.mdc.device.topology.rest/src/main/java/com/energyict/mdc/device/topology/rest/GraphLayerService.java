@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface GraphLayerService {
 
-    String COMPONENT_NAME = "Topology Graph Layers";
+    String COMPONENT_NAME = "Topology Graph Layers Service";
 
     /**
      * new GraphLayers need to be registered before becoming available.

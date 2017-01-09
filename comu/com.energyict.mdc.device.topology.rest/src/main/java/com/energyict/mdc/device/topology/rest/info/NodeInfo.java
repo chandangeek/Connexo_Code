@@ -1,10 +1,7 @@
 package com.energyict.mdc.device.topology.rest.info;
 
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
-//import com.energyict.mdc.device.topology.rest.layer.DeviceInfoLayer;
-//import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -30,9 +27,9 @@ public abstract class NodeInfo<T extends HasId> {
     @JsonIgnore
     private T nodeObject;
     @JsonIgnore
-    private List<GraphLayer> layers = new ArrayList<>();
+    private List<GraphLayer<T>> layers = new ArrayList<>();
     @JsonIgnore
-    private Optional<GraphLayer> activeLayer = Optional.empty();
+    private Optional<GraphLayer<T>> activeLayer = Optional.empty();
 
     private NodeInfo parent;
     private List<NodeInfo<T>> children = new ArrayList<>();
@@ -48,11 +45,11 @@ public abstract class NodeInfo<T extends HasId> {
       return nodeObject;
     }
 
-    public boolean addLayer(GraphLayer graphLayer){
+    public boolean addLayer(GraphLayer<T> graphLayer){
         return this.layers.add(graphLayer);
     }
 
-    public void setActiveLayer(GraphLayer graphLayer ){
+    public void setActiveLayer(GraphLayer<T> graphLayer ){
         if (!layers.contains(graphLayer)) {
             throw new IllegalArgumentException("GraphLayer not added to List of layers");
         }
@@ -102,7 +99,7 @@ public abstract class NodeInfo<T extends HasId> {
         if (activeLayer.isPresent()){
             return activeLayer.get().getProperties(this);
         }else{
-            layers.stream().forEach(layer -> allProperties.putAll(layer.getProperties(this)));
+            layers.parallelStream().map((layer) -> layer.getProperties(this)).forEach(allProperties::putAll);
         }
         return allProperties;
     }

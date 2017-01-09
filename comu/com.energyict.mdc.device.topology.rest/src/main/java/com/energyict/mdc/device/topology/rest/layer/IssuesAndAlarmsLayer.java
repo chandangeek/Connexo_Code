@@ -84,11 +84,11 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
 
     private void countIssuesAndAlarms(DeviceNodeInfo info) {
         Device device = info.getDevice();
-        IssueDataCollectionFilter filter = new IssueDataCollectionFilter();
-        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        filter.addDevice(device.getCurrentMeterActivation().get().getMeter().get());
-        Finder<? extends IssueDataCollection> finder = issueDataCollectionService.findIssues(filter);
-        setIssues(finder.stream().count());
+//        IssueDataCollectionFilter filter = new IssueDataCollectionFilter();
+//        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
+//        filter.addDevice(device.getCurrentMeterActivation().get().getMeter().get());
+//        Finder<? extends IssueDataCollection> finder = issueDataCollectionService.findIssues(filter);
+//        setIssues(finder.stream().count());
 //            //Todo
 //            setAlarms(-1);
 
