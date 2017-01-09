@@ -20,6 +20,8 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.rest.transactions.AssignSingleIssueTransaction;
+import com.elster.jupiter.issue.rest.transactions.AssignToMeSingleIssueTransaction;
+import com.elster.jupiter.issue.rest.transactions.UnassignSingleIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
@@ -125,10 +127,34 @@ public class IssueResource extends BaseResource {
     @Path("/{id}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.COMMENT_ISSUE)
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response postComment(@PathParam("id") long id, CreateCommentRequest request, @Context SecurityContext securityContext) {
         Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return Response.ok(issueResourceHelper.postComment(issue, request, securityContext)).status(Response.Status.CREATED).build();
+    }
+
+
+    @PUT
+    @Path("/assigntome/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    public Response postAssignToMe(@PathParam("id") long id, AssignSingleIssueRequest request, @Context SecurityContext securityContext) {
+        User performer = (User) securityContext.getUserPrincipal();
+        Function<ActionInfo, Issue> issueProvider = result -> getIssue(id, result);
+        ActionInfo info = getTransactionService().execute(new AssignToMeSingleIssueTransaction(performer, issueProvider, getThesaurus()));
+        return entity(info).build();
+    }
+
+    @PUT
+    @Path("/unassign/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
+    public Response postUnassign(@PathParam("id") long id, SingleIssueRequest request, @Context SecurityContext securityContext) {
+        Function<ActionInfo, Issue> issueProvider = result -> getIssue(id, result);
+        ActionInfo info = getTransactionService().execute(new UnassignSingleIssueTransaction(issueProvider, getThesaurus()));
+        return entity(info).build();
     }
 
     @GET
@@ -156,8 +182,9 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public Response getActionTypeById(@PathParam(ID) long id, @PathParam(KEY) long actionId) {
+        Issue issue = getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         getIssueService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        return Response.ok(issueResourceHelper.getIssueActionById(actionId)).build();
+        return Response.ok(issueResourceHelper.getIssueActionById(issue, actionId)).build();
     }
 
     @PUT
@@ -280,6 +307,14 @@ public class IssueResource extends BaseResource {
         Issue issue = getIssueService().findIssue(request.issue.getId()).orElse(null);
         if (issue == null) {
             result.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), request.issue.getId(), "Issue (id = " + request.issue.getId() + ")");
+        }
+        return issue;
+    }
+
+    private Issue getIssue(Long id, ActionInfo result) {
+        Issue issue = getIssueService().findIssue(id).orElse(null);
+        if (issue == null) {
+            result.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), id, "Issue (id = " + id + ")");
         }
         return issue;
     }

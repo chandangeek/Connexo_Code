@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.function.Function;
 
-public class AssignIssueTransaction  implements Transaction<ActionInfo> {
+public class AssignIssueTransaction implements Transaction<ActionInfo> {
     private final AssignIssueRequest request;
     private final User performer;
     private final Function<ActionInfo, List<? extends Issue>> issueProvider;
