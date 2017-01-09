@@ -15,8 +15,7 @@ public enum TranslationKeys implements TranslationKey {
     AQ_SUBSCRIBER(DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER, "Create data validation issues"),
     ACTION_RETRY_ESTIMATION("ActionRetryEstimation", "Retry estimation"),
     ACTION_RETRY_ESTIMATION_SUCCESS("ActionRetryEstimationSuccess", "Estimation retry succeeded"),
-    ACTION_RETRY_ESTIMATION_FAIL("ActionRetryEstimationFailed", "Estimation retry failed"),
-    PRIORITY(DataValidationIssueCreationRuleTemplate.PRIORITY, "Priority")
+    ACTION_RETRY_ESTIMATION_FAIL("ActionRetryEstimationFailed", "Estimation retry failed")
     ;
 
     private final String key;

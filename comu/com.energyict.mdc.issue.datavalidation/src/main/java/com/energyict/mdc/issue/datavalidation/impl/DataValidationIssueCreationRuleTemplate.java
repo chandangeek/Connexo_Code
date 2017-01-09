@@ -2,9 +2,6 @@ package com.energyict.mdc.issue.datavalidation.impl;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.PriorityInfo;
-import com.elster.jupiter.issue.share.PriorityInfoValueFactory;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -37,8 +34,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.IntStream;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate",
         property = {"name=" + DataValidationIssueCreationRuleTemplate.NAME},
@@ -48,8 +43,6 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     static final String NAME = "DataValidationIssueCreationRuleTemplate";
 
     public static final String DEVICE_CONFIGURATIONS = NAME + ".deviceConfigurations";
-
-    public static final String PRIORITY = NAME + ".priority";
 
     private volatile IssueDataValidationService issueDataValidationService;
     private volatile IssueService issueService;
@@ -145,10 +138,6 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                         .flatMap(type -> type.getConfigurations().stream())
                         .map(DeviceConfigurationInfo::new)
                         .toArray(DeviceConfigurationInfo[]::new);
-        PriorityInfo[] possiblePriorityValues = IntStream.rangeClosed(1, 50).mapToObj(urgency ->
-                IntStream.concat(IntStream.rangeClosed(1, urgency), IntStream.rangeClosed(urgency + 1, 50))
-                        .mapToObj(impact -> new PriorityInfo(Priority.get(urgency, impact))))
-                .flatMap(Function.identity()).toArray(PriorityInfo[]::new);
         Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(
                 propertySpecService
@@ -160,15 +149,6 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
                         .addValues(possibleValues)
                         .markExhaustive(PropertySelectionMode.LIST)
                         .finish());
-        builder.add(propertySpecService
-                .specForValuesOf(new PriorityInfoValueFactory())
-                .named(PRIORITY, TranslationKeys.PRIORITY)
-                .fromThesaurus(this.thesaurus)
-                .markRequired()
-                .markMultiValued(",")
-                .addValues(possiblePriorityValues)
-                .markExhaustive(PropertySelectionMode.LIST)
-                .finish());
         return builder.build();
     }
 
