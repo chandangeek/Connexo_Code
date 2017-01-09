@@ -46,9 +46,7 @@ public interface IssueService {
 
     Optional<IssueType> findIssueType(String key);
 
-    Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id);
-
-    boolean checkIssueAssigneeType(String type);
+    IssueAssignee findIssueAssignee(Long userId, Long workGroupId);
 
     /**
      * Creates new status
@@ -109,5 +107,9 @@ public interface IssueService {
     IssueFilter newIssueFilter();
 
     IssueGroupFilter newIssueGroupFilter();
+
+    boolean checkIssueAssigneeType(String type);
+
+    Optional<IssueAssignee> findIssueAssignee(AssigneeType assigneeType, long id);
 
 }

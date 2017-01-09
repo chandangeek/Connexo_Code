@@ -4,8 +4,6 @@ import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.records.IssueGroupImpl;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.entity.AssigneeDetails;
-import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -141,26 +139,41 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
-    String getAssigneeCondition() {
-            StringBuilder builder = new StringBuilder();
-            for (AssigneeDetails assigneeDetails : getFilter().getAssignees()) {
-                if (builder.length() != 0) {
-                    builder.append(" OR ");
-                }
-                AssigneeType type = AssigneeType.fromString(assigneeDetails.getAssigneeType());
-                if (type != null) {
-                    builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE).append(" = ").append(type.ordinal());
-                    builder.append(" AND isu.");
-                    builder.append(type.getColumnName());
-                    builder.append(" = ").append(assigneeDetails.getAssigneeId());
-                } else if (assigneeDetails.getAssigneeId() == -1L) {
-                    builder.append(DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE + " IS NULL AND isu.ASSIGNEE_USER_ID IS NULL");
-                }
-            }
+    String getUserAssigneeCondition() {
+        StringBuilder builder = new StringBuilder();
+        for (Long id : getFilter().getUserAssignees()) {
             if (builder.length() != 0) {
-                builder.insert(0, " AND (").append(") ");
-                return builder.toString();
+                builder.append(" OR ");
             }
+            if(id < 0){
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_USER_ID).append(" is ").append("null");
+            }else {
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_USER_ID).append(" = '").append(id).append("'");
+            }
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
+        return "";
+    }
+
+    String getWorkGroupCondition() {
+        StringBuilder builder = new StringBuilder();
+        for (Long id : getFilter().getWorkGroupAssignees()) {
+            if (builder.length() != 0) {
+                builder.append(" OR ");
+            }
+            if(id < 0) {
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_USER_ID).append(" is ").append("null");
+            }else {
+                builder.append("isu." + DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID).append(" = '").append(id).append("'");
+            }
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
         return "";
     }
 

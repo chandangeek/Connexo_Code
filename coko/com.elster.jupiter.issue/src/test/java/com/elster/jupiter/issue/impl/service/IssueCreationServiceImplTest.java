@@ -210,6 +210,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         assertThat(properties.get(0).getValue()).isEqualTo(BigDecimal.valueOf(17));
         assertThat(properties.get(1).getName()).isEqualTo(STRING_PROPERTY_NAME);
         assertThat(properties.get(1).getValue()).isEqualTo("string again");
+
     }
 
     @Test

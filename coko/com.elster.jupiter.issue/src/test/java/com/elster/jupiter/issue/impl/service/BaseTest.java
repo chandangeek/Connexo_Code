@@ -58,8 +58,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Order;
@@ -144,13 +146,14 @@ public abstract class BaseTest {
     }
 
     @BeforeClass
-    public static void setEnvironment(){
+    public static void setEnvironment() {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new DataVaultModule(),
                 new IdsModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
                 new PartyModule(),
                 new EventsModule(),
@@ -181,11 +184,11 @@ public abstract class BaseTest {
             ctx.commit();
         }
         injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
-        ((NlsServiceImpl)injector.getInstance(NlsService.class)).addTranslationKeyProvider((IssueServiceImpl) issueService);
+        ((NlsServiceImpl) injector.getInstance(NlsService.class)).addTranslationKeyProvider((IssueServiceImpl) issueService);
     }
 
     @AfterClass
-    public static void deactivateEnvironment(){
+    public static void deactivateEnvironment() {
         inMemoryBootstrapModule.deactivate();
     }
 
@@ -234,6 +237,20 @@ public abstract class BaseTest {
         return injector.getInstance(IssueDefaultActionsFactory.class);
     }
 
+    protected OpenIssue createAssigneeInfo() {
+        OpenIssueImpl issue = getDataModel().getInstance(OpenIssueImpl.class);
+        issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
+        issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+        CreationRule rule = createCreationRule("creation rule" + Instant.now());
+        WorkGroup workGroup = getUserService().createWorkGroup("WorkGroupName","Description");
+        User user = getUserService().createUser("UserName", "Description");
+        issue.setWorkGroup(workGroup);
+        issue.setUser(user);
+        issue.setRule(rule);
+        issue.save();
+        return issue;
+    }
+
     protected OpenIssue createIssueMinInfo() {
         OpenIssueImpl issue = getDataModel().getInstance(OpenIssueImpl.class);
         issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
@@ -258,12 +275,12 @@ public abstract class BaseTest {
         when(creationRuleTemplate.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(creationRuleTemplate.getName()).thenReturn("Template");
         when(creationRuleTemplate.getContent()).thenReturn("Content");
-        ((IssueServiceImpl)getIssueService()).addCreationRuleTemplate(creationRuleTemplate);
+        ((IssueServiceImpl) getIssueService()).addCreationRuleTemplate(creationRuleTemplate);
         return creationRuleTemplate;
     }
 
     protected DataModel getDataModel() {
-        return ((IssueServiceImpl)issueService).getDataModel();
+        return ((IssueServiceImpl) issueService).getDataModel();
     }
 
     protected static KnowledgeBuilderFactoryService mockKnowledgeBuilderFactoryService() {

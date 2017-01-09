@@ -31,7 +31,7 @@ public enum IssueGroupRealization {
     ASSIGNEE {
         @Override
         public String getKey() {
-            return "assignee";
+            return "userAssignee";
         }
 
         @Override

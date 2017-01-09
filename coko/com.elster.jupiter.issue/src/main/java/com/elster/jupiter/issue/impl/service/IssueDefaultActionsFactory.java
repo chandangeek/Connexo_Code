@@ -1,7 +1,8 @@
 package com.elster.jupiter.issue.impl.service;
 
-import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.AssignToMeIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
+import com.elster.jupiter.issue.impl.actions.UnassignIssueAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
@@ -14,6 +15,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -113,12 +115,12 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
-    
+
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
-    
+
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.getDataModel(IssueService.COMPONENT_NAME).orElse(null);
@@ -127,7 +129,8 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     private void addDefaultActions() {
         try {
             actionProviders.put(CommentIssueAction.class.getName(), injector.getProvider(CommentIssueAction.class));
-            actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
+            actionProviders.put(AssignToMeIssueAction.class.getName(), injector.getProvider(AssignToMeIssueAction.class));
+            actionProviders.put(UnassignIssueAction.class.getName(), injector.getProvider(UnassignIssueAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

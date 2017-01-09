@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.module;
 
-import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.AssignToMeIssueAction;
+import com.elster.jupiter.issue.impl.actions.UnassignIssueAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
@@ -90,7 +91,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                         Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.ASSIGN_ISSUE,
                         Privileges.Constants.ACTION_ISSUE
                 )));
-        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES_CONFIGURATION.getKey(), Privileges.RESOURCE_ISSUES_CONFIGURATION_DESCRIPTION.getKey(),
+        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES_CONFIGURATION.getKey(), Privileges.RESOURCE_ISSUES_CONFIGURATION_DESCRIPTION
+                        .getKey(),
                 Arrays.asList(
                         Privileges.Constants.VIEW_CREATION_RULE,
                         Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_ASSIGNMENT_RULE
@@ -98,11 +100,11 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         return resources;
     }
 
-    private void createViews(){
+    private void createViews() {
         new CreateIssueViewOperation(dataModel).execute();
     }
 
-    private void createStatuses(){
+    private void createStatuses() {
         issueService.createStatus(IssueStatus.OPEN, false, TranslationKeys.ISSUE_STATUS_OPEN);
         issueService.createStatus(IssueStatus.IN_PROGRESS, false, TranslationKeys.ISSUE_STATUS_IN_PROGRESS);
         issueService.createStatus(IssueStatus.RESOLVED, true, TranslationKeys.ISSUE_STATUS_RESOLVED);
@@ -127,7 +129,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     private void createActionTypes() {
         IssueType type = null;
-        issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignToMeIssueAction.class.getName(), type);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, UnassignIssueAction.class.getName(), type);
     }
 
 }

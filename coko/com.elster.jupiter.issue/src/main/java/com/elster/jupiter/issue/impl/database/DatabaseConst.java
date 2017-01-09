@@ -19,8 +19,8 @@ public final class DatabaseConst {
     public static final String ISSUE_COLUMN_REASON_ID = "REASON_ID";
     public static final String ISSUE_COLUMN_STATUS_ID = "STATUS";
     public static final String ISSUE_COLUMN_DEVICE_ID = "DEVICE_ID";
-    public static final String ISSUE_COLUMN_ASSIGNEE_TYPE = "ASSIGNEE_TYPE";
     public static final String ISSUE_COLUMN_USER_ID = "ASSIGNEE_USER_ID";
+    public static final String ISSUE_COLUMN_WORKGROUP_ID = "ASSIGNEE_WORKGROUP_ID";
     public static final String ISSUE_COLUMN_RULE_ID = "RULE_ID";
     public static final String ISSUE_COLUMN_OVERDUE = "OVERDUE";
 
@@ -29,6 +29,7 @@ public final class DatabaseConst {
     public static final String OPEN_ISSUE_FK_TO_REASON = "ISU_OPEN_FK_TO_REASON";
     public static final String OPEN_ISSUE_FK_TO_STATUS = "ISU_OPEN_FK_TO_STATUS";
     public static final String OPEN_ISSUE_FK_TO_USER = "ISU_OPEN_FK_TO_USER";
+    public static final String OPEN_ISSUE_FK_TO_WORKGROUP = "ISU_OPEN_FK_TO_WORKGROUP";
     public static final String OPEN_ISSUE_FK_TO_RULE = "ISU_OPEN_FK_TO_RULE";
 
     public static final String ISSUE_PK_NAME = "ISU_PK_ISSUE";
@@ -36,6 +37,7 @@ public final class DatabaseConst {
     public static final String ISSUE_FK_TO_REASON = "ISU_FK_TO_REASON";
     public static final String ISSUE_FK_TO_STATUS = "ISU_FK_TO_STATUS";
     public static final String ISSUE_FK_TO_USER = "ISU_FK_TO_USER";
+    public static final String ISSUE_FK_TO_WORKGROUP = "ISU_FK_TO_WORKGROUP";
     public static final String ISSUE_FK_TO_RULE = "ISU_FK_TO_RULE";
 
     // Issue Reason table
@@ -71,6 +73,7 @@ public final class DatabaseConst {
     public static final String ISSUE_HIST_FK_TO_REASON = "ISU_HIST_FK_TO_REASON";
     public static final String ISSUE_HIST_FK_TO_STATUS = "ISU_HIST_FK_TO_STATUS";
     public static final String ISSUE_HIST_FK_TO_USER = "ISU_HIST_FK_TO_USER";
+    public static final String ISSUE_HIST_FK_TO_WORKGROUP = "ISU_HIST_FK_TO_WORKGROUP";
     public static final String ISSUE_HIST_FK_TO_RULE = "ISU_HIST_FK_TO_RULE";
 
     // Assignment rules table
