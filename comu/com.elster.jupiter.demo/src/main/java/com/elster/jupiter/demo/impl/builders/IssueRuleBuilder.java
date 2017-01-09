@@ -4,6 +4,7 @@ import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -39,6 +40,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private String reason;
     private String ruleTemplate;
     private DueInType dueInType = null;
+    private Priority priority;
 
     @Inject
     public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService) {
@@ -68,6 +70,11 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return this;
     }
 
+    public IssueRuleBuilder withPriority(Priority priority){
+        this.priority = priority;
+        return  this;
+    }
+
     @Override
     public Optional<CreationRule> find() {
         return issueCreationService.getCreationRuleQuery().select(where("name").isEqualTo(getName())).stream().findFirst();
@@ -85,7 +92,9 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         } else {
             builder.setDueInTime(dueInType, 1);
         }
-
+        if (this.priority == null) {
+            builder.setPriority(Priority.DEFAULT);
+        }
         CreationRuleTemplate template = getCreationRuleTemplate();
         builder.setTemplate(template.getName());
         builder.setProperties(getProperties(template));
