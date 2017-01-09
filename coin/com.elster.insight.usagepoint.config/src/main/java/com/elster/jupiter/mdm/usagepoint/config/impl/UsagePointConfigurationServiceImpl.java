@@ -364,9 +364,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
             for (int i = 0; i < newOrder.size(); i++) {
                 newOrder.get(i).setPosition(i);
             }
-            newOrder.stream()
-                    .map(MetrologyContractEstimationRuleSetUsage::getEstimationRuleSet)
-                    .collect(Collectors.toList());
         }
     }
 
