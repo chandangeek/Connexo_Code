@@ -49,8 +49,7 @@ public enum TranslationKeys implements TranslationKey {
     EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE("EventTitleUnknownOutboundDevice", "Unknown outbound device"),
     EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE("EventTitleDeviceCommunicationFailure", "Device communication failure"),
     EVENT_TITLE_UNABLE_TO_CONNECT("EventTitleUnableToConnect", "Unable to connect"),
-    EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost"),
-    PRIORITY(BasicDataCollectionRuleTemplate.PRIORITY, "Priority")
+    EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost")
     ;
 
     private final String key;
