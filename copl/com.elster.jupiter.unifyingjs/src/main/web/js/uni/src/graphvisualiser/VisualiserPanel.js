@@ -173,7 +173,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                     }
                 }
             );
-            popupMenu.showAt([x, y]);
+            var position = this.getPosition();
+            popupMenu.showAt([position[0]+x, position[1]+y]);
         }
         return false;
     },
