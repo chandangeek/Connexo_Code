@@ -10,9 +10,7 @@ import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.TypedProperties;
@@ -38,7 +36,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     }
 
     @Override
-    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.properties = TypedProperties.copyOf(properties);
     }
 

@@ -1,6 +1,5 @@
 package com.energyict.mdc.channels.sms;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -58,7 +57,7 @@ public class ProximusSmsSender {
     private Logger logger = Logger.getLogger(getClass().getName());
 
     public byte[] sendSms(String phoneNumber, byte[] messageContent) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         ResultType result;
         result = ResultType.SUCCESSFUL;
         try {
@@ -90,13 +89,13 @@ public class ProximusSmsSender {
             BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             while ((line = rd.readLine()) != null) {
-                sb.append(line);
+                builder.append(line);
             }
             wr.close();
             rd.close();
 
             // 4. Parse the response
-            result = parseResponseMessage(sb.toString());
+            result = parseResponseMessage(builder.toString());
             return result.getByteStream();
         } catch (Exception e) {
             result = ResultType.SEND_OUT_ERROR;
@@ -127,12 +126,6 @@ public class ProximusSmsSender {
      * E.g.: <?xml version="1.0" encoding="UTF-8"?><status><ok/></status>
      *
      * @param xml - the response XML content
-     * @throws javax.xml.parsers.ParserConfigurationException
-     *
-     * @throws org.xml.sax.SAXException when the xml parsing fails
-     * @throws java.io.IOException      when the communication fails
-     * @throws com.energyict.cbo.BusinessException
-     *
      */
     protected ResultType parseResponseMessage(String xml) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -143,7 +136,7 @@ public class ProximusSmsSender {
 
             Element rootElement = document.getDocumentElement();
             Node statusNode = rootElement.getFirstChild();
-            if (statusNode.getNodeName().equals("error")) {
+            if ("error".equals(statusNode.getNodeName())) {
                 Node errorCodeNode = statusNode.getAttributes().getNamedItem("code");
                 String errorCode = errorCodeNode.getTextContent();
                 String errorDescription = statusNode.getFirstChild().getTextContent();
@@ -151,22 +144,10 @@ public class ProximusSmsSender {
                 result = ResultType.findResultTypeForCode(errorCode);
                 result.setFailureInformation(errorDescription);
                 logger.log(Level.SEVERE, result.getDescription());
-            } else if (statusNode.getNodeName().equals("ok")) {
+            } else if ("ok".equals(statusNode.getNodeName())) {
                 result = ResultType.SUCCESSFUL;
             }
-        } catch (ParserConfigurationException e) {
-            result = ResultType.PARSING_ERROR;
-            result.setFailureInformation(e.getMessage());
-            logger.log(Level.SEVERE, result.getDescription());
-        } catch (SAXException e) {
-            result = ResultType.PARSING_ERROR;
-            result.setFailureInformation(e.getMessage());
-            logger.log(Level.SEVERE, result.getDescription());
-        } catch (IOException e) {
-            result = ResultType.PARSING_ERROR;
-            result.setFailureInformation(e.getMessage());
-            logger.log(Level.SEVERE, result.getDescription());
-        } catch (DOMException e) {
+        } catch (ParserConfigurationException | SAXException | DOMException | IOException e) {
             result = ResultType.PARSING_ERROR;
             result.setFailureInformation(e.getMessage());
             logger.log(Level.SEVERE, result.getDescription());
@@ -182,11 +163,11 @@ public class ProximusSmsSender {
      */
     private String getHexStringFromBytes(byte[] byteBuffer) {
         int i;
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (i = 1; i <= byteBuffer.length; i++) {
-            strBuff.append(outputHexString((int) byteBuffer[i - 1] & 0x000000FF));
+            builder.append(outputHexString((int) byteBuffer[i - 1] & 0x000000FF));
         }
-        return strBuff.toString();
+        return builder.toString();
     }
 
     /**
@@ -233,18 +214,6 @@ public class ProximusSmsSender {
         } else {
             return 0;
         }
-    }
-
-    public static void main(String[] args) throws BusinessException {
-        ProximusSmsSender smsSender = new ProximusSmsSender();
-        smsSender.setConnectionURL("https://vampsms.proximus.be");
-        smsSender.setServiceCode("32478590939");
-        smsSender.setSource("energyict");
-        smsSender.setAuthentication("qdfyud45");
-
-        smsSender.logger.info("Preparing to send the sms");
-        byte[] responseBytes = smsSender.sendSms("+32478590939", "EnergyICT test message".getBytes());
-        smsSender.logger.info("Exiting main");
     }
 
     /**
@@ -309,7 +278,7 @@ public class ProximusSmsSender {
         private String textual;
         private String failureInformation;
 
-        private ResultType(String code, String textual) {
+        ResultType(String code, String textual) {
             this.code = code;
             this.textual = textual;
         }

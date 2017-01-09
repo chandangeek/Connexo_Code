@@ -1,10 +1,11 @@
 package com.energyict.dialer.coreimpl;
 
-import com.energyict.cpo.Environment;
+import com.energyict.mdc.upl.RuntimeEnvironment;
 
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.Optional;
 
 /**
  * DataGramInputStream used for UDP sockets.
@@ -14,20 +15,27 @@ public class DatagramInputStream extends PipedInputStream {
 
     public static final String DataGramBufferInputStream = "DatagramInputStreamBufferSize";
 
-    PipedOutputStream pos = null;
+    private final RuntimeEnvironment environment;
+    private final PipedOutputStream pos;
 
-    public DatagramInputStream(PipedOutputStream pos) throws IOException {
+    public DatagramInputStream(RuntimeEnvironment environment, PipedOutputStream pos) throws IOException {
         super(pos);
+        this.environment = environment;
         this.pos = pos;
-        try {
-            String buffSize = Environment.getDefault().getProperty(DataGramBufferInputStream);
-            if (buffSize != null) {
-                this.buffer = new byte[Integer.valueOf(buffSize)];
-            } else {
-                this.buffer = new byte[PIPE_SIZE];
+        this.buffer = new byte[this.getIntProperty(DataGramBufferInputStream, PIPE_SIZE)];
+    }
+
+    protected int getIntProperty(String key, int defaultValue) {
+        Optional<String> propertyValue = this.environment.getProperty(key);
+        if (propertyValue.isPresent()) {
+            try {
+                return Integer.parseInt(propertyValue.get());
+            } catch (NumberFormatException ex) {
+                // silently ignore
+                return defaultValue;
             }
-        } catch (NumberFormatException e) {
-            this.buffer = new byte[PIPE_SIZE];
+        } else {
+            return defaultValue;
         }
     }
 

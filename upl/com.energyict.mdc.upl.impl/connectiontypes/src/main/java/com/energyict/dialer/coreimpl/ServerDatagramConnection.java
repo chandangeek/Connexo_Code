@@ -67,7 +67,7 @@ public class ServerDatagramConnection extends StreamPortConnection {
                     if (logger.isTraceEnabled()) {
                         logger.trace("Create UDPSession signature " + signature);
                     }
-                    udpSession = new UDPSession(this, signature);
+                    udpSession = new UDPSession(this, this.getRuntimeEnvironment(), signature);
                     session = new DatagramConnection(udpSession, this.getRuntimeEnvironment());
                     sessions.put(signature, session);
                     return;

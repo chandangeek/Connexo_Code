@@ -2,10 +2,12 @@ package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
-import com.energyict.cbo.InvalidValueException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -53,17 +55,13 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public ComChannel connect() throws ConnectionException {
-        try {
-            ComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
-            comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
-            sendPostDialCommand(comChannel);
-            return comChannel;
-        } catch (InvalidValueException e) {
-            throw new ConnectionException(e);
-        }
+        ComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+        comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
+        sendPostDialCommand(comChannel);
+        return comChannel;
     }
 
-    protected void sendPostDialCommand(ComChannel comChannel) throws InvalidValueException {
+    protected void sendPostDialCommand(ComChannel comChannel) {
         if (getPostDialCommandPropertyValue() != null) {
             for (int i = 0; i < getPostDialTriesPropertyValue(); i++) {
                 delayBeforeSend(getPostDialDelayPropertyValue());
@@ -82,7 +80,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    protected int getPostDialDelayPropertyValue() throws InvalidValueException {
+    protected int getPostDialDelayPropertyValue() {
         BigDecimal postDialDelay = (BigDecimal) this.getProperty(POST_DIAL_DELAY);
         int delay;
         if (postDialDelay == null) {
@@ -90,24 +88,16 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         } else {
             delay = postDialDelay.intValue();
         }
-
-        if (delay < 0) {
-            throw new InvalidValueException("XcannotBeEqualOrLessThanZero", "\"{0}\" should have a value greater then 0", POST_DIAL_DELAY);
-        }
         return delay;
     }
 
-    protected int getPostDialTriesPropertyValue() throws InvalidValueException {
+    protected int getPostDialTriesPropertyValue() {
         BigDecimal postDialTries = (BigDecimal) this.getProperty(POST_DIAL_TRIES);
         int tries;
         if (postDialTries == null) {
             tries = DEFAULT_POST_DIAL_TRIES;
         } else {
             tries = postDialTries.intValue();
-        }
-
-        if (tries < 0) {
-            throw new InvalidValueException("XcannotBeEqualOrLessThanZero", "\"{0}\" should have a value greater then 0", POST_DIAL_TRIES);
         }
         return tries;
     }
@@ -135,6 +125,31 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         propertySpecs.add(postDialRetriesPropertySpec());
         propertySpecs.add(postDialCommandPropertySpec());
         return propertySpecs;
+    }
+
+    @Override
+    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+        super.setUPLProperties(properties);
+        this.validateProperties();
+    }
+
+    private void validateProperties() throws InvalidPropertyException {
+        this.validatePostDialTriesProperty();
+        this.validatePostDialDelayProperty();
+    }
+
+    private void validatePostDialTriesProperty() throws InvalidPropertyException {
+        int postDialTriesPropertyValue = this.getPostDialTriesPropertyValue();
+        if (postDialTriesPropertyValue < 0) {
+            throw InvalidPropertyException.forNameAndValue(POST_DIAL_TRIES, postDialTriesPropertyValue);
+        }
+    }
+
+    private void validatePostDialDelayProperty() throws InvalidPropertyException {
+        int postDialDelayPropertyValue = this.getPostDialDelayPropertyValue();
+        if (postDialDelayPropertyValue < 0) {
+            throw InvalidPropertyException.forNameAndValue(POST_DIAL_DELAY, postDialDelayPropertyValue);
+        }
     }
 
     @Override
