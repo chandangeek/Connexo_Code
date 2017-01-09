@@ -1,19 +1,11 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author sva
@@ -45,14 +37,16 @@ public class TypedCaseModemProperties extends AbstractCaseModemProperties implem
 
     private TypedProperties properties;
     private Map<String, PropertySpec> propertySpecs;
+    private final PropertySpecService propertySpecService;
 
-    public TypedCaseModemProperties() {
+    public TypedCaseModemProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
-    public TypedCaseModemProperties(TypedProperties properties) {
+    public TypedCaseModemProperties(TypedProperties properties, PropertySpecService propertySpecService) {
         super();
         this.properties = properties;
-
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -185,47 +179,69 @@ public class TypedCaseModemProperties extends AbstractCaseModemProperties implem
         this.properties.setProperty(propertyName, value);
     }
 
-    public static PropertySpec atGlobalModemInitStringSpec() {
-        return UPLPropertySpecFactory.stringWithDefault(GLOBAL_MODEM_INIT_STRINGS, false, DEFAULT_GLOBAL_MODEM_INIT_STRINGS);
+    public PropertySpec atGlobalModemInitStringSpec() {
+        return this.stringWithDefaultSpec(GLOBAL_MODEM_INIT_STRINGS, false, DEFAULT_GLOBAL_MODEM_INIT_STRINGS);
     }
 
-    public static PropertySpec atModemInitStringSpec() {
-        return UPLPropertySpecFactory.stringWithDefault(MODEM_INIT_STRINGS, false, DEFAULT_MODEM_INIT_STRINGS);
+    public PropertySpec atModemInitStringSpec() {
+        return this.stringWithDefaultSpec(MODEM_INIT_STRINGS, false, DEFAULT_MODEM_INIT_STRINGS);
     }
 
-    public static PropertySpec atCommandTriesSpec() {
-        return UPLPropertySpecFactory.bigDecimal(COMMAND_TRIES, false, DEFAULT_COMMAND_TRIES);
+    public PropertySpec atCommandTriesSpec() {
+        return this.bigDecimalSpec(COMMAND_TRIES, false, DEFAULT_COMMAND_TRIES);
     }
 
-    public static PropertySpec atCommandTimeoutSpec() {
-        return UPLPropertySpecFactory.duration(COMMAND_TIMEOUT, false, DEFAULT_COMMAND_TIMEOUT);
+    public PropertySpec atCommandTimeoutSpec() {
+        return this.durationSpec(COMMAND_TIMEOUT, false, DEFAULT_COMMAND_TIMEOUT);
     }
 
-    public static PropertySpec delayBeforeSendSpec() {
-        return UPLPropertySpecFactory.duration(DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
+    public PropertySpec delayBeforeSendSpec() {
+        return this.durationSpec(DELAY_BEFORE_SEND, false, DEFAULT_DELAY_BEFORE_SEND);
     }
 
-    public static PropertySpec delayAfterConnectSpec() {
-        return UPLPropertySpecFactory.duration(DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
+    public PropertySpec delayAfterConnectSpec() {
+        return this.durationSpec(DELAY_AFTER_CONNECT, false, DEFAULT_DELAY_AFTER_CONNECT);
     }
 
-    public static PropertySpec atConnectTimeoutSpec() {
-        return UPLPropertySpecFactory.duration(CONNECT_TIMEOUT, false, DEFAULT_CONNECT_TIMEOUT);
+    public PropertySpec atConnectTimeoutSpec() {
+        return this.durationSpec(CONNECT_TIMEOUT, false, DEFAULT_CONNECT_TIMEOUT);
     }
 
-    public static PropertySpec atCommandPrefixSpec() {
-        return UPLPropertySpecFactory.stringWithDefault(MODEM_DIAL_PREFIX, false, DEFAULT_MODEM_DIAL_PREFIX);
+    public PropertySpec atCommandPrefixSpec() {
+        return this.stringWithDefaultSpec(MODEM_DIAL_PREFIX, false, DEFAULT_MODEM_DIAL_PREFIX);
     }
 
-    public static PropertySpec dtrToggleDelaySpec() {
-        return UPLPropertySpecFactory.duration(DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
+    public PropertySpec dtrToggleDelaySpec() {
+        return this.durationSpec(DTR_TOGGLE_DELAY, false, DEFAULT_DTR_TOGGLE_DELAY);
     }
 
-    public static PropertySpec modemAddressSelectorSpec() {
-        return UPLPropertySpecFactory.stringWithDefault(MODEM_ADDRESS_SELECTOR, false, DEFAULT_MODEM_ADDRESS_SELECTOR);
+    public PropertySpec modemAddressSelectorSpec() {
+        return this.stringWithDefaultSpec(MODEM_ADDRESS_SELECTOR, false, DEFAULT_MODEM_ADDRESS_SELECTOR);
     }
 
-    public static PropertySpec phoneNumberSpec() {
-        return UPLPropertySpecFactory.string(PHONE_NUMBER_PROPERTY_NAME, true);
+    public PropertySpec phoneNumberSpec() {
+        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
+    }
+
+    private PropertySpec stringWithDefaultSpec(String name, boolean required, String defaultValue, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::stringSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        specBuilder.addValues(validValues);
+        if (validValues.length > 0) {
+            specBuilder.markExhaustive();
+        }
+        return specBuilder.finish();
+    }
+
+    private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::bigDecimalSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        return specBuilder.finish();
+    }
+
+    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue) {
+        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::durationSpec);
+        durationPropertySpecBuilder.setDefaultValue(defaultValue);
+        return durationPropertySpecBuilder.finish();
     }
 }

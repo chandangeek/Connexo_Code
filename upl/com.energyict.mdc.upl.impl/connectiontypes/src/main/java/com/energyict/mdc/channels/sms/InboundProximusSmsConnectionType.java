@@ -3,6 +3,7 @@ package com.energyict.mdc.channels.sms;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -20,13 +21,19 @@ import java.util.List;
 public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnectionType {
 
     public static final String DEVICE_PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
+    private final PropertySpecService propertySpecService;
+
+    public InboundProximusSmsConnectionType(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
 
     private PropertySpec phoneNumberPropertySpec() {
-        return UPLPropertySpecFactory.string(DEVICE_PHONE_NUMBER_PROPERTY_NAME, true);
+        return UPLPropertySpecFactory.specBuilder(DEVICE_PHONE_NUMBER_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
     }
 
     private PropertySpec callHomeIdPropertySpec() {
-        return UPLPropertySpecFactory.string(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, true);
+        return UPLPropertySpecFactory.specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
     }
 
     @Override

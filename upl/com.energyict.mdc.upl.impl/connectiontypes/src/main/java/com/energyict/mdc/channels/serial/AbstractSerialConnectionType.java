@@ -3,6 +3,8 @@ package com.energyict.mdc.channels.serial;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -22,6 +24,12 @@ import java.util.Set;
  */
 public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
 
+    private final PropertySpecService propertySpecService;
+
+    public AbstractSerialConnectionType(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public boolean allowsSimultaneousConnections() {
         return false;
@@ -38,23 +46,23 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected PropertySpec flowControlPropertySpec() {
-        return  UPLPropertySpecFactory.stringWithDefault(SerialPortConfiguration.FLOW_CONTROL_NAME, false, FlowControl.NONE.getFlowControl(), FlowControl.getTypedValues());
+        return this.stringWithDefaultSpec(SerialPortConfiguration.FLOW_CONTROL_NAME, false, FlowControl.NONE.getFlowControl(), FlowControl.getTypedValues());
     }
 
     protected PropertySpec nrOfDataBitsPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, true, NrOfDataBits.EIGHT.getNrOfDataBits(), NrOfDataBits.getTypedValues());
+        return this.bigDecimalSpec(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, true, NrOfDataBits.EIGHT.getNrOfDataBits(), NrOfDataBits.getTypedValues());
     }
 
     protected PropertySpec nrOfStopBitsPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.getTypedValues());
+        return this.bigDecimalSpec(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.getTypedValues());
     }
 
     protected PropertySpec parityPropertySpec() {
-        return UPLPropertySpecFactory.stringWithDefault(SerialPortConfiguration.PARITY_NAME, true, Parities.NONE.getParity(), Parities.getTypedValues());
+        return this.stringWithDefaultSpec(SerialPortConfiguration.PARITY_NAME, true, Parities.NONE.getParity(), Parities.getTypedValues());
     }
 
     protected PropertySpec baudRatePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(), BaudrateValue.getTypedValues());
+        return this.bigDecimalSpec(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(), BaudrateValue.getTypedValues());
     }
 
     protected Parities getParityValue() {
@@ -117,4 +125,38 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     protected String getComPortName(TypedProperties properties) {
         return properties.getTypedProperty(Property.COMP_PORT_NAME.getName());
     }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected PropertySpec stringWithDefaultSpec(String name, boolean required, String defaultValue, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::stringSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        specBuilder.addValues(validValues);
+        if (validValues.length > 0) {
+            specBuilder.markExhaustive();
+        }
+        return specBuilder.finish();
+    }
+
+    protected PropertySpec stringSpec(String name, boolean required, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::stringSpec);
+        specBuilder.addValues(validValues);
+        if (validValues.length > 0) {
+            specBuilder.markExhaustive();
+        }
+        return specBuilder.finish();
+    }
+
+    protected PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, BigDecimal... validValues) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::bigDecimalSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        specBuilder.addValues(validValues);
+        if (validValues.length > 0) {
+            specBuilder.markExhaustive();
+        }
+        return specBuilder.finish();
+    }
+
 }

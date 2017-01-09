@@ -15,6 +15,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
@@ -38,6 +39,10 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
 
     private static final String RF_ADDRESS = "RFAddress";
     WavenisStack wavenisStack;
+
+    public WavenisSerialConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ComChannel connect() throws ConnectionException {
@@ -87,12 +92,12 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
     }
 
     protected PropertySpec rfAddressPropertySpec() {
-        return UPLPropertySpecFactory.string(RF_ADDRESS, true);
+        return UPLPropertySpecFactory.specBuilder(RF_ADDRESS, true, this.getPropertySpecService()::stringSpec).finish();
     }
 
     @Override
     protected PropertySpec baudRatePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
+        return this.bigDecimalSpec(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
                 BaudrateValue.BAUDRATE_9600.getBaudrate(),
                 BaudrateValue.BAUDRATE_19200.getBaudrate(),
                 BaudrateValue.BAUDRATE_38400.getBaudrate(),
