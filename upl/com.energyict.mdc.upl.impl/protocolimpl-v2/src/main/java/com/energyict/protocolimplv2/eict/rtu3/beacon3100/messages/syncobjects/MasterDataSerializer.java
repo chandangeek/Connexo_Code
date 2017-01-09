@@ -376,7 +376,7 @@ public class MasterDataSerializer {
     }
 
     private long hashForScheduleName(String scheduleName) {
-        return Math.min(0, scheduleName.hashCode());   //Make sure the hash is a positive number
+        return Math.abs(scheduleName.hashCode());   //Make sure the hash is a positive number
     }
 
     private List<ObisCode> getLogBookObisCodesForComTask(DeviceMasterDataExtractor.DeviceConfiguration deviceConfiguration, DeviceMasterDataExtractor.CommunicationTask communicationTask) {
