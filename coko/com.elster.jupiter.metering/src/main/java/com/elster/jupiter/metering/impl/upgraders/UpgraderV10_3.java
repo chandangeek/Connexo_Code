@@ -2,18 +2,18 @@ package com.elster.jupiter.metering.impl.upgraders;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.impl.InstallerV10_3Impl;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
-
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
@@ -31,15 +31,26 @@ public class UpgraderV10_3 implements Upgrader {
     private final EventService eventService;
     private final ServerMeteringService meteringService;
     private final TimeService timeService;
+    private final UserService userService;
+    private final InstallerV10_3Impl installerV10_3;
 
     @Inject
-    public UpgraderV10_3(BundleContext bundleContext, DataModel dataModel, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, TimeService timeService, EventService eventService) {
+    public UpgraderV10_3(BundleContext bundleContext,
+                         DataModel dataModel,
+                         ServerMeteringService meteringService,
+                         ServerMetrologyConfigurationService metrologyConfigurationService,
+                         TimeService timeService,
+                         EventService eventService,
+                         UserService userService,
+                         InstallerV10_3Impl installerV10_3) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.eventService = eventService;
         this.meteringService = meteringService;
         this.timeService = timeService;
+        this.userService = userService;
+        this.installerV10_3 = installerV10_3;
     }
 
     @Override
@@ -57,6 +68,7 @@ public class UpgraderV10_3 implements Upgrader {
         installTemplates();
         installNewEventTypes();
         GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService);
+        userService.addModulePrivileges(installerV10_3);
     }
 
     private void installTemplates() {
