@@ -6,8 +6,8 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
@@ -23,8 +23,8 @@ import java.util.Set;
 @XmlRootElement
 public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
 
-    public LegacyOpticalDlmsConnectionType() {
-        super(new SioOpticalConnectionType());
+    public LegacyOpticalDlmsConnectionType(PropertySpecService propertySpecService) {
+        super(new SioOpticalConnectionType(), propertySpecService);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
     }
 
     PropertySpec getConnectionPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_CONNECTION, false, new BigDecimal(0));
+        return this.bigDecimalSpec(PROPERTY_NAME_CONNECTION, new BigDecimal(0));
     }
 }
 

@@ -11,16 +11,16 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-07 (12:57)
  */
-class CharPropertySpec extends AbstractPropertySpec {
+public class CharPropertySpec extends AbstractPropertySpec {
 
     private final Constraint constraint;
 
-    CharPropertySpec(String name, boolean required) {
+    public CharPropertySpec(String name, boolean required) {
         super(name, required);
         this.constraint = new NoConstraint();
     }
 
-    CharPropertySpec(String name, boolean required, String possibleValues) {
+    public CharPropertySpec(String name, boolean required, String possibleValues) {
         super(name, required);
         this.constraint = new Set(possibleValues);
     }

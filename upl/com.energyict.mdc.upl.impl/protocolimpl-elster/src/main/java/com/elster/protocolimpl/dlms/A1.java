@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -93,8 +94,8 @@ public class A1 extends Dlms {
     private String globalScaler = null;
     private BillingProfileReader billingProfileReader = null;
 
-    public A1(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor) {
-        super(calendarFinder, calendarExtractor);
+    public A1(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService) {
+        super(calendarFinder, calendarExtractor, propertySpecService);
         objectPool = new A1ObjectPool();
         ocIntervalProfile = OBISCODE_60MPROFILE;
         ocLogProfile = LOG_OC;
@@ -120,7 +121,7 @@ public class A1 extends Dlms {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string(PROP_SCALERVALUE, false));
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROP_SCALERVALUE, false, getPropertySpecService()::stringSpec).finish());
         return propertySpecs;
     }
 

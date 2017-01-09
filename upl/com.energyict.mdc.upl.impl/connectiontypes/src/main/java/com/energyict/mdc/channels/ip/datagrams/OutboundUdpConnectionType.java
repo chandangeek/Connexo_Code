@@ -6,6 +6,7 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -27,8 +28,8 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
 
     public static final String BUFFER_SIZE_NAME = "udpdatagrambuffersize";
 
-    public OutboundUdpConnectionType() {
-        super();
+    public OutboundUdpConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     private PropertySpec bufferSizePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(BUFFER_SIZE_NAME, true);
+        return UPLPropertySpecFactory.specBuilder(BUFFER_SIZE_NAME, true, this.getPropertySpecService()::bigDecimalSpec).finish();
     }
 
     @Override

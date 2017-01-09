@@ -1,10 +1,12 @@
 package com.energyict.mdc.channels.dlms;
 
 
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -25,9 +27,11 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     public static final String PROPERTY_NAME_CONNECTION = "Connection";
 
     private final ConnectionType actualConnectionType;
+    private final PropertySpecService propertySpecService;
 
-    protected DlmsConnectionType(ConnectionType actualConnectionType) {
+    protected DlmsConnectionType(ConnectionType actualConnectionType, PropertySpecService propertySpecService) {
         this.actualConnectionType = actualConnectionType;
+        this.propertySpecService = propertySpecService;
     }
 
     ConnectionType getActualConnectionType() {
@@ -35,30 +39,44 @@ public abstract class DlmsConnectionType extends ConnectionTypeImpl {
     }
 
     PropertySpec getAddressingModePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_ADDRESSING_MODE, false, BigDecimal.valueOf(2),
+        return this.bigDecimalSpec(PROPERTY_NAME_ADDRESSING_MODE, BigDecimal.valueOf(2),
                 BigDecimal.valueOf(1),
                 BigDecimal.valueOf(2),
                 BigDecimal.valueOf(4));
     }
 
     PropertySpec getServerMacAddress() {
-        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_MAC_ADDRESS, false, new BigDecimal(1));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_MAC_ADDRESS, new BigDecimal(1));
     }
 
     PropertySpec getServerUpperMacAddress() {
-        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, false, new BigDecimal(17));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, new BigDecimal(17));
     }
 
     PropertySpec getServerLowerMacAddress() {
-        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, false, new BigDecimal(1));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, new BigDecimal(1));
     }
 
     PropertySpec getConnectionPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_CONNECTION, false, new BigDecimal(1));
+        return this.bigDecimalSpec(PROPERTY_NAME_CONNECTION, new BigDecimal(1));
     }
 
     @Override
     public ConnectionTypeDirection getDirection() {
         return ConnectionTypeDirection.OUTBOUND;
+    }
+
+    protected PropertySpec bigDecimalSpec(String name, BigDecimal defaultvalue, BigDecimal... possibleValues) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, this.propertySpecService::bigDecimalSpec);
+        specBuilder.setDefaultValue(defaultvalue);
+        specBuilder.addValues(possibleValues);
+        if (possibleValues.length > 0) {
+            specBuilder.markExhaustive();
+        }
+        return specBuilder.finish();
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 }

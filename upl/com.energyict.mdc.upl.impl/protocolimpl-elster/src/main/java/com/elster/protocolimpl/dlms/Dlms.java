@@ -8,10 +8,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.properties.*;
 
 import com.elster.dlms.cosem.application.services.common.DataAccessResult;
 import com.elster.dlms.cosem.application.services.get.GetDataResult;
@@ -176,11 +173,13 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     protected ILogProcessor logProfile = null;
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor calendarExtractor;
+    private final PropertySpecService propertySpecService;
 
-    public Dlms(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor) {
+    public Dlms(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService) {
         super();
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -200,19 +199,19 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
+                UPLPropertySpecFactory.specBuilder(PASSWORD.getName(), false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, this.propertySpecService::stringSpec).finish(),
                 new VariableBaseIntegerPropertySpec(CLIENTID, true),
                 new VariableBaseIntegerPropertySpec(SERVERADDRESS, false),
                 new VariableBaseIntegerPropertySpec(LOGICALDEVICE, false),
                 new VariableBaseIntegerPropertySpec(TIMEOUT.getName(), false),
                 new SecurityLevelPropertySpec(DLMSSECURITYLEVEL, true),
-                UPLPropertySpecFactory.string(ENCRYPTIONKEY, false),
-                UPLPropertySpecFactory.string(AUTHENTICATIONKEY, false),
+                UPLPropertySpecFactory.specBuilder(ENCRYPTIONKEY, false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(AUTHENTICATIONKEY, false, this.propertySpecService::stringSpec).finish(),
                 new VariableBaseIntegerPropertySpec(USEMODEE, false),
                 new VariableBaseIntegerPropertySpec(RETRIEVEOFFSET, false),
-                UPLPropertySpecFactory.string(ARCHIVESTRUCTURE, false),
+                UPLPropertySpecFactory.specBuilder(ARCHIVESTRUCTURE, false, this.propertySpecService::stringSpec).finish(),
                 new ObisCodePropertySpec(LOGSTRUCTURE, false),
                 new ObisCodePropertySpec(OC_INTERVALPROFILE, false),
                 new VariableBaseIntegerPropertySpec(MAXPDUSIZE, false));
@@ -677,4 +676,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         }
     }
 
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
 }
