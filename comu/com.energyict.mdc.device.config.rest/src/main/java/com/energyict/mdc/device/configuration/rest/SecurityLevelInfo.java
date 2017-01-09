@@ -25,7 +25,7 @@ public class SecurityLevelInfo {
 
     public static List<SecurityLevelInfo> from(List<? extends DeviceAccessLevel> deviceAccessLevels) {
         List<SecurityLevelInfo> securityLevelInfos = new ArrayList<>(deviceAccessLevels.size());
-        securityLevelInfos.addAll(deviceAccessLevels.stream().map(deviceAccessLevel -> SecurityLevelInfo.from(deviceAccessLevel)).collect(toList()));
+        securityLevelInfos.addAll(deviceAccessLevels.stream().map(SecurityLevelInfo::from).collect(toList()));
         return securityLevelInfos;
     }
 

@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -16,8 +15,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -30,9 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -80,8 +79,8 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findAndLockDeviceType(123L, OK_VERSION)).thenReturn(Optional.of(deviceType));
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
-        when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(DeviceProtocolAuthenticationAccessLevels.ONE);
-        when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(DeviceProtocolEncryptionAccessLevels.ONE);
+        when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(new UPLAuthenticationLevelAdapter(DeviceProtocolAuthenticationAccessLevels.ONE));
+        when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(new UPLEncryptionLevelAdapter(DeviceProtocolEncryptionAccessLevels.ONE));
 
         SecurityPropertySetBuilder builder = mock(SecurityPropertySetBuilder.class);
         when(builder.addUserAction(any(DeviceSecurityUserAction.class))).thenReturn(builder);
@@ -99,9 +98,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
 
         SecurityPropertySetInfo securityPropertySetInfo = new SecurityPropertySetInfo();
         securityPropertySetInfo.name = "addSecurityPropertySetAddDefaultPrivileges";
-        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(DeviceProtocolAuthenticationAccessLevels.ONE);
+        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(new UPLAuthenticationLevelAdapter(DeviceProtocolAuthenticationAccessLevels.ONE));
         securityPropertySetInfo.authenticationLevelId = DeviceProtocolAuthenticationAccessLevels.ONE.getId();
-        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(DeviceProtocolEncryptionAccessLevels.ONE);
+        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(new UPLEncryptionLevelAdapter(DeviceProtocolEncryptionAccessLevels.ONE));
         securityPropertySetInfo.encryptionLevelId = DeviceProtocolEncryptionAccessLevels.ONE.getId();
 
         // Business method
@@ -197,7 +196,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
     }
 
     @Test
-    public void testDeleteSecuritySetBadVersion(){
+    public void testDeleteSecuritySetBadVersion() {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(15L);
         when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
@@ -217,7 +216,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         SecurityPropertySetInfo info = new SecurityPropertySetInfo();
         info.id = 11L;
         info.version = BAD_VERSION;
-        info.parent = new VersionInfo<>(15L ,OK_VERSION);
+        info.parent = new VersionInfo<>(15L, OK_VERSION);
 
         Response response = target("/devicetypes/123/deviceconfigurations/15/securityproperties/11").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -256,7 +255,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         return mock;
     }
 
-    private enum DeviceProtocolAuthenticationAccessLevels implements AuthenticationDeviceAccessLevel {
+    private enum DeviceProtocolAuthenticationAccessLevels implements com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel {
         ONE {
             @Override
             public int getId() {
@@ -271,18 +270,23 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         };
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "DeviceProtocolAuthenticationAccessLevels" + this.name();
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public String getDefaultTranslation() {
+            return "DeviceProtocolAuthenticationAccessLevels" + this.name();
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
 
     }
 
-    private enum DeviceProtocolEncryptionAccessLevels implements EncryptionDeviceAccessLevel {
+    private enum DeviceProtocolEncryptionAccessLevels implements com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel {
         ONE {
             @Override
             public int getId() {
@@ -297,12 +301,17 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         };
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "DeviceProtocolEncryptionAccessLevels" + this.name();
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public String getDefaultTranslation() {
+            return "DeviceProtocolEncryptionAccessLevels" + this.name();
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
 
