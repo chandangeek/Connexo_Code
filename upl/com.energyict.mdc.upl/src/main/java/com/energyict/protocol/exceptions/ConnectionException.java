@@ -1,6 +1,7 @@
 package com.energyict.protocol.exceptions;
 
-import java.text.MessageFormat;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.nls.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when a connection
@@ -15,24 +16,38 @@ import java.text.MessageFormat;
  */
 public class ConnectionException extends Exception {
 
+    private final String thesaurusId;
+    private final MessageSeed messageSeed;
+    private final Object[] messageArgs;
 
-    public ConnectionException(String message, Throwable cause) {
-        super(message, cause);
+    public ConnectionException(String thesaurusId, MessageSeed messageSeed, Throwable cause) {
+        super(messageSeed.getDefaultFormat(), cause);
+        this.thesaurusId = thesaurusId;
+        this.messageSeed = messageSeed;
+        this.messageArgs = new Object[] {};
     }
 
-    public ConnectionException(String pattern, Object... arguments) {
-        super(format(pattern, arguments));
+    public ConnectionException(String thesaurusId, MessageSeed messageSeed, Object... arguments) {
+        super(messageSeed.getDefaultFormat());
+        this.thesaurusId = thesaurusId;
+        this.messageSeed = messageSeed;
+        this.messageArgs = arguments;
     }
 
-    public ConnectionException(String pattern, Throwable ex, Object... arguments) {
-        super(format(pattern, arguments), ex);
+    public ConnectionException(String thesaurusId, MessageSeed messageSeed, Throwable cause, Object... arguments) {
+        super(messageSeed.getDefaultFormat(), cause);
+        this.thesaurusId = thesaurusId;
+        this.messageSeed = messageSeed;
+        this.messageArgs = arguments;
     }
 
-    public ConnectionException(Throwable cause) {
-        super((cause == null ? null : cause.getMessage()), cause);
+    @Override
+    public String getLocalizedMessage() {
+        return Services
+                .nlsService()
+                .getThesaurus(this.thesaurusId)
+                .getFormat(this.messageSeed)
+                .format(this.messageArgs);
     }
 
-    private static String format(String pattern, Object[] arguments) {
-        return MessageFormat.format(pattern.replaceAll("'", "''"), arguments);
-    }
 }
