@@ -26,7 +26,7 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
             }
         }
     ],
-    propertyViewerTitle: Uni.I18n.translate('general.deviceSummary', 'UNI', 'Device summary'),
+    propertyViewerTitle: Uni.I18n.translate('general.deviceSummary', 'MDC', 'Device summary'),
 
     initComponent: function () {
         this.callParent();
@@ -206,16 +206,16 @@ Ext.define('Mdc.networkvisualiser.view.NetworkVisualiserView', {
                 'failedComTasks'
             ],
             fieldLabels = [
-                Uni.I18n.translate('general.name', 'UNI', 'Name'),
-                Uni.I18n.translate('general.serialNumber', 'UNI', 'Serial number'),
-                Uni.I18n.translate('general.deviceType', 'UNI', 'Device type'),
-                Uni.I18n.translate('general.deviceConfiguration', 'UNI', 'Device configuration'),
-                Uni.I18n.translate('general.parent', 'UNI', 'Parent'),
-                Uni.I18n.translate('general.numberOfHops', 'UNI', 'Number of hops'),
-                Uni.I18n.translate('general.totalDescendants', 'UNI', 'Total descendants'),
-                Uni.I18n.translate('general.alarms', 'UNI', 'Alarms'),
-                Uni.I18n.translate('general.issues', 'UNI', 'Issues'),
-                Uni.I18n.translate('general.failedCommunicationTasks', 'UNI', 'Failed communication tasks')
+                Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                Uni.I18n.translate('general.serialNumber', 'MDC', 'Serial number'),
+                Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
+                Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
+                Uni.I18n.translate('general.parent', 'MDC', 'Parent'),
+                Uni.I18n.translate('general.numberOfHops', 'MDC', 'Number of hops'),
+                Uni.I18n.translate('general.totalDescendants', 'MDC', 'Total descendants'),
+                Uni.I18n.translate('general.alarms', 'MDC', 'Alarms'),
+                Uni.I18n.translate('general.issues', 'MDC', 'Issues'),
+                Uni.I18n.translate('general.failedCommunicationTasks', 'MDC', 'Failed communication tasks')
             ];
 
         // 1. Prepare the properties to display (in the right format)
