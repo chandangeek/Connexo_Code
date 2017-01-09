@@ -10,7 +10,11 @@ public enum MessageSeeds implements MessageSeed {
     EVENT_BAD_DATA_NO_DEVICE(1, "EventBadDataNoDevice", "Unable to process alarm creation event because target device (id = {0}) wasn't found", Level.SEVERE),
     EVENT_BAD_DATA_NO_KORE_DEVICE(2, "EventBadDataNoEndDevice", "Unable to process alarm creation event because target kore device (amrId = {0}) wasn't found", Level.SEVERE),
     EVENT_BAD_DATA_NO_TIMESTAMP(3, "EventBadDataNoTimestamp", "Unable to process alarm creation event because event timestamp cannot be obtained", Level.SEVERE),
-    UNABLE_TO_CREATE_EVENT(4, "UnableToCreateEvent", "Unable to create event", Level.SEVERE)
+    UNABLE_TO_CREATE_EVENT(4, "UnableToCreateEvent", "Unable to create event", Level.SEVERE),
+    ACTION_ALARM_WAS_ASSIGNED_USER_AND_WORKGROUP(5, "action.alarm.was.assigned.user.workgorup", "Alarm was assigned to user {0} and workgroup {1}", Level.INFO),
+    ACTION_ALARM_WAS_ASSIGNED_USER(6, "action.alarm.was.assigned.user", "Alarm was assigned to user {0}", Level.INFO),
+    ACTION_ALARM_WAS_ASSIGNED_WORKGROUP(7, "action.alarm.was.assigned.workgorup", "Alarm was assigned to workgroup {0}", Level.INFO),
+    ACTION_ALARM_WAS_UNASSIGNED(8, "action.alarm.was.unassigned", "Alarm was unassigned", Level.INFO)
     ;
 
     private final int number;

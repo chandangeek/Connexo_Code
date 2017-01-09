@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.alarms.impl.install;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -17,7 +16,9 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.impl.DeviceAlarmActionsFactory;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
+import com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.database.CreateDeviceAlarmViewOperation;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -26,9 +27,7 @@ import com.energyict.mdc.device.alarms.security.Privileges;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -121,6 +120,9 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         //TODO - reasons to be input by hand by user in UI
         issueService.createReason(ModuleConstants.ALARM_REASON, issueType,
                 TranslationKeys.ALARM_REASON, TranslationKeys.ALARM_REASON_DESCRIPTION);
+        IssueType deviceAlarmType = issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType);
+
 
     }
 

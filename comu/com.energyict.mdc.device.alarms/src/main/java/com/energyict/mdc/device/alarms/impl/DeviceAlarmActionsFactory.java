@@ -10,6 +10,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
@@ -38,6 +40,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     private volatile Thesaurus thesaurus;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
+    private volatile UserService userService;
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
 
@@ -52,15 +55,17 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     // For unit testing purposes
     @Inject
     public DeviceAlarmActionsFactory(OrmService ormService,
-                                        NlsService nlsService,
-                                        IssueService issueService,
-                                        PropertySpecService propertySpecService,
-                                        ThreadPrincipalService threadPrincipalService) {
+                                     NlsService nlsService,
+                                     IssueService issueService,
+                                     PropertySpecService propertySpecService,
+                                     UserService userService,
+                                     ThreadPrincipalService threadPrincipalService) {
         this();
         setOrmService(ormService);
         setThesaurus(nlsService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
+        setUserService(userService);
         setThreadPrincipalService(threadPrincipalService);
 
         activate();
@@ -77,6 +82,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(UserService.class).toInstance(userService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
             }
         });
@@ -124,10 +130,16 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     private void addDefaultActions() {
         try {
 			//TODO move this to front end
             actionProviders.put(CloseDeviceAlarmAction.class.getName(), injector.getProvider(CloseDeviceAlarmAction.class));
+            actionProviders.put(AssignDeviceAlarmAction.class.getName(), injector.getProvider(AssignDeviceAlarmAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }
