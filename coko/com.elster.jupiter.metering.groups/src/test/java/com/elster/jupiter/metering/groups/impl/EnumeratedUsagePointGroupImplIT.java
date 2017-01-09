@@ -85,9 +85,8 @@ public class EnumeratedUsagePointGroupImplIT {
         }
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        when(this.bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(this.serviceRegistration);
+    @BeforeClass
+    public static void setUp() throws SQLException {
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -117,14 +116,11 @@ public class EnumeratedUsagePointGroupImplIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(FiniteStateMachineService.class);
-                injector.getInstance(MeteringGroupsService.class);
-                setupDefaultUsagePointLifeCycle();
-                return null;
-            }
+        injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringGroupsService.class);
+            setupDefaultUsagePointLifeCycle();
+            return null;
         });
     }
 
@@ -133,7 +129,7 @@ public class EnumeratedUsagePointGroupImplIT {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private void setupDefaultUsagePointLifeCycle() {
+    private static void setupDefaultUsagePointLifeCycle() {
         UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
         usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
     }
