@@ -401,6 +401,7 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
 
     private OfflineDevice mockOfflineDevice(Long deviceId) {
         OfflineDevice offlineDevice1 = mock(OfflineDevice.class);
+        when(offlineDevice1.getMacException()).thenReturn(Optional.empty());
         when(offlineDevice1.getId()).thenReturn(deviceId);
         return offlineDevice1;
     }

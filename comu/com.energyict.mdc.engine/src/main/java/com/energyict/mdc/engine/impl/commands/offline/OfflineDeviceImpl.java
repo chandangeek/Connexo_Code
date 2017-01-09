@@ -130,6 +130,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private boolean firmwareManagementAllowed = false;
     private boolean touCalendarAllowed = false;
+    private MacException macException;
 
     public interface ServiceProvider {
 
@@ -188,28 +189,32 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setAllRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
         if (context.needsPendingMessages()) {
-            serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
-            PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
-            List<DeviceMessage<Device>> pendingMessages = getAllPendingMessagesIncludingSlaves(device);
-            List<DeviceMessage<Device>> reallyPending = new ArrayList<>();
-            List<DeviceMessage<Device>> invalidSinceCreation = new ArrayList<>();
-            pendingMessages
-                    .stream()
-                    .forEach(deviceMessage -> {
-                        if (validator.isStillValid(deviceMessage)) {
-                            deviceMessage.setProtocolInformation(
-                                    this.serviceProvider.thesaurus()
-                                            .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
-                                            .format(
-                                                    validator.failingCalendarNames(deviceMessage),
-                                                    this.device.getDeviceType().getName()));
-                            reallyPending.add(deviceMessage);
-                        } else {
-                            invalidSinceCreation.add(deviceMessage);
-                        }
-                    });
-            setAllPendingMessages(createOfflineMessageList(reallyPending));
-            setAllPendingInvalidMessages(createOfflineMessageList(invalidSinceCreation));
+            try {
+                serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
+                PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
+                List<DeviceMessage<Device>> pendingMessages = getAllPendingMessagesIncludingSlaves(device);
+                List<DeviceMessage<Device>> reallyPending = new ArrayList<>();
+                List<DeviceMessage<Device>> invalidSinceCreation = new ArrayList<>();
+                pendingMessages
+                        .stream()
+                        .forEach(deviceMessage -> {
+                            if (validator.isStillValid(deviceMessage)) {
+                                deviceMessage.setProtocolInformation(
+                                        this.serviceProvider.thesaurus()
+                                                .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
+                                                .format(
+                                                        validator.failingCalendarNames(deviceMessage),
+                                                        this.device.getDeviceType().getName()));
+                                reallyPending.add(deviceMessage);
+                            } else {
+                                invalidSinceCreation.add(deviceMessage);
+                            }
+                        });
+                setAllPendingMessages(createOfflineMessageList(reallyPending));
+                setAllPendingInvalidMessages(createOfflineMessageList(invalidSinceCreation));
+            } catch (MacException e) {
+                this.macException = e;
+            }
         }
 
 
@@ -556,6 +561,11 @@ public class OfflineDeviceImpl implements OfflineDevice {
     @Override
     public boolean firmwareVersionManagementAllowed() {
         return firmwareManagementAllowed;
+    }
+
+    @Override
+    public Optional<MacException> getMacException() {
+        return Optional.ofNullable(macException);
     }
 
     private void setCalendars() {

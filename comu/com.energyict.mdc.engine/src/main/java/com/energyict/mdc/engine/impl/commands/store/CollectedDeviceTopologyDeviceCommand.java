@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.orm.MacException;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -245,9 +244,6 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
                         getIssueService().newProblem(deviceTopology, e.getMessageSeed(), slaveId));
-            } catch (MacException e) {
-                this.addIssue(CompletionCode.UnexpectedError,
-                        getIssueService().newProblem(deviceTopology, MessageSeeds.MAC_CHECK_FAILURE));
             }
             if (slave.isPresent()) {
                 actualSlavesByDeviceId.put(slave.get().getSerialNumber(), slaveId);

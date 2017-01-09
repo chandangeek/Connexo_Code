@@ -15,7 +15,6 @@ import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.ArrayList;
 import java.util.HashSet;

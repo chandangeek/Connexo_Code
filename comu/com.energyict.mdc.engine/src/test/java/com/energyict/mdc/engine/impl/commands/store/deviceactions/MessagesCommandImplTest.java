@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -95,7 +96,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
         ArgumentCaptor<List> pendingMessagesCaptor = ArgumentCaptor.forClass(List.class);
         when(deviceProtocol.updateSentMessages(sentMessagesCaptor.capture())).thenReturn(mock(CollectedMessageList.class));
         when(deviceProtocol.executePendingMessages(pendingMessagesCaptor.capture())).thenReturn(mock(CollectedMessageList.class));
-
+        when(offlineDevice.getMacException()).thenReturn(Optional.empty());
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
 
         MessagesCommandImpl messagesCommand = new MessagesCommandImpl(groupedDeviceCommand, messageTask, comTaskExecution);
@@ -119,6 +120,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
         when(offlineDevice.getAllInvalidPendingDeviceMessages()).thenReturn(deviceMessages);
         when(offlineDevice.getAllPendingDeviceMessages()).thenReturn(Collections.emptyList());
         when(offlineDevice.getAllSentDeviceMessages()).thenReturn(Collections.emptyList());
+        when(offlineDevice.getMacException()).thenReturn(Optional.empty());
         when(deviceProtocol.updateSentMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
         when(deviceProtocol.executePendingMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
         doReturn(mock(Problem.class)).when(this.issueService).newProblem(any(), any(MessageSeed.class), anyVararg());
@@ -172,6 +174,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     public void commandTypeTest() {
         MessagesTask messagesTask = mock(MessagesTask.class);
         OfflineDevice device = mock(OfflineDevice.class);
+        when(device.getMacException()).thenReturn(Optional.empty());
         MessagesCommand messagesCommand = new MessagesCommandImpl(createGroupedDeviceCommand(device, deviceProtocol), messagesTask, comTaskExecution);
 
         // assert
@@ -181,6 +184,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     @Test
     public void updateMessageListsTest() {
         OfflineDevice device = getMockedDeviceWithPendingAndSentMessages();
+        when(device.getMacException()).thenReturn(Optional.empty());
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(device, deviceProtocol);
         MessagesCommandImpl messagesCommand = (MessagesCommandImpl) groupedDeviceCommand.getMessagesCommand(createMockedMessagesTaskWithCategories(), groupedDeviceCommand, comTaskExecution);
 
@@ -194,6 +198,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     @Test
     public void testUpdateAccordingToCategories() throws Exception {
         OfflineDevice device = getMockedDeviceWithPendingAndSentMessages();
+        when(device.getMacException()).thenReturn(Optional.empty());
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(device, deviceProtocol);
         MessagesCommandImpl messagesCommand = (MessagesCommandImpl) groupedDeviceCommand.getMessagesCommand(createMockedMessagesTaskWithCategories(), groupedDeviceCommand, comTaskExecution);
 
@@ -215,6 +220,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     @Test
     public void doExecuteTest() {
         OfflineDevice device = getMockedDeviceWithPendingAndSentMessages();
+        when(device.getMacException()).thenReturn(Optional.empty());
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(device, deviceProtocol);
         MessagesCommandImpl messagesCommand = (MessagesCommandImpl) groupedDeviceCommand.getMessagesCommand(createMockedMessagesTaskWithCategories(), groupedDeviceCommand, comTaskExecution);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -236,6 +242,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     @Test
     public void testJournalMessageDescription() throws JSONException {
         OfflineDevice device = this.getMockedDeviceWithPendingAndSentMessages();
+        when(device.getMacException()).thenReturn(Optional.empty());
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(device, deviceProtocol);
         MessagesTask messagesTask = this.createMockedMessagesTaskWithCategories();
         MessagesCommandImpl messagesCommand = (MessagesCommandImpl) groupedDeviceCommand.getMessagesCommand(messagesTask, groupedDeviceCommand, comTaskExecution);
