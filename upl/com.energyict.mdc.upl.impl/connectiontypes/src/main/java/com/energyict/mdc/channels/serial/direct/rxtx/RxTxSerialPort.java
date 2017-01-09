@@ -5,7 +5,7 @@ import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.SignalController;
-import com.energyict.mdc.exceptions.SerialPortException;
+import com.energyict.mdc.io.SerialPortException;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
@@ -35,7 +35,7 @@ public class RxTxSerialPort implements ServerSerialPort {
     private static final int STOPBITS_1_5_UNSCALED_VALUE = 15;
     private static final int STOPBITS_2_UNSCALED_VALUE = 2;
     private static final int STOPBITS_1_UNSCALED_VALUE = 1;
-    private static final Set<Integer> SUPPORTED_NUMBER_OF_DATABITS = new HashSet<Integer>(Arrays.asList(SerialPort.DATABITS_5, SerialPort.DATABITS_6, SerialPort.DATABITS_7, SerialPort.DATABITS_8));
+    private static final Set<Integer> SUPPORTED_NUMBER_OF_DATABITS = new HashSet<>(Arrays.asList(SerialPort.DATABITS_5, SerialPort.DATABITS_6, SerialPort.DATABITS_7, SerialPort.DATABITS_8));
 
     private SerialPortConfiguration serialPortConfiguration;
 
@@ -226,4 +226,5 @@ public class RxTxSerialPort implements ServerSerialPort {
     public int txBufCount() {
         return 1;   //TODO port from 8.x
     }
+
 }

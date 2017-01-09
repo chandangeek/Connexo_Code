@@ -6,7 +6,7 @@ import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.SignalController;
-import com.energyict.mdc.exceptions.SerialPortException;
+import com.energyict.mdc.io.SerialPortException;
 
 import Serialio.SerInputStream;
 import Serialio.SerOutputStream;

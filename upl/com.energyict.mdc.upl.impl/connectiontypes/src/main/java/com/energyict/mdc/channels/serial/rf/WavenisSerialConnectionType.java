@@ -1,7 +1,5 @@
 package com.energyict.mdc.channels.serial.rf;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.nls.MessageSeeds;
 import com.energyict.mdc.channels.nls.Thesaurus;
@@ -10,6 +8,7 @@ import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -43,8 +42,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
     public ComChannel connect() throws ConnectionException {
         SerialPortConfiguration serialConfiguration = super.createSerialConfiguration(getComPortName(getAllProperties()), getAllProperties());
         serialConfiguration.setFlowControl(FlowControl.NONE);
-        SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
-        ServerSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialConfiguration);
+        ServerSerialPort serialPort = new SioSerialPort(serialConfiguration);
         serialPort.openAndInit();
 
         try {
