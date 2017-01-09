@@ -4,6 +4,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.*;
 
 import java.util.List;
@@ -47,6 +48,8 @@ public interface IssueCreationService {
         CreationRuleBuilder setDueInTime(DueInType dueInType, long dueInValue);
         
         CreationRuleBuilder setTemplate(String name);
+
+        CreationRuleBuilder setPriority(Priority priority);
         
         CreationRuleBuilder setProperties(Map<String, Object> props);
         

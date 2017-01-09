@@ -3,6 +3,7 @@ package com.elster.jupiter.issue.share.entity;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.issue.impl.records.UniqueNamed;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.properties.HasDynamicPropertiesWithValues;
 
@@ -39,5 +40,7 @@ public interface CreationRule extends Entity, UniqueNamed, HasDynamicPropertiesW
     Instant getObsoleteTime();
 
     CreationRuleUpdater startUpdate();
+
+    Priority getPriority();
 
 }

@@ -231,6 +231,8 @@ public enum TableSpecs {
             table.column(CREATION_RULE_DUE_IN_TYPE).map("dueInType").number().conversion(NUMBER2ENUM).add();
             table.column(CREATION_RULE_TEMPLATE_NAME).map("template").varChar(1024).notNull().add();
             Column obsoleteColumn = table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
+            table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT).notNull().add();
+            table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();

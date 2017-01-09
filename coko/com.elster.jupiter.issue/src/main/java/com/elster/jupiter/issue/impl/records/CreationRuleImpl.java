@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
@@ -62,6 +63,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String template;//creation rule template class name
     private Instant obsoleteTime;
+    private Priority priority;
 
     @Valid
     private List<CreationRuleProperty> properties = new ArrayList<>();
@@ -145,6 +147,15 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     void setDueInType(DueInType dueInType) {
         this.dueInType = dueInType;
+    }
+
+    @Override
+    public Priority getPriority() {
+        return priority == null || priority.isEmpty() ? null : priority.copy();
+    }
+
+    void setPriority(Priority priority) {
+        this.priority = priority.copy();
     }
 
     @Override

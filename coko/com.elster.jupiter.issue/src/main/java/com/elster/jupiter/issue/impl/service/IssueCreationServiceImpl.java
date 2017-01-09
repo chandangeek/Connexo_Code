@@ -10,11 +10,8 @@ import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.PriorityInfo;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -185,7 +182,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
-        setIssuePriority(baseIssue, firedRule);
+        baseIssue.setPriority(firedRule.getPriority());
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         baseIssue.save();
         baseIssue.addComment(firedRule.getComment(), batchUser.orElse(null));
@@ -201,19 +198,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             }
         }
         return false;
-    }
-
-    private void setIssuePriority(Issue baseIssue, CreationRule firedRule) {
-        Optional<CreationRuleProperty> creationRuleProperty = firedRule.getCreationRuleProperties()
-                .stream()
-                .filter(property -> property.getName().endsWith(PRIORITY))
-                .findFirst();
-        if (creationRuleProperty.isPresent() && ((ArrayList) (creationRuleProperty.get().getValue())).size() == 1) {
-            Priority priority = ((PriorityInfo) (((ArrayList) (creationRuleProperty.get().getValue())).get(0))).getPriority();
-            baseIssue.setPriority(priority == null ? Priority.DEFAULT : priority);
-        } else {
-            baseIssue.setPriority(Priority.DEFAULT);
-        }
     }
 
     @Override
