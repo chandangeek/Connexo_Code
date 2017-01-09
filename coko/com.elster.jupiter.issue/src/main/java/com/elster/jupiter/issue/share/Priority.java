@@ -183,10 +183,7 @@ public final class Priority implements Comparable<Priority>, Cloneable {
 
         Priority priority = (Priority) o;
 
-        if (getUrgency() != priority.getUrgency()) {
-            return false;
-        }
-        return getImpact() == priority.getImpact();
+        return getUrgency() == priority.getUrgency() && getImpact() == priority.getImpact();
 
     }
 
@@ -199,7 +196,7 @@ public final class Priority implements Comparable<Priority>, Cloneable {
 
     @Override
     public String toString() {
-        return impact + ":"
-                + urgency;
+        return urgency + ":"
+                + impact;
     }
 }
