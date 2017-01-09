@@ -60,7 +60,7 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                             purpose: me.purpose,
                             output: me.output,
                             router: me.router,
-                            dataStore: dataStore
+                            store: dataStore
                         },
                         listeners: {
                             activate: me.controller.showReadingsTab,

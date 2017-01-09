@@ -110,7 +110,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removex', 'IMT', "Remove '{0}'?", record.get('name')),
-            msg: Uni.I18n.translate('estimationruleset.deleteConfirmation.msg', 'IMT', 'This estimation rule set will no longer be available.'),
+            msg: Uni.I18n.translate('estimationruleset.deleteConfirmation.msg1', 'IMT', 'This estimation rule set will be removed from the metrology configuration.'),
             config: {
                 record: record
             },
@@ -191,7 +191,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
                 store.add(purpose.estimationRuleSets().getRange());
                 store.fireEvent('load');
             },
-            callback: function(){
+            callback: function () {
                 me.getAddEstimationRuleSetsView().setLoading(false);
             }
         });
@@ -216,7 +216,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
         });
     },
 
-    showEstRulesTab: function(panel) {
+    showEstRulesTab: function (panel) {
         var me = this,
             purposesWithLinkedRuleSetsStore = me.getStore('Imt.metrologyconfiguration.store.PurposesWithValidationRuleSets'),
             rulesStore = me.getStore('Imt.store.EstimationRules'),

@@ -24,7 +24,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
             },
             {
                 text: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
-                dataIndex: 'name',
+                dataIndex: 'meter',
                 flex: 1,
                 renderer: function (value, metaData, record) {
                     var deviceLink;

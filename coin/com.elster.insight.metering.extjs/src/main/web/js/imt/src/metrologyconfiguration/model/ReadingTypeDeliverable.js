@@ -7,7 +7,8 @@ Ext.define('Imt.metrologyconfiguration.model.ReadingTypeDeliverable', {
     fields: ['id',
         'name',
         {name: 'metrologyContract', persist: false},
-        {name: 'metrologyContractIsMandatory', persist: false}
+        {name: 'metrologyContractIsMandatory', persist: false},
+        'readingType'
     ],
 
     associations: [

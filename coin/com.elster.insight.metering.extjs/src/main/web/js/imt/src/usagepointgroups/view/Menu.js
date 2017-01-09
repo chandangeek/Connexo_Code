@@ -2,7 +2,7 @@ Ext.define('Imt.usagepointgroups.view.Menu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.usagepointgroups-menu',
     xtype: 'usagepointgroups-menu',
-    usagePointGroupId: null,
+    usagePointGroup: null,
     title: Uni.I18n.translate('general.usagePointGroups', 'IMT', 'Usage point groups'),
 
     initComponent: function () {
@@ -10,9 +10,9 @@ Ext.define('Imt.usagepointgroups.view.Menu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                text: me.usagePointGroup.get('name'),
                 itemId: 'usagepointgroups-view-link',
-                href:  me.router.getRoute('usagepoints/usagepointgroups').buildUrl()
+                href: me.router.getRoute('usagepoints/usagepointgroups/view').buildUrl({usagePointGroupId: me.usagePointGroup.getId()})
             }
         ];
 

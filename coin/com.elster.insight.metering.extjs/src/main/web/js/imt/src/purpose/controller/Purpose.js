@@ -42,11 +42,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     init: function () {
         this.control({
-            'output-channel-main readings-list': {
-                select: function (selectionModel, record) {
-                    this.getReadingPreviewPanel().updateForm(record);
-                }
-            },
             'output-channel-main #readings-graph': {
                 resize: this.onGraphResize
             },

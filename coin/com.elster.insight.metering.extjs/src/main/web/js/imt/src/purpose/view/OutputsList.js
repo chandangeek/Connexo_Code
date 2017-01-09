@@ -43,8 +43,14 @@ Ext.define('Imt.purpose.view.OutputsList', {
                 flex: 1,
                 dataIndex: 'interval',
                 renderer: function(value){
-                    var period = periods.findRecord('value', value.timeUnit);
-                    return period.get('translate').call(period, value.count);
+                    var period;
+                    if(value){
+                        period = periods.findRecord('value', value.timeUnit);
+                        return period.get('translate').call(period, value.count);
+                    } else {
+                        return '-';
+                    }
+
                 }
             }
         ];

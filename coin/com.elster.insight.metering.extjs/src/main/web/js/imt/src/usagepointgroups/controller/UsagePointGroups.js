@@ -117,50 +117,61 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
 
     showUsagePointGroupDetailsView: function (currentUsagePointGroupId) {
         var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             router = me.getController('Uni.controller.history.Router'),
             model = me.getModel('Imt.usagepointgroups.model.UsagePointGroup'),
             addUsagePointGroupController = me.getApplication().getController('Imt.usagepointgroups.controller.AddUsagePointGroupAction'),
-            widget,
-            service,
+            service = Ext.create('Imt.service.Search', {
+                router: router
+            }),
             usagePointsOfGroupStore = me.getStore('Imt.usagepointgroups.store.UsagePointsOfUsagePointGroup'),
-            domainsStore;
+            dependenciesCounter = 2,
+            onDependenciesLoad = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    me.getApplication().fireEvent('changecontentevent', Ext.widget('usagepointgroup-details', {
+                        router: router,
+                        usagePointGroup: usagePointGroup,
+                        service: service,
+                        favoriteRecord: Ext.create('Imt.usagepointgroups.model.UsagePointGroupFavorite', {
+                            id: currentUsagePointGroupId,
+                            parent: {
+                                id: currentUsagePointGroupId,
+                                version: usagePointGroup.get('version')
+                            }
+                        })
+                    }));
+                    me.updateCriteria(usagePointGroup);
+                    me.updateActionMenuVisibility(usagePointGroup);
+
+                    service.applyState({
+                        domain: 'com.elster.jupiter.metering.UsagePoint',
+                        filters: [{
+                            property: 'usagePointGroup',
+                            value: [{
+                                criteria: currentUsagePointGroupId,
+                                operator: '=='
+                            }]
+                        }]
+                    });
+
+                    mainView.setLoading(false);
+                }
+            },
+            usagePointGroup;
 
         if (addUsagePointGroupController.router) {
             addUsagePointGroupController.router = null;
         }
         usagePointsOfGroupStore.getProxy().setExtraParam('id', currentUsagePointGroupId);
-        service = Ext.create('Imt.service.Search', {
-            router: router
-        });
-        domainsStore = service.getSearchDomainsStore();
-        domainsStore.load(function () {
-            service.applyState({
-                domain: 'com.elster.jupiter.metering.UsagePoint',
-                filters: [{
-                    property: 'usagePointGroup',
-                    value: [{
-                        criteria: currentUsagePointGroupId,
-                        operator: '=='
-                    }]
-                }]
-            });
-        });
-        widget = Ext.widget('usagepointgroup-details', {
-            router: router,
-            usagePointGroupId: currentUsagePointGroupId,
-            service: service
-        });
-        me.getApplication().fireEvent('changecontentevent', widget);
+
+        mainView.setLoading();
+        service.getSearchDomainsStore().load(onDependenciesLoad);
         model.load(currentUsagePointGroupId, {
             success: function (record) {
-                Ext.suspendLayouts();
-                widget.down('usagepointgroups-menu #usagepointgroups-view-link').setText(record.get('name'));
-                widget.down('form').loadRecord(record);
-                Ext.resumeLayouts(true);
-                widget.down('usagepointgroup-action-menu').record = record;
+                usagePointGroup = record;
                 me.getApplication().fireEvent('loadUsagePointGroup', record);
-                me.updateCriteria(record);
-                me.updateActionMenuVisibility(record);
+                onDependenciesLoad();
             }
         });
     },
@@ -212,6 +223,9 @@ Ext.define('Imt.usagepointgroups.controller.UsagePointGroups', {
                     icon: 'icon-warning2',
                     style: 'font-size: 34px;'
                 });
+            },
+            callback: function () {
+                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     },

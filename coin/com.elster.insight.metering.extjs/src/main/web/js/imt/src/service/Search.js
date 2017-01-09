@@ -5,7 +5,7 @@ Ext.define('Imt.service.Search', {
         var me = this;
         me.defaultColumns = {
             'com.elster.jupiter.metering.EndDevice': ['name', 'serialNumber'],
-            'com.elster.jupiter.metering.UsagePoint': ['name', 'displayServiceCategory', 'displayMetrologyConfiguration', 'displayType', 'displayConnectionState', 'location']
+            'com.elster.jupiter.metering.UsagePoint': ['name', 'displayServiceCategory', 'displayMetrologyConfiguration', 'displayType', 'state', 'displayConnectionState', 'location']
         };
         me.callParent(arguments);
     },

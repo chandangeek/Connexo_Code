@@ -13,7 +13,8 @@ Ext.define('Imt.usagepointgroups.view.Details', {
     ],
 
     router: null,
-    usagePointGroupId: null,
+    usagePointGroup: null,
+    favoriteRecord: null,
 
     initComponent: function () {
         var me = this;
@@ -27,7 +28,7 @@ Ext.define('Imt.usagepointgroups.view.Details', {
                         xtype: 'usagepointgroups-menu',
                         itemId: 'usagepointgroups-details-menu',
                         router: me.router,
-                        usagePointGroupId: me.usagePointGroupId
+                        usagePointGroup: me.usagePointGroup
                     }
                 ]
             }
@@ -42,18 +43,29 @@ Ext.define('Imt.usagepointgroups.view.Details', {
 
             items: [
                 {
-                    xtype: 'container',
-                    layout: 'hbox',
-                    items: [
+                    ui: 'large',
+                    header: {
+                        title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
+                        titleIsShrinked: true
+                    },
+                    flex: 1,
+                    items: {
+                        xtype: 'usagepointgroup-preview-form',
+                        itemId: 'usagepointgroup-details-preview-form',
+                        usagePointGroupId: me.usagePointGroup.getId()
+                    },
+                    tools: [
                         {
-                            ui: 'large',
-                            title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
-                            flex: 1,
-                            items: {
-                                xtype: 'usagepointgroup-preview-form',
-                                itemId: 'usagepointgroup-details-preview-form',
-                                usagePointGroupId: this.usagePointGroupId
-                            }
+                            xtype: 'marked-button',
+                            itemId: 'usage-point-group-favorite-flag',
+                            record: me.favoriteRecord,
+                            markedTooltip: Uni.I18n.translate('usagePointGroup.flag.tooltip.unflag', 'IMT', 'Click to remove from the list of flagged usage point group'),
+                            unmarkedTooltip: Uni.I18n.translate('usagePointGroup.flag.tooltip.flag', 'IMT', 'Click to flag the usage point group'),
+                            width: 20,
+                            height: 20
+                        },
+                        {
+                            xtype: 'tbfill'
                         },
                         {
                             xtype: 'button',
@@ -69,7 +81,8 @@ Ext.define('Imt.usagepointgroups.view.Details', {
                             privileges: Imt.privileges.UsagePointGroup.administrateAnyOrStaticGroup,
                             menu: {
                                 xtype: 'usagepointgroup-action-menu',
-                                itemId: 'usagepointgroup-details-action-menu'
+                                itemId: 'usagepointgroup-details-action-menu',
+                                record: me.usagePointGroup
                             }
                         }
                     ]
@@ -92,6 +105,10 @@ Ext.define('Imt.usagepointgroups.view.Details', {
         };
 
         me.callParent(arguments);
+
+        if (me.usagePointGroup) {
+            me.down('form').loadRecord(me.usagePointGroup);
+        }
     }
 });
 
