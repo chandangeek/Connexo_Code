@@ -1,11 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 /**
  * Maps the securityPropertySet to a usable property set for a DeviceProtocol.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/01/13
  * Time: 15:05
@@ -36,5 +36,4 @@ public class DeviceProtocolSecurityPropertySetImpl implements DeviceProtocolSecu
     public TypedProperties getSecurityProperties() {
         return securityProperties;
     }
-
 }

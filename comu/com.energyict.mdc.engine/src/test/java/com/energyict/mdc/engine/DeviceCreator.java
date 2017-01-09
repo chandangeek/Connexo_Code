@@ -14,8 +14,6 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -40,12 +38,10 @@ import static org.mockito.Mockito.when;
 public final class DeviceCreator implements DeviceBuilderForTesting {
 
     public static final int CHANNEL_OVERFLOW_VALUE = 999999;
-    static final String DEVICE_TYPE_NAME = DeviceCreator.class.getName() + "Type";
     public static final String DATA_LOGGER_DEVICE_TYPE_NAME = "DataLoggerType";
-
-    static final String DEVICE_CONFIGURATION_NAME = DeviceCreator.class.getName() + "Config";
     public static final String DATA_LOGGER_DEVICE_CONFIGURATION_NAME = "DataLoggerConfig";
-
+    static final String DEVICE_TYPE_NAME = DeviceCreator.class.getName() + "Type";
+    static final String DEVICE_CONFIGURATION_NAME = DeviceCreator.class.getName() + "Config";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
 
     private final DeviceBuilderForTesting COMPLETE = (DeviceBuilderForTesting) Proxy.newProxyInstance(DeviceBuilderForTesting.class.getClassLoader(), new Class<?>[]{DeviceBuilderForTesting.class}, new InvocationHandler() {
@@ -74,10 +70,10 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
     private void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
-        EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
     }
@@ -114,7 +110,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
     @Override
     public DeviceBuilderForTesting dataLoggerEnabled(boolean enabled) {
-        return  state.dataLoggerEnabled(enabled);
+        return state.dataLoggerEnabled(enabled);
     }
 
     @Override
@@ -136,17 +132,17 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
     private class UnderConstruction implements DeviceBuilderForTesting {
 
+        protected List<LoadProfileType> loadProfileTypes = new ArrayList<>();
         private String name;
         private String mRDI;
         private RegisterType registerType;
-        protected List<LoadProfileType> loadProfileTypes = new ArrayList<>();
         private List<LogBookType> logBookTypes = new ArrayList<>();
         private String deviceTypeName = DEVICE_TYPE_NAME;
         private String deviceConfigName = DEVICE_CONFIGURATION_NAME;
         private DeviceType deviceType;
         private DeviceConfiguration deviceConfiguration;
         private boolean dataLoggerEnabled;
-        private DeviceTypePurpose deviceTypePurpose =  DeviceTypePurpose.REGULAR;
+        private DeviceTypePurpose deviceTypePurpose = DeviceTypePurpose.REGULAR;
 
         @Override
         public DeviceBuilderForTesting name(String name) {
@@ -220,9 +216,9 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         private DeviceType getDeviceType() {
             if (this.deviceType == null) {
                 Optional<DeviceType> type = deviceConfigurationService.findDeviceTypeByName(deviceTypeName);
-                if (type.isPresent()){
+                if (type.isPresent()) {
                     this.deviceType = type.get();
-                }else {
+                } else {
                     this.deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, deviceProtocolPluggableClass);
                     if (this.deviceTypePurpose == DeviceTypePurpose.DATALOGGER_SLAVE) {
                         deviceType.setDeviceTypePurpose(this.deviceTypePurpose);
@@ -242,7 +238,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
             return deviceType;
         }
 
-        protected DeviceType.DeviceConfigurationBuilder configBuilder(){
+        protected DeviceType.DeviceConfigurationBuilder configBuilder() {
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = getDeviceType().newConfiguration(deviceConfigName);
             for (LoadProfileType loadProfileType : loadProfileTypes) {
                 LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
@@ -257,7 +253,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
             for (LogBookType logBookType : logBookTypes) {
                 deviceConfigurationBuilder.newLogBookSpec(logBookType);
             }
-            if (this.dataLoggerEnabled){
+            if (this.dataLoggerEnabled) {
                 deviceConfigurationBuilder.dataloggerEnabled(true);
             }
             return deviceConfigurationBuilder;

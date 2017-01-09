@@ -11,8 +11,8 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.time.Clock;
 import java.util.List;
@@ -35,12 +35,12 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
      *
      * @return The ExecutionContext
      */
-    public ExecutionContext getExecutionContext();
+    ExecutionContext getExecutionContext();
 
     /**
      * Indicates if any exceptions (during storing of underlying collected data) should be exposed to the DeviceCommandExecutor
      */
-    public boolean isExposeStoringException();
+    boolean isExposeStoringException();
 
     /**
      * Creates a GroupedDeviceCommand for the given OfflineDevice.
@@ -50,16 +50,16 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
      * @param deviceProtocolSecurityPropertySet
      * @return the newly created GroupedDeviceCommand
      */
-    public GroupedDeviceCommand getOrCreateGroupedDeviceCommand(OfflineDevice offlineDevice, DeviceProtocol deviceProtocol, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet);
+    GroupedDeviceCommand getOrCreateGroupedDeviceCommand(OfflineDevice offlineDevice, DeviceProtocol deviceProtocol, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet);
 
-    public void removeAllGroupedDeviceCommands();
+    void removeAllGroupedDeviceCommands();
 
     /**
      * Get the List of ComCommands
      *
      * @return the requested list of ComCommands
      */
-    public Map<ComCommandType, ComCommand> getCommands();
+    Map<ComCommandType, ComCommand> getCommands();
 
     /**
      * Performs all the Commands which are required and prepared for this
