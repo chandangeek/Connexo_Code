@@ -1,6 +1,6 @@
 package com.energyict.mdc.channels.ip.datagrams;
 
-import com.energyict.mdc.ManagerFactory;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.ComChannel;
 
 import com.energyict.protocol.exceptions.ConnectionSetupException;
@@ -11,7 +11,7 @@ import java.net.DatagramPacket;
 import java.net.SocketException;
 
 /**
- * Straightforward version of an inbound UDP session
+ * Straightforward version of an inbound UDP session.
  * <p/>
  * Copyrights EnergyICT
  * Date: 9/11/12
@@ -22,13 +22,14 @@ public class InboundUdpSession extends AbstractUdpSession {
     /**
      * Default constructor for an InboundUdpSession
      *
+     * @param socketService The SocketService that will actually create the UDP socket
      * @param bufferSize the bufferSize of the ByteArray that will be filled up by the DatagramPacket
      * @param portNumber the portNumber on which to listen on this machine for UDP packets
      */
-    public InboundUdpSession(int bufferSize, int portNumber) {
+    public InboundUdpSession(int bufferSize, int portNumber, SocketService socketService) {
         super(bufferSize);
         try {
-            setDatagramSocket(ManagerFactory.getCurrent().getSocketFactory().newUDPSocket(portNumber));
+            setDatagramSocket(socketService.newUDPSocket(portNumber));
         } catch (SocketException e) {
             throw ConnectionSetupException.setupOfInboundCallFailed(e);
         }
