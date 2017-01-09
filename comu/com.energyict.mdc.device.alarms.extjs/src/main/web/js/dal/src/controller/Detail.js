@@ -118,8 +118,8 @@ Ext.define('Dal.controller.Detail', {
                     if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
                         me.getActionMenu().record = record;
                     }
-                    else if (widget.down('#issue-detail-action-menu')) {
-                        widget.down('#issue-detail-action-menu').record = record;
+                    else if (widget.down('#alarm-detail-action-menu')) {
+                        widget.down('#alarm-detail-action-menu').record = record;
                     }
                     me.loadComments(record, 'alarm');
                     me.loadRelatedEvents(widget, record);

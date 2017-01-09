@@ -6,9 +6,8 @@ Ext.define('Dal.view.Grid', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Dal.privileges.Alarm'
-        //   'Isu.view.issues.ActionMenu',
-        //   'Isu.view.component.AssigneeColumn',
+        'Dal.privileges.Alarm',
+        'Dal.view.ActionMenu'
     ],
     alias: 'widget.alarms-grid',
     router: null,
@@ -59,17 +58,17 @@ Ext.define('Dal.view.Grid', {
                 header: Uni.I18n.translate('general.user', 'DAL', 'User'),
                 dataIndex: 'user',
                 flex: 1
-            }/*,
-             {
-             itemId: 'action',
-             xtype: 'uni-actioncolumn',
-             privileges: !!Isu.privileges.Issue.adminDevice,
-             menu: {
-             xtype: 'issues-action-menu',
-             itemId: 'issues-overview-action-menu',
-             router: me.router
-             }
-             }*/
+            },
+            {
+                itemId: 'action',
+                xtype: 'uni-actioncolumn',
+                privileges: !!Dal.privileges.Alarm.adminDevice,
+                menu: {
+                    xtype: 'alarms-action-menu',
+                    itemId: 'alarm-overview-action-menu',
+                    router: me.router
+                }
+            }
         ];
 
         me.dockedItems = [
