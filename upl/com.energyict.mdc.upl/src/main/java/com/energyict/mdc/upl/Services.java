@@ -1,5 +1,6 @@
 package com.energyict.mdc.upl;
 
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.upl.crypto.MD5Cryptographer;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
@@ -34,6 +35,7 @@ public class Services {
     private static AtomicReference<PropertySpecService> PROPERTY_SPEC_SERVICE = new AtomicReference<>();
     private static AtomicReference<NlsService> NLS_SERVICE = new AtomicReference<>();
     private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
+    private static AtomicReference<SocketService> SOCKET_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
     private static AtomicReference<DeviceMasterDataExtractor> DEVICE_MASTER_DATA_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<DeviceExtractor> DEVICE_EXTRACTOR = new AtomicReference<>();
@@ -61,6 +63,8 @@ public class Services {
             return nlsService();
         } else if (SecurityService.class.equals(serviceType)) {
             return securityService();
+        } else if (SocketService.class.equals(serviceType)) {
+            return socketService();
         } else if (Converter.class.equals(serviceType)) {
             return converter();
         } else if (NumberLookupExtractor.class.equals(serviceType)) {
@@ -132,6 +136,14 @@ public class Services {
 
     public static void securityService(SecurityService securityService) {
         SECURITY_SERVICE.set(securityService);
+    }
+
+    public static SocketService socketService() {
+        return SOCKET_SERVICE.get();
+    }
+
+    public static void socketService(SocketService socketService) {
+        SOCKET_SERVICE.set(socketService);
     }
 
     public static Converter converter() {
