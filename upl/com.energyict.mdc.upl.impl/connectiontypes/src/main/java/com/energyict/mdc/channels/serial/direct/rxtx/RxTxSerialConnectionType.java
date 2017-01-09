@@ -13,7 +13,7 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for Serial communication.
+ * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType} interface for Serial communication.
  * <p>
  * Copyrights EnergyICT
  * Date: 13/08/12

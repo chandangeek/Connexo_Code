@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.lis200.register;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.elster.protocolimpl.lis200.EK260;
 import com.elster.protocolimpl.lis200.objects.ClockObject;
 import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
@@ -36,6 +38,10 @@ import static junit.framework.Assert.assertEquals;
 public class TestEk260_V111 extends EK260 {
 
     private Locale savedLocale;
+
+    public TestEk260_V111(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Before
     public void setup() {

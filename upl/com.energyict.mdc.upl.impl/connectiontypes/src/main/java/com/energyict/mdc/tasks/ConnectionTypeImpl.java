@@ -1,6 +1,5 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
@@ -12,10 +11,9 @@ import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -31,15 +29,15 @@ import java.net.Socket;
  */
 public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.ConnectionType {
 
-    private TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
+    private TypedProperties properties = TypedProperties.empty();
 
     public ConnectionTypeImpl() {
         super();
     }
 
     @Override
-    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        this.properties = properties;
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+        this.properties = TypedProperties.copyOf(properties);
     }
 
     protected TypedProperties getAllProperties() {
@@ -155,7 +153,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
      * This is used by the protocols to determine the transport layer.
      */
     public static TypedProperties createTypeProperty(ComChannelType comChannelType) {
-        TypedProperties typedProperties = com.energyict.cpo.TypedProperties.empty();
+        TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty(ComChannelType.TYPE, comChannelType.getType());
         return typedProperties;
     }

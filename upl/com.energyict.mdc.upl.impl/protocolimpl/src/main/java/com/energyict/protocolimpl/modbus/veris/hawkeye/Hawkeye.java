@@ -16,14 +16,10 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 /**
  *
  * @author Koen
@@ -75,52 +71,6 @@ public class Hawkeye extends Modbus  {
             return new RegisterValue(obisCode, slaveId);
         } else {
             return super.readRegister(obisCode);
-        }
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        DiscoverResult discoverResult = new DiscoverResult();
-        discoverResult.setProtocolMODBUS();
-
-        try {
-            setUPLProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
-            if (getInfoTypeHalfDuplex() != 0) {
-                setHalfDuplexController(discoverTools.getDialer().getHalfDuplexController());
-            }
-            init(discoverTools.getDialer().getInputStream(),discoverTools.getDialer().getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-            connect();
-
-            String fwVersion = getFirmwareVersion();
-
-            if (fwVersion.toLowerCase().contains("veris format")) {
-                discoverResult.setDiscovered(true);
-                discoverResult.setProtocolName("com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris.EictVeris");
-                discoverResult.setAddress(discoverTools.getAddress());
-            }
-            else if (fwVersion.toLowerCase().contains("veris h8036")) {
-                discoverResult.setDiscovered(true);
-                discoverResult.setProtocolName("com.energyict.protocolimpl.modbus.veris.hawkeye.Hawkeye");
-                discoverResult.setAddress(discoverTools.getAddress());
-            }
-            else {
-                discoverResult.setDiscovered(false);
-            }
-
-            discoverResult.setResult(fwVersion);
-            return discoverResult;
-        }
-        catch (Exception e) {
-            discoverResult.setDiscovered(false);
-            discoverResult.setResult(e.toString());
-            return discoverResult;
-        } finally {
-           try {
-              disconnect();
-           }
-           catch(IOException e) {
-               // absorb
-           }
         }
     }
 

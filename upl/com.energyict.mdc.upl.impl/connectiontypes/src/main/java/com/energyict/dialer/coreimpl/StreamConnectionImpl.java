@@ -6,9 +6,8 @@
 
 package com.energyict.dialer.coreimpl;
 
+import com.energyict.mdc.upl.RuntimeEnvironment;
 
-import com.energyict.cpo.Environment;
-import com.energyict.dialer.core.DialerException;
 import com.energyict.dialer.core.StreamConnection;
 import com.energyict.dialer.serialserviceprovider.SerialPort;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -22,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Optional;
 
 /**
  * @author Koen
@@ -29,10 +29,6 @@ import java.io.OutputStream;
 public abstract class StreamConnectionImpl implements StreamConnection {
 
     private static final Log logger = LogFactory.getLog(StreamConnectionImpl.class);
-
-    //****************************************************************************************
-    // delegate SerialCommunicationChannel interface methods
-    //****************************************************************************************
 
     protected abstract void doSetParams(int iBaudrate, int iDatabits, int iParity, int iStopbits) throws java.io.IOException;
 
@@ -52,10 +48,6 @@ public abstract class StreamConnectionImpl implements StreamConnection {
 
     protected abstract SerialPort doGetSerialPort();
 
-    //****************************************************************************************
-    // delegate HalfDuplexController interface methods
-    //****************************************************************************************
-
     protected abstract void doRequest2Send(int nrOfBytes);
 
     protected abstract void doRequest2Receive(int nrOfBytes);
@@ -67,10 +59,6 @@ public abstract class StreamConnectionImpl implements StreamConnection {
     protected abstract void doRequest2SendRS485();
 
     protected abstract void doRequest2ReceiveRS485(int nrOfBytes);
-
-    //****************************************************************************************
-    // delegate StreamConnection interface methods
-    //****************************************************************************************
 
     protected abstract void doOpen() throws IOException;
 
@@ -106,40 +94,37 @@ public abstract class StreamConnectionImpl implements StreamConnection {
     OutputStream outputStream = null;
     InputStreamObserver inputStreamObserver = null;
     OutputStreamObserver outputStreamObserver = null;
+    private final RuntimeEnvironment runtimeEnvironment;
 
-    /**
-     * Creates a new instance of StreamConnectionImpl
-     */
-    public StreamConnectionImpl() {
-        if ((System.getProperty("os.name").toLowerCase().indexOf("linux") >= 0) && (System.getProperty("os.arch").toLowerCase().indexOf("86") >= 0)) {
+    public StreamConnectionImpl(RuntimeEnvironment runtimeEnvironment) {
+        this.runtimeEnvironment = runtimeEnvironment;
+        if ((System.getProperty("os.name").toLowerCase().contains("linux")) && (System.getProperty("os.arch").toLowerCase().contains("86"))) {
             setOsType(OS_LINUX_X86);
-        } else if ((System.getProperty("os.name").toLowerCase().indexOf("linux") >= 0) && (System.getProperty("os.arch").toLowerCase().indexOf("arm") >= 0)) {
+        } else if ((System.getProperty("os.name").toLowerCase().contains("linux")) && (System.getProperty("os.arch").toLowerCase().contains("arm"))) {
             setOsType(OS_LINUX_ARM);
         } else {
             setOsType(OS_WINDOWS);
         }
     }
 
+    protected RuntimeEnvironment getRuntimeEnvironment() {
+        return runtimeEnvironment;
+    }
 
-    //****************************************************************************************
-    // Implementation of interface HalfDuplexController
-    //****************************************************************************************
-
+    @Override
     public void request2Send(int nrOfBytes) {
         doRequest2Send(nrOfBytes);
     }
 
+    @Override
     public void request2SendV25(int nrOfBytes) {
         doRequest2SendV25(nrOfBytes);
     }
 
-    // one time extra initialization at first send!
-
     private void init() {
-
         if (!initDone) {
             if (isOsTypeLINUX_X86()) {
-                if ((halfDuplexTXDelay < 0) && (getComPort().indexOf("/dev/ttyXR") >= 0)) {
+                if ((halfDuplexTXDelay < 0) && (getComPort().contains("/dev/ttyXR"))) {
                     try {
                         if (halfDuplexTXDelay == -1) {
                             ((DeviceControl) Class.forName("com.energyict.concentrator.jniexar.ExarControlJNI").getMethod("getInstance").invoke(null)).rs485Mode(getComPort(), 8);
@@ -151,7 +136,7 @@ public abstract class StreamConnectionImpl implements StreamConnection {
                     }
                 }
             } else if (isOsTypeLINUX_ARM()) {
-                if ((halfDuplexTXDelay < 0) && (getComPort().indexOf("/dev/ttyS") >= 0)) {
+                if ((halfDuplexTXDelay < 0) && (getComPort().contains("/dev/ttyS"))) {
                     try {
                         if (halfDuplexTXDelay == -1) {
                             ((DeviceControl) Class.forName("com.energyict.concentrator.jniexar.AtmelUartControl").getMethod("getInstance").invoke(null)).rs485Mode(getComPort(), 8);
@@ -165,8 +150,9 @@ public abstract class StreamConnectionImpl implements StreamConnection {
             }
         }
         initDone = true;
-    } // private void init()
+    }
 
+    @Override
     public void request2SendRS485() {
         init();
         doRequest2SendRS485();
@@ -174,46 +160,37 @@ public abstract class StreamConnectionImpl implements StreamConnection {
 
     long halfDuplexTXDelay = 0;
 
+    @Override
     public void setDelay(long halfDuplexTXDelay) {
         this.halfDuplexTXDelay = halfDuplexTXDelay;
     }
 
+    @Override
     public void request2Receive(int nrOfBytes) {
         doRequest2Receive(nrOfBytes);
     }
 
+    @Override
     public void request2ReceiveV25(int nrOfBytes) {
         doRequest2ReceiveV25(nrOfBytes);
     }
 
+    @Override
     public void request2ReceiveRS485(int nrOfBytes) {
         init();
         doRequest2ReceiveRS485(nrOfBytes);
     }
 
-    //****************************************************************************************
-    // Implementation of interface SerialCommunicationChannel
-    //****************************************************************************************
-
-
     final int SET_PARITY_AND_FLUSH = getIntProperty("setParityAndFlush", 500);
     final int SET_PARAMS_AND_FLUSH = getIntProperty("setParamsAndFlush", 500);
     final int SET_BAUDRATE_AND_FLUSH = getIntProperty("setBaudrateAndFlush", 500);
 
-    /**
-     * setParamsAndFlush, setParams.
-     * Set the communication parameters for the open port.
-     *
-     * @param databits : SerialPort.DATABITS_x (x=8,7,6,5)
-     * @param parity   : SerialPort.PARITY_x (x=NONE,EVEN,ODD,MARK,SPACE)
-     * @param stopbits : SerialPort.STOPBITS_x (x=1,2,1_5)
-     * @throws DialerException
-     */
     public void setParityAndFlush(int databits, int parity, int stopbits) throws IOException {
         setParity(databits, parity, stopbits);
         flushInputStream(SET_PARITY_AND_FLUSH);
     }
 
+    @Override
     public void setParity(int databits, int parity, int stopbits) throws IOException {
         this.databits = databits;
         this.parity = parity;
@@ -221,11 +198,13 @@ public abstract class StreamConnectionImpl implements StreamConnection {
         doSetParams(baudrate, databits, parity, stopbits);
     }
 
+    @Override
     public void setParamsAndFlush(int baudrate, int databits, int parity, int stopbits) throws IOException {
         setParams(baudrate, databits, parity, stopbits);
         flushInputStream(SET_PARAMS_AND_FLUSH);
     }
 
+    @Override
     public void setParams(int baudrate, int databits, int parity, int stopbits) throws IOException {
         this.baudrate = baudrate;
         this.databits = databits;
@@ -234,53 +213,60 @@ public abstract class StreamConnectionImpl implements StreamConnection {
         doSetParams(baudrate, databits, parity, stopbits);
     }
 
+    @Override
     public void setBaudrateAndFlush(int baudrate) throws IOException {
         setBaudrate(baudrate);
         flushInputStream(SET_BAUDRATE_AND_FLUSH);
     }
 
+    @Override
     public void setBaudrate(int baudrate) throws IOException {
         this.baudrate = baudrate;
         doSetParams(baudrate, databits, parity, stopbits);
     }
 
+    @Override
     public String getComPort() {
         return strComPort;
     }
 
+    @Override
     public void setComPort(String strComPort) {
         this.strComPort = strComPort;
         doSetComPort(strComPort);
     }
 
+    @Override
     public boolean sigDSR() throws IOException {
         return doSigDSR();
     }
 
+    @Override
     public boolean sigRing() throws IOException {
         return doSigRing();
     }
 
+    @Override
     public boolean sigCD() throws IOException {
         return doSigCD();
     }
 
+    @Override
     public boolean sigCTS() throws IOException {
         return doSigCTS();
     }
 
+    @Override
     public void setDTR(boolean dtr) throws IOException {
         doSetDTR(dtr);
     }
 
+    @Override
     public void setRTS(boolean rts) throws IOException {
         doSetRTS(rts);
     }
 
-    //****************************************************************************************
-    // Implementation of interface StreamConnection
-    //****************************************************************************************
-
+    @Override
     public void flushInputStream(long delay) throws IOException {
         try {
             Thread.sleep(delay);
@@ -289,16 +275,19 @@ public abstract class StreamConnectionImpl implements StreamConnection {
             Thread.currentThread().interrupt();
             throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
-    } // public void flushInputStream(long delay)
+    }
 
+    @Override
     public InputStream getInputStream() {
         return inputStream;
     }
 
+    @Override
     public OutputStream getOutputStream() {
         return outputStream;
     }
 
+    @Override
     public void setStreams(InputStream is, OutputStream os) {
         if ((inputStreamObserver != null) && (outputStreamObserver != null)) {
             MonitoredInputStream monitoredInputStream = new MonitoredInputStream(is, inputStreamObserver);
@@ -309,8 +298,9 @@ public abstract class StreamConnectionImpl implements StreamConnection {
             outputStream = os;
             inputStream = is;
         }
-    } // protected void initStreams(InputStream is,OutputStream os)
+    }
 
+    @Override
     public void setStreamObservers(InputStreamObserver iso, OutputStreamObserver oso) {
         inputStreamObserver = iso;
         outputStreamObserver = oso;
@@ -324,50 +314,51 @@ public abstract class StreamConnectionImpl implements StreamConnection {
 
     }
 
+    @Override
     public boolean isOpen() {
         return boolOpen;
     }
 
+    @Override
     public void open() throws IOException {
         doOpen();
     }
 
+    @Override
     public void serverOpen() throws IOException {
         doServerOpen();
     }
 
+    @Override
     public void close() throws IOException {
         doClose();
     }
 
+    @Override
     public void serverClose() throws IOException {
         doServerClose();
     }
 
+    @Override
     public void accept() throws IOException {
     }
 
+    @Override
     public void accept(final int timeOut) throws IOException {
     }
-
-    //****************************************************************************************
-    // Private methods
-    //****************************************************************************************
 
     private void flushInputStream() throws IOException {
         while (inputStream.available() != 0) {
             inputStream.read();
-        } // flush inputbuffer
-    } // private void flushInputStream() throws DialerException
+        }
+    }
 
-    //****************************************************************************************
-    // Protected methods
-    //****************************************************************************************
-
+    @Override
     public SerialPort getSerialPort() {
         return doGetSerialPort();
     }
 
+    @Override
     public void write(String strData, int iTimeout) throws IOException {
         if (isOpen()) {
             try {
@@ -382,8 +373,9 @@ public abstract class StreamConnectionImpl implements StreamConnection {
             throw new IOException("StreamConnectionImpl, Write, Port not open");
         }
 
-    } // public void write(String strData, int iTimeout)
+    }
 
+    @Override
     public void write(String strData) throws IOException {
         if (isOpen()) {
             outputStream.write(strData.getBytes());
@@ -391,17 +383,27 @@ public abstract class StreamConnectionImpl implements StreamConnection {
             throw new IOException("Writeerror : Port not open");
         }
 
-    } // protected void write(String strData)
+    }
 
     protected int getIntProperty(String key, int defaultValue) {
-        String value = Environment.getDefault().getProperty(key, null);
-        if (value == null) {
+        Optional<String> propertyValue = this.runtimeEnvironment.getProperty(key);
+        if (propertyValue.isPresent()) {
+            try {
+                return Integer.parseInt(propertyValue.get());
+            } catch (NumberFormatException ex) {
+                // silently ignore
+                return defaultValue;
+            }
+        } else {
             return defaultValue;
         }
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException ex) {
-            // silently ignore
+    }
+
+    protected boolean getBooleanProperty(String key, boolean defaultValue) {
+        Optional<String> propertyValue = this.runtimeEnvironment.getProperty(key);
+        if (propertyValue.isPresent()) {
+            return Boolean.valueOf(propertyValue.get());
+        } else {
             return defaultValue;
         }
     }

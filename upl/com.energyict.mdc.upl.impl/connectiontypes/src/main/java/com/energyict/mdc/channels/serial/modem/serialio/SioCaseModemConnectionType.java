@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType}
- * interface for Serial Case communication, using the Sio library.</p>
- *
+ * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType} interface
+ * for Serial Case communication, using the Sio library.
+ * </p>
  * @author sva
  * @since 30/04/13 - 13:45
  */

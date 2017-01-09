@@ -3,7 +3,6 @@ package com.energyict.mdc.channels.sms;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
@@ -17,7 +16,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * An implementation of the {@link ConnectionType} interface specific for outbound SMS communication using Proximus as carrier.
+ * An implementation of the {@link com.energyict.mdc.io.ConnectionType} interface
+ * specific for outbound SMS communication using Proximus as carrier.
  *
  * @author sva
  * @since 19/06/13 - 9:12
@@ -70,7 +70,6 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     protected String serviceCodePropertyValue() {
         return (String) this.getProperty(SERVICE_CODE_PROPERTY_NAME);
     }
-
 
     @Override
     public ComChannel connect() throws ConnectionException {

@@ -7,8 +7,8 @@
 package com.energyict.dialer.coreimpl;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.RuntimeEnvironment;
 
-import com.energyict.cpo.Environment;
 import com.energyict.dialer.serialserviceprovider.SerInputStream;
 import com.energyict.dialer.serialserviceprovider.SerOutputStream;
 import com.energyict.dialer.serialserviceprovider.SerialConfig;
@@ -19,7 +19,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.StringTokenizer;
+import java.util.stream.Stream;
 
 /**
  * @author Koen
@@ -47,15 +47,11 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
      */
     private final boolean rs485SoftwareDriven;
 
-    /**
-     * Creates a new instance of SerialPortStreamConnection
-     */
-    public SerialPortStreamConnection(String strComPort) {
+    public SerialPortStreamConnection(String strComPort, RuntimeEnvironment runtimeEnvironment) {
+        super(runtimeEnvironment);
         setComPort(strComPort);
-
         boolOpen = false;
-
-        this.rs485SoftwareDriven = Boolean.valueOf(Environment.getDefault().getProperty(PROPERTY_RS485_SOFTWARE_DRIVEN, "false"));
+        this.rs485SoftwareDriven = this.getBooleanProperty(PROPERTY_RS485_SOFTWARE_DRIVEN, false);
     }
 
     //****************************************************************************
@@ -113,24 +109,15 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
     }
 
     private boolean isIgnoreDCD() {
-        String ignoreDCDComPorts = Environment.getDefault().getProperty("ignoreDCDComPorts", null);
-        if (ignoreDCDComPorts == null) {
-            return false;
-        }
-        try {
-            StringTokenizer strTok = new StringTokenizer(ignoreDCDComPorts, ",");
-            while (strTok.hasMoreTokens()) {
-                if (getComPort().compareTo(strTok.nextToken()) == 0) {
-                    return true;
-                }
-            }
-            return false;
-        } catch (NumberFormatException ex) {
-            // silently ignore
-            return false;
-        }
+        return this.getRuntimeEnvironment()
+                .getProperty("ignoreDCDComPorts")
+                .map(ignoreDCDComPorts -> Stream
+                                            .of(ignoreDCDComPorts.split(","))
+                                            .anyMatch(candidate -> candidate.equals(getComPort())))
+                .orElse(false);
     }
 
+    @Override
     protected boolean doSigCD() throws IOException {
         if (isIgnoreDCD()) {
             return false;
@@ -139,60 +126,61 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected boolean doSigCTS() throws IOException {
         return serialPort.sigCTS();
     }
 
+    @Override
     protected boolean doSigDSR() throws IOException {
         return serialPort.sigDSR();
     }
 
+    @Override
     protected boolean doSigRing() throws IOException {
         return serialPort.sigRing();
     }
 
+    @Override
     protected void doSetDTR(boolean dtr) throws IOException {
         serialPort.setDTR(dtr);
     }
 
+    @Override
     protected void doSetRTS(boolean rts) throws IOException {
         serialPort.setRTS(rts);
     }
 
-
-    //****************************************************************************************
-    // Delegate of implementation of interface HalfDuplexController
-    //****************************************************************************************
-
+    @Override
     protected void doRequest2Send(int nrOfBytes) {
         try {
             serialPort.setRTS(true);
             long returnTime = System.currentTimeMillis() + 2000;
             while (true) {
                 Thread.sleep(50);
-                if (serialPort.sigCTS() == true) {
+                if (serialPort.sigCTS()) {
                     return;
                 }
-                if (((long) (System.currentTimeMillis() - returnTime)) > 0) {
+                if (System.currentTimeMillis() - returnTime > 0) {
                     return;
                 }
             }
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
     }
 
+    @Override
     protected void doRequest2Receive(int nrOfBytes) {
         try {
-
-
             // wait for tx buffer empty...
             long returnTime = System.currentTimeMillis() + 10000;
             while (serialPort.txBufCount() > 0) {
                 Thread.sleep(100);
-                if (((long) (System.currentTimeMillis() - returnTime)) > 0) {
+                if (System.currentTimeMillis() - returnTime > 0) {
                     return;
                 }
             }
@@ -207,36 +195,32 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
             returnTime = System.currentTimeMillis() + 2000;
             while (true) {
                 Thread.sleep(50);
-                if (serialPort.sigCTS() == false) {
+                if (!serialPort.sigCTS()) {
                     return;
                 }
-                if (((long) (System.currentTimeMillis() - returnTime)) > 0) {
+                if (System.currentTimeMillis() - returnTime > 0) {
                     return;
                 }
             }
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-    } // protected void doRequest2Receive(int nrOfBytes)
+    }
 
-
-    //****************************************************************************************
-    // Delegate of implementation of interface HalfDuplexController
-    //****************************************************************************************
-
+    @Override
     protected void doRequest2SendV25(int nrOfBytes) {
         try {
-
             // wait for CD false
             long returnTime = System.currentTimeMillis() + 2000;
             while (true) {
                 Thread.sleep(10);
-                if (serialPort.sigCD() == false) {
+                if (!serialPort.sigCD()) {
                     break;
                 }
-                if (((long) (System.currentTimeMillis() - returnTime)) > 0) {
+                if (System.currentTimeMillis() - returnTime > 0) {
                     break;
                 }
             }
@@ -248,28 +232,29 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
             returnTime = System.currentTimeMillis() + 2000;
             while (true) {
                 Thread.sleep(50);
-                if (serialPort.sigCTS() == true) {
+                if (serialPort.sigCTS()) {
                     return;
                 }
-                if (((long) (System.currentTimeMillis() - returnTime)) > 0) {
+                if (System.currentTimeMillis() - returnTime > 0) {
                     return;
                 }
             }
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-    } // protected void doRequest2SendV25(int nrOfBytes)
+    }
 
+    @Override
     protected void doRequest2ReceiveV25(int nrOfBytes) {
         try {
-
             // wait for tx buffer empty...
             long returnTime = System.currentTimeMillis() + 10000;
             while (serialPort.txBufCount() > 0) {
                 Thread.sleep(100);
-                if (((long) (System.currentTimeMillis() - returnTime)) > 0) {
+                if (System.currentTimeMillis() - returnTime > 0) {
                     return;
                 }
             }
@@ -284,25 +269,22 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
             returnTime = System.currentTimeMillis() + 2000;
             while (true) {
                 Thread.sleep(10);
-                if (serialPort.sigCD() == true) {
+                if (serialPort.sigCD()) {
                     break;
                 }
-                if (((long) (System.currentTimeMillis() - returnTime)) > 0) {
+                if (System.currentTimeMillis() - returnTime > 0) {
                     break;
                 }
             }
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-    } // protected void doRequest2ReceiveV25(int nrOfBytes)
+    }
 
-
-    //****************************************************************************************
-    // Delegate of implementation of interface HalfDuplexController
-    //****************************************************************************************
-
+    @Override
     protected void doRequest2SendRS485() {
         try {
             // if halfDuplexTXDelay>0, use software RST control
@@ -319,7 +301,7 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
                         }
 
                     } catch (InterruptedException e) {
-
+                        Thread.currentThread().interrupt();
                     }
                 } else {
                     serialPort.setRTS(true);
@@ -328,9 +310,9 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-    } // protected void doRequest2SendRS485(int nrOfBytes)
+    }
 
-
+    @Override
     protected void doRequest2ReceiveRS485(int nrOfBytes) {
         try {
             // if halfDuplexTXDelay>0, use software RST control
@@ -341,7 +323,7 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
                 long returnTime = System.currentTimeMillis() + 10000;
                 while (serialPort.txBufCount() > 0) {
                     Thread.sleep(1);
-                    if (((long) (System.currentTimeMillis() - returnTime)) > 0) {
+                    if (System.currentTimeMillis() - returnTime > 0) {
                         return;
                     }
                 }
@@ -372,27 +354,25 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
             logger.error(e.getMessage(), e);
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         }
-    } // protected void doRequest2ReceiveRS485(int nrOfBytes)
-
+    }
 
     final int OPEN_SERIAL_AND_FLUSH = getIntProperty("openSerialAndFlush", 500);
 
-    //****************************************************************************************
-    // Delegate of implementation of interface StreamConnection
-    //****************************************************************************************
-
+    @Override
     protected void doServerOpen() throws NestedIOException {
         doOpen();
     }
 
+    @Override
     protected void doOpen() throws NestedIOException {
         if (!boolOpen) {
             SerInputStream serInputStream;
             SerOutputStream serOutputStream;
             try {
                 //serialPort = new SerialPortLocal(serialConfig);
-                serialPort = SerialPortServiceProvider.getSerialPort(serialConfig);
+                serialPort = SerialPortServiceProvider.getSerialPort(serialConfig, this.getRuntimeEnvironment());
                 serInputStream = new SerInputStream(serialPort);
                 serOutputStream = new SerOutputStream(serialPort);
                 if (isOsTypeLINUX()) {
@@ -440,12 +420,14 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
             throw new NestedIOException(new IOException("Port already open"));
         }
 
-    } // private void doOpen()
+    }
 
+    @Override
     protected void doServerClose() throws NestedIOException {
         doClose();
     }
 
+    @Override
     protected void doClose() throws NestedIOException {
         if (boolOpen) {
             try {
@@ -462,10 +444,12 @@ public class SerialPortStreamConnection extends StreamConnectionImpl {
         }
     }
 
+    @Override
     protected SerialPort doGetSerialPort() {
         return serialPort;
     }
 
+    @Override
     public Socket getSocket() {
         return null;
     }

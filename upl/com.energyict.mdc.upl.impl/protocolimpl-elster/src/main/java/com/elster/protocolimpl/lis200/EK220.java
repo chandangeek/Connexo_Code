@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.lis200;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
 import com.elster.protocolimpl.lis200.objects.SimpleObject;
 import com.elster.protocolimpl.lis200.registers.HistoricRegisterDefinition;
@@ -84,8 +86,8 @@ public class EK220 extends LIS200 implements IRegisterReadable {
 
     private Integer beginOfDay = null;
 
-    public EK220() {
-        super();
+    public EK220(PropertySpecService propertySpecService) {
+        super(propertySpecService);
         setMaxMeterIndex(1);
         setEventInterpreter(new Ek220EventInterpreter());
     }

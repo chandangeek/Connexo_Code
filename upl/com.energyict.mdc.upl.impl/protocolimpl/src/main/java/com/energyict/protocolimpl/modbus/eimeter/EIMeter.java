@@ -12,8 +12,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
@@ -70,12 +68,6 @@ public class EIMeter extends Modbus {
     @Override
     public Date getTime() throws IOException {
         return new Date();
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        // discovery is implemented in the GenericModbusDiscover protocol
-        return null;
     }
 
     @Override

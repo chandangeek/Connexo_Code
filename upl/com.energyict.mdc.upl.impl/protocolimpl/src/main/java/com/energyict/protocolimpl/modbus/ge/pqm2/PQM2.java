@@ -12,8 +12,6 @@ package com.energyict.protocolimpl.modbus.ge.pqm2;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -67,11 +65,6 @@ public class PQM2 extends Modbus implements SerialNumberSupport {
     public Date getTime() throws IOException {
         return getRegisterFactory().findRegister("clock").dateValue();
         //return new Date();
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        return null;
     }
 
 }

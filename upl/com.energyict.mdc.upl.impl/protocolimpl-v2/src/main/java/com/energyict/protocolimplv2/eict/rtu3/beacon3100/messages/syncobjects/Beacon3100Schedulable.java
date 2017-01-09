@@ -1,7 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.mdc.tasks.ComTaskEnablement;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -17,20 +20,16 @@ import java.util.List;
 @XmlRootElement
 public class Beacon3100Schedulable {
 
+    private long originalId;
     private long scheduleId;
     private int logicalDeviceId;
-    private int clientTypeId;
+    private long clientTypeId;
     private List<ObisCode> profiles;
     private List<ObisCode> registers;
     private List<ObisCode> eventLogs;
 
-    /**
-     * A reference to the original comTaskEnablement that defined this masterdata
-     */
-    private ComTaskEnablement comTaskEnablement;
-
-    public Beacon3100Schedulable(ComTaskEnablement comTaskEnablement, long scheduleId, int logicalDeviceId, int clientTypeId, List<ObisCode> profiles, List<ObisCode> registers, List<ObisCode> eventLogs) {
-        this.comTaskEnablement = comTaskEnablement;
+    public Beacon3100Schedulable(long originalId, long scheduleId, int logicalDeviceId, long clientTypeId, List<ObisCode> profiles, List<ObisCode> registers, List<ObisCode> eventLogs) {
+        this.originalId = originalId;
         this.scheduleId = scheduleId;
         this.logicalDeviceId = logicalDeviceId;
         this.clientTypeId = clientTypeId;
@@ -70,8 +69,9 @@ public class Beacon3100Schedulable {
         return structure;
     }
 
-    public ComTaskEnablement getComTaskEnablement() {
-        return comTaskEnablement;
+    @XmlAttribute
+    public long getOriginalId() {
+        return originalId;
     }
 
     @XmlAttribute
@@ -85,7 +85,7 @@ public class Beacon3100Schedulable {
     }
 
     @XmlAttribute
-    public int getClientTypeId() {
+    public long getClientTypeId() {
         return clientTypeId;
     }
 

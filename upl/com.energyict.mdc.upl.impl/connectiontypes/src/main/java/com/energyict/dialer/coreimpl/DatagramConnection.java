@@ -7,6 +7,7 @@
 package com.energyict.dialer.coreimpl;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.RuntimeEnvironment;
 
 import java.io.IOException;
 
@@ -15,28 +16,22 @@ import java.io.IOException;
  */
 public class DatagramConnection extends StreamPortConnection {
 
-
     // socket for IP communication
-
-    /**
-     * Creates a new instance of DatagramConnection
-     */
-    public DatagramConnection(String ipPort) {
-        super(ipPort);
+    public DatagramConnection(String ipPort, RuntimeEnvironment runtimeEnvironment) {
+        super(ipPort, runtimeEnvironment);
     }
 
     // KV 03102005
-    public DatagramConnection(UDPSession udpSession) {
-        super(udpSession);
+    public DatagramConnection(UDPSession udpSession, RuntimeEnvironment runtimeEnvironment) {
+        super(udpSession, runtimeEnvironment);
     }
 
-    //****************************************************************************************
-    // Delegate of implementation of interface StreamConnection
-    //****************************************************************************************
+    @Override
     protected void doServerOpen() throws IOException {
         doOpen();
     }
 
+    @Override
     protected void doOpen() throws IOException {
         if (!boolOpen) {
             try {
@@ -85,10 +80,12 @@ public class DatagramConnection extends StreamPortConnection {
         }
     }
 
+    @Override
     protected void doServerClose() throws NestedIOException {
         doClose();
     }
 
+    @Override
     protected void doClose() throws NestedIOException {
         if (boolOpen) {
             try {

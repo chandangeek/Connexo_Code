@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for Serial communication.
+ * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType} interface for Serial communication.
  * <p>
  * Copyrights EnergyICT
  * Date: 17/08/12
@@ -37,9 +37,13 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
         for (String propertyName : properties.propertyNames()) {
             this.setProperty(propertyName, properties.getProperty(propertyName));
         }
-        SerialPortConfiguration serialPortConfiguration = new SerialPortConfiguration(comPortName, getBaudRateValue(), getNrOfDataBitsValue(),
-                getNrOfStopBitsValue(), getParityValue(), getFlowControlValue());
-        return serialPortConfiguration;
+        return new SerialPortConfiguration(
+                        comPortName,
+                        getBaudRateValue(),
+                        getNrOfDataBitsValue(),
+                        getNrOfStopBitsValue(),
+                        getParityValue(),
+                        getFlowControlValue());
     }
 
     @Override

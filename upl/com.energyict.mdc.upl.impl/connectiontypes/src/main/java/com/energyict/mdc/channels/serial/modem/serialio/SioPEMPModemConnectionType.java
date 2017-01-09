@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType}
+ * <p>Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType}
  * interface for Serial PEMP communication, using the Sio library.</p>
  *
  * @author sva

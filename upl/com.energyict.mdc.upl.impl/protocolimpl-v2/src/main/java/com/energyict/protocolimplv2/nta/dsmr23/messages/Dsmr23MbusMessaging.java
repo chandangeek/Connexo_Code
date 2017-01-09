@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
@@ -25,6 +27,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessagi
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation of {@link DeviceMessageSupport} for the DSMR 2.3 Mbus slave device, that:
@@ -90,8 +93,8 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, com.energyict.mdc.upl.messages.DeviceMessage deviceMessage) {
-        return "";
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return Optional.empty();
     }
 
     @Override

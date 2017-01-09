@@ -2,11 +2,12 @@ package com.elster.us.smartmeterprotocolimpl;
 
 import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
@@ -81,19 +83,23 @@ public class SampleProtocol implements SmartMeterProtocol {
         return null;
     }
 
-    public void setCache(Object cacheObject) {
-
-    }
-
+    @Override
     public Serializable getCache() {
         return null;
     }
 
-    public Object fetchCache(int deviceId) throws SQLException, BusinessException {
+    @Override
+    public void setCache(Serializable cacheObject) {
+
+    }
+
+    @Override
+    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
         return null;
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
+    @Override
+    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
 
     }
 
@@ -106,23 +112,23 @@ public class SampleProtocol implements SmartMeterProtocol {
     }
 
     public List<String> getRequiredKeys() {
-        return null;
+        return Collections.emptyList();
     }
 
     public List<String> getOptionalKeys() {
-        return null;
+        return Collections.emptyList();
     }
 
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
-        return null;
+        return Collections.emptyList();
     }
 
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
-        return null;
+        return Collections.emptyList();
     }
 
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        return null;
+        return Collections.emptyList();
     }
 
 

@@ -4,23 +4,30 @@ import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -62,9 +69,11 @@ public class SEL implements DeviceProtocol {
     private SerialPortComChannel comChannel;
     private Logger logger = Logger.getLogger(this.getClass().getName());
     private LoadProfileBuilder loadProfileBuilder;
+    private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
 
-    public SEL(CollectedDataFactory collectedDataFactory) {
+    public SEL(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
+        this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
     }
 
@@ -249,9 +258,8 @@ public class SEL implements DeviceProtocol {
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice arg0, DeviceMessage arg1) {
-        // TODO Auto-generated method stub
-        return null;
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice arg0, DeviceMessage arg1) {
+        return Optional.empty();
     }
 
     @Override
@@ -326,4 +334,28 @@ public class SEL implements DeviceProtocol {
         return loadProfileBuilder;
     }
 
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
+
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return null;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return null;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        return null;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        return null;
+    }
 }

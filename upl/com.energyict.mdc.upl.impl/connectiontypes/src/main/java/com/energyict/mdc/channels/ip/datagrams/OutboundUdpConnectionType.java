@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for UDP.
+ * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType} interface for UDP.
  * <p>
  * Copyrights EnergyICT
  * Date: 9/11/12

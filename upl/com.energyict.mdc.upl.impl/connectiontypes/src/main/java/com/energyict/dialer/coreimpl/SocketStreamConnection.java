@@ -7,6 +7,7 @@
 package com.energyict.dialer.coreimpl;
 
 import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.RuntimeEnvironment;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -18,28 +19,22 @@ import java.net.SocketException;
  */
 public class SocketStreamConnection extends StreamPortConnection {
 
-
     // socket for IP communication
-
-    /**
-     * Creates a new instance of SocketStreamConnection
-     */
-    public SocketStreamConnection(String ipPort) {
-        super(ipPort);
+    public SocketStreamConnection(String ipPort, RuntimeEnvironment runtimeEnvironment) {
+        super(ipPort, runtimeEnvironment);
     }
 
     // KV 03102005
-    public SocketStreamConnection(Socket socket) {
-        super(socket);
+    public SocketStreamConnection(Socket socket, RuntimeEnvironment runtimeEnvironment) {
+        super(socket, runtimeEnvironment);
     }
 
-    //****************************************************************************************
-    // Delegate of implementation of interface StreamConnection
-    //****************************************************************************************
+    @Override
     protected void doServerOpen() throws NestedIOException {
         doOpen();
     }
 
+    @Override
     protected void doOpen() throws NestedIOException {
         if (!boolOpen) {
             try {
@@ -99,12 +94,14 @@ public class SocketStreamConnection extends StreamPortConnection {
                 throw new NestedIOException(new IOException("Port already open"));
             }
         }
-    } // protected void doOpen(String strPhoneNr) throws NestedIOException,StreamConnectionException
+    }
 
+    @Override
     protected void doServerClose() throws NestedIOException {
         doClose();
     }
 
+    @Override
     protected void doClose() throws NestedIOException {
         if (boolOpen) {
             try {
@@ -130,21 +127,11 @@ public class SocketStreamConnection extends StreamPortConnection {
             }
         }
 
-    } // protected void doClose() throws NestedIOException
+    }
 
-
-    //****************************************************************************************
-    // Private core methods
-    //****************************************************************************************
     private String getIPAddress(String strPhoneNr) throws IOException {
         if (strPhoneNr.contains(":")) {
-            String address = strPhoneNr.substring(0, strPhoneNr.indexOf(":"));
-            if (address == null) {
-                throw new IOException("SocketStreamConnection, getIPAddress, invalid IP connection string " + strPhoneNr);
-            }
-            //address = address.substring(0,address.indexOf(":"));
-            //if (address == null) throw new IOException("SocketStreamConnection, getIPAddress, invalid IP connection string "+strPhoneNr);
-            return address;
+            return strPhoneNr.substring(0, strPhoneNr.indexOf(":"));
         } else {
             throw new IOException("SocketStreamConnection, getIPAddress, not a valid IP connection string : " + strPhoneNr);
         }
@@ -153,9 +140,6 @@ public class SocketStreamConnection extends StreamPortConnection {
     private String getTCPPort(String strPhoneNr) throws IOException {
         if (strPhoneNr.contains(":")) {
             String port = strPhoneNr.substring(strPhoneNr.indexOf(":") + 1);
-            if (port == null) {
-                throw new IOException("SocketStreamConnection, getTCPPort, invalid IP connection string " + strPhoneNr);
-            }
             int comPortIndex = port.indexOf(":");
             if (comPortIndex != -1) {
                 String comPort = port.substring(comPortIndex + 1);

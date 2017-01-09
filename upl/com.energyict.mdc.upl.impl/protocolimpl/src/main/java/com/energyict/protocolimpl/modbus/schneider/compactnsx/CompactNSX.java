@@ -11,8 +11,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 
@@ -49,11 +47,6 @@ public class CompactNSX extends Modbus {
     @Override
 	protected void initRegisterFactory() {
 		setRegisterFactory(new RegisterFactory(this));
-	}
-
-    @Override
-	public DiscoverResult discover(DiscoverTools discoverTools) {
-		return null;
 	}
 
     @Override

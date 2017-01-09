@@ -10,7 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * An implementation of the {@link com.energyict.mdc.tasks.ConnectionType} interface specific for inbound SMS communication using Proximus as carrier.
+ * An implementation of the {@link com.energyict.mdc.io.ConnectionType} interface
+ * specific for inbound SMS communication using Proximus as carrier.
  *
  * @author sva
  * @since 19/06/13 - 9:12

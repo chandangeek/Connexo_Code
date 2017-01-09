@@ -33,7 +33,6 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.Discover;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -62,7 +61,7 @@ import java.util.logging.Logger;
  * 19/03/2009|JME - Added setter for InfoTypeResponseTimeout property.
  *
  */
-public abstract class Modbus extends AbstractProtocol implements Discover, MessageProtocol {
+public abstract class Modbus extends AbstractProtocol implements MessageProtocol {
 
     protected static final String PK_INTERFRAME_TIMEOUT = "InterframeTimeout";
     protected static final String PK_PHYSICAL_LAYER = "PhysicalLayer";

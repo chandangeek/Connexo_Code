@@ -9,9 +9,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Link;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -33,7 +31,6 @@ import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.registers.Zig
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * GB Smart Enhanced Credit - BK-G4E gMeter
@@ -234,12 +231,6 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
 
     public String getVersion() {
         return "$Date: 2015-08-26 14:01:32 +0200 (Wed, 26 Aug 2015) $";
-    }
-
-    @Override
-    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
-        //This method is not used anymore
-        return true;
     }
 
     @Override

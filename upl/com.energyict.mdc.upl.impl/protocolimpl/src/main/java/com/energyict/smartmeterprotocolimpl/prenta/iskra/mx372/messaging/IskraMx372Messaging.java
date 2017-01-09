@@ -16,7 +16,6 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -72,7 +71,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -396,19 +394,6 @@ public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProto
             }
             return msgResult;
         }
-    }
-
-    /**
-     * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
-     *
-     * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
-     * @param link                     Link created by the comserver, can be null if a NullDialer is configured
-     * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
-     *                                 messages with a level lower than warning will only be logged in the file log if active.
-     */
-    public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) {
-        return true;
     }
 
     /**

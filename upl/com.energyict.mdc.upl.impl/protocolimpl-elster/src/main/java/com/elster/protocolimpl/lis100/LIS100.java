@@ -77,10 +77,6 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     /* Serial number to verify */
     protected String serialNumber;
 
-    public LIS100() {
-        super(propertySpecService);
-    }
-
     @Override
     public void init(InputStream inputStream, OutputStream outputStream,
                      TimeZone timezone, Logger logger) throws IOException {

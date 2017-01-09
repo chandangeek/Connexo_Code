@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.common.objectserialization.codetable.CodeObjectValidator;
 import com.energyict.protocolimplv2.common.objectserialization.codetable.CodeTableBase64Parser;
@@ -47,12 +46,8 @@ public class ConfigureTariffSettings extends AbstractConfigMessage {
     }
 
     private CodeObject validateAndGetCodeObject(String codeTableBase64) throws IOException {
-        try {
-            CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(codeTableBase64);
-            CodeObjectValidator.validateCodeObject(codeObject);
-            return codeObject;
-        } catch (BusinessException e) {
-            throw new IOException(e.getMessage());
-        }
+        CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(codeTableBase64);
+        CodeObjectValidator.validateCodeObject(codeObject);
+        return codeObject;
     }
 }

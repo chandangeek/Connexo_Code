@@ -2,6 +2,13 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.cpo.TypedProperties;
@@ -18,7 +25,10 @@ import java.security.Key;
 import java.util.Arrays;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -34,6 +44,7 @@ import static org.mockito.Mockito.when;
  *
  * @author alex
  */
+@RunWith(MockitoJUnitRunner.class)
 public final class Beacon3100Test {
 
 	/** AARE. */
@@ -75,7 +86,22 @@ public final class Beacon3100Test {
 	/** The HMAC FC response. */
 	private byte[] hmacFcResponse;
 
-	/**
+    @Mock
+	private PropertySpecService propertySpecService;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Converter converter;
+    @Mock
+    private CollectedDataFactory collectedDataFactory;
+    @Mock
+    private IssueFactory issueFactory;
+    @Mock
+    private ObjectMapperService objectMapperService;
+    @Mock
+    private DeviceMasterDataExtractor deviceMasterDataExtractor;
+
+    /**
 	 * Tests the read frame counter.
 	 */
 	@Test
@@ -130,7 +156,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100(propertySpecService);
+		final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -188,7 +214,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100(propertySpecService);
+		final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -257,7 +283,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100(propertySpecService);
+		final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -344,7 +370,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100(propertySpecService);
+		final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);
@@ -365,7 +391,7 @@ public final class Beacon3100Test {
 	 *
 	 * @return	The HMAC FC response.
 	 */
-	private final byte[] generateHmacResponse(final byte[] hmacChallenge) throws GeneralSecurityException {
+	private byte[] generateHmacResponse(final byte[] hmacChallenge) throws GeneralSecurityException {
 		final byte[] hmacInput = new byte[SERVER_SYSTEM_TITLE.length + CLIENT_SYSTEM_TITLE.length + hmacChallenge.length + 4];
 
 		final long fc = 3100;
@@ -461,7 +487,7 @@ public final class Beacon3100Test {
 		final DeviceProtocolSecurityPropertySet securityProps = mock(DeviceProtocolSecurityPropertySet.class);
 		when(securityProps.getSecurityProperties()).thenReturn(TypedProperties.empty());
 
-		final Beacon3100 protocol = new Beacon3100(propertySpecService);
+		final Beacon3100 protocol = new Beacon3100(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, objectMapperService, deviceMasterDataExtractor);
 		protocol.setSecurityPropertySet(securityProps);
 
 		protocol.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(1);

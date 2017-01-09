@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType}
+ * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType}
  * interface for Serial AT-Modem communication, using the Sio library.
  * <p>
  * Copyrights EnergyICT

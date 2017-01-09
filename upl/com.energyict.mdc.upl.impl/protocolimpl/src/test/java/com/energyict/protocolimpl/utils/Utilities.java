@@ -5,10 +5,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
-import com.energyict.dialer.core.Dialer;
-import com.energyict.dialer.core.DialerFactory;
-import com.energyict.dialer.core.LinkException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;
@@ -194,21 +190,6 @@ public class Utilities {
         deviceShadow.add(channelShadow);
         device.delete();
         return mw().getDeviceFactory().create(deviceShadow);
-    }
-
-    /**
-     * @return new dialer
-     */
-    public static Dialer getNewDialer() throws LinkException, IOException {
-        Dialer dialer = null;
-        dialer = DialerFactory.getDirectDialer().newDialer();
-        dialer.init("COM1");
-        dialer.connect("", 60000);
-        dialer.getSerialCommunicationChannel().setParamsAndFlush(9600,
-                SerialCommunicationChannel.DATABITS_8,
-                SerialCommunicationChannel.PARITY_NONE,
-                SerialCommunicationChannel.STOPBITS_1);
-        return dialer;
     }
 
     /**

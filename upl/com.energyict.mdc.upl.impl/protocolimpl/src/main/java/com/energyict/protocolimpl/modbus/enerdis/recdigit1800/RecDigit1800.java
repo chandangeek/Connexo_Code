@@ -13,8 +13,6 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.base.ProfileLimiter;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
@@ -556,11 +554,6 @@ public class RecDigit1800 extends Modbus {
             ptRatio = readValue(0x19fe, Type.REAL_NUMBER);
         }
         return ptRatio;
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        return null;
     }
 
     private int getLimitMaxNrOfDays() {

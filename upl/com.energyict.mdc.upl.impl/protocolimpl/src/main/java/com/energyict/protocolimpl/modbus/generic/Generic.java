@@ -11,8 +11,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
@@ -149,12 +147,6 @@ public class Generic extends Modbus {
     @Override
     public String getProtocolVersion() {
         return "$Date: 2015-04-21 13:49:04 +0200 (Tue, 21 Apr 2015) $";
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        DiscoverResult discover = new DiscoverResult();
-        return discover;
     }
 
 }

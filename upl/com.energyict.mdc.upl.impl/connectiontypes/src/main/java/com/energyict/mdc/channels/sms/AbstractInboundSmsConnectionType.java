@@ -11,7 +11,8 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * Abstract implementation of the {@link com.energyict.mdc.tasks.ConnectionType} interface specific for inbound SMS communication.
+ * Abstract implementation of the {@link com.energyict.mdc.io.ConnectionType} interface
+ * specific for inbound SMS communication.
  *
  * @author sva
  * @since 26/06/13 - 17:10

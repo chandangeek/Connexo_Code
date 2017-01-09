@@ -99,7 +99,7 @@ public class IF2LinkLayer {
      *
      * @return The logger
      */
-    private final Logger getLogger() {
+    private Logger getLogger() {
         return this.logger;
     }
 
@@ -260,7 +260,7 @@ public class IF2LinkLayer {
      * @throws java.io.IOException Throws an IOException if we were unable to read the next byte
      *                     or if the end of the stream was reached (received '-1')
      */
-    private final int readNextByte() throws IOException {
+    private int readNextByte() throws IOException {
         try {
             if (inputStream.available() != 0) {
                 final int value = inputStream.read();

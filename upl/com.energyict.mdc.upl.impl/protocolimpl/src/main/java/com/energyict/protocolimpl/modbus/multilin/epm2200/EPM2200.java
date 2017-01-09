@@ -8,8 +8,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
@@ -19,8 +17,6 @@ import com.energyict.protocolimpl.modbus.core.ModbusException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -92,45 +88,6 @@ public class EPM2200 extends Modbus implements SerialNumberSupport {
         } catch (ModbusException e) {
             getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
             throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
-        }
-    }
-
-    @Override
-    public DiscoverResult discover(DiscoverTools discoverTools) {
-        DiscoverResult discoverResult = new DiscoverResult();
-        discoverResult.setProtocolMODBUS();
-
-        try {
-            setUPLProperties(com.energyict.cpo.TypedProperties.copyOf(discoverTools.getProperties()));
-            if (getInfoTypeHalfDuplex() != 0) {
-                setHalfDuplexController(discoverTools.getDialer().getHalfDuplexController());
-            }
-            init(discoverTools.getDialer().getInputStream(), discoverTools.getDialer().getOutputStream(), TimeZone.getTimeZone("ECT"), Logger.getLogger(EPM2200.class.toString()));
-            connect();
-
-            String meterName = (String) getRegisterFactory().findRegister("MeterName").value();
-            String firmwareVersion = (String) getRegisterFactory().findRegister("FirmwareVersion").value();
-
-            if ((meterName.toLowerCase().contains("shark 50")) && (firmwareVersion.contains("0051"))) {
-                discoverResult.setDiscovered(true);
-                discoverResult.setProtocolName(this.getClass().getName());
-                discoverResult.setAddress(discoverTools.getAddress());
-            } else {
-                discoverResult.setDiscovered(false);
-            }
-
-            discoverResult.setResult(meterName);
-            return discoverResult;
-        } catch (Exception e) {
-            discoverResult.setDiscovered(false);
-            discoverResult.setResult(e.toString());
-            return discoverResult;
-        } finally {
-            try {
-                disconnect();
-            } catch (IOException e) {
-                // absorb
-            }
         }
     }
 
