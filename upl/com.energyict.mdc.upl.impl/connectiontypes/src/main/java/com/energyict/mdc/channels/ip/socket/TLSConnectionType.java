@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cpo.Environment;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdw.core.DLMSKeyStoreParameters;
@@ -70,21 +71,21 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
      * Defaults to TLSv1.2
      */
     private PropertySpec tlsVersionPropertySpec() {
-        return UPLPropertySpecFactory.stringWithDefault(TLS_VERSION_PROPERTY_NAME, false, TLS_DEFAULT_VERSION);
+        return this.stringWithDefault(TLS_VERSION_PROPERTY_NAME, TLS_DEFAULT_VERSION);
     }
 
     /**
      * A comma-separated list of cipher suites that are preferred by the client (ComServer)
      */
     private PropertySpec preferredCipheringSuitesPropertySpec() {
-        return UPLPropertySpecFactory.string(PREFERRED_CIPHER_SUITES_PROPERTY_NAME, false);
+        return UPLPropertySpecFactory.specBuilder(PREFERRED_CIPHER_SUITES_PROPERTY_NAME, false, getPropertySpecService()::stringSpec).finish();
     }
 
     /**
      * The alias of the TLS private key.
      */
     private PropertySpec tlsAliasPropertySpec() {
-        return UPLPropertySpecFactory.string(CLIENT_TLS_ALIAS, false);
+        return UPLPropertySpecFactory.specBuilder(CLIENT_TLS_ALIAS, false, getPropertySpecService()::stringSpec).finish();
     }
 
     @Override
@@ -396,12 +397,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
-    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
-        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
-    }
-
-    private PropertySpec stringSpecWithDefault(String name, String defaultValue) {
-        return this.spec(name, () -> this.getPropertySpecService().s);
+    private PropertySpec stringWithDefault(String name, String defaultValue) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, false, getPropertySpecService()::stringSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        return specBuilder.finish();
     }
 
 }
