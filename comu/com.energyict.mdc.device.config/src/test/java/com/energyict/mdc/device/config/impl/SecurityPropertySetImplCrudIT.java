@@ -70,28 +70,16 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -101,6 +89,14 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Optional;
 
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
@@ -128,11 +124,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudIT {
 
-    @Rule
-    public final TestRule transactional = new TransactionalRule(transactionService);
-    @Rule
-    public TestRule itWillHitTheFan = new ExpectedConstraintViolationRule();
-
     private static InMemoryBootstrapModule bootstrapModule;
     private static EventAdmin eventAdmin;
     private static BundleContext bundleContext;
@@ -141,28 +132,18 @@ public class SecurityPropertySetImplCrudIT {
     private static DeviceConfigurationServiceImpl deviceConfigurationService;
     private static Injector injector;
     private static SpyEventService eventService;
-
+    @Rule
+    public final TestRule transactional = new TransactionalRule(transactionService);
+    @Rule
+    public TestRule itWillHitTheFan = new ExpectedConstraintViolationRule();
     @Mock
     private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private DeviceProtocol deviceProtocol;
     @Mock
-    private AuthenticationDeviceAccessLevel authLevel, authLevel2;
+    private com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authLevel, authLevel2;
     @Mock
-    private EncryptionDeviceAccessLevel encLevel;
-
-    private static class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
-
-    }
+    private com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encLevel;
 
     @BeforeClass
     public static void initializeDatabase() {
@@ -266,6 +247,18 @@ public class SecurityPropertySetImplCrudIT {
     @AfterClass
     public static void tearDown() {
         bootstrapModule.deactivate();
+    }
+
+    private static void enhanceEventServiceForConflictCalculation() {
+        doAnswer(invocationOnMock -> {
+            LocalEvent localEvent = mock(LocalEvent.class);
+            com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
+            when(eventType.getTopic()).thenReturn((String) invocationOnMock.getArguments()[0]);
+            when(localEvent.getType()).thenReturn(eventType);
+            when(localEvent.getSource()).thenReturn(invocationOnMock.getArguments()[1]);
+            injector.getInstance(DeviceConfigConflictMappingHandler.class).onEvent(localEvent);
+            return null;
+        }).when(eventService.getSpy()).postEvent(any(), any());
     }
 
     @Before
@@ -587,7 +580,7 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideAuthenticationLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<AuthenticationDeviceAccessLevel>emptyList());
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
@@ -621,7 +614,7 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
@@ -737,22 +730,6 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration(name).add();
         deviceConfiguration.save();
         return deviceConfiguration;
-    }
-
-    public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
-    }
-
-
-    private static void enhanceEventServiceForConflictCalculation() {
-        doAnswer(invocationOnMock -> {
-            LocalEvent localEvent = mock(LocalEvent.class);
-            com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
-            when(eventType.getTopic()).thenReturn((String) invocationOnMock.getArguments()[0]);
-            when(localEvent.getType()).thenReturn(eventType);
-            when(localEvent.getSource()).thenReturn(invocationOnMock.getArguments()[1]);
-            injector.getInstance(DeviceConfigConflictMappingHandler.class).onEvent(localEvent);
-            return null;
-        }).when(eventService.getSpy()).postEvent(any(), any());
     }
 
     @Test
@@ -903,7 +880,6 @@ public class SecurityPropertySetImplCrudIT {
 //                && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getDestinationDataSource().getId() == destinationSecurityPropertySet.getId();
     }
 
-
     private boolean matchConfigs(DeviceConfigConflictMapping deviceConfigConflictMapping, DeviceConfiguration originConfig, DeviceConfiguration destinationConfig) {
         return deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originConfig.getId()
                 && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationConfig.getId();
@@ -915,5 +891,22 @@ public class SecurityPropertySetImplCrudIT {
                 .encryptionLevel(encryptionLevel)
                 .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
                 .build();
+    }
+
+
+    public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
+    }
+
+    private static class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+        }
+
     }
 }

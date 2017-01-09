@@ -24,6 +24,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -207,13 +209,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have an AuthenticationDeviceAccessLevel with the specified id
      */
     private AuthenticationDeviceAccessLevel findAuthenticationLevel(int id) {
-        List<AuthenticationDeviceAccessLevel> levels = this.getDeviceProtocol().getAuthenticationAccessLevels();
-        for (AuthenticationDeviceAccessLevel level : levels) {
-            if (id == level.getId()) {
-                return level;
-            }
-        }
-        return new NoAuthentication(getThesaurus());
+        return this.getDeviceProtocol().getAuthenticationAccessLevels().stream()
+                .filter(level -> level.getId() == id)
+                .findAny()
+                .map(UPLAuthenticationLevelAdapter::new)
+                .map(AuthenticationDeviceAccessLevel.class::cast)
+                .orElse(new NoAuthentication(getThesaurus()));
     }
 
     @Override
@@ -237,13 +238,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have an EncryptionDeviceAccessLevel with the specified id
      */
     private EncryptionDeviceAccessLevel findEncryptionLevel(int id) {
-        List<EncryptionDeviceAccessLevel> levels = this.getDeviceProtocol().getEncryptionAccessLevels();
-        for (EncryptionDeviceAccessLevel level : levels) {
-            if (id == level.getId()) {
-                return level;
-            }
-        }
-        return new NoEncryption(getThesaurus());
+        return this.getDeviceProtocol().getAuthenticationAccessLevels().stream()
+                .filter(level -> level.getId() == id)
+                .findAny()
+                .map(UPLEncryptionLevelAdapter::new)
+                .map(EncryptionDeviceAccessLevel.class::cast)
+                .orElse(new NoEncryption(getThesaurus()));
     }
 
     private DeviceProtocol getDeviceProtocol() {
@@ -451,17 +451,16 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
 
         private List<EncryptionDeviceAccessLevel> supportedEncryptionlevels(SecurityPropertySetImpl value) {
-            List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels();
+            List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels().stream().map(UPLEncryptionLevelAdapter::new).collect(Collectors.toList());
             if (levels.isEmpty()) {
                 return Collections.singletonList(new NoEncryption(thesaurus));
-            }
-            else {
+            } else {
                 return levels;
             }
         }
 
         private boolean authLevelSupported(SecurityPropertySetImpl value) {
-            for (AuthenticationDeviceAccessLevel supportedAuthLevel : supportedAutheticationLevels(value)) {
+            for (AuthenticationDeviceAccessLevel supportedAuthLevel : supportedAuthenticationLevels(value)) {
                 if (supportedAuthLevel.getId() == value.authenticationLevelId) {
                     return true;
                 }
@@ -469,12 +468,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             return false;
         }
 
-        private List<AuthenticationDeviceAccessLevel> supportedAutheticationLevels(SecurityPropertySetImpl value) {
-            List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
+        private List<AuthenticationDeviceAccessLevel> supportedAuthenticationLevels(SecurityPropertySetImpl value) {
+            List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels().stream().map(UPLAuthenticationLevelAdapter::new).collect(Collectors.toList());
             if (levels.isEmpty()) {
                 return Collections.singletonList(new NoAuthentication(thesaurus));
-            }
-            else {
+            } else {
                 return levels;
             }
         }

@@ -76,9 +76,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -104,6 +101,8 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.google.common.base.Strings;
@@ -444,17 +443,32 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
+
+        @Override
         public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
             return Optional.empty();
         }
 
         @Override
-        public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
             return null;
         }
 
         @Override
-        public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        public List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
             return null;
         }
 

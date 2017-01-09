@@ -9,21 +9,17 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import org.fest.assertions.core.Condition;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -254,70 +250,91 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
     }
 
     private void enhanceDeviceProtocolWithSecurityPropertySet(int accessLevelOne, int accessLevelPentagon) {
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.<AuthenticationDeviceAccessLevel>asList(
-                new AuthenticationDeviceAccessLevel() {
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel>asList(
+                new com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel() {
                     @Override
                     public int getId() {
                         return accessLevelOne;
                     }
 
                     @Override
-                    public String getTranslation() {
-                        return null;
+                    public String getTranslationKey() {
+                        return "";
                     }
 
                     @Override
-                    public List<PropertySpec> getSecurityProperties() {
+                    public String getDefaultTranslation() {
+                        return "";
+                    }
+
+                    @Override
+                    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
                         return Collections.emptyList();
                     }
-                }, new AuthenticationDeviceAccessLevel() {
+                }, new com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel() {
                     @Override
                     public int getId() {
                         return accessLevelPentagon;
                     }
 
                     @Override
-                    public String getTranslation() {
-                        return null;
+                    public String getTranslationKey() {
+                        return "";
                     }
 
                     @Override
-                    public List<PropertySpec> getSecurityProperties() {
+                    public String getDefaultTranslation() {
+                        return "";
+                    }
+
+                    @Override
+                    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
                         return Collections.emptyList();
                     }
                 }));
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.<EncryptionDeviceAccessLevel>asList(
-                new EncryptionDeviceAccessLevel() {
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel>asList(
+                new com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel() {
                     @Override
                     public int getId() {
                         return accessLevelOne;
                     }
 
                     @Override
-                    public String getTranslation() {
-                        return null;
+                    public String getTranslationKey() {
+                        return "";
                     }
 
                     @Override
-                    public List<PropertySpec> getSecurityProperties() {
+                    public String getDefaultTranslation() {
+                        return "";
+                    }
+
+                    @Override
+                    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
                         return Collections.emptyList();
                     }
-                }, new EncryptionDeviceAccessLevel() {
+                }, new com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel() {
                     @Override
                     public int getId() {
                         return accessLevelPentagon;
                     }
 
                     @Override
-                    public String getTranslation() {
-                        return null;
+                    public String getTranslationKey() {
+                        return "";
                     }
 
                     @Override
-                    public List<PropertySpec> getSecurityProperties() {
+                    public String getDefaultTranslation() {
+                        return "";
+                    }
+
+                    @Override
+                    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
                         return Collections.emptyList();
                     }
-                }));    }
+                }));
+    }
 
     private DeviceProtocolDialect mockDeviceProtocolDialect(String propertyName, String protocolDialectName, PropertySpec propertySpec) {
         DeviceProtocolDialect dialect1 = mock(DeviceProtocolDialect.class);
