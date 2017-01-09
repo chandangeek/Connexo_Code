@@ -7,13 +7,11 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
-import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
@@ -40,21 +38,58 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
     private final UserService userService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringService meteringService;
+    private final MetrologyConfigurationsInstaller metrologyConfigurationsInstaller;
 
     @Inject
-    UpgraderV10_3(DataModel dataModel, UserService userService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
+    UpgraderV10_3(DataModel dataModel, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UserService userService) {
         super();
         this.dataModel = dataModel;
-        this.userService = userService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meteringService = meteringService;
+        this.userService = userService;
+        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(metrologyConfigurationService, meteringService);
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        metrologyConfigurationsInstaller.createMetrologyConfigurations();
+        upgradeResidentionalNetMeteringConsumption();
+        upgradeResidentialProsumerWith1Meter();
         userService.addModulePrivileges(this);
-        addOptionalContractsToResidentialProsumerWith1Meter();
+    }
+
+    private void upgradeResidentionalNetMeteringConsumption() {
+        Optional<MetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (consumption)");
+        if (metrologyConfiguration.isPresent() && metrologyConfiguration.get()
+                .getDeliverables()
+                .stream()
+                .noneMatch(d -> d.getName().equals("A+ kWh"))) {
+            Optional<MeterRole> meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey());
+            Optional<ReadingTypeTemplate> readingTypeTemplate = metrologyConfigurationService.findReadingTypeTemplate(DefaultReadingTypeTemplate.DELTA_A_PLUS
+                    .getNameTranslation()
+                    .getDefaultFormat());
+            Optional<MetrologyPurpose> purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+            Optional<MetrologyContract> contract = metrologyConfiguration.flatMap(mc -> mc.getContracts()
+                    .stream()
+                    .filter(mct -> purposeInformation.isPresent() && purposeInformation.get()
+                            .equals(mct.getMetrologyPurpose()))
+                    .findFirst());
+
+            if (contract.isPresent() && meterRole.isPresent() && readingTypeTemplate.isPresent()) {
+                ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.DELTA_A_PLUS_WH))
+                        .stream()
+                        .findFirst()
+                        .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.DELTA_A_PLUS_WH, "A+"));
+                ReadingTypeRequirement requirementAplusRegister = ((UsagePointMetrologyConfiguration) metrologyConfiguration
+                        .get()).newReadingTypeRequirement(DefaultReadingTypeTemplate.DELTA_A_PLUS.getNameTranslation()
+                        .getDefaultFormat(), meterRole.get())
+                        .withReadingTypeTemplate(readingTypeTemplate.get());
+                contract.get()
+                        .addDeliverable(metrologyConfigurationsInstaller.buildFormulaSingleRequirement(((UsagePointMetrologyConfiguration) metrologyConfiguration
+                                .get()), readingTypeAplusWh, requirementAplusRegister, "A+ kWh"));
+            }
+        }
     }
 
     @Override
@@ -62,9 +97,12 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
         return UsagePointConfigurationService.COMPONENTNAME;
     }
 
-    private void addOptionalContractsToResidentialProsumerWith1Meter() {
+    private void upgradeResidentialProsumerWith1Meter() {
         Optional<MetrologyConfiguration> usagePointMetrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential prosumer with 1 meter");
-        if (usagePointMetrologyConfiguration.isPresent()) {
+        if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get()
+                .getDeliverables()
+                .stream()
+                .noneMatch(d -> d.getName().equals("Hourly average voltage V phase 1 vs N"))) {
             UsagePointMetrologyConfiguration config = (UsagePointMetrologyConfiguration) usagePointMetrologyConfiguration
                     .get();
             ReadingType readingTypeAverageVoltagePhaseA = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0"))
@@ -89,34 +127,26 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     meterRole -> {
                         ReadingTypeRequirement requirementAverageVoltagePhaseA = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
                                 .getNameTranslation().getDefaultFormat() + " phase A", meterRole)
-                                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
+                                .withReadingTypeTemplate(metrologyConfigurationsInstaller.getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
                                 .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 128);
                         ReadingTypeRequirement requirementAverageVoltagePhaseB = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
                                 .getNameTranslation().getDefaultFormat() + " phase B", meterRole)
-                                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
+                                .withReadingTypeTemplate(metrologyConfigurationsInstaller.getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
                                 .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 64);
                         ReadingTypeRequirement requirementAverageVoltagePhaseC = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
                                 .getNameTranslation().getDefaultFormat() + " phase C", meterRole)
-                                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
+                                .withReadingTypeTemplate(metrologyConfigurationsInstaller.getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
                                 .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 32);
 
-                        contractVoltageMonitoring.addDeliverable(buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseA, requirementAverageVoltagePhaseA, "Hourly average voltage V phase 1 vs N"));
-                        contractVoltageMonitoring.addDeliverable(buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseB, requirementAverageVoltagePhaseB, "Hourly average voltage V phase 2 vs N"));
-                        contractVoltageMonitoring.addDeliverable(buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseC, requirementAverageVoltagePhaseC, "Hourly average voltage V phase 3 vs N"));
+                        contractVoltageMonitoring.addDeliverable(metrologyConfigurationsInstaller
+                                .buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseA, requirementAverageVoltagePhaseA, "Hourly average voltage V phase 1 vs N"));
+                        contractVoltageMonitoring.addDeliverable(metrologyConfigurationsInstaller
+                                .buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseB, requirementAverageVoltagePhaseB, "Hourly average voltage V phase 2 vs N"));
+                        contractVoltageMonitoring.addDeliverable(metrologyConfigurationsInstaller
+                                .buildFormulaSingleRequirement(config, readingTypeAverageVoltagePhaseC, requirementAverageVoltagePhaseC, "Hourly average voltage V phase 3 vs N"));
                     }
             );
         }
-    }
-
-    private ReadingTypeTemplate getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate defaultReadingTypeTemplate) {
-        return metrologyConfigurationService.findReadingTypeTemplate(defaultReadingTypeTemplate.getNameTranslation()
-                .getDefaultFormat())
-                .orElseThrow(() -> new NoSuchElementException("Default reading type template not found"));
-    }
-
-    private ReadingTypeDeliverable buildFormulaSingleRequirement(UsagePointMetrologyConfiguration config, ReadingType readingType, ReadingTypeRequirement requirement, String name) {
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable(name, readingType, Formula.Mode.AUTO);
-        return builder.build(builder.requirement(requirement));
     }
 
     @Override
