@@ -21,14 +21,18 @@ public enum Functions {
 
     /**
      * This method exists solely to cleanly decorate a method reference as a Consumer so the andThen() can be called on it :
-     *
+     * <p>
      * e.g. : first(System.out::println).andThen(System.err::println)
-     *
      */
     public static <T> Consumer<T> first(Consumer<T> consumer) {
         return consumer;
     }
 
+    /**
+     * This method exists solely to cleanly decorate a method reference as a Function so the andThen() can be called on it :
+     * <p>
+     * e.g. : map(HasName::getName).andThen(String::toLowerCase)
+     */
     public static <X, Y> Function<X, Y> map(Function<X, Y> function) {
         return function;
     }
