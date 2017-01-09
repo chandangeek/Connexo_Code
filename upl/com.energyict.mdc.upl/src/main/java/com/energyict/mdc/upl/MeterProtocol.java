@@ -1,11 +1,8 @@
 package com.energyict.mdc.upl;
 
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import aQute.bnd.annotation.ConsumerType;
 import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -97,21 +94,6 @@ public interface MeterProtocol extends HasDynamicProperties {
             return this.name;
         }
     }
-
-    /**
-     * <p>
-     * Sets the protocol specific properties, validating the values against
-     * the appropriate {@link com.energyict.mdc.upl.properties.PropertySpec}.
-     * Note that a property value that does not relate to a PropertySpec is ignored.
-     * </p>
-     * <p>
-     * This method can also be called at device configuration time
-     * to check the validity of the configured values.</p>
-     *
-     * @param properties contains a set of protocol specific key value pairs
-     * @see com.energyict.mdc.upl.properties.PropertySpec#validateValue(Object)
-     */
-    void setUPLProperties(TypedProperties properties) throws PropertyValidationException;
 
     /**
      * <p>
