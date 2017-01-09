@@ -8,10 +8,12 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -225,7 +227,13 @@ public class G3GatewayPSKProvider {
         context.getLogger().info(() -> "Setting up a new outbound TCP connection to Beacon device '" + getDeviceIdentifier().toString() + "', to provide the PSK key(s)");
 
         try {
-            tcpComChannel = tlsConnection ? new TLSConnectionType().connect() : new OutboundTcpIpConnectionType().connect();
+            PropertySpecService propertySpecService = getContext().getPropertySpecService();
+            NlsService nlsService = getContext().getNlsService();
+            if (tlsConnection) {
+                tcpComChannel = new TLSConnectionType(propertySpecService, nlsService).connect();
+            } else {
+                tcpComChannel = new OutboundTcpIpConnectionType(propertySpecService).connect();
+            }
         } catch (ConnectionException e) {
             throw ConnectionSetupException.connectionSetupFailed(e);
         }

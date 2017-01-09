@@ -1,18 +1,18 @@
 package com.energyict.mdc.channels.ip.socket;
 
+import com.energyict.mdc.channels.nls.MessageSeeds;
+import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
-import com.energyict.cpo.Environment;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.mdw.core.DLMSKeyStoreParameters;
 import com.energyict.mdw.core.DLMSKeyStoreUserFile;
 import com.energyict.mdw.crypto.DLMSKeyStoreUserFileProviderImpl;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.google.common.base.Supplier;
 import sun.security.util.DerInputStream;
 import sun.security.x509.AuthorityKeyIdentifierExtension;
 import sun.security.x509.GeneralName;
@@ -60,10 +60,13 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     private static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
     private static final String CLIENT_TLS_ALIAS = "ClientTLSAlias";
     private static final String SEPARATOR = ",";
+
+    private final NlsService nlsService;
     private Logger logger;
 
-    public TLSConnectionType(PropertySpecService propertySpecService) {
+    public TLSConnectionType(PropertySpecService propertySpecService, NlsService nlsService) {
         super(propertySpecService);
+        this.nlsService = nlsService;
     }
 
     /**
@@ -136,8 +139,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
             return new SocketComChannel(socket);
         } catch (NoSuchAlgorithmException | KeyManagementException | IOException e) {
-            String pattern = Environment.getDefault().getTranslation("failedToSetupTLSConnection", "Failed to setup the TLS connection.");
-            throw new ConnectionException(pattern, e);
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.FailedToSetupTLSConnection, e);
         }
     }
 
@@ -155,9 +157,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
                     enabledCipherSuites.remove(preferredCipherSuite);
                     enabledCipherSuites.add(index, preferredCipherSuite);
                 } else {
-                    String pattern = Environment.getDefault()
-                            .getTranslation("preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite '{0}' is not supported by your current java version.");
-                    throw new ConnectionException(pattern, preferredCipherSuite);
+                    throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.PreferredCipherSuiteIsNotSupportedByJavaVersion, preferredCipherSuite);
                 }
             }
 
@@ -172,8 +172,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         try {
             return new TrustManager[]{new X509TrustManagerImpl(trustStore)};
         } catch (Exception e) {
-            String pattern = Environment.getDefault().getTranslation("failedToSetupTrustManager", "Failed to setup a Trust Manager, TLS connection will not be setup.");
-            throw new ConnectionException(pattern, e);
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.FailedToSetupTrustManager, e);
         }
     }
 
@@ -184,8 +183,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         try {
             return new KeyManager[]{new X509KeyManagerImpl(keyStore)};
         } catch (Exception e) {
-            String pattern = Environment.getDefault().getTranslation("failedToSetupKeyManager", "Failed to setup a Key Manager, TLS connection will not be setup.");
-            throw new ConnectionException(pattern, e);
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.FailedToSetupKeyManager, e);
         }
     }
 

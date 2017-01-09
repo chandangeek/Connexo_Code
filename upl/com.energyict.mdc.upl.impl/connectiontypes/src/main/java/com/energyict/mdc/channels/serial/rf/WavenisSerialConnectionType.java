@@ -3,6 +3,8 @@ package com.energyict.mdc.channels.serial.rf;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.channels.nls.MessageSeeds;
+import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
@@ -53,7 +55,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
             return comChannel;
         } catch (IOException e) {
             wavenisStack.stop();
-            throw new ConnectionException("Error while starting the Wavenis stack", e);
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.WavenisStackSetupError, e);
         }
     }
 

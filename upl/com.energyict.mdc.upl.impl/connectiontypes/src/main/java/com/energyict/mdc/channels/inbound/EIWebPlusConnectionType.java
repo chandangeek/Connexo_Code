@@ -1,6 +1,6 @@
 package com.energyict.mdc.channels.inbound;
 
-import com.energyict.mdc.channels.TranslationKeys;
+import com.energyict.mdc.channels.nls.PropertyTranslationKeys;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -40,8 +40,8 @@ public class EIWebPlusConnectionType implements ConnectionType {
     private PropertySpec ipAddressPropertySpec() {
         return this.propertySpecService
                     .stringSpec()
-                    .named(TranslationKeys.EIWEB_PLUS)
-                    .describedAs(TranslationKeys.EIWEB_PLUS_DESCRIPTION)
+                    .named(IP_ADDRESS_PROPERTY_NAME, PropertyTranslationKeys.EIWEB_PLUS)
+                    .describedAs(PropertyTranslationKeys.EIWEB_PLUS_DESCRIPTION)
                     .finish();
     }
 
