@@ -16,6 +16,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.google.common.collect.Sets;
 
@@ -67,6 +70,8 @@ public class ServiceCategoryImplTest {
     private javax.validation.Validator validator;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Before
     public void setUp() {
@@ -110,12 +115,19 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus,
-                () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService));
-        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocationOnMock -> new UsagePointConnectionStateImpl());
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService));
+        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl());
+        UsagePointState usagePointState = mock(UsagePointState.class);
+        when(usagePointState.isInitial()).thenReturn(true);
+        UsagePointLifeCycle usagePointLifeCycle = mock(UsagePointLifeCycle.class);
+        when(usagePointLifeCycle.getStates()).thenReturn(Collections.singletonList(usagePointState));
+        UsagePointLifeCycleConfigurationService lifeCycleConfigurationService = mock(UsagePointLifeCycleConfigurationService.class);
+        when(lifeCycleConfigurationService.getDefaultLifeCycle()).thenReturn(usagePointLifeCycle);
+        when(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)).thenReturn(lifeCycleConfigurationService);
+        when(dataModel.getInstance(UsagePointStateTemporalImpl.class)).thenReturn(new UsagePointStateTemporalImpl(dataModel));
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
-        assertThat(usagePoint.getName()).isEqualTo("name");
+        assertThat(usagePoint.getName()).isEqualTo("mrId");
         assertThat(usagePoint.getInstallationTime()).isEqualTo(Instant.EPOCH);
     }
 

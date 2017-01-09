@@ -10,6 +10,8 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import java.time.Instant;
@@ -165,6 +167,12 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceLocationString(serviceLocationString);
         usagePoint.setSpatialCoordinates(spatialCoordinates);
         usagePoint.setLocation(locationId);
+        UsagePointState initialState = dataModel.getInstance(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle().getStates()
+                .stream()
+                .filter(UsagePointState::isInitial)
+                .findFirst()
+                .get();
+        usagePoint.setState(initialState, usagePoint.getInstallationTime());
         return usagePoint;
     }
 }

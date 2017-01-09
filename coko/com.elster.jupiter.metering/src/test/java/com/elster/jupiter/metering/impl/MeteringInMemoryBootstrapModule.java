@@ -36,6 +36,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 
@@ -127,6 +129,7 @@ public class MeteringInMemoryBootstrapModule {
         modules.add(new BasicPropertiesModule());
         modules.add(new TimeModule());
         modules.add(new SearchModule());
+        modules.add(new UsagePointLifeCycleConfigurationModule());
         if (this.customPropertySetService == null) {
             modules.add(new CustomPropertySetsModule());
         }
@@ -136,13 +139,21 @@ public class MeteringInMemoryBootstrapModule {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(PropertySpecService.class);
             addMessageHandlers();
+            createDefaultUsagePointLifeCycle();
             ctx.commit();
         }
     }
 
     private void addMessageHandlers() {
-        MetrologyPurposeDeletionVetoEventHandler metrologyPurposeDeletionHandler = injector.getInstance(MetrologyPurposeDeletionVetoEventHandler.class);
-        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(metrologyPurposeDeletionHandler);
+        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(MetrologyPurposeDeletionVetoEventHandler.class));
+        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointLifeCycleDeletionEventHandler.class));
+        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointStateDeletionEventHandler.class));
+        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointStateChangeEventHandler.class));
+    }
+
+    private void createDefaultUsagePointLifeCycle() {
+        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+        usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
     }
 
     public void deactivate() {
@@ -197,9 +208,12 @@ public class MeteringInMemoryBootstrapModule {
         return injector.getInstance(NlsService.class);
     }
 
-
     public MeteringDataModelService getMeteringDataModelService() {
         return injector.getInstance(MeteringDataModelService.class);
+    }
+
+    public UsagePointLifeCycleConfigurationService getUsagePointLifeCycleConfService() {
+        return injector.getInstance(UsagePointLifeCycleConfigurationService.class);
     }
 
     private class MockModule extends AbstractModule {
