@@ -15,7 +15,7 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -108,7 +108,7 @@ public class CreateG3SlaveCommand {
 
     @Inject
     public CreateG3SlaveCommand(Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder) {
-        this.lifecyclePostBuilder = lifecyclePostBuilder;;
+        this.lifecyclePostBuilder = lifecyclePostBuilder;
     }
 
     public void setMrId(String mrId) {

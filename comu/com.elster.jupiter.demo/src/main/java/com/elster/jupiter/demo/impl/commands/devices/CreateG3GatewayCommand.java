@@ -24,8 +24,8 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

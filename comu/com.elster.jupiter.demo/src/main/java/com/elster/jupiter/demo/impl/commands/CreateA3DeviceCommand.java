@@ -12,7 +12,6 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -35,8 +34,9 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
