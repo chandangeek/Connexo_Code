@@ -3,6 +3,7 @@ package com.elster.protocolimpl.dlms;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -219,8 +220,8 @@ public class EK280 extends Dlms {
 
     private IReadableRegister[] readableRegisters;
 
-    public EK280(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor) {
-        super(calendarFinder, calendarExtractor);
+    public EK280(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService) {
+        super(calendarFinder, calendarExtractor, propertySpecService);
         ocIntervalProfile = Ek280Defs.LOAD_PROFILE_60;
         ocLogProfile = Ek280Defs.EVENT_LOG;
 
@@ -241,7 +242,7 @@ public class EK280 extends Dlms {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string(ARCHIVESTRUCTUREVERSION, false));
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(ARCHIVESTRUCTUREVERSION, false, getPropertySpecService()::stringSpec).finish());
         return propertySpecs;
     }
 

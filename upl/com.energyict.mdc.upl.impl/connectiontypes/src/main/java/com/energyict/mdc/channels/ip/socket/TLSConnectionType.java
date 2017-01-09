@@ -4,11 +4,14 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cpo.Environment;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdw.core.DLMSKeyStoreParameters;
 import com.energyict.mdw.core.DLMSKeyStoreUserFile;
 import com.energyict.mdw.crypto.DLMSKeyStoreUserFileProviderImpl;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 import sun.security.util.DerInputStream;
 import sun.security.x509.AuthorityKeyIdentifierExtension;
 import sun.security.x509.GeneralName;
@@ -57,6 +60,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     private static final String CLIENT_TLS_ALIAS = "ClientTLSAlias";
     private static final String SEPARATOR = ",";
     private Logger logger;
+
+    public TLSConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     /**
      * The version of the TLS protocol to be used.
@@ -388,4 +395,13 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             return null;
         }
     }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpecWithDefault(String name, String defaultValue) {
+        return this.spec(name, () -> this.getPropertySpecService().s);
+    }
+
 }

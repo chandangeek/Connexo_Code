@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.cbo.InvalidValueException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -45,6 +46,10 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
      * The default post dial number of tries is set to 1, so send only once and do not repeat
      */
     protected static final int DEFAULT_POST_DIAL_TRIES = 1;
+
+    public TcpIpPostDialConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ComChannel connect() throws ConnectionException {
@@ -112,15 +117,15 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     private PropertySpec postDialDelayPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(POST_DIAL_DELAY, false, BigDecimal.valueOf(DEFAULT_POST_DIAL_DELAY));
+        return this.bigDecimalSpec(POST_DIAL_DELAY, BigDecimal.valueOf(DEFAULT_POST_DIAL_DELAY));
     }
 
     private PropertySpec postDialRetriesPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(POST_DIAL_TRIES, false, BigDecimal.valueOf(DEFAULT_POST_DIAL_TRIES));
+        return this.bigDecimalSpec(POST_DIAL_TRIES, BigDecimal.valueOf(DEFAULT_POST_DIAL_TRIES));
     }
 
     private PropertySpec postDialCommandPropertySpec() {
-        return UPLPropertySpecFactory.string(POST_DIAL_COMMAND, false);
+        return UPLPropertySpecFactory.specBuilder(POST_DIAL_COMMAND, false, this.getPropertySpecService()::stringSpec).finish();
     }
 
     @Override
@@ -136,4 +141,12 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     public String getVersion() {
         return "$Date: 2013-05-16 13:24:08 +0200 (do, 16 mei 2013) $";
     }
+
+    private PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.getPropertySpecService()::bigDecimalSpec)
+                .setDefaultValue(defaultValue)
+                .finish();
+    }
+
 }

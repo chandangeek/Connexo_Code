@@ -5,6 +5,7 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -22,8 +23,8 @@ import java.util.Set;
 @XmlRootElement
 public class LegacyTCPDlmsConnectionType extends DlmsConnectionType {
 
-    public LegacyTCPDlmsConnectionType() {
-        super(new OutboundTcpIpConnectionType());
+    public LegacyTCPDlmsConnectionType(PropertySpecService propertySpecService) {
+        super(new OutboundTcpIpConnectionType(propertySpecService), propertySpecService);
     }
 
     @Override
@@ -64,10 +65,10 @@ public class LegacyTCPDlmsConnectionType extends DlmsConnectionType {
     }
 
     PropertySpec getServerUpperMacAddress() {
-        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, false, new BigDecimal(1));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS, new BigDecimal(1));
     }
 
     PropertySpec getServerLowerMacAddress() {
-        return UPLPropertySpecFactory.bigDecimal(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS, false, new BigDecimal(0));
+        return this.bigDecimalSpec(PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS,  new BigDecimal(0));
     }
 }

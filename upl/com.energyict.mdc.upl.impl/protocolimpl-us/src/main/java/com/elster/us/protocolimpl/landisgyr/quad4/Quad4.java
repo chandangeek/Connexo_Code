@@ -9,6 +9,9 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -20,6 +23,7 @@ import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -132,6 +136,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     private Firmware firmware;
     private boolean readUnit1SerialNumber = false;
     private boolean readProfileDataBeforeConfigChange = true;
+
+    private final PropertySpecService propertySpecService;
+
+    public Quad4(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     public Logger getLogger() {
         return this.logger;

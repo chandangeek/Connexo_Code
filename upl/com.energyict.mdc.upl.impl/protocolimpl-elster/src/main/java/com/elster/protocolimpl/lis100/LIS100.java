@@ -1,10 +1,7 @@
 package com.elster.protocolimpl.lis100;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.properties.*;
 
 import com.elster.protocolimpl.lis100.connection.Lis100Connection;
 import com.elster.protocolimpl.lis100.profile.Lis100Profile;
@@ -19,6 +16,7 @@ import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,6 +74,11 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     private SimpleObisCodeMapper obisCodeMapper = null;
     /* Serial number to verify */
     protected String serialNumber;
+    private final PropertySpecService propertySpecService;
+
+    public LIS100(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     @Override
     public void init(InputStream inputStream, OutputStream outputStream,
@@ -93,9 +96,21 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false));
+                this.stringSpec(SERIALNUMBER.getName()),
+                this.stringSpec(PASSWORD.getName()),
+                this.integerSpec(RETRIES.getName()));
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpec(String name) {
+        return this.spec(name, this.propertySpecService::stringSpec);
+    }
+
+    private PropertySpec integerSpec(String name) {
+        return this.spec(name, this.propertySpecService::integerSpec);
     }
 
     @Override
