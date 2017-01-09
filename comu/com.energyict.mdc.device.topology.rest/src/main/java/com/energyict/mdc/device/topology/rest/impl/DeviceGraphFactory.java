@@ -15,6 +15,8 @@ import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 import com.google.common.collect.Range;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +34,7 @@ public class DeviceGraphFactory implements GraphFactory{
     private final Clock clock;
 
     private Device gateway;
+    private int nodeCount;
 
     public DeviceGraphFactory(TopologyService topologyService, GraphLayerService graphLayerService, Clock clock){
         this.topologyService = topologyService;
@@ -45,11 +48,17 @@ public class DeviceGraphFactory implements GraphFactory{
     }
 
     public GraphInfo from(DeviceTopology deviceTopology){
-        final DeviceNodeInfo rootNode = newNode(deviceTopology.getRoot(), Optional.empty());
+//Todo: remove Test data
+nodeCount = 0;
+Instant now = clock.instant();
 
+        final DeviceNodeInfo rootNode = newNode(deviceTopology.getRoot(), Optional.empty());
         GraphInfo<Device> graphInfo = new GraphInfo<>(this.graphLayerService);
         graphInfo.setRootNode(rootNode);
         addChilds(rootNode, deviceTopology);
+//Todo: remove Test data
+graphInfo.setProperty("nodeCount", ""+nodeCount);
+graphInfo.setProperty("buildTime", ""+Duration.between(now, clock.instant()).toMillis());
         return graphInfo;
     }
 
@@ -72,6 +81,7 @@ public class DeviceGraphFactory implements GraphFactory{
 
     private DeviceNodeInfo newNode(Device device, Optional<DeviceNodeInfo> parent){
         final DeviceNodeInfo node = new DeviceNodeInfo(device);
+        nodeCount++;
         graphLayerService.getGraphLayers().stream().filter((layer) -> layer.getType() == GraphLayerType.NODE).forEach(node::addLayer);
         if (parent.isPresent()){
             parent.get().addChild(node);

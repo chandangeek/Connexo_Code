@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
+import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -54,7 +55,7 @@ public class TopologyGraphResource {
     public Response getTopologyGraphByName(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParams) {
         Device device = deviceService.findDeviceByName(name).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_NOT_FOUND, name));
         GraphInfo graphInfo =  new DeviceGraphFactory(this.topologyService, this.graphLayerService, this.clock).from(device);
-        return Response.ok(graphInfo).build();
+        return Response.ok(graphInfo, MediaType.APPLICATION_JSON_TYPE).build();
     }
 
 }
