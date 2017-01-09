@@ -2,9 +2,6 @@ package com.energyict.mdc.device.alarms.impl.templates;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.Priority;
-import com.elster.jupiter.issue.share.PriorityInfo;
-import com.elster.jupiter.issue.share.PriorityInfoValueFactory;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -30,8 +27,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.IntStream;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
@@ -43,8 +38,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public static final String EVENTTYPE = NAME + ".eventType";
 
     private String SEPARATOR = ":";
-
-    public static final String PRIORITY = NAME + ".priority";
 
     //for OSGI
     public BasicDeviceAlarmRuleTemplate() {
@@ -102,7 +95,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
-                //  "global com.elster.jupiter.issue.share.Priority priority;\n" +
                 "rule \"Basic device alarm rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\")\n" +
@@ -132,10 +124,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        PriorityInfo[] possibleValues = IntStream.rangeClosed(1, 50).mapToObj(urgency ->
-                IntStream.concat(IntStream.rangeClosed(1, urgency), IntStream.rangeClosed(urgency + 1, 50))
-                        .mapToObj(impact -> new PriorityInfo(Priority.get(urgency, impact))))
-                .flatMap(Function.identity()).toArray(PriorityInfo[]::new);
         Builder<PropertySpec> builder = ImmutableList.builder();
         EventTypes eventTypes = new EventTypes(getThesaurus(), DeviceAlarmEventDescription.values());
         builder.add(propertySpecService
@@ -145,15 +133,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .markRequired()
                 .addValues(eventTypes.getEventTypes())
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
-                .finish());
-        builder.add(propertySpecService
-                .specForValuesOf(new PriorityInfoValueFactory())
-                .named(PRIORITY, TranslationKeys.PRIORITY)
-                .fromThesaurus(this.thesaurus)
-                .markRequired()
-                .markMultiValued(",")
-                .addValues(possibleValues)
-                .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         return builder.build();
     }
@@ -171,99 +150,4 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         }
         return openIssue;
     }
-
-/*
-    private class PriorityInfoValueFactory implements ValueFactory<HasName> {
-
-
-        @Override
-        public HasName fromStringValue(String stringValue) {
-            List<String> contents = Arrays.asList(stringValue.split(SEPARATOR));
-            if (contents.size() == 2) {
-                return new PriorityInfo(Priority.get(Integer.parseInt(contents.get(0)), Integer.parseInt(contents.get(1))));
-            } else {
-                return null;
-            }
-        }
-
-        @Override
-        public String toStringValue(HasName object) {
-            return String.valueOf(((PriorityInfo)object).getPriority().toString());
-        }
-
-        @Override
-        public Class<HasName> getValueType() {
-            return HasName.class;
-        }
-
-        @Override
-        public HasName valueFromDatabase(Object object) {
-            return this.fromStringValue((String) object);
-        }
-
-        @Override
-        public Object valueToDatabase(HasName object) {
-            return this.toStringValue(object);
-        }
-
-        @Override
-        public void bind(PreparedStatement statement, int offset, HasName value) throws SQLException {
-
-        }
-
-        @Override
-        public void bind(SqlBuilder builder, HasName value) {
-
-        }
-    }
-
-
-    @XmlRootElement
-    static class PriorityInfo implements HasName {
-
-        private transient Priority priority;
-
-        PriorityInfo(Priority priority) {
-            this.priority = priority;
-        }
-
-        public Priority getPriority(){
-            return priority;
-        }
-
-
-        public Integer getUrgency() {
-            return priority.getUrgency();
-        }
-
-        public Integer getImpact() {
-            return priority.getImpact();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof PriorityInfo)) {
-                return false;
-            }
-
-            PriorityInfo that = (PriorityInfo) o;
-
-            return priority.equals(that.priority);
-
-        }
-
-        @Override
-        public int hashCode() {
-            return priority.hashCode();
-        }
-
-        @Override
-        public String getName() {
-            return PRIORITY;
-        }
-    } */
-
 }
