@@ -1,7 +1,7 @@
 package com.energyict.mdc.io;
 
 /**
- * Models exceptional situation that occur while working with a {@link com.energyict.mdc.channels.serial.ServerSerialPort}.
+ * Models exceptional situations that occur while working with a {@link com.energyict.mdc.channels.serial.ServerSerialPort}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-09 (09:57)
