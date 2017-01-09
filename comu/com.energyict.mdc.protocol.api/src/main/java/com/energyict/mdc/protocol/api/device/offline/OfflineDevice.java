@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
+import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -8,6 +9,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 /**
@@ -155,5 +157,7 @@ public interface OfflineDevice extends Offline {
     boolean touCalendarManagementAllowed();
 
     boolean firmwareVersionManagementAllowed();
+
+    Optional<MacException> getMacException();
 
 }
