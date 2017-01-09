@@ -72,18 +72,21 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -92,13 +95,6 @@ import java.security.Principal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -143,21 +139,6 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
     private DeviceService deviceService;
 
     private Device device;
-
-    private class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(DataVaultService.class).toInstance(dataVaultService);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(LicenseService.class).toInstance(licenseService);
-            bind(LogService.class).toInstance(mock(LogService.class));
-            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
-            bind(Thesaurus.class).toInstance(mock(Thesaurus.class, RETURNS_DEEP_STUBS));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
-
-    }
 
     public void initializeDatabase(boolean showSqlLogging) {
         when(this.connectionTypeService.createConnectionType(NoParamsConnectionType.class.getName())).thenReturn(new NoParamsConnectionType());
@@ -234,10 +215,10 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
         this.initializeDatabase(false);
         when(this.deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
-        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
-        EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
 
@@ -287,6 +268,21 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
 
         // Asserts: validates mostly that no SQLExceptions have occurred
         assertThat(numberOfDevices).isZero();
+    }
+
+    private class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(DataVaultService.class).toInstance(dataVaultService);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(LicenseService.class).toInstance(licenseService);
+            bind(LogService.class).toInstance(mock(LogService.class));
+            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(Thesaurus.class).toInstance(mock(Thesaurus.class, RETURNS_DEEP_STUBS));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+        }
+
     }
 
     private class TestDialect implements DeviceProtocolDialect {
