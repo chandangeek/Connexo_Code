@@ -11,6 +11,7 @@ import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -68,6 +69,7 @@ public class AuthenticationDeviceAccessLevelResource {
                 .stream()
                 .filter(lvl -> lvl.getId() == authenticationDeviceAccessLevelId)
                 .findFirst()
+                .map(UPLAuthenticationLevelAdapter::new)
                 .map(lvl -> authenticationDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_AUTH_DEVICE_ACCESS_LEVEL));
     }
@@ -96,6 +98,7 @@ public class AuthenticationDeviceAccessLevelResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_PROTOCOL));
         List<DeviceAccessLevelInfo> infos = ListPager.of(pluggableClass.getDeviceProtocol().getAuthenticationAccessLevels()).from(queryParameters)
                 .stream()
+                .map(UPLAuthenticationLevelAdapter::new)
                 .map(lvl -> authenticationDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
 

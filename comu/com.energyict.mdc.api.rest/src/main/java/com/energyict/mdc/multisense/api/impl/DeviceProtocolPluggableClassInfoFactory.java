@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -75,6 +76,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                     .getDeviceProtocol()
                     .getAuthenticationAccessLevels()
                     .stream()
+                    .map(UPLAuthenticationLevelAdapter::new)
                     .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
                     .map(aal -> authenticationDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, aal, Relation.REF_RELATION, uriInfo))
                     .collect(toList())
@@ -84,6 +86,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                     .getDeviceProtocol()
                     .getEncryptionAccessLevels()
                     .stream()
+                    .map(UPLAuthenticationLevelAdapter::new)
                     .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
                     .map(eal -> encryptionDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, eal, Relation.REF_RELATION, uriInfo))
                     .collect(toList())

@@ -7,15 +7,14 @@ import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.CXOEncryptionLevelAdapter;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -30,7 +29,7 @@ public class EncryptionDeviceAccessLevelResourceTest extends MultisensePublicApi
         mockPluggableClass(77, "WebRTU", "1.2.3.4", Collections.emptyList(), Collections.singletonList(accessLevel));
         PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
-        Response response = target("/pluggableclasses/77/encryptionaccesslevels").queryParam("start",0).queryParam("limit",10).request().get();
+        Response response = target("/pluggableclasses/77/encryptionaccesslevels").queryParam("start", 0).queryParam("limit", 10).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<List>get("link")).hasSize(1);
@@ -48,11 +47,11 @@ public class EncryptionDeviceAccessLevelResourceTest extends MultisensePublicApi
     @Test
     public void testGetSingleEncryptionDeviceAccessLevelWithFields() throws Exception {
         DeviceProtocolPluggableClass pluggableClass = mockPluggableClass(77, "WebRTU", "1.2.3.4");
-        EncryptionDeviceAccessLevel accessLevel = mockEncryptionAccessLevel(3);
+        com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel accessLevel = new CXOEncryptionLevelAdapter(mockEncryptionAccessLevel(3));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(accessLevel));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        Response response = target("/pluggableclasses/77/encryptionaccesslevels/3").queryParam("fields","id").request().get();
+        Response response = target("/pluggableclasses/77/encryptionaccesslevels/3").queryParam("fields", "id").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<Integer>get("$.id")).isEqualTo(3);
@@ -60,7 +59,6 @@ public class EncryptionDeviceAccessLevelResourceTest extends MultisensePublicApi
         assertThat(model.<String>get("$.name")).isNull();
         assertThat(model.<String>get("$.properties")).isNull();
     }
-
 
 
     @Test

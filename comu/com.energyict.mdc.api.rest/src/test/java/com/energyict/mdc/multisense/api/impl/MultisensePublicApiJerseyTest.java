@@ -85,6 +85,8 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.CXOAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.CXOEncryptionLevelAdapter;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTask;
@@ -108,6 +110,7 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -512,8 +515,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getVersion()).thenReturn(version);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(id)).thenReturn(Optional.of(mock));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(authAccessLvls);
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(encAccessLvls);
+        List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> adaptedAuthLevels = authAccessLvls.stream().map(CXOAuthenticationLevelAdapter::new).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> adaptedEncrLevels = encAccessLvls.stream().map(CXOEncryptionLevelAdapter::new).collect(Collectors.toList());
+
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(adaptedAuthLevels);
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(adaptedEncrLevels);
         when(mock.getDeviceProtocol()).thenReturn(deviceProtocol);
 
         return mock;
