@@ -95,8 +95,9 @@ public class PublicRestApplicationInstaller {
 
         private void assignPrivilegesToDeveloperRole() {
             userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestApplication.APP_KEY, new String[]{Privileges.Constants.PUBLIC_REST_API});
-            //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
-            userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(Roles.DEVELOPER.value())).findFirst().get()));
+            //TODO: workaround: attached 'Developer' role to user 'admin' !!! to remove this line when the user can be created/added to system
+            Group developerGroup = userService.getGroup(Roles.DEVELOPER.value()).get();
+            userService.getUser(1).ifPresent(admin -> admin.join(developerGroup));
         }
 
         @Override
