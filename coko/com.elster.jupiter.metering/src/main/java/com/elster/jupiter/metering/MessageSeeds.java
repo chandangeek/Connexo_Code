@@ -114,7 +114,7 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be preoperational"),
 
     DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0"),
-    REQUIRED_CAS_MISSING(8002, Constants.REQUIRED_CAS_MISSING, "Required custom property sets are missing")
+    REQUIRED_CAS_MISSING(8002, Constants.REQUIRED_CAS_MISSING, "Required custom property sets are missing"),
 
     CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can''t remove usage point life cycle because it's in use by at least one of the usage point."),
     CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more usage points use this state.");
