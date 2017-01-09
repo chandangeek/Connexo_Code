@@ -1,11 +1,13 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.mdm.common.rest.IntervalInfo;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Optional;
 
@@ -20,11 +22,19 @@ public class OutputChannelDataInfoFactory {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
     }
 
-    public OutputChannelDataInfo createChannelDataInfo(IntervalReadingWithValidationStatus readingWithValidationStatus) {
+    public OutputChannelDataInfo createChannelDataInfo(ReadingWithValidationStatus<IntervalReadingRecord> readingWithValidationStatus) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
-        outputChannelDataInfo.readingTime = readingWithValidationStatus.getTimeStamp();
-        outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
+        outputChannelDataInfo.reportedDateTime = readingWithValidationStatus.getTimeStamp();
+        outputChannelDataInfo.interval = readingWithValidationStatus.getTimePeriod()
+                .map(IntervalInfo::from)
+                .orElse(null);
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
+        outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
+        readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
+            outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
+            outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
+            outputChannelDataInfo.modificationDate = modificationFlag.getLast().getTimestamp();
+        });
 
         Optional<DataValidationStatus> validationStatus = readingWithValidationStatus.getValidationStatus();
         if (validationStatus.isPresent()) {
@@ -38,6 +48,11 @@ public class OutputChannelDataInfoFactory {
                     .sorted(Comparator.reverseOrder())
                     .findFirst()
                     .orElse(null);
+            outputChannelDataInfo.isConfirmed = status.getReadingQualities()
+                    .stream()
+                    .filter(quality -> quality.getType().isConfirmed())
+                    .findFirst()
+                    .isPresent();
             outputChannelDataInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
         } else {
             // Missing value
@@ -51,6 +66,16 @@ public class OutputChannelDataInfoFactory {
                 outputChannelDataInfo.dataValidated = false;
             }
         }
+        return outputChannelDataInfo;
+    }
+
+    public OutputChannelDataInfo createEstimatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal estimatedValue) {
+        OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
+        outputChannelDataInfo.reportedDateTime = readingRecord.getTimeStamp();
+        outputChannelDataInfo.interval = readingRecord.getTimePeriod()
+                .map(IntervalInfo::from)
+                .orElse(null);
+        outputChannelDataInfo.value = estimatedValue;
         return outputChannelDataInfo;
     }
 }

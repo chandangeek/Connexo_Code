@@ -39,6 +39,8 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
@@ -75,6 +77,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private volatile LicenseService licenseService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile UsagePointLifeCycleStateInfoFactory stateInfoFactory;
+    private volatile UsagePointLifeCycleInfoFactory lifeCycleInfoFactory;
 
     public UsagePointInfoFactory() {
     }
@@ -90,7 +94,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  LocationService locationService,
                                  LicenseService licenseService,
                                  ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
-                                 PropertyValueInfoService propertyValueInfoService) {
+                                 PropertyValueInfoService propertyValueInfoService,
+                                 UsagePointLifeCycleStateInfoFactory stateInfoFactory,
+                                 UsagePointLifeCycleInfoFactory lifeCycleInfoFactory) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
@@ -103,6 +109,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.setLicenseService(licenseService);
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
         this.propertyValueInfoService = propertyValueInfoService;
+        this.stateInfoFactory = stateInfoFactory;
+        this.lifeCycleInfoFactory = lifeCycleInfoFactory;
         activate();
     }
 
@@ -168,9 +176,10 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
-        info.displayConnectionState = usagePoint.getConnectionStateDisplayName();
+        usagePoint.getCurrentConnectionState().ifPresent(connectionState -> info.displayConnectionState = usagePoint.getConnectionStateDisplayName());
         info.location = usagePoint.getLocation().map(Location::toString).orElse(
                 usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null));
+        info.state = usagePoint.getState().getName();
         return info;
     }
 
@@ -181,6 +190,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.SERVICE_CATEGORY_MODEL, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.METROLOGY_CONFIGURATION_MODEL, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.TYPE_MODEL, String.class));
+        propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.STATE, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.CONNECTION_STATE_MODEL, String.class));
         propertyDescriptionInfoList.add(this.createDescription(UsagePointModelTranslationKeys.LOCATION_MODEL, String.class));
         return propertyDescriptionInfoList;
@@ -210,21 +220,25 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.version = usagePoint.getVersion();
         info.createTime = usagePoint.getCreateDate().toEpochMilli();
         info.modTime = usagePoint.getModificationDate().toEpochMilli();
-        info.connectionState = new IdWithNameInfo(usagePoint.getConnectionState().getId(), usagePoint.getConnectionStateDisplayName());
-        info.displayConnectionState = usagePoint.getConnectionState().getName();
+        usagePoint.getCurrentConnectionState().ifPresent(connectionState -> {
+            info.connectionState = new IdWithNameInfo(connectionState.getId(), usagePoint.getConnectionStateDisplayName());
+            info.displayConnectionState = connectionState.getName();
+        });
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
         info.displayType = this.getUsagePointDisplayType(usagePoint);
 
         usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .ifPresent(mc -> {
-                    info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, readingTypeDeliverableFactory);
+                    info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus, this.clock, readingTypeDeliverableFactory);
                     info.displayMetrologyConfiguration = mc.getName();
                 });
 
         addDetailsInfo(info, usagePoint);
         addCustomPropertySetInfo(info, usagePoint);
         addLocationInfo(info, usagePoint);
+        info.state = this.stateInfoFactory.from(usagePoint.getState());
+        info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getState().getLifeCycle());
         return info;
     }
 
