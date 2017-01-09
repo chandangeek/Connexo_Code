@@ -70,9 +70,9 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return this;
     }
 
-    public IssueRuleBuilder withPriority(Priority priority){
+    public IssueRuleBuilder withPriority(Priority priority) {
         this.priority = priority;
-        return  this;
+        return this;
     }
 
     @Override
@@ -87,6 +87,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         builder.setName(getName());
         builder.setIssueType(getReasonForRule().getIssueType());
         builder.setReason(getReasonForRule());
+
         if (this.dueInType == null) {
             builder.setDueInTime(DueInType.WEEK, 1);
         } else {
@@ -94,7 +95,10 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         }
         if (this.priority == null) {
             builder.setPriority(Priority.DEFAULT);
+        } else {
+            builder.setPriority(priority);
         }
+
         CreationRuleTemplate template = getCreationRuleTemplate();
         builder.setTemplate(template.getName());
         builder.setProperties(getProperties(template));
