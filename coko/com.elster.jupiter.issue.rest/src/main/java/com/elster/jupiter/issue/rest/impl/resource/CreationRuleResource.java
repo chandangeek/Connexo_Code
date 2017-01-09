@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.DueInType;
@@ -49,7 +50,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/creationrules")
 public class CreationRuleResource extends BaseResource {
-    
+
     private final CreationRuleInfoFactory ruleInfoFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
@@ -63,7 +64,7 @@ public class CreationRuleResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE })
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE})
     public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams) {
         Query<CreationRule> query =
                 getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
@@ -83,11 +84,11 @@ public class CreationRuleResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE })
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE})
     public Response getCreationRule(@PathParam(ID) long id) {
         CreationRule rule =
                 getIssueCreationService().findCreationRuleById(id)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                        .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return
                 Response.ok(ruleInfoFactory.asInfo(rule)).build();
     }
@@ -134,10 +135,10 @@ public class CreationRuleResource extends BaseResource {
     @Path("/{id}")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule){
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule) {
         try (TransactionContext context = getTransactionService().getContext()) {
-            CreationRule creationRule =  findAndLockCreationRule(rule);
+            CreationRule creationRule = findAndLockCreationRule(rule);
             CreationRuleUpdater updater = creationRule.startUpdate();
             setBaseFields(rule, updater);
             updater.removeActions();
@@ -148,12 +149,12 @@ public class CreationRuleResource extends BaseResource {
         }
         return Response.ok().build();
     }
-    
-    
+
+
     @POST
     @Path("/validateaction")
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response validateAction(CreationRuleActionInfo info) {
         CreationRuleActionBuilder actionBuilder = getIssueCreationService().newCreationRule().newCreationRuleAction();
         setAction(info, actionBuilder);
@@ -163,8 +164,9 @@ public class CreationRuleResource extends BaseResource {
 
     private void setBaseFields(CreationRuleInfo rule, CreationRuleBuilder builder) {
         builder.setName(rule.name)
-               .setComment(rule.comment)
-               .setDueInTime(DueInType.fromString(rule.dueIn.type), rule.dueIn.number);
+                .setComment(rule.comment)
+                .setDueInTime(DueInType.fromString(rule.dueIn.type), rule.dueIn.number)
+                .setPriority(Priority.get(rule.priority.urgency, rule.priority.impact));
         if (rule.issueType != null) {
             getIssueService().findIssueType(rule.issueType.uid).ifPresent(builder::setIssueType);
         }
@@ -194,7 +196,7 @@ public class CreationRuleResource extends BaseResource {
     private void setActions(CreationRuleInfo rule, CreationRuleBuilder builder) {
         rule.actions.stream().forEach((info) -> setAction(info, builder.newCreationRuleAction()));
     }
-    
+
     private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder) {
         if (actionInfo.phase != null) {
             actionBuilder.setPhase(CreationRuleActionPhase.fromString(actionInfo.phase.uuid));

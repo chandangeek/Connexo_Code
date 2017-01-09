@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PriorityInfo {
-    public long urgency;
-    public long impact;
+    public int urgency;
+    public int impact;
 
     public PriorityInfo(Priority priority) {
         this.urgency = priority.getUrgency();
