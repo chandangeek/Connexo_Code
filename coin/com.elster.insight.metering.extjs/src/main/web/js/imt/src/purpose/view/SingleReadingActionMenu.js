@@ -1,0 +1,37 @@
+Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
+    extend: 'Ext.menu.Menu',
+    alias: 'widget.purpose-readings-data-action-menu',
+    initComponent: function() {
+        this.items = [
+            {
+                itemId: 'confirm-value',
+                hidden: true,
+                text: Uni.I18n.translate('general.confirm', 'IMT', 'Confirm'),
+                action: 'confirmValue',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'estimate-value',
+                hidden: true,
+                text: Uni.I18n.translate('general.estimate', 'IMT', 'Estimate'),
+                action: 'estimateValue',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'edit-value',
+                text: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
+                action: 'editValue',
+                section: this.SECTION_EDIT
+            },
+            {
+                itemId: 'reset-value',
+                hidden: true,
+                text: Uni.I18n.translate('general.resetReadings', 'IMT', 'Reset'),
+                action: 'resetValue',
+                section: this.SECTION_REMOVE
+            }
+        ];
+
+        this.callParent(arguments);
+    }
+});

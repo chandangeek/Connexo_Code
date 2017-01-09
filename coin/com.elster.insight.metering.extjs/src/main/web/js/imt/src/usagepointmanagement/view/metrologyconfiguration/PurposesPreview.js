@@ -61,11 +61,11 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
         return _.map(meterRoles, function (meterRole) {
             var deviceLink;
 
-            if (meterRole.mRID) {
+            if (meterRole.meter) {
                 if (meterRole.url) {
-                    deviceLink = Ext.String.format('<a href="{0}" target="_blank">{1}</a>', meterRole.url, Ext.String.htmlEncode(meterRole.mRID));
+                    deviceLink = Ext.String.format('<a href="{0}" target="_blank">{1}</a>', meterRole.url, Ext.String.htmlEncode(meterRole.meter));
                 } else {
-                    deviceLink = Ext.String.htmlEncode(meterRole.mRID);
+                    deviceLink = Ext.String.htmlEncode(meterRole.meter);
                 }
             } else {
                 deviceLink = '-';
