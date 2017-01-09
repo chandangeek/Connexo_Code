@@ -2,8 +2,8 @@ package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 /**
  * Defines the expected behavior for
@@ -24,6 +24,6 @@ public interface DeviceSecuritySupport extends DeviceProtocolSecurityCapabilitie
      *
      * @param deviceProtocolSecurityPropertySet the {@link DeviceProtocolSecurityPropertySet}to set
      */
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet);
+    void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet);
 
 }

@@ -18,7 +18,7 @@ import java.util.Optional;
  * Date: 21/01/13
  * Time: 16:04
  */
-public interface DeviceProtocolSecurityCapabilities {
+public interface DeviceProtocolSecurityCapabilities extends com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities {
 
     /**
      * Returns the {@link CustomPropertySet} that provides the storage area
@@ -53,41 +53,4 @@ public interface DeviceProtocolSecurityCapabilities {
                 .map(CustomPropertySet::getPropertySpecs)
                 .orElseGet(Collections::emptyList);
     }
-
-    /**
-     * Returns the security {@link PropertySpec} with the specified name
-     * or an empty Optional if no such PropertySpec exists.
-     *
-     * @param name The name of the security property specification
-     * @return The PropertySpec or an empty Optional if no such PropertySpec exists
-     */
-    default Optional<PropertySpec> getSecurityPropertySpec (String name) {
-        return getSecurityPropertySpecs()
-                .stream()
-                .filter(propertySpec -> propertySpec.getName().equals(name))
-                .findAny();
-    }
-
-    /**
-     * Returns the List of {@link AuthenticationDeviceAccessLevel}s.
-     * The List will be empty if this DeviceSecuritySupport
-     * does not require any properties to be specified
-     * for a process to be granted access to the data
-     * that is contained in the actual Device.
-     *
-     * @return The List of AuthenticationDeviceAccessLevel
-     */
-    List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels();
-
-    /**
-     * Returns the List of {@link EncryptionDeviceAccessLevel}s.
-     * The List will be empty if this DeviceSecuritySupport
-     * does not require any properties to be specified
-     * to decrypt the data that is contained in the actual Device
-     * or when the Device does not support encryption.
-     *
-     * @return The List of EncryptionDeviceAccessLevel
-     */
-    List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels();
-
 }
