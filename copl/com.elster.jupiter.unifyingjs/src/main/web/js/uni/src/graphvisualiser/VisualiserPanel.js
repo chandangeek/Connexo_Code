@@ -182,6 +182,10 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         Ext.ComponentQuery.query('#uni-property-viewer')[0].collapse();
     },
 
+    setSelection: function(value){
+       this.chart.selection(value);
+    },
+
     highlightUpStreamFromNode: function(id){
         var me = this,
             neighbours = {},
