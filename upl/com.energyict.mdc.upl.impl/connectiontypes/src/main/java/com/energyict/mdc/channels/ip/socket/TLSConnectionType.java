@@ -212,16 +212,14 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
                 }
             }
 
-            String pattern = Environment.getDefault().getTranslation("defaultTrustManagerNotFound", "A default trust manager could not be found, TLS Connection will not be established.");
-            throw new ConnectionException(pattern);
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.DefaultTrustManagerNotFound);
         }
 
         /**
          * Not supported at the client side
          */
         public void checkClientTrusted(X509Certificate[] chain, String authType) throws UnsupportedOperationException {
-            String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
-            throw new UnsupportedOperationException(pattern);
+            throw unsupportedOperationException();
         }
 
         /**
@@ -235,8 +233,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             try {
                 x509TrustManager.checkServerTrusted(chain, authType);
             } catch (CertificateException e) {
-                String pattern = Environment.getDefault().getTranslation("serverNotTrusted", "Based on provided certificate chain and authentication type, the server cannot be trusted");
-                throw new CertificateException(pattern, e);
+                throw new CertificateException(nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(MessageSeeds.ServerNotTrusted).format(), e);
             }
         }
 
@@ -268,9 +265,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
                     return;
                 }
             }
-
-            String pattern = Environment.getDefault().getTranslation("defaultKeyManagerNotFound", "A default key manager could not be found, TLS Connection will not be established.");
-            throw new ConnectionException(pattern);
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.DefaultKeyManagerNotFound);
         }
 
         /**
@@ -295,8 +290,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          */
         @Override
         public String[] getServerAliases(String keyType, Principal[] issuers) {
-            String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
-            throw new UnsupportedOperationException(pattern);
+            throw unsupportedOperationException();
         }
 
         /**
@@ -304,8 +298,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
          */
         @Override
         public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
-            String pattern = Environment.getDefault().getTranslation("notSupportedOnClient", "Method not supported on client side");
-            throw new UnsupportedOperationException(pattern);
+            throw unsupportedOperationException();
         }
 
         /**
@@ -393,6 +386,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
             return null;
         }
+    }
+
+    protected UnsupportedOperationException unsupportedOperationException() {
+        return new UnsupportedOperationException(MessageSeeds.NotSupportedOnClient.getDefaultFormat());
     }
 
     private PropertySpec stringWithDefault(String name, String defaultValue) {

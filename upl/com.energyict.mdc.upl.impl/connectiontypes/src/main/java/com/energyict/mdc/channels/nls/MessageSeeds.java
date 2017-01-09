@@ -15,6 +15,10 @@ public enum MessageSeeds implements MessageSeed {
     FailedToSetupTLSConnection("upl.error.failedToSetupTLSConnection", "Failed to setup the TLS connection."),
     FailedToSetupKeyManager("upl.error.failedToSetupKeyManager", "Failed to setup a Key Manager, TLS connection will not be setup."),
     FailedToSetupTrustManager("upl.error.failedToSetupTrustManager", "Failed to setup a Trust Manager, TLS connection will not be setup."),
+    DefaultKeyManagerNotFound("upl.error.defaultKeyManagerNotFound", "A default key manager could not be found, TLS Connection will not be established."),
+    DefaultTrustManagerNotFound("upl.error.defaultTrustManagerNotFound", "A default trust manager could not be found, TLS Connection will not be established."),
+    NotSupportedOnClient("upl.error.notSupportedOnClient", "Method not supported on client side"),
+    ServerNotTrusted("upl.error.serverNotTrusted", "Based on provided certificate chain and authentication type, the server cannot be trusted"),
     PreferredCipherSuiteIsNotSupportedByJavaVersion("upl.error.preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite '{0}' is not supported by your current java version."),
     WavenisStackSetupError("upl.error.wavenisStackSetupError", "Error while starting the Wavenis stack");
 
