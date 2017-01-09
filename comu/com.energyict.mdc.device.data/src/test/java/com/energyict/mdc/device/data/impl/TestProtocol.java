@@ -16,9 +16,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -36,6 +34,8 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -75,6 +75,21 @@ public class TestProtocol implements DeviceProtocol {
     @Override
     public void terminate() {
 
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -219,40 +234,50 @@ public class TestProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Collections.singletonList(new AuthenticationDeviceAccessLevel() {
+    public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return Collections.singletonList(new com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel() {
             @Override
             public int getId() {
                 return 0;
             }
 
             @Override
-            public String getTranslation() {
+            public String getTranslationKey() {
                 return "Zero";
             }
 
             @Override
-            public List<PropertySpec> getSecurityProperties() {
-                return Arrays.asList(getPasswordPropertySpec(), getUserNamePropertySpec());
+            public String getDefaultTranslation() {
+                return "Zero";
+            }
+
+            @Override
+            public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+                return Arrays.asList(new ConnexoToUPLPropertSpecAdapter(getPasswordPropertySpec()), new ConnexoToUPLPropertSpecAdapter(getUserNamePropertySpec()));
             }
         });
     }
 
     @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Collections.singletonList(new EncryptionDeviceAccessLevel() {
+    public List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        return Collections.singletonList(new com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel() {
             @Override
             public int getId() {
                 return 0;
             }
 
             @Override
-            public String getTranslation() {
+            public String getTranslationKey() {
                 return "Zero";
             }
 
             @Override
-            public List<PropertySpec> getSecurityProperties() {
+            public String getDefaultTranslation() {
+                return "Zero";
+            }
+
+            @Override
+            public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
                 return Collections.emptyList();
             }
         });
