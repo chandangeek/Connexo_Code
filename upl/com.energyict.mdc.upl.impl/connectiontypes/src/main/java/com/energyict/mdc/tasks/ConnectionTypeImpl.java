@@ -4,6 +4,8 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
 import com.energyict.mdc.channels.ip.socket.SocketComChannel;
+import com.energyict.mdc.channels.nls.MessageSeeds;
+import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
@@ -82,7 +84,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
             socket.connect(new InetSocketAddress(host, port), timeOut);
             return new SocketComChannel(socket);
         } catch (IOException e) {
-            throw new ConnectionException(e);
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedIOException, e);
         }
     }
 
@@ -128,8 +130,8 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
         try {
             OutboundUdpSession udpSession = new OutboundUdpSession(bufferSize, host, port);
             return new DatagramComChannel(udpSession);
-        } catch (IOException b) { // thrown when an unknown host occurs
-            throw new ConnectionException(b);
+        } catch (IOException e) { // thrown when an unknown host occurs
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedIOException, e);
         }
     }
 

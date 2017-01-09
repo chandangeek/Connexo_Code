@@ -19,6 +19,7 @@ public enum MessageSeeds implements MessageSeed {
     DefaultTrustManagerNotFound("upl.error.defaultTrustManagerNotFound", "A default trust manager could not be found, TLS Connection will not be established."),
     NotSupportedOnClient("upl.error.notSupportedOnClient", "Method not supported on client side"),
     ServerNotTrusted("upl.error.serverNotTrusted", "Based on provided certificate chain and authentication type, the server cannot be trusted"),
+    NestedIOException("upl.error.nestedIOException", "Nested I/O Error"),
     PreferredCipherSuiteIsNotSupportedByJavaVersion("upl.error.preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite '{0}' is not supported by your current java version."),
     WavenisStackSetupError("upl.error.wavenisStackSetupError", "Error while starting the Wavenis stack");
 

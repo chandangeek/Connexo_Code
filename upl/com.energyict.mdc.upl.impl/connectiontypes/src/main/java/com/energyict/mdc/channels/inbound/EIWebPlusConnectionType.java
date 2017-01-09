@@ -7,9 +7,9 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocolimpl.properties.TypedProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
@@ -27,7 +27,7 @@ import java.util.Set;
 @XmlRootElement
 public class EIWebPlusConnectionType implements ConnectionType {
 
-    private TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
+    private TypedProperties properties = TypedProperties.empty();
 
     public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
 
@@ -97,7 +97,7 @@ public class EIWebPlusConnectionType implements ConnectionType {
     }
 
     @Override
-    public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        this.properties = properties;
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+        this.properties = TypedProperties.copyOf(properties);
     }
 }

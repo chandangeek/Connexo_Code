@@ -1,7 +1,10 @@
 package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.channels.nls.MessageSeeds;
+import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.protocol.exceptions.ConnectionException;
@@ -23,6 +26,10 @@ import java.net.Socket;
 @XmlRootElement
 public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
 
+    public WavenisGatewayConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public ComChannel connect() throws ConnectionException {
         ComChannel comChannel = this.newWavenisConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
@@ -37,7 +44,7 @@ public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
             WavenisStack wavenisStack = WavenisStackUtils.start(socket.getInputStream(), socket.getOutputStream());
             return new WavenisGatewayComChannel(socket, wavenisStack);
         } catch (IOException e) {
-            throw new ConnectionException(e);
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedIOException, e);
         }
     }
 
