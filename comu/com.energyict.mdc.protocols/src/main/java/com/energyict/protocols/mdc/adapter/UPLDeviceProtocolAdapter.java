@@ -13,9 +13,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -33,8 +31,15 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocols.mdc.adapter.cps.CustomPropertySetNameDetective;
+import com.energyict.protocols.mdc.adapter.cps.UnableToCreateCustomPropertySet;
+import com.energyict.protocols.mdc.adapter.cps.UnableToLoadCustomPropertySetClass;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -42,15 +47,10 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.ProvisionException;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Adapter between a {@link com.energyict.mdc.upl.DeviceProtocol} and a {@link DeviceProtocol}.
@@ -61,9 +61,6 @@ import java.util.logging.Logger;
  * @since 23/11/2016 - 16:56
  */
 public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter implements DeviceProtocol {
-
-    private static final Logger LOGGER = Logger.getLogger(UPLDeviceProtocolAdapter.class.getName());
-    private static final String MAPPING_PROPERTIES_FILE_NAME = "custom-property-set-mapping.properties";
 
     private static CustomPropertySetNameDetective customPropertySetNameDetective;
 
@@ -117,12 +114,12 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public DeviceFunction getDeviceFunction() {
-        return null; //TODO?
+        return deviceProtocol.getDeviceFunction(); //TODO?
     }
 
     @Override
     public ManufacturerInformation getManufacturerInformation() {
-        return null;   //TODO?
+        return deviceProtocol.getManufacturerInformation(); //TODO?
     }
 
     @Override
@@ -197,17 +194,17 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return null;
+        return deviceProtocol.fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return null;
+        return deviceProtocol.getLoadProfileData(loadProfiles);
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        return null;
+        return deviceProtocol.getLogBookData(logBooks);
     }
 
     @Override
@@ -217,12 +214,12 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
+        return deviceProtocol.executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
+        return deviceProtocol.updateSentMessages(sentMessages);
     }
 
     @Override
@@ -237,17 +234,24 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+        List<? extends com.energyict.mdc.upl.DeviceProtocolDialect> deviceProtocolDialects = deviceProtocol.getDeviceProtocolDialects();
+        //TODO adapt, and add CPS support
         return null;
     }
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+        deviceProtocol.addDeviceProtocolDialectProperties(dialectProperties);
+    }
 
+    @Override
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
+        deviceProtocol.addDeviceProtocolDialectProperties(dialectProperties);
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-
+        deviceProtocol.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
     }
 
     @Override
@@ -286,13 +290,18 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     }
 
     @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+        return deviceProtocol.getSecurityProperties();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return null;
+        return deviceProtocol.getAuthenticationAccessLevels();
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return null;
+        return deviceProtocol.getEncryptionAccessLevels();
     }
 
     @Override
@@ -312,13 +321,23 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public void copyProperties(TypedProperties properties) {
-
+        deviceProtocol.setUPLProperties(properties);
+        //TODO exception handling??
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        //TODO how to solve this clashing? Same for supported messages, it's on the CXO interface and on the UPL one ?????
-        return null;
+        return this.deviceProtocol.getUPLPropertySpecs().stream().map(UPLToConnexoPropertySpecAdapter::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return this.deviceProtocol.getUPLPropertySpecs();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+        deviceProtocol.setUPLProperties(properties);
     }
 
     @Override
@@ -340,79 +359,4 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
             return new UPLDeviceProtocolAdapter(this.deviceProtocol, thesaurus, mdcPropertySpecService, jupiterPropertySpecService);
         }
     }
-
-    private static class CustomPropertySetNameDetective {
-        private final Map<String, String> customPropertySetClassNameMap = new ConcurrentHashMap<>();
-
-        private CustomPropertySetNameDetective() {
-            super();
-            this.loadCustomPropertySetNameMapping();
-        }
-
-        private void loadCustomPropertySetNameMapping() {
-            Properties mappings = new Properties();
-            try (InputStream inputStream = this.getClass().getResourceAsStream(MAPPING_PROPERTIES_FILE_NAME)) {
-                if (inputStream == null) {
-                    LOGGER.severe("CustomPropertySetNameMapping properties file location is probably not correct " + MAPPING_PROPERTIES_FILE_NAME);
-                    throw new IllegalArgumentException("CustomPropertySetNameMapping - Could not load the properties from " + MAPPING_PROPERTIES_FILE_NAME);
-                }
-                mappings.load(inputStream);
-                mappings.entrySet().forEach(entry -> this.customPropertySetClassNameMap.put((String) entry.getKey(), (String) entry.getValue()));
-            } catch (IOException e) {
-                LOGGER.severe("Could not load the properties from " + MAPPING_PROPERTIES_FILE_NAME);
-                throw new IllegalArgumentException("CustomPropertySetNameMapping - Could not load the properties from " + MAPPING_PROPERTIES_FILE_NAME);
-            }
-        }
-
-        String customPropertySetClassNameFor(Class deviceProtocolClass) {
-            /* Would be nice to use computeIfAbsent (especially because this is a ConcurrentHashMap.
-             * However: the function that calculates the value if it is absent is a recursive call.
-             * A ConcurrentHashMap deadlocks itself in that case. */
-            String customPropertySetClassName = this.customPropertySetClassNameMap.get(deviceProtocolClass.getName());
-            if (customPropertySetClassName == null) {
-                return this.customPropertySetClassNameForSuperclass(deviceProtocolClass);
-            } else if (customPropertySetClassName.startsWith("@")) {
-                return this.customPropertySetClassNameForReferencedClass(deviceProtocolClass, customPropertySetClassName.substring(1));
-            } else {
-                return customPropertySetClassName;
-            }
-        }
-
-        private String customPropertySetClassNameForSuperclass(Class deviceProtocolClass) {
-            Class superclass = deviceProtocolClass.getSuperclass();
-            if (superclass != null) {
-                String customPropertyClassName = this.customPropertySetClassNameFor(superclass);
-                // Cache the class name at this level of the class hierarchy
-                this.customPropertySetClassNameMap.put(deviceProtocolClass.getName(), customPropertyClassName);
-                return customPropertyClassName;
-            } else {
-                throw new IllegalArgumentException("Unable to determine custom property set class name for protocol class " + deviceProtocolClass.getName());
-            }
-        }
-
-        private String customPropertySetClassNameForReferencedClass(Class deviceProtocolClass, String referencedClassName) {
-            try {
-                Class<?> referencedClass = Class.forName(referencedClassName);
-                String customPropertyClassName = this.customPropertySetClassNameFor(referencedClass);
-                // Cache the class name for the class that references another
-                this.customPropertySetClassNameMap.put(deviceProtocolClass.getName(), customPropertyClassName);
-                return customPropertyClassName;
-            } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException("Unable to determine custom property set class name for protocol class " + deviceProtocolClass.getName() + " because referenced class " + referencedClassName + " could not be found", e);
-            }
-        }
-    }
-
-    private static class UnableToLoadCustomPropertySetClass extends RuntimeException {
-        private UnableToLoadCustomPropertySetClass(ClassNotFoundException cause, String className) {
-            super("Unable to load class " + className + " that was configured in mapping file " + MAPPING_PROPERTIES_FILE_NAME, cause);
-        }
-    }
-
-    private static class UnableToCreateCustomPropertySet extends RuntimeException {
-        private UnableToCreateCustomPropertySet(Throwable cause, Class cpsClass) {
-            super("Unable to create instance of class " + cpsClass.getName() + " that was configured in mapping file " + MAPPING_PROPERTIES_FILE_NAME, cause);
-        }
-    }
-
 }

@@ -3,16 +3,16 @@ package com.energyict.protocolimplv2.elster.garnet;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.protocolimplv2.securitysupport.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
-
-import com.energyict.protocolimplv2.security.CustomPropertySetTranslationKeys;
-import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 import com.google.inject.Inject;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link CustomPropertySet} interface for {@link SecuritySupport}.
@@ -54,9 +54,13 @@ public class GarnetSecuritySupportCustomPropertySet extends SecurityCustomProper
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.CUSTOMER_ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.MANUFACTURER_ENCRYPTION_KEY.getPropertySpec(propertySpecService, this.thesaurus));
+        //The property specs for this security set are defined in the 9.1 protocol code base
+        DeviceProtocolSecurityCapabilities securitySupport = new com.energyict.protocolimplv2.elster.garnet.GarnetSecuritySupport(propertySpecService);
+
+        return securitySupport.getSecurityProperties()
+                .stream()
+                .map(UPLToConnexoPropertySpecAdapter::new)
+                .collect(Collectors.toList());
     }
 
 }

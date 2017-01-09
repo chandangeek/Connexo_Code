@@ -4,12 +4,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
-import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
-import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
+import com.energyict.protocolimplv2.securitysupport.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.securitysupport.InheritedEncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
@@ -9,10 +10,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
-import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
+import com.energyict.protocolimplv2.securitysupport.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.securitysupport.InheritedEncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

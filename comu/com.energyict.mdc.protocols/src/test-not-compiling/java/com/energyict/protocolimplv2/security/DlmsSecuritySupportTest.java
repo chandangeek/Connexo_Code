@@ -7,7 +7,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import org.fest.assertions.core.Condition;
 import org.junit.*;
@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link com.energyict.protocolimplv2.security.DlmsSecuritySupport} component
+ * Tests the {@link com.energyict.protocolimplv2.securitysupport.DlmsSecuritySupport} component
  * <p/>
  * Copyrights EnergyICT
  * Date: 11/01/13

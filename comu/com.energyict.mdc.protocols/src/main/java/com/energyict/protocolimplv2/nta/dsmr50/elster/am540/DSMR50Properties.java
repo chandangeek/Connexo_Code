@@ -7,11 +7,10 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames;
 import com.energyict.mdc.upl.properties.HexString;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
-
 import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.g3.common.G3Properties;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

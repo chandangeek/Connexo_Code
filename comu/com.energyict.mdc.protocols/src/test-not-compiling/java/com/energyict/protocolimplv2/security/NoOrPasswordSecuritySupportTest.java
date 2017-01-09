@@ -17,7 +17,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport} component
+ * Tests for the {@link com.energyict.protocolimplv2.securitysupport.NoOrPasswordSecuritySupport} component
  *
  * Copyrights EnergyICT
  * Date: 31/01/13

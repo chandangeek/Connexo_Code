@@ -29,15 +29,15 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
-import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
+import com.energyict.protocolimplv2.securitysupport.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.securitysupport.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 
 import javax.inject.Provider;
