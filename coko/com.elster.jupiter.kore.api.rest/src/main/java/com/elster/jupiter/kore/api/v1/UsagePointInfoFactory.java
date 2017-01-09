@@ -129,14 +129,14 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 usagePointInfo.detail.id = details.get(details.size() - 1).getRange().lowerEndpoint().toEpochMilli();
             }
         });
-        map.put("connectionState", (usagePointInfo, usagePoint, uriInfo) -> {
-            ConnectionState connectionState = usagePoint.getConnectionState();
-            usagePointInfo.connectionState = new UsagePointConnectionStateInfo();
-            usagePointInfo.connectionState.connectionStateId = connectionState.getId();
-        });
-        map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.meterActivations = meterActivationInfoFactory
-                .get()
-                .asLink(usagePoint.getMeterActivations(), Relation.REF_RELATION, uriInfo));
+        map.put("connectionState", (usagePointInfo, usagePoint, uriInfo) ->
+                usagePoint.getCurrentConnectionState().ifPresent(connectionState -> {
+                    usagePointInfo.connectionState = new UsagePointConnectionStateInfo();
+                    usagePointInfo.connectionState.connectionStateId = connectionState.getId();
+                }));
+        map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) ->
+                usagePointInfo.meterActivations = meterActivationInfoFactory.get()
+                        .asLink(usagePoint.getMeterActivations(), Relation.REF_RELATION, uriInfo));
         map.put("locations", (usagePointInfo, usagePoint, uriInfo) -> {
             usagePoint.getLocation()
                     .ifPresent(l -> usagePointInfo.locations = l.getMembers()
@@ -193,12 +193,13 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         usagePoint.setServicePriority(usagePointInfo.servicePriority);
 
         if (usagePointInfo.connectionState != null && usagePointInfo.connectionState.startDate != null) {
-            if (!("underConstruction".equals(usagePointInfo.connectionState.connectionStateId)) && usagePoint.getConnectionState().equals(ConnectionState.UNDER_CONSTRUCTION)) {
+            if (usagePointInfo.connectionState.connectionStateId == null && !usagePoint.getCurrentConnectionState().isPresent()) {
                 validateUsagePoint(usagePoint);
             }
             usagePoint.setConnectionState(findConnectionState(usagePointInfo),
                     Instant.ofEpochMilli(usagePointInfo.connectionState.startDate));
-        } else if (usagePointInfo.connectionState != null && !usagePoint.getConnectionState().getId().equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId)) {
+        } else if (usagePointInfo.connectionState != null && !usagePoint.getCurrentConnectionState().map(ConnectionState::getId)
+                .map(usagePointInfo.connectionState.connectionStateId::equalsIgnoreCase).orElse(false)) {
             usagePoint.setConnectionState(findConnectionState(usagePointInfo));
         }
 

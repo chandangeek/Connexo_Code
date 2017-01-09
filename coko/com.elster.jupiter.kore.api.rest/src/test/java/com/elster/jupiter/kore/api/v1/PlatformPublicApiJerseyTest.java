@@ -192,7 +192,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(usagePoint.getServicePriority()).thenReturn("service priority");
         when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
-        when(usagePoint.getConnectionState()).thenReturn(ConnectionState.CONNECTED);
+        when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.of(ConnectionState.CONNECTED));
 
         when(usagePoint.forCustomProperties()).thenReturn(extension);
         when(meteringService.findUsagePointByMRID(mRID)).thenReturn(Optional.of(usagePoint));
