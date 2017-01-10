@@ -696,7 +696,7 @@ public class MiniMax implements DeviceProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialect = new ArrayList<>();
-        dialect.add(new MiniMaxTcpDeviceProtocolDialect());
+        dialect.add(new MiniMaxTcpDeviceProtocolDialect(this.propertySpecService));
         return dialect;
     }
 
