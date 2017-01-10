@@ -160,7 +160,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter) {
-        return DefaultFinder.of(ReadingType.class, filter.getCondition(), dataModel);
+        return DefaultFinder.of(ReadingType.class, filter.getCondition(), dataModel).sorted("fullAliasName", true);
     }
 
     @Override
