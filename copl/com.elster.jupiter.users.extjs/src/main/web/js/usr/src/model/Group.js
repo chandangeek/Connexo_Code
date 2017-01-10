@@ -10,7 +10,8 @@ Ext.define('Usr.model.Group', {
         'version',
         'createdOn',
         'modifiedOn',
-        'selected'
+        'selected',
+        'canEdit'
     ],
     idProperty: 'id',
     associations: [

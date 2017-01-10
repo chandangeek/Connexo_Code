@@ -75,11 +75,16 @@ Ext.define('Usr.controller.GroupEdit', {
     },
 
     showEditOverview: function (groupId) {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
         me.mode = 'edit';
         Ext.ModelManager.getModel('Usr.model.Group').load(groupId, {
             success: function (group) {
-                me.showOverview(group, Uni.I18n.translate('general.editx', 'USR', "Edit '{0}'",[group.get('name')], false));
+                if(group.get('canEdit')) {
+                    me.showOverview(group, Uni.I18n.translate('general.editx', 'USR', "Edit '{0}'",[group.get('name')], false));
+                } else {
+                    window.location.replace(router.getRoute('notfound').buildUrl());
+                }
             }
         });
     },
@@ -286,23 +291,26 @@ Ext.define('Usr.controller.GroupEdit', {
     updateAllApplicationFeatures: function (store, value) {
         var permissions = '',
             name = '';
+
         for (var i = 0; i < store.count(); i++) {
-            var privileges = store.data.items[i].privileges();
+            var privileges = store.data.items[i].privileges(), numberSelected = 0;
             permissions = '';
 
-
             for (var j = 0; j < privileges.data.items.length; j++) {
-                privileges.data.items[j].data.selected = value;
-                if (value) {
-                    if (permissions != '') {
-                        permissions += ', ';
+                if(privileges.data.items[j].data.canGrant) {
+                    privileges.data.items[j].data.selected = value;
+                    numberSelected++;
+                    if (value) {
+                        if (permissions != '') {
+                            permissions += ', ';
+                        }
+                        name = privileges.data.items[j].data.translatedName;
+                        permissions += name;
                     }
-                    name = privileges.data.items[j].data.translatedName;
-                    permissions += name;
                 }
             }
             store.data.items[i].set('permissions', permissions);
-            store.data.items[i].set('selected', value ? privileges.data.items.length : 0);
+            store.data.items[i].set('selected', value ? numberSelected : 0);
         }
     },
 
@@ -366,7 +374,9 @@ Ext.define('Usr.controller.GroupEdit', {
                         var menu = item.up('menu');
                         menu.items.items[0].setChecked(false);
                         for (var i = 1; i < menu.items.length - 1; i++) {
-                            menu.items.items[i].setChecked(true);
+                            if(menu.items.items[i].canGrant) {
+                                menu.items.items[i].setChecked(true);
+                            }
                         }
                     }
                 }
@@ -374,13 +384,14 @@ Ext.define('Usr.controller.GroupEdit', {
         });
     },
 
-    addPermissionMenuItem: function (menu, name, code, selected) {
+    addPermissionMenuItem: function (menu, name, code, selected, disabled) {
         menu.add(
             {
                 xtype: 'menucheckitem',
                 text: name,
                 code: code,
                 checked: selected,
+                disabled: disabled,
                 listeners: {
                     checkchange: function (item, checked) {
                         var panel = item.up('menu');
@@ -419,7 +430,7 @@ Ext.define('Usr.controller.GroupEdit', {
 
             this.addPermissionMenuNoAccess(menu, (record.get('permissions') == ''));
             for (var i = 0; i < privileges.length; i++) {
-                this.addPermissionMenuItem(menu, privileges[i].data.translatedName, privileges[i].data.id, privileges[i].data.selected);
+                this.addPermissionMenuItem(menu, privileges[i].data.translatedName, privileges[i].data.id, privileges[i].data.selected, !privileges[i].data.canGrant);
             }
             this.addPermissionMenuFullControl(menu, (record.get('selected') == privileges.length));
             Ext.resumeLayouts();
