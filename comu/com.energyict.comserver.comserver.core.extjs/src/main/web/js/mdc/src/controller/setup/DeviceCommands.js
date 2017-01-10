@@ -240,7 +240,6 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             },
                             failure: function (record, operation) {
                                 responseText = Ext.decode(operation.response.responseText, true);
-                                me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceCommand.changeReleaseDateFailed', 'MDC', "'Change release date' failed"), responseText.errors[0].msg);
                                 record.reject();
                             }
                         });
