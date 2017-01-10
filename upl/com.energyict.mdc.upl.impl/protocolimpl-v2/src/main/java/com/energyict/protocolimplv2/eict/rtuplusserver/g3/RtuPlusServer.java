@@ -403,7 +403,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     protected G3GatewayConfigurationSupport getConfigurationSupport() {
         if (configurationSupport == null) {
-            configurationSupport = new G3GatewayConfigurationSupport();
+            configurationSupport = new G3GatewayConfigurationSupport(this.propertySpecService);
         }
         return configurationSupport;
     }
