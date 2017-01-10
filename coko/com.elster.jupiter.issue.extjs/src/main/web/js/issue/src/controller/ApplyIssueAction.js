@@ -172,92 +172,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         }
     },
 
-    showAssignIssue: function (issueId, actionId) {
-        var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0],
-            router = me.getController('Uni.controller.history.Router'),
-            fromOverview = router.queryParams.fromOverview === 'true',
-            queryParamsForBackUrl = fromOverview ? router.queryParams : null,
-            queryString = Uni.util.QueryString.getQueryStringValues(false),
-            issueType = queryString.issueType;
-
-        viewport.setLoading();
-
-        if (issueType === 'datacollection') {
-            issueModel = 'Idc.model.Issue';
-        } else if (issueType === 'datavalidation') {
-            issueModel = 'Idv.model.Issue';
-        } else {
-            issueModel = me.issueModel;
-        }
-
-        Ext.ModelManager.getModel(issueModel).load(issueId, {
-            success: function (issue) {
-                viewport.setLoading(false);
-
-                var widget = Ext.create('Isu.view.issues.AssignIssue', {
-                    cancelLink: router.getRoute(router.currentRoute.replace(fromOverview ? '/assignIssue' : '/view/assignIssue', '')).buildUrl({issueId: issueId}, queryParamsForBackUrl)
-                });
-                widget.down('#frm-assign-issue').loadRecord(issue);
-                widget.down('#frm-assign-issue').issue = issue;
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getApplication().fireEvent('issueLoad', issue);
-            },
-            failure: function (response) {
-                viewport.setLoading(false);
-            }
-        });
-    },
-
-    assignAction: function () {
-        var me = this,
-            assignIssuePage = me.getAssignIssuePage(),
-            issueRecord = assignIssuePage.down('#frm-assign-issue').issue,
-            assignIssueForm = assignIssuePage.down('#frm-assign-issue'),
-            formErrorsPanel = assignIssueForm.down('#assign-issue-form-errors'),
-            router = me.getController('Uni.controller.history.Router'),
-            fromOverview = router.queryParams.fromOverview === 'true',
-            queryParamsForBackUrl = fromOverview ? router.queryParams : null;
-
-        if (assignIssueForm.isValid()) {
-            if (!formErrorsPanel.isHidden()) {
-                formErrorsPanel.hide();
-            }
-
-            assignIssueForm.updateRecord(issueRecord);
-            var formValues = assignIssueForm.getValues(),
-                jsonData = {
-                    issue: {
-                        id: issueRecord.get('id'),
-                        version: issueRecord.get('version')
-                    },
-                    assignee: {
-                        userId: formValues.userId,
-                        workGroupId: formValues.workgroupId
-                    },
-                    comment: formValues.comment
-                };
-            assignIssuePage.setLoading();
-            Ext.Ajax.request({
-                url: '/api/isu/issues/assignissue',
-                jsonData: jsonData,
-                method: 'PUT',
-                success: function (response) {
-                    var responseText = Ext.decode(response.responseText, true);
-
-                    if (responseText.data.success) {
-                        me.getApplication().fireEvent('acknowledge', responseText.data.success[0].title);
-                    }
-                },
-                callback: function () {
-                    assignIssuePage.setLoading(false);
-                    router.getRoute(router.currentRoute.replace(fromOverview ? '/assignIssue' : '/view/assignIssue', ''))
-                        .forward({issueId: issueRecord.get('id')});
-                }
-            });
-        }
-    },
-
     assignToMe: function (menuItem) {
         this.assign(menuItem, 'assigntome');
     },
@@ -273,6 +187,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
 
         Ext.Ajax.request({
             url: Ext.String.format(me.assignUrl, assign, issueId),
+            jsonData: Ext.JSON.encode({'issue' : _.pick(record.getData(), 'title', 'version')}),
             method: 'PUT',
             success: function (response) {
                 var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;

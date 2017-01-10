@@ -52,20 +52,6 @@ Ext.define('Isu.controller.history.Administration', {
                                         }, {single: true});
                                         return this;
                                     }
-                                },
-                                assignIssue: {
-                                    title: Uni.I18n.translate('general.assignIssue', 'ISU', 'Assign issue'),
-                                    route: 'assignIssue',
-                                    controller: 'Isu.controller.ApplyIssueAction',
-                                    action: 'showAssignIssue',
-                                    privileges: Isu.privileges.Issue.Assign
-                                },
-                                assignToMe: {
-                                    title: Uni.I18n.translate('general.assignToMe', 'ISU', 'Assign to me'),
-                                    route: 'assignToMe',
-                                    controller: 'Isu.controller.ApplyIssueAction',
-                                    action: 'assignToMe',
-                                    privileges: Isu.privileges.Issue.viewAdminDevice
                                 }
                             }
                         }
