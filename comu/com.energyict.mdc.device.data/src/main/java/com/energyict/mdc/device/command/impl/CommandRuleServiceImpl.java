@@ -272,9 +272,18 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
             return Collections.emptyList();
         } else {
             return commandRulesByDeviceMessageId.stream()
-                    .map(commandRule -> this.wouldCommandExceedLimits(commandRule, deviceMessage.getReleaseDate(), oldReleaseDate))
+                    .map(commandRule -> this.wouldCommandExceedLimits(commandRule, getCorrectReleaseDateForCalculations(deviceMessage.getReleaseDate()), oldReleaseDate))
                     .filter(ExceededCommandRule::isLimitExceeded)
                     .collect(Collectors.toList());
+        }
+    }
+
+    private Instant getCorrectReleaseDateForCalculations(Instant releaseDate) {
+        Range<Instant> dayOfNow = getDayFor(Instant.now(clock));
+        if(releaseDate.isBefore(dayOfNow.lowerEndpoint())) {
+            return dayOfNow.lowerEndpoint();
+        } else {
+            return releaseDate;
         }
     }
 
@@ -353,13 +362,13 @@ public class CommandRuleServiceImpl implements CommandRuleService, TranslationKe
 
     @Override
     public void commandCreated(DeviceMessage deviceMessage) {
-        increaseOrCreateCounters(deviceMessage, deviceMessage.getReleaseDate());
+        increaseOrCreateCounters(deviceMessage, getCorrectReleaseDateForCalculations(deviceMessage.getReleaseDate()));
     }
 
     @Override
     public void commandUpdated(DeviceMessage deviceMessage, Instant oldReleaseDate) {
         decreaseExistingCounters(deviceMessage, oldReleaseDate);
-        increaseOrCreateCounters(deviceMessage, deviceMessage.getReleaseDate());
+        increaseOrCreateCounters(deviceMessage, getCorrectReleaseDateForCalculations(deviceMessage.getReleaseDate()));
     }
 
     @Override
