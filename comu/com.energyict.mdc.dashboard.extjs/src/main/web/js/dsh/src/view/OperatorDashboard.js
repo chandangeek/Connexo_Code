@@ -162,7 +162,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     type: 'alarms',
                     name: Uni.I18n.translate('widget.myWorkList.alarms', 'DSH', 'Alarms'),
                     topLabel: Uni.I18n.translate('widget.myWorkList.alarms.topLabel', 'DSH', 'Top {0} most urgent alarms'),
-                    topZeroLabel: Uni.I18n.translate('widget.myWorkList.topZeroLabel', 'DSH', 'No open alarms assigned to me'),
+                    topZeroLabel: Uni.I18n.translate('widget.myWorkList.alarms.topZeroLabel', 'DSH', 'No open alarms assigned to me'),
                     url: '/api/isu/topissues/alarms',
                     itemRoute: 'workspace/alarms/view',
                     routeArguments: [{name: 'alarmId', property: 'id'}],
