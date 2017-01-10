@@ -113,7 +113,7 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, -5]);
             }
             if (this.legendPanel) {
-                me.legendPanel.show().alignTo(Ext.get('graph-drawing-area'), 'bl-bl', [-5, -15]);
+                this.legendPanel.show().alignTo(Ext.get('graph-drawing-area'), 'bl-bl', [-5, -15]);
             }
             if(this.chart){
                 this.doLayout();
