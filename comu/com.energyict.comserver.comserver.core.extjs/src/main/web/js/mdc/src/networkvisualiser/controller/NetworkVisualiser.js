@@ -19,7 +19,8 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
 
     showVisualiser: function(){
         var me = this,
-            widget = Ext.create('Mdc.networkvisualiser.view.NetworkVisualiserView');
+            router = this.getController('Uni.controller.history.Router'),
+            widget = Ext.create('Mdc.networkvisualiser.view.NetworkVisualiserView',{router: router});
         widget.clearGraph();
         widget.store = Ext.getStore('Uni.graphvisualiser.store.GraphStore');
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -27,7 +28,8 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
 
     showNetwork: function(deviceId) {
         var me = this,
-            widget = Ext.create('Mdc.networkvisualiser.view.NetworkVisualiserView');
+            router = this.getController('Uni.controller.history.Router'),
+            widget = Ext.create('Mdc.networkvisualiser.view.NetworkVisualiserView', {router: router});
         widget.clearGraph();
         widget.store = Ext.getStore('Mdc.networkvisualiser.store.NetworkNodes');
         widget.store.getProxy().setUrl(deviceId);
