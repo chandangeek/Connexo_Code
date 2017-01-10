@@ -13,11 +13,11 @@ import com.energyict.mdc.protocol.SerialPortComChannel;
  * Date: 17/08/12
  * Time: 9:34
  */
-public class SerialComChannel extends SynchroneousComChannel implements SerialPortComChannel {
+public class SerialComChannelImpl extends SynchroneousComChannel implements SerialPortComChannel {
 
     private final ServerSerialPort serialPort;
 
-    public SerialComChannel(ServerSerialPort serialPort) {
+    public SerialComChannelImpl(ServerSerialPort serialPort) {
         super(serialPort.getInputStream(), serialPort.getOutputStream());
         this.serialPort = serialPort;
     }
@@ -33,6 +33,7 @@ public class SerialComChannel extends SynchroneousComChannel implements SerialPo
         }
     }
 
+    @Override
     public ServerSerialPort getSerialPort() {
         return this.serialPort;
     }

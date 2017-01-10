@@ -4,10 +4,10 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.AbstractSerialConnectionType;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -27,7 +27,7 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
     }
 
     @Override
-    public ComChannel connect() throws ConnectionException {
+    public SerialPortComChannel connect() throws ConnectionException {
 
         SerialPortConfiguration serialPortConfiguration = new SerialPortConfiguration(getComPortName(getAllProperties()), getBaudRateValue(), getNrOfDataBitsValue(),
                 getNrOfStopBitsValue(), getParityValue(), getFlowControlValue());
@@ -39,7 +39,7 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
             serialPortConfiguration.setSerialPortReadTimeOut(getPortReadTimeOutValue());
         }
 
-        ComChannel comChannel = newRxTxSerialConnection(serialPortConfiguration);
+        SerialPortComChannel comChannel = newRxTxSerialConnection(serialPortConfiguration);
         comChannel.addProperties(createTypeProperty(ComChannelType.SerialComChannel));
         return comChannel;
     }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.ip.datagrams;
 
+import com.energyict.mdc.io.InboundUdpSession;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.ComChannel;
 
@@ -17,7 +18,7 @@ import java.net.SocketException;
  * Date: 9/11/12
  * Time: 10:56
  */
-public class InboundUdpSession extends AbstractUdpSession {
+public class InboundUdpSessionImpl extends AbstractUdpSession implements InboundUdpSession {
 
     /**
      * Default constructor for an InboundUdpSession
@@ -26,7 +27,7 @@ public class InboundUdpSession extends AbstractUdpSession {
      * @param bufferSize the bufferSize of the ByteArray that will be filled up by the DatagramPacket
      * @param portNumber the portNumber on which to listen on this machine for UDP packets
      */
-    public InboundUdpSession(int bufferSize, int portNumber, SocketService socketService) {
+    public InboundUdpSessionImpl(int bufferSize, int portNumber, SocketService socketService) {
         super(bufferSize);
         try {
             setDatagramSocket(socketService.newUDPSocket(portNumber));
@@ -35,11 +36,7 @@ public class InboundUdpSession extends AbstractUdpSession {
         }
     }
 
-    /**
-     * Properly waits for an initial UDP packet and create an input- and outputStream for them.
-     *
-     * @return a DatagramComChannel modeled by the initial UDP packet.
-     */
+    @Override
     public ComChannel accept() {
         byte[] receiveData = new byte[getBufferSize()];
         try {

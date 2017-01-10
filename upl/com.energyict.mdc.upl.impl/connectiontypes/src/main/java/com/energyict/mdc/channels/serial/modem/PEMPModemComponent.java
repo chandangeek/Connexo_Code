@@ -1,8 +1,9 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channels.serial.SerialComChannel;
+import com.energyict.mdc.channels.serial.SerialComChannelImpl;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 
 /**
  * Modem component for PEMP communication, which is based on the {@link PaknetModemComponent}.
@@ -19,7 +20,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
         this.modemProperties = properties;
     }
 
-    public void connect(String name, SerialComChannel comChannel) {
+    public void connect(String name, SerialComChannelImpl comChannel) {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
@@ -43,7 +44,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
      * @param name The port name
      * @param comChannel The ComChannel
      */
-    public void initializeModem(String name, SerialComChannel comChannel) {
+    public void initializeModem(String name, SerialComChannelImpl comChannel) {
         setComPortName(name);
 
         disconnectModemBeforeNewSession(comChannel);
@@ -75,7 +76,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
             setLastCommandSend(address);
             write(comChannel, address);
             delay(200);
-            toggleDTR((SerialComChannel) comChannel);
+            toggleDTR((SerialPortComChannel) comChannel);
             delay(1000);
             if (!readAndVerify(comChannel, promptResponse, modemProperties.getConnectTimeout().toMillis())) {
                 return false;

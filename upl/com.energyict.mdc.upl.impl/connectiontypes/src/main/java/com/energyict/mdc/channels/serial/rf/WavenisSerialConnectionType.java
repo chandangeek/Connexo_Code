@@ -10,10 +10,11 @@ import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
@@ -43,7 +44,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
     }
 
     @Override
-    public ComChannel connect() throws ConnectionException {
+    public SerialPortComChannel connect() throws ConnectionException {
         SerialPortConfiguration serialConfiguration = super.createSerialConfiguration(getComPortName(getAllProperties()), getAllProperties());
         serialConfiguration.setFlowControl(FlowControl.NONE);
         ServerSerialPort serialPort = new SioSerialPort(serialConfiguration);
@@ -52,7 +53,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
         try {
             wavenisStack = WavenisStackUtils.start(serialPort.getInputStream(), serialPort.getOutputStream());
             WavenisStackUtils.WavenisInputOutStreams inOutStreams = WavenisStackUtils.createInputOutStreams(getRFAddress(), wavenisStack);
-            ComChannel comChannel = new WavenisSerialComChannel(inOutStreams.inputStream, inOutStreams.outputStream, serialPort);
+            SerialPortComChannel comChannel = new WavenisSerialComChannel(inOutStreams.inputStream, inOutStreams.outputStream, serialPort);
             comChannel.addProperties(createTypeProperty(ComChannelType.WavenisSerialComChannel));
             return comChannel;
         } catch (IOException e) {

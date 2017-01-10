@@ -1,9 +1,10 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SignalController;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,7 +16,7 @@ import java.util.List;
  * @author sva
  * @since 30/04/13 - 11:45
  */
-public class CaseModemComponent {
+public class CaseModemComponent implements ModemComponent {
 
     // Case commands and corresponding response
     public static final String CONFIRM = "\r\n";
@@ -43,7 +44,7 @@ public class CaseModemComponent {
         this.modemProperties = modemProperties;
     }
 
-    public void connect(String name, ComChannel comChannel) {
+    public void connect(String name, SerialPortComChannel comChannel) {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
@@ -53,20 +54,8 @@ public class CaseModemComponent {
         initializeAfterConnect(comChannel);
     }
 
-    /**
-     * Initialize the modem so it is ready for dialing/receival of a call.
-     * During this initialization, several steps are performed:<br></br>
-     * <p/>
-     * <ul>
-     * <li>If present, the current connection of the modem is hung up</li>
-     * <li>The default profile of the modem is restored.</li>
-     * <li>All initialization strings are send out to the modem</li>
-     * </ul>
-     *
-     * @param name
-     * @param comChannel
-     */
-    public void initializeModem(String name, ComChannel comChannel) {
+    @Override
+    public void initializeModem(String name, SerialPortComChannel comChannel) {
         this.comPortName = name;
 
         disconnectModemBeforeNewSession(comChannel);
@@ -87,13 +76,9 @@ public class CaseModemComponent {
         return readAndVerify(comChannel, CaseModemComponent.LINK_ESTABLISHED, modemProperties.getConnectTimeout().toMillis());
     }
 
-    /**
-     * Initialization method to be performed right after the modem of the device has established a connection.
-     *
-     * @param comChannel
-     */
+    @Override
     public void initializeAfterConnect(ComChannel comChannel) {
-        CaseModemComponent.delay(modemProperties.getDelayAfterConnect().toMillis());
+        this.delay(modemProperties.getDelayAfterConnect().toMillis());
         flushInputStream(comChannel);
         if (!modemProperties.getAddressSelector().isEmpty()) {
             sendAddressSelector(comChannel);
@@ -150,7 +135,7 @@ public class CaseModemComponent {
      */
     public void disconnectModem(ComChannel comChannel) {
         comChannel.startWriting();
-        toggleDTR((SerialComChannel) comChannel, modemProperties.getLineToggleDelay().toMillis());
+        toggleDTR((SerialPortComChannel) comChannel, modemProperties.getLineToggleDelay().toMillis());
     }
 
     /**
@@ -164,7 +149,7 @@ public class CaseModemComponent {
         comChannel.startWriting();
         this.lastCommandSend = modemProperties.getAddressSelector();
         comChannel.write((modemProperties.getAddressSelector()).getBytes());
-        CaseModemComponent.delay(modemProperties.getCommandTimeOut().toMillis());
+        this.delay(modemProperties.getCommandTimeOut().toMillis());
     }
 
     /**
@@ -173,7 +158,7 @@ public class CaseModemComponent {
      * @param comChannel          the serialComChannel
      * @param delayInMilliSeconds the delay to wait after each DTR signal switch
      */
-    protected void toggleDTR(SerialComChannel comChannel, long delayInMilliSeconds) {
+    protected void toggleDTR(SerialPortComChannel comChannel, long delayInMilliSeconds) {
         SignalController signalController = comChannel.getSerialPort().getSerialPortSignalController();
         signalController.setDTR(false);
         delay(delayInMilliSeconds);
@@ -194,12 +179,7 @@ public class CaseModemComponent {
         }
     }
 
-    /**
-     * Write the given data to the comChannel
-     *
-     * @param comChannel  the comChannel to write to
-     * @param dataToWrite the data to write
-     */
+    @Override
     public void write(ComChannel comChannel, String dataToWrite) {
         delayBeforeSend();
         comChannel.startWriting();
@@ -231,15 +211,7 @@ public class CaseModemComponent {
         return false;
     }
 
-    /**
-     * Reads bytes from the comChannel and verifies against the given expected value.
-     * No retries are performed, just once.
-     *
-     * @param comChannel      the ComChannel to read
-     * @param expectedAnswer  the expected response
-     * @param timeOutInMillis the timeOut in milliseconds to wait before throwing a TimeOutException
-     * @return true if the answer matches the expected answer, false otherwise
-     */
+    @Override
     public boolean readAndVerify(ComChannel comChannel, String expectedAnswer, long timeOutInMillis) {
         comChannel.startReading();
         StringBuilder responseBuilder = new StringBuilder();
@@ -250,7 +222,7 @@ public class CaseModemComponent {
                 if (available > 0) {
                     responseBuilder.append((char) comChannel.read());
                 } else {
-                    CaseModemComponent.delay(25);
+                    this.delay(25);
                 }
                 if (System.currentTimeMillis() > max) {
                     if (responseBuilder.length() == 0) { // indication that we did not read anything
@@ -296,7 +268,7 @@ public class CaseModemComponent {
      * so we can wait a little while until the catch up.
      */
     private void delayBeforeSend() {
-        CaseModemComponent.delay(modemProperties.getDelayBeforeSend().toMillis());
+        this.delay(modemProperties.getDelayBeforeSend().toMillis());
     }
 
     /**
@@ -322,7 +294,7 @@ public class CaseModemComponent {
         }
     }
 
-    public static void delay(long milliSecondsToSleep) {
+    public void delay(long milliSecondsToSleep) {
         try {
             Thread.sleep(milliSecondsToSleep);
         } catch (InterruptedException e) {

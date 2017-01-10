@@ -1,6 +1,6 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channels.serial.SerialComChannel;
+import com.energyict.mdc.channels.serial.SerialComChannelImpl;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class AbstractModemTests {
 
     protected final String comPortName = "blabla";
 
-    protected class TestableSerialComChannel extends SerialComChannel {
+    protected class TestableSerialComChannel extends SerialComChannelImpl {
 
         private int counter = 0;
         private int index = 0;
