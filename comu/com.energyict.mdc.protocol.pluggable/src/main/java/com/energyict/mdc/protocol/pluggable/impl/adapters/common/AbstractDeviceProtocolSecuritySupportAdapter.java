@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -23,19 +24,19 @@ import java.util.Optional;
 /**
  * Abstract class for implementing the {@link DeviceSecuritySupport} interface
  * for legacy protocols.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 14/01/13
  * Time: 14:47
  */
 public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements DeviceSecuritySupport {
 
-    private DeviceProtocolSecurityCapabilities legacySecuritySupport;
-    private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
     private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
     private final PropertiesAdapter propertiesAdapter;
     private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
+    private DeviceProtocolSecurityCapabilities legacySecuritySupport;
+    private LegacySecurityPropertyConverter legacySecurityPropertyConverter;
 
     protected AbstractDeviceProtocolSecuritySupportAdapter(PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, PropertiesAdapter propertiesAdapter, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
         super();
@@ -53,10 +54,6 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
         this.legacySecuritySupport = legacySecuritySupport;
     }
 
-    public void setLegacySecurityPropertyConverter(LegacySecurityPropertyConverter legacySecurityPropertyConverter) {
-        this.legacySecurityPropertyConverter = legacySecurityPropertyConverter;
-    }
-
     private boolean checkExistingSecuritySupport() {
         return this.legacySecuritySupport != null;
     }
@@ -69,9 +66,17 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
     public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         if (checkExistingSecuritySupport()) {
             return this.legacySecuritySupport.getCustomPropertySet();
-        }
-        else {
+        } else {
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<PropertySpec> getSecurityProperties() {
+        if (checkExistingSecuritySupport()) {
+            return this.legacySecuritySupport.getSecurityProperties();
+        } else {
+            return Collections.emptyList();
         }
     }
 
@@ -114,6 +119,10 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
 
     protected LegacySecurityPropertyConverter getLegacySecurityPropertyConverter() {
         return this.legacySecurityPropertyConverter;
+    }
+
+    public void setLegacySecurityPropertyConverter(LegacySecurityPropertyConverter legacySecurityPropertyConverter) {
+        this.legacySecurityPropertyConverter = legacySecurityPropertyConverter;
     }
 
     /**
