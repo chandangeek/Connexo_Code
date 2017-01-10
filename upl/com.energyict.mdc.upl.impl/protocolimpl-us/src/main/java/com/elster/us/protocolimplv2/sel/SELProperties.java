@@ -1,8 +1,8 @@
 package com.elster.us.protocolimplv2.sel;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -96,10 +96,7 @@ public class SELProperties {
                     UPLPropertySpecFactory.specBuilder(RETRIES, true, this.propertySpecService::bigDecimalSpec).finish(),
                     UPLPropertySpecFactory.specBuilder(TIMEZONE, true, this.propertySpecService::stringSpec).finish(),
                     UPLPropertySpecFactory.specBuilder(DEVICE_PWD, true, this.propertySpecService::stringSpec).finish(),
-                    this.propertySpecService.timeZoneSpec().named(DEVICE_TIMEZONE, DEVICE_TIMEZONE)
-                        .describedAs("Description for " + TIMEZONE)
-                        .markRequired()
-                        .finish()
+                    UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, true, this.propertySpecService::timeZoneSpec).finish()
         );
     }
 }
