@@ -30,7 +30,10 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         {ref: 'weekLimitNumberField', selector: 'commandRuleAddEdit #mdc-command-rule-addEdit-weekLimit-number' },
         {ref: 'monthLimitNumberField', selector: 'commandRuleAddEdit #mdc-command-rule-addEdit-monthLimit-number' },
         {ref: 'addCommandsButton', selector: 'AddCommandsToRuleView #mdc-command-rule-add-commands-addButton' },
-        {ref: 'addCommandsToRuleView', selector: 'AddCommandsToRuleView' }
+        {ref: 'addCommandsToRuleView', selector: 'AddCommandsToRuleView' },
+        {ref: 'commandRulesPendingChangesOverview', selector: 'commandRulesPendingChangesOverview'},
+        {ref: 'commandRuleOverview', selector: 'commandRuleOverview'},
+        {ref: 'commandRulesOverview', selector: 'commandRulesOverview'}
     ],
 
     CLIPBOARD_KEY: 'addCommandLimitationRule',
@@ -300,6 +303,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
         if (form.isValid()) {
             var record = Ext.isEmpty(me.commandRuleBeingEdited) ? Ext.create('Mdc.model.CommandLimitRule') : me.commandRuleBeingEdited;
 
+            page.setLoading(true);
             record.beginEdit();
             if (!formErrorsPanel.isHidden()) {
                 formErrorsPanel.hide();
@@ -323,11 +327,8 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             if (!Ext.isEmpty(me.commandRuleBeingEdited)) {
                 record.commands().removeAll();
             }
-            me.getCommandsForRuleStore().each(function (command) {
-                record.commands().add(command);
-            });
+            record.commands().loadRecords(me.getCommandsForRuleStore().data.items);
             record.endEdit();
-            mainView.setLoading();
             record.save({
                 success: function () {
                     if (me.goToRuleOverview && me.commandRuleBeingEdited) {
@@ -375,11 +376,11 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                     }
                 },
                 callback: function () {
-                    mainView.setLoading(false);
+                    page.setLoading(false);
                 }
             });
         } else {
-            mainView.setLoading(false);
+            page.setLoading(false);
             formErrorsPanel.show();
         }
     },
@@ -513,7 +514,11 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     },
 
     doActivateRule: function(rule, confirmationWindow) {
-        var me = this;
+        var me = this, view;
+        view = me.getCommandRulesOverview() ? me.getCommandRulesOverview() : me.getCommandRuleOverview();
+
+        confirmationWindow.destroy();
+        view.setLoading(true);
         rule.beginEdit();
         rule.set('active', true);
         rule.endEdit();
@@ -530,9 +535,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 var json = Ext.decode(operation.response.responseText, true);
                 if (json && json.errors) {
                 }
-            },
-            callback: function () {
-                confirmationWindow.destroy();
+                view.setLoading(false);
             }
         });
 
@@ -556,7 +559,11 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     },
 
     doDeactivateRule: function(rule, confirmationWindow) {
-        var me = this;
+        var me = this, view;
+        view = me.getCommandRulesOverview() ? me.getCommandRulesOverview() : me.getCommandRuleOverview();
+
+        confirmationWindow.destroy();
+        view.setLoading(true);
         rule.beginEdit();
         rule.set('active', false);
         rule.endEdit();
@@ -573,9 +580,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 var json = Ext.decode(operation.response.responseText, true);
                 if (json && json.errors) {
                 }
-            },
-            callback: function () {
-                confirmationWindow.destroy();
+                view.setLoading(false);
             }
         });
 
@@ -629,10 +634,11 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
     performApproveOrReject: function(action) {
         var me = this,
             commandRuleId = me.commandRuleBeingEdited.get('id'),
-            data = me.commandRuleBeingEdited.getData();
+            data = me.commandRuleBeingEdited.getData(),
+            view = me.getCommandRulesPendingChangesOverview();
 
         data.currentCounts = [];
-
+        view.setLoading(true);
         Ext.Ajax.request({
             url: '/api/crr/commandrules/' + commandRuleId + '/' + action,
             method: 'POST',
