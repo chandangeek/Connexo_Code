@@ -13,6 +13,12 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.Step1', {
 
     items: [
         {
+            xtype: 'uni-form-error-message',
+            itemId: 'form-errors',            
+            hidden: true,
+            width: 800
+        },
+        {
             xtype: 'transition-date-field',
             labelWidth: 260,
             itemId: 'transitionDateField',

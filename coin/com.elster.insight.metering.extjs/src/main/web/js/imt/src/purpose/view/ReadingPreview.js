@@ -4,15 +4,27 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
     requires: [
         'Cfg.view.field.ReadingQualities'        
     ],
-    output: null,    
+    outputType: null,
+    output: null,
+    withOutAppName: false,
     frame: false,
 
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('readingTime'),
-            title = Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
-                false);
+            title;
+
+        switch(me.output.get('outputType')){
+            case 'channel': {
+                title = Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
+                    [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
+                    false);
+            } break;
+            case 'register':{
+                title =  Uni.DateTime.formatDateTimeShort(new Date(record.get('timeStamp')));
+            } break;
+        }
+
 
         Ext.suspendLayouts();
         me.down('#general-panel').setTitle(title);
@@ -55,7 +67,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
     },
 
     getValidationResult: function (validationResult) {
-        var validationResultText = '';
+        var me =this,
+            validationResultText = '',
+            record = me.down('form').getRecord();
 
         switch (validationResult.split('.')[1]) {
             case 'notValidated':
@@ -68,6 +82,10 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 break;
             case 'ok':
                 validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
+                if(record.get('isConfirmed')){
+                    validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+                }
+
                 break;
         }
 
@@ -77,25 +95,44 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
     initComponent: function () {
         var me = this,
             generalItems = [],
-            valuesItems = [];
+            valuesItems = [],
+            generalTimeField;
+
+        switch(me.output.get('outputType')){
+            case 'channel': {
+                generalTimeField = {
+                    fieldLabel: Uni.I18n.translate('general.interval', 'IMT', 'Interval'),
+                    name: 'interval',
+                    itemId: 'interval-field',
+                    renderer: function (value) {
+                        return value
+                            ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
+                        + ' - ' +
+                        Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
+                            : '-';
+                    },
+                    htmlEncode: false
+                }
+            } break;
+            case 'register':{
+                generalTimeField = {
+                    fieldLabel: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
+                    name: 'timeStamp',
+                    itemId: 'measurement-time-field',
+                    renderer: function (value) {
+                        return value
+                            ? Uni.DateTime.formatDateTimeShort(new Date(value))
+                            : '-';
+                    }
+                }
+            } break;
+        }
 
         generalItems.push(
-            {
-                fieldLabel: Uni.I18n.translate('general.interval', 'IMT', 'Interval'),
-                name: 'interval',
-                itemId: 'interval-field',
-                renderer: function (value) {
-                    return value
-                        ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
-                    + ' - ' +
-                    Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
-                        : '-';
-                },
-                htmlEncode: false
-            },
+            generalTimeField,
             {
                 fieldLabel: Uni.I18n.translate('reading.readingTime', 'IMT', 'Reading time'),
-                name: 'readingTime',
+                name: 'reportedDateTime',
                 itemId: 'reading-time-field',
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
@@ -137,7 +174,8 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 router: me.router,
                 itemId: 'reading-qualities-field',
                 usedInInsight: true,
-                name: 'validationRules'                
+                name: 'validationRules',
+                withOutAppName: me.withOutAppName
             }
         );
 

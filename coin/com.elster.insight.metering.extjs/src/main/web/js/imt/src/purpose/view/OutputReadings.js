@@ -8,7 +8,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
         'Imt.purpose.view.ReadingsList',
         'Imt.purpose.view.ReadingPreview',
         'Imt.purpose.view.NoReadingsFoundPanel',
-        'Imt.purpose.view.RegisterDataGrid'
+        'Imt.purpose.view.registers.RegisterDataGrid'
     ],
     store: null,
     mixins: {
@@ -21,13 +21,37 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     initComponent: function () {
         var me = this,
             output = me.output,
-            emptyComponent = {
-                xtype: 'no-readings-found-panel',
-                itemId: 'readings-empty-panel'
-            },
+            emptyComponent,
             durations,
             all,
             duration;
+        switch (output.get('outputType')){
+            case 'channel' : {
+                emptyComponent = {
+                    xtype: 'no-readings-found-panel',
+                    itemId: 'readings-empty-panel'
+                }
+            } break;
+            case 'register': {
+                emptyComponent = Ext.create('Uni.view.notifications.NoItemsFoundPanel',{
+                    itemId: 'register-data-empty-panel',
+                    title: Uni.I18n.translate('register-data.list.empty', 'IMT', 'No readings have been defined yet'),
+                    reasons: [
+                        Uni.I18n.translate('register-data.list.reason1', 'IMT', 'No readings have been defined yet'),
+                        Uni.I18n.translate('register-data.list.reason3', 'IMT', 'No readings comply with the filter')
+                    ],
+                    stepItems: [
+                        {
+                            text: Uni.I18n.translate('register-data.list.add', 'IMT', 'Add reading'),
+                            privileges: Imt.privileges.UsagePoint.admin,
+                            href: me.router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl(),
+                            action: 'add',
+                            itemId: 'add-register-data'
+                        }
+                    ]
+                })
+            }
+        }
 
         if (me.interval) {
             durations = Ext.create('Uni.store.Durations');
@@ -101,7 +125,8 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                             itemId: 'reading-preview',
                             output: me.output,
                             router: me.router,
-                            hidden: true
+                            hidden: true,
+                            outputType: output.get('outputType')
                         },
                         listeners: {
                             rowselect: Ext.bind(me.onRowSelect, me)
@@ -111,12 +136,22 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                 break;
             case 'register':
                 me.items.push({
-                    xtype: 'emptygridcontainer',
+                    xtype: 'preview-container',
                     grid: {
                         xtype: 'register-data-grid',
+                        router: me.router,
                         output: me.output
                     },
-                    emptyComponent: emptyComponent
+                    emptyComponent: emptyComponent,
+                    previewComponent: {
+                        xtype: 'reading-preview',
+                        itemId: 'reading-preview',
+                        output: me.output,
+                        router: me.router,
+                        hidden: true,
+                        withOutAppName: true,
+                        outputType: output.get('outputType')
+                    }
                 });
                 break;
         }
@@ -138,7 +173,10 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     },
 
     onLoad: function () {
-        this.showGraphView();
+        var me =this;
+        if(me.output.get('outputType') == 'channel'){
+            this.showGraphView();
+        }
         this.setLoading(false);
     },
 
@@ -177,6 +215,9 @@ Ext.define('Imt.purpose.view.OutputReadings', {
 
             point.validationRules = record.get('validationRules');
 
+            if (record.get('modificationFlag')) {
+                point.edited = true;
+            }
             if (properties.notValidated) {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor

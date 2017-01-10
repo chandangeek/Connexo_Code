@@ -12,7 +12,8 @@ Ext.define('Imt.purpose.model.Output', {
         {name: 'interval', type: 'auto', useNull: true},
         {name: 'readingType', type: 'auto', useNull: true},
         {name: 'formula', type: 'auto', useNull: true},
-        {name: 'flowUnit', type: 'string', useNull: true}
+        {name: 'flowUnit', type: 'string', useNull: true},
+        {name: 'deliverableType', type: 'string', useNull: true}
     ],
 
     associations: [
