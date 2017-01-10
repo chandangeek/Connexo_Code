@@ -36,7 +36,6 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -552,7 +551,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (eagers != null && eagers.length > 0) {
             eagerClasses.addAll(Arrays.asList(eagers));
         }
-        eagerClasses.addAll(Arrays.asList(IssueReason.class, IssueType.class, Priority.class));
+        eagerClasses.addAll(Arrays.asList(IssueReason.class, IssueType.class));
         return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
     }
 
