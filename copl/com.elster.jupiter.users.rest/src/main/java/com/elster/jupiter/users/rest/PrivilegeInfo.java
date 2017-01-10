@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.rest;
 
+import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.Privilege;
 
@@ -14,6 +15,7 @@ public class PrivilegeInfo {
     public String translatedName;
     public String applicationName;
     public String translatedApplicationName;
+    public boolean canGrant = true;
 
     public static PrivilegeInfo asApplicationPrivilege(NlsService nlsService, String applicationName, Privilege privilege){
         PrivilegeInfo privilegeInfo = new PrivilegeInfo(nlsService, privilege);
@@ -29,6 +31,8 @@ public class PrivilegeInfo {
         this();
         this.name = privilege.getName();
         this.translatedName = nlsService.getPrivilegeThesaurus().translatePrivilegeKey(this.name);
+        String categoryName = privilege.getCategory().getName();
+        this.canGrant = !(categoryName.equals(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY) || categoryName.equals(DualControlService.DUAL_CONTROL_GRANT_CATEGORY));
     }
 
     public PrivilegeInfo(NlsService nlsService, String applicationName, Privilege privilege) {
