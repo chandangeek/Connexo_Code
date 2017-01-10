@@ -67,8 +67,10 @@ Ext.define('Dal.view.ActionMenu', {
 
     addPredefinedActions: function () {
         var me = this,
-            itemId = me.record.getId();
+            itemId = me.record.getId(),
+            detail = Ext.ComponentQuery.query('alarm-detail-top')[0];
 
+        //var detail = Ext.ComponentQuery.query('alarm-detail-top')[0];
         // show/hide 'Assign to me and' and 'Unassign' menu items
         var assignIssueToMe = me.predefinedItems.filter(function (menu) {
             return menu.action === 'assignIssueToMe';
@@ -120,6 +122,16 @@ Ext.define('Dal.view.ActionMenu', {
                 }
             });
             me.add(me.predefinedItems);
+        }
+        if (Dal.privileges.Alarm.viewAdminProcesses)
+        {
+            me.add({
+
+                text: Uni.I18n.translate('alarms.actionMenu.startProcess', 'DAL', 'Start process'),
+                action: 'startProcess',
+                href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({alarmId: itemId} , {details: (detail) ? true : false}),
+                details: false
+            });
         }
     },
 

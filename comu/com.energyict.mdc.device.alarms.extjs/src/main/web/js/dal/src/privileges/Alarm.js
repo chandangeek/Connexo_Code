@@ -12,6 +12,16 @@ Ext.define('Dal.privileges.Alarm', {
     adminDevice: ['privilege.comment.alarm', 'privilege.close.alarm', 'privilege.assign.alarm', 'privilege.action.alarm'],
     comment: ['privilege.comment.alarm'],
     assign: ['privilege.assign.alarm'],
+    viewProcesses: ['privilege.view.bpm'],
+    executeProcesses: ['privilege.execute.processes.lvl.1',
+        'privilege.execute.processes.lvl.2',
+        'privilege.execute.processes.lvl.3',
+        'privilege.execute.processes.lvl.4'],
+
+    executeLevel1: ['privilege.execute.processes.lvl.1'],
+    executeLevel2: ['privilege.execute.processes.lvl.2'],
+    executeLevel3: ['privilege.execute.processes.lvl.3'],
+    executeLevel4: ['privilege.execute.processes.lvl.4'],
 
     all: function () {
         return Ext.Array.merge(Dal.privileges.Alarm.viewDeviceCommunication,
@@ -48,5 +58,23 @@ Ext.define('Dal.privileges.Alarm', {
     },
     canDoAction: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.action);
+    },
+    canExecuteLevel1: function () {
+        return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.executeLevel1);
+    },
+    canExecuteLevel2: function () {
+        return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.executeLevel2);
+    },
+    canExecuteLevel3: function () {
+        return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.executeLevel3);
+    },
+    canExecuteLevel4: function () {
+        return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.executeLevel4);
+    },
+    canViewProcessMenu: function() {
+        return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.viewAdminProcesses) && Uni.Auth.checkPrivileges(Dal.privileges.Alarm.executeProcesses);
+    },
+    canViewProcesses: function() {
+        return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.viewAdminProcesses);
     }
 });
