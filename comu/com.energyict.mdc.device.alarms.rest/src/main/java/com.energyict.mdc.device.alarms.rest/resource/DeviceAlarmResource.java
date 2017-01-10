@@ -27,8 +27,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
-import com.energyict.mdc.device.alarms.rest.request.AssignSingleDeviceAlarmRequest;
-import com.energyict.mdc.device.alarms.rest.request.SingleDeviceAlarmRequest;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmActionInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
@@ -172,7 +170,13 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ALARM)
-    public Response postAssignToMe(@PathParam("id") long id, AssignSingleDeviceAlarmRequest request, @Context SecurityContext securityContext) {
+    public Response postAssignToMe(@PathParam("id") long id, PerformActionRequest request, @Context SecurityContext securityContext) {
+        getDeviceAlarmService().findAndLockDeviceAlarmByIdAndVersion(id, request.issue.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
+                        .withActualVersion(() -> getDeviceAlarmService().findAlarm(id)
+                                .map(DeviceAlarm::getVersion)
+                                .orElse(null))
+                        .supplier());
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, DeviceAlarm> issueProvider = result -> getDeviceAlarm(id, result);
         ActionInfo info = getTransactionService().execute(new AssignToMeSingleDeviceAlarmTransaction(performer, issueProvider, getThesaurus()));
@@ -184,7 +188,13 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ALARM)
-    public Response postUnassign(@PathParam("id") long id, SingleDeviceAlarmRequest request, @Context SecurityContext securityContext) {
+    public Response postUnassign(@PathParam("id") long id, PerformActionRequest request, @Context SecurityContext securityContext) {
+        getDeviceAlarmService().findAndLockDeviceAlarmByIdAndVersion(id, request.issue.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
+                        .withActualVersion(() -> getDeviceAlarmService().findAlarm(id)
+                                .map(DeviceAlarm::getVersion)
+                                .orElse(null))
+                        .supplier());
         Function<ActionInfo, DeviceAlarm> issueProvider = result -> getDeviceAlarm(id, result);
         ActionInfo info = getTransactionService().execute(new UnassignSingleDeviceAlarmTransaction(issueProvider, getThesaurus()));
         return Response.ok().entity(info).build();
@@ -210,7 +220,12 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         IssueType type = reason.getIssueType();
 
 
-        Condition condition = where("issueType").isEqualTo(type).and(where("issueReason").isEqualTo(reason));
+        Condition c0 = where("issueType").isEqualTo(type).and(where("issueReason").isNull());
+        Condition c1 = where("issueType").isEqualTo(type).and(where("issueReason").isEqualTo(reason));
+        Condition condition = (c0).or(c1);
+
+
+
         return query.select(condition).stream()
                 .filter(actionType -> actionType.createIssueAction()
                         .map(action -> action.isApplicable(deviceAlarm) && action.isApplicableForUser(user))
