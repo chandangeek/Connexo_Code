@@ -105,7 +105,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     protected PropertySpec cipheringTypePropertySpec() {
-        return UPLPropertySpecFactory.stringWithDefault(
+        return this.stringWithDefaultSpec(
                 DlmsProtocolProperties.CIPHERING_TYPE,
                 false,
                 CipheringType.GLOBAL.getDescription(),      //Default
@@ -118,7 +118,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec generalCipheringKeyTypePropertySpec() {
-        return UPLPropertySpecFactory.string(
+        return this.stringSpec(
                 DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE,
                 false,
                 GeneralCipheringKeyType.IDENTIFIED_KEY.getDescription(),
@@ -131,25 +131,27 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The KEK of the Beacon. Use this to wrap the AK/EK of the Beacon device itself
      */
     private PropertySpec dlmsWANKEKPropertySpec() {
-        return UPLPropertySpecFactory.encryptedString(DLMS_WAN_KEK, false);
+        return UPLPropertySpecFactory.specBuilder(DLMS_WAN_KEK, false, this.getPropertySpecService()::encryptedStringSpec).finish();
     }
 
     private PropertySpec readCachePropertySpec() {
-        return UPLPropertySpecFactory.booleanValue(READCACHE_PROPERTY, false, false);
+        return UPLPropertySpecFactory.specBuilder(READCACHE_PROPERTY, false, this.getPropertySpecService()::booleanSpec)
+                .setDefaultValue(false)
+                .finish();
     }
 
     /**
      * A key used to encrypt DLMS keys of slave meters (aka a key encryption key, KEK)
      */
     private PropertySpec dlmsKEKPropertySpec() {
-        return UPLPropertySpecFactory.encryptedString(DLMS_METER_KEK, false);
+        return UPLPropertySpecFactory.specBuilder(DLMS_METER_KEK, false, this.getPropertySpecService()::encryptedStringSpec).finish();
     }
 
     /**
      * Key used to wrap PSK keys before sending them to the Beacon device.
      */
     private PropertySpec pskEncryptionKeyPropertySpec() {
-        return UPLPropertySpecFactory.encryptedString(PSK_ENCRYPTION_KEY, false);
+        return UPLPropertySpecFactory.specBuilder(PSK_ENCRYPTION_KEY, false, this.getPropertySpecService()::encryptedStringSpec).finish();
     }
 
     private PropertySpec durationSpec(String name, boolean required, Duration defaultValue) {
@@ -164,5 +166,14 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec stringSpecOfExactLength(String name, boolean required, int length) {
         return this.spec(name,required, () -> this.getPropertySpecService().stringSpecOfExactLength(length));
+    }
+
+    private PropertySpec stringSpec(String name, boolean required, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::stringSpec);
+        specBuilder.addValues(validValues);
+        if (validValues.length > 0) {
+            specBuilder.markExhaustive();
+        }
+        return specBuilder.finish();
     }
 }
