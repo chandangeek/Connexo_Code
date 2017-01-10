@@ -45,7 +45,7 @@ public class IssuePriorityResource extends BaseResource{
                         .supplier());
         issue.setPriority(Priority.get(request.priority.urgency, request.priority.impact));
         issue.update();
-        actionInfo.addSuccess(issue.getId(), getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_PRIORITY_WAS_SET).format());
+        actionInfo.addSuccess(issue.getId(), getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_PRIORITY_WAS_CHANGED).format());
         return actionInfo;
     }
 
