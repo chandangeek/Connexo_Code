@@ -3,6 +3,7 @@ package com.energyict.mdc.channels.ip;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -23,9 +24,14 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     public static final String PORT_PROPERTY_NAME = "portNumber";
     public static final String CONNECTION_TIMEOUT_PROPERTY_NAME = "connectionTimeout";
     private static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofSeconds(10);
+    private final PropertySpecService propertySpecService;
+
+    public OutboundIpConnectionType(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     private PropertySpec hostPropertySpec() {
-        return UPLPropertySpecFactory.string(HOST_PROPERTY_NAME, true);
+        return UPLPropertySpecFactory.specBuilder(HOST_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
     }
 
     protected String hostPropertyValue() {
@@ -33,11 +39,11 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec portNumberPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(PORT_PROPERTY_NAME, true);
+        return UPLPropertySpecFactory.specBuilder(PORT_PROPERTY_NAME, true, this.propertySpecService::bigDecimalSpec).finish();
     }
 
     private PropertySpec connectionTimeOutPropertySpec() {
-        return UPLPropertySpecFactory.duration(CONNECTION_TIMEOUT_PROPERTY_NAME, false, DEFAULT_CONNECTION_TIMEOUT);
+        return this.durationSpec(CONNECTION_TIMEOUT_PROPERTY_NAME, DEFAULT_CONNECTION_TIMEOUT);
     }
 
     protected int portNumberPropertyValue() {
@@ -78,5 +84,16 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     @Override
     public ConnectionTypeDirection getDirection() {
         return ConnectionTypeDirection.OUTBOUND;
+    }
+
+    private PropertySpec durationSpec(String name, Duration defaultDuration) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, this.propertySpecService::durationSpec)
+                .setDefaultValue(defaultDuration)
+                .finish();
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 }

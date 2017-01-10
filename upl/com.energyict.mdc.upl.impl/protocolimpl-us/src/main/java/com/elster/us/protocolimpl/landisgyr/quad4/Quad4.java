@@ -9,6 +9,9 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -20,6 +23,7 @@ import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,6 +137,12 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     private boolean readUnit1SerialNumber = false;
     private boolean readProfileDataBeforeConfigChange = true;
 
+    private final PropertySpecService propertySpecService;
+
+    public Quad4(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     public Logger getLogger() {
         return this.logger;
     }
@@ -158,20 +168,28 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.stringOfExactLength(NODEID.getName(), false, 7),
-                UPLPropertySpecFactory.string(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.stringOfExactLength(PASSWORD.getName(), false, 4),
-                UPLPropertySpecFactory.string(PK_NODE_PREFIX, false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer(CORRECTTIME.getName(), false),
-                UPLPropertySpecFactory.integer(PK_FORCE_DELAY, false),
-                UPLPropertySpecFactory.string(PK_EXTENDED_LOGGING, false),
-                UPLPropertySpecFactory.string(PK_SHOULD_DISCONNECT, false),
-                UPLPropertySpecFactory.string(PK_READ_UNIT1_SERIALNUMBER, false),
-                UPLPropertySpecFactory.string(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE, false));
+                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, this.propertySpecService::stringSpec).finish(),
+                this.stringSpecOfExactLength(NODEID.getName(), 7),
+                UPLPropertySpecFactory.specBuilder(PROFILEINTERVAL.getName(), false, this.propertySpecService::stringSpec).finish(),
+                this.stringSpecOfExactLength(PASSWORD.getName(), 4),
+                UPLPropertySpecFactory.specBuilder(PK_NODE_PREFIX, false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(CORRECTTIME.getName(), false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_FORCE_DELAY, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_EXTENDED_LOGGING, false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_SHOULD_DISCONNECT, false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_READ_UNIT1_SERIALNUMBER, false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE, false, this.propertySpecService::stringSpec).finish());
+    }
+
+    private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, false, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpecOfExactLength(String name, int length) {
+        return this.spec(name, () -> this.propertySpecService.stringSpecOfExactLength(length));
     }
 
     @Override

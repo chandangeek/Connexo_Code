@@ -339,7 +339,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(), new InboundIpConnectionType(), new TLSConnectionType());
+        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(this.getPropertySpecService()), new InboundIpConnectionType(), new TLSConnectionType(this.getPropertySpecService(), this.nlsService));
     }
 
     @Override

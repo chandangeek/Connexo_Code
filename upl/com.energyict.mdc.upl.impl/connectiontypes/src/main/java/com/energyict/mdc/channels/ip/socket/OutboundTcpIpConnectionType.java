@@ -5,6 +5,7 @@ import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -20,8 +21,8 @@ import java.util.Set;
 @XmlRootElement
 public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
 
-    public OutboundTcpIpConnectionType() {
-        super();
+    public OutboundTcpIpConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
     }
 
     @Override

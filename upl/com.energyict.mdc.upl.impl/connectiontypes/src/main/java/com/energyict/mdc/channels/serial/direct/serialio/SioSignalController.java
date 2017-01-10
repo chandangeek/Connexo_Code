@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.serial.direct.serialio;
 
 import com.energyict.mdc.channels.serial.SignalController;
-import com.energyict.mdc.exceptions.SerialPortException;
+import com.energyict.mdc.io.SerialPortException;
 
 import Serialio.SerialPort;
 
@@ -15,7 +15,6 @@ import java.io.IOException;
  * Time: 16:19
  */
 public class SioSignalController implements SignalController {
-
 
     private final SerialPort serialPort;
 

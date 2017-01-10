@@ -4,6 +4,7 @@ import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -31,12 +32,18 @@ public class EIWebConnectionType implements ConnectionType {
     public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
     public static final String MAC_ADDRESS_PROPERTY_NAME = "macAddress";
 
+    private final PropertySpecService propertySpecService;
+
+    public EIWebConnectionType(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     private PropertySpec ipAddressPropertySpec() {
-        return UPLPropertySpecFactory.string(IP_ADDRESS_PROPERTY_NAME, false);
+        return UPLPropertySpecFactory.specBuilder(IP_ADDRESS_PROPERTY_NAME, false, this.propertySpecService::stringSpec).finish();
     }
 
     private PropertySpec macAddressPropertySpec() {
-        return UPLPropertySpecFactory.string(MAC_ADDRESS_PROPERTY_NAME, false);
+        return UPLPropertySpecFactory.specBuilder(MAC_ADDRESS_PROPERTY_NAME, false, this.propertySpecService::stringSpec).finish();
     }
 
     protected TypedProperties getAllProperties() {

@@ -2,6 +2,7 @@ package com.elster.us.protocolimplv2.mercury.minimax;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -29,14 +30,17 @@ public class MiniMaxProperties {
     private static final String DEFAULT_DEVICE_ID = "99";
     private static final int DEFAULT_RETRIES = 3;
 
+    private final PropertySpecService propertySpecService;
+
     private Properties properties;
 
-    public MiniMaxProperties() {
-        this(new Properties());
+    public MiniMaxProperties(PropertySpecService propertySpecService) {
+        this(new Properties(), propertySpecService);
     }
 
-    public MiniMaxProperties(Properties properties) {
+    public MiniMaxProperties(Properties properties, PropertySpecService propertySpecService) {
         this.properties = properties;
+        this.propertySpecService = propertySpecService;
     }
 
     public void setAllProperties(Properties properties) {
@@ -103,12 +107,12 @@ public class MiniMaxProperties {
 
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                    UPLPropertySpecFactory.string(DEVICE_ID, true),
-                    UPLPropertySpecFactory.string(TIMEZONE, true),
-                    UPLPropertySpecFactory.bigDecimal(TIMEOUT, true),
-                    UPLPropertySpecFactory.bigDecimal(RETRIES, true),
-                    UPLPropertySpecFactory.string(DEVICE_PWD, true),
-                    UPLPropertySpecFactory.string(DEVICE_TIMEZONE, true));
+                    UPLPropertySpecFactory.specBuilder(DEVICE_ID, true, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(TIMEZONE, true, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(TIMEOUT, true, this.propertySpecService::bigDecimalSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(RETRIES, true, this.propertySpecService::bigDecimalSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(DEVICE_PWD, true, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, true, this.propertySpecService::stringSpec).finish());
     }
 
 }

@@ -5,7 +5,7 @@ import com.energyict.mdc.channels.serial.SignalController;
 import gnu.io.SerialPort;
 
 /**
- * The SignalController for a SerialPort working with the RxTx library
+ * The SignalController for a SerialPort working with the RxTx library.
  * <p/>
  * Copyrights EnergyICT
  * Date: 24/08/12

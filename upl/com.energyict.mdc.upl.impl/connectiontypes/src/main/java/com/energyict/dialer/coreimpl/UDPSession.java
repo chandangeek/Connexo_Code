@@ -1,5 +1,7 @@
 package com.energyict.dialer.coreimpl;
 
+import com.energyict.mdc.upl.RuntimeEnvironment;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -21,10 +23,10 @@ public class UDPSession { //implements Runnable {
     DatagramInputStream consumeInputStream = null;
     DatagramOutputStream consumeOutputStream = null;
 
-    public UDPSession(ServerDatagramConnection serverDatagramConnection, String signature) throws IOException {
+    public UDPSession(ServerDatagramConnection serverDatagramConnection, RuntimeEnvironment runtimeEnvironment, String signature) throws IOException {
         this.serverDatagramConnection = serverDatagramConnection;
         this.signature = signature;
-        consumeInputStream = new DatagramInputStream(new PipedOutputStream());
+        consumeInputStream = new DatagramInputStream(runtimeEnvironment, new PipedOutputStream());
         consumeOutputStream = new DatagramOutputStream(this);
     }
 

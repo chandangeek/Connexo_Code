@@ -1,9 +1,8 @@
 package com.elster.us.protocolimplv2.sel;
 
-
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -21,18 +20,20 @@ public class SELProperties {
 
     private static final String DEFAULT_DEVICE_TIMEZONE = TimeZone.getDefault().getID();
     private static final String DEFAULT_TIMEZONE = TimeZone.getDefault().getID();
-    ;
+
     private static final int DEFAULT_RETRIES = 3;
     private static final String DEFAULT_DEVICE_PWD = "SEL";
 
     private TypedProperties properties;
+    private final PropertySpecService propertySpecService;
 
-    public SELProperties() {
-        this(TypedProperties.empty());
+    public SELProperties(PropertySpecService propertySpecService) {
+        this(TypedProperties.empty(), propertySpecService);
     }
 
-    public SELProperties(TypedProperties properties) {
+    public SELProperties(TypedProperties properties, PropertySpecService propertySpecService) {
         this.properties = properties;
+        this.propertySpecService = propertySpecService;
     }
 
     public void setAllProperties(Properties other) {
@@ -92,16 +93,11 @@ public class SELProperties {
 
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                    UPLPropertySpecFactory.bigDecimal(RETRIES, true),
-                    UPLPropertySpecFactory.string(TIMEZONE, true),
-                    UPLPropertySpecFactory.string(DEVICE_PWD, true),
-                    Services
-                        .propertySpecService()
-                        .timeZoneSpec()
-                        .named(DEVICE_TIMEZONE, DEVICE_TIMEZONE)
-                        .describedAs("Description for " + TIMEZONE)
-                        .markRequired()
-                        .finish());
+                    UPLPropertySpecFactory.specBuilder(RETRIES, true, this.propertySpecService::bigDecimalSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(TIMEZONE, true, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(DEVICE_PWD, true, this.propertySpecService::stringSpec).finish(),
+                    UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, true, this.propertySpecService::timeZoneSpec).finish()
+        );
     }
 
 }

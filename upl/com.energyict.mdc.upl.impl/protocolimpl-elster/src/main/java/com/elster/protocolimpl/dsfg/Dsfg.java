@@ -1,10 +1,7 @@
 package com.elster.protocolimpl.dsfg;
 
 import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.properties.*;
 
 import com.elster.protocolimpl.dsfg.connection.DsfgConnection;
 import com.elster.protocolimpl.dsfg.objects.AbstractObject;
@@ -18,6 +15,7 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocolimpl.properties.CharPropertySpec;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.io.IOException;
@@ -105,9 +103,10 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
      * archive structure definition
      */
     private ArchiveRecordConfig archiveStructure = null;
+    private final PropertySpecService propertySpecService;
 
-    public Dsfg() {
-        super(propertySpecService);
+    public Dsfg(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -126,13 +125,13 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(PASSWORD.getName(), false),
-                UPLPropertySpecFactory.string(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.string(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(PROFILEINTERVAL.getName(), false),
-                UPLPropertySpecFactory.character("RegistrationInstance", true, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[^"),
-                UPLPropertySpecFactory.character("ArchiveInstance", true, "abcdefghijklmnopqrstuvwxyz"),
-                UPLPropertySpecFactory.string("ChannelMap", true));
+                UPLPropertySpecFactory.specBuilder(PASSWORD.getName(), false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PROFILEINTERVAL.getName(), false, this.propertySpecService::integerSpec).finish(),
+                new CharPropertySpec("RegistrationInstance", true, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[^"),
+                new CharPropertySpec("ArchiveInstance", true, "abcdefghijklmnopqrstuvwxyz"),
+                UPLPropertySpecFactory.specBuilder("ChannelMap", true, this.propertySpecService::stringSpec).finish());
     }
 
     @Override

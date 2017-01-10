@@ -1,16 +1,16 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
 import com.energyict.mdc.channels.ip.socket.SocketComChannel;
+import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
-import com.energyict.mdc.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.TypedProperties;
@@ -36,7 +36,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     }
 
     @Override
-    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) {
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.properties = TypedProperties.copyOf(properties);
     }
 
@@ -95,14 +95,9 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
     protected ComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
-        try {
-            SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
-            ServerSerialPort serialPort = serialComponentFactory.newRxTxSerialPort(serialPortConfiguration);
-            serialPort.openAndInit();
-            return serialComponentFactory.newSerialComChannel(serialPort);
-        } catch (SerialPortException e) {
-            throw new ConnectionException(e);
-        }
+        ServerSerialPort serialPort = new RxTxSerialPort(serialPortConfiguration);
+        serialPort.openAndInit();
+        return new SerialComChannel(serialPort);
     }
 
     /**
@@ -114,14 +109,9 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
     protected ComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
-        try {
-            SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
-            ServerSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialPortConfiguration);
-            serialPort.openAndInit();
-            return serialComponentFactory.newSerialComChannel(serialPort);
-        } catch (SerialPortException | UnsatisfiedLinkError e) {
-            throw new ConnectionException(e);
-        }
+        ServerSerialPort serialPort = new SioSerialPort(serialPortConfiguration);
+        serialPort.openAndInit();
+        return new SerialComChannel(serialPort);
     }
 
     /**
