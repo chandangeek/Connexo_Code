@@ -14,6 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     ACTION_ISSUE_WAS_ASSIGNED_USER(1001, "action.issue.was.assigned.user", "Issue was assigned to user {0}" , Level.INFO),
     ACTION_ISSUE_WAS_ASSIGNED_WORKGROUP(1002, "action.issue.was.assigned.workgorup", "Issue was assigned to workgroup {0}" , Level.INFO),
     ACTION_ISSUE_WAS_ASSIGNED_USER_AND_WORKGROUP(1003, "action.issue.was.assigned.user.workgorup", "Issue was assigned to user {0} and workgroup {1}" , Level.INFO),
+    ACTION_ISSUE_PRIORITY_WAS_CHANGED(1004, "action.issue.priority.was.changed", "Issue priority has been changed" , Level.INFO),
     ;
 
     private final int number;
