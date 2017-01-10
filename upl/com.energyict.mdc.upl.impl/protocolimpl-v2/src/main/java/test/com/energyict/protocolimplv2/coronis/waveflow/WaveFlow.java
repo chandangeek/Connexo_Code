@@ -26,6 +26,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -35,7 +36,6 @@ import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -83,10 +83,12 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     private CommonObisCodeMapper commonObisCodeMapper;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final PropertySpecService propertySpecService;
 
-    protected WaveFlow(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    protected WaveFlow(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.propertySpecService = propertySpecService;
     }
 
     protected CollectedDataFactory getCollectedDataFactory() {
@@ -112,8 +114,8 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
         getWaveFlowProperties().addProperties(offlineDevice.getAllProperties());
         if (comChannel instanceof ServerWavenisGatewayComChannel) {   //Create a link
             WavenisStack wavenisStack = ((ServerWavenisGatewayComChannel) comChannel).getWavenisStack();
-            WaveModuleLinkAdaptor waveModuleLinkAdaptor = WavenisStackUtils.createLink(getWaveFlowProperties().getRFAddress(), wavenisStack);
-            //SynchroneousComChannel synchroneousComChannel = new SynchroneousComChannel(waveModuleLinkAdaptor.getInputStream(), waveModuleLinkAdaptor.getOutputStream());
+            WavenisStackUtils.WavenisInputOutStreams inOutStreams = WavenisStackUtils.createInputOutStreams(getWaveFlowProperties().getRFAddress(), wavenisStack);
+            //SynchroneousComChannel synchroneousComChannel = new SynchroneousComChannel(inOutStreams.inputStream, inOutStreams.outputStream);
             //waveFlowConnect = new WaveFlowConnect(synchroneousComChannel, getWaveFlowProperties().getTimeout(), getWaveFlowProperties().getRetries());
         } else {                                                                        //Use the given link
             waveFlowConnect = new WaveFlowConnect(comChannel, getWaveFlowProperties().getTimeout(), getWaveFlowProperties().getRetries());
@@ -209,7 +211,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> connectionTypes = new ArrayList<>();
-        connectionTypes.add(new WavenisGatewayConnectionType());
+        connectionTypes.add(new WavenisGatewayConnectionType(this.propertySpecService));
         connectionTypes.add(new WavenisSerialConnectionType());
         return connectionTypes;
     }

@@ -2,11 +2,13 @@ package com.energyict.protocolimplv2.comchannels;
 
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModule;
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleInputStream;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleOutputStream;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisProtocolTimeoutException;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackImpl;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
@@ -22,7 +24,7 @@ import java.util.Date;
  * Copyrights EnergyICT
  * Date: 3/06/13
  * Time: 9:48
- * Author: khe
+ * Author: khe231
  */
 public class WavenisStackUtils {
 
@@ -39,12 +41,12 @@ public class WavenisStackUtils {
     }
 
     public static void syncClock(WavenisStack wavenisStack) throws IOException {
-        boolean success = false;
+        boolean failure = true;
         int count = 0;
-        while (!success) {
+        while (failure) {
             try {
                 wavenisStack.getWaveCard().syncTimeIfNeeded();
-                success = true;
+                failure = false;
             } catch (WavenisProtocolTimeoutException e) {
                 if (count >= 2) {
                     break;
@@ -93,12 +95,12 @@ public class WavenisStackUtils {
     }
 
     private static void setRelayRouteStatus(WavenisStack wavenisStack) throws IOException {
-        boolean success = false;
+        boolean failure = true;
         int count = 0;
-        while (!success) {
+        while (failure) {
             try {
                 wavenisStack.getWaveCard().activateRelayRouteStatus(true);
-                success = true;
+                failure = false;
             } catch (WavenisProtocolTimeoutException e) {
                 if (count >= 2) {
                     break;
@@ -113,12 +115,12 @@ public class WavenisStackUtils {
     }
 
     private static void initializeRoot(WavenisStack wavenisStack) throws IOException {
-        boolean success = false;
+        boolean failure = true;
         int count = 0;
-        while (!success) {
+        while (failure) {
             try {
                 wavenisStack.getWaveCard().initializeRoot(FRIENDLY_NAME, 1);
-                success = true;
+                failure = false;
             } catch (WavenisProtocolTimeoutException e) {
                 if (count >= 2) {
                     break;
@@ -206,17 +208,17 @@ public class WavenisStackUtils {
     }
 
     /**
-     * Use the Wavenis stack to create a link to the RF module. The resulting link contains an inputstream and an outputstream.
+     * Use the Wavenis stack to create an input and output stream to the RF module.
      */
-    public static WaveModuleLinkAdaptor createLink(String fullRFAddress, WavenisStack wavenisStack) {
+    public static WavenisInputOutStreams createInputOutStreams(String fullRFAddress, WavenisStack wavenisStack) {
         WavenisRoute radioAddress = getWavenisRoute(fullRFAddress);
-        WaveModule waveModule = null;
+        WaveModule waveModule;
         try {
             waveModule = wavenisStack.getWaveModuleFactory().find(radioAddress.getRadioAddress());
         } catch (IOException e) {
             //Underlying implementation never throws an IOException...
+            throw CodingException.protocolImplementationError("Unexpected IOException while finding WavenisModule from radio address " + radioAddress.getRadioAddress());
         }
-        WaveModuleLinkAdaptor waveModuleLinkAdaptor = new WaveModuleLinkAdaptor();
         if (radioAddress.getRepeaterAddresses() != null) {
             try {
                 if (waveModule != null) {
@@ -226,8 +228,18 @@ public class WavenisStackUtils {
                 throw DeviceConfigurationException.invalidPropertyFormat(RF_ADDRESS, fullRFAddress, "Each radio address should consist out of 12 hexadecimal characters.");
             }
         }
-        //TODO waveModule.setConfigRFResponseTimeoutInMs(); ?
-        waveModuleLinkAdaptor.init(waveModule);
-        return waveModuleLinkAdaptor;
+        WaveModuleOutputStream outputStream = new WaveModuleOutputStream(waveModule);
+        return new WavenisInputOutStreams(new WaveModuleInputStream(outputStream), outputStream);
     }
+
+    public static class WavenisInputOutStreams {
+        public final InputStream inputStream;
+        public final OutputStream outputStream;
+
+        public WavenisInputOutStreams(InputStream inputStream, OutputStream outputStream) {
+            this.inputStream = inputStream;
+            this.outputStream = outputStream;
+        }
+    }
+
 }

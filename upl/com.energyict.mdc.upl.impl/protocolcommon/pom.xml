@@ -70,7 +70,7 @@
         <dependency>
             <groupId>com.energyict.dataconcentrator.communicationdrivers</groupId>
             <artifactId>wavenis-driver</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.energyict</groupId>
@@ -79,6 +79,10 @@
                 <exclusion>
                     <groupId>com.energyict</groupId>
                     <artifactId>mdwimpl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.energyict.dataconcentrator.external</groupId>
+                    <artifactId>eiserver-combined</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

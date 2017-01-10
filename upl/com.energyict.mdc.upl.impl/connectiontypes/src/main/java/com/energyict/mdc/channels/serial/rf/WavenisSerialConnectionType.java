@@ -12,7 +12,6 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -47,8 +46,8 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
 
         try {
             wavenisStack = WavenisStackUtils.start(serialPort.getInputStream(), serialPort.getOutputStream());
-            WaveModuleLinkAdaptor waveModuleLinkAdaptor = WavenisStackUtils.createLink(getRFAddress(), wavenisStack);
-            ComChannel comChannel = new WavenisSerialComChannel(waveModuleLinkAdaptor.getInputStream(), waveModuleLinkAdaptor.getOutputStream(), serialPort);
+            WavenisStackUtils.WavenisInputOutStreams inOutStreams = WavenisStackUtils.createInputOutStreams(getRFAddress(), wavenisStack);
+            ComChannel comChannel = new WavenisSerialComChannel(inOutStreams.inputStream, inOutStreams.outputStream, serialPort);
             comChannel.addProperties(createTypeProperty(ComChannelType.WavenisSerialComChannel));
             return comChannel;
         } catch (IOException e) {
