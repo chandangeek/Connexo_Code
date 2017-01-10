@@ -1,10 +1,6 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.dlms.DLMSUtils;
@@ -47,6 +43,12 @@ public class GarnetProperties implements HasDynamicProperties {
 
     private byte[] manufacturerKey;
     private byte[] customerKey;
+
+    private final PropertySpecService propertySpecService;
+
+    public GarnetProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     /**
      * The security set of a device. It contains all properties related to security.
@@ -180,12 +182,13 @@ public class GarnetProperties implements HasDynamicProperties {
     }
 
     private PropertySpec deviceIdPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(DEVICE_ID, true, DEFAULT_DEVICE_ID);
+        return UPLPropertySpecFactory.specBuilder(DEVICE_ID, true, this.propertySpecService::bigDecimalSpec)
+                .setDefaultValue(DEFAULT_DEVICE_ID)
+                .finish();
     }
 
     private PropertySpec timeZonePropertySpec() {
-        return Services
-                .propertySpecService()
+        return this.propertySpecService
                 .timeZoneSpec()
                 .named(TIMEZONE, TIMEZONE).describedAs("Description for " + TIMEOUT)
                 .finish();
