@@ -29,6 +29,13 @@ Ext.define('Dal.controller.history.Workspace', {
                         return this;
                     },
                     items: {
+                        startProcess:{
+                            title: Uni.I18n.translate('general.startProcess','DAL','Start process'),
+                            route: 'startProcess',
+                            controller: 'Dal.controller.StartProcess',
+                            action: 'showStartProcess',
+                            privileges: Dal.privileges.Alarm.viewAdminProcesses,
+                        },
                         action: {
                             title: Uni.I18n.translate('general.action', 'DAL', 'Action'),
                             route: 'action/{actionId}',
@@ -42,19 +49,14 @@ Ext.define('Dal.controller.history.Workspace', {
                                 return this;
                             }
                         }
+
                     }
                 }
             }
 
-            //privileges: Isu.privileges.Issue.viewAdminProcesses
         }
-        /*    "workspace/issues/view/startProcess": {
-         title: Uni.I18n.translate('general.startProcess','DAL','Start process'),
-         route: 'workspace/issues/{issueId}/startProcess',
-         controller: 'Isu.controller.StartProcess',
-         action: 'showStartProcess',
-         privileges: Isu.privileges.Issue.viewAdminProcesses
-         },
+
+        /*
          "workspace/issues/view/viewProcesses": {
          title: Uni.I18n.translate('general.processes','DAL','Processes'),
          route: 'workspace/issues/{issueId}/processes',
