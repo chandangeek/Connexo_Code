@@ -212,6 +212,8 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
             this.dayLimit = dayLimit;
             this.weekLimit = weekLimit;
             this.monthLimit = monthLimit;
+            this.numberOfCommands = deviceMessageSpecs.stream().count();
+            save();
             this.commands.clear();
             deviceMessageSpecs.stream().forEach(this::addCommand);
             save();
