@@ -10,16 +10,21 @@ import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
@@ -55,6 +60,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             } else {
                 createDetails(usagePoint, data, logger).create();
             }
+            linkMetrologyConfigurationAndActivateMeters(usagePoint, data);
             addCustomPropertySetValues(usagePoint, data);
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
@@ -323,7 +329,32 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
     }
 
-    private void validateMandatoryCustomProperties(UsagePoint usagePoint, UsagePointImportRecord data){
+    private void linkMetrologyConfigurationAndActivateMeters(UsagePoint usagePoint, UsagePointImportRecord record) {
+        if (record.metrologyConfiguration != null) {
+            Optional<MetrologyConfiguration> metrologyConfiguration = getContext().getMetrologyConfigurationService()
+                    .findMetrologyConfiguration(record.metrologyConfiguration);
+            if (metrologyConfiguration.isPresent()) {
+                usagePoint.apply((UsagePointMetrologyConfiguration) metrologyConfiguration.get());
+                activateMeters(record, usagePoint);
+            }
+        }
+    }
+
+    private void activateMeters(UsagePointImportRecord record, UsagePoint usagePoint) {
+        if (record.getMeterRoles() != null) {
+            Map<MeterRole, Meter> meterRolesWithMeters = record.getMeterRoles().asMap();
+            UsagePointMeterActivator usagePointMeterActivator = usagePoint.linkMeters();
+            meterRolesWithMeters.keySet().stream().forEach(meterRole -> {
+                Meter meter = meterRolesWithMeters.get(meterRole);
+                if (meter != null) {
+                    usagePointMeterActivator.activate(meter, meterRole);
+                    usagePointMeterActivator.complete();
+                }
+            });
+        }
+    }
+
+    private void validateMandatoryCustomProperties(UsagePoint usagePoint, UsagePointImportRecord data) {
         Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getCustomPropertySets();
 
         for (UsagePointPropertySet propertySet : usagePoint.forCustomProperties().getAllPropertySets()) {
