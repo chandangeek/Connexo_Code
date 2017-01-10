@@ -3,6 +3,8 @@ package com.energyict.protocolimplv2.abnt.common.dialects;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -26,6 +28,13 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     public static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(100);
     public static final Duration DEFAULT_DELAY_AFTER_ERROR = Duration.ofMillis(250);
 
+    private final PropertySpecService propertySpecService;
+
+
+    public AbntSerialDeviceProtocolDialect(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
@@ -47,18 +56,30 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     }
 
     protected PropertySpec retriesPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.RETRIES, false, DEFAULT_RETRIES);
+        return this.bigDecimalSpec(DlmsProtocolProperties.RETRIES, false, DEFAULT_RETRIES);
     }
 
     protected PropertySpec timeoutPropertySpec() {
-        return UPLPropertySpecFactory.duration(DlmsProtocolProperties.TIMEOUT, false, DEFAULT_TIMEOUT);
+        return this.durationSpec(DlmsProtocolProperties.TIMEOUT, false, DEFAULT_TIMEOUT);
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
-        return UPLPropertySpecFactory.duration(DlmsProtocolProperties.FORCED_DELAY, false, DEFAULT_FORCED_DELAY);
+        return this.durationSpec(DlmsProtocolProperties.FORCED_DELAY, false, DEFAULT_FORCED_DELAY);
     }
 
     protected PropertySpec delayAfterErrorPropertySpec() {
-        return UPLPropertySpecFactory.duration(DlmsProtocolProperties.DELAY_AFTER_ERROR, false, DEFAULT_DELAY_AFTER_ERROR);
+        return this.durationSpec(DlmsProtocolProperties.DELAY_AFTER_ERROR, false, DEFAULT_DELAY_AFTER_ERROR);
+    }
+
+    private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::bigDecimalSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        return specBuilder.finish();
+    }
+
+    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue) {
+        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::durationSpec);
+        durationPropertySpecBuilder.setDefaultValue(defaultValue);
+        return durationPropertySpecBuilder.finish();
     }
 }

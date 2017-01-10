@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -65,11 +66,11 @@ public class ACE4000Properties {
     }
 
     private PropertySpec timeoutPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(TIMEOUT, false, DEFAULT_TIMEOUT);
+        return this.bigDecimalSpec(TIMEOUT, false, DEFAULT_TIMEOUT);
     }
 
     private PropertySpec retriesPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(RETRIES, false, DEFAULT_RETRIES);
+        return this.bigDecimalSpec(RETRIES, false, DEFAULT_RETRIES);
     }
 
     public int getTimeout() {
@@ -87,6 +88,12 @@ public class ACE4000Properties {
         } else {
             return ((BigDecimal) value).intValue();
         }
+    }
+
+    private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::bigDecimalSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        return specBuilder.finish();
     }
 
 }
