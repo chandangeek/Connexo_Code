@@ -45,7 +45,6 @@ import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
@@ -78,7 +77,7 @@ import java.util.List;
  * Date: 20/01/12
  * Time: 11:19
  */
-public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProtocolSupport {
+public class IskraMx372Messaging extends ProtocolMessages {
 
     private IskraMx372 protocol;
     private Device rtu;

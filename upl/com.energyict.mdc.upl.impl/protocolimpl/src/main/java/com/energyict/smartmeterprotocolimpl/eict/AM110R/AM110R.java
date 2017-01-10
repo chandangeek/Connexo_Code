@@ -28,7 +28,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.events.AM110REventProfiles;
@@ -46,7 +45,7 @@ import java.util.List;
  * @author sva
  * @since 7/05/13 - 10:39
  */
-public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol, SmartMeterProtocol, WakeUpProtocolSupport {
+public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol, SmartMeterProtocol {
 
     /**
      * The properties to use for this protocol

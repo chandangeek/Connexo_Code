@@ -19,7 +19,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.events.ZigbeeGasEventProfiles;
@@ -38,7 +37,7 @@ import java.util.List;
  * @author sva
  * @since 7/05/13 - 10:39
  */
-public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterProtocol, MessageProtocol, WakeUpProtocolSupport {
+public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterProtocol, MessageProtocol {
 
     /**
      * The properties to use for this protocol

@@ -21,7 +21,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -45,7 +44,7 @@ import java.util.List;
  * Date: 14-jul-2011
  * Time: 11:20:34
  */
-public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport, SerialNumberSupport {
+public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, SerialNumberSupport {
 
     public static final int ObisCodeBFieldIndex = 1;
 

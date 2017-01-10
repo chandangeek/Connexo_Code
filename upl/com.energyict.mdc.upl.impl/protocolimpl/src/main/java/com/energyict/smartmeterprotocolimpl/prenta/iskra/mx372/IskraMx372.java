@@ -35,7 +35,6 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -56,7 +55,7 @@ import java.util.logging.Logger;
  * Date: 19/01/12
  * Time: 16:21
  */
-public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, WakeUpProtocolSupport, SerialNumberSupport {
+public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, SerialNumberSupport {
 
     private IskraMX372Properties properties;
     private String serialnr = null;

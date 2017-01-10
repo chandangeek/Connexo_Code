@@ -21,7 +21,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
@@ -39,7 +38,7 @@ import java.util.List;
 /**
  * The ZigbeeGas logical device has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE.
  */
-public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, WakeUpProtocolSupport, SerialNumberSupport {
+public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, SerialNumberSupport {
 
     /**
      * The properties to use for this protocol
