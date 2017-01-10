@@ -5,6 +5,7 @@ import com.elster.jupiter.issue.rest.TranslationKeys;
 import com.elster.jupiter.issue.rest.impl.resource.ActionResource;
 import com.elster.jupiter.issue.rest.impl.resource.AssigneeResource;
 import com.elster.jupiter.issue.rest.impl.resource.CreationRuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.IssuePriorityResource;
 import com.elster.jupiter.issue.rest.impl.resource.IssueResource;
 import com.elster.jupiter.issue.rest.impl.resource.IssueTypeResource;
 import com.elster.jupiter.issue.rest.impl.resource.MeterResource;
@@ -84,6 +85,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
                     ActionResource.class,
                     WorkGroupsResource.class,
                     TopIssuesAndAlarmsResource.class,
+                    IssuePriorityResource.class,
                     IssueResource.class);
     }
 
