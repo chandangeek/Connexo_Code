@@ -4,6 +4,7 @@ import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import java.util.List;
 
@@ -24,8 +25,8 @@ public class PaknetModemComponent {
 
     private AbstractPaknetModemProperties modemProperties;
 
-    public PaknetModemComponent() {
-        this(new TypedPaknetModemProperties());
+    public PaknetModemComponent(PropertySpecService propertySpecService) {
+        this(new TypedPaknetModemProperties(propertySpecService));
     }
 
     public PaknetModemComponent(AbstractPaknetModemProperties properties) {

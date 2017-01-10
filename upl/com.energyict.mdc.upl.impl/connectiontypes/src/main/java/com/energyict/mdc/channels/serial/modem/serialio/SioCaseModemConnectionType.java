@@ -8,6 +8,7 @@ import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
@@ -27,9 +28,13 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
 
     private CaseModemComponent caseModemComponent;
 
+    public SioCaseModemConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public ComChannel connect() throws ConnectionException {
-        this.caseModemComponent = new CaseModemComponent(new TypedCaseModemProperties(getAllProperties()));
+        this.caseModemComponent = new CaseModemComponent(new TypedCaseModemProperties(getAllProperties(), this.getPropertySpecService()));
         // create the serial ComChannel and set all property values
         ComChannel comChannel = super.connect();
         try {
@@ -53,7 +58,7 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.addAll(new TypedCaseModemProperties().getUPLPropertySpecs());
+        propertySpecs.addAll(new TypedCaseModemProperties(this.getPropertySpecService()).getUPLPropertySpecs());
         return propertySpecs;
     }
 }

@@ -14,10 +14,6 @@ public class PEMPModemComponent extends PaknetModemComponent {
 
     private AbstractPEMPModemProperties modemProperties;
 
-    public PEMPModemComponent() {
-        this(new TypedPEMPModemProperties());
-    }
-
     public PEMPModemComponent(AbstractPEMPModemProperties properties) {
         super(properties);
         this.modemProperties = properties;

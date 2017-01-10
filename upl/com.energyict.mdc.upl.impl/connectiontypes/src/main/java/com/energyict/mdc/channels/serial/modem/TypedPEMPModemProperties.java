@@ -42,6 +42,7 @@ public class TypedPEMPModemProperties extends AbstractPEMPModemProperties implem
     private final PropertySpecService propertySpecService;
 
     public TypedPEMPModemProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     public TypedPEMPModemProperties(TypedProperties properties, PropertySpecService propertySpecService) {

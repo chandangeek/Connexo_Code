@@ -8,6 +8,7 @@ import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
@@ -27,9 +28,13 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
 
     private PEMPModemComponent pempModemComponent;
 
+    public SioPEMPModemConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public ComChannel connect() throws ConnectionException {
-        pempModemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getAllProperties()));
+        pempModemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getAllProperties(), this.getPropertySpecService()));
         // create the serial ComChannel and set all property values
         ComChannel comChannel = super.connect();
         try {
@@ -53,7 +58,7 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.addAll(new TypedPEMPModemProperties().getUPLPropertySpecs());
+        propertySpecs.addAll(new TypedPEMPModemProperties(this.getPropertySpecService()).getUPLPropertySpecs());
         return propertySpecs;
     }
 }

@@ -16,6 +16,7 @@ import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.protocol.exceptions.ConnectionException;
@@ -62,6 +63,8 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
     private ServerManager manager;
     @Mock
     private SerialComponentFactory serialComponentFactory;
+    @Mock
+    private PropertySpecService propertySpecService;
 
     @Before
     public void initializeMocksAndFactories() {
@@ -117,7 +120,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
 
     @Test(timeout = TEST_LONG_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testInitializePEMPCommandStateFails() throws Exception {
-        PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties()));
+        PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(), this.propertySpecService));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         AbstractModemTests.TestableSerialComChannel serialComChannel = getTestableComChannel();
         serialComChannel.setResponses(Arrays.asList("   ", "\r\n*\r\n",
@@ -143,7 +146,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testInitializePEMPCommandStateFailsWithTimeout() throws Exception {
-        PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties()));
+        PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(), this.propertySpecService));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         AbstractModemTests.TestableSerialComChannel serialComChannel = getTestableComChannel();
         serialComChannel.setResponses(Arrays.asList("   ", "\r\n*\r\n"));
@@ -170,7 +173,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties())));
+        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(), this.propertySpecService)));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType());
 
@@ -186,7 +189,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties())));
+        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(), this.propertySpecService)));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType());
 
@@ -203,7 +206,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         SioSerialPort sioSerialPort = mock(SioSerialPort.class);
         ComPort comPort = getProperlyMockedComPort(comChannel, sioSerialPort);
 
-        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties())));
+        PEMPModemComponent modemComponent = spy(new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties(), this.propertySpecService)));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
         SioPEMPModemConnectionType modemConnectionType = spy(new SioPEMPModemConnectionType());
 

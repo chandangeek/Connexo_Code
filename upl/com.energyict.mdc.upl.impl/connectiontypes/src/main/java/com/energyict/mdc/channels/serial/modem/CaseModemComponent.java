@@ -38,10 +38,6 @@ public class CaseModemComponent {
 
     private AbstractCaseModemProperties modemProperties;
 
-    public CaseModemComponent() {
-        this(new TypedCaseModemProperties());
-    }
-
     public CaseModemComponent(AbstractCaseModemProperties modemProperties) {
         super();
         this.modemProperties = modemProperties;

@@ -5,8 +5,8 @@ import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionTy
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -24,7 +24,7 @@ import java.util.Set;
 public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
 
     public LegacyOpticalDlmsConnectionType(PropertySpecService propertySpecService) {
-        super(new SioOpticalConnectionType(), propertySpecService);
+        super(new SioOpticalConnectionType(propertySpecService), propertySpecService);
     }
 
     @Override

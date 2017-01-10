@@ -8,6 +8,7 @@ import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
@@ -27,6 +28,10 @@ import java.util.List;
 public class SioAtModemConnectionType extends SioSerialConnectionType {
 
     private AtModemComponent atModemComponent;
+
+    public SioAtModemConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ComChannel connect() throws ConnectionException {

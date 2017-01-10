@@ -4,6 +4,7 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
@@ -20,6 +21,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class RxTxOpticalConnectionType extends RxTxSerialConnectionType implements OpticalDriver {
+    public RxTxOpticalConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ComChannel connect() throws ConnectionException {
