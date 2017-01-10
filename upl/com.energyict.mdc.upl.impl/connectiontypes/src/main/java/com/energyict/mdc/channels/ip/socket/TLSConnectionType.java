@@ -3,14 +3,13 @@ package com.energyict.mdc.channels.ip.socket;
 import com.energyict.mdc.channels.nls.MessageSeeds;
 import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.crypto.KeyStoreService;
+import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.mdw.core.DLMSKeyStoreParameters;
-import com.energyict.mdw.core.DLMSKeyStoreUserFile;
-import com.energyict.mdw.crypto.DLMSKeyStoreUserFileProviderImpl;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import sun.security.util.DerInputStream;
@@ -21,12 +20,10 @@ import sun.security.x509.PKIXExtensions;
 import sun.security.x509.X500Name;
 
 import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
@@ -39,6 +36,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -46,6 +44,9 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Logger;
+
+import static com.energyict.mdc.upl.crypto.KeyStoreService.StoreType.KEY;
+import static com.energyict.mdc.upl.crypto.KeyStoreService.StoreType.TRUST;
 
 /**
  * Copyrights EnergyICT
@@ -62,11 +63,15 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     private static final String SEPARATOR = ",";
 
     private final NlsService nlsService;
+    private final X509Service x509Service;
+    private final KeyStoreService keyStoreService;
     private Logger logger;
 
-    public TLSConnectionType(PropertySpecService propertySpecService, NlsService nlsService) {
+    public TLSConnectionType(PropertySpecService propertySpecService, NlsService nlsService, X509Service x509Service, KeyStoreService keyStoreService) {
         super(propertySpecService);
         this.nlsService = nlsService;
+        this.x509Service = x509Service;
+        this.keyStoreService = keyStoreService;
     }
 
     /**
@@ -125,10 +130,9 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
         try {
             final SSLContext sslContext = SSLContext.getInstance(getTLSVersionPropertyValue());
-            DLMSKeyStoreUserFile dlmsKeyStoreUserFile = new DLMSKeyStoreUserFileProviderImpl().getKeyStoreUserFile();
 
-            final TrustManager[] trustManagers = getTrustManagers(dlmsKeyStoreUserFile.findOrCreateDLMSTrustStore());
-            final KeyManager[] keyManagers = getKeyManagers(dlmsKeyStoreUserFile.findOrCreateDLMSKeyStore());
+            final TrustManager[] trustManagers = getTrustManagers(this.keyStoreService.findOrCreate(TRUST, "DLMS"));
+            final KeyManager[] keyManagers = getKeyManagers(this.keyStoreService.findOrCreate(KEY, "DMLS"));
 
             sslContext.init(keyManagers, trustManagers, new SecureRandom());
             SSLSocketFactory socketFactory = sslContext.getSocketFactory();
@@ -171,7 +175,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     private TrustManager[] getTrustManagers(KeyStore trustStore) throws ConnectionException {
         try {
             return new TrustManager[]{new X509TrustManagerImpl(trustStore)};
-        } catch (Exception e) {
+        } catch (KeyStoreException | NoSuchAlgorithmException e) {
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.FailedToSetupTrustManager, e);
         }
     }
@@ -182,7 +186,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     private KeyManager[] getKeyManagers(KeyStore keyStore) throws ConnectionException {
         try {
             return new KeyManager[]{new X509KeyManagerImpl(keyStore)};
-        } catch (Exception e) {
+        } catch (KeyStoreException | UnrecoverableKeyException | NoSuchAlgorithmException e) {
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.FailedToSetupKeyManager, e);
         }
     }
@@ -196,23 +200,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
         X509TrustManager x509TrustManager;
 
-        X509TrustManagerImpl(KeyStore trustStore) throws Exception {
-
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(trustStore);
-            TrustManager trustManagers[] = trustManagerFactory.getTrustManagers();
-
-            /*
-             * Search for a X509TrustManager and use it as default
-             */
-            for (TrustManager trustManager : trustManagers) {
-                if (trustManager instanceof X509TrustManager) {
-                    x509TrustManager = (X509TrustManager) trustManager;
-                    return;
-                }
-            }
-
-            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.DefaultTrustManagerNotFound);
+        X509TrustManagerImpl(KeyStore trustStore) throws ConnectionException, KeyStoreException, NoSuchAlgorithmException {
+            x509Service.getTrustManager(trustStore).orElseThrow(() -> new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.DefaultTrustManagerNotFound));
         }
 
         /**
@@ -250,22 +239,9 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         X509KeyManager x509KeyManager;
         private KeyStore keyStore;
 
-        X509KeyManagerImpl(KeyStore keyStore) throws Exception {
+        X509KeyManagerImpl(KeyStore keyStore) throws NoSuchAlgorithmException, java.security.UnrecoverableKeyException, KeyStoreException, ConnectionException {
             this.keyStore = keyStore;
-            KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmfactory.init(keyStore, DLMSKeyStoreParameters.PARAMETERS);
-            KeyManager[] keymanagers = kmfactory.getKeyManagers();
-
-            /*
-             * Search for a X509KeyManager and use it as default
-             */
-            for (KeyManager keymanager : keymanagers) {
-                if (keymanager instanceof X509KeyManager) {
-                    x509KeyManager = (X509KeyManager) keymanager;
-                    return;
-                }
-            }
-            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.DefaultKeyManagerNotFound);
+            this.x509KeyManager = x509Service.getKeyManager(keyStore).orElseThrow(() -> new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.DefaultKeyManagerNotFound));
         }
 
         /**
@@ -282,7 +258,11 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         @Override
         public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
             String tlsAlias = getClientTLSAliasPropertyValue();
-            return tlsAlias != null ? tlsAlias : getAlias(keyType, issuers);
+            if (tlsAlias != null) {
+                return tlsAlias;
+            } else {
+                return getAlias(keyType, issuers);
+            }
         }
 
         /**
@@ -359,15 +339,14 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
         private List<Principal> getCAPrincipalsFromAKIE(AuthorityKeyIdentifierExtension authorityKeyIdentifierExtension) {
             List<Principal> caPrincipals = new ArrayList<>();
-            GeneralNames generalNames = null;
             try {
-                generalNames = (GeneralNames) authorityKeyIdentifierExtension.get(AuthorityKeyIdentifierExtension.AUTH_NAME);
+                GeneralNames generalNames = (GeneralNames) authorityKeyIdentifierExtension.get(AuthorityKeyIdentifierExtension.AUTH_NAME);
+                for (GeneralName generalName : generalNames.names()) {
+                    X500Name name = (X500Name) generalName.getName();
+                    caPrincipals.add(name.asX500Principal());
+                }
             } catch (IOException e) {
                 getLogger().warning("Unable to get GeneralNames from AuthorityKeyIdentifierExtension object. " + e);
-            }
-            for (GeneralName generalName : generalNames.names()) {
-                X500Name name = (X500Name) generalName.getName();
-                caPrincipals.add(name.asX500Principal());
             }
 
             return caPrincipals;
@@ -376,7 +355,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         private AuthorityKeyIdentifierExtension getAuthorityKeyIdentifierExtension(X509Certificate certificate) {
             String oid = PKIXExtensions.AuthorityKey_Id.toString();
             byte[] extensionValue = certificate.getExtensionValue(oid);
-            DerInputStream in = null;
+            DerInputStream in;
             try {
                 in = new DerInputStream(extensionValue);
                 return new AuthorityKeyIdentifierExtension(false, in.getOctetString());
