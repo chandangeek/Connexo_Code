@@ -16,6 +16,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmPriorityResorce;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmResource;
 import com.energyict.mdc.device.alarms.rest.resource.MeterResource;
 import com.energyict.mdc.device.alarms.rest.resource.ReasonResource;
@@ -69,6 +70,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
                 WorkGroupsResource.class,
                 ReasonResource.class,
                 MeterResource.class,
+                DeviceAlarmPriorityResorce.class,
                 UserResource.class);
     }
 

@@ -12,6 +12,7 @@ public class DeviceAlarmInfo {
     public String alarmId;
     public IdWithNameInfo reason;
     public IdWithNameInfo status;
+    public PriorityInfo priority;
     public long dueDate;
     public IssueAssigneeInfo workGroupAssignee;
     public IssueAssigneeInfo userAssignee;
@@ -36,6 +37,7 @@ public class DeviceAlarmInfo {
         this.creationDate = deviceAlarm.getCreateTime().toEpochMilli();
         this.version = deviceAlarm.getVersion();
         this.clearedStatus = deviceAlarm.isStatusCleared();
+        this.priority = new PriorityInfo(deviceAlarm.getPriority());
     }
 
 }
