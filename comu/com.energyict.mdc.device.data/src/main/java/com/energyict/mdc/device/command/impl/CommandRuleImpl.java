@@ -278,6 +278,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         dataModel.remove(this);
         if (commandRulePendingUpdate.isPresent()) {
             dataModel.remove(commandRulePendingUpdate.get());
+            commandRulePendingUpdate.setNull();
         }
     }
 
