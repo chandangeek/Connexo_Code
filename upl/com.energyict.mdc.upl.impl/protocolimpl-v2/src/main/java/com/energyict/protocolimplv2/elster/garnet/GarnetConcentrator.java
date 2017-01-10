@@ -106,9 +106,9 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType());
-        result.add(new SioSerialConnectionType());
-        result.add(new RxTxSerialConnectionType());
+        result.add(new OutboundTcpIpConnectionType(this.propertySpecService));
+        result.add(new SioSerialConnectionType(this.propertySpecService));
+        result.add(new RxTxSerialConnectionType(this.propertySpecService));
         return result;
     }
 

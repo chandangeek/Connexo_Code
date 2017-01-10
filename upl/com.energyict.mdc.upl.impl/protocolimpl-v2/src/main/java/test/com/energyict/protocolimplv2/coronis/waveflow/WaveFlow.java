@@ -212,7 +212,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> connectionTypes = new ArrayList<>();
         connectionTypes.add(new WavenisGatewayConnectionType(this.propertySpecService));
-        connectionTypes.add(new WavenisSerialConnectionType());
+        connectionTypes.add(new WavenisSerialConnectionType(this.propertySpecService));
         return connectionTypes;
     }
 

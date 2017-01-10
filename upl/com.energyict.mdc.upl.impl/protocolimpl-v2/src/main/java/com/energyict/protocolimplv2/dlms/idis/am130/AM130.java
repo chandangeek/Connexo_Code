@@ -89,7 +89,7 @@ public class AM130 extends AM500 {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType());
+        result.add(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
         result.add(new InboundIpConnectionType());
         return result;
     }

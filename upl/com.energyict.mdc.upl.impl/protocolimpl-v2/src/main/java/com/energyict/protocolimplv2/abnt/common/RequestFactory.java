@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
@@ -58,14 +59,17 @@ public class RequestFactory {
     private Connection connection;
     private ComChannel comChannel;
     private AbntProperties properties;
+    private final PropertySpecService propertySpecService;
 
     private String meterSerialNumber;
     private ReadParametersResponse defaultParameters;
 
-    public RequestFactory() {
+    public RequestFactory(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
-    public RequestFactory(Connection connection, ComChannel comChannel, AbntProperties properties) {
+    public RequestFactory(PropertySpecService propertySpecService, Connection connection, ComChannel comChannel, AbntProperties properties) {
+        this(propertySpecService);
         this.connection = connection;
         this.comChannel = comChannel;
         this.properties = properties;
@@ -406,7 +410,7 @@ public class RequestFactory {
 
     public AbntProperties getProperties() {
         if (properties == null) {
-            properties = new AbntProperties();
+            properties = new AbntProperties(this.propertySpecService);
         }
         return properties;
     }

@@ -177,7 +177,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        List<CollectedLoadProfile> result = new ArrayList<CollectedLoadProfile>();
+        List<CollectedLoadProfile> result = new ArrayList<>();
         for (LoadProfileReader loadProfileReader : loadProfiles) {
             if (isMaster(loadProfileReader.getMeterSerialNumber())) {   //Master device
                 ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, issueFactory);
@@ -252,7 +252,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new ACE4000DeviceProtocolDialect());
+        return Collections.singletonList(new ACE4000DeviceProtocolDialect(this.getPropertySpecService()));
     }
 
     @Override
@@ -304,7 +304,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         if (!objectFactory.getAllSlaveSerialNumbers().isEmpty()) {
             //Requesting MBus registers to have an idea which MBus devices are connected :)
             ReadMBusRegisters readMBusRegistersRequest = new ReadMBusRegisters(this, collectedDataFactory, issueFactory);
-            readMBusRegistersRequest.request(new ArrayList<OfflineRegister>());
+            readMBusRegistersRequest.request(new ArrayList<>());
         }
 
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
@@ -342,7 +342,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        List<DeviceProtocolCapabilities> capabilities = new ArrayList<DeviceProtocolCapabilities>();
+        List<DeviceProtocolCapabilities> capabilities = new ArrayList<>();
         capabilities.add(DeviceProtocolCapabilities.PROTOCOL_MASTER);
         capabilities.add(DeviceProtocolCapabilities.PROTOCOL_SESSION);
         return capabilities;

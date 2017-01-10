@@ -113,7 +113,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> connectionTypes = new ArrayList<>();
-        connectionTypes.add(new WavenisGatewayConnectionType());
+        connectionTypes.add(new WavenisGatewayConnectionType(this.propertySpecService));
         return connectionTypes;
     }
 

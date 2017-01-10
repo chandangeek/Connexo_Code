@@ -60,12 +60,12 @@ public class TransparentGateway extends AbstractGateway {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         return Arrays.<ConnectionType>asList(
-                new SioSerialConnectionType(),
-                new RxTxSerialConnectionType(),
-                new SioAtModemConnectionType(),
-                new RxTxAtModemConnectionType(),
-                new OutboundUdpConnectionType(),
-                new OutboundTcpIpConnectionType()
+                new SioSerialConnectionType(this.propertySpecService),
+                new RxTxSerialConnectionType(this.propertySpecService),
+                new SioAtModemConnectionType(this.propertySpecService),
+                new RxTxAtModemConnectionType(this.propertySpecService),
+                new OutboundUdpConnectionType(this.propertySpecService),
+                new OutboundTcpIpConnectionType(this.propertySpecService)
         );
     }
 

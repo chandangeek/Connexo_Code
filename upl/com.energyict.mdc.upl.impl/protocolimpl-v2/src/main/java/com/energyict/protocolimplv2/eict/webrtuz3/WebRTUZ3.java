@@ -97,9 +97,9 @@ public class WebRTUZ3 extends AbstractDlmsProtocol implements MigrateFromV1Proto
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType());
-        result.add(new RxTxAtModemConnectionType());
-        result.add(new SioAtModemConnectionType());
+        result.add(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
+        result.add(new RxTxAtModemConnectionType(this.getPropertySpecService()));
+        result.add(new SioAtModemConnectionType(this.getPropertySpecService()));
         return result;
     }
 

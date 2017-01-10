@@ -431,11 +431,11 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> connectionTypes = new ArrayList<>();
-        connectionTypes.add(new CTRInboundDialHomeIdConnectionType());
-        connectionTypes.add(new InboundProximusSmsConnectionType());
-        connectionTypes.add(new OutboundProximusSmsConnectionType());
-        connectionTypes.add(new SioOpticalConnectionType());
-        connectionTypes.add(new RxTxOpticalConnectionType());
+        connectionTypes.add(new CTRInboundDialHomeIdConnectionType(this.propertySpecService));
+        connectionTypes.add(new InboundProximusSmsConnectionType(this.propertySpecService));
+        connectionTypes.add(new OutboundProximusSmsConnectionType(this.propertySpecService));
+        connectionTypes.add(new SioOpticalConnectionType(this.propertySpecService));
+        connectionTypes.add(new RxTxOpticalConnectionType(this.propertySpecService));
         return connectionTypes;
     }
 

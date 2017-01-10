@@ -149,11 +149,11 @@ public class CX20009 extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType());
-        result.add(new SioSerialConnectionType());
-        result.add(new RxTxSerialConnectionType());
-        result.add(new SioAtModemConnectionType());
-        result.add(new RxTxAtModemConnectionType());
+        result.add(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
+        result.add(new SioSerialConnectionType(this.getPropertySpecService()));
+        result.add(new RxTxSerialConnectionType(this.getPropertySpecService()));
+        result.add(new SioAtModemConnectionType(this.getPropertySpecService()));
+        result.add(new RxTxAtModemConnectionType(this.getPropertySpecService()));
         return result;
     }
 

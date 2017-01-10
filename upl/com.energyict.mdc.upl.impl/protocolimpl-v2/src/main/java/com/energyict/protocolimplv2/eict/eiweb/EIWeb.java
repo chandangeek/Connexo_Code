@@ -107,7 +107,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Collections.<ConnectionType>singletonList(new EIWebConnectionType());
+        return Collections.singletonList(new EIWebConnectionType(this.propertySpecService));
     }
 
     @Override

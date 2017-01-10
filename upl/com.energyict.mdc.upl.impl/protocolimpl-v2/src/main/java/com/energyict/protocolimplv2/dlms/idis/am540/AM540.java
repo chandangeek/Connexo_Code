@@ -210,7 +210,9 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.asList((ConnectionType) new SioOpticalConnectionType(), new RxTxOpticalConnectionType());
+        return Arrays.asList(
+                new SioOpticalConnectionType(this.getPropertySpecService()),
+                new RxTxOpticalConnectionType(this.getPropertySpecService()));
     }
 
     protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {

@@ -272,7 +272,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Collections.singletonList(new OutboundTcpIpConnectionType());
+        return Collections.singletonList(new OutboundTcpIpConnectionType(this.propertySpecService));
     }
 
     @Override

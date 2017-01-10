@@ -88,8 +88,8 @@ public class AM100 extends WebRTUKP {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = super.getSupportedConnectionTypes();
-        result.add(new SioAtModemConnectionType());
-        result.add(new RxTxAtModemConnectionType());
+        result.add(new SioAtModemConnectionType(this.getPropertySpecService()));
+        result.add(new RxTxAtModemConnectionType(this.getPropertySpecService()));
         return result;
     }
 

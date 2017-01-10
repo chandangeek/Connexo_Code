@@ -145,17 +145,20 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         return Arrays.<ConnectionType>asList(
-                new SioSerialConnectionType(),
-                new RxTxSerialConnectionType(),
-                new SioOpticalConnectionType(),
-                new RxTxOpticalConnectionType(),
-                new OutboundTcpIpConnectionType()
+                new SioSerialConnectionType(this.propertySpecService),
+                new RxTxSerialConnectionType(this.propertySpecService),
+                new SioOpticalConnectionType(this.propertySpecService),
+                new RxTxOpticalConnectionType(this.propertySpecService),
+                new OutboundTcpIpConnectionType(this.propertySpecService)
         );
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList(new AbntSerialDeviceProtocolDialect(), new AbntOpticalDeviceProtocolDialect(propertySpecService), new AbntTransparentTCPDeviceProtocolDialect(propertySpecService));
+        return Arrays.asList(
+                new AbntSerialDeviceProtocolDialect(this.propertySpecService),
+                new AbntOpticalDeviceProtocolDialect(this.propertySpecService),
+                new AbntTransparentTCPDeviceProtocolDialect(this.propertySpecService));
     }
 
     @Override
@@ -313,7 +316,7 @@ public class A1055 extends AbstractAbntProtocol implements SerialNumberSupport {
 
     public RequestFactory getRequestFactory() {
         if (this.requestFactory == null) {
-            this.requestFactory = new RequestFactory();
+            this.requestFactory = new RequestFactory(this.propertySpecService);
         }
         return this.requestFactory;
     }

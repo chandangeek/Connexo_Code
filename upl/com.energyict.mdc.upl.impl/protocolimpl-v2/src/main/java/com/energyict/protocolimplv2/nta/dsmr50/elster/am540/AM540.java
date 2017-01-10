@@ -264,8 +264,8 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new SioOpticalConnectionType());
-        result.add(new RxTxOpticalConnectionType());
+        result.add(new SioOpticalConnectionType(this.propertySpecService));
+        result.add(new RxTxOpticalConnectionType(this.propertySpecService));
         return result;
     }
 

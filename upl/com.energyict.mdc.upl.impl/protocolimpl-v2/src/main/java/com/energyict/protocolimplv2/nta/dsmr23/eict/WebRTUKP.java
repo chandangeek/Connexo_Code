@@ -143,9 +143,9 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType());
-        result.add(new SioOpticalConnectionType());
-        result.add(new RxTxOpticalConnectionType());
+        result.add(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
+        result.add(new SioOpticalConnectionType(this.getPropertySpecService()));
+        result.add(new RxTxOpticalConnectionType(this.getPropertySpecService()));
         return result;
     }
 
