@@ -27,7 +27,7 @@ public interface SocketService {
      *
      * @param portNumber The port number
      * @return The newly created DatagramSocket
-     * @throws IOException Thrown by the DatagramSocket constructor
+     * @throws SocketException Thrown by the DatagramSocket constructor
      */
     DatagramSocket newUDPSocket(int portNumber) throws SocketException;
 

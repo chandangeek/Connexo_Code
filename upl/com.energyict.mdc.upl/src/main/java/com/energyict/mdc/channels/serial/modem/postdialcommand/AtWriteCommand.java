@@ -21,6 +21,6 @@ public class AtWriteCommand extends AbstractAtPostDialCommand {
 
     @Override
     public void execute(ModemComponent modemComponent, ComChannel comChannel) {
-        modemComponent.writeRawData(comChannel, this.getCommand());
+        modemComponent.write(comChannel, this.getCommand());
     }
 }
