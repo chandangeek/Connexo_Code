@@ -39,14 +39,16 @@ public class AssignDeviceAlarmActionTest extends BaseTest {
         getThreadPrincipalService().set(user);
 
         Map<String, Object> properties = new HashMap<>();
-        DeviceAlarm issue = createAlarmMinInfo();
+        properties.put(AssignDeviceAlarmAction.ASSIGNEE, new AssignDeviceAlarmAction.Assignee(user, null, null));
+        DeviceAlarm alarm = createAlarmMinInfo();
 
-        assertThat(issue.getAssignee().getUser()).isNull();
-        assertThat(issue.getAssignee().getWorkGroup()).isNull();
+        assertThat(alarm.getAssignee().getUser()).isNull();
+        assertThat(alarm.getAssignee().getWorkGroup()).isNull();
 
-        IssueActionResult actionResult = action.initAndValidate(properties).execute(issue);
+        IssueActionResult actionResult = action.initAndValidate(properties).execute(alarm);
 
         assertThat(actionResult.isSuccess()).isTrue();
+        assertThat(alarm.getAssignee().getUser().getId()).isEqualTo(user.getId());
     }
 
     @Test
@@ -73,6 +75,37 @@ public class AssignDeviceAlarmActionTest extends BaseTest {
 
         assertThat(actionResult.isSuccess()).isTrue();
         assertThat(alarm.getAssignee().getUser().getId()).isEqualTo(user.getId());
+    }
+
+    @Test
+    @Transactional
+    public void testExecuteAssignToMeAndUnssignAction() {
+        LdapUserDirectory local = getUserService().createApacheDirectory("local");
+        local.setSecurity("0");
+        local.setUrl("url");
+        local.setDirectoryUser("directoryUser");
+        local.setPassword("password");
+        local.update();
+        User user = getUserService().findOrCreateUser("user", "local", "APD");
+        getThreadPrincipalService().set(user);
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(AssignDeviceAlarmAction.ASSIGNEE, new AssignDeviceAlarmAction.Assignee(user, null, null));
+        DeviceAlarm deviceAlarm = createAlarmMinInfo();
+
+        assertThat(deviceAlarm.getAssignee().getUser()).isNull();
+        assertThat(deviceAlarm.getAssignee().getWorkGroup()).isNull();
+        IssueAction actionAssignToMe = getDefaultActionsFactory().createIssueAction(AssignDeviceAlarmAction.class.getName());
+        IssueAction actionUnssign = getDefaultActionsFactory().createIssueAction(AssignDeviceAlarmAction.class.getName());
+        IssueActionResult actionResult = actionAssignToMe.initAndValidate(properties).execute(deviceAlarm);
+
+        assertThat(actionResult.isSuccess()).isTrue();
+        assertThat(deviceAlarm.getAssignee().getUser().getId()).isEqualTo(user.getId());
+
+        properties = new HashMap<>();
+        actionResult = actionUnssign.initAndValidate(properties).execute(deviceAlarm);
+        assertThat(actionResult.isSuccess()).isTrue();
+        assertThat(deviceAlarm.getAssignee().getUser()).isEqualTo(null);
     }
 
 }
