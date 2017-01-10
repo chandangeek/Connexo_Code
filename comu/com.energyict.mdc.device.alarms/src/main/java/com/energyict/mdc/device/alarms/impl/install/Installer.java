@@ -122,8 +122,6 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 TranslationKeys.ALARM_REASON, TranslationKeys.ALARM_REASON_DESCRIPTION);
         IssueType deviceAlarmType = issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType);
-
-
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {

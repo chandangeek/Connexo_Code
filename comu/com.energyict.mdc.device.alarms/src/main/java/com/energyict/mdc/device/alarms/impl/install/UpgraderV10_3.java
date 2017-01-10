@@ -1,11 +1,19 @@
 package com.energyict.mdc.device.alarms.impl.install;
 
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.impl.DeviceAlarmActionsFactory;
+import com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction;
+import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 
 import javax.inject.Inject;
@@ -28,6 +36,33 @@ public class UpgraderV10_3 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 3));
         this.upgradeSubscriberSpecs();
+        this.updateActiontypes();
+    }
+
+    private void updateActiontypes() {
+        try (Connection connection = this.dataModel.getConnection(true)) {
+            this.updateActiontypes(connection);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private void updateActiontypes(Connection connection) {
+        IssueActionService issueActionService = this.dataModel.getInstance(IssueActionService.class);
+        IssueService issueService = this.dataModel.getInstance(IssueService.class);
+
+        IssueType deviceAlarmType = issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
+        Condition conditionAction = Operator.EQUALIGNORECASE.compare("className", AssignDeviceAlarmAction.class.getName());
+        if (issueActionService.getActionTypeQuery()
+                .select(conditionAction).isEmpty()) {
+            issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType);
+        }
+
+        conditionAction = Operator.EQUALIGNORECASE.compare("className", CloseDeviceAlarmAction.class.getName());
+        if (issueActionService.getActionTypeQuery()
+                .select(conditionAction).isEmpty()) {
+            issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType);
+        }
     }
 
     private void upgradeSubscriberSpecs() {

@@ -210,7 +210,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
             Optional<OpenDeviceAlarm> openDeviceAlarm = findOpenAlarm(id);
             return openDeviceAlarm.isPresent() ? openDeviceAlarm : findHistoricalAlarm(id);
         }
-        return findHistoricalAlarm(id);
+        return Optional.empty();
     }
 
     @Override
