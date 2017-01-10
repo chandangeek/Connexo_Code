@@ -33,8 +33,8 @@ Ext.define('Mdc.networkvisualiser.controller.NetworkVisualiser', {
         widget.clearGraph();
         widget.store = Ext.getStore('Mdc.networkvisualiser.store.NetworkNodes');
         widget.store.getProxy().setUrl(deviceId);
-        widget.store.load(function() {
+       // widget.store.load(function() {
             me.getApplication().fireEvent('changecontentevent', widget);
-        });
+       // });
     }
 });
