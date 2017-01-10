@@ -12,14 +12,13 @@ import com.energyict.mdc.channels.serial.modem.AbstractPEMPModemProperties;
 import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
 import com.energyict.mdc.channels.serial.modem.PEMPModemConfiguration;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.protocol.exceptions.ModemException;
-import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -99,7 +98,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         ConnectionTaskPropertyImpl dtrToggleDelay = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.DTR_TOGGLE_DELAY);
         dtrToggleDelay.setValue(new TimeDuration(DTR_TOGGLE_DELAY_VALUE, TimeDuration.MILLISECONDS));
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.PHONE_NUMBER_PROPERTY_NAME);
-        phoneNumber.setValue(PHONE_NUMBER); 
+        phoneNumber.setValue(PHONE_NUMBER);
         ConnectionTaskPropertyImpl modemConfigurationKey = new ConnectionTaskPropertyImpl(TypedPEMPModemProperties.MODEM_CONFIGURATION_KEY);
         modemConfigurationKey.setValue(MODEM_CONFIGURATION_KEY);
 
@@ -134,7 +133,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         try {
             modemConnectionType.connect(comPort, getProperProperties());
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE)) {
                 fail("Should have gotten exception indicating that the modem could not initialize the command prompt, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -156,7 +155,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         try {
             modemConnectionType.connect(comPort, getProperProperties());
         } catch (ModemException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_READ_TIMEOUT)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.MODEM_READ_TIMEOUT)) {
                 fail("Should have gotten exception indicating a timeout, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);

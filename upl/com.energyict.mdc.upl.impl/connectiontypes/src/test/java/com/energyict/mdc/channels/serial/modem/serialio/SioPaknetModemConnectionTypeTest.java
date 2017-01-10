@@ -11,6 +11,7 @@ import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.AbstractPaknetModemProperties;
 import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
@@ -18,8 +19,6 @@ import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.protocol.exceptions.ModemException;
-import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -152,7 +151,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         try {
             modemConnectionType.connect(comPort, getProperProperties());
         } catch (ModemException e) {
-            if (!e.getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE)) {
+            if (!e.getType().equals(ModemException.Type.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE)) {
                 fail("Should have gotten exception indicating that the modem could not initialize the command prompt, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -191,7 +190,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         try {
             modemConnectionType.connect(comPort, getProperProperties());
         } catch (ModemException e) {
-            if (!e.getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_SEND_INIT_STRING)) {
+            if (!e.getType().equals(ModemException.Type.MODEM_COULD_NOT_SEND_INIT_STRING)) {
                 fail("Should have gotten exception indicating that the modem could not send the initialization parameters, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -240,7 +239,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         try {
             modemConnectionType.connect(comPort, properties);
         } catch (ConnectionException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.MODEM_COULD_NOT_INITIALIZE_COMMAND_STATE)) {
                 fail("Should have gotten exception indicating that the modem could not initialize the command prompt, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
@@ -263,7 +262,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         try {
             modemConnectionType.connect(comPort, getProperProperties());
         } catch (ModemException e) {
-            if (!((ModemException) e.getCause()).getExceptionReference().equals(ProtocolExceptionReference.MODEM_CONNECT_TIMEOUT)) {
+            if (!((ModemException) e.getCause()).getType().equals(ModemException.Type.MODEM_CONNECT_TIMEOUT)) {
                 fail("Should have gotten exception indicating that a timeout occurred during the dial, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);

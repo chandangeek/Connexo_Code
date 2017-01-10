@@ -1,9 +1,8 @@
 package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.mdc.channels.serial.SerialComChannel;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
-
-import com.energyict.protocol.exceptions.ModemException;
 
 /**
  * Modem component for PEMP communication, which is based on the {@link PaknetModemComponent}.
@@ -45,8 +44,8 @@ public class PEMPModemComponent extends PaknetModemComponent {
      * <li>All initialization parameters are send out to the modem</li>
      * </ul>
      *
-     * @param name
-     * @param comChannel
+     * @param name The port name
+     * @param comChannel The ComChannel
      */
     public void initializeModem(String name, SerialComChannel comChannel) {
         setComPortName(name);

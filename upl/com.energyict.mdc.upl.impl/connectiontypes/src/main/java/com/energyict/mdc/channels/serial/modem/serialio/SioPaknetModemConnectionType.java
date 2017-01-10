@@ -1,14 +1,15 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
-import com.energyict.mdc.SerialComponentFactory;
+import com.energyict.mdc.channels.nls.MessageSeeds;
+import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.protocol.exceptions.ModemException;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -28,21 +29,15 @@ public class SioPaknetModemConnectionType extends SioSerialConnectionType {
 
     @Override
     public ComChannel connect() throws ConnectionException {
-
-        paknetModemComponent = SerialComponentFactory.instance.get().newPaknetModemComponent(new TypedPaknetModemProperties(getAllProperties()));
-        /*
-        create the serial ComChannel and set all property values
-         */
+        paknetModemComponent = new PaknetModemComponent(new TypedPaknetModemProperties(getAllProperties()));
+        // create the serial ComChannel and set all property values
         ComChannel comChannel = super.connect();
         try {
             paknetModemComponent.connect(getComPortName(getAllProperties()), comChannel);
-        } catch (Throwable e) {
-            comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
-            if (e instanceof ModemException) {
-                throw new ConnectionException(e);
-            } else {
-                throw e;
-            }
+        } catch (ModemException e) {
+            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedModemException, e);
+        } finally {
+            comChannel.close(); // need to properly close the comChannel, otherwise the port will always be busy
         }
         return comChannel;
     }

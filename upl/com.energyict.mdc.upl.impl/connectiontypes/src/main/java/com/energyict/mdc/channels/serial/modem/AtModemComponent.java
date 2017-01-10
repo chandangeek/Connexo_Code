@@ -4,11 +4,10 @@ import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.AbstractAtPostDialCommand;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.ModemException;
-import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
@@ -313,7 +312,7 @@ public class AtModemComponent implements ModemComponent, Serializable{
                     return true;
                 }
             } catch (ModemException e) {
-                if (!e.getExceptionReference().equals(ProtocolExceptionReference.MODEM_READ_TIMEOUT)) {
+                if (!e.getType().equals(ModemException.Type.MODEM_READ_TIMEOUT)) {
                     throw e;
                 }
             }
@@ -374,7 +373,7 @@ public class AtModemComponent implements ModemComponent, Serializable{
     private boolean validateResponse(String response, String expectedAnswer) {
         for (AtModemComponent.ExceptionAnswers exceptionAnswer : AtModemComponent.ExceptionAnswers.values()) {
             if (response.contains(exceptionAnswer.getError())) {
-                throw ModemException.dialingError(this.comPortName, exceptionAnswer.getExceptionReferences(), this.lastCommandSend);
+                throw ModemException.dialingError(this.comPortName, exceptionAnswer.getDialErrorType(), this.lastCommandSend);
             }
         }
         return response.contains(expectedAnswer);
@@ -417,26 +416,26 @@ public class AtModemComponent implements ModemComponent, Serializable{
      * Exception values which can occur during communication with the modem.
      */
     public enum ExceptionAnswers {
-        BUSY_EXCEPTION(BUSY, ProtocolExceptionReference.AT_MODEM_BUSY),
-        ERROR_EXCEPTION(ERROR, ProtocolExceptionReference.AT_MODEM_ERROR),
-        NO_ANSWER_EXCEPTION(NO_ANSWER, ProtocolExceptionReference.AT_MODEM_NO_ANSWER),
-        NO_CARRIER_EXCEPTION(NO_CARRIER, ProtocolExceptionReference.AT_MODEM_NO_CARRIER),
-        NO_DIALTONE_EXCEPTION(NO_DIALTONE, ProtocolExceptionReference.AT_MODEM_NO_DIALTONE);
+        BUSY_EXCEPTION(BUSY, ModemException.DialErrorType.AT_MODEM_BUSY),
+        ERROR_EXCEPTION(ERROR, ModemException.DialErrorType.AT_MODEM_ERROR),
+        NO_ANSWER_EXCEPTION(NO_ANSWER, ModemException.DialErrorType.AT_MODEM_NO_ANSWER),
+        NO_CARRIER_EXCEPTION(NO_CARRIER, ModemException.DialErrorType.AT_MODEM_NO_CARRIER),
+        NO_DIALTONE_EXCEPTION(NO_DIALTONE, ModemException.DialErrorType.AT_MODEM_NO_DIALTONE);
 
         private final String error;
-        private final ProtocolExceptionReference exceptionReferences;
+        private final ModemException.DialErrorType dialErrorType;
 
-        ExceptionAnswers(String error, ProtocolExceptionReference exceptionReferences) {
+        ExceptionAnswers(String error, ModemException.DialErrorType dialErrorType) {
             this.error = error;
-            this.exceptionReferences = exceptionReferences;
+            this.dialErrorType = dialErrorType;
         }
 
         public String getError() {
             return error;
         }
 
-        public ProtocolExceptionReference getExceptionReferences() {
-            return exceptionReferences;
+        public ModemException.DialErrorType getDialErrorType() {
+            return dialErrorType;
         }
     }
 }

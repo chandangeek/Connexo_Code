@@ -2,10 +2,8 @@ package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SignalController;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
-
-import com.energyict.protocol.exceptions.ModemException;
-import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 
 import java.util.List;
 
@@ -201,7 +199,7 @@ public class PaknetModemComponent {
                     return true;
                 }
             } catch (ModemException e) {
-                if (!e.getExceptionReference().equals(ProtocolExceptionReference.MODEM_READ_TIMEOUT)) {
+                if (!e.getType().equals(ModemException.Type.MODEM_READ_TIMEOUT)) {
                     throw e;
                 }
             }
@@ -262,7 +260,7 @@ public class PaknetModemComponent {
     protected boolean validateResponse(String response, String expectedAnswer) {
         for (PaknetModemComponent.ExceptionAnswers exceptionAnswer : PaknetModemComponent.ExceptionAnswers.values()) {
             if (response.contains(exceptionAnswer.getError())) {
-                throw ModemException.dialingError(this.comPortName, exceptionAnswer.getExceptionReferences(), this.lastCommandSend);
+                throw ModemException.dialingError(this.comPortName, exceptionAnswer.getDialErrorType(), this.lastCommandSend);
             }
         }
         return response.contains(expectedAnswer);
@@ -326,19 +324,19 @@ public class PaknetModemComponent {
         ;   // ToDO: No exception answers registered yet!
 
         private final String error;
-        private final ProtocolExceptionReference exceptionReferences;
+        private final ModemException.DialErrorType dialErrorType;
 
-        ExceptionAnswers(String error, ProtocolExceptionReference exceptionReferences) {
+        ExceptionAnswers(String error, ModemException.DialErrorType dialErrorType) {
             this.error = error;
-            this.exceptionReferences = exceptionReferences;
+            this.dialErrorType = dialErrorType;
         }
 
         public String getError() {
             return error;
         }
 
-        public ProtocolExceptionReference getExceptionReferences() {
-            return exceptionReferences;
+        public ModemException.DialErrorType getDialErrorType() {
+            return dialErrorType;
         }
     }
 }

@@ -2,10 +2,8 @@ package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SignalController;
+import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
-
-import com.energyict.protocol.exceptions.ModemException;
-import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -229,7 +227,7 @@ public class CaseModemComponent {
                     return true;
                 }
             } catch (ModemException e) {
-                if (!e.getExceptionReference().equals(ProtocolExceptionReference.MODEM_READ_TIMEOUT)) {
+                if (!e.getType().equals(ModemException.Type.MODEM_READ_TIMEOUT)) {
                     throw e;
                 }
             }
@@ -290,7 +288,7 @@ public class CaseModemComponent {
     private boolean validateResponse(String response, String expectedAnswer) {
         for (CaseModemComponent.ExceptionAnswers exceptionAnswer : CaseModemComponent.ExceptionAnswers.values()) {
             if (response.contains(exceptionAnswer.getError())) {
-                throw ModemException.dialingError(this.comPortName, exceptionAnswer.getExceptionReferences(), this.lastCommandSend);
+                throw ModemException.dialingError(this.comPortName, exceptionAnswer.getDialErrorType(), this.lastCommandSend);
             }
         }
         return response.contains(expectedAnswer);
@@ -340,22 +338,22 @@ public class CaseModemComponent {
      * Exception values which can occur during communication with the modem.
      */
     public enum ExceptionAnswers {
-        ERROR_CALL_ABORTED(CALL_ABORTED, ProtocolExceptionReference.MODEM_CALL_ABORTED);
+        ERROR_CALL_ABORTED(CALL_ABORTED, com.energyict.mdc.io.ModemException.DialErrorType.MODEM_CALL_ABORTED);
 
         private final String error;
-        private final ProtocolExceptionReference exceptionReferences;
+        private final com.energyict.mdc.io.ModemException.DialErrorType dialErrorType;
 
-        ExceptionAnswers(String error, ProtocolExceptionReference exceptionReferences) {
+        ExceptionAnswers(String error, com.energyict.mdc.io.ModemException.DialErrorType dialErrorType) {
             this.error = error;
-            this.exceptionReferences = exceptionReferences;
+            this.dialErrorType = dialErrorType;
         }
 
         public String getError() {
             return error;
         }
 
-        public ProtocolExceptionReference getExceptionReferences() {
-            return exceptionReferences;
+        public com.energyict.mdc.io.ModemException.DialErrorType getDialErrorType() {
+            return dialErrorType;
         }
     }
 }
