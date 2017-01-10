@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -244,6 +245,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         OpenIssueImpl issue = getDataModel().getInstance(OpenIssueImpl.class);
         issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+        issue.setPriority(Priority.DEFAULT);
         issue.setRule(rule);
         issue.save();
         rule.delete();
@@ -487,6 +489,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         builder.setDueInTime(DueInType.DAY, 15L);
+        builder.setPriority(Priority.DEFAULT);
         builder.setTemplate(template.getName());
         Map<String, Object> props = new LinkedHashMap<>();
         props.put(DECIMAL_PROPERTY_NAME, BigDecimal.valueOf(10));

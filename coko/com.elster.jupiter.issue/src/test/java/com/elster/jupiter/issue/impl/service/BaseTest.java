@@ -20,6 +20,7 @@ import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -241,6 +242,7 @@ public abstract class BaseTest {
         OpenIssueImpl issue = getDataModel().getInstance(OpenIssueImpl.class);
         issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+        issue.setPriority(Priority.DEFAULT);
         CreationRule rule = createCreationRule("creation rule" + Instant.now());
         WorkGroup workGroup = getUserService().createWorkGroup("WorkGroupName","Description");
         User user = getUserService().createUser("UserName", "Description");
@@ -255,6 +257,7 @@ public abstract class BaseTest {
         OpenIssueImpl issue = getDataModel().getInstance(OpenIssueImpl.class);
         issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
+        issue.setPriority(Priority.DEFAULT);
         CreationRule rule = createCreationRule("creation rule" + Instant.now());
         issue.setRule(rule);
         issue.save();
@@ -267,6 +270,7 @@ public abstract class BaseTest {
         builder.setTemplate(mockCreationRuleTemplate().getName());
         builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
+        builder.setPriority(Priority.DEFAULT);
         return builder.complete();
     }
 

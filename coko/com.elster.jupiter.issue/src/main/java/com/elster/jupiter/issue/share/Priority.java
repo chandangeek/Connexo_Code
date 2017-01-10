@@ -14,7 +14,7 @@ public final class Priority implements Comparable<Priority>, Cloneable {
 
     private Rank rank;
 
-    public static Priority DEFAULT = new Priority(25,5);
+    public static final Priority DEFAULT = new Priority(25,5);
 
     enum Rank {
         VERY_HIGH("Very High"),
