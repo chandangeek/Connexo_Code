@@ -18,6 +18,7 @@ import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -302,6 +303,7 @@ public abstract class BaseTest {
         builder.setComment("Comment for rule");
         builder.setIssueType(getIssueService().findIssueType(DeviceAlarmService.DEVICE_ALARM).get());
         builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
+        builder.setPriority(Priority.DEFAULT);
         builder.setDueInTime(DueInType.DAY, 15L);
         CreationRuleTemplate template = getMockCreationRuleTemplate();
         builder.setTemplate(template.getName());
@@ -369,19 +371,11 @@ public abstract class BaseTest {
         OpenIssueImpl baseIssue = isuDataModel.getInstance(OpenIssueImpl.class);
         baseIssue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).get());
         baseIssue.setReason(rule.getReason());
+        baseIssue.setPriority(Priority.DEFAULT);
         baseIssue.setDevice(meter);
         baseIssue.setRule(rule);
         baseIssue.save();
         return baseIssue;
-    }
-
-    private CreationRule createCreationRule(String name) {
-        CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
-        builder.setName(name);
-        builder.setTemplate(mockCreationRuleTemplate().getName());
-        builder.setIssueType(getIssueService().findIssueType("devicealarm").orElse(null));
-        builder.setReason(getIssueService().findReason(ALARM_DEFAULT_REASON).orElse(null));
-        return builder.complete();
     }
 
     private CreationRuleTemplate mockCreationRuleTemplate() {
