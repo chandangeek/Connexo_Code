@@ -80,17 +80,13 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
     listeners: {
         boxready: function (panel) {
             this.initCanvas(panel);
-            this.sideMenu = Ext.create(this.menu, {visualiser: this});
-            this.sideMenu.show().alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
-            this.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer', {
-                title: panel.propertyViewerTitle
-            });
-            this.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
         },
         resize: function(panel,w,h){
             KeyLines.setSize('graph-drawing-area',w-10,h);
-            this.sideMenu.alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
-            this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
+            if(this.sideMenu && this.propertyViewer){
+                this.sideMenu.alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
+                this.propertyViewer.alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
+            }
             if(this.chart){
                 this.doLayout();
             }
@@ -278,87 +274,106 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
         Ext.ComponentQuery.query('#uni-property-viewer')[0].displayProperties(this.chart.getItem(id).d);
     },
 
+    addFloatingPanels: function(){
+        var me = this;
+        me.sideMenu = Ext.create(me.menu, {visualiser: me});
+        me.sideMenu.show().alignTo(Ext.get('graph-drawing-area'), 'tl-tl');
+        me.propertyViewer = Ext.create('Uni.graphvisualiser.VisualiserPropertyViewer', {
+            title: me.propertyViewerTitle
+        });
+        me.propertyViewer.show().alignTo(Ext.get('graph-drawing-area'), 'tr-tr', [-5, 0]);
+    },
 
     loadData: function(){
         var me = this,
-            nodes = this.store.data.items[0].nodes(),
-            links = this.store.data.items[0].links(),
-            nodeStoreForComboBox = new Ext.data.SimpleStore({
-                fields: ['id', 'name']
-            }),
-            icon,
-            showGatewayLegend = false,
-            showDeviceLegend = false;
+            pageMainContent = Ext.ComponentQuery.query('viewport')[0];
+        pageMainContent.setLoading(true);
+        this.store.load(function(){
+            pageMainContent.setLoading(false);
 
-        me.top = [nodes.data.items[0].get('id')+'']; // Assumption: the first node is the top node
-        nodes.each(function(node){
-            nodeStoreForComboBox.add({
-                id: node.get('id'),
-                name: node.get('name')
-            });
-            if(!Ext.isEmpty(node.get('gateWay')) && node.get('gateWay')){
-                icon = KeyLines.getFontIcon(me.gatewayIcon);
-                showGatewayLegend = true;
-            } else {
-                icon = KeyLines.getFontIcon(me.deviceIcon);
-                showDeviceLegend = true;
-            }
-            me.chartData.items.push(
-                {
+            me.addFloatingPanels();
+
+
+            var nodes = me.store.data.items[0].nodes(),
+                links = me.store.data.items[0].links(),
+                nodeStoreForComboBox = new Ext.data.SimpleStore({
+                    fields: ['id', 'name']
+                }),
+                icon,
+                showGatewayLegend = false,
+                showDeviceLegend = false;
+
+            me.top = [nodes.data.items[0].get('id')+'']; // Assumption: the first node is the top node
+            nodes.each(function(node){
+                nodeStoreForComboBox.add({
                     id: node.get('id'),
-                    type: 'node',
-                    b: null, // no border (color)
-                    c: me.whiteColor, // fill color
-                    t: node.get('name'),
-                    fi: {
-                        c: me.neutralColor,
-                        t: icon
-                    },
-                    fb: true, // label in bold
-                    d: {
-                        name: node.get('name'),
-                        serialNumber: node.get('serialNumber'),
-                        deviceType: node.get('deviceType'),
-                        deviceConfiguration: node.get('deviceConfiguration'),
-                        gateway: Ext.isEmpty(node.get('gateWay')) ? false : node.get('gateWay'),
-                        alarms: node.get('alarms'),
-                        issues: node.get('issues'),
-                        failedComTasks: node.get('failedComTasks')
-                    },
-                    pos: {
-                        lat: 50.82979 + (Math.random() * 0.1 - 0.05),
-                        lng: 3.30008 + (Math.random() * 0.1 - 0.05)
-                    }
+                    name: node.get('name')
+                });
+                if(!Ext.isEmpty(node.get('gateWay')) && node.get('gateWay')){
+                    icon = KeyLines.getFontIcon(me.gatewayIcon);
+                    showGatewayLegend = true;
+                } else {
+                    icon = KeyLines.getFontIcon(me.deviceIcon);
+                    showDeviceLegend = true;
                 }
-            );
-        });
-        links.each(function(link){
-            me.chartData.items.push(
-                {
-                    id: link.get('source') + '-' + link.get('target'),
-                    type: 'link',
-                    id1: link.get('source'),
-                    id2: link.get('target'),
-                    w: 2,
-                    a2: true,
-                    d: {
-                        linkQuality: link.get('linkQuality')
+                me.chartData.items.push(
+                    {
+                        id: node.get('id'),
+                        type: 'node',
+                        b: null, // no border (color)
+                        c: me.whiteColor, // fill color
+                        t: node.get('name'),
+                        fi: {
+                            c: me.neutralColor,
+                            t: icon
+                        },
+                        fb: true, // label in bold
+                        d: {
+                            name: node.get('name'),
+                            serialNumber: node.get('serialNumber'),
+                            deviceType: node.get('deviceType'),
+                            deviceConfiguration: node.get('deviceConfiguration'),
+                            gateway: Ext.isEmpty(node.get('gateWay')) ? false : node.get('gateWay'),
+                            alarms: node.get('alarms'),
+                            issues: node.get('issues'),
+                            failedComTasks: node.get('failedComTasks')
+                        },
+                        pos: {
+                            lat: 50.82979 + (Math.random() * 0.1 - 0.05),
+                            lng: 3.30008 + (Math.random() * 0.1 - 0.05)
+                        }
                     }
+                );
+            });
+            links.each(function(link){
+                me.chartData.items.push(
+                    {
+                        id: link.get('source') + '-' + link.get('target'),
+                        type: 'link',
+                        id1: link.get('source'),
+                        id2: link.get('target'),
+                        w: 2,
+                        a2: true,
+                        d: {
+                            linkQuality: link.get('linkQuality')
+                        }
+                    }
+                );
+            });
+            me.chart.load(me.chartData, function () {
+                me.chart.layout();
+                if (showGatewayLegend) {
+                    icon = '<span class="' + me.gatewayIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+                    me.addLegendItem(icon, Uni.I18n.translate('general.gateway', 'UNI', 'Gateway'));
                 }
-            );
+                if (showDeviceLegend) {
+                    icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
+                    me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
+                }
+            });
+            me.sideMenu.down('combobox').bindStore(nodeStoreForComboBox);
         });
-        me.chart.load(me.chartData, function () {
-            me.chart.layout();
-            if (showGatewayLegend) {
-                icon = '<span class="' + me.gatewayIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
-                me.addLegendItem(icon, Uni.I18n.translate('general.gateway', 'UNI', 'Gateway'));
-            }
-            if (showDeviceLegend) {
-                icon = '<span class="' + me.deviceIcon + '" style="display:inline-block; font-size:16px; color:' + me.neutralColor + '"></span>';
-                me.addLegendItem(icon, Uni.I18n.translate('general.device', 'UNI', 'Device'));
-            }
-        });
-        me.sideMenu.down('combobox').bindStore(nodeStoreForComboBox);
+
     },
 
     clearLayers: function(){

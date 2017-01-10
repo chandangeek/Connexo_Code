@@ -7,8 +7,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
     floating: true,
     collapsed: true,
     collapsible: true,
-  //  collapseMode: 'header',
-  //  collapseDirection: 'right',
     title: Uni.I18n.translate('general.propertyViewer', 'UNI', 'Property viewer'),
     ui: 'small',
     layout: 'vbox',
