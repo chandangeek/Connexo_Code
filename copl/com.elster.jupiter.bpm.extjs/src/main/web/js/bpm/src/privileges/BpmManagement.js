@@ -9,7 +9,7 @@ Ext.define('Bpm.privileges.BpmManagement', {
         'Uni.Auth'
     ],
     singleton: true,
-    all: ['privilege.view.task', 'privilege.assign.task', 'privilege.execute.task', 'privilege.view.bpm', 'privilege.administrate.bpm','privilege.view.bpm', 'privilege.administrate.bpm'],
+    all: ['privilege.view.task', 'privilege.assign.task', 'privilege.execute.task', 'privilege.view.bpm', 'privilege.administrate.bpm'],
 
     view: ['privilege.view.task', 'privilege.assign.task', 'privilege.execute.task'],
     assign: ['privilege.assign.task'],
