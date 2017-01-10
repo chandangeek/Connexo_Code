@@ -198,7 +198,6 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             );
             var position = this.getPosition();
             var width = this.getWidth();
-            debugger;
             popupMenu.showAt([position[0]+x, position[1]+y]);
         }
         return false;
