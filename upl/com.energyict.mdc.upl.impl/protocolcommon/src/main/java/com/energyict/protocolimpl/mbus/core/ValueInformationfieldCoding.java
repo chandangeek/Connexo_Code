@@ -164,20 +164,27 @@ public class ValueInformationfieldCoding {
         
         
         fbVIFEs.add(addPower10ValueInformationfieldCoding(0x00,0x7E,-1,Unit.get(BaseUnit.WATTHOUR, 6),TYPE_UNIT,"Energy",null));   
-        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x01,0x7E,0,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, 3),TYPE_UNIT,"Reactive Energy",null));   
-        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x08,0x7E,-1,Unit.get(BaseUnit.JOULE,9),TYPE_UNIT,"Energy",null));   
-        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x10,0x7E,2,Unit.get(BaseUnit.CUBICMETER),TYPE_UNIT,"Volume",null));   
-        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x18,0x7E,2,Unit.get(BaseUnit.TON),TYPE_UNIT,"Mass",null));   
-        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x21,0x7F,0,Unit.get(BaseUnit.CUBICFEET,-1),TYPE_UNIT,"Volume",null));   
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x02,0x7E,0,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, 3),TYPE_UNIT,"Reactive Energy",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x04,0x7E,0,Unit.get(BaseUnit.VOLTAMPEREHOUR,3),TYPE_UNIT,"Apparent Energy",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x08,0x7E,-1,Unit.get(BaseUnit.JOULE,9),TYPE_UNIT,"Energy",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x0C,0x7C,-1,Unit.get(BaseUnit.JOULE,6),TYPE_UNIT,"Energy",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x10,0x7E,2,Unit.get(BaseUnit.CUBICMETER),TYPE_UNIT,"Volume",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x14,0x7C,-3,Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,3),TYPE_UNIT,"Reactive Energy",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x18,0x7E,2,Unit.get(BaseUnit.TON),TYPE_UNIT,"Mass",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x1A,0x7E,-1,Unit.get(BaseUnit.PERCENT),TYPE_UNIT,"Relative Humidity",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x20,0x7F,0,Unit.get(BaseUnit.CUBICFEET),TYPE_UNIT,"Volume",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x21,0x7F,0,Unit.get(BaseUnit.CUBICFEET,-1),TYPE_UNIT,"Volume",null));
         fbVIFEs.add(addPower10ValueInformationfieldCoding(0x22,0x7F,0,Unit.get(BaseUnit.GALLON,-1),TYPE_UNIT,"Volume",null));   
         fbVIFEs.add(addPower10ValueInformationfieldCoding(0x23,0x7F,0,Unit.get(BaseUnit.GALLON),TYPE_UNIT,"Volume",null));   
         fbVIFEs.add(addPower10Mul60ValueInformationfieldCoding(0x24,0x7F,0,Unit.get(BaseUnit.GALLONPERHOUR, -3),TYPE_UNIT,"Volume flow",null));   
         fbVIFEs.add(addPower10Mul60ValueInformationfieldCoding(0x25,0x7F,0,Unit.get(BaseUnit.GALLONPERHOUR),TYPE_UNIT,"Volume flow",null));   
-        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x26,0x7F,0,Unit.get(BaseUnit.GALLONPERHOUR),TYPE_UNIT,"Volume flow",null));   
-        
-        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x28,0x7E,-1,Unit.get(BaseUnit.WATT, 6),TYPE_UNIT,"Power",null));   
-        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x30,0x7E,-1,Unit.get(BaseUnit.JOULEPERHOUR, 9),TYPE_UNIT,"Power",null));   
-        
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x26,0x7F,0,Unit.get(BaseUnit.GALLONPERHOUR),TYPE_UNIT,"Volume flow",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x28,0x7E,-1,Unit.get(BaseUnit.WATT, 6),TYPE_UNIT,"Power",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x2A,0x7F,0,Unit.get(BaseUnit.COUNT),TYPE_UNIT,"Phase U-U",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x2B,0x7F,0,Unit.get(BaseUnit.COUNT),TYPE_UNIT,"Phase U-I",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x2C,0x7C,-3,Unit.get(BaseUnit.HERTZ),TYPE_UNIT,"Frequency",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x30,0x7E,-1,Unit.get(BaseUnit.JOULEPERHOUR, 9),TYPE_UNIT,"Power",null));
+        fbVIFEs.add(addPower10ValueInformationfieldCoding(0x34,0x7C,-3,Unit.get(BaseUnit.VOLTAMPERE, 3),TYPE_UNIT,"Apparent Power",null));
         fbVIFEs.add(addPower10ValueInformationfieldCoding(0x58,0x7C,-3,Unit.get(BaseUnit.FAHRENHEIT),TYPE_UNIT,"Flow Temperature",null));   
         fbVIFEs.add(addPower10ValueInformationfieldCoding(0x5C,0x7C,-3,Unit.get(BaseUnit.FAHRENHEIT),TYPE_UNIT,"Flow Temperature",null));   
         fbVIFEs.add(addPower10ValueInformationfieldCoding(0x60,0x7C,-3,Unit.get(BaseUnit.FAHRENHEIT),TYPE_UNIT,"Flow Temperature",null));   
