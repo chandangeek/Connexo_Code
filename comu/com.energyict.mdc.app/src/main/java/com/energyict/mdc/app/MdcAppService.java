@@ -9,7 +9,9 @@ public interface MdcAppService {
     enum Roles {
         METER_EXPERT("Meter expert", "Full meter management privileges"),
         METER_OPERATOR("Meter operator", "Meter operation privileges"),
-        REPORT_VIEWER("Report viewer","Reports viewer privileges");
+        REPORT_VIEWER("Report viewer","Reports viewer privileges"),
+        COMMAND_LIMITATION_RULE_APPROVER("Command limitation rule approver", "Can approve or reject changes on command limitation rules")
+        ;
 
         private String role;
         private String description;
