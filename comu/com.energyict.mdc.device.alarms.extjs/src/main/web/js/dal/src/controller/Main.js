@@ -55,6 +55,22 @@ Ext.define('Dal.controller.Main', {
                         href: router.getRoute('workspace/alarms').buildUrl({}, {
                             status: ['status.open', 'status.in.progress']
                         })
+                    },
+                    {
+                        itemId: 'my-open-alarms-item',
+                        text: Uni.I18n.translate('device.myOpenAlarms','DAL','My open alarms'),
+                        href: router.getRoute('workspace/alarms').buildUrl({}, {
+                            status: ['status.open', 'status.in.progress'],
+                            myopenalarms: true
+                        })
+                    },
+                    {
+                        itemId: 'my-workgroup-alarms-item',
+                        text: Uni.I18n.translate('device.myWorkgroupsAlarms', 'DAL', 'My workgroups alarms'),
+                        href: router.getRoute('workspace/alarms').buildUrl({}, {
+                            status: ['status.open', 'status.in.progress'],
+                            myworkgroupalarms: true
+                        })
                     }
                 ]
             });

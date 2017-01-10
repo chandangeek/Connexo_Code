@@ -40,6 +40,9 @@ Ext.define('Dal.view.ActionMenu', {
                 case 'Assign alarm':
                     privileges = Dal.privileges.Alarm.canDoAction() && Dal.privileges.Alarm.assign;
                     break;
+                case 'Close alarm':
+                    privileges = Dal.privileges.Alarm.canDoAction() && Dal.privileges.Alarm.close;
+                    break;
             }
 
             var menuItem = {

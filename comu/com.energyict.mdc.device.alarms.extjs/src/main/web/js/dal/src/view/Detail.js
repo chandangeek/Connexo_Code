@@ -77,7 +77,8 @@ Ext.define('Dal.view.Detail', {
                                 items: [
                                     {
                                         xtype: 'issue-comments',
-                                        itemId: 'alarm-comments'
+                                        itemId: 'alarm-comments',
+                                        addCommentPrivileges: Dal.privileges.Alarm.comment
                                     }
                                 ]
                             },

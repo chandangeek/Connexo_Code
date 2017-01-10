@@ -12,6 +12,7 @@ Ext.define('Dal.privileges.Alarm', {
     adminDevice: ['privilege.comment.alarm', 'privilege.close.alarm', 'privilege.assign.alarm', 'privilege.action.alarm'],
     comment: ['privilege.comment.alarm'],
     assign: ['privilege.assign.alarm'],
+    close: ['privilege.close.alarm'],
 
     all: function () {
         return Ext.Array.merge(Dal.privileges.Alarm.viewDeviceCommunication,

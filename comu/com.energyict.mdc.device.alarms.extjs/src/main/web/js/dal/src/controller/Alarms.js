@@ -17,7 +17,8 @@ Ext.define('Dal.controller.Alarms', {
         'Dal.store.AlarmWorkgroupAssignees',
         'Dal.store.ClearStatus',
         'Dal.store.DueDate',
-        'Dal.store.Devices'
+        'Dal.store.Devices',
+        'Dal.store.AlarmAssignees'
     ],
 
     models: [
@@ -91,7 +92,41 @@ Ext.define('Dal.controller.Alarms', {
         var me = this,
             queryString = Uni.util.QueryString.getQueryStringValues(false);
 
-        if (!queryString.sort) {
+        if (_.values(queryString).length == 0){
+            queryString = this.getStore('Isu.store.Clipboard').get('latest-issues-filter');
+            window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+        }
+        if (queryString.myopenalarms) {
+            me.getStore('Dal.store.AlarmAssignees').load({
+                params: {me: true},
+                callback: function (records) {
+                    queryString.myopenalarms = undefined;
+                    queryString.userAssignee = records[0].getId();
+                    queryString.status = 'status.open';
+                    queryString.sort = ['dueDate'];
+                    window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                }
+            });
+        } else if (queryString.myworkgroupalarms) {
+            Ext.Ajax.request({
+                url: '/api/isu/workgroups?myworkgroups=true',
+                method: 'GET',
+                success: function (response) {
+                    var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+                    if (decoded && decoded.workgroups) {
+                        queryString.myworkgroupalarms = undefined;
+                        queryString.userAssignee = [-1];
+                        queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
+                            return wg.id;
+                        });
+                        queryString.status = undefined;
+                        queryString.sort = ['dueDate'];
+                        window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                    }
+                }
+            });
+        } else if (!queryString.userAssignee && !queryString.myworkgroupalarms && !queryString.status) {
+            queryString.status = ['status.open', 'status.in.progress'];
             queryString.sort = ['dueDate'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
