@@ -20,6 +20,8 @@ import javax.xml.bind.annotation.XmlAttribute;
  * Time: 13:51
  */
 public interface RegisterIdentifier extends Identifier {
+    @Override
+    Introspector forIntrospection();
 
     /**
      * Gets the ObisCode of the register that is uniquely identified by this RegisterIdentifier.

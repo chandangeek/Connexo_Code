@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl.properties;
 
+import com.energyict.obis.ObisCode;
+
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -178,6 +180,14 @@ public interface PropertySpecService {
      * @return The PropertySpecBuilder
      */
     PropertySpecBuilderWizard.NlsOptions<TemporalAmount> temporalAmountSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of {@link com.energyict.obis.ObisCode} values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<ObisCode> obisCodeSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom

@@ -37,6 +37,12 @@
             <groupId>com.energyict.dataconcentrator.external</groupId>
             <artifactId>serialio</artifactId>
             <version>10.0.4.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.energyict.dataconcentrator</groupId>
+                    <artifactId>external-dependencies</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>

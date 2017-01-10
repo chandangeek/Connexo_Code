@@ -2,8 +2,6 @@ package com.energyict.mdc.upl.offline;
 
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
-import javax.xml.bind.annotation.XmlElement;
-
 /**
  * Copyrights EnergyICT
  * Date: 14/03/13
@@ -28,15 +26,5 @@ public interface OfflineDeviceContext {
     boolean needsPendingMessages();
 
     boolean needsSentMessages();
-
-    // The element below is only used during JSON xml (un)marshalling.
-    @XmlElement(name = "type")
-    default String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    default void setXmlType(String ignore) {
-        // For JSON serializing only
-    }
 
 }

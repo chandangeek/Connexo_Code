@@ -1,6 +1,7 @@
 package com.energyict.mdc.upl.offline;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
@@ -115,4 +116,15 @@ public class DeviceOfflineFlags implements OfflineDeviceContext, Serializable {
         }
         return or;
     }
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For JSON serializing only
+    }
+
 }
