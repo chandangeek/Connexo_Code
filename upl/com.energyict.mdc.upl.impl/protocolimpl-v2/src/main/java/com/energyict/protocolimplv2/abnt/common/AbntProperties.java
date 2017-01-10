@@ -1,9 +1,7 @@
 package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.protocolimpl.properties.TypedProperties;
@@ -37,6 +35,12 @@ public class AbntProperties implements HasDynamicProperties {
 
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
+
+    private final PropertySpecService propertySpecService;
+
+    public AbntProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     /**
      * The security set of a device. It contains all properties related to security.
@@ -155,7 +159,12 @@ public class AbntProperties implements HasDynamicProperties {
     }
 
     private PropertySpec readerSerialNumberPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(READER_SERIAL_NUMBER_PROPERTY, false, DEFAULT_READER_SERIAL_NUMBER);
+        return this.bigDecimalSpec(READER_SERIAL_NUMBER_PROPERTY, false, DEFAULT_READER_SERIAL_NUMBER);
     }
 
+    private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.propertySpecService::bigDecimalSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        return specBuilder.finish();
+    }
 }
