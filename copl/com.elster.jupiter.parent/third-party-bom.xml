@@ -16,6 +16,7 @@
 
     <properties>
         <apache.cxf.version>3.1.6</apache.cxf.version>
+        <bouncycastle.version>1.56</bouncycastle.version>
         <!--<apache.cxf.version>2.7.18</apache.cxf.version>-->
     </properties>
 
@@ -426,8 +427,13 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
-	        <version>1.53</version>
-	    </dependency>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
