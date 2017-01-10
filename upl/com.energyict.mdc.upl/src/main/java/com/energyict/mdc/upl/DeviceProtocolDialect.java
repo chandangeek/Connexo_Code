@@ -37,7 +37,7 @@ public interface DeviceProtocolDialect {
         }
     }
 
-    List<PropertySpec> getPropertySpecs();
+    List<PropertySpec> getUPLPropertySpecs();
 
     /**
      * Provides a <b>unique</b> name for this DeviceProtocolDialect.
