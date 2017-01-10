@@ -96,8 +96,10 @@ public class SELProperties {
                     UPLPropertySpecFactory.specBuilder(RETRIES, true, this.propertySpecService::bigDecimalSpec).finish(),
                     UPLPropertySpecFactory.specBuilder(TIMEZONE, true, this.propertySpecService::stringSpec).finish(),
                     UPLPropertySpecFactory.specBuilder(DEVICE_PWD, true, this.propertySpecService::stringSpec).finish(),
-                    UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, true, this.propertySpecService::timeZoneSpec).finish()
+                    this.propertySpecService.timeZoneSpec().named(DEVICE_TIMEZONE, DEVICE_TIMEZONE)
+                        .describedAs("Description for " + TIMEZONE)
+                        .markRequired()
+                        .finish()
         );
     }
-
 }

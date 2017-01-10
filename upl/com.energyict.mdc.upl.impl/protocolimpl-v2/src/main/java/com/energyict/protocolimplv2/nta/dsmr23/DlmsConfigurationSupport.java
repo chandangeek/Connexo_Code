@@ -1,11 +1,6 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilder;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.properties.*;
 
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
@@ -48,6 +43,12 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
 
     private static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
+    private final PropertySpecService propertySpecService;
+
+    public DlmsConfigurationSupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
@@ -72,15 +73,15 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, BigDecimal.ONE);
+        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, BigDecimal.ONE);
     }
 
     protected PropertySpec serverLowerMacAddressPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, BigDecimal.ZERO);
+        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, BigDecimal.ZERO);
     }
 
     protected PropertySpec timeZonePropertySpec() {
-        return Services.propertySpecService().timeZoneSpec().named(TIMEZONE, TIMEZONE).describedAs("Description for " + TIMEOUT).finish();
+        return this.propertySpecService.timeZoneSpec().named(TIMEZONE, TIMEZONE).describedAs("Description for " + TIMEOUT).finish();
     }
 
     protected PropertySpec validateInvokeIdPropertySpec() {
@@ -90,14 +91,13 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     }
 
     private PropertySpecBuilder<Boolean> booleanSpecBuilder(String name) {
-        return Services
-                .propertySpecService()
+        return this.propertySpecService
                 .booleanSpec()
                 .named(name, name).describedAs("Description for " + name);
     }
 
     protected PropertySpec deviceId() {
-        return UPLPropertySpecFactory.stringWithDefault(DEVICE_ID, false, DEFAULT_DEVICE_ID);
+        return this.stringWithDefaultSpec(DEVICE_ID, false, DEFAULT_DEVICE_ID);
     }
 
     protected PropertySpec requestTimeZonePropertySpec() {
@@ -105,8 +105,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     }
 
     protected PropertySpec forcedDelayPropertySpec() {
-        return Services
-                .propertySpecService()
+        return this.propertySpecService
                 .durationSpec()
                 .named(FORCED_DELAY, FORCED_DELAY)
                 .describedAs("Description for " + FORCED_DELAY)
@@ -115,15 +114,15 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     }
 
     protected PropertySpec conformanceBlockValuePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(CONFORMANCE_BLOCK_VALUE, false, BigDecimal.valueOf(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK));
+        return this.bigDecimalSpec(CONFORMANCE_BLOCK_VALUE, false, BigDecimal.valueOf(ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK));
     }
 
     protected PropertySpec manufacturerPropertySpec() {
-        return UPLPropertySpecFactory.stringWithDefault(MANUFACTURER, false, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000");
+        return this.stringWithDefaultSpec(MANUFACTURER, false, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000");
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
+        return this.bigDecimalSpec(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
     }
 
     protected PropertySpec bulkRequestPropertySpec() {
@@ -131,7 +130,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
     }
 
     protected PropertySpec cipheringTypePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(CIPHERING_TYPE, false, DEFAULT_CIPHERING_TYPE);
+        return this.bigDecimalSpec(CIPHERING_TYPE, false, DEFAULT_CIPHERING_TYPE);
     }
 
     protected PropertySpec ntaSimulationToolPropertySpec() {
@@ -149,6 +148,30 @@ public class DlmsConfigurationSupport implements HasDynamicProperties{
      */
     protected final PropertySpec publicClientPreEstablishedPropertySpec() {
         return this.booleanSpecBuilder(com.energyict.dlms.protocolimplv2.DlmsSessionProperties.PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED).finish();
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    protected PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, BigDecimal... validValues) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::bigDecimalSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        specBuilder.addValues(validValues);
+        if (validValues.length > 0) {
+            specBuilder.markExhaustive();
+        }
+        return specBuilder.finish();
+    }
+
+    protected PropertySpec stringWithDefaultSpec(String name, boolean required, String defaultValue, String... validValues) {
+        PropertySpecBuilder<String> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, getPropertySpecService()::stringSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        specBuilder.addValues(validValues);
+        if (validValues.length > 0) {
+            specBuilder.markExhaustive();
+        }
+        return specBuilder.finish();
     }
 
 }
