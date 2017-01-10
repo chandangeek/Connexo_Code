@@ -3,6 +3,9 @@ Ext.define('Dsh.view.OperatorDashboard', {
     requires: [
         'Mdc.privileges.Device',
         'Mdc.privileges.DeviceGroup',
+        'Isu.privileges.Issue',
+        'Dal.privileges.Alarm',
+        'Bpm.privileges.BpmManagement',
         'Dsh.view.widget.HeaderSection',
         'Dsh.view.widget.Summary',
         'Dsh.view.widget.CommunicationServers',
@@ -14,7 +17,8 @@ Ext.define('Dsh.view.OperatorDashboard', {
         'Dsh.view.widget.DeviceGroupFilter',
         'Dsh.view.widget.FavoriteDeviceGroups',
         'Dsh.view.widget.FlaggedDevices',
-        'Dsh.view.MyFavoriteDeviceGroups'
+        'Dsh.view.MyFavoriteDeviceGroups',
+        'Uni.view.widget.WorkList'
     ],
     alias: 'widget.operator-dashboard',
     itemId: 'operator-dashboard',
@@ -117,14 +121,132 @@ Ext.define('Dsh.view.OperatorDashboard', {
             }
         ];
 
-        if(Isu.privileges.Issue.canViewAdminDevice()) {
+        if (Isu.privileges.Issue.canViewAdminDevice() ||
+            Dal.privileges.Alarm.canViewAdmimAlarm() ||
+            Bpm.privileges.BpmManagement.canView()) {
+
+            var items = [];
+            if (Isu.privileges.Issue.canViewAdminDevice()) {
+
+                var item = {
+                    type: 'issues',
+                    name: Uni.I18n.translate('widget.myWorkList.issues', 'DSH', 'Issues'),
+                    topLabel: Uni.I18n.translate('widget.myWorkList.issues.topLabel', 'DSH', 'Top {0} most urgent issues'),
+                    topZeroLabel: Uni.I18n.translate('widget.myWorkList.issues.topZeroLabel', 'DSH', 'No open issues assigned to me'),
+                    url: '/api/isu/topissues/issues',
+                    itemRoute: 'workspace/issues/view',
+                    routeArguments: [{name: 'issueId', property: 'id'}],
+                    queryParams: [{name: 'issueType', value: 'datacollection'}],
+                    assignedToMeLink: me.router.getRoute('workspace/issues').buildUrl({}, {myopenissues: true, issueType: 'datacollection'}),
+                    myWorkgroupsLink: me.router.getRoute('workspace/issues').buildUrl({}, {myworkgroupissues: true, issueType: 'datacollection'}),
+                    userProperty: 'actualOwner',
+                    titleProperty: 'title',
+                    workgroupProperty: 'workgroup',
+                    tooltipProperties: [
+                        {
+                            name: 'title',
+                            label: Uni.I18n.translate('widget.myWorkList.property.name', 'DSH', 'Name')
+                        },
+                        {
+                            name: 'dueDate',
+                            label: Uni.I18n.translate('widget.myWorkList.property.dueDate', 'DSH', 'Due date'),
+                            type: 'datetime'
+                        }
+                    ]
+                };
+                items.push(item);
+            }
+
+            if (Dal.privileges.Alarm.canViewAdmimAlarm()) {
+                var item = {
+                    type: 'alarms',
+                    name: Uni.I18n.translate('widget.myWorkList.alarms', 'DSH', 'Alarms'),
+                    topLabel: Uni.I18n.translate('widget.myWorkList.alarms.topLabel', 'DSH', 'Top {0} most urgent alarms'),
+                    topZeroLabel: Uni.I18n.translate('widget.myWorkList.topZeroLabel', 'DSH', 'No open alarms assigned to me'),
+                    url: '/api/isu/topissues/alarms',
+                    itemRoute: 'workspace/alarms/view',
+                    routeArguments: [{name: 'alarmId', property: 'id'}],
+                    assignedToMeLink: me.router.getRoute('workspace/alarms').buildUrl({}, {myopenalarms: true}),
+                    myWorkgroupsLink: me.router.getRoute('workspace/alarms').buildUrl({}, {myworkgroupalarms: true}),
+                    userProperty: 'userAssignee',
+                    titleProperty: 'title',
+                    workgroupProperty: 'workgroup',
+                    tooltipProperties: [
+                        {
+                            name: 'title',
+                            label: Uni.I18n.translate('widget.myWorkList.property.name', 'DSH', 'Name')
+                        },
+                        {
+                            name: 'dueDate',
+                            label: Uni.I18n.translate('widget.myWorkList.property.dueDate', 'DSH', 'Due date'),
+                            type: 'datetime'
+                        }
+                    ]
+                };
+                items.push(item);
+
+            }
+
+            if (Bpm.privileges.BpmManagement.canView()) {
+                var item = {
+                    type: 'userTasks',
+                    name: Uni.I18n.translate('widget.myWorkList.userTasks', 'DSH', 'User tasks'),
+                    topLabel: Uni.I18n.translate('widget.myWorkList.topLabel', 'DSH', 'Top {0} most urgent user tasks'),
+                    topZeroLabel: Uni.I18n.translate('widget.myWorkList.topZeroLabel', 'DSH', 'No open user tasks assigned to me'),
+                    url: '/api/bpm/runtime/toptasks/',
+                    itemRoute: 'workspace/tasks/task',
+                    routeArguments: [{name: 'taskId', property: 'id'}],
+                    assignedToMeLink: me.router.getRoute('workspace/tasks').buildUrl({}, {param: 'myopentasks'}),
+                    myWorkgroupsLink: me.router.getRoute('workspace/tasks').buildUrl({}, {param: 'myworkgroups'}),
+                    userProperty: 'actualOwner',
+                    titleProperty: 'name',
+                    workgroupProperty: 'workgroup',
+                    tooltipProperties: [
+                        {
+                            name: 'name',
+                            label: Uni.I18n.translate('widget.myWorkList.property.name', 'DSH', 'Name')
+                        },
+                        {
+                            name: 'dueDate',
+                            label: Uni.I18n.translate('widget.myWorkList.property.dueDate', 'DSH', 'Due date'),
+                            type: 'datetime'
+                        },
+                        {
+                            name: 'priority',
+                            label: Uni.I18n.translate('widget.myWorkList.property.priority', 'DSH', 'Priority'),
+                            type: 'priority'
+                        },
+                        {
+                            name: 'processInstancesId',
+                            label: Uni.I18n.translate('widget.myWorkList.property.processInstancesId', 'DSH', 'Process Id')
+                        },
+                        {
+                            name: 'processName',
+                            label: Uni.I18n.translate('widget.myWorkList.property.processName', 'DSH', 'Process name')
+                        }
+                    ]
+                };
+                items.push(item);
+
+            }
+
             me.items[0].items.push(
                 {
-                    xtype: 'open-data-collection-issues',
-                    itemId: 'open-data-collection-issues',
-                    router: me.router
-                });
+                    xtype: 'work-list',
+                    itemId: 'my-work-list',
+                    router: me.router,
+
+                    configuration: {
+                        title: Uni.I18n.translate('widget.myWorkList.title', 'DSH', 'My worklist'),
+                        assignedToMeLabel: Uni.I18n.translate('widget.myWorkList.assignedToMeLabel', 'DSH', 'Assigned to me ({0})'),
+                        myWorkgroupsLabel: Uni.I18n.translate('widget.myWorkList.myWorkgroupsLabel', 'DSH', 'In my workgroup(s) ({0})'),
+                        items: items
+                    }
+                }
+            );
         }
+
+
         if(Mdc.privileges.Device.canAdministrateDeviceData() ||
             Mdc.privileges.Device.canView() ||
             Mdc.privileges.Device.canAdministrateOrOperateDeviceCommunication()) {

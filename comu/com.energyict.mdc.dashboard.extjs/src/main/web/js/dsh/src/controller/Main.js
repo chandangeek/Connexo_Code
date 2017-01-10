@@ -16,7 +16,10 @@ Ext.define('Dsh.controller.Main', {
         'Dsh.model.Filterable',
         'Dsh.model.Kpi',
         'Dsh.model.Series',
-        'Dsh.controller.OperatorDashboard'
+        'Dsh.controller.OperatorDashboard',
+        'Isu.privileges.Issue',
+        'Dal.privileges.Alarm',
+        'Bpm.privileges.BpmManagement'
     ],
 
     controllers: [

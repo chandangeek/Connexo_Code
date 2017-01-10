@@ -24,7 +24,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
         { ref: 'summary', selector: ' operator-dashboard #summary' },
         { ref: 'communicationServers', selector: 'operator-dashboard #communication-servers' },
         { ref: 'flaggedDevices', selector: 'operator-dashboard #flagged-devices' },
-        { ref: 'issuesWidget', selector: 'operator-dashboard #open-data-collection-issues'},
+        {ref: 'myWorkList', selector: 'operator-dashboard #my-work-list'},
         { ref: 'favoriteDeviceGroupsView', selector: 'operator-dashboard #favorite-device-groups dataview'},
         { ref: 'favoriteDeviceGroups', selector: '#my-favorite-device-groups'},
         { ref: 'favoriteDeviceGroupsGrid', selector: '#my-favorite-device-groups-grid'},
@@ -142,7 +142,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
             var connectionModel = me.getModel('Dsh.model.connection.OverviewDashboard'),
                 communicationModel = me.getModel('Dsh.model.communication.OverviewDashboard'),
                 myOpenIssuesModel = me.getModel('Dsh.model.opendatacollectionissues.Overview'),
-                issuesWidget = me.getIssuesWidget(),
+                myWorkList = me.getMyWorkList(),
                 router = this.getController('Uni.controller.history.Router');
             if (Mdc.privileges.Device.canView()) {
                 me.getFlaggedDevices().reload();
@@ -182,15 +182,10 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                 });
             }
 
-            if (Isu.privileges.Issue.canViewAdminDevice()) {
-                issuesWidget.setLoading();
-                issuesWidget.setTitle('');
-                myOpenIssuesModel.load(null, {
-                    success: function (issues) {
-                        issuesWidget.setRecord(issues);
-                        issuesWidget.setLoading(false);
-                    }
-                });
+            if (Isu.privileges.Issue.canViewAdminDevice() ||
+                Dal.privileges.Alarm.canViewAdmimAlarm() ||
+                Bpm.privileges.BpmManagement.canView()) {
+                myWorkList.reload();
             }
         }
     }
