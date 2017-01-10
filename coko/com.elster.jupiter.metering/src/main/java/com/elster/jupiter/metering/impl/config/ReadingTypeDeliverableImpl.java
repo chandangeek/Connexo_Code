@@ -7,6 +7,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -20,6 +21,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
@@ -33,6 +35,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         ID("id"),
         NAME("name"),
         METROLOGY_CONFIGURATION("metrologyConfiguration"),
+        DELIVERABLE_TYPE("deliverableType"),
         READING_TYPE("readingType"),
         FORMULA("formula"),;
 
@@ -66,6 +69,8 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @ValidExpression
     private Reference<ServerFormula> formula = ValueReference.absent();
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private DeliverableType deliverableType;
 
     // Managed by ORM
     @SuppressWarnings("unused")
@@ -89,11 +94,12 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         this.customPropertySetService = customPropertySetService;
     }
 
-    public ReadingTypeDeliverableImpl init(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, ServerFormula formula) {
+    public ReadingTypeDeliverableImpl init(ServerMetrologyConfiguration metrologyConfiguration, String name, DeliverableType deliverableType, ReadingType readingType, ServerFormula formula) {
         this.name = name;
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.readingType.set(readingType);
         this.formula.set(formula);
+        this.deliverableType = deliverableType;
         return this;
     }
 
@@ -124,6 +130,11 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     @Override
     public ReadingType getReadingType() {
         return this.readingType.orNull();
+    }
+
+    @Override
+    public DeliverableType getType() {
+        return this.deliverableType;
     }
 
     private void setReadingType(ReadingType readingType) {

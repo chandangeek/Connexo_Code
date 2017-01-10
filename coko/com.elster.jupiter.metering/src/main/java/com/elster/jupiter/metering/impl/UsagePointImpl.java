@@ -761,7 +761,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void setConnectionState(ConnectionState connectionState, Instant effective) {
         if (!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
-            if (!this.connectionState.effective(Range.all()).isEmpty()) {
+            if (!this.connectionState.all().isEmpty()) {
                 this.closeCurrentConnectionState(effective);
             }
             this.createNewState(effective, connectionState);

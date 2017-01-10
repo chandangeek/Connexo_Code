@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.HasId;
@@ -35,6 +37,8 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
     Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract);
 
     Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract, Instant when);
+    
+    Optional<AggregatedChannel> getAggregatedChannel(MetrologyContract metrologyContract, ReadingType readingType);
 
     void activateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when);
 

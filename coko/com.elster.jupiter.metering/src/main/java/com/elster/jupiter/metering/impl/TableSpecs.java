@@ -1482,6 +1482,11 @@ public enum TableSpecs {
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
+            table.column(ReadingTypeDeliverableImpl.Fields.DELIVERABLE_TYPE.name())
+                    .map(ReadingTypeDeliverableImpl.Fields.DELIVERABLE_TYPE.fieldName())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2ENUMPLUSONE).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_DELIVERABLE").on(idColumn).add();

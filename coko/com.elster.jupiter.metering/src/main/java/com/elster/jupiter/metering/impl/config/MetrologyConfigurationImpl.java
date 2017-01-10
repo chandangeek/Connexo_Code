@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -321,6 +322,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         return new ReadingTypeDeliverableBuilderImpl(
                 this,
                 name,
+                DeliverableType.NUMERICAL,
                 readingType,
                 mode,
                 this.customPropertySetService,
@@ -329,11 +331,24 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula) {
+    public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode) {
+        return new ReadingTypeDeliverableBuilderImpl(
+                this,
+                name,
+                deliverableType,
+                readingType,
+                mode,
+                this.customPropertySetService,
+                this.metrologyConfigurationService.getDataModel(),
+                this.metrologyConfigurationService.getThesaurus());
+    }
+
+    @Override
+    public ReadingTypeDeliverable addReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
         ReadingTypeDeliverableImpl deliverable =
                 this.metrologyConfigurationService.getDataModel()
                         .getInstance(ReadingTypeDeliverableImpl.class)
-                        .init(this, name, readingType, (ServerFormula) formula);
+                        .init(this, name, deliverableType, readingType, (ServerFormula) formula);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
         this.deliverables.add(deliverable);
         touch();

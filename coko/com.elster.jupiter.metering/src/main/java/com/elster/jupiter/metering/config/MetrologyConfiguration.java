@@ -60,6 +60,8 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode);
 
+    ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, DeliverableType type, ReadingType readingType, Formula.Mode mode);
+
     void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable);
 
     List<ReadingTypeDeliverable> getDeliverables();

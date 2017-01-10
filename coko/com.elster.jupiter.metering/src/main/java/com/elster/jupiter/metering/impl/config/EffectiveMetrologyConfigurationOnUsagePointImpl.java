@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -108,6 +110,18 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         return effectiveContracts.stream()
                 .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
                 .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
+                .findAny();
+    }
+
+    @Override
+    public Optional<AggregatedChannel> getAggregatedChannel(MetrologyContract metrologyContract, ReadingType readingType) {
+        return effectiveContracts.stream()
+                .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
+                .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
+                .map(channelsContainer -> channelsContainer.getChannel(readingType))
+                .filter(channel -> channel.isPresent() && channel.get() instanceof AggregatedChannel)
+                .map(Optional::get)
+                .map(AggregatedChannel.class::cast)
                 .findAny();
     }
 
