@@ -298,9 +298,9 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
 
     private CollectedMessage writeMeasurementPeriod3ForInstantaneousValues(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
         try {
-            Data data = getCosemObjectFactory().getData(MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS);
-            long value = data.getValue();
-            data.setValueAttr(new Unsigned32(value));
+            long value = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.NewValueAttributeName).getDeviceMessageAttributeValue());
+            Register register = getCosemObjectFactory().getRegister(MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS);
+            register.setValueAttr(new Unsigned32(value));
         } catch (NotInObjectListException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             setNotInObjectListMessage(collectedMessage, MEASUREMENT_PERIOD_3_FOR_INSTANTANEOUS_VALUES_OBIS.getValue(), pendingMessage, e);
