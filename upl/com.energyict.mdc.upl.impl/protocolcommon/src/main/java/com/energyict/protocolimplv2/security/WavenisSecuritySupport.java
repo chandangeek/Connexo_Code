@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
@@ -16,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides general security <b>capabilities</b> for Wavenis (DLMS) protocols
+ * Provides general security <b>capabilities</b> for Wavenis protocols
  * that use a single password for authentication and an encryptionKey for data encryption
  * <p/>
  * Copyrights EnergyICT

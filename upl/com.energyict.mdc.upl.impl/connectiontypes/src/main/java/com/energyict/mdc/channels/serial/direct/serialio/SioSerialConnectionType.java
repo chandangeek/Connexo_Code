@@ -7,6 +7,7 @@ import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
@@ -24,6 +25,10 @@ import java.math.BigDecimal;
  */
 @XmlRootElement
 public class SioSerialConnectionType extends AbstractSerialConnectionType {
+
+    public SioSerialConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ComChannel connect() throws ConnectionException {
@@ -58,7 +63,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
      */
     @Override
     protected PropertySpec baudRatePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
+        return this.bigDecimalSpec(SerialPortConfiguration.BAUDRATE_NAME, true, BaudrateValue.BAUDRATE_57600.getBaudrate(),
                 BaudrateValue.BAUDRATE_150.getBaudrate(),
                 BaudrateValue.BAUDRATE_300.getBaudrate(),
                 BaudrateValue.BAUDRATE_600.getBaudrate(),
@@ -81,7 +86,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
      */
     @Override
     protected PropertySpec nrOfStopBitsPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.TWO.getNrOfStopBits());
+        return this.bigDecimalSpec(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, true, NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.ONE.getNrOfStopBits(), NrOfStopBits.TWO.getNrOfStopBits());
     }
 
     @Override

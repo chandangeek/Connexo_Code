@@ -7,8 +7,8 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -21,6 +21,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
+
+    public RxTxSerialConnectionType(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public ComChannel connect() throws ConnectionException {
@@ -51,7 +55,7 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
      * @return the property spec fo the RxTx flowControl property
      */
     protected PropertySpec flowControlPropertySpec() {
-        return UPLPropertySpecFactory.string(SerialPortConfiguration.FLOW_CONTROL_NAME, false,
+        return this.stringSpec(SerialPortConfiguration.FLOW_CONTROL_NAME, false,
                 FlowControl.NONE.getFlowControl(),
                 FlowControl.RTSCTS.getFlowControl(), FlowControl.XONXOFF.getFlowControl());
     }

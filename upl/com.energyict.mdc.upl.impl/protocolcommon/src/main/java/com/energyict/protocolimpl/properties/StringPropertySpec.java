@@ -1,12 +1,11 @@
 package com.energyict.protocolimpl.properties;
 
+import com.energyict.cpo.PropertySpecPossibleValuesImpl;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
-import com.energyict.cpo.PropertySpecPossibleValuesImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;

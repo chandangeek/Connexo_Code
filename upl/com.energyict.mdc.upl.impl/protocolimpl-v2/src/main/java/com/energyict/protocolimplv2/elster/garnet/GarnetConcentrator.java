@@ -64,7 +64,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
     private TopologyMaintainer topologyMaintainer;
     private RequestFactory requestFactory;
 
-    private SecuritySupport securitySupport;
+    private GarnetSecuritySupport securitySupport;
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
     private ConcentratorMessaging messaging;
@@ -246,7 +246,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return getSecuritySupport().getSecurityProperties(this.propertySpecService);
+        return getSecuritySupport().getSecurityProperties();
     }
 
     @Override
@@ -256,7 +256,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return getSecuritySupport().getEncryptionAccessLevels(this.getPropertySpecService());
+        return getSecuritySupport().getEncryptionAccessLevels();
     }
 
     @Override
@@ -274,7 +274,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
      */
     @Override
     public String getVersion() {
-        return "$Date: 2016-12-06 13:29:40 +0100 (Tue, 06 Dec 2016)$";
+        return "$Date: Fri Dec 30 14:41:40 2016 +0100 $";
     }
 
     public GarnetProperties getProperties() {
@@ -309,9 +309,9 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
         return messaging;
     }
 
-    public SecuritySupport getSecuritySupport() {
+    public GarnetSecuritySupport getSecuritySupport() {
         if (securitySupport == null) {
-            this.securitySupport = new SecuritySupport();
+            this.securitySupport = new GarnetSecuritySupport(propertySpecService);
         }
         return securitySupport;
     }
