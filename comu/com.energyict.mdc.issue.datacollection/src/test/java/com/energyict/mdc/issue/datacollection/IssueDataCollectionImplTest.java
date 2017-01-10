@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -73,6 +74,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
         baseIssue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).get());
         baseIssue.setReason(rule.getReason());
         baseIssue.setRule(rule);
+        baseIssue.setPriority(Priority.DEFAULT);
         baseIssue.save();
         return baseIssue;
     }

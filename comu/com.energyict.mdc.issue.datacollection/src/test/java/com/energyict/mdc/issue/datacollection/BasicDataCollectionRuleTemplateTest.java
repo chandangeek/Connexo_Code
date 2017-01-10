@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -150,6 +151,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         baseIssue.setReason(rule.getReason());
         baseIssue.setDevice(meter);
         baseIssue.setRule(rule);
+        baseIssue.setPriority(Priority.DEFAULT);
         baseIssue.save();
         return baseIssue;
     }

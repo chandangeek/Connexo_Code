@@ -17,6 +17,7 @@ import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -282,6 +283,7 @@ public abstract class BaseTest {
         builder.setIssueType(getIssueService().findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).get());
         builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
         builder.setDueInTime(DueInType.DAY, 15L);
+        builder.setPriority(Priority.DEFAULT);
         CreationRuleTemplate template = getMockCreationRuleTemplate();
         builder.setTemplate(template.getName());
         return builder.complete();

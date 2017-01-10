@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -80,6 +81,7 @@ public class CloseIssueActionTest extends BaseTest {
         builder.setTemplate(mockCreationRuleTemplate().getName());
         builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
+        builder.setPriority(Priority.DEFAULT);
         return builder.complete();
     }
 
@@ -89,6 +91,7 @@ public class CloseIssueActionTest extends BaseTest {
         issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
         OpenIssueImpl issue = issueService.getDataModel().getInstance(OpenIssueImpl.class);
         issue.setReason(issueService.findReason(ISSUE_DEFAULT_REASON).orElse(null));
+        issue.setPriority(Priority.DEFAULT);
         issue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
         CreationRule rule = createCreationRule("creation rule" + Instant.now());
         issue.setRule(rule);

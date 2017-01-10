@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -42,6 +43,7 @@ public class EventAggregationRuleTemplateTest extends BaseTest {
         baseIssue.setReason(rule.getReason());
         baseIssue.setDevice(meter);
         baseIssue.setRule(rule);
+        baseIssue.setPriority(Priority.DEFAULT);
         baseIssue.save();
         return baseIssue;
     }
