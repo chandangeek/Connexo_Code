@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.CipheringType;
@@ -10,6 +12,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
+import com.google.common.base.Supplier;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -60,15 +63,15 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec requestAuthenticatedFrameCounter() {
-        return UPLPropertySpecFactory.booleanValue(REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
+        return UPLPropertySpecFactory.specBuilder(REQUEST_AUTHENTICATED_FRAME_COUNTER, false, this.getPropertySpecService()::booleanSpec).finish();
     }
 
     private PropertySpec pollingDelayPropertySpec() {
-        return UPLPropertySpecFactory.duration(POLLING_DELAY, false, Duration.ZERO);
+        return this.durationSpec(POLLING_DELAY, false, Duration.ZERO);
     }
 
     private PropertySpec callingAPTitlePropertySpec() {
-        return UPLPropertySpecFactory.hexStringSpecOfExactLength(IDIS.CALLING_AP_TITLE, false, 8);
+        return this.stringSpecOfExactLength(IDIS.CALLING_AP_TITLE, false,8);
     }
 
     /**
@@ -147,5 +150,19 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      */
     private PropertySpec pskEncryptionKeyPropertySpec() {
         return UPLPropertySpecFactory.encryptedString(PSK_ENCRYPTION_KEY, false);
+    }
+
+    private PropertySpec durationSpec(String name, boolean required, Duration defaultValue) {
+        PropertySpecBuilder<Duration> durationPropertySpecBuilder = UPLPropertySpecFactory.specBuilder(name, required, this.getPropertySpecService()::durationSpec);
+        durationPropertySpecBuilder.setDefaultValue(defaultValue);
+        return durationPropertySpecBuilder.finish();
+    }
+
+    private <T> PropertySpec spec(String name, boolean required, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
+        return UPLPropertySpecFactory.specBuilder(name, required, optionsSupplier).finish();
+    }
+
+    private PropertySpec stringSpecOfExactLength(String name, boolean required, int length) {
+        return this.spec(name,required, () -> this.getPropertySpecService().stringSpecOfExactLength(length));
     }
 }
