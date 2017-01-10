@@ -102,7 +102,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     }
 
     private PropertySpec getPhoneNumberPropertySpec() {
-        return UPLPropertySpecFactory.string(PHONE_NUMBER, false);
+        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER, false, this.propertySpecService::stringSpec).finish();
     }
 
     @Override

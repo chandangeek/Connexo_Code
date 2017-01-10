@@ -154,4 +154,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
                 .finish();
     }
 
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
 }

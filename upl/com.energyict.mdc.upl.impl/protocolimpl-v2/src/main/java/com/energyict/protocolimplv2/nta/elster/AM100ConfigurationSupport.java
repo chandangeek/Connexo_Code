@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.nta.elster;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
@@ -28,7 +29,7 @@ public class AM100ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     protected PropertySpec readCachePropertySpec() {
-        return UPLPropertySpecFactory.booleanValue(READCACHE_PROPERTY, false);
+        return UPLPropertySpecFactory.specBuilder(READCACHE_PROPERTY, false, getPropertySpecService()::booleanSpec).finish();
     }
 
 }

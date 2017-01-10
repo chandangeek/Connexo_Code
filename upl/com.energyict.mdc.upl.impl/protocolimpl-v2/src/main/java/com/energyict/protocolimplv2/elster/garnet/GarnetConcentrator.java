@@ -283,7 +283,7 @@ public class GarnetConcentrator implements DeviceProtocol, SerialNumberSupport {
 
     public RequestFactory getRequestFactory() {
         if (requestFactory == null) {
-            this.requestFactory = new RequestFactory();
+            this.requestFactory = new RequestFactory(this.propertySpecService);
         }
         return requestFactory;
     }
