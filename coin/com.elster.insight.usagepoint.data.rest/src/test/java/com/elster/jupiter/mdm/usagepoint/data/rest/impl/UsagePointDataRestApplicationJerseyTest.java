@@ -22,7 +22,8 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
+import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -30,6 +31,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -99,7 +101,9 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     static SecurityContext securityContext;
     @Mock
-    UsagePointDataService usagePointDataService;
+    UsagePointDataCompletionService usagePointDataCompletionService;
+    @Mock
+    FavoritesService favoritesService;
     @Mock
     CustomPropertySetService customPropertySetService;
     @Mock
@@ -160,7 +164,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setEstimationService(estimationService);
         application.setDataAggregationService(dataAggregationService);
         application.setValidationService(validationService);
-        application.setUsagePointDataService(usagePointDataService);
+        application.setUsagePointDataCompletionService(usagePointDataCompletionService);
+        application.setFavoritesService(favoritesService);
         application.setCustomPropertySetService(customPropertySetService);
         application.setBpmService(bpmService);
         application.setIssueService(issueService);
@@ -287,6 +292,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(deliverable.getReadingType()).thenReturn(readingType);
         Formula formula = mockFormula(readingType, metrologyConfiguration);
         when(deliverable.getFormula()).thenReturn(formula);
+        when(deliverable.getType()).thenReturn(DeliverableType.NUMERICAL);
         return deliverable;
     }
 

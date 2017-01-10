@@ -42,10 +42,17 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_METROLOGY_PURPOSE(41, Keys.NO_SUCH_METROLOGY_PURPOSE, "No such metrology purpose with ID {0}"),
     CANNOT_ACTIVATE_METROLOGY_PURPOSE(42, Keys.CANNOT_ACTIVATE_METROLOGY_PURPOSE, "Can''t activate metrology purpose with ID {0}"),
     UNSATISFIED_READING_TYPE_REQUIREMENTS(43, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don''t provide reading types specified in the metrology contract."),
-    NO_SUCH_CALENDAR(44, "NoSuchCalendar", "No such calendar."),
-    NO_APPSERVER(45, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
-    NO_SUCH_MESSAGE_QUEUE(46, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
-    BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}");
+    INVALID_ESTIMATOR_PROPERTY_VALUE(44, "invalidEstimatorPropertyValue", "Invalid property value"),
+    ESTIMATOR_REQUIRED(45, "EstimatorRequired", "Please select an estimator"),
+    ESTIMATOR_NOT_FOUND(46, "EstimatorNotValid", "Provided estimator is not valid"),
+    BAD_ACTION(47, "usagepoint.bulk.no.such.action", "Unexpected or non existing action : {0}"),
+    NO_SUCH_CALENDAR(48, "NoSuchCalendar", "No such calendar."),
+    NO_APPSERVER(49, "usagepoint.bulk.no.appserver.to.serve", "There is currently no active application server that can handle this request"),
+    FLAG_AS_FAVORITE_CONFLICT_TITLE(50, "FlagAsFavoriteConflictTitle", "Failed to flag ''{0}'' as favorite"),
+    REMOVE_FROM_FAVORITES_CONFLICT_TITLE(51, "RemoveFromFavoritesConflictTitle", "Failed to remove ''{0}'' from the favorites"),
+    NO_SUCH_MESSAGE_QUEUE(52, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
+    INTERVAL_END_BEFORE_START(53, "intervalEndBeforeStart", "End time before start time"),
+    ;
 
     private final int number;
     private final String key;
