@@ -60,7 +60,7 @@ public class AM100 extends WebRTUKP {
 
     protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new AM100ConfigurationSupport();
+            dlmsConfigurationSupport = new AM100ConfigurationSupport(this.getPropertySpecService());
         }
         return dlmsConfigurationSupport;
     }

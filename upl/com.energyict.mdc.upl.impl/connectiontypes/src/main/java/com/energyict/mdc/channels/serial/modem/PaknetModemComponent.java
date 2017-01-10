@@ -1,9 +1,10 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SignalController;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.List;
 * @author sva
 * @since 18/03/13 - 16:26
 */
-public class PaknetModemComponent {
+public class PaknetModemComponent implements ModemComponent {
 
     public static final String COMMAND_PROMPT_REQUEST = "\r";  // The carriage return character
     public static final String PARAMETER_SET_REQUEST = "SET";  // Parameter set
@@ -34,7 +35,7 @@ public class PaknetModemComponent {
         this.modemProperties = properties;
     }
 
-    public void connect(String name, ComChannel comChannel) {
+    public void connect(String name, SerialPortComChannel comChannel) {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
@@ -44,20 +45,8 @@ public class PaknetModemComponent {
         initializeAfterConnect(comChannel);
     }
 
-    /**
-     * Initialize the modem so it is ready for dialing/receival of a call.
-     * During this initialization, several steps are performed:<br></br>
-     * <p/>
-     * <ul>
-     * <li>If present, the current connection of the modem is hung up</li>
-     * <li>The command state is initialized.</li>
-     * <li>All initialization parameters are send out to the modem</li>
-     * </ul>
-     *
-     * @param name
-     * @param comChannel
-     */
-    public void initializeModem(String name, ComChannel comChannel) {
+    @Override
+    public void initializeModem(String name, SerialPortComChannel comChannel) {
         setComPortName(name);
 
         disconnectModemBeforeNewSession(comChannel);
@@ -90,7 +79,7 @@ public class PaknetModemComponent {
      */
     public void disconnectModem(ComChannel comChannel) {
         comChannel.startWriting();
-        toggleDTR((SerialComChannel) comChannel, modemProperties.getLineToggleDelay().toMillis());
+        toggleDTR((SerialPortComChannel) comChannel, modemProperties.getLineToggleDelay().toMillis());
     }
 
     /**
@@ -135,13 +124,9 @@ public class PaknetModemComponent {
         return readAndVerify(comChannel, PaknetModemComponent.CONNECTION_PROMPT_OK, modemProperties.getConnectTimeout().toMillis());
     }
 
-    /**
-     * Initialization method to be performed right after the modem of the device has established a connection.
-     *
-     * @param comChannel
-     */
+    @Override
     public void initializeAfterConnect(ComChannel comChannel) {
-        PaknetModemComponent.delay(modemProperties.getDelayAfterConnect().toMillis());
+        this.delay(modemProperties.getDelayAfterConnect().toMillis());
         flushInputStream(comChannel);
     }
 
@@ -151,7 +136,7 @@ public class PaknetModemComponent {
      * @param comChannel the serialComChannel
      * @param delayInMilliSeconds the delay to wait after each DTR signal switch
      */
-    protected void toggleDTR(SerialComChannel comChannel, long delayInMilliSeconds) {
+    protected void toggleDTR(SerialPortComChannel comChannel, long delayInMilliSeconds) {
         SignalController signalController = comChannel.getSerialPort().getSerialPortSignalController();
         signalController.setDTR(false);
         delay(delayInMilliSeconds);
@@ -164,18 +149,13 @@ public class PaknetModemComponent {
      *
      * @param comChannel the serialComChannel
      */
-    protected void toggleDTR(SerialComChannel comChannel) {
+    protected void toggleDTR(SerialPortComChannel comChannel) {
         SignalController signalController = comChannel.getSerialPort().getSerialPortSignalController();
         signalController.setDTR(false);
         signalController.setDTR(true);
     }
 
-    /**
-     * Write the given data to the comChannel
-     *
-     * @param comChannel  the comChannel to write to
-     * @param dataToWrite the data to write
-     */
+    @Override
     public void write(ComChannel comChannel, String dataToWrite) {
         delayBeforeSend();
         comChannel.startWriting();
@@ -208,15 +188,7 @@ public class PaknetModemComponent {
         return false;
     }
 
-    /**
-     * Reads bytes from the comChannel and verifies against the given expected value.
-     * No retries are performed, just once.
-     *
-     * @param comChannel      the ComChannel to read
-     * @param expectedAnswer  the expected response
-     * @param timeOutInMillis the timeOut in milliseconds to wait before throwing a TimeOutException
-     * @return true if the answer matches the expected answer, false otherwise
-     */
+    @Override
     public boolean readAndVerify(ComChannel comChannel, String expectedAnswer, long timeOutInMillis) {
         comChannel.startReading();
         StringBuilder responseBuilder = new StringBuilder();
@@ -227,7 +199,7 @@ public class PaknetModemComponent {
                 if (available > 0) {
                     responseBuilder.append((char) comChannel.read());
                 } else {
-                    PaknetModemComponent.delay(25);
+                    this.delay(25);
                 }
                 if (System.currentTimeMillis() > max) {
                     if (responseBuilder.length() == 0) { // indication that we did not read anything
@@ -291,6 +263,11 @@ public class PaknetModemComponent {
         this.lastResponseReceived = lastResponseReceived;
     }
 
+    @Override
+    public void flush(ComChannel comChannel, long milliSecondsOfSilence) {
+        this.flushInputStream(comChannel);
+    }
+
     /**
      * Flush all bytes from the inputStream. The data which is currently on the
      * inputStream <b>WILL BE LOST!</b>
@@ -307,10 +284,10 @@ public class PaknetModemComponent {
      * so we can wait a little while until the catch up.
      */
     protected void delayBeforeSend() {
-        PaknetModemComponent.delay(modemProperties.getDelayBeforeSend().toMillis());
+        this.delay(modemProperties.getDelayBeforeSend().toMillis());
     }
 
-    public static void delay(long milliSecondsToSleep) {
+    public void delay(long milliSecondsToSleep) {
         try {
             Thread.sleep(milliSecondsToSleep);
         } catch (InterruptedException e) {

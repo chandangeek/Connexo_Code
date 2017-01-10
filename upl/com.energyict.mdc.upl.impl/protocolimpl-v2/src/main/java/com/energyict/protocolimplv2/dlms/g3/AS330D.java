@@ -180,7 +180,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
     @Override
     protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new AS330DConfigurationSupport();
+            dlmsConfigurationSupport = new AS330DConfigurationSupport(this.getPropertySpecService());
         }
         return dlmsConfigurationSupport;
     }

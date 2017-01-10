@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.common.Connection;
@@ -57,6 +58,7 @@ public class RequestFactory {
     private Connection connection;
     private ComChannel comChannel;
     private GarnetProperties properties;
+    private final PropertySpecService propertySpecService;
 
     /**
      * Map containing cached data that is already read out during this communication session.
@@ -64,13 +66,9 @@ public class RequestFactory {
      */
     private Map<String, Data> cachedData;
 
-    public RequestFactory() {
+    public RequestFactory(PropertySpecService propertySpecService) {
         this.cachedData = new HashMap<>();
-    }
-
-    public RequestFactory(ComChannel comChannel, GarnetProperties properties) {
-        this.comChannel = comChannel;
-        this.properties = properties;
+        this.propertySpecService = propertySpecService;
     }
 
     public ConcentratorVersionResponseStructure readConcentratorVersion() throws GarnetException {
@@ -385,7 +383,7 @@ public class RequestFactory {
 
     public GarnetProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new GarnetProperties();
+            this.properties = new GarnetProperties(this.propertySpecService);
         }
         return this.properties;
     }

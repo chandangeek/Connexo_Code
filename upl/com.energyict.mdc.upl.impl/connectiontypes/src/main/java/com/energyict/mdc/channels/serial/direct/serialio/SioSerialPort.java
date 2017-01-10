@@ -21,7 +21,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 
 /**
- * A hardware SerialPort driven by the SerialIO java library
+ * A hardware SerialPort driven by the SerialIO java library.
  * <p/>
  * Copyrights EnergyICT
  * Date: 17/08/12

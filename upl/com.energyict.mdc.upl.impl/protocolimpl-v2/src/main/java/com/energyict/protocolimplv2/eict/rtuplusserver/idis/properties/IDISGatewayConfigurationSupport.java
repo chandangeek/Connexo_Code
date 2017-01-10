@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
 import java.util.Arrays;
@@ -15,6 +17,10 @@ import java.util.List;
  * @since 15/10/2014 - 11:16
  */
 public class IDISGatewayConfigurationSupport extends DlmsConfigurationSupport {
+
+    public IDISGatewayConfigurationSupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {

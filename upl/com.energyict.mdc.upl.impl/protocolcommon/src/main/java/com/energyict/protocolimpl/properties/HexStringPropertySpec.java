@@ -12,9 +12,9 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-04 (12:47)
  */
-class HexStringPropertySpec extends AbstractPropertySpec {
+public class HexStringPropertySpec extends AbstractPropertySpec {
 
-    HexStringPropertySpec(String name, boolean required) {
+    public HexStringPropertySpec(String name, boolean required) {
         super(name, required);
     }
 

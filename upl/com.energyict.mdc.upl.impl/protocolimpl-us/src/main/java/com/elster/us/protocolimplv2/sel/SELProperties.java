@@ -1,8 +1,8 @@
 package com.elster.us.protocolimplv2.sel;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -99,5 +99,4 @@ public class SELProperties {
                     UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, true, this.propertySpecService::timeZoneSpec).finish()
         );
     }
-
 }

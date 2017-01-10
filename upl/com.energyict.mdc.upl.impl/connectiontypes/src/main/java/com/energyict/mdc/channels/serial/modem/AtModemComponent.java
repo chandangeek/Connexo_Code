@@ -1,11 +1,11 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.AbstractAtPostDialCommand;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
@@ -62,7 +62,7 @@ public class AtModemComponent implements ModemComponent, Serializable{
         }
     }
 
-    public void connect(String name, ComChannel comChannel) {
+    public void connect(String name, SerialPortComChannel comChannel) {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
@@ -72,20 +72,8 @@ public class AtModemComponent implements ModemComponent, Serializable{
         initializeAfterConnect(comChannel);
     }
 
-    /**
-     * Initialize the modem so it is ready for dialing/receival of a call.
-     * During this initialization, several steps are performed:<br></br>
-     * <p/>
-     * <ul>
-     * <li>If present, the current connection of the modem is hung up</li>
-     * <li>The default profile of the modem is restored.</li>
-     * <li>All initialization strings are send out to the modem</li>
-     * </ul>
-     *
-     * @param name
-     * @param comChannel
-     */
-    public void initializeModem(String name, ComChannel comChannel) {
+    @Override
+    public void initializeModem(String name, SerialPortComChannel comChannel) {
         this.comPortName = name;
 
         if (!hangUpComChannel(comChannel)) {
@@ -121,11 +109,7 @@ public class AtModemComponent implements ModemComponent, Serializable{
         }
     }
 
-    /**
-     * Initialization method to be performed right after the modem of the device has established a connection.
-     *
-     * @param comChannel The newly created ComChannel
-     */
+    @Override
     public void initializeAfterConnect(ComChannel comChannel) {
         delay(atModemProperties.getDelayAfterConnect().toMillis());
         flushInputStream(comChannel);
@@ -183,7 +167,7 @@ public class AtModemComponent implements ModemComponent, Serializable{
      */
     public void disconnectModem(ComChannel comChannel) {
         hangUpComChannel(comChannel);
-        toggleDTR((SerialComChannel) comChannel, atModemProperties.getLineToggleDelay().toMillis());
+        toggleDTR((SerialPortComChannel) comChannel, atModemProperties.getLineToggleDelay().toMillis());
     }
 
     /**
@@ -262,7 +246,7 @@ public class AtModemComponent implements ModemComponent, Serializable{
      * @param comChannel          the serialComChannel
      * @param delayInMilliSeconds the delay to wait after each DTR signal switch
      */
-    protected void toggleDTR(SerialComChannel comChannel, long delayInMilliSeconds) {
+    protected void toggleDTR(SerialPortComChannel comChannel, long delayInMilliSeconds) {
         SignalController signalController = comChannel.getSerialPort().getSerialPortSignalController();
         signalController.setDTR(false);
         delay(delayInMilliSeconds);
@@ -270,30 +254,12 @@ public class AtModemComponent implements ModemComponent, Serializable{
         delay(delayInMilliSeconds);
     }
 
-    /**
-     * Write the given data to the comChannel
-     *
-     * @param comChannel  the comChannel to write to
-     * @param dataToWrite the data to write
-     */
+    @Override
     public void write(ComChannel comChannel, String dataToWrite) {
         delayBeforeSend();
         comChannel.startWriting();
         this.lastCommandSend = dataToWrite;
         comChannel.write((dataToWrite + AtModemComponent.CONFIRM).getBytes());
-    }
-
-    /**
-     * Write the given data to the comChannel, without addition of the confirm (\r\n) sequence
-     *
-     * @param comChannel  the comChannel to write to
-     * @param dataToWrite the data to write
-     */
-    public void writeRawData(ComChannel comChannel, String dataToWrite) {
-        delayBeforeSend();
-        comChannel.startWriting();
-        this.lastCommandSend = dataToWrite;
-        comChannel.write((dataToWrite).getBytes());
     }
 
     /**
@@ -320,15 +286,7 @@ public class AtModemComponent implements ModemComponent, Serializable{
         return false;
     }
 
-    /**
-     * Reads bytes from the comChannel and verifies against the given expected value.
-     * No retries are performed, just once.
-     *
-     * @param comChannel      the ComChannel to read
-     * @param expectedAnswer  the expected response
-     * @param timeOutInMillis the timeOut in milliseconds to wait before throwing a TimeOutException
-     * @return true if the answer matches the expected answer, false otherwise
-     */
+    @Override
     public boolean readAndVerify(ComChannel comChannel, String expectedAnswer, long timeOutInMillis) {
         comChannel.startReading();
         StringBuilder responseBuilder = new StringBuilder();

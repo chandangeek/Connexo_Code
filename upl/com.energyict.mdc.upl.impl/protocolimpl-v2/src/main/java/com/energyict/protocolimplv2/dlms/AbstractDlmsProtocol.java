@@ -363,7 +363,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
      */
     protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new DlmsConfigurationSupport();
+            dlmsConfigurationSupport = new DlmsConfigurationSupport(this.propertySpecService);
         }
         return dlmsConfigurationSupport;
     }

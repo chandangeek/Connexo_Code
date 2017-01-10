@@ -16,6 +16,8 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.crypto.KeyStoreService;
+import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -92,14 +94,18 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private final ObjectMapperService objectMapperService;
     private final DeviceMasterDataExtractor extractor;
     private final DeviceGroupExtractor deviceGroupExtractor;
+    private final X509Service x509Service;
+    private final KeyStoreService keyStoreService;
 
-    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor) {
+    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, X509Service x509Service, KeyStoreService keyStoreService) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
         this.objectMapperService = objectMapperService;
         this.extractor = extractor;
         this.deviceGroupExtractor = deviceGroupExtractor;
+        this.x509Service = x509Service;
+        this.keyStoreService = keyStoreService;
     }
 
     /**
@@ -339,7 +345,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(this.getPropertySpecService()), new InboundIpConnectionType(), new TLSConnectionType(this.getPropertySpecService(), this.nlsService));
+        return Arrays.asList(
+                new OutboundTcpIpConnectionType(this.getPropertySpecService()),
+                new InboundIpConnectionType(),
+                new TLSConnectionType(
+                        this.getPropertySpecService(),
+                        this.nlsService,
+                        this.x509Service,
+                        this.keyStoreService));
     }
 
     @Override

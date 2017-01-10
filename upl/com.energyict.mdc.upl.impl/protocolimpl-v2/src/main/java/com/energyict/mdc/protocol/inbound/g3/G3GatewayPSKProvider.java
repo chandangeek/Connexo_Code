@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HexString;
@@ -228,9 +227,8 @@ public class G3GatewayPSKProvider {
 
         try {
             PropertySpecService propertySpecService = getContext().getPropertySpecService();
-            NlsService nlsService = getContext().getNlsService();
             if (tlsConnection) {
-                tcpComChannel = new TLSConnectionType(propertySpecService, nlsService).connect();
+                tcpComChannel = new TLSConnectionType(propertySpecService, getContext().getNlsService(), getContext().getX509Service(), getContext().getKeyStoreService()).connect();
             } else {
                 tcpComChannel = new OutboundTcpIpConnectionType(propertySpecService).connect();
             }

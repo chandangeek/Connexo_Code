@@ -2,6 +2,7 @@ package com.energyict.mdc.channels.ip.datagrams;
 
 
 import com.energyict.mdc.channels.SynchroneousComChannel;
+import com.energyict.mdc.io.VirtualUdpSession;
 
 /**
  * A DatagramComChannel is a {@link com.energyict.mdc.protocol.ComChannel} that will be used

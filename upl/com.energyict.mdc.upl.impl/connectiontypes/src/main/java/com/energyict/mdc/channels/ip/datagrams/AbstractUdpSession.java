@@ -1,5 +1,7 @@
 package com.energyict.mdc.channels.ip.datagrams;
 
+import com.energyict.mdc.io.VirtualUdpSession;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

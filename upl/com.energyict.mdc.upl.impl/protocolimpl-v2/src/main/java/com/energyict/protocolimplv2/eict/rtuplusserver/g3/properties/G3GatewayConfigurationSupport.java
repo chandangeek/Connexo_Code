@@ -1,10 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties;
 
-import com.energyict.mdc.upl.Services;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
-
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -12,24 +11,25 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
-import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
+import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 
 /**
  * A collection of general DLMS properties that are relevant for the G3 gateway protocol.
  * These properties are not related to the security or the protocol dialects.
  * The parsing and the usage of the property values is done in implementations of {@link com.energyict.dlms.protocolimplv2.DlmsSessionProperties}
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/10/13
  * Time: 15:41
  * Author: khe
  */
 public class G3GatewayConfigurationSupport {
+
+    private final PropertySpecService propertySpecService;
+
+    public G3GatewayConfigurationSupport(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
 
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
@@ -44,30 +44,31 @@ public class G3GatewayConfigurationSupport {
     }
 
     private PropertySpec serverUpperMacAddressPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, BigDecimal.ONE);
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, false, this.propertySpecService::bigDecimalSpec)
+                .setDefaultValue(BigDecimal.ONE)
+                .finish();
     }
 
     private PropertySpec timeZonePropertySpec() {
-        return Services
-                    .propertySpecService()
-                    .timeZoneSpec()
-                    .named(TIMEZONE, TIMEZONE)
-                    .describedAs("Description for " + TIMEZONE)
-                    .finish();
+        return this.propertySpecService
+                .timeZoneSpec()
+                .named(TIMEZONE, TIMEZONE)
+                .describedAs("Description for " + TIMEZONE)
+                .finish();
     }
 
     private PropertySpec validateInvokeIdPropertySpec() {
-        return UPLPropertySpecFactory.booleanValue(VALIDATE_INVOKE_ID, true);
+        return UPLPropertySpecFactory.specBuilder(VALIDATE_INVOKE_ID, true, propertySpecService::booleanSpec).finish();
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {
         return this.durationPropertySpecBuilder(G3GatewayProperties.AARQ_TIMEOUT)
-                    .setDefaultValue(G3GatewayProperties.AARQ_TIMEOUT_DEFAULT)
-                    .finish();
+                .setDefaultValue(G3GatewayProperties.AARQ_TIMEOUT_DEFAULT)
+                .finish();
     }
 
     private PropertySpec readCachePropertySpec() {
-        return UPLPropertySpecFactory.booleanValue(DlmsProtocolProperties.READCACHE_PROPERTY, false);
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.READCACHE_PROPERTY, false, this.propertySpecService::booleanSpec).finish();
     }
 
     private PropertySpec forcedDelayPropertySpec() {
@@ -77,12 +78,13 @@ public class G3GatewayConfigurationSupport {
     }
 
     private PropertySpec maxRecPduSizePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(MAX_REC_PDU_SIZE, false, DEFAULT_MAX_REC_PDU_SIZE);
+        return UPLPropertySpecFactory.specBuilder(MAX_REC_PDU_SIZE, false, this.propertySpecService::bigDecimalSpec)
+                .setDefaultValue(DEFAULT_MAX_REC_PDU_SIZE)
+                .finish();
     }
 
     private PropertySpecBuilder<Duration> durationPropertySpecBuilder(String name) {
-        return Services
-                .propertySpecService()
+        return this.propertySpecService
                 .durationSpec()
                 .named(name, name)
                 .describedAs("Description for " + name);

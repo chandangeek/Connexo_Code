@@ -357,7 +357,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     public IDISGatewayConfigurationSupport getConfigurationSupport() {
         if (this.configurationSupport == null) {
-            this.configurationSupport = new IDISGatewayConfigurationSupport();
+            this.configurationSupport = new IDISGatewayConfigurationSupport(this.propertySpecService);
         }
         return this.configurationSupport;
     }

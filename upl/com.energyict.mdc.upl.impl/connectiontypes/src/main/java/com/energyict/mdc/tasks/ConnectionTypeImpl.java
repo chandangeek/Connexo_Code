@@ -6,12 +6,13 @@ import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
 import com.energyict.mdc.channels.ip.socket.SocketComChannel;
 import com.energyict.mdc.channels.nls.MessageSeeds;
 import com.energyict.mdc.channels.nls.Thesaurus;
-import com.energyict.mdc.channels.serial.SerialComChannel;
+import com.energyict.mdc.channels.serial.SerialComChannelImpl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.exceptions.ConnectionException;
@@ -96,10 +97,10 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected ComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    protected SerialPortComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         ServerSerialPort serialPort = new RxTxSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
-        return new SerialComChannel(serialPort);
+        return new SerialComChannelImpl(serialPort);
     }
 
     /**
@@ -110,10 +111,10 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected ComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    protected SerialComChannelImpl newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         ServerSerialPort serialPort = new SioSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
-        return new SerialComChannel(serialPort);
+        return new SerialComChannelImpl(serialPort);
     }
 
     /**

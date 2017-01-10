@@ -3,7 +3,7 @@ package com.energyict.mdc.channels.serial.optical.rxtx;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
-import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
@@ -26,8 +26,8 @@ public class RxTxOpticalConnectionType extends RxTxSerialConnectionType implemen
     }
 
     @Override
-    public ComChannel connect() throws ConnectionException {
-        ComChannel comChannel = super.connect();
+    public SerialPortComChannel connect() throws ConnectionException {
+        SerialPortComChannel comChannel = super.connect();
         comChannel.addProperties(createTypeProperty(ComChannelType.OpticalComChannel));
         return comChannel;
     }

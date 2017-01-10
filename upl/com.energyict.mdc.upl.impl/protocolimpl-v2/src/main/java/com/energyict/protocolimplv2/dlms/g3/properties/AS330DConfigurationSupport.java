@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.g3.properties;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -25,6 +26,10 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
     public static final String MIRROR_LOGICAL_DEVICE_ID = "MirrorLogicalDeviceId";
     public static final String GATEWAY_LOGICAL_DEVICE_ID = "GatewayLogicalDeviceId";
 
+    public AS330DConfigurationSupport(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
@@ -45,34 +50,55 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec callHomeIdPropertySpec() {
-        return UPLPropertySpecFactory.string(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false);
+        return UPLPropertySpecFactory
+                .specBuilder(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, false, this.getPropertySpecService()::stringSpec)
+                .finish();
     }
 
     private PropertySpec mirrorLogicalDeviceIdPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(MIRROR_LOGICAL_DEVICE_ID, false);
+        return UPLPropertySpecFactory
+                .specBuilder(MIRROR_LOGICAL_DEVICE_ID, false, this.getPropertySpecService()::bigDecimalSpec)
+                .finish();
     }
 
     private PropertySpec actualLogicalDeviceIdPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(GATEWAY_LOGICAL_DEVICE_ID, false);
+        return UPLPropertySpecFactory
+                .specBuilder(GATEWAY_LOGICAL_DEVICE_ID, false, this.getPropertySpecService()::bigDecimalSpec)
+                .finish();
     }
 
     private PropertySpec pskPropertySpec() {
-        return UPLPropertySpecFactory.hexString(G3Properties.PSK, false);
+        return UPLPropertySpecFactory
+                .specBuilder(G3Properties.PSK, false, this.getPropertySpecService()::hexStringSpec)
+                .finish();
     }
 
     private PropertySpec aarqTimeoutPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(Dsmr50Properties.AARQ_TIMEOUT_PROPERTY, false, BigDecimal.ZERO);
+        return UPLPropertySpecFactory
+                .specBuilder(Dsmr50Properties.AARQ_TIMEOUT_PROPERTY, false, this.getPropertySpecService()::bigDecimalSpec)
+                .setDefaultValue(BigDecimal.ZERO)
+                .finish();
     }
 
     private PropertySpec readCachePropertySpec() {
-        return UPLPropertySpecFactory.booleanValue(READCACHE_PROPERTY, false, false);
+        return UPLPropertySpecFactory
+                .specBuilder(READCACHE_PROPERTY, false, this.getPropertySpecService()::booleanSpec)
+                .setDefaultValue(false)
+                .finish();
     }
 
     private PropertySpec aarqRetriesPropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(Dsmr50Properties.AARQ_RETRIES_PROPERTY, false, BigDecimal.valueOf(2));
+        return UPLPropertySpecFactory
+                .specBuilder(Dsmr50Properties.AARQ_RETRIES_PROPERTY, false, this.getPropertySpecService()::bigDecimalSpec)
+                .setDefaultValue(BigDecimal.valueOf(2))
+                .finish();
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
-        return UPLPropertySpecFactory.bigDecimal(MAX_REC_PDU_SIZE, false, AS330DProperties.DEFAULT_MAX_REC_PDU_SIZE);
+        return UPLPropertySpecFactory
+                .specBuilder(MAX_REC_PDU_SIZE, false, this.getPropertySpecService()::bigDecimalSpec)
+                .setDefaultValue(AS330DProperties.DEFAULT_MAX_REC_PDU_SIZE)
+                .finish();
     }
+
 }
