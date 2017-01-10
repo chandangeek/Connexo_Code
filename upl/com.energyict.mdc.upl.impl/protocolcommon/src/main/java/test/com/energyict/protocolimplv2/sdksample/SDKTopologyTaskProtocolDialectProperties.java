@@ -30,7 +30,7 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 MdwToUplPropertySpecAdapter.adapt(getSlaveOneSerialNumber()),
                 MdwToUplPropertySpecAdapter.adapt(getSlaveTwoSerialNumber()));

@@ -45,7 +45,7 @@ public class GatewayTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.timeoutPropertySpec(),
                 this.retriesPropertySpec(),

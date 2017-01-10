@@ -40,11 +40,11 @@ public class AbntTransparentTCPDeviceProtocolDialect extends AbstractDeviceProto
 
     @Override
     public String getDeviceProtocolDialectDisplayName() {
-        return "Serial";
+        return "Transparent TCP";
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.retriesPropertySpec(),
                 this.timeoutPropertySpec(),

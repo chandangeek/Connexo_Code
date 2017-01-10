@@ -34,7 +34,7 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getPropertySpecs() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getNotSupportedLoadProfileObisCodePropertySpec()));
     }
 

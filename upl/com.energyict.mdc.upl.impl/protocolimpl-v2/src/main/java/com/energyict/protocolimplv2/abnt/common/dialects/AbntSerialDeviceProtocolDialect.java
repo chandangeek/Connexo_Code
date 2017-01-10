@@ -36,7 +36,7 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.retriesPropertySpec(),
                 this.timeoutPropertySpec(),

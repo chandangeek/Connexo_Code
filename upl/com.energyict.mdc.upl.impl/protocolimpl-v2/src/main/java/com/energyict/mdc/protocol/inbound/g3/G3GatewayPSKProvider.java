@@ -210,7 +210,7 @@ public class G3GatewayPSKProvider {
      */
     private void addDefaultValuesIfNecessary(DeviceProtocol gatewayProtocol, TypedProperties dialectProperties) {
         DeviceProtocolDialect theActualDialect = gatewayProtocol.getDeviceProtocolDialects().get(0);
-        for (PropertySpec propertySpec : theActualDialect.getPropertySpecs()) {
+        for (PropertySpec propertySpec : theActualDialect.getUPLPropertySpecs()) {
             if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
                 dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
             }

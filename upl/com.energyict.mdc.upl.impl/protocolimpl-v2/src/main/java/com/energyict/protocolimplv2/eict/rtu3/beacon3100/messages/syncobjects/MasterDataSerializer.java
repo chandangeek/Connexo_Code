@@ -555,7 +555,7 @@ public class MasterDataSerializer {
      */
     private void addDefaultDialectValuesIfNecessary(TypedProperties dialectProperties) {
         DeviceProtocolDialect theActualDialect = new GatewayTcpDeviceProtocolDialect(this.propertySpecService);
-        for (PropertySpec propertySpec : theActualDialect.getPropertySpecs()) {
+        for (PropertySpec propertySpec : theActualDialect.getUPLPropertySpecs()) {
             if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
                 dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
             }

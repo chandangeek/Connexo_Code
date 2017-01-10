@@ -36,7 +36,7 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.serverLogLevelPropertySpec(),
                 this.portLogLevelPropertySpec()

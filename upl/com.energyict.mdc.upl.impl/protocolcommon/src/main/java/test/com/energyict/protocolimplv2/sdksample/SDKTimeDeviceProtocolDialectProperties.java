@@ -32,7 +32,7 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
+    public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                     this.getClockOffsetToReadPropertySpec(),
                     this.getClockOffsetToWritePropertySpec());
