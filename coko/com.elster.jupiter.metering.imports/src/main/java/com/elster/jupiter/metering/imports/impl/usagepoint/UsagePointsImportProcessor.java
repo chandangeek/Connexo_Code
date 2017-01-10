@@ -8,13 +8,10 @@ import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.HeatDetailBuilder;
-import com.elster.jupiter.metering.LocationBuilder;
-import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
@@ -23,15 +20,13 @@ import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
+import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
 import com.google.common.collect.Range;
 
@@ -39,15 +34,20 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePointImportRecord> {
 
-    UsagePointsImportProcessor(MeteringDataImporterContext context) {
+    private UsagePointImportHelper usagePointImportHelper;
+    private String dateFormat;
+    private String timeZone;
+
+    UsagePointsImportProcessor(MeteringDataImporterContext context, String dateFormat, String timeZone) {
         super(context);
+        usagePointImportHelper = new UsagePointImportHelper(context, getClock());
+        this.dateFormat = dateFormat;
+        this.timeZone = timeZone;
     }
 
     @Override
@@ -60,7 +60,8 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             } else {
                 createDetails(usagePoint, data, logger).create();
             }
-            linkMetrologyConfigurationAndActivateMeters(usagePoint, data);
+            usagePointImportHelper.setMetrologyConfigurationForUsagePoint(data, usagePoint);
+            activateMeters(data, usagePoint);
             addCustomPropertySetValues(usagePoint, data);
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
@@ -114,11 +115,13 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             if (usagePoint.getServiceCategory().getId() != serviceCategory.get().getId()) {
                 throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_CHANGE, data.getLineNumber(), serviceKindString);
             }
-            usagePoint = getContext().getMeteringService().findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion()).get();
-            return updateUsagePoint(usagePoint, data, logger);
+            usagePoint = getContext().getMeteringService()
+                    .findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())
+                    .get();
+            return usagePointImportHelper.updateUsagePoint(usagePoint, data);
         } else {
-            return createUsagePoint(serviceCategory.get().newUsagePoint(identifier,
-                    data.getInstallationTime().orElse(getContext().getClock().instant())), data, logger);
+            return usagePointImportHelper.createUsagePointForInsight(serviceCategory.get().newUsagePoint(identifier,
+                    data.getInstallationTime().orElse(getContext().getClock().instant())), data);
         }
     }
 
@@ -170,86 +173,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
     }
 
-    private UsagePoint createUsagePoint(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data, FileImportLogger logger) {
-        usagePointBuilder.withIsSdp(data.isSdp());
-        boolean isVirtual = data.isVirtual();
-        List<String> locationData = data.getLocation();
-        List<String> geoCoordinatesData = data.getGeoCoordinates();
-
-        if (locationData.stream().anyMatch(s -> s != null)) {
-            getContext().getMeteringService()
-                    .getLocationTemplate()
-                    .getTemplateMembers()
-                    .stream()
-                    .filter(LocationTemplate.TemplateField::isMandatory)
-                    .forEach(field -> {
-                        if (locationData.get(field.getRanking()) == null) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
-                        } else if (locationData.get(field.getRanking()).isEmpty()) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
-                        }
-                    });
-            LocationBuilder builder = usagePointBuilder.newLocationBuilder();
-            Map<String, Integer> ranking = getContext().getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
-
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
-            if (memberBuilder.isPresent()) {
-                setLocationAttributes(memberBuilder.get(), data, ranking);
-            } else {
-                setLocationAttributes(builder.member(), data, ranking).add();
-            }
-            usagePointBuilder.withLocation(builder.create());
-            isVirtual = false;
-        }
-        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
-            usagePointBuilder.withGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue((geoCoordinatesData.stream().collect(Collectors.joining(":")))));
-            isVirtual = false;
-        }
-        usagePointBuilder.withIsVirtual(isVirtual);
-        usagePointBuilder.withOutageRegion(data.getOutageRegion());
-        usagePointBuilder.withReadRoute(data.getReadRoute());
-        usagePointBuilder.withServicePriority(data.getServicePriority());
-        usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark());
-        return usagePointBuilder.create();
-    }
-
-    private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
-        List<String> locationData = data.getLocation();
-        List<String> geoCoordinatesData = data.getGeoCoordinates();
-
-        if (locationData.stream().anyMatch(s -> s != null)) {
-            getContext().getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                    .filter(LocationTemplate.TemplateField::isMandatory)
-                    .forEach(field -> {
-                        if (locationData.get(field.getRanking()) == null) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
-                        } else if (locationData.get(field.getRanking()).isEmpty()) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
-                        }
-                    });
-            LocationBuilder builder = usagePoint.updateLocation();
-            Map<String, Integer> ranking = getContext().getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
-
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
-            if (memberBuilder.isPresent()) {
-                setLocationAttributes(memberBuilder.get(), data, ranking);
-            } else {
-                setLocationAttributes(builder.member(), data, ranking).add();
-            }
-            usagePoint.setLocation(builder.create().getId());
-        }
-        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
-            usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
-        }
-        usagePoint.setOutageRegion(data.getOutageRegion());
-        usagePoint.setReadRoute(data.getReadRoute());
-        usagePoint.setServicePriority(data.getServicePriority());
-        usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
-        usagePoint.update();
-        return usagePoint;
-    }
 
     private ElectricityDetailBuilder buildElectricityDetails(ElectricityDetailBuilder detailBuilder, ElectricityDetail oldDetail, UsagePointImportRecord data, FileImportLogger logger) {
         detailBuilder.withCollar(data.isCollarInstalled().orElse(oldDetail.isCollarInstalled()));
@@ -329,29 +252,17 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
     }
 
-    private void linkMetrologyConfigurationAndActivateMeters(UsagePoint usagePoint, UsagePointImportRecord record) {
-        if (record.metrologyConfiguration != null) {
-            Optional<MetrologyConfiguration> metrologyConfiguration = getContext().getMetrologyConfigurationService()
-                    .findMetrologyConfiguration(record.metrologyConfiguration);
-            if (metrologyConfiguration.isPresent()) {
-                usagePoint.apply((UsagePointMetrologyConfiguration) metrologyConfiguration.get());
-                activateMeters(record, usagePoint);
-            }
-        }
-    }
-
     private void activateMeters(UsagePointImportRecord record, UsagePoint usagePoint) {
-        if (record.getMeterRoles() != null) {
-            Map<MeterRole, Meter> meterRolesWithMeters = record.getMeterRoles().asMap();
-            UsagePointMeterActivator usagePointMeterActivator = usagePoint.linkMeters();
-            meterRolesWithMeters.keySet().stream().forEach(meterRole -> {
-                Meter meter = meterRolesWithMeters.get(meterRole);
-                if (meter != null) {
-                    usagePointMeterActivator.activate(meter, meterRole);
-                    usagePointMeterActivator.complete();
-                }
-            });
-        }
+        UsagePointMeterActivator usagePointMeterActivator = usagePoint.linkMeters();
+        record.getMeterRoles().stream().forEach(meterRole -> {
+            checkEmptyFieldValues(meterRole);
+            checkMeterRolesActivationTime(meterRole, usagePoint);
+            MeterRole role = getMeterRole(meterRole.getMeterRole());
+            //if meter field is empty exception will be thrown
+            Meter meter = getMeter(meterRole.getMeter());
+            usagePointMeterActivator.activate(meter, role);
+            usagePointMeterActivator.complete();
+        });
     }
 
     private void validateMandatoryCustomProperties(UsagePoint usagePoint, UsagePointImportRecord data) {
@@ -521,23 +432,40 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
     }
 
-    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, UsagePointImportRecord data, Map<String, Integer> ranking) {
-        List<String> location = data.getLocation();
-        builder.setCountryCode(location.get(ranking.get("countryCode")))
-                .setCountryName(location.get(ranking.get("countryName")))
-                .setAdministrativeArea(location.get(ranking.get("administrativeArea")))
-                .setLocality(location.get(ranking.get("locality")))
-                .setSubLocality(location.get(ranking.get("subLocality")))
-                .setStreetType(location.get(ranking.get("streetType")))
-                .setStreetName(location.get(ranking.get("streetName")))
-                .setStreetNumber(location.get(ranking.get("streetNumber")))
-                .setEstablishmentType(location.get(ranking.get("establishmentType")))
-                .setEstablishmentName(location.get(ranking.get("establishmentName")))
-                .setEstablishmentNumber(location.get(ranking.get("establishmentNumber")))
-                .setAddressDetail(location.get(ranking.get("addressDetail")))
-                .setZipCode(location.get(ranking.get("zipCode")))
-                .isDaultLocation(true)
-                .setLocale(data.getLocation().get(ranking.get("locale")) == null || data.getLocation().get(ranking.get("locale")).equals("") ? "en" : data.getLocation().get(ranking.get("locale")));
-        return builder;
+    private Meter getMeter(String meterName) {
+        Optional<Meter> result = getContext().getMeteringService()
+                .findMeterByName(meterName);
+        if (result.isPresent()) {
+            return result.get();
+        }
+
+        throw new ProcessorException(MessageSeeds.NO_SUCH_METER_WITH_NAME, meterName);
+    }
+
+    private MeterRole getMeterRole(String meterRoleKey) {
+        Optional<MeterRole> result = getContext().getMetrologyConfigurationService().findMeterRole(meterRoleKey);
+        if (result.isPresent()) {
+            return result.get();
+        }
+
+        throw new ProcessorException(MessageSeeds.NO_SUCH_METER_ROLE_WITH_KEY, meterRoleKey);
+    }
+
+    private Instant getActivationDate(String activationDate) {
+        return new InstantParser(dateFormat, timeZone).parse(activationDate);
+    }
+
+    private void checkMeterRolesActivationTime(MeterRoleWithMeterAndActivationDate meterRole, UsagePoint usagePoint) {
+        if (getActivationDate(meterRole.getActivation()).isBefore(usagePoint.getCreateDate())) {
+            throw new ProcessorException(MessageSeeds.ACTIVATION_DATE_OF_METER_ROLE_IS_BEFORE_UP_CREATION, meterRole.getActivation());
+        }
+    }
+
+    private void checkEmptyFieldValues(MeterRoleWithMeterAndActivationDate meterRoleWithMeterAndActivationDate) {
+        if(meterRoleWithMeterAndActivationDate.getActivation().isEmpty() ||
+                meterRoleWithMeterAndActivationDate.getMeter().isEmpty() ||
+                meterRoleWithMeterAndActivationDate.getMeterRole().isEmpty()) {
+            throw new ProcessorException(MessageSeeds.SOME_REQUIRED_FIELDS_ARE_EMPTY);
+        }
     }
 }

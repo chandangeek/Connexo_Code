@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.imports.impl.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.fields.FieldSetter;
 import com.elster.jupiter.metering.imports.impl.fields.FileImportField;
 import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
+import com.elster.jupiter.metering.imports.impl.usagepoint.MeterRoleWithMeterAndActivationDate;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 
@@ -106,6 +107,8 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
 
                     });
                 });
+
+        addMeterRolesWithMetersAndActivationDates(fields, csvRecord);
 
         return parseCustomProperties(record, csvRecord, fields);
     }
@@ -216,4 +219,53 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         return rawValues;
     }
 
+    private List<MeterRoleWithMeterAndActivationDate> getMeterRoles(CSVRecord csvRecord) {
+        Map<Integer, MeterRoleWithMeterAndActivationDate> roles = new HashMap<>();
+        Map<String, String> recordMap = csvRecord.toMap();
+        recordMap.keySet().stream().forEach(key -> {
+            String header = key.toLowerCase();
+            String value = recordMap.get(key);
+            if (header.startsWith("meterrole")) {
+                int index = header.charAt(header.length() - 1);
+                if (roles.containsKey(index)) {
+                    roles.get(index).setMeterRole(value);
+                } else {
+                    MeterRoleWithMeterAndActivationDate meterRoleWithMeterAndActivationDate = new MeterRoleWithMeterAndActivationDate();
+                    meterRoleWithMeterAndActivationDate.setMeterRole(value);
+                    roles.put(index, meterRoleWithMeterAndActivationDate);
+                }
+            } else if (header.startsWith("meter") && !header.startsWith("meterrole")) {
+                int index = header.charAt(header.length() - 1);
+                if (roles.containsKey(index)) {
+                    roles.get(index).setMeter(value);
+                } else {
+                    MeterRoleWithMeterAndActivationDate meterRoleWithMeterAndActivationDate = new MeterRoleWithMeterAndActivationDate();
+                    meterRoleWithMeterAndActivationDate.setMeter(value);
+                    roles.put(index, meterRoleWithMeterAndActivationDate);
+                }
+            } else if (header.startsWith("activationdate")) {
+                int index = header.charAt(header.length() - 1);
+                if (roles.containsKey(index)) {
+                    roles.get(index).setActivationDate(value);
+                } else {
+                    MeterRoleWithMeterAndActivationDate meterRoleWithMeterAndActivationDate = new MeterRoleWithMeterAndActivationDate();
+                    meterRoleWithMeterAndActivationDate.setActivationDate(value);
+                    roles.put(index, meterRoleWithMeterAndActivationDate);
+                }
+            }
+        });
+
+        return new ArrayList<>(roles.values());
+    }
+
+    private void addMeterRolesWithMetersAndActivationDates(Map<String, FileImportField<?>> fields, CSVRecord csvRecord) {
+        Optional<String> meterRolesField = fields.keySet()
+                .stream()
+                .filter(key -> key.equalsIgnoreCase("meterRoles"))
+                .findFirst();
+        FieldSetter<List<MeterRoleWithMeterAndActivationDate>> setter = (FieldSetter<List<MeterRoleWithMeterAndActivationDate>>) fields
+                .get(meterRolesField.get())
+                .getSetter();
+        setter.setField(getMeterRoles(csvRecord));
+    }
 }

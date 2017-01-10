@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.imports.impl.parsers.BigDecimalParser;
 import com.elster.jupiter.metering.imports.impl.parsers.BooleanParser;
 import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.metering.imports.impl.parsers.LiteralStringParser;
-import com.elster.jupiter.metering.imports.impl.parsers.MeterRoleWithMeterParser;
 import com.elster.jupiter.metering.imports.impl.parsers.NumberParser;
 import com.elster.jupiter.metering.imports.impl.parsers.QuantityParser;
 import com.elster.jupiter.metering.imports.impl.parsers.YesNoAnswerParser;
@@ -23,6 +22,7 @@ import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 class UsagePointImportDescription implements FileImportDescription<UsagePointImportRecord> {
@@ -35,7 +35,6 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
     private final YesNoAnswerParser yesNoAnswerParser;
     private final MeteringDataImporterContext context;
     private NumberParser numberParser;
-    private MeterRoleWithMeterParser meterRoleWithMeterParser;
 
     UsagePointImportDescription(String dateFormat, String timeZone, SupportedNumberFormat numberFormat, MeteringDataImporterContext context) {
         this.instantParser = new InstantParser(dateFormat, timeZone);
@@ -46,8 +45,6 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
         this.yesNoAnswerParser = new YesNoAnswerParser();
         this.quantityParser = new QuantityParser(bigDecimalParser, numberParser, stringParser);
         this.context = context;
-        this.meterRoleWithMeterParser = new MeterRoleWithMeterParser(context.getMetrologyConfigurationService(), context
-                .getMeteringService());
     }
 
     @Override
@@ -112,7 +109,7 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
         addTechnicalAttributesFields(fields, record);
         addLocationFields(fields, record);
         addCustomPropertySetFields(fields, record);
-        addMeterRolesAndMeters(fields, record);
+        addMeterRolesFields(fields, record);
         return fields;
     }
 
@@ -238,10 +235,22 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 .build());
     }
 
-    private void addMeterRolesAndMeters(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
-        fields.put("meterRoleAndMeter", CommonField.withParser(meterRoleWithMeterParser)
+    private void addMeterRolesFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
+        fields.put("meterRoles", CommonField
+                .withParser(new FieldParser<List<MeterRoleWithMeterAndActivationDate>>() {
+                    @Override
+                    public Class<List<MeterRoleWithMeterAndActivationDate>> getValueType() {
+                        throw new UnsupportedOperationException();
+                    }
+
+                    @Override
+                    public List<MeterRoleWithMeterAndActivationDate> parse(String value) throws ValueParserException {
+                        throw new UnsupportedOperationException();
+                    }
+                })
                 .withSetter(record::setMeterRoles)
                 .build());
+
     }
 
     @Override
@@ -254,8 +263,7 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 stringParser,
                 booleanParser,
                 yesNoAnswerParser,
-                quantityParser,
-                meterRoleWithMeterParser
+                quantityParser
         ).forEach(fieldParser -> fieldParsers.put(fieldParser.getValueType(), fieldParser));
         return fieldParsers;
     }

@@ -3,11 +3,8 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.metering.BypassStatus;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FileImportRecord;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -59,7 +56,7 @@ public class UsagePointImportRecord extends FileImportRecord {
     public String metrologyConfiguration;
     public Instant metrologyConfigurationApplyTime;
     private Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets;
-    private Pair<MeterRole, Meter> meterRoleAndMeter;
+    private List<MeterRoleWithMeterAndActivationDate> meterRoles;
 
     public UsagePointImportRecord() {
     }
@@ -340,11 +337,11 @@ public class UsagePointImportRecord extends FileImportRecord {
         this.customPropertySets = customPropertySets;
     }
 
-    public Pair<MeterRole, Meter> getMeterRoles() {
-        return meterRoleAndMeter;
+    public List<MeterRoleWithMeterAndActivationDate> getMeterRoles() {
+        return meterRoles;
     }
 
-    public void setMeterRoles(Pair<MeterRole, Meter> meterRoleAndMeter) {
-        this.meterRoleAndMeter = meterRoleAndMeter;
+    public void setMeterRoles(List<MeterRoleWithMeterAndActivationDate> meterRoles) {
+        this.meterRoles = meterRoles;
     }
 }
