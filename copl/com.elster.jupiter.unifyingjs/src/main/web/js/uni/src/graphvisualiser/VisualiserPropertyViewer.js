@@ -7,8 +7,41 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
     floating: true,
     collapsed: true,
     collapsible: true,
-  //  collapseMode: 'header',
-  //  collapseDirection: 'right',
+    collapseDirection: 'top',
+    hideCollapseTool: true,
+    tools: [
+        {
+            xtype: 'button',
+            itemId: 'uni-property-viewer-collapse-expand-button',
+            ui: 'colexp',
+            tooltip: Uni.I18n.translate('general.expand', 'UNI', 'Expand'),
+            iconCls: 'icon-circle-down2',
+            handler: function(button) {
+                var propertyViewer = button.up('#uni-property-viewer');
+                if (propertyViewer.getCollapsed()) {
+                    propertyViewer.expand();
+                    button.setIconCls('icon-circle-up2');
+                    button.setTooltip(Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'));
+                } else {
+                    propertyViewer.collapse();
+                    button.setIconCls('icon-circle-down2');
+                    button.setTooltip(Uni.I18n.translate('general.expand', 'UNI', 'Expand'));
+                }
+            }
+        }
+    ],
+    listeners: {
+        beforecollapse: function(panel) {
+            var collapseExpandButton = panel.down('#uni-property-viewer-collapse-expand-button');
+            collapseExpandButton.setIconCls('icon-circle-down2');
+            collapseExpandButton.setTooltip(Uni.I18n.translate('general.expand', 'UNI', 'Expand'));
+        },
+        beforeexpand: function(panel) {
+            var collapseExpandButton = panel.down('#uni-property-viewer-collapse-expand-button');
+            collapseExpandButton.setIconCls('icon-circle-up2');
+            collapseExpandButton.setTooltip(Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'));
+        }
+    },
     title: Uni.I18n.translate('general.propertyViewer', 'UNI', 'Property viewer'),
     ui: 'small',
     layout: 'vbox',

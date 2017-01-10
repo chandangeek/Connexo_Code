@@ -22,12 +22,35 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
             region: 'south',
             //height: 120,
             collapsible: true,
-            split: true,
+            split: false,
             splitterResize: false,
             layout: {
                 type: 'table',
                 columns: 24 // legend icon = one column & legend text = another column
-            }
+            },
+            hideCollapseTool: true,
+            tools: [
+                {
+                    xtype: 'button',
+                    ui: 'colexp',
+                    tooltip: Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'),
+                    iconCls: 'icon-circle-up2',
+                    mystate: 'expanded',
+                    handler: function(button) {
+                        if (button.mystate==='expanded') {
+                            button.up('#uni-visualiser-legend-table').collapse();
+                            button.setIconCls('icon-circle-down2');
+                            button.mystate = 'collapsed';
+                            button.setTooltip(Uni.I18n.translate('general.expand', 'UNI', 'Expand'));
+                        } else {
+                            button.up('#uni-visualiser-legend-table').expand();
+                            button.setIconCls('icon-circle-up2');
+                            button.mystate = 'expanded';
+                            button.setTooltip(Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'));
+                        }
+                    }
+                }
+            ]
         }
     ],
     padding: 10,
@@ -174,6 +197,8 @@ Ext.define('Uni.graphvisualiser.VisualiserPanel', {
                 }
             );
             var position = this.getPosition();
+            var width = this.getWidth();
+            debugger;
             popupMenu.showAt([position[0]+x, position[1]+y]);
         }
         return false;
