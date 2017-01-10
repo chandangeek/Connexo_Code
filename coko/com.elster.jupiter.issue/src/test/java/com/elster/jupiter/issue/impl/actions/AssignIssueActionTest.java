@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -42,8 +43,13 @@ public class AssignIssueActionTest extends BaseTest {
         local.update();
         User user = getUserService().findOrCreateUser("user", "local", "APD");
         getThreadPrincipalService().set(user);
+        IssueAssignee issueAssignee = mock(IssueAssignee.class);
+        when(issueAssignee.getUser()).thenReturn(user);
+        when(issueAssignee.getWorkGroup()).thenReturn(null);
+
 
         Map<String, Object> properties = new HashMap<>();
+        properties.put(AssignIssueAction.ASSIGNEE, new AssignIssueAction.Assignee(user, null, null));
         Issue issue = createIssueMinInfo();
         
         assertThat(issue.getAssignee().getUser()).isNull();
@@ -68,6 +74,7 @@ public class AssignIssueActionTest extends BaseTest {
         getThreadPrincipalService().set(user);
 
         Map<String, Object> properties = new HashMap<>();
+        properties.put(AssignIssueAction.ASSIGNEE, new AssignIssueAction.Assignee(user, null, null));
         Issue issue = createIssueMinInfo();
 
         assertThat(issue.getAssignee().getUser()).isNull();
@@ -93,6 +100,7 @@ public class AssignIssueActionTest extends BaseTest {
         getThreadPrincipalService().set(user);
 
         Map<String, Object> properties = new HashMap<>();
+        properties.put(AssignIssueAction.ASSIGNEE, new AssignIssueAction.Assignee(user, null, null));
         Issue issue = createIssueMinInfo();
 
         assertThat(issue.getAssignee().getUser()).isNull();
@@ -104,6 +112,7 @@ public class AssignIssueActionTest extends BaseTest {
         assertThat(actionResult.isSuccess()).isTrue();
         assertThat(issue.getAssignee().getUser().getId()).isEqualTo(user.getId());
 
+        properties = new HashMap<>();
         actionResult = actionUnssign.initAndValidate(properties).execute(issue);
         assertThat(actionResult.isSuccess()).isTrue();
         assertThat(issue.getAssignee().getUser()).isEqualTo(null);
