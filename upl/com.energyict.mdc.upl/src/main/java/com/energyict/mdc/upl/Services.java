@@ -1,7 +1,9 @@
 package com.energyict.mdc.upl;
 
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.MD5Cryptographer;
+import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
@@ -51,6 +53,8 @@ public class Services {
     private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
     private static AtomicReference<DateFormatter> DATE_FORMATTER = new AtomicReference<>();
     private static AtomicReference<MD5Cryptographer> MD5_CRYPTOGRAPHER = new AtomicReference<>();
+    private static AtomicReference<X509Service> X509 = new AtomicReference<>();
+    private static AtomicReference<KeyStoreService> KEY_STORE_SERVICE = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
@@ -93,6 +97,10 @@ public class Services {
             return dateFormatter();
         } else if (MD5Cryptographer.class.equals(serviceType)) {
             return md5Cryptographer();
+        } else if (X509Service.class.equals(serviceType)) {
+            return x509Service();
+        } else if (KeyStoreService.class.equals(serviceType)) {
+            return keyStoreService();
         } else {
             throw new UnknownServiceType(serviceType);
         }
@@ -264,6 +272,22 @@ public class Services {
 
     public static void md5Cryptographer(MD5Cryptographer md5Cryptographer) {
         MD5_CRYPTOGRAPHER.set(md5Cryptographer);
+    }
+
+    public static X509Service x509Service() {
+        return X509.get();
+    }
+
+    public static void x509Service(X509Service x509Service) {
+        X509.set(x509Service);
+    }
+
+    public static KeyStoreService keyStoreService() {
+        return KEY_STORE_SERVICE.get();
+    }
+
+    public static void keyStoreService(KeyStoreService service) {
+        KEY_STORE_SERVICE.set(service);
     }
 
     /**
