@@ -14,6 +14,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -122,7 +123,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     public void setUp() throws Exception {
         issueService = inMemoryPersistence.getService(IssueService.class);
         template = inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
-        ((IssueServiceImpl)issueService).addCreationRuleTemplate(template);
+        ((IssueServiceImpl) issueService).addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
         issueDataValidationService = inMemoryPersistence.getService(IssueDataValidationService.class);
         messageHandler = inMemoryPersistence.getService(DataValidationEventHandlerFactory.class).newMessageHandler();
@@ -347,7 +348,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         Device device = deviceService.newDevice(deviceConfiguration, name, name, creationTime);
         device.save();
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
-        AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         return amrSystem.findMeter(String.valueOf(device.getId())).get();
     }
 
@@ -362,12 +363,13 @@ public class DataValidationIssueCreationRuleTemplateTest {
         }
         props.put(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, value);
         return ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
-                   .setName(name)
-                   .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
-                   .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
-                   .setDueInTime(DueInType.YEAR, 5)
-                   .setProperties(props)
-                   .complete();
+                .setName(name)
+                .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
+                .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
+                .setPriority(Priority.DEFAULT)
+                .setDueInTime(DueInType.YEAR, 5)
+                .setProperties(props)
+                .complete();
     }
 
 }

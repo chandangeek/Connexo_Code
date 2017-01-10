@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -106,7 +107,7 @@ public class IssueDataValidationServiceTest {
     public void setUp() throws Exception {
         issueService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueService.class);
         DataValidationIssueCreationRuleTemplate template = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(DataValidationIssueCreationRuleTemplate.class);
-        ((IssueServiceImpl)issueService).addCreationRuleTemplate(template);
+        ((IssueServiceImpl) issueService).addCreationRuleTemplate(template);
         issueCreationService = issueService.getIssueCreationService();
         issueDataValidationService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(IssueDataValidationService.class);
         DeviceConfigurationService deviceConfigurationService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(DeviceConfigurationService.class);
@@ -130,12 +131,13 @@ public class IssueDataValidationServiceTest {
         value.add(deviceConfig);
         props.put(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, value);
         issueCreationRule = ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
-                   .setName("Test")
-                   .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
-                   .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
-                   .setDueInTime(DueInType.YEAR, 5)
-                   .setProperties(props)
-                   .complete();
+                .setName("Test")
+                .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
+                .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
+                .setPriority(Priority.DEFAULT)
+                .setDueInTime(DueInType.YEAR, 5)
+                .setProperties(props)
+                .complete();
     }
 
     @Test
@@ -158,7 +160,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issue.get() instanceof OpenIssueDataValidation).isTrue();
 
         //close first issue
-        OpenIssueDataValidation closedIssue = (OpenIssueDataValidation)issue.get();
+        OpenIssueDataValidation closedIssue = (OpenIssueDataValidation) issue.get();
         closedIssue.close(issueService.findStatus(IssueStatus.RESOLVED).get());
 
         issue = issueDataValidationService.findIssue(firstIssue);
@@ -344,7 +346,7 @@ public class IssueDataValidationServiceTest {
         Instant now = Instant.now();
 
         MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
-        AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         ReadingType readingType3Min = meteringService.createReadingType("0.0.14.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 3-minute");
@@ -407,7 +409,7 @@ public class IssueDataValidationServiceTest {
         Instant now = Instant.now();
 
         MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
-        AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType readingType = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         Channel channel = newMeter.activate(now).getChannelsContainer().createChannel(readingType);
@@ -470,7 +472,7 @@ public class IssueDataValidationServiceTest {
         Instant now = Instant.now();
 
         MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
-        AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
         MeterActivation meterActivation = newMeter.activate(now);
@@ -576,7 +578,7 @@ public class IssueDataValidationServiceTest {
     @Transactional
     public void testCloseIssue() {
         MeteringService meteringService = DataValidationIssueCreationRuleTemplateTest.inMemoryPersistence.getService(MeteringService.class);
-        AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter", "myName").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         ReadingType readingType3Min = meteringService.createReadingType("0.0.14.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 3-minute");
@@ -633,7 +635,7 @@ public class IssueDataValidationServiceTest {
     @Test
     @Transactional
     public void testCloseBaseIssue() {
-        ((IssueServiceImpl)issueService).addIssueProvider((IssueProvider) issueDataValidationService);
+        ((IssueServiceImpl) issueService).addIssueProvider((IssueProvider) issueDataValidationService);
 
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
@@ -644,7 +646,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         Optional<? extends Issue> baseIssue = issueService.findIssue(issues.get(0).getId());
         assertThat(baseIssue.get() instanceof OpenIssueImpl).isTrue();
-        ((OpenIssue)baseIssue.get()).close(issueService.findStatus(IssueStatus.WONT_FIX).get());
+        ((OpenIssue) baseIssue.get()).close(issueService.findStatus(IssueStatus.WONT_FIX).get());
         baseIssue = issueService.findIssue(issues.get(0).getId());
         assertThat(baseIssue.get() instanceof HistoricalIssueImpl).isTrue();
         assertThat(baseIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
