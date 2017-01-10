@@ -25,6 +25,7 @@
 @include uni-button-icons-size($ui: 'action');
 @include uni-button-icons-size($ui: 'remove');
 @include uni-button-icons-size($ui: 'link');
+@include uni-button-icons-size($ui: 'colexp');
 
 .#{$prefix}btn {
     .#{$prefix}btn-icon-el {
@@ -50,4 +51,19 @@
             }
         }
     }
+
+    &.#{$prefix}btn-colexp-small,
+    &.#{$prefix}btn-colexp-medium,
+    &.#{$prefix}btn-colexp-large {
+        .#{$prefix}btn-icon-el {
+            color: $button-colexp-color;
+        }
+
+        &:hover {
+            .#{$prefix}btn-icon-el {
+                color: $button-colexp-color-over;
+            }
+        }
+    }
+
 }

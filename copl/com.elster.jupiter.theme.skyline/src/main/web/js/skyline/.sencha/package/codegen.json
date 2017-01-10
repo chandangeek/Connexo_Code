@@ -31,10 +31,10 @@
       "version": "6d1982cce48163a98dc46012d1d0cdfa209fbda6",
       "parameters": {
         "pkgType": "theme",
-        "touchRelPath": "../../${touch.dir}",
+        "touchRelPath": "${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "com.elster.jupiter.theme.skyline",
-        "extRelPath": "../.."
+        "pkgName": "uni-theme-skyline",
+        "extRelPath": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext"
       }
     },
     "sass/config.rb": {
@@ -42,10 +42,10 @@
       "version": "33f446bd02c3fd24eb27891582eff6a2e789796b",
       "parameters": {
         "pkgType": "theme",
-        "touchRelPath": "../../${touch.dir}",
+        "touchRelPath": "${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "com.elster.jupiter.theme.skyline",
-        "extRelPath": "../.."
+        "pkgName": "uni-theme-skyline",
+        "extRelPath": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext"
       }
     },
     "sass/etc/all.scss": {
@@ -53,10 +53,10 @@
       "version": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
       "parameters": {
         "pkgType": "theme",
-        "touchRelPath": "../../${touch.dir}",
+        "touchRelPath": "${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "com.elster.jupiter.theme.skyline",
-        "extRelPath": "../.."
+        "pkgName": "uni-theme-skyline",
+        "extRelPath": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext"
       }
     },
     ".sencha/package/testing.properties": {
@@ -64,10 +64,10 @@
       "version": "e65f969c42eb4f355c850fc58fea852582f20db8",
       "parameters": {
         "pkgType": "theme",
-        "touchRelPath": "../../${touch.dir}",
+        "touchRelPath": "${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "com.elster.jupiter.theme.skyline",
-        "extRelPath": "../.."
+        "pkgName": "uni-theme-skyline",
+        "extRelPath": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext"
       }
     },
     "package.json": {
@@ -75,10 +75,10 @@
       "version": "12322b2f0769f491000df8ec0e012dd2d78a7eaf",
       "parameters": {
         "pkgType": "theme",
-        "touchRelPath": "../../${touch.dir}",
+        "touchRelPath": "${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "com.elster.jupiter.theme.skyline",
-        "extRelPath": "../.."
+        "pkgName": "uni-theme-skyline",
+        "extRelPath": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext"
       }
     },
     "sass/example/custom.js": {
@@ -86,10 +86,10 @@
       "version": "199e99bbd15c3c0415569425cb21e77c95e9042a",
       "parameters": {
         "pkgType": "theme",
-        "touchRelPath": "../../${touch.dir}",
+        "touchRelPath": "${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "com.elster.jupiter.theme.skyline",
-        "extRelPath": "../.."
+        "pkgName": "uni-theme-skyline",
+        "extRelPath": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext"
       }
     },
     ".sencha/package/build.properties": {
@@ -97,10 +97,10 @@
       "version": "8b81315dbe73ce9c08478f4c1d2df84f456efcf5",
       "parameters": {
         "pkgType": "theme",
-        "touchRelPath": "../../${touch.dir}",
+        "touchRelPath": "${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "com.elster.jupiter.theme.skyline",
-        "extRelPath": "../.."
+        "pkgName": "uni-theme-skyline",
+        "extRelPath": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext"
       }
     },
     "sass/example/theme.html": {
@@ -108,10 +108,10 @@
       "version": "79ec5194c052d6cc313e842c4e2763fa562c7b70",
       "parameters": {
         "pkgType": "theme",
-        "touchRelPath": "../../${touch.dir}",
+        "touchRelPath": "${touch.dir}",
         "senchadir": ".sencha",
-        "pkgName": "com.elster.jupiter.theme.skyline",
-        "extRelPath": "../.."
+        "pkgName": "uni-theme-skyline",
+        "extRelPath": "../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext"
       }
     }
   }

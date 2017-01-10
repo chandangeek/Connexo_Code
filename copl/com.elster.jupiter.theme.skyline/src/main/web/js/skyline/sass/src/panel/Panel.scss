@@ -79,8 +79,24 @@ $ui-body-background-color: $panel-filter-background-color
     padding: 8px 0 0 0;
 }
 
+// Medium
+
 .#{$prefix}panel-medium {
   padding: 8px 16px 16px 16px;
+}
+
+.#{$prefix}panel-small-collapsed {
+    height: 60px !important;
+}
+
+// Small
+
+.#{$prefix}panel-header-small-docked-top {
+    padding: 0 0 16px 0;
+}
+
+.#{$prefix}panel-header-small-collapsed-top {
+    padding: 16px 0 16px 0;
 }
 
 // Framed
