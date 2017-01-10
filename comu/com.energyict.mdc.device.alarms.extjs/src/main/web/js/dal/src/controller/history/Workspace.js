@@ -29,8 +29,8 @@ Ext.define('Dal.controller.history.Workspace', {
                         return this;
                     },
                     items: {
-                        startProcess:{
-                            title: Uni.I18n.translate('general.startProcess','DAL','Start process'),
+                        startProcess: {
+                            title: Uni.I18n.translate('general.startProcess', 'DAL', 'Start process'),
                             route: 'startProcess',
                             controller: 'Dal.controller.StartProcess',
                             action: 'showStartProcess',

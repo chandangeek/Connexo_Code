@@ -72,10 +72,10 @@ Ext.define('Dal.privileges.Alarm', {
     canExecuteLevel4: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.executeLevel4);
     },
-    canViewProcessMenu: function() {
+    canViewProcessMenu: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.viewAdminProcesses) && Uni.Auth.checkPrivileges(Dal.privileges.Alarm.executeProcesses);
     },
-    canViewProcesses: function() {
+    canViewProcesses: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.viewAdminProcesses);
     }
 });
