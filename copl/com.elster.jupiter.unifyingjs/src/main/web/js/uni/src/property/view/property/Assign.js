@@ -8,7 +8,8 @@ Ext.define('Uni.property.view.property.Assign', {
             id: 'AssignIssueAction.assignee',
             workgroupUrl: '/api/isu/workgroups',
             userUrl: '/api/isu/assignees/users',
-            workroupUsersUrl: '/api/isu/workgroups/{0}/users'
+            workroupUsersUrl: '/api/isu/workgroups/{0}/users',
+            commentPrivileges: true
         }
     ],
 
@@ -73,6 +74,7 @@ Ext.define('Uni.property.view.property.Assign', {
                         name: 'comment',
                         labelWidth: 260,
                         width: 595,
+                        privileges: me.getConfig().commentPrivileges,
                         fieldLabel: Uni.I18n.translate('assign.comment', 'UNI', 'Comment'),
                         emptyText: Uni.I18n.translate('assign.provideComment', 'UNI', 'Provide a comment (optionally)'),
                         height: 160
@@ -178,7 +180,10 @@ Ext.define('Uni.property.view.property.Assign', {
                     id: 'AssignAlarmAction.assignee',
                     workgroupUrl: '/api/dal/workgroups',
                     userUrl: '/api/dal/assignees',
-                    workroupUsersUrl: '/api/dal/workgroups/{0}/users'
+                    workroupUsersUrl: '/api/dal/workgroups/{0}/users',
+                    commentPrivileges: function () {
+                        return Uni.Auth.checkPrivileges(['privilege.comment.alarm']);
+                    }
                 }
             ];
         }
