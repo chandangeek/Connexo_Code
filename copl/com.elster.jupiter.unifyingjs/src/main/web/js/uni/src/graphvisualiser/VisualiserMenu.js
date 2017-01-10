@@ -9,7 +9,6 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
         'background-color': 'white'
     },
 
-
     initComponent: function(){
         this.items = [
             {
@@ -69,7 +68,9 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                 style: {
                     'background-color': 'white'
                 },
-                layout: 'vbox',
+                layout: {
+                    type: 'vbox'
+                },
                 items: [
                     {
                         xtype: 'form',
