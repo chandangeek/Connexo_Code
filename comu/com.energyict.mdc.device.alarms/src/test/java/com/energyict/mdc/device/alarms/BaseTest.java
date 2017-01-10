@@ -14,11 +14,16 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -26,11 +31,15 @@ import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -54,10 +63,16 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.event.EndDeviceEventCreatedEvent;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmActionsFactory;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmServiceImpl;
+import com.energyict.mdc.device.alarms.impl.ModuleConstants;
+import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
+import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -88,9 +103,15 @@ import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -104,8 +125,13 @@ import static org.mockito.Mockito.when;
 
 public abstract class BaseTest {
 
+    public static final String ALARM_DEFAULT_REASON = "alarm.reason.default";
+    public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new SimpleTranslationKey("alarm.entity.default.translation", "Default entity");
+
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+
+    private static IssueService issueService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -194,6 +220,9 @@ public abstract class BaseTest {
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
             injector.getInstance(DeviceAlarmService.class);
+            issueService = injector.getInstance(IssueService.class);
+            IssueType type = issueService.createIssueType("alarm", MESSAGE_SEED_DEFAULT_TRANSLATION, "ALM");
+            issueService.createReason(ALARM_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();
         }
     }
@@ -274,6 +303,7 @@ public abstract class BaseTest {
         builder.setComment("Comment for rule");
         builder.setIssueType(getIssueService().findIssueType(DeviceAlarmService.DEVICE_ALARM).get());
         builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
+        builder.setPriority(Priority.DEFAULT);
         builder.setDueInTime(DueInType.DAY, 15L);
         CreationRuleTemplate template = getMockCreationRuleTemplate();
         builder.setTemplate(template.getName());
@@ -299,5 +329,61 @@ public abstract class BaseTest {
         public DispatchCreationEventException(String message) {
             super(message);
         }
+    }
+
+    protected IssueCreationService getIssueCreationService() {
+        return getIssueService().getIssueCreationService();
+    }
+
+    protected DeviceAlarm createAlarmMinInfo() {
+        CreationRule rule = getCreationRule("testCanCreateAlarm", ModuleConstants.ALARM_REASON);
+        Meter meter = createMeter("1", "Name");
+        OpenIssue baseIssue = createBaseIssue(rule, meter);
+
+        BasicDeviceAlarmRuleTemplate template = getInjector().getInstance(BasicDeviceAlarmRuleTemplate.class);
+        EndDeviceEventCreatedEvent event = getEndDeviceEventCreatedEvent(1L);
+
+        DeviceAlarm alarm = template.createIssue(baseIssue, event);
+        return alarm;
+    }
+
+    protected EndDeviceEventCreatedEvent getEndDeviceEventCreatedEvent(Long amrId) {
+        DeviceService mockDeviceDataService = mock(DeviceService.class);
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(amrId);
+        when(mockDeviceDataService.findDeviceById(Matchers.anyLong())).thenReturn(Optional.of(device));
+        EndDeviceEventCreatedEvent event = new EndDeviceEventCreatedEvent(getDeviceAlarmService(), getIssueService(), getMeteringService(), mockDeviceDataService, getThesaurus(), mock(Injector.class));
+        Map<String, Object> messageMap = new HashMap<>();
+        messageMap.put(EventConstants.EVENT_TOPIC, "com/elster/jupiter/metering/enddeviceevent/CREATED");
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, amrId.toString());
+        messageMap.put(ModuleConstants.EVENT_TIMESTAMP, Instant.now().toEpochMilli());
+        event.wrap(messageMap, DeviceAlarmEventDescription.END_DEVICE_EVENT_CREATED, device);
+        return event;
+    }
+
+    protected Meter createMeter(String amrId, String name) {
+        AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
+        return amrSystem.newMeter(amrId, name).create();
+    }
+
+    protected OpenIssue createBaseIssue(CreationRule rule, Meter meter) {
+        DataModel isuDataModel = getIssueDataModel();
+        OpenIssueImpl baseIssue = isuDataModel.getInstance(OpenIssueImpl.class);
+        baseIssue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).get());
+        baseIssue.setReason(rule.getReason());
+        baseIssue.setPriority(Priority.DEFAULT);
+        baseIssue.setDevice(meter);
+        baseIssue.setRule(rule);
+        baseIssue.save();
+        return baseIssue;
+    }
+
+    private CreationRuleTemplate mockCreationRuleTemplate() {
+        CreationRuleTemplate creationRuleTemplate = mock(CreationRuleTemplate.class);
+        when(creationRuleTemplate.getPropertySpecs()).thenReturn(Collections.emptyList());
+        when(creationRuleTemplate.getName()).thenReturn("Template");
+        when(creationRuleTemplate.getContent()).thenReturn("Content");
+        ((IssueServiceImpl) getIssueService()).addCreationRuleTemplate(creationRuleTemplate);
+        return creationRuleTemplate;
     }
 }

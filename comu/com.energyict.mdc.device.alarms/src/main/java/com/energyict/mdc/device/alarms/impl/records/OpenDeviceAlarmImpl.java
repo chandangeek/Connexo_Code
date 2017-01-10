@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
-import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
@@ -81,7 +80,6 @@ public final class OpenDeviceAlarmImpl extends DeviceAlarmImpl implements OpenDe
         MeteringService meteringService = getDataModel().getInstance(MeteringService.class);
         Optional<EndDeviceEventType> eventType = meteringService.getEndDeviceEventType(endDeviceEventType);
         if (getDevice().getId() == endDeviceId && eventType.isPresent()) {
-            //FixMe - endDeviceEventType not avaliable in system
             /*if (!eventType.isPresent()) {
                 eventType = Optional.of(meteringService.createEndDeviceEventType(endDeviceEventType));
             }*/

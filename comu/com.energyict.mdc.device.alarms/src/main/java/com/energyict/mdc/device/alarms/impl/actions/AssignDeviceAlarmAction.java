@@ -195,13 +195,13 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
         }
     }
 
-    static class Assignee extends HasIdAndName {
+    public static class Assignee extends HasIdAndName {
 
         private Optional<User> user;
         private Optional<WorkGroup> workgroup;
         private Optional<String> comment;
 
-        Assignee(User user, WorkGroup workgroup, String comment) {
+        public Assignee(User user, WorkGroup workgroup, String comment) {
             this.user = user != null ? Optional.of(user) : Optional.empty();
             this.workgroup = workgroup != null ? Optional.of(workgroup) : Optional.empty();
             this.comment = comment != null ? Optional.of(comment) : Optional.empty();

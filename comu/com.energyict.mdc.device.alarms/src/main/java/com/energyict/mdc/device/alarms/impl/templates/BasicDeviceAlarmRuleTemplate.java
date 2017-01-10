@@ -10,14 +10,13 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
-import com.energyict.mdc.device.alarms.event.EndDeviceEventCreatedEvent;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;
+import com.energyict.mdc.device.alarms.event.EndDeviceEventCreatedEvent;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -36,9 +35,9 @@ import java.util.Optional;
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     static final String NAME = "BasicDeviceAlarmRuleTemplate";
 
-    public static final String DEVICE_CONFIGURATIONS = NAME + ".deviceConfigurations";
-
     public static final String EVENTTYPE = NAME + ".eventType";
+
+    private String SEPARATOR = ":";
 
     //for OSGI
     public BasicDeviceAlarmRuleTemplate() {
@@ -146,10 +145,9 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private OpenIssue getAlarm(OpenIssue openIssue, IssueEvent event) {
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
-            alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent)event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
+            alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent) event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
             return alarm;
         }
         return openIssue;
     }
-
 }

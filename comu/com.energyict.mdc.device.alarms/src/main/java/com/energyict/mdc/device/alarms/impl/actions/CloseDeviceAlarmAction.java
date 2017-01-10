@@ -18,8 +18,8 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -129,11 +129,11 @@ public class CloseDeviceAlarmAction extends AbstractIssueAction {
         return Optional.empty();
     }
 
-    static class Status extends HasIdAndName {
+    public static class Status extends HasIdAndName {
 
         private IssueStatus status;
 
-        Status(IssueStatus status) {
+        public Status(IssueStatus status) {
             this.status = status;
         }
 

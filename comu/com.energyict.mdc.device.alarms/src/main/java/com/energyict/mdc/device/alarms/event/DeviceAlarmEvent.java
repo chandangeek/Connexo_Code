@@ -91,8 +91,11 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
 
 
     protected void getEventDevice(Map<?, ?> rawEvent) {
-        Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
-        device = deviceService.findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
+        Optional<Long> endDeviceId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
+        EndDevice endDevice = meteringService.findEndDeviceById(endDeviceId.orElse(0L))
+                .orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, endDeviceId));
+        long amrId = Long.parseLong(endDevice.getAmrId());
+        device = deviceService.findDeviceById(amrId).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
     }
 
     protected void getEventTimestamp(Map<?, ?> rawEvent) {
@@ -138,7 +141,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         getEndDevice().ifPresent(filter::setDevice);
         filter.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
         filter.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-        Optional<? extends DeviceAlarm> foundIssue = deviceAlarmService.findAlarms(filter).find().stream().findFirst();//It is going to be only zero or one open issue per device
+        Optional<? extends DeviceAlarm> foundIssue = deviceAlarmService.findAlarms(filter).find().stream().findFirst();//It is going to be only zero or one open alarm per device
         if (foundIssue.isPresent()) {
             return Optional.of((OpenIssue) foundIssue.get());
         }
