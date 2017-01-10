@@ -286,7 +286,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
     removeAction: function (record) {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('estimationrulesets.remove.message', 'EST', 'This estimation rele set and estimation rules will no longer available'),
+            msg: Uni.I18n.translate('estimationrulesets.remove.message1', 'EST', 'This estimation rule set will no longer be available.'),
             title: Uni.I18n.translate('estimationrulesets.remove.title', 'EST', "Remove '{0}'?", [record.get('name')]),
             config: {
                 record: record,
