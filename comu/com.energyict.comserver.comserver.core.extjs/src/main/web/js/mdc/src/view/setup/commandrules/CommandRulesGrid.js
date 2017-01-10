@@ -55,6 +55,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRulesGrid', {
                 displayMsg: Uni.I18n.translate('commandRules.display.msg', 'MDC', '{0} - {1} of {2} command limitation rules'),
                 displayMoreMsg: Uni.I18n.translate('commandRules.display.more.msg', 'MDC', '{0} - {1} of more than {2} command limitation rules'),
                 emptyMsg: Uni.I18n.translate('commandRules.empty.msg', 'MDC', 'No command limitation rules'),
+                isFullTotalCount: true,
                 dock: 'top',
                 border: false,
                 items: [
