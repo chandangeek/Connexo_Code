@@ -63,6 +63,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         }
 
     }
+
     private final DataModel dataModel;
 
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -97,6 +98,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
     @Inject
     public CommandRuleImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService, DualControlService dualControlService, CommandRuleService commandRuleService) {
         this.dataModel = dataModel;
@@ -191,7 +193,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     @Override
     public void reject() {
-        if(getPendingUpdate().isPresent()) {
+        if (getPendingUpdate().isPresent()) {
             this.getMonitor().reject(this);
         }
     }
@@ -274,13 +276,13 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
         this.isRemoved = true;
         ((CommandRuleServiceImpl) commandRuleService).commandRuleRemoved(this.getCounters().size());
         dataModel.remove(this);
-        if(commandRulePendingUpdate.isPresent()) {
+        if (commandRulePendingUpdate.isPresent()) {
             dataModel.remove(commandRulePendingUpdate.get());
         }
     }
 
     private void createDeleteRequest() {
-        if(commandRulePendingUpdate.isPresent()) {
+        if (commandRulePendingUpdate.isPresent()) {
             reject();
         }
         CommandRulePendingUpdateImpl update = new CommandRulePendingUpdateImpl(dataModel);
@@ -353,10 +355,10 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     @Override
     public void clearUpdate() {
-        if (commandRulePendingUpdate.isPresent()) {
+        if (commandRulePendingUpdate.isPresent() && !this.isRemoved) {
             CommandRulePendingUpdate entity = commandRulePendingUpdate.get();
             commandRulePendingUpdate.setNull();
-            if(!entity.isRemoval() || !this.isRemoved) {
+            if (!entity.isRemoval()) {
                 this.save();
             }
             dataModel.remove(entity);
@@ -365,7 +367,7 @@ public class CommandRuleImpl implements CommandRule, UnderDualControl<CommandRul
 
     @Override
     public void postLoad() {
-        if(numberOfCommands != commands.size()) {
+        if (numberOfCommands != commands.size()) {
             throw new MacException();
         }
     }

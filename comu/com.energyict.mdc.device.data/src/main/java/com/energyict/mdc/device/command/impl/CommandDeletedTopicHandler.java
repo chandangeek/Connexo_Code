@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
@@ -30,7 +31,9 @@ public class CommandDeletedTopicHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         DeviceMessage deviceMessage = (DeviceMessage) localEvent.getSource();
-        commandRuleService.commandDeleted(deviceMessage);
+        if(deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING) || deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)) {
+            commandRuleService.commandDeleted(deviceMessage);
+        }
     }
 
 
