@@ -1,8 +1,5 @@
 package com.elster.us.protocolimplv2.sel.profiles;
 
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
@@ -14,10 +11,10 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
 
@@ -65,7 +62,7 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
             ObisCode obisCode = lpReader.getProfileObisCode();
 
             // Create a LoadProfileConfiguration to return
-            CollectedLoadProfileConfiguration config = new DeviceLoadProfileConfiguration(obisCode, serialNumber);
+            CollectedLoadProfileConfiguration config = this.meterProtocol.getCollectedDataFactory().createCollectedLoadProfileConfiguration(obisCode, serialNumber);
             List<ChannelInfo> channelInfosToReturn = new ArrayList<>();
             config.setChannelInfos(channelInfosToReturn);
             // 5 minute intervals should be 300
@@ -115,11 +112,10 @@ public class LoadProfileBuilder /*implements DeviceLoadProfileSupport */ {
         for (LoadProfileReader lpr : loadProfiles) {
 
             LoadProfileIdentifier lpi = new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode());
-            CollectedLoadProfile profileData1 = new DeviceLoadProfile(lpi);
+            CollectedLoadProfile profileData1 = this.meterProtocol.getCollectedDataFactory().createCollectedLoadProfile(lpi);
             profileDataList.add(profileData1);
 
             CollectedLoadProfileConfiguration clpc = getLoadProfileConfiguration(lpr);
-            int intvlLength = clpc.getProfileInterval(); //returns interval in seconds
 
             // TODO: set start/end times correctly using timezone
             LDPData results = meterProtocol.getConnection().readLoadProfileData(lpr);

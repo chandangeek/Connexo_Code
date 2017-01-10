@@ -2,9 +2,6 @@ package com.elster.us.protocolimplv2.mercury.minimax;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.io.ConnectionType;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
@@ -69,6 +66,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -116,7 +114,7 @@ import static com.elster.us.protocolimplv2.mercury.minimax.utility.ResponseValue
 public class MiniMax implements DeviceProtocol {
 
     private MiniMaxConnection connection;
-    private MiniMaxProperties properties = new MiniMaxProperties();
+    private MiniMaxProperties properties;
     private final NoOrPasswordSecuritySupport securitySupport;
     private final PropertySpecService propertySpecService;
 
@@ -129,6 +127,7 @@ public class MiniMax implements DeviceProtocol {
 
     public MiniMax(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
         this.propertySpecService = propertySpecService;
+        this.properties = new MiniMaxProperties(propertySpecService);
         this.securitySupport = new NoOrPasswordSecuritySupport(propertySpecService);
         this.collectedDataFactory = collectedDataFactory;
     }
@@ -343,7 +342,7 @@ public class MiniMax implements DeviceProtocol {
             ObisCode obisCode = lpReader.getProfileObisCode();
 
             // Create a LoadProfileConfiguration to return
-            CollectedLoadProfileConfiguration config = new DeviceLoadProfileConfiguration(obisCode, serialNumber);
+            CollectedLoadProfileConfiguration config = this.collectedDataFactory.createCollectedLoadProfileConfiguration(obisCode, serialNumber);
             List<ChannelInfo> channelInfosToReturn = new ArrayList<>();
             config.setChannelInfos(channelInfosToReturn);
             // These devices are always 1 hour intervals
@@ -388,7 +387,7 @@ public class MiniMax implements DeviceProtocol {
         for (LoadProfileReader lpr : loadProfiles) {
 
             LoadProfileIdentifier lpi = new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode());
-            CollectedLoadProfile profileData1 = new DeviceLoadProfile(lpi);
+            CollectedLoadProfile profileData1 = this.collectedDataFactory.createCollectedLoadProfile(lpi);
             profileDataList.add(profileData1);
 
             // These are the channels we are interested in...
@@ -607,7 +606,7 @@ public class MiniMax implements DeviceProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> retVal = new ArrayList<>();
-        retVal.add(new OutboundTcpIpConnectionType());
+        retVal.add(new OutboundTcpIpConnectionType(this.propertySpecService));
         return retVal;
     }
 
@@ -749,7 +748,7 @@ public class MiniMax implements DeviceProtocol {
                 }
 
                 RegisterIdentifier registerIdentifier = new RegisterIdentifierById((int) list.get(i).getRegisterId(), list.get(i).getObisCode());
-                CollectedRegister register = new DefaultDeviceRegister(registerIdentifier);
+                CollectedRegister register = this.collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
                 retVal.add(register);
 
                 if (isStringValue(str)) {
@@ -768,7 +767,7 @@ public class MiniMax implements DeviceProtocol {
             return retVal;
         } catch (Throwable t) {
             t.printStackTrace();
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 

@@ -64,7 +64,7 @@ import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_TIME;
 public class SEL implements DeviceProtocol {
 
     private SELConnection connection;
-    private SELProperties properties = new SELProperties();
+    private SELProperties properties;
     private OfflineDevice offlineDevice;
     private SerialPortComChannel comChannel;
     private Logger logger = Logger.getLogger(this.getClass().getName());
@@ -75,6 +75,11 @@ public class SEL implements DeviceProtocol {
     public SEL(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
         this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
+        this.properties = new SELProperties(propertySpecService);
+    }
+
+    public CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
     }
 
     public SELConnection getConnection() {
@@ -101,7 +106,7 @@ public class SEL implements DeviceProtocol {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         this.comChannel = (SerialPortComChannel) comChannel;
-        connection = new SELConnection((SerialPortComChannel) comChannel, properties, logger);
+        connection = new SELConnection((SerialPortComChannel) comChannel, properties, collectedDataFactory, logger);
 
     }
 
@@ -309,7 +314,7 @@ public class SEL implements DeviceProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> retVal = new ArrayList<>();
-        retVal.add(new SioAtModemConnectionType());
+        retVal.add(new SioAtModemConnectionType(this.propertySpecService));
         return retVal;
     }
 

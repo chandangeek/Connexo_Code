@@ -1,9 +1,7 @@
 package com.elster.us.protocolimplv2.sel;
 
-
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -63,6 +61,7 @@ import static com.elster.us.protocolimplv2.sel.utility.ByteArrayHelper.getString
 public class SELConnection {
 
     private final SELProperties properties;
+    private final CollectedDataFactory collectedDataFactory;
     private Logger logger;
     private SerialPortComChannel comChannel;
     private boolean connected = false;
@@ -70,9 +69,10 @@ public class SELConnection {
 
     private String lastCommandSent;
 
-    public SELConnection(SerialPortComChannel comChannel, SELProperties properties, Logger logger) {
+    public SELConnection(SerialPortComChannel comChannel, SELProperties properties, CollectedDataFactory collectedDataFactory, Logger logger) {
         this.comChannel = comChannel;
         this.properties = properties;
+        this.collectedDataFactory = collectedDataFactory;
         this.logger = logger;
     }
 
@@ -271,7 +271,7 @@ public class SELConnection {
         List<CollectedLogBook> collectedLogBooks = new ArrayList<>();
         List<SERData> data;
         for (LogBookReader logBook : logBooks) {
-            CollectedLogBook deviceLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
+            CollectedLogBook deviceLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
             data = getSERCache(); //try to obtain the data from the cache first
             if (data == null) {
                 data = readLoadProfileData(new Date(), null, logBook.getMeterSerialNumber()).getSerData();
@@ -359,7 +359,7 @@ public class SELConnection {
             }
 
             RegisterIdentifier registerIdentifier = new RegisterIdentifierById((int) list.get(i).getRegisterId(), list.get(i).getObisCode());
-            CollectedRegister register = new DefaultDeviceRegister(registerIdentifier);
+            CollectedRegister register = this.collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
             retVal.add(register);
 
             if (desiredRegister != null) {
