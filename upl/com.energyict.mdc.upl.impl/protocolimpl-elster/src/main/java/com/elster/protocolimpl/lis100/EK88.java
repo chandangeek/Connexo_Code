@@ -1,5 +1,7 @@
 package com.elster.protocolimpl.lis100;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.elster.protocolimpl.lis100.objects.api.IBaseObject;
 import com.elster.protocolimpl.lis100.registers.Lis100Register;
 import com.elster.protocolimpl.lis100.registers.RegisterMap;
@@ -31,6 +33,10 @@ public class EK88 extends LIS100 {
             new Lis100Register(new ObisCode(7, 0, 11, 0, 0, 101), 0, Lis100Register.H2BOM, "Volume at measurement conditions (programmable counter) at begin of month"),
             new Lis100Register(new ObisCode(7, 0, 11, 2, 0, 101), 1, Lis100Register.H2BOM, "Volume at base conditions undisturbed at begin of month")
     };
+
+    public EK88(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getProtocolVersion() {
