@@ -139,7 +139,14 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
-    public Response postAssignToMe(@PathParam("id") long id, AssignSingleIssueRequest request, @Context SecurityContext securityContext) {
+    public Response postAssignToMe(@PathParam("id") long id, PerformActionRequest request, @Context SecurityContext securityContext) {
+        getIssueService().findAndLockIssueByIdAndVersion(id, request.issue.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
+                        .withActualVersion(() -> getIssueService().findIssue(id)
+                                .map(Issue::getVersion)
+                                .orElse(null))
+                        .supplier());
+
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, Issue> issueProvider = result -> getIssue(id, result);
         ActionInfo info = getTransactionService().execute(new AssignToMeSingleIssueTransaction(performer, issueProvider, getThesaurus()));
@@ -151,7 +158,14 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
-    public Response postUnassign(@PathParam("id") long id, SingleIssueRequest request, @Context SecurityContext securityContext) {
+    public Response postUnassign(@PathParam("id") long id, PerformActionRequest request, @Context SecurityContext securityContext) {
+        getIssueService().findAndLockIssueByIdAndVersion(id, request.issue.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
+                        .withActualVersion(() -> getIssueService().findIssue(id)
+                                .map(Issue::getVersion)
+                                .orElse(null))
+                        .supplier());
+
         Function<ActionInfo, Issue> issueProvider = result -> getIssue(id, result);
         ActionInfo info = getTransactionService().execute(new UnassignSingleIssueTransaction(issueProvider, getThesaurus()));
         return entity(info).build();
