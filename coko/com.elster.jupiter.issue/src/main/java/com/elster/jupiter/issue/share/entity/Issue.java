@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.share.entity;
 
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.users.User;
@@ -53,4 +54,8 @@ public interface Issue extends Entity {
     void assignTo(String type, long id);
 
     void autoAssign();
+
+    Priority getPriority();
+
+    void setPriority(Priority priority);
 }

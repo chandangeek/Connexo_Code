@@ -54,6 +54,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
     public static final String LOGGER = "LOGGER";
+    public static final String PRIORITY = ".priority";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -141,7 +142,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             try {
                 ksession.setGlobal(ISSUE_CREATION_SERVICE, this);
                 ksession.setGlobal(LOGGER, LOG);
-            } catch (RuntimeException ex){
+            } catch (RuntimeException ex) {
                 LOG.warning("Unable to set the issue creation service as a global for all rules. This means that no " +
                         "issues will be created! Check that at least one rule contains string 'global com.elster.jupiter." +
                         "issue.share.service.IssueCreationService issueCreationService;' and this rule calls " +
@@ -157,11 +158,11 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     public void processIssueCreationEvent(long ruleId, IssueEvent event) {
         // Sometimes we need to restrict issue creation due to global reasons (common for all type of issues)
         if (event.getEndDevice().isPresent() && restrictIssueCreation(event)) {
-                LOG.info("Issue creation for device "
-                        + event.getEndDevice().map(EndDevice::getName).orElse("UNKNOWN")
-                        + " was restricted");
-                return;
-            }
+            LOG.info("Issue creation for device "
+                    + event.getEndDevice().map(EndDevice::getName).orElse("UNKNOWN")
+                    + " was restricted");
+            return;
+        }
 
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
             CreationRuleTemplate template = firedRule.getTemplate();
@@ -181,6 +182,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
+        baseIssue.setPriority(firedRule.getPriority());
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         baseIssue.save();
         baseIssue.addComment(firedRule.getComment(), batchUser.orElse(null));
@@ -189,9 +191,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         executeCreationActions(newIssue);
     }
 
-    private boolean restrictIssueCreation(IssueEvent event){
+    private boolean restrictIssueCreation(IssueEvent event) {
         for (IssueCreationValidator creationValidator : issueService.getIssueCreationValidators()) {
-            if (!creationValidator.isValidCreationEvent(event)){
+            if (!creationValidator.isValidCreationEvent(event)) {
                 return true;
             }
         }
@@ -212,7 +214,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         new IssueActionExecutor(issue, CreationRuleActionPhase.CREATE, thesaurus, issueService.getIssueActionService()).run();
     }
 
-    private  <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {
+    private <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {
         QueryExecutor<T> queryExecutor = dataModel.query(clazz, eagers);
         Query<T> query = queryService.wrap(queryExecutor);
         query.setEager();

@@ -28,6 +28,8 @@ public interface IssueFilter {
 
     void setIssueReason(IssueReason issueReason);
 
+    void setPriority(Priority priority);
+
     void addStatus(IssueStatus status);
 
     void addAssignee(User assignee);
@@ -55,5 +57,7 @@ public interface IssueFilter {
     List<IssueType> getIssueTypes();
 
     void addIssueType(IssueType issueType);
+
+    List<Priority> getPriorities();
 
 }

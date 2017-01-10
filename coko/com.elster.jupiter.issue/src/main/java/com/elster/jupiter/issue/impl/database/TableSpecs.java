@@ -66,10 +66,12 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_UQ_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_DEVICE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_DUE_DATE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_IMPACT;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_OVERDUE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_REASON_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_RULE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_STATUS_ID;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_URGENCY;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_USER_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_WORKGROUP_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COMMENT_COMMENT;
@@ -145,7 +147,7 @@ import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 public enum TableSpecs {
 
-    ISU_TYPE{
+    ISU_TYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<IssueType> table = dataModel.addTable(name(), IssueType.class);
@@ -229,6 +231,8 @@ public enum TableSpecs {
             table.column(CREATION_RULE_DUE_IN_TYPE).map("dueInType").number().conversion(NUMBER2ENUM).add();
             table.column(CREATION_RULE_TEMPLATE_NAME).map("template").varChar(1024).notNull().add();
             Column obsoleteColumn = table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
+            table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT).notNull().add();
+            table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();
@@ -384,10 +388,9 @@ public enum TableSpecs {
             table.foreignKey(RULE_ACTION_PROPS_FK_TO_ACTION_RULE).on(actionColumn).references(CreationRuleAction.class)
                     .map("action").reverseMap("properties").composition().onDelete(DeleteRule.CASCADE).add();
         }
-    }
-    ;
+    };
 
-	public abstract void addTo(DataModel dataModel);
+    public abstract void addTo(DataModel dataModel);
 
     private static class TableBuilder {
         private static final int EXPECTED_FK_KEYS_LENGTH = 6;
@@ -401,9 +404,11 @@ public enum TableSpecs {
             Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
             Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().add();
+            table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT).notNull().add();
+            table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).notNull().add();
 
             table.primaryKey(pkKey).on(idColumn).add();
-            if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH){
+            if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH) {
                 throw new IllegalArgumentException("Passed arguments don't match foreigen keys");
             }
             ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();

@@ -5,6 +5,7 @@ import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
@@ -23,6 +24,7 @@ public class IssueFilterImpl implements IssueFilter {
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
     private List<IssueType> issueTypes = new ArrayList<>();
+    private List<Priority> priorities = new ArrayList();
     private boolean unassignedSelected = false;
     private boolean unassignedWorkGroupSelected = false;
 
@@ -57,6 +59,13 @@ public class IssueFilterImpl implements IssueFilter {
     public void setIssueReason(IssueReason issueReason) {
         if (issueReason != null) {
             this.reasons.add(issueReason);
+        }
+    }
+
+    @Override
+    public void setPriority(Priority priority) {
+        if (priority != null) {
+            this.priorities.add(priority);
         }
     }
 
@@ -115,6 +124,11 @@ public class IssueFilterImpl implements IssueFilter {
     @Override
     public List<DueDateRange> getDueDates() {
         return this.dueDates;
+    }
+
+    @Override
+    public List<Priority> getPriorities() {
+        return Collections.unmodifiableList(priorities);
     }
 
     @Override
