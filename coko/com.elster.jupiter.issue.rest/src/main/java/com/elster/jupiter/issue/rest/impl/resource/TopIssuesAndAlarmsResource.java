@@ -38,13 +38,13 @@ public class TopIssuesAndAlarmsResource extends BaseResource {
     public TopAlarmsInfo getTopAlarms(@Context SecurityContext securityContext) {
         User currentUser = (User) securityContext.getUserPrincipal();
         Comparator<Issue> dueDateComparator = Comparator.comparing(Issue::getDueDate, Comparator.nullsLast(Instant::compareTo));
-        //FixMe add priority comparator
+        Comparator<Issue> priorityComparator = (alarm1, alarm2) -> Integer.compare(alarm1.getPriority().getImpact() + alarm1.getPriority().getUrgency(), alarm2.getPriority().getImpact() + alarm2.getPriority().getUrgency());
         Comparator<Issue> nameComparator = (alarm1, alarm2) -> alarm1.getTitle().toLowerCase().compareTo(alarm2.getTitle());
         Finder<? extends Issue> finder = getIssueService().findAlarms();
         List<? extends Issue> alarms = finder.find();
         List<Issue> items = getItems(alarms, currentUser);
         return new TopAlarmsInfo(items.stream()
-                .sorted(dueDateComparator.thenComparing(nameComparator))
+                .sorted(dueDateComparator.thenComparing(priorityComparator).thenComparing(nameComparator))
                 .limit(5)
                 .collect(Collectors.toList()), getTotalUserAssigned(items, currentUser), getTotalWorkGroupAssigned(items, currentUser));
     }
@@ -57,13 +57,13 @@ public class TopIssuesAndAlarmsResource extends BaseResource {
     public TopIssuesInfo getTopIssues(@Context SecurityContext securityContext) {
         User currentUser = (User) securityContext.getUserPrincipal();
         Comparator<Issue> dueDateComparator = Comparator.comparing(Issue::getDueDate, Comparator.nullsLast(Instant::compareTo));
-        //FixMe add priority comparator
-        Comparator<Issue> nameComparator = (alarm1, alarm2) -> alarm1.getTitle().toLowerCase().compareTo(alarm2.getTitle());
+        Comparator<Issue> priorityComparator = (issue1, issue2) -> Integer.compare(issue1.getPriority().getImpact() + issue1.getPriority().getUrgency(), issue2.getPriority().getImpact() + issue2.getPriority().getUrgency());
+        Comparator<Issue> nameComparator = (issue1, issue2) -> issue1.getTitle().toLowerCase().compareTo(issue2.getTitle());
         Finder<? extends Issue> finder = getIssueService().findIssues(getIssueService().newIssueFilter());
         List<? extends Issue> issues = finder.find();
         List<Issue> items = getItems(issues, currentUser);
         return new TopIssuesInfo(items.stream()
-                .sorted(dueDateComparator.thenComparing(nameComparator))
+                .sorted(dueDateComparator.thenComparing(priorityComparator).thenComparing(nameComparator))
                 .limit(5)
                 .collect(Collectors.toList()), getTotalUserAssigned(items, currentUser), getTotalWorkGroupAssigned(items, currentUser));
     }
@@ -79,22 +79,22 @@ public class TopIssuesAndAlarmsResource extends BaseResource {
             }
         }
         return items.stream()
-                .filter(alarm -> (alarm.getAssignee().getUser() != null && alarm.getAssignee().getUser().equals(currentUser)) ||
-                        (alarm.getAssignee().getWorkGroup() != null && currentUser.getWorkGroups().contains(alarm.getAssignee().getWorkGroup()) && alarm.getAssignee().getUser() == null))
+                .filter(item -> (item.getAssignee().getUser() != null && item.getAssignee().getUser().equals(currentUser)) ||
+                        (item.getAssignee().getWorkGroup() != null && currentUser.getWorkGroups().contains(item.getAssignee().getWorkGroup()) && item.getAssignee().getUser() == null))
                 .collect(Collectors.toList());
     }
 
     private long getTotalUserAssigned(List<Issue> items, User currentUser){
         return items.stream()
-                .filter(alarm ->alarm.getAssignee().getUser() != null && alarm.getAssignee().getUser().equals(currentUser))
+                .filter(item ->item.getAssignee().getUser() != null && item.getAssignee().getUser().equals(currentUser))
                 .count();
     }
 
     public long getTotalWorkGroupAssigned(List<Issue> items, User currentUser){
         return items.stream()
-                .filter(alarm ->alarm.getAssignee().getWorkGroup() != null &&
-                        currentUser.getWorkGroups().contains(alarm.getAssignee().getWorkGroup()) &&
-                        alarm.getAssignee().getUser() == null)
+                .filter(item ->item.getAssignee().getWorkGroup() != null &&
+                        currentUser.getWorkGroups().contains(item.getAssignee().getWorkGroup()) &&
+                        item.getAssignee().getUser() == null)
                 .count();
     }
 
