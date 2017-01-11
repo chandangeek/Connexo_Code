@@ -45,7 +45,7 @@ Ext.define('Mdc.model.CommandLimitRule', {
                         text,
                         currentCount;
                     currentCount = _.find(data.currentCounts, function(obj) { return obj.type == 'DAY' });
-                    text = Uni.I18n.translate('commandRules.currentDayLimit', 'MDC', 'Current amount of commands already added on {0} is {1}, while this rule was active',
+                    text = Uni.I18n.translate('commandRules.currentDayLimit', 'MDC', 'Current number of commands already added on {0} while this rule was active is {1}.',
                         [Uni.DateTime.formatDateShort(new Date(currentCount.from)), currentCount.currentCount]);
                     icon = '<span class="icon-info" style="margin-left:10px; margin-top:2px; position:absolute;" data-qtip="' + text + '"></span>';
                     return count + icon;
@@ -67,7 +67,7 @@ Ext.define('Mdc.model.CommandLimitRule', {
                         text,
                         currentCount;
                     currentCount = _.find(data.currentCounts, function(obj) { return obj.type == 'WEEK' });
-                    text = Uni.I18n.translate('commandRules.currentPeriodLimit', 'MDC', 'Current amount of commands already added between {0} and {1} is {2}, while this rule was active',
+                    text = Uni.I18n.translate('commandRules.currentPeriodLimit', 'MDC', 'Current number of commands already added between {0} and {1} while this rule was active is {2}.',
                         [Uni.DateTime.formatDateShort(new Date(currentCount.from)), Uni.DateTime.formatDateShort(new Date(currentCount.to -1)), currentCount.currentCount]);
                     icon = '<span class="icon-info" style="margin-left:10px; margin-top:2px; position:absolute;" data-qtip="' + text + '"></span>';
                     return count + icon;
@@ -89,7 +89,7 @@ Ext.define('Mdc.model.CommandLimitRule', {
                         text,
                         currentCount;
                     currentCount = _.find(data.currentCounts, function(obj) { return obj.type == 'MONTH' });
-                    text = Uni.I18n.translate('commandRules.currentPeriodLimit', 'MDC', 'Current amount of commands already added between {0} and {1} is {2}, while this rule was active',
+                    text = Uni.I18n.translate('commandRules.currentPeriodLimit', 'MDC', 'Current number of commands already added between {0} and {1} while this rule was active is {2}.',
                         [Uni.DateTime.formatDateShort(new Date(currentCount.from)), Uni.DateTime.formatDateShort(new Date(currentCount.to -1)), currentCount.currentCount]);
                     icon = '<span class="icon-info" style="margin-left:10px; margin-top:2px; position:absolute;" data-qtip="' + text + '"></span>';
                     return count + icon;
