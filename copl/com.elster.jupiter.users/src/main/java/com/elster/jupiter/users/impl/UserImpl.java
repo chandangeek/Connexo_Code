@@ -148,7 +148,7 @@ public final class UserImpl implements User {
             memberships.add(membership);
         }
         membership.persist();
-        publisher.publish(this, group);
+        publisher.publish(this, group, true);
         return true;
     }
 
@@ -165,6 +165,7 @@ public final class UserImpl implements User {
                 if (memberships != null) {
                     memberships.remove(userInGroup);
                 }
+                publisher.publish(this, group, false);
                 return true;
             }
         }
