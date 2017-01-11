@@ -133,13 +133,31 @@ public class CommandRuleInfoFactory {
             changes.add(new DualControlChangeInfo(translate(TranslationKeys.NAME), commandRule.getName(), pendingUpdate.getName()));
         }
         if (commandRule.getDayLimit() != pendingUpdate.getDayLimit()) {
-            changes.add(new DualControlChangeInfo(translate(TranslationKeys.DAYLIMIT), String.valueOf(commandRule.getDayLimit()), String.valueOf(pendingUpdate.getDayLimit())));
+            String newValue;
+            if(pendingUpdate.getDayLimit() != 0) {
+                newValue = String.valueOf(pendingUpdate.getDayLimit());
+            } else {
+                newValue = "-";
+            }
+            changes.add(new DualControlChangeInfo(translate(TranslationKeys.DAYLIMIT), String.valueOf(commandRule.getDayLimit()), newValue));
         }
         if (commandRule.getWeekLimit() != pendingUpdate.getWeekLimit()) {
-            changes.add(new DualControlChangeInfo(translate(TranslationKeys.WEEKLIMIT), String.valueOf(commandRule.getWeekLimit()), String.valueOf(pendingUpdate.getWeekLimit())));
+            String newValue;
+            if(pendingUpdate.getWeekLimit() != 0) {
+                newValue = String.valueOf(pendingUpdate.getWeekLimit());
+            } else {
+                newValue = "-";
+            }
+            changes.add(new DualControlChangeInfo(translate(TranslationKeys.WEEKLIMIT), String.valueOf(commandRule.getWeekLimit()), newValue));
         }
         if (commandRule.getMonthLimit() != pendingUpdate.getMonthLimit()) {
-            changes.add(new DualControlChangeInfo(translate(TranslationKeys.MONTHLIMIT), String.valueOf(commandRule.getMonthLimit()), String.valueOf(pendingUpdate.getMonthLimit())));
+            String newValue;
+            if(pendingUpdate.getMonthLimit() != 0) {
+                newValue = String.valueOf(pendingUpdate.getMonthLimit());
+            } else {
+                newValue = "-";
+            }
+            changes.add(new DualControlChangeInfo(translate(TranslationKeys.MONTHLIMIT), String.valueOf(commandRule.getMonthLimit()), newValue));
         }
     }
 
