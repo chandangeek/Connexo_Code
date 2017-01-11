@@ -1,12 +1,11 @@
 Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
     extend: 'Ext.form.Panel',
     minWidth: 400,
- //   height: 400,
- //   maxWidth: 500,
     itemId: 'uni-property-viewer',
     floating: true,
     collapsed: true,
     collapsible: true,
+    animCollapse: false,
     collapseDirection: 'top',
     hideCollapseTool: true,
     tools: [
@@ -21,11 +20,9 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
                 if (propertyViewer.getCollapsed()) {
                     propertyViewer.expand();
                     button.setIconCls('icon-circle-up2');
-                    button.setTooltip(Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'));
                 } else {
                     propertyViewer.collapse();
                     button.setIconCls('icon-circle-down2');
-                    button.setTooltip(Uni.I18n.translate('general.expand', 'UNI', 'Expand'));
                 }
             }
         }
@@ -34,12 +31,10 @@ Ext.define('Uni.graphvisualiser.VisualiserPropertyViewer', {
         beforecollapse: function(panel) {
             var collapseExpandButton = panel.down('#uni-property-viewer-collapse-expand-button');
             collapseExpandButton.setIconCls('icon-circle-down2');
-            collapseExpandButton.setTooltip(Uni.I18n.translate('general.expand', 'UNI', 'Expand'));
         },
         beforeexpand: function(panel) {
             var collapseExpandButton = panel.down('#uni-property-viewer-collapse-expand-button');
             collapseExpandButton.setIconCls('icon-circle-up2');
-            collapseExpandButton.setTooltip(Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'));
         }
     },
     title: Uni.I18n.translate('general.propertyViewer', 'UNI', 'Property viewer'),

@@ -42,12 +42,12 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                 itemId: 'uni-visualiser-menu-visulisation-panel',
                 title: Uni.I18n.translate('general.visualisation', 'UNI', 'Visualisation'),
                 collapsible: true,
+                animCollapse: false,
                 hideCollapseTool: true,
                 tools: [
                     {
                         xtype: 'button',
                         ui: 'colexp',
-                        tooltip: Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'),
                         iconCls: 'icon-circle-up2',
                         mystate: 'expanded',
                         handler: function(button) {
@@ -55,12 +55,10 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                                 button.up('#uni-visualiser-menu-visulisation-panel').collapse();
                                 button.setIconCls('icon-circle-down2');
                                 button.mystate = 'collapsed';
-                                button.setTooltip(Uni.I18n.translate('general.expand', 'UNI', 'Expand'));
                             } else {
                                 button.up('#uni-visualiser-menu-visulisation-panel').expand();
                                 button.setIconCls('icon-circle-up2');
                                 button.mystate = 'expanded';
-                                button.setTooltip(Uni.I18n.translate('general.collapse', 'UNI', 'Collapse'));
                             }
                         }
                     }
@@ -136,7 +134,7 @@ Ext.define('Uni.graphvisualiser.VisualiserMenu', {
                     }
                 ]
             }
-        ]
+        ];
         this.callParent(arguments);
     }
 });
