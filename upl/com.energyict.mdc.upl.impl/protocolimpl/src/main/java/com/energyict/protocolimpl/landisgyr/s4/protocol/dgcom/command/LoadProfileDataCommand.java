@@ -265,6 +265,13 @@ public class LoadProfileDataCommand extends AbstractCommand {
                 // KV 07082007
                 // if calendar is older then previous, remove already collected intervals
                 Calendar temp = getDateStamp(value);
+                Calendar now = ProtocolUtils.getCalendar(getCommandFactory().getS4().getTimeZone());
+                ParseUtils.adjustYear(now, temp);
+
+                if (temp.get(Calendar.YEAR) > now.get(Calendar.YEAR)) {
+                    temp.set(Calendar.YEAR,now.get(Calendar.YEAR));
+                }
+
                 cal = temp;
                         
                 if (dateStamp)
