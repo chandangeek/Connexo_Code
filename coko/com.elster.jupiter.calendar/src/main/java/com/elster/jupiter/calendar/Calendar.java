@@ -8,6 +8,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Instant;
 import java.time.Year;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a timeline that can be configured to produce {@link Event}s
@@ -136,4 +137,18 @@ public interface Calendar extends HasId, HasName {
     void activate();
 
     boolean isActive();
+
+    /**
+     * Makes this Calendar obsolete.
+     * This Calendar will no longer show up in queries
+     * except the one that is looking for a Calendar by its database id.
+     */
+    void makeObsolete();
+
+    /**
+     * The Instant in time when this Calendar was made obsolete.
+     *
+     * @return The instant in time or {@code Optional.empty()} if this Calendar is not obsolete
+     */
+    Optional<Instant> getObsoleteTime();
 }

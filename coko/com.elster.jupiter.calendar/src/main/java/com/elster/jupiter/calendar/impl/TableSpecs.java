@@ -53,7 +53,7 @@ public enum TableSpecs {
             table.since(version(10, 2));
             table.map(CalendarImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar().notNull().map(CalendarImpl.Fields.NAME.fieldName()).add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map(CalendarImpl.Fields.NAME.fieldName()).add();
             Column mRIDColumn = table.column("MRID").varChar().map(CalendarImpl.Fields.MRID.fieldName()).add();
             table.column("DESCRIPTION").varChar().map(CalendarImpl.Fields.DESCRIPTION.fieldName()).add();
             table.column("STARTYEAR").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(CalendarImpl.Fields.STARTYEAR.fieldName()).add();
@@ -63,10 +63,18 @@ public enum TableSpecs {
             Column categoryColumn = table.column(CalendarImpl.Fields.CATEGORY.fieldName()).number().notNull().add();
             table.column("STATUS").number().notNull().map(CalendarImpl.Fields.STATUS.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).since(Version.version(10, 3)).installValue(String.valueOf(Status.INACTIVE.ordinal())).add();
             Column eventSetColumn = table.column("EVENTSET").number().notNull().since(version(10, 3)).add();
+            Column obsoleteTime = table.column("OBSOLETETIME")
+                    .number()
+                    .map(CalendarImpl.Fields.OBSOLETETIME.fieldName())
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .since(version(10, 3))
+                    .add();
             table.setJournalTableName("CAL_CALENDARJRNL");
             table.addAuditColumns();
             table.primaryKey("CAL_PK_CALENDAR").on(idColumn).add();
-            table.unique("CAL_U_CALENDAR_MRID").on(mRIDColumn).add();
+            table.unique("CAL_U_CALENDAR_MRID").on(mRIDColumn).upTo(version(10, 3)).add();
+            table.unique("CAL_U_CALENDAR_MRID").on(mRIDColumn, obsoleteTime).since(version(10, 3)).add();
+            table.unique("CAL_U_CALENDAR_NAME").on(nameColumn, obsoleteTime).since(version(10, 3)).add();
             table.foreignKey("CAL_CALENDAR_TO_CATEGORY")
                     .references(Category.class)
                     .on(categoryColumn)

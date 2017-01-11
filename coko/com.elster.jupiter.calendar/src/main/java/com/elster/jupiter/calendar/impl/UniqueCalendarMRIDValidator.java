@@ -2,15 +2,11 @@ package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
-import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
+import java.util.Optional;
 
 public class UniqueCalendarMRIDValidator implements ConstraintValidator<UniqueMRID, Calendar> {
 
@@ -33,7 +29,6 @@ public class UniqueCalendarMRIDValidator implements ConstraintValidator<UniqueMR
     }
 
     private boolean checkExisting(Calendar calendar, ConstraintValidatorContext context) {
-        Condition condition = Operator.EQUAL.compare("mRID", calendar.getMRID());
         Optional<Calendar> found = calendarService.findCalendarByMRID(calendar.getMRID());
         if (found.isPresent() && areDifferentWithSameMRID(calendar, found.get())) {
             context.disableDefaultConstraintViolation();
@@ -46,5 +41,4 @@ public class UniqueCalendarMRIDValidator implements ConstraintValidator<UniqueMR
     private boolean areDifferentWithSameMRID(Calendar calendar, Calendar existingCalendar) {
         return existingCalendar.getMRID().equals(calendar.getMRID()) && (existingCalendar.getId() != calendar.getId());
     }
-
 }

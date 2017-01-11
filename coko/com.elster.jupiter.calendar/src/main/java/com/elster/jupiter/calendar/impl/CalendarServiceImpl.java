@@ -49,14 +49,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.calendar",
         service = {CalendarService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + CalendarService.COMPONENTNAME,
         immediate = true)
 public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider {
-
-    static final String TIME_OF_USE_CATEGORY_NAME = "Time of use";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -191,7 +190,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public Finder<Calendar> getCalendarFinder(Condition condition) {
-        return DefaultFinder.of(Calendar.class, condition, dataModel);
+        return DefaultFinder.of(Calendar.class, getNonObsoleteCalendarsCondition().and(condition), dataModel);
+    }
+
+    private Condition getNonObsoleteCalendarsCondition() {
+        return where(CalendarImpl.Fields.OBSOLETETIME.fieldName()).isNull();
     }
 
     @Override
@@ -200,12 +203,12 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     public List<Calendar> findAllCalendars() {
-        return DefaultFinder.of(Calendar.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
+        return DefaultFinder.of(Calendar.class, getNonObsoleteCalendarsCondition(), this.getDataModel()).defaultSortColumn("lower(name)").find();
     }
 
     @Override
     public Optional<Calendar> findCalendar(long id) {
-        return calendarMapper().getUnique("id", id);
+        return calendarMapper().getUnique(CalendarImpl.Fields.ID.fieldName(), id);
     }
 
     private DataMapper<Calendar> calendarMapper() {
@@ -214,7 +217,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public Optional<Category> findCategoryByName(String name) {
-        return categoryMapper().getUnique("name", name);
+        return categoryMapper().getUnique(CategoryImpl.Fields.NAME.fieldName(), name);
     }
 
     private DataMapper<Category> categoryMapper() {
@@ -246,17 +249,17 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
 
     @Override
     public Optional<Calendar> findCalendarByName(String name) {
-        return calendarMapper().getUnique("name", name);
+        return calendarMapper().getUnique(CalendarImpl.Fields.NAME.fieldName(), name, CalendarImpl.Fields.OBSOLETETIME.fieldName(), null);
     }
 
     @Override
     public Optional<Calendar> findCalendarByMRID(String mRID) {
-        return calendarMapper().getUnique("mRID", mRID);
+        return calendarMapper().getUnique(CalendarImpl.Fields.MRID.fieldName(), mRID, CalendarImpl.Fields.OBSOLETETIME.fieldName(), null);
     }
 
     @Override
     public Optional<EventSet> findEventSetByName(String name) {
-        return eventSetMapper().getUnique("name", name);
+        return eventSetMapper().getUnique(EventSetImpl.Fields.NAME.fieldName(), name);
     }
 
     private DataMapper<EventSet> eventSetMapper() {

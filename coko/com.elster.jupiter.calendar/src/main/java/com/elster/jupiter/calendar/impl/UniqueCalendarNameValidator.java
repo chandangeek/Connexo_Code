@@ -1,16 +1,12 @@
 package com.elster.jupiter.calendar.impl;
 
-        import com.elster.jupiter.calendar.Calendar;
-        import com.elster.jupiter.calendar.CalendarService;
-        import java.util.List;
-        import java.util.Optional;
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 
-        import javax.inject.Inject;
-        import javax.validation.ConstraintValidator;
-        import javax.validation.ConstraintValidatorContext;
-
-        import com.elster.jupiter.util.conditions.Condition;
-        import com.elster.jupiter.util.conditions.Operator;
+import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 public class UniqueCalendarNameValidator implements ConstraintValidator<UniqueCalendarName, Calendar> {
 
@@ -33,7 +29,6 @@ public class UniqueCalendarNameValidator implements ConstraintValidator<UniqueCa
     }
 
     private boolean checkExisting(Calendar calendar, ConstraintValidatorContext context) {
-        Condition condition = Operator.EQUAL.compare("name", calendar.getName());
         Optional<Calendar> found = calendarService.findCalendarByName(calendar.getName());
         if (found.isPresent() && areDifferentWithSameName(calendar, found.get())) {
             context.disableDefaultConstraintViolation();

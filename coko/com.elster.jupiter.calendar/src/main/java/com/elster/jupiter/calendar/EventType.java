@@ -2,12 +2,8 @@ package com.elster.jupiter.calendar;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
-import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
 
-/**
- * Created by igh on 26/05/2016.
- */
 public enum EventType {
 
     CALENDAR_CREATE("CREATE"),

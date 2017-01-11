@@ -1,9 +1,10 @@
 package com.elster.jupiter.calendar;
 
-/**
- * Created by igh on 31/05/2016.
- */
+import aQute.bnd.annotation.ConsumerType;
+
+@ConsumerType
 public interface CalendarResolver {
 
     boolean isCalendarInUse(Calendar calendar);
+
 }
