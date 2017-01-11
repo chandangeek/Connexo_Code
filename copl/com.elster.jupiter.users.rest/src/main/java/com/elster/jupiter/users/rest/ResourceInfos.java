@@ -28,9 +28,14 @@ public class ResourceInfos {
 
     public ResourceInfo add(NlsService nlsService, Resource resource) {
         ResourceInfo result = new ResourceInfo(nlsService, resource);
-        resources.add(result);
-        total++;
-        return result;
+        //don't add the resource if it has no privileges (possible if it only has privileges different than the default category
+        //temporary solution, contact me if this needs to change and you need info
+        if(!result.privileges.isEmpty()) {
+            resources.add(result);
+            total++;
+            return result;
+        }
+        return null;
     }
 
     public void addAll(NlsService nlsService, Iterable<? extends Resource> resources) {

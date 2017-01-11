@@ -47,8 +47,7 @@ public class UpdateGroupTransaction extends UpdateMembership implements Transact
                 .stream()
                 .map(Map.Entry::getValue)
                 .flatMap(Collection::stream)
-                .filter(privilege -> privilege.getCategory().getName().equals(DualControlService.DUAL_CONTROL_GRANT_CATEGORY)
-                        || privilege.getCategory().getName().equals(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY))
+                .filter(privilege ->  !privilege.getCategory().getName().equals(UserService.DEFAULT_CATEGORY_NAME))
                 .findAny()
                 .isPresent();
     }

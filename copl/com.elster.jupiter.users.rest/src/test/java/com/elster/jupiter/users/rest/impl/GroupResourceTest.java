@@ -3,6 +3,7 @@ package com.elster.jupiter.users.rest.impl;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegeCategory;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 
 import javax.ws.rs.HttpMethod;
@@ -41,7 +42,7 @@ public class GroupResourceTest extends UsersRestApplicationJerseyTest {
         Privilege privilege = mock(Privilege.class);
         PrivilegeCategory category = mock(PrivilegeCategory.class);
         when(privilege.getCategory()).thenReturn(category);
-        when(category.getName()).thenReturn("default");
+        when(category.getName()).thenReturn(UserService.DEFAULT_CATEGORY_NAME);
         when(group.getPrivileges()).thenReturn(Collections.singletonMap("test", Collections.singletonList(privilege)));
         when(userService.findAndLockGroupByIdAndVersion(1L, 1L)).thenReturn(Optional.of(group));
         when(userService.getGroup(1L)).thenReturn(Optional.of(group));

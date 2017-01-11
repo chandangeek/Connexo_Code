@@ -29,12 +29,13 @@ public class ResourceInfo {
         description = thesaurus.translatePrivilegeKey(resource.getDescription());
         qualifiedName = componentName + "." + name;
         privileges =
-            resource
-                .getPrivileges()
-                .stream()
-                .map(privilege -> new PrivilegeInfo(nlsService, privilege))
-                .sorted((p1, p2) -> p1.name.compareTo(p2.name))
-                .collect(Collectors.toList());
+                resource
+                        .getPrivileges()
+                        .stream()
+                        .map(privilege -> new PrivilegeInfo(nlsService, privilege))
+                        .filter(privilegeInfo -> privilegeInfo.canGrant)
+                        .sorted((p1, p2) -> p1.name.compareTo(p2.name))
+                        .collect(Collectors.toList());
     }
 
     public ResourceInfo() {
