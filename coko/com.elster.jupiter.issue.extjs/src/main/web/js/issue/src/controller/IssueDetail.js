@@ -102,7 +102,8 @@ Ext.define('Isu.controller.IssueDetail', {
             timelineView = this.widget ? this.widget.down('#issue-timeline-view') : this.getPage().down('#issue-timeline-view'),
             processView = this.widget ? this.widget.down('#issue-process-view') :this.getPage().down('#issue-process-view'),
             timelineStore = me.getStore('Isu.store.TimelineEntries'),
-            procesStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
+            alarm = Ext.ComponentQuery.query('alarm-timeline')[0];
+            procesStore = (alarm)?me.getStore('Bpm.monitorissueprocesses.store.AlarmProcesses'):me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             router = me.getController('Uni.controller.history.Router'),
             data=[];
 
