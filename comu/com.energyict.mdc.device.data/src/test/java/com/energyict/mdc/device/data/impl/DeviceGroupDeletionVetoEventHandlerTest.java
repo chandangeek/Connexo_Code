@@ -1,15 +1,17 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.GroupEventData;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsServiceImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.impl.search.DeviceGroupSearchableProperty;
 
 import java.util.Collections;
@@ -31,7 +33,7 @@ public class DeviceGroupDeletionVetoEventHandlerTest {
     private SearchablePropertyValue searchablePropertyValue;
     private SearchablePropertyValue.ValueBean valueBean;
     @Mock
-    private MeteringGroupsService meteringGroupsService;
+    private MeteringGroupsServiceImpl meteringGroupsService;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -42,6 +44,8 @@ public class DeviceGroupDeletionVetoEventHandlerTest {
     private EndDeviceGroup endDeviceGroup;
     @Mock
     private QueryEndDeviceGroup queryEndDeviceGroup;
+    @Mock
+    private Query<EndDeviceGroup> endDeviceGroupQuery;
     @Mock
     private DeviceGroupSearchableProperty deviceGroupSearchableProperty;
     @Mock
@@ -58,7 +62,8 @@ public class DeviceGroupDeletionVetoEventHandlerTest {
         searchablePropertyValue = new SearchablePropertyValue(deviceGroupSearchableProperty, valueBean);
 
         when(localEvent.getSource()).thenReturn(eventSource);
-        when(meteringGroupsService.findEndDeviceGroups()).thenReturn(Collections.singletonList(queryEndDeviceGroup));
+        when(meteringGroupsService.getQueryEndDeviceGroupQuery()).thenReturn(endDeviceGroupQuery);
+        when(endDeviceGroupQuery.select(Condition.TRUE)).thenReturn(Collections.singletonList(queryEndDeviceGroup));
         doReturn(endDeviceGroup).when(eventSource).getGroup();
         when(queryEndDeviceGroup.getSearchablePropertyValues()).thenReturn(Collections.singletonList(searchablePropertyValue));
         when(queryEndDeviceGroup.isDynamic()).thenReturn(true);
