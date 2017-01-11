@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class InstallerV10_3Impl implements PrivilegesProvider {
+public class PrivilegesProviderV10_3 implements PrivilegesProvider {
 
     private final UserService userService;
 
     @Inject
-    public InstallerV10_3Impl(UserService userService) {
+    public PrivilegesProviderV10_3(UserService userService) {
         this.userService = userService;
     }
 
