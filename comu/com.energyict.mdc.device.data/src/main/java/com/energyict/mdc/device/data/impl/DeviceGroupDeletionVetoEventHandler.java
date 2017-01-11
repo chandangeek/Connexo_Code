@@ -6,7 +6,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsServiceImpl;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,14 +22,14 @@ import javax.inject.Inject;
 @Component(name = "com.energyict.mdc.device.data.devicegroup.DeviceGroupDeletionVetoEventHandler", service = TopicHandler.class, immediate = true)
 public class DeviceGroupDeletionVetoEventHandler implements TopicHandler {
 
-    private volatile MeteringGroupsServiceImpl meteringGroupsService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile Thesaurus thesaurus;
 
     public DeviceGroupDeletionVetoEventHandler() {
     }
 
     @Inject
-    public DeviceGroupDeletionVetoEventHandler(MeteringGroupsServiceImpl meteringGroupsService,
+    public DeviceGroupDeletionVetoEventHandler(MeteringGroupsService meteringGroupsService,
                                                Thesaurus thesaurus) {
 
         this();
@@ -38,7 +38,7 @@ public class DeviceGroupDeletionVetoEventHandler implements TopicHandler {
     }
 
     @Reference
-    public void setMeteringGroupsService(MeteringGroupsServiceImpl meteringGroupsService) {
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
 

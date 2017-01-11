@@ -5,7 +5,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsServiceImpl;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -33,7 +33,7 @@ public class DeviceGroupDeletionVetoEventHandlerTest {
     private SearchablePropertyValue searchablePropertyValue;
     private SearchablePropertyValue.ValueBean valueBean;
     @Mock
-    private MeteringGroupsServiceImpl meteringGroupsService;
+    private MeteringGroupsService meteringGroupsService;
     @Mock
     private Thesaurus thesaurus;
     @Mock
