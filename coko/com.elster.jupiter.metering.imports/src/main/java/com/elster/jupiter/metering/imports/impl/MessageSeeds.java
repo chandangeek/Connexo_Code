@@ -41,8 +41,11 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_METER_WITH_NAME(2006, Constants.NO_SUCH_METER, "No meter with name {0} was found", Level.WARNING),
     NO_SUCH_METER_ROLE_WITH_KEY(2007, Constants.NO_SUCH_METER_ROLE, "No meter role with key {0} was found", Level.WARNING),
     ACTIVATION_DATE_OF_METER_ROLE_IS_BEFORE_UP_CREATION(2008, Constants.ACTIVATION_DATE_OF_METER_ROLE_IS_BEFORE_UP_CREATION, "Activation date of meter {0} must be grater or equal than 'Created' date of usage point", Level.WARNING),
-    SOME_REQUIRED_FIELDS_ARE_EMPTY(2009, Constants.SOME_REQUIRED_FIELDS_ARE_EMPTY, "Meter and activation date must be specified together for usage point", Level.WARNING);
-    ;
+    SOME_REQUIRED_FIELDS_ARE_EMPTY(2009, Constants.SOME_REQUIRED_FIELDS_ARE_EMPTY, "Meter and activation date must be specified together for usage point", Level.WARNING),
+    NO_SUCH_TRANSITION_FOUND(2010, Constants.NO_SUCH_TRANSITION, "Transition {0} cannot be performed on usage point", Level.WARNING),
+    TRANSITION_DATE_IS_NOT_SPECIFIED(2011, Constants.TRANSITION_DATE_IS_NOT_SPECIFIED, "Transition date isn't specified for usage point", Level.WARNING),
+    ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION(2012, Constants.ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION, "Transition date must be greater or equal to 'Created' date of usage point", Level.WARNING),
+    PRE_TRANSITION_CHECK_FAILED(2013, Constants.PRE_TRANSITION_CHECK_FAILED, "Pre-transition check failed {0}", Level.WARNING);
 
     private final int number;
     private final String key;
@@ -121,5 +124,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_METER_ROLE = "no.such.meter.role";
         public static final String ACTIVATION_DATE_OF_METER_ROLE_IS_BEFORE_UP_CREATION = "activation.date.of.meter.role.is.before.up.creation";
         public static final String SOME_REQUIRED_FIELDS_ARE_EMPTY = "some.fields.are.empty";
+        public static final String NO_SUCH_TRANSITION = "no.such.transition";
+        public static final String TRANSITION_DATE_IS_NOT_SPECIFIED = "transition.date.is.not.specified";
+        public static final String ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION = "activation.date.of.transition.is.before.up.creation";
+        public static final String PRE_TRANSITION_CHECK_FAILED = "pre.transition.check.failed";
     }
 }

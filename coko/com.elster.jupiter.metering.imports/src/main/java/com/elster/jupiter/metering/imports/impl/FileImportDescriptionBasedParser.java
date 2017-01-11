@@ -109,6 +109,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 });
 
         addMeterRolesWithMetersAndActivationDates(fields, csvRecord);
+        addTransitionsField(fields, csvRecord);
 
         return parseCustomProperties(record, csvRecord, fields);
     }
@@ -267,5 +268,32 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 .get(meterRolesField.get())
                 .getSetter();
         setter.setField(getMeterRoles(csvRecord));
+    }
+
+    private void addTransitionsField(Map<String, FileImportField<?>> fields, CSVRecord csvRecord) {
+        Optional<String> transitionsField = fields.keySet()
+                .stream()
+                .filter(key -> key.equalsIgnoreCase("transitionAttributes"))
+                .findFirst();
+        FieldSetter<Map<String, String>> setter = (FieldSetter<Map<String, String>>) fields
+                .get(transitionsField.get())
+                .getSetter();
+        setter.setField(getTransitionAttributes(csvRecord));
+    }
+
+    private Map<String, String> getTransitionAttributes(CSVRecord csvRecord) {
+        Map<String, String> recordMap = csvRecord.toMap();
+        Map<String, String> transitions = new HashMap<>();
+        recordMap.keySet().stream().forEach(key -> {
+            String header = key.toLowerCase();
+            if (header.startsWith("transition")
+                    && !header.equalsIgnoreCase("transition")
+                    && !header.equalsIgnoreCase("transitionDate")) {
+                String transitionName = header.substring(10);
+                transitions.put(transitionName, recordMap.get(key));
+            }
+        });
+
+        return transitions;
     }
 }

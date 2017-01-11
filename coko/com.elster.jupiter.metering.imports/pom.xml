@@ -112,8 +112,16 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle.config</artifactId>
-            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
         </dependency>
     </dependencies>
 </project>

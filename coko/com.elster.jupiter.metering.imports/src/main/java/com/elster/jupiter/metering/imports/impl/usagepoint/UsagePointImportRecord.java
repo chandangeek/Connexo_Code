@@ -57,6 +57,9 @@ public class UsagePointImportRecord extends FileImportRecord {
     public Instant metrologyConfigurationApplyTime;
     private Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets;
     private List<MeterRoleWithMeterAndActivationDate> meterRoles;
+    private String transition;
+    private Instant transitionDate;
+    private Map<String, String> transitionAttributes;
 
     public UsagePointImportRecord() {
     }
@@ -343,5 +346,29 @@ public class UsagePointImportRecord extends FileImportRecord {
 
     public void setMeterRoles(List<MeterRoleWithMeterAndActivationDate> meterRoles) {
         this.meterRoles = meterRoles;
+    }
+
+    public Optional<String> getTransition() {
+        return Optional.ofNullable(transition);
+    }
+
+    public void setTransition(String transition) {
+        this.transition = transition;
+    }
+
+    public Instant getTransitionDate() {
+        return transitionDate;
+    }
+
+    public void setTransitionDate(Instant transitionDate) {
+        this.transitionDate = transitionDate;
+    }
+
+    public Map<String, String> getTransitionAttributes() {
+        return transitionAttributes;
+    }
+
+    public void setTransitionAttributes(Map<String, String> transitionAttributes) {
+        this.transitionAttributes = transitionAttributes;
     }
 }

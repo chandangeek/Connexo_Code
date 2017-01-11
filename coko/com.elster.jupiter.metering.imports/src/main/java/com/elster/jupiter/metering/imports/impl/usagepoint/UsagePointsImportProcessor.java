@@ -27,6 +27,12 @@ import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
 import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
+import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import com.google.common.collect.Range;
 
@@ -34,8 +40,11 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePointImportRecord> {
 
@@ -62,6 +71,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             }
             usagePointImportHelper.setMetrologyConfigurationForUsagePoint(data, usagePoint);
             activateMeters(data, usagePoint);
+            performUsagePointTransition(data, usagePoint);
             addCustomPropertySetValues(usagePoint, data);
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
@@ -265,6 +275,75 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         });
     }
 
+    private void performUsagePointTransition(UsagePointImportRecord record, UsagePoint usagePoint) {
+        Optional<UsagePointTransition> optionalTransition = getOptionalTransition(usagePoint.getState(), record.getTransition()
+                .get());
+
+        if (!optionalTransition.isPresent()) {
+            throw new ProcessorException(MessageSeeds.NO_SUCH_TRANSITION_FOUND, record.getTransition().get());
+        }
+
+        PropertyValueInfoService propertyValueInfoService = getContext().getPropertyValueInfoService();
+        UsagePointTransition usagePointTransition = optionalTransition.get();
+
+        checkPreTransitionRequirements(usagePointTransition, usagePoint, record.getTransitionDate());
+        List<PropertySpec> transitionAttributes = usagePointTransition.getMicroActionsProperties();
+
+        Map<String, String> propertiesFromCsv = record.getTransitionAttributes();
+        Map<String, Object> propertiesMap = new HashMap<>();
+        for (String propertyName : propertiesFromCsv.keySet()) {
+            Optional<PropertySpec> propertySpec = transitionAttributes
+                    .stream()
+                    .filter(spec -> spec.getDisplayName()
+                            .replaceAll(" ", "")
+                            .equalsIgnoreCase(propertyName))
+                    .findFirst();
+            if (propertySpec.isPresent()) {
+                Map<String, Object> propertyValueToSet = new HashMap<>(1);
+                //here trim(), upperCase and replaceAll() is required for searching enum values (id of propertySpec is enum value)
+                propertyValueToSet.put(propertySpec.get().getName(), propertySpec.get()
+                        .getValueFactory()
+                        .fromStringValue(propertiesFromCsv.get(propertyName)
+                                .toUpperCase()
+                                .trim()
+                                .replaceAll(" ", "_")));
+                List<PropertyInfo> propertyInfoList = propertyValueInfoService.getPropertyInfos(transitionAttributes, propertyValueToSet);
+                propertiesMap.put(propertySpec.get()
+                        .getName(), propertyValueInfoService.findPropertyValue(propertySpec.get(), propertyInfoList));
+            }
+        }
+
+        getContext().getUsagePointLifeCycleService()
+                .performTransition(usagePoint, usagePointTransition, "INS", propertiesMap);
+    }
+
+    private Optional<UsagePointTransition> getOptionalTransition(UsagePointState usagePointState, String transitionName) {
+        return getContext().getUsagePointLifeCycleService()
+                .getAvailableTransitions(usagePointState, "INS")
+                .stream()
+                .filter(usagePointTransition -> usagePointTransition.getName().equals(transitionName))
+                .findAny();
+    }
+
+    private void checkPreTransitionRequirements(UsagePointTransition usagePointTransition, UsagePoint usagePoint, Instant transitionDate) {
+        if (transitionDate == null) {
+            throw new ProcessorException(MessageSeeds.TRANSITION_DATE_IS_NOT_SPECIFIED);
+        } else if (transitionDate.isBefore(usagePoint.getCreateDate())) {
+            throw new ProcessorException(MessageSeeds.ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION);
+        }
+        List<ExecutableMicroCheckViolation> violations = usagePointTransition.getChecks().stream()
+                .filter(check -> check instanceof ExecutableMicroCheck)
+                .map(ExecutableMicroCheck.class::cast)
+                .map(check -> check.execute(usagePoint, transitionDate))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+        if (!violations.isEmpty()) {
+            throw new ProcessorException(MessageSeeds.PRE_TRANSITION_CHECK_FAILED, violations.get(0)
+                    .getLocalizedMessage());
+        }
+    }
+
     private void validateMandatoryCustomProperties(UsagePoint usagePoint, UsagePointImportRecord data) {
         Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getCustomPropertySets();
 
@@ -462,7 +541,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     }
 
     private void checkEmptyFieldValues(MeterRoleWithMeterAndActivationDate meterRoleWithMeterAndActivationDate) {
-        if(meterRoleWithMeterAndActivationDate.getActivation().isEmpty() ||
+        if (meterRoleWithMeterAndActivationDate.getActivation().isEmpty() ||
                 meterRoleWithMeterAndActivationDate.getMeter().isEmpty() ||
                 meterRoleWithMeterAndActivationDate.getMeterRole().isEmpty()) {
             throw new ProcessorException(MessageSeeds.SOME_REQUIRED_FIELDS_ARE_EMPTY);

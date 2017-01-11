@@ -110,6 +110,7 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
         addLocationFields(fields, record);
         addCustomPropertySetFields(fields, record);
         addMeterRolesFields(fields, record);
+        addTransitionFields(fields, record);
         return fields;
     }
 
@@ -219,38 +220,31 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 .withParser(instantParser)
                 .build());
         fields.put("customPropertySetValue", CommonField
-                .withParser(new FieldParser<Map<CustomPropertySet, CustomPropertySetRecord>>() {
-                    @Override
-                    public Class<Map<CustomPropertySet, CustomPropertySetRecord>> getValueType() {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public Map<CustomPropertySet, CustomPropertySetRecord> parse(String value) throws
-                            ValueParserException {
-                        throw new UnsupportedOperationException();
-                    }
-                })
+                .withParser(new EmptyFieldParser<Map<CustomPropertySet, CustomPropertySetRecord>>())
                 .withSetter(record::setCustomPropertySets)
                 .build());
     }
 
     private void addMeterRolesFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
         fields.put("meterRoles", CommonField
-                .withParser(new FieldParser<List<MeterRoleWithMeterAndActivationDate>>() {
-                    @Override
-                    public Class<List<MeterRoleWithMeterAndActivationDate>> getValueType() {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public List<MeterRoleWithMeterAndActivationDate> parse(String value) throws ValueParserException {
-                        throw new UnsupportedOperationException();
-                    }
-                })
+                .withParser(new EmptyFieldParser<List<MeterRoleWithMeterAndActivationDate>>())
                 .withSetter(record::setMeterRoles)
                 .build());
 
+    }
+
+    private void addTransitionFields(Map<String, FileImportField<?>> fields, UsagePointImportRecord record) {
+        fields.put("transition", CommonField
+                .withParser(stringParser)
+                .withSetter(record::setTransition)
+                .build());
+        fields.put("transitionDate", CommonField
+                .withParser(instantParser)
+                .withSetter(record::setTransitionDate)
+                .build());
+        fields.put("transitionAttributes", CommonField
+                .withParser(new EmptyFieldParser<Map<String, String>>()).withSetter(record::setTransitionAttributes)
+                .build());
     }
 
     @Override
@@ -266,5 +260,17 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 quantityParser
         ).forEach(fieldParser -> fieldParsers.put(fieldParser.getValueType(), fieldParser));
         return fieldParsers;
+    }
+
+    private class EmptyFieldParser<T> implements FieldParser<T> {
+        @Override
+        public Class<T> getValueType() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public T parse(String value) throws ValueParserException {
+            throw new UnsupportedOperationException();
+        }
     }
 }
