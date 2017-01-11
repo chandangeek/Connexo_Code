@@ -38,19 +38,18 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             }),
             data = [],
             total = output.get('total'),
-            fields = ['name', 'key', 'data', 'url', 'percentage', 'detail', 'total', 'icon'],
+            fields = ['name', 'key', 'data', 'url', 'percentage', 'detail', 'tooltip'],
             statisticsEdited = [];
 
         me.title = '<a href="' + url + '">'
             + Ext.String.htmlEncode(output.get('name'))
             + '</a>';
 
-        if (output.get('statistics').length) {
+        if (total > 0) {
             me.titleAlign = 'right';
             output.get('statistics').map(function(item) {
                 var queryParams = {},
                     percentageUrl,
-                    icon,
                     dataItem;
 
                 if (item.key == 'statisticsSuspect' || item.key == 'statisticsMissing') {
@@ -58,9 +57,6 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                         purposeId: purpose.getId(),
                         outputId: output.getId()
                     }, queryParams);
-                }
-                if (item.key == 'statisticsValid' || item.key == 'statisticsEdited') {
-                    icon = '<span class="icon-info" data-qtip="' + me.prepareTooltip(item) + '"></span>';
                 }
 
                 dataItem = {
@@ -70,11 +66,10 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     url: percentageUrl,
                     percentage: Math.round(item.count / total * 100) + '%',
                     detail: item.detail,
-                    total: item.total,
-                    icon: icon
+                    tooltip: me.prepareTooltip(item, 'VIEW')
                 };
 
-                if (item.key != 'statisticsEdited') {
+                if (item.key != 'EDITED') {
                     data.push(dataItem);
                 } else {
                     statisticsEdited.push(dataItem);
@@ -102,16 +97,14 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                                 trackMouse: true,
                                 showDelay: 0,
                                 hideDelay: 0,
-                                renderer: function (storeItem) {
-                                    var details = me.prepareTooltip(storeItem),
-                                        text = '<div style="font-weight: bold;' + (details ? 'padding-bottom: 5px;' : '') + '">'
-                                            + storeItem.get('name') + ' ' + storeItem.get('percentage')
-                                            + '</div>'
-                                            + details;
-
-
-                                    this.update(text);
-                                }
+                                renderer: _.memoize(
+                                    function (record) {
+                                        this.update(me.prepareTooltip(record, 'CHART'));
+                                    },
+                                    function (record) {
+                                        return record.id;
+                                    }
+                                )
                             },
                             renderer: function (sprite, record, attributes) {
                                 var color;
@@ -154,18 +147,22 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     itemSelector: 'tr.trlegend',
                     tpl: ['<table>',
                         '<tpl for=".">',
-                        '<tpl if="key == statisticsEdited">' +
-                        '<tr>' +
-                        '<td colspan="3">!!!</td>' +
+                        '<tpl if="key == \'EDITED\'">',
+                        '<tr>',
+                        '<td colspan="3"><hr></td>',
                         '</tr>',
                         '</tpl>',
                         '<tr class="trlegend">' +
-                        '<td>{name}</td>' +
-                        '<td>' +
+                        '<td>{name}</td>',
+                        '<td>',
                         '<tpl if="url"><a href="{url}">{percentage}</a>' +
                         '<tpl else>{percentage}</tpl>' +
+                        '</td>',
+                        '<td>',
+                        '<tpl if="tooltip">',
+                        '<span class="icon-info" data-qtip="{tooltip}"></span>',
+                        '</tpl>',
                         '</td>' +
-                        '<td>{icon}</td>' +
                         '</tr>',
                         '</tpl>',
                         '</table>'],
@@ -193,22 +190,39 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
         this.callParent(arguments);
     },
 
-    prepareTooltip: function (data) {
-        var text = '',
-            key = data.get ? data.get('key') : data.key,
-            detail = data.get ? data.get('detail') : data.detail,
-            total = data.get ? data.get('total') : data.total;
+    prepareTooltip: function (data, type) {
+        var dataObj = data.getData ? data.getData() : data,
+            hasDetails = !Ext.isEmpty(dataObj.detail),
+            getTooltip = function (title) {
+                var result = title || '';
 
-        if ((key == 'statisticsValid' || key == 'statisticsEdited') && !Ext.isEmpty(detail)) {
-            Ext.Array.each(detail, function (detailItem, index) {
-                if (index > 0) {
-                    text += '<br>';
+                if (hasDetails) {
+                    Ext.Array.each(dataObj.detail, function (detailItem, index) {
+                        if (index > 0) {
+                            result += '<br>';
+                        }
+                        result += detailItem.displayName + ' ' + Math.round(detailItem.count / (dataObj.count || dataObj.data) * 100) + '%';
+                    });
                 }
-                text += detailItem.displayName + ' ' + Math.round(detailItem.count / total * 100) + '%';
-            });
+
+                return result;
+            },
+            tooltip;
+
+        switch (type) {
+            case 'CHART':
+                tooltip = getTooltip('<div style="font-weight: bold;' + (hasDetails ? 'padding-bottom: 5px;' : '') + '">'
+                    + dataObj.name + ' ' + dataObj.percentage
+                    + '</div>');
+                break;
+            case 'VIEW':
+                if ((dataObj.key == 'VALID' || dataObj.key == 'EDITED') && hasDetails) {
+                    tooltip = Ext.htmlEncode(getTooltip());
+                }
+                break;
         }
 
-        return text;
+        return tooltip;
     },
 
     // needs to align title
