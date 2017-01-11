@@ -258,6 +258,7 @@ public class UsagePointImplIT {
         assertThat(meteringService.findUsagePointById(usagePoint.getId()).get().getObsoleteTime()).isEmpty();
         assertThat(meteringService.findUsagePointById(usagePointObsolete.getId()).get().getObsoleteTime()).isPresent();
     }
+
     @Test
     @Transactional
     public void testUsagePointHasDefaultState() {
