@@ -129,11 +129,11 @@ public class CloseDeviceAlarmAction extends AbstractIssueAction {
         return Optional.empty();
     }
 
-    static class Status extends HasIdAndName {
+    public static class Status extends HasIdAndName {
 
         private IssueStatus status;
 
-        Status(IssueStatus status) {
+        public Status(IssueStatus status) {
             this.status = status;
         }
 
