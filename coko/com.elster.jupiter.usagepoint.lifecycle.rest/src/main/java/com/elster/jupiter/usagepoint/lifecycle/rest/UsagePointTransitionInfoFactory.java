@@ -3,11 +3,9 @@ package com.elster.jupiter.usagepoint.lifecycle.rest;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
-import com.elster.jupiter.util.streams.DecoratedStream;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class UsagePointTransitionInfoFactory {
 
@@ -22,11 +20,7 @@ public class UsagePointTransitionInfoFactory {
         UsagePointTransitionInfo info = new UsagePointTransitionInfo();
         info.id = transition.getId();
         info.name = transition.getName();
-        List<PropertySpec> uniquePropertySpecsForMicroActions =
-                DecoratedStream.decorate(transition.getActions().stream())
-                        .flatMap(microAction -> microAction.getPropertySpecs().stream())
-                        .distinct(PropertySpec::getName)
-                        .collect(Collectors.toList());
+        List<PropertySpec> uniquePropertySpecsForMicroActions = transition.getMicroActionsProperties();
         info.properties = this.propertyValueInfoService.getPropertyInfos(uniquePropertySpecsForMicroActions);
         return info;
     }
