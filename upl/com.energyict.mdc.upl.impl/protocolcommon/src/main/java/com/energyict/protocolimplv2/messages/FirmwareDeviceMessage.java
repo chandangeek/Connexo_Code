@@ -122,7 +122,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
     ),
     START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES(25),
     FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION(26, PropertySpecFactory.bigDecimalPropertySpecWithValues(generalCipheringKeyTypeId, BigDecimal.valueOf(0), BigDecimal.valueOf(1), BigDecimal.valueOf(2))),
-
+    COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION(27)
     ;
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 

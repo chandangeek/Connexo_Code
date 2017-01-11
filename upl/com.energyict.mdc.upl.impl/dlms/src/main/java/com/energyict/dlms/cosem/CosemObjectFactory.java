@@ -739,4 +739,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public final DataProtection getDataProtectionSetup() throws NotInObjectListException {
         return new DataProtection(this.protocolLink, this.getObjectReference(DataProtection.OBIS_CODE));
     }
+
+    public InactiveFirmwareIC getInactiveFirmwareIC() throws NotInObjectListException {
+        return new InactiveFirmwareIC(this.protocolLink, this.getObjectReference(InactiveFirmwareIC.OBIS_CODE));
+    }
 }

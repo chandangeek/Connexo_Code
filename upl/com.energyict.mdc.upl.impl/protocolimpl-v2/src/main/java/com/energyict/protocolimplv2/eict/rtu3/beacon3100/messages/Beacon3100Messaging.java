@@ -30,6 +30,7 @@ import com.energyict.mdw.core.*;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.CodingException;
@@ -125,6 +126,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR);
         SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
         SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
+        SUPPORTED_MESSAGES.add(FirmwareDeviceMessage.COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION);
 
         SUPPORTED_MESSAGES.add(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL);
         SUPPORTED_MESSAGES.add(SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1);
@@ -643,6 +645,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.resetLogbook(Beacon3100LogBookFactory.VOLTAGE_LOGBOOK);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
                         this.changeHLSSecretUsingServiceKey(pendingMessage, collectedMessage);
+                    }else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION)) {
+                        copyActiveFirmwareToInactive();
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -1998,6 +2002,18 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         return apnConfiguration;
     }
 
+    private CollectedMessage copyActiveFirmwareToInactive() throws ProtocolException {
+        try {
+            InactiveFirmwareIC inactiveFirmwareIC = getCosemObjectFactory().getInactiveFirmwareIC();
+            inactiveFirmwareIC.copyActiveFirmwareToInactiveFirmware();
+        } catch (NotInObjectListException e) {
+            throw new ProtocolException(e, "Inactive firmware IC object (class_id = 20027, version = 0, logical_name = 0.128.96.132.0.255) not found in object list." + e.getMessage());
+        } catch (IOException e) {
+            throw new ProtocolException(e, "Calling method copy_active_firmware_to_inactive_firmware from Inactive firmware IC object (class_id = 20027, version = 0, logical_name = 0.128.96.132.0.255) failed." + e.getMessage());
+        }
+
+        return null;
+    }
     /**
      * Performs a reset on a {@link ProfileGeneric}.
      *
