@@ -5,8 +5,10 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
+import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
+import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message.T210DMessaging;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties.T210DProperties;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.registers.T210DRegisterFactory;
@@ -59,6 +61,14 @@ public class T210D extends AM130 {
     }
 
     @Override
+    protected IDISLogBookFactory getIDISLogBookFactory() {
+        if (idisLogBookFactory == null) {
+            idisLogBookFactory = new T210DLogBookFactory(this);
+        }
+        return idisLogBookFactory;
+    }
+
+    @Override
     public void setTime(Date newMeterTime) {
         //This device does not support setting "Hundredths of a seconds" byte
         try {
@@ -79,6 +89,11 @@ public class T210D extends AM130 {
         if (getDlmsSession() != null) {
             getDlmsSession().getDlmsV2Connection().disconnectMAC();
         }
+    }
+
+    @Override
+    public boolean useDsmr4SelectiveAccessFormat() {
+        return false;
     }
 
     @Override

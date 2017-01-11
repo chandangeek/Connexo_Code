@@ -313,7 +313,8 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
             throw DataParseException.ioException(new ProtocolException("The third element of the Data-notification body should be the of type TypeEnum"));
         }
         int equipementType = dataType.getTypeEnum().getValue();
-        System.out.println("equipementType = "+ EquipementType.values()[equipementType]);
+//        System.out.println("equipementType = "+ EquipementType.values()[equipementType]);
+        System.out.println("equipementType = "+ equipementType);
     }
 
     private void parseMobileNetworkIMSI(AbstractDataType dataType) {
