@@ -1,0 +1,749 @@
+.x-tab-small-top-disabled .x-frame-ml,
+.x-tab-small-top-disabled .x-frame-mr,
+.x-tab-small-left-disabled .x-frame-ml,
+.x-tab-small-left-disabled .x-frame-mr,
+.x-tab-small-right-disabled .x-frame-ml,
+.x-tab-small-right-disabled .x-frame-mr {
+  background-image: url(images/tab/tab-small-top-disabled-sides.gif);
+}
+/* line 811, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small-top-disabled .x-frame-mc,
+.x-tab-small-left-disabled .x-frame-mc,
+.x-tab-small-right-disabled .x-frame-mc {
+  background-color: #92c0d3;
+}
+
+/* line 826, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small-bottom-disabled .x-frame-tl,
+.x-tab-small-bottom-disabled .x-frame-bl,
+.x-tab-small-bottom-disabled .x-frame-tr,
+.x-tab-small-bottom-disabled .x-frame-br,
+.x-tab-small-bottom-disabled .x-frame-tc,
+.x-tab-small-bottom-disabled .x-frame-bc {
+  background-image: url(images/tab/tab-small-bottom-disabled-corners.gif);
+}
+/* line 830, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small-bottom-disabled .x-frame-ml,
+.x-tab-small-bottom-disabled .x-frame-mr {
+  background-image: url(images/tab/tab-small-bottom-disabled-sides.gif);
+}
+/* line 833, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small-bottom-disabled .x-frame-mc {
+  background-color: #92c0d3;
+}
+
+/* line 863, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small .x-tab-close-btn {
+  width: 12px;
+  height: 12px;
+  background-image: url(images/tab/tab-small-close.png);
+}
+/* line 872, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small .x-tab-close-btn-over {
+  background-position: -12px 0;
+}
+
+/* line 882, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small .x-tab-close-btn {
+  top: 2px;
+  right: 2px;
+}
+
+/* line 926, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small-disabled .x-tab-close-btn {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=30);
+  opacity: 0.3;
+  background-position: 0 0;
+}
+
+/* line 936, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small-pressed .x-tab-close-btn {
+  background-position: -24px 0;
+}
+
+/* line 941, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Tab.scss */
+.x-tab-small-closable .x-tab-wrap {
+  padding-right: 15px;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-small-top-over:after {
+  display: none;
+  content: "x-slicer:corners:url(images/tab/tab-small-top-over-corners.gif), sides:url(images/tab/tab-small-top-over-sides.gif), stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-small-bottom-over:after {
+  display: none;
+  content: "x-slicer:corners:url(images/tab/tab-small-bottom-over-corners.gif), sides:url(images/tab/tab-small-bottom-over-sides.gif), stretch:top";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-small-top-active:after {
+  display: none;
+  content: "x-slicer:corners:url(images/tab/tab-small-top-active-corners.gif), sides:url(images/tab/tab-small-top-active-sides.gif), stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-small-bottom-active:after {
+  display: none;
+  content: "x-slicer:corners:url(images/tab/tab-small-bottom-active-corners.gif), sides:url(images/tab/tab-small-bottom-active-sides.gif), stretch:top";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-small-top-disabled:after {
+  display: none;
+  content: "x-slicer:corners:url(images/tab/tab-small-top-disabled-corners.gif), sides:url(images/tab/tab-small-top-disabled-sides.gif), stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-small-bottom-disabled:after {
+  display: none;
+  content: "x-slicer:corners:url(images/tab/tab-small-bottom-disabled-corners.gif), sides:url(images/tab/tab-small-bottom-disabled-sides.gif), stretch:top";
+}
+
+/*</if slicer>*/
+/* */
+/* line 108, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small-top {
+  padding: 0;
+}
+
+/* line 115, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small-bottom {
+  padding: 0 0 0 0;
+}
+
+/* line 122, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small-left {
+  padding: 0 0 0 0;
+}
+
+/* line 138, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small-right {
+  padding: 0 0 0 0;
+}
+
+/* line 157, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small-horizontal {
+  height: 36px;
+}
+/* line 161, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-content-box .x-tab-bar-small-horizontal {
+  height: 36px;
+}
+
+/* line 169, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small-vertical {
+  width: 36px;
+}
+/* line 173, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-content-box .x-tab-bar-small-vertical {
+  width: 36px;
+}
+
+/* line 180, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-body-small-top {
+  padding-bottom: 5px;
+}
+
+/* line 184, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-body-small-bottom {
+  padding-top: 5px;
+}
+
+/* line 188, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-body-small-left {
+  padding-right: 5px;
+}
+
+/* line 199, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-body-small-right {
+  padding-left: 5px;
+}
+
+/* line 210, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-strip-small {
+  border-style: solid;
+  border-color: #d2d2d2;
+  background-color: #cde2eb;
+}
+
+/* line 218, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-content-box .x-tab-bar-strip-small-horizontal {
+  height: 5px;
+}
+
+/* line 226, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-content-box .x-tab-bar-strip-small-vertical {
+  width: 5px;
+}
+
+/* line 232, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-strip-small-top {
+  border-width: 0 0 0 0;
+  height: 5px;
+}
+/* line 235, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-plain .x-tab-bar-strip-small-top {
+  border-width: 0 0 0 0;
+}
+
+/* line 240, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-strip-small-bottom {
+  border-width: 0 0 0 0;
+  height: 5px;
+}
+/* line 243, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-plain .x-tab-bar-strip-small-bottom {
+  border-width: 0 0 0 0;
+}
+
+/* line 248, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-strip-small-left {
+  border-width: 0 0 0 0;
+  width: 5px;
+}
+/* line 251, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-plain .x-tab-bar-strip-small-left {
+  border-width: 0 0 0 0;
+}
+
+/* line 265, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-strip-small-right {
+  border-width: 0 0 0 0;
+  width: 5px;
+}
+/* line 268, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-plain .x-tab-bar-strip-small-right {
+  border-width: 0 0 0 0;
+}
+
+/* line 282, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small {
+  background-color: #71adc7;
+}
+
+/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-box-scroller {
+  cursor: pointer;
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+  opacity: 0.5;
+  background-color: #71adc7;
+}
+/* line 347, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-box-scroller-plain .x-box-scroller {
+  background-color: transparent;
+}
+/* line 358, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-box-scroller-hover {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=60);
+  opacity: 0.6;
+}
+/* line 364, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-box-scroller-pressed {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
+  opacity: 0.7;
+}
+/* line 373, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-tabbar-scroll-left,
+.x-tab-bar-small .x-tabbar-scroll-right {
+  height: 31px;
+  width: 24px;
+}
+/* line 379, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-tabbar-scroll-top,
+.x-tab-bar-small .x-tabbar-scroll-bottom {
+  width: 31px;
+  height: 24px;
+}
+
+/* line 387, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small-bottom .x-box-scroller {
+  margin-top: 0;
+}
+/* line 391, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small-right .x-box-scroller {
+  margin-left: 0;
+}
+
+/* line 405, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-tabbar-scroll-left {
+  background-image: url(images/tab-bar/small-scroll-left.png);
+}
+/* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-tabbar-scroll-right {
+  background-image: url(images/tab-bar/small-scroll-right.png);
+}
+/* line 413, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-tabbar-scroll-top {
+  background-image: url(images/tab-bar/small-scroll-top.png);
+}
+/* line 417, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-tabbar-scroll-bottom {
+  background-image: url(images/tab-bar/small-scroll-bottom.png);
+}
+
+/* line 435, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-left {
+  background-image: url(images/tab-bar/small-plain-scroll-left.png);
+}
+/* line 439, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-right {
+  background-image: url(images/tab-bar/small-plain-scroll-right.png);
+}
+/* line 443, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-top {
+  background-image: url(images/tab-bar/small-plain-scroll-top.png);
+}
+/* line 447, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-box-scroller-plain .x-tabbar-scroll-bottom {
+  background-image: url(images/tab-bar/small-plain-scroll-bottom.png);
+}
+
+/* line 559, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
+.x-tab-bar-small .x-box-scroller-disabled {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=25);
+  opacity: 0.25;
+  cursor: default;
+}
+
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-bar-small-top:after {
+  display: none;
+  content: "x-slicer:stretch:bottom";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-bar-small-bottom:after {
+  display: none;
+  content: "x-slicer:stretch:top";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-bar-small-left:after {
+  display: none;
+  content: "x-slicer:stretch:right";
+}
+
+/*</if slicer>*/
+/* */
+/*<if slicer>*/
+/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
+.x-tab-bar-small-right:after {
+  display: none;
+  content: "x-slicer:stretch:left";
+}
+
+/*</if slicer>*/
+/* */
+/* line 7, ../../sass/src/tab/Tab.scss */
+.x-tab-default .x-tab-inner {
+  font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
+  font-weight: bold;
+  line-height: 19px;
+  font-size: 16px;
+  color: #686868;
+}
+
+/* line 16, ../../sass/src/tab/Tab.scss */
+.x-tab-default-top {
+  border-bottom: transparent solid 4px !important;
+  background-color: transparent;
+  min-width: 120px;
+  color: #333333;
+  margin-right: 16px;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+/* line 32, ../../sass/src/tab/Tab.scss */
+.x-tab-default-top:hover {
+  border-bottom: #c9dbe3 solid 4px !important;
+}
+/* line 35, ../../sass/src/tab/Tab.scss */
+.x-tab-default-top:hover .x-tab-inner {
+  font-weight: bold;
+  color: #686868;
+}
+/* line 41, ../../sass/src/tab/Tab.scss */
+.x-tab-default-top.x-tab-default-active {
+  border-bottom: #70bb51 solid 4px !important;
+  background-color: transparent;
+}
+/* line 45, ../../sass/src/tab/Tab.scss */
+.x-tab-default-top.x-tab-default-active .x-tab-inner {
+  font-weight: bold;
+  color: #333333;
+}
+
+/* line 52, ../../sass/src/tab/Tab.scss */
+.x-tab-default-bottom {
+  border-bottom: transparent solid 4px !important;
+  background-color: transparent;
+  color: #333333;
+  padding-right: 4px;
+  padding-left: 4px;
+}
+/* line 67, ../../sass/src/tab/Tab.scss */
+.x-tab-default-bottom .x-tab-glyph {
+  color: #333333;
+}
+/* line 84, ../../sass/src/tab/Tab.scss */
+.x-tab-default-bottom.x-tab-default-active {
+  background-color: transparent;
+}
+/* line 88, ../../sass/src/tab/Tab.scss */
+.x-tab-default-bottom.x-tab-default-active .x-tab-inner {
+  font-weight: bold;
+  color: #333333;
+}
+
+/* line 7, ../../sass/src/tab/Tab.scss */
+.x-tab-large .x-tab-inner {
+  font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
+  font-weight: bold;
+  line-height: 19px;
+  font-size: 16px;
+  color: #686868;
+}
+
+/* line 16, ../../sass/src/tab/Tab.scss */
+.x-tab-large-top {
+  border-bottom: transparent solid 4px !important;
+  background-color: transparent;
+  min-width: 120px;
+  color: #333333;
+  margin-right: 16px;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+/* line 32, ../../sass/src/tab/Tab.scss */
+.x-tab-large-top:hover {
+  border-bottom: #c9dbe3 solid 4px !important;
+}
+/* line 35, ../../sass/src/tab/Tab.scss */
+.x-tab-large-top:hover .x-tab-inner {
+  font-weight: bold;
+  color: #686868;
+}
+/* line 41, ../../sass/src/tab/Tab.scss */
+.x-tab-large-top.x-tab-large-active {
+  border-bottom: #70bb51 solid 4px !important;
+  background-color: transparent;
+}
+/* line 45, ../../sass/src/tab/Tab.scss */
+.x-tab-large-top.x-tab-large-active .x-tab-inner {
+  font-weight: bold;
+  color: #333333;
+}
+
+/* line 52, ../../sass/src/tab/Tab.scss */
+.x-tab-large-bottom {
+  border-bottom: transparent solid 4px !important;
+  background-color: transparent;
+  color: #333333;
+  padding-right: 4px;
+  padding-left: 4px;
+}
+/* line 67, ../../sass/src/tab/Tab.scss */
+.x-tab-large-bottom .x-tab-glyph {
+  color: #333333;
+}
+/* line 84, ../../sass/src/tab/Tab.scss */
+.x-tab-large-bottom.x-tab-large-active {
+  background-color: transparent;
+}
+/* line 88, ../../sass/src/tab/Tab.scss */
+.x-tab-large-bottom.x-tab-large-active .x-tab-inner {
+  font-weight: bold;
+  color: #333333;
+}
+
+/* line 7, ../../sass/src/tab/Tab.scss */
+.x-tab-medium .x-tab-inner {
+  font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
+  font-weight: bold;
+  line-height: 19px;
+  font-size: 16px;
+  color: #686868;
+}
+
+/* line 16, ../../sass/src/tab/Tab.scss */
+.x-tab-medium-top {
+  border-bottom: transparent solid 4px !important;
+  background-color: transparent;
+  min-width: 120px;
+  color: #333333;
+  margin-right: 16px;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+/* line 32, ../../sass/src/tab/Tab.scss */
+.x-tab-medium-top:hover {
+  border-bottom: #c9dbe3 solid 4px !important;
+}
+/* line 35, ../../sass/src/tab/Tab.scss */
+.x-tab-medium-top:hover .x-tab-inner {
+  font-weight: bold;
+  color: #686868;
+}
+/* line 41, ../../sass/src/tab/Tab.scss */
+.x-tab-medium-top.x-tab-medium-active {
+  border-bottom: #70bb51 solid 4px !important;
+  background-color: transparent;
+}
+/* line 45, ../../sass/src/tab/Tab.scss */
+.x-tab-medium-top.x-tab-medium-active .x-tab-inner {
+  font-weight: bold;
+  color: #333333;
+}
+
+/* line 52, ../../sass/src/tab/Tab.scss */
+.x-tab-medium-bottom {
+  border-bottom: transparent solid 4px !important;
+  background-color: transparent;
+  color: #333333;
+  padding-right: 4px;
+  padding-left: 4px;
+}
+/* line 67, ../../sass/src/tab/Tab.scss */
+.x-tab-medium-bottom .x-tab-glyph {
+  color: #333333;
+}
+/* line 84, ../../sass/src/tab/Tab.scss */
+.x-tab-medium-bottom.x-tab-medium-active {
+  background-color: transparent;
+}
+/* line 88, ../../sass/src/tab/Tab.scss */
+.x-tab-medium-bottom.x-tab-medium-active .x-tab-inner {
+  font-weight: bold;
+  color: #333333;
+}
+
+/* line 7, ../../sass/src/tab/Tab.scss */
+.x-tab-small .x-tab-inner {
+  font-family: 'Open Sans Condensed', helvetica, arial, verdana, sans-serif;
+  font-weight: bold;
+  line-height: 19px;
+  font-size: 16px;
+  color: #686868;
+}
+
+/* line 16, ../../sass/src/tab/Tab.scss */
+.x-tab-small-top {
+  border-bottom: transparent solid 4px !important;
+  background-color: transparent;
+  min-width: 120px;
+  color: #333333;
+  margin-right: 16px;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+/* line 32, ../../sass/src/tab/Tab.scss */
+.x-tab-small-top:hover {
+  border-bottom: #c9dbe3 solid 4px !important;
+}
+/* line 35, ../../sass/src/tab/Tab.scss */
+.x-tab-small-top:hover .x-tab-inner {
+  font-weight: bold;
+  color: #686868;
+}
+/* line 41, ../../sass/src/tab/Tab.scss */
+.x-tab-small-top.x-tab-small-active {
+  border-bottom: #70bb51 solid 4px !important;
+  background-color: transparent;
+}
+/* line 45, ../../sass/src/tab/Tab.scss */
+.x-tab-small-top.x-tab-small-active .x-tab-inner {
+  font-weight: bold;
+  color: #333333;
+}
+
+/* line 52, ../../sass/src/tab/Tab.scss */
+.x-tab-small-bottom {
+  border-bottom: transparent solid 4px !important;
+  background-color: transparent;
+  color: #333333;
+  padding-right: 4px;
+  padding-left: 4px;
+}
+/* line 67, ../../sass/src/tab/Tab.scss */
+.x-tab-small-bottom .x-tab-glyph {
+  color: #333333;
+}
+/* line 84, ../../sass/src/tab/Tab.scss */
+.x-tab-small-bottom.x-tab-small-active {
+  background-color: transparent;
+}
+/* line 88, ../../sass/src/tab/Tab.scss */
+.x-tab-small-bottom.x-tab-small-active .x-tab-inner {
+  font-weight: bold;
+  color: #333333;
+}
+
+/* line 5, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-strip-default {
+  border-style: solid;
+  border-color: #e2e2e2;
+  border-width: 1px;
+  background-color: #e2e2e2;
+  height: 1px;
+}
+
+/* line 13, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-strip-default-bottom {
+  border-style: solid;
+  border-color: white;
+  border-width: 1px;
+  background-color: transparent;
+  height: 1px;
+}
+
+/* line 21, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-body-default-top {
+  padding-bottom: 2px;
+  position: relative;
+  top: -3px;
+}
+
+/* line 27, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-body-default-bottom {
+  border-style: none;
+  padding-top: 0px;
+}
+
+/* line 32, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-default {
+  background-color: transparent;
+}
+
+/* line 5, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-strip-large {
+  border-style: solid;
+  border-color: #e2e2e2;
+  border-width: 1px;
+  background-color: #e2e2e2;
+  height: 1px;
+}
+
+/* line 13, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-strip-large-bottom {
+  border-style: solid;
+  border-color: white;
+  border-width: 1px;
+  background-color: transparent;
+  height: 1px;
+}
+
+/* line 21, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-body-large-top {
+  padding-bottom: 2px;
+  position: relative;
+  top: -3px;
+}
+
+/* line 27, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-body-large-bottom {
+  border-style: none;
+  padding-top: 0px;
+}
+
+/* line 32, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-large {
+  background-color: transparent;
+}
+
+/* line 5, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-strip-medium {
+  border-style: solid;
+  border-color: #e2e2e2;
+  border-width: 1px;
+  background-color: #e2e2e2;
+  height: 1px;
+}
+
+/* line 13, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-strip-medium-bottom {
+  border-style: solid;
+  border-color: white;
+  border-width: 1px;
+  background-color: transparent;
+  height: 1px;
+}
+
+/* line 21, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-body-medium-top {
+  padding-bottom: 2px;
+  position: relative;
+  top: -3px;
+}
+
+/* line 27, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-body-medium-bottom {
+  border-style: none;
+  padding-top: 0px;
+}
+
+/* line 32, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-medium {
+  background-color: transparent;
+}
+
+/* line 5, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-strip-small {
+  border-style: solid;
+  border-color: #e2e2e2;
+  border-width: 1px;
+  background-color: #e2e2e2;
+  height: 1px;
+}
+
+/* line 13, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-strip-small-bottom {
+  border-style: solid;
+  border-color: white;
+  border-width: 1px;
+  background-color: transparent;
+  height: 1px;
+}
+
+/* line 21, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-body-small-top {
+  padding-bottom: 2px;
+  position: relative;
+  top: -3px;
+}
+
+/* line 27, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-body-small-bottom {
+  border-style: none;
+  padding-top: 0px;
+}
+
+/* line 32, ../../sass/src/tab/Bar.scss */
+.x-tab-bar-small {
+  background-color: transparent;
+}
