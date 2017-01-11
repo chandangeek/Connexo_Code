@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.PrivilegeThesaurus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.GrantRefusedException;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
@@ -45,6 +46,8 @@ public class DualControlPrivilegeSubscriberTest {
     private Thesaurus thesaurus;
     @Mock
     private PrivilegeThesaurus privilegeThesaurus;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setUp() {
@@ -62,7 +65,7 @@ public class DualControlPrivilegeSubscriberTest {
         when(nlsMessageFormat.format()).thenReturn("");
         when(privilegeThesaurus.translatePrivilegeKey(anyString())).thenReturn("privilegeKey");
 
-        dualControlPrivilegeSubscriber = new DualControlPrivilegeSubscriber(thesaurus, privilegeThesaurus);
+        dualControlPrivilegeSubscriber = new DualControlPrivilegeSubscriber(thesaurus, privilegeThesaurus, threadPrincipalService);
         dualControlPrivilegeSubscriber.setUserService(userService);
     }
 
@@ -79,7 +82,7 @@ public class DualControlPrivilegeSubscriberTest {
 
 
         expect(() -> {
-            dualControlPrivilegeSubscriber.handle(user, approveGroup);
+            dualControlPrivilegeSubscriber.handle(user, approveGroup, true);
         })
                 .toThrow(GrantRefusedException.class);
 

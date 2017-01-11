@@ -39,7 +39,7 @@ class Installer implements FullInstaller {
         PrivilegeCategory dualControlApprove = userService.createPrivilegeCategory(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY);
         PrivilegeCategory dualControlGrant = userService.createPrivilegeCategory(DualControlService.DUAL_CONTROL_GRANT_CATEGORY);
 
-        Resource resource = userService.buildResource()
+        userService.buildResource()
                 .component(DualControlService.COMPONENT_NAME)
                 .name(Privileges.RESOURCE_DUAL_CONTROL_CALENDARS.getKey())
                 .description(Privileges.RESOURCE_DUAL_CONTROL_DESCRIPTION.getKey())
@@ -52,7 +52,6 @@ class Installer implements FullInstaller {
         Group dualControlAdministrator = userService.createGroup("Dual control administrator", "Dual control administrative privileges");
 
         dualControlAdministrator.grant("SYS", Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey());
-        dualControlAdministrator.grant("SYS", com.elster.jupiter.users.security.Privileges.Constants.ADMINISTRATE_USER_ROLE);
         dualControlAdministrator.grant("SYS", com.elster.jupiter.users.security.Privileges.Constants.VIEW_USER_ROLE);
         return null;
 

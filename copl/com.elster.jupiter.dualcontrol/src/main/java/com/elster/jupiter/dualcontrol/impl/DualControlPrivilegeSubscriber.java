@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.PrivilegeThesaurus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.GrantRefusedException;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
@@ -19,7 +20,12 @@ import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.security.Principal;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -31,22 +37,25 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
     private PrivilegeThesaurus privilegeThesaurus;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     public DualControlPrivilegeSubscriber() {
         //for OSGI purposes
     }
 
     @Inject
-    public DualControlPrivilegeSubscriber(Thesaurus thesaurus, PrivilegeThesaurus privilegeThesaurus) {
+    public DualControlPrivilegeSubscriber(Thesaurus thesaurus, PrivilegeThesaurus privilegeThesaurus, ThreadPrincipalService threadPrincipalService) {
         this.thesaurus = thesaurus;
         this.privilegeThesaurus = privilegeThesaurus;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override
     public void handle(Object notification, Object... notificationDetails) {
-        if (notification instanceof User && notificationDetails.length == 1 && notificationDetails[0] instanceof Group) {
+        if (notification instanceof User && notificationDetails.length == 2 && notificationDetails[0] instanceof Group && notificationDetails[1] instanceof Boolean) {
             User user = (User) notification;
             Group group = (Group) notificationDetails[0];
+            boolean isJoin = (Boolean) notificationDetails[1];
 
             Set<Privilege> dualControlPrivileges = Stream.of(
                     user.getPrivileges().stream(),
@@ -55,11 +64,14 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
                     .flatMap(Function.identity())
                     .filter(isDualControlApprove().or(isDualControlGrant()))
                     .collect(Collectors.toSet());
-            if (dualControlPrivileges.stream().anyMatch(isDualControlApprove()) && dualControlPrivileges.stream().anyMatch(isDualControlGrant())) {
+            if (dualControlPrivileges.stream().anyMatch(isDualControlApprove()) && dualControlPrivileges.stream().anyMatch(isDualControlGrant()) && isJoin) {
                 Privilege approvePrivilege = dualControlPrivileges.stream().filter(isDualControlApprove()).findFirst().get();
                 Privilege grantPrivilege = dualControlPrivileges.stream().filter(isDualControlGrant()).findFirst().get();
                 throw new GrantRefusedException(MessageSeeds.CANT_COMBINE_ROLES_WITH_PRIVILEGES_X_AND_Y, "roles",
                         privilegeThesaurus.translatePrivilegeKey(grantPrivilege.getName()), privilegeThesaurus.translatePrivilegeKey(approvePrivilege.getName()));
+            }
+            if(!canCurrentUserGrantRole(group)) {
+                throw new GrantRefusedException(MessageSeeds.CANT_GRANT_ROLE, "role");
             }
         }
         if (notification instanceof Group && notificationDetails.length == 1 && notificationDetails[0] instanceof Privilege) {
@@ -101,6 +113,39 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
         return privilege -> privilege.getCategory().getName().equals(DualControlService.DUAL_CONTROL_GRANT_CATEGORY);
     }
 
+    private Optional<User> getCurrentUser() {
+        Principal principal = threadPrincipalService.getPrincipal();
+        if (!(principal instanceof User)) {
+            return Optional.empty();
+        }
+        return Optional.of((User) principal);
+    }
+
+    private boolean canCurrentUserGrantRole(Group group) {
+        if (!getCurrentUser().isPresent()) {
+            return false;
+        }
+        User currentUser = getCurrentUser().get();
+        boolean canGrantNormalPrivileges = currentUser.getPrivileges()
+                .stream()
+                .filter(privilege -> privilege.getName().equals(com.elster.jupiter.users.security.Privileges.ADMINISTRATE_USER_ROLE.getKey()))
+                .findAny()
+                .isPresent();
+        boolean canGrantDualControlPrivileges = currentUser.getPrivileges().stream()
+                .filter(privilege -> privilege.getName().equals(Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey()))
+                .findAny()
+                .isPresent();
+
+        boolean groupContainsDualControlPrivileges = group.getPrivileges().entrySet().stream()
+                .map(Map.Entry::getValue)
+                .flatMap(Collection::stream)
+                .filter(privilege -> privilege.getCategory().getName().equals(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY))
+                .findAny()
+                .isPresent();
+
+        return canGrantNormalPrivileges && !groupContainsDualControlPrivileges || canGrantDualControlPrivileges && groupContainsDualControlPrivileges;
+    }
+
     @Override
     public Class<?>[] getClasses() {
         return new Class<?>[]{
@@ -118,5 +163,10 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DualControlService.COMPONENT_NAME, Layer.DOMAIN.DOMAIN).join(userService.getThesaurus());
         this.privilegeThesaurus = nlsService.getPrivilegeThesaurus();
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 }
