@@ -36,7 +36,7 @@ Ext.define('Usr.controller.Main', {
     },
 
     initMenu: function () {
-        if (Usr.privileges.Users.canView()) {
+        if (Usr.privileges.Users.canView() || Usr.privileges.Users.canViewUsers()) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'USR', 'Administration'),
                 glyph: 'settings',
@@ -48,33 +48,37 @@ Ext.define('Usr.controller.Main', {
 
             var usersItems = [];
 
-            usersItems.push(
-                {
-                    text: Uni.I18n.translate('general.users', 'USR', 'Users'),
-                    href: '#/administration/users'
-                }
-            );
+            if(Usr.privileges.Users.canViewUsers()) {
+                usersItems.push(
+                    {
+                        text: Uni.I18n.translate('general.users', 'USR', 'Users'),
+                        href: '#/administration/users'
+                    }
+                );
+            }
 
-            usersItems.push(
-                {
-                    text: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
-                    href: '#/administration/roles'
-                }
-            );
+            if(Usr.privileges.Users.canView()) {
+                usersItems.push(
+                    {
+                        text: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
+                        href: '#/administration/roles'
+                    }
+                );
 
-            usersItems.push(
-                {
-                    text: Uni.I18n.translate('general.userDirectories', 'USR', 'User directories'),
-                    href: '#/administration/userdirectories'
-                }
-            );
+                usersItems.push(
+                    {
+                        text: Uni.I18n.translate('general.userDirectories', 'USR', 'User directories'),
+                        href: '#/administration/userdirectories'
+                    }
+                );
 
-            usersItems.push(
-                {
-                    text: Uni.I18n.translate('general.workgroups', 'USR', 'Workgroups'),
-                    href: '#/administration/workgroups'
-                }
-            );
+                usersItems.push(
+                    {
+                        text: Uni.I18n.translate('general.workgroups', 'USR', 'Workgroups'),
+                        href: '#/administration/workgroups'
+                    }
+                );
+            }
 
             var users = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.userManagement', 'USR', 'User management'),

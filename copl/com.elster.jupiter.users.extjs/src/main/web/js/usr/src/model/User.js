@@ -36,8 +36,7 @@ Ext.define('Usr.model.User', {
         type: 'rest',
         url: '/api/usr/users',
         reader: {
-            type: 'json',
-            root: 'users'
+            type: 'json'
         }
     }
 });

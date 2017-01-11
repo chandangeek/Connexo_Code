@@ -102,6 +102,7 @@ Ext.define('Usr.view.user.Edit', {
                                 columns: 1,
                                 valueField:'id',
                                 displayField:'name',
+                                disableField: 'disableGrantCheckbox',
                                 vertical: true,
                                 name: 'groups',
                                 width: 650

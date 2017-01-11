@@ -45,13 +45,13 @@ Ext.define('Usr.controller.history.UserManagement', {
                     title: Uni.I18n.translate('general.users', 'USR', 'Users'),
                     route: 'users',
                     controller: 'Usr.controller.User',
-                    privileges: Usr.privileges.Users.view,
+                    privileges: Usr.privileges.Users.viewUsers,
                     items: {
                         edit: {
                             title: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
                             route: '{id}/edit',
                             controller: 'Usr.controller.UserEdit',
-                            privileges: Usr.privileges.Users.admin,
+                            privileges: Usr.privileges.Users.adminUsers,
                             action: 'showEditOverview',
                             callback: function (route) {
                                 this.getApplication().on('editUser', function (record) {

@@ -44,7 +44,7 @@ Ext.define('Usr.view.user.List', {
                 },
                 {
                     xtype: 'uni-actioncolumn',
-                    privileges: Usr.privileges.Users.admin,
+                    privileges: Usr.privileges.Users.adminUsers,
 
                     menu: {
                         xtype: 'user-action-menu',

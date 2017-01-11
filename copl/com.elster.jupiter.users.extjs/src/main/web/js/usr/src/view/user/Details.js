@@ -15,7 +15,7 @@ Ext.define('Usr.view.user.Details', {
     tools: [
         {
             xtype: 'uni-button-action',
-            privileges: Usr.privileges.Users.admin,
+            privileges: Usr.privileges.Users.adminUsers,
             menu: {
                 xtype: 'user-action-menu'
             }
