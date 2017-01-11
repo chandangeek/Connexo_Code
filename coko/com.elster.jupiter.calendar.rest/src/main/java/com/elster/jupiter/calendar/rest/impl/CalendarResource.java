@@ -128,7 +128,7 @@ public class CalendarResource {
         }
     }
 
-    private Calendar lockCalendar(@PathParam("id") long id, CalendarInfo info) {
+    private Calendar lockCalendar(long id, CalendarInfo info) {
         Optional<Calendar> calendar = calendarService.findCalendar(id);
         return calendarService.lockCalendar(id, info.version)
                 .orElseThrow(() -> concurrentModificationExceptionFactory
@@ -151,14 +151,12 @@ public class CalendarResource {
         } else if (calendarService.isCalendarInUse(calendar)) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TIME_OF_USE_CALENDAR_IN_USE);
         } else {
-            calendar.delete();
+            calendar.makeObsolete();
             return Response.ok().build();
         }
     }
 
-
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
         return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
     }
-
 }

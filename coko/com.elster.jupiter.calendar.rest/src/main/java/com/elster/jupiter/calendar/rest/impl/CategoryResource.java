@@ -60,7 +60,4 @@ public class CategoryResource {
         List<Category> usedCategories = calendarService.findUsedCategories();
         return PagedInfoList.fromCompleteList("categories", usedCategories, queryParameters);
     }
-
-
-
 }
