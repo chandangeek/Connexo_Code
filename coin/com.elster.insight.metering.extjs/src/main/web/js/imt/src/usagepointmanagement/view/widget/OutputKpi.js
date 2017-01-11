@@ -20,10 +20,11 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
         router: null
     },
 
-    titleAlign: 'right',
     header: {
-        htmlEncode: false,
-        hidden: true
+        style: {
+            marginLeft: '55px'
+        },
+        htmlEncode: false
     },
 
     initComponent: function () {
@@ -36,17 +37,21 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                 outputId: output.getId()
             }),
             data = [],
-            total = output.get('total');
+            total = output.get('total'),
+            fields = ['name', 'key', 'data', 'url', 'percentage', 'detail', 'total', 'icon'],
+            statisticsEdited = [];
 
         me.title = '<a href="' + url + '">'
             + Ext.String.htmlEncode(output.get('name'))
             + '</a>';
 
         if (output.get('statistics').length) {
+            me.titleAlign = 'right';
             output.get('statistics').map(function(item) {
                 var queryParams = {},
                     percentageUrl,
-                    icon;
+                    icon,
+                    dataItem;
 
                 if (item.key == 'statisticsSuspect' || item.key == 'statisticsMissing') {
                     percentageUrl = router.getRoute('usagepoints/view/purpose/output').buildUrl({
@@ -54,10 +59,11 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                         outputId: output.getId()
                     }, queryParams);
                 }
-                if (item.key == 'statisticsValid') {
+                if (item.key == 'statisticsValid' || item.key == 'statisticsEdited') {
                     icon = '<span class="icon-info" data-qtip="' + me.prepareTooltip(item) + '"></span>';
                 }
-                data.push({
+
+                dataItem = {
                     name: item.displayName,
                     key: item.key,
                     data: item.count,
@@ -66,12 +72,13 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     detail: item.detail,
                     total: item.total,
                     icon: icon
-                });
-            });
+                };
 
-            var store = Ext.create('Ext.data.JsonStore', {
-                fields: ['name', 'key', 'data', 'url', 'percentage', 'detail', 'total', 'icon'],
-                data: data
+                if (item.key != 'statisticsEdited') {
+                    data.push(dataItem);
+                } else {
+                    statisticsEdited.push(dataItem);
+                }
             });
 
             //there is no possibility to display HTML inside of legend, so legend is separated from chart
@@ -82,7 +89,10 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     height: 200,
                     animate: false,
                     shadow: false,
-                    store: store,
+                    store: Ext.create('Ext.data.Store', {
+                        fields: fields,
+                        data: data
+                    }),
                     theme: 'Base',
                     series: [
                         {
@@ -93,10 +103,14 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                                 showDelay: 0,
                                 hideDelay: 0,
                                 renderer: function (storeItem) {
-                                    Ext.suspendLayouts();
-                                    this.setTitle(storeItem.get('name') + ' ' + storeItem.get('percentage'));
-                                    this.update(me.prepareTooltip(storeItem));
-                                    Ext.resumeLayouts(true);
+                                    var details = me.prepareTooltip(storeItem),
+                                        text = '<div style="font-weight: bold;' + (details ? 'padding-bottom: 5px;' : '') + '">'
+                                            + storeItem.get('name') + ' ' + storeItem.get('percentage')
+                                            + '</div>'
+                                            + details;
+
+
+                                    this.update(text);
                                 }
                             },
                             renderer: function (sprite, record, attributes) {
@@ -131,11 +145,20 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                 },
                 {
                     xtype: 'dataview',
-                    store: store,
+                    disableSelection: true,
+                    deferInitialRefresh: false,
+                    store: Ext.create('Ext.data.Store', {
+                        fields: fields,
+                        data: Ext.Array.merge(data, statisticsEdited)
+                    }),
                     itemSelector: 'tr.trlegend',
-                    tpl: new Ext.XTemplate(
-                        '<table>',
+                    tpl: ['<table>',
                         '<tpl for=".">',
+                        '<tpl if="key == statisticsEdited">' +
+                        '<tr>' +
+                        '<td colspan="3">!!!</td>' +
+                        '</tr>',
+                        '</tpl>',
                         '<tr class="trlegend">' +
                         '<td>{name}</td>' +
                         '<td>' +
@@ -145,17 +168,17 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                         '<td>{icon}</td>' +
                         '</tr>',
                         '</tpl>',
-                        '</table>'
-                    ),
+                        '</table>'],
                     listeners: {
-                        refresh: {
+                        resize: {
                             scope: me,
-                            fn: me.onDataViewRefresh
+                            fn: me.onDataViewResize
                         }
                     }
                 }
             ];
         } else {
+            me.titleAlign = 'left';
             me.items = [
                 {
                     xtype: 'no-readings-found-panel',
@@ -176,7 +199,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             detail = data.get ? data.get('detail') : data.detail,
             total = data.get ? data.get('total') : data.total;
 
-        if (key == 'statisticsValid' && !Ext.isEmpty(detail)) {
+        if ((key == 'statisticsValid' || key == 'statisticsEdited') && !Ext.isEmpty(detail)) {
             Ext.Array.each(detail, function (detailItem, index) {
                 if (index > 0) {
                     text += '<br>';
@@ -189,7 +212,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
     },
 
     // needs to align title
-    onDataViewRefresh: function (dataView) {
+    onDataViewResize: function (dataView) {
         var me = this,
             header,
             headerEl,
@@ -200,7 +223,6 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             headerEl = header.getEl().down('.' + Ext.baseCSSPrefix + 'header-text-container');
             firstCellEl = dataView.getEl().down('.trlegend td');
 
-            header.show();
             headerEl.setStyle('padding-right', headerEl.getWidth() - (firstCellEl.getX() + firstCellEl.getWidth(true) - headerEl.getX()) + 'px');
         }
     }
