@@ -85,17 +85,25 @@ $ui-body-background-color: $panel-filter-background-color
   padding: 8px 16px 16px 16px;
 }
 
+// Small
+
 .#{$prefix}panel-small-collapsed {
     height: 60px !important;
 }
-
-// Small
 
 .#{$prefix}panel-header-small-docked-top {
     padding: 0 0 16px 0;
 }
 
 .#{$prefix}panel-header-small-collapsed-top {
+    padding: 16px 0 16px 0;
+}
+
+.#{$prefix}panel-header-small-docked-bottom {
+    padding: 16px 0 0 0;
+}
+
+.#{$prefix}panel-header-small-collapsed-bottom {
     padding: 16px 0 16px 0;
 }
 

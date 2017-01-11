@@ -1,3 +1,9 @@
+/* line 418, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-window-header-message-error-collapsed-left-ml,
+.x-window-header-message-error-collapsed-left-mr {
+  zoom: 1;
+}
+
 /* line 430, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-window-header-message-error-collapsed-left-mc {
   padding: 0px 0px 0px 0px;
