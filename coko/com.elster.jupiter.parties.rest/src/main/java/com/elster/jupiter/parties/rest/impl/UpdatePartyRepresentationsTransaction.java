@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.rest.UserInfoFactory;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -20,14 +21,16 @@ class UpdatePartyRepresentationsTransaction implements Transaction<List<? extend
     private final Clock clock;
     private final NlsService nlsService;
     private final Fetcher fetcher;
+    private final UserInfoFactory userInfoFactory;
 
     @Inject
-    UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos, Clock clock, NlsService nlsService, Fetcher fetcher) {
+    UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos, Clock clock, NlsService nlsService, Fetcher fetcher, UserInfoFactory userInfoFactory) {
         this.id = id;
         this.infos = infos;
         this.clock = clock;
         this.nlsService = nlsService;
         this.fetcher = fetcher;
+        this.userInfoFactory = userInfoFactory;
     }
 
     @Override
@@ -43,7 +46,7 @@ class UpdatePartyRepresentationsTransaction implements Transaction<List<? extend
     private void handleRemovals(List<PartyRepresentation> preEdit) {
         Instant now = clock.instant();
         for (PartyRepresentation partyRepresentation : preEdit) {
-            PartyRepresentationInfo delegate = new PartyRepresentationInfo(this.nlsService, partyRepresentation);
+            PartyRepresentationInfo delegate = new PartyRepresentationInfo(this.nlsService, partyRepresentation, userInfoFactory);
             delegate.end = now;
             new UpdatePartyRepresentationTransaction(delegate, fetcher).perform();
         }

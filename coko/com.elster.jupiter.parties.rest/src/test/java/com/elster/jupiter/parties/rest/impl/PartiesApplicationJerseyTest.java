@@ -5,6 +5,7 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.UserInfoFactory;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
@@ -23,6 +24,8 @@ public class PartiesApplicationJerseyTest extends FelixRestApplicationJerseyTest
     UserService userService;
     @Mock
     Clock clock;
+    @Mock
+    UserInfoFactory userInfoFactory;
 
     @Override
     protected Application getApplication() {
@@ -33,6 +36,7 @@ public class PartiesApplicationJerseyTest extends FelixRestApplicationJerseyTest
         application.setUserService(userService);
         application.setClock(clock);
         application.setNlsService(nlsService);
+        application.setUserInfoFactory(userInfoFactory);
         return application;
     }
 

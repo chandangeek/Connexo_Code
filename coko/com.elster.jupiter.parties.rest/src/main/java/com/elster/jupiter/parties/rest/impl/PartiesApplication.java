@@ -8,6 +8,8 @@ import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.rest.UserInfoFactory;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -35,6 +37,7 @@ public class PartiesApplication extends Application {
     private volatile UserService userService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
+    private volatile UserInfoFactory userInfoFactory;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -87,6 +90,11 @@ public class PartiesApplication extends Application {
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
+    @Reference
+    public void setUserInfoFactory(UserInfoFactory userInfoFactory) {
+        this.userInfoFactory = userInfoFactory;
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -97,6 +105,7 @@ public class PartiesApplication extends Application {
             bind(restQueryService).to(RestQueryService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(Fetcher.class).to(Fetcher.class);
+            bind(userInfoFactory).to(UserInfoFactory.class);
         }
     }
 }

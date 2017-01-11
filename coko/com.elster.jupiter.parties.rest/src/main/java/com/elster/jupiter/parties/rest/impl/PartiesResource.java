@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.rest.UserInfoFactory;
 
 import com.google.common.collect.Range;
 
@@ -42,6 +43,7 @@ public class PartiesResource {
     private final RestQueryService restQueryService;
     private final Clock clock;
     private final Fetcher fetcher;
+    private final UserInfoFactory userInfoFactory;
 
     @Inject
     public PartiesResource(PartyService partyService,
@@ -49,13 +51,14 @@ public class PartiesResource {
                            NlsService nlsService,
                            RestQueryService restQueryService,
                            Clock clock,
-                           Fetcher fetcher) {
+                           Fetcher fetcher, UserInfoFactory userInfoFactory) {
         this.partyService = partyService;
         this.transactionService = transactionService;
         this.nlsService = nlsService;
         this.restQueryService = restQueryService;
         this.clock = clock;
         this.fetcher = fetcher;
+        this.userInfoFactory = userInfoFactory;
     }
 
     @DELETE
@@ -138,7 +141,7 @@ public class PartiesResource {
         try (TransactionContext context = transactionService.getContext()) {
             try {
                 Party party = partyWithId(id);
-                return new PartyRepresentationInfos(party.getCurrentDelegates(), this.nlsService);
+                return new PartyRepresentationInfos(party.getCurrentDelegates(), this.nlsService, userInfoFactory);
             } finally {
                 context.commit();
             }
@@ -159,7 +162,7 @@ public class PartiesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PartyRepresentationInfos updateRoles(@PathParam("id") long id, PartyRepresentationInfos infos) {
-        new UpdatePartyRepresentationsTransaction(id, infos, clock, this.nlsService, fetcher); // doesn't work
+        new UpdatePartyRepresentationsTransaction(id, infos, clock, this.nlsService, fetcher, userInfoFactory); // doesn't work
         return getDelegates(id);
     }
 
@@ -173,7 +176,7 @@ public class PartiesResource {
         try (TransactionContext context = transactionService.getContext()) {
             PartyRepresentation partyRepresentation = transactionService.execute(new UpdatePartyRepresentationTransaction(info, fetcher));
             context.commit();
-            return new PartyRepresentationInfos(partyRepresentation, this.nlsService);
+            return new PartyRepresentationInfos(partyRepresentation, this.nlsService, userInfoFactory);
         }
     }
 
