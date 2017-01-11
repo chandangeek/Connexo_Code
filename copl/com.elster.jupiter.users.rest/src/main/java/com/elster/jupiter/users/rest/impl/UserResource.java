@@ -3,25 +3,26 @@ package com.elster.jupiter.users.rest.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.FailToActivateUser;
-import com.elster.jupiter.users.GrantRefusedException;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.PrivilegeInfos;
 import com.elster.jupiter.users.rest.UserInfo;
-import com.elster.jupiter.users.rest.UserInfos;
+import com.elster.jupiter.users.rest.UserInfoFactory;
 import com.elster.jupiter.users.rest.actions.UpdateUserTransaction;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -37,6 +38,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Path("/users")
 public class UserResource {
@@ -46,14 +48,16 @@ public class UserResource {
     private final RestQueryService restQueryService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final NlsService nlsService;
+    private final UserInfoFactory userInfoFactory;
 
     @Inject
-    public UserResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory, NlsService nlsService) {
+    public UserResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory, NlsService nlsService, UserInfoFactory userInfoFactory) {
         this.transactionService = transactionService;
         this.userService = userService;
         this.restQueryService = restQueryService;
         this.conflictFactory = conflictFactory;
         this.nlsService = nlsService;
+        this.userInfoFactory = userInfoFactory;
     }
 
 // - To be added in the future?
@@ -83,23 +87,25 @@ public class UserResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
-    public UserInfos getUser(@PathParam("id") long id) {
+    public UserInfo getUser(@PathParam("id") long id) {
         Optional<User> user = userService.getUser(id);
         if (!user.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-            return new UserInfos(this.nlsService, user.get());
+            return userInfoFactory.from(this.nlsService, user.get());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
-    public UserInfos getUsers(@Context UriInfo uriInfo) {
+    public PagedInfoList getUsers(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters jsonQueryParameters) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<User> list = getUserRestQuery().select(queryParameters, Order.ascending("authenticationName").toLowerCase());
-        UserInfos infos = new UserInfos(this.nlsService, queryParameters.clipToLimit(list));
-        infos.total = queryParameters.determineTotal(list.size());
-        return infos;
+
+        List<UserInfo> userInfos = list.stream()
+                .map(user -> userInfoFactory.from(nlsService, user))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("users", userInfos, jsonQueryParameters);
     }
 
     @GET
@@ -119,7 +125,7 @@ public class UserResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public Response updateUser(UserInfo info, @PathParam("id") long id) {
             info.id = id;
             transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
@@ -131,7 +137,7 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE})
-    public UserInfos activateUser(UserInfo info, @PathParam("id") long id) {
+    public UserInfo activateUser(UserInfo info, @PathParam("id") long id) {
         Optional<User> user = userService.getUser(id);
         if (   !"INT".equals(userService.findUserDirectory(user.get().getDomain()).get().getType())
             && !userService.findUserDirectory(user.get().getDomain()).get().getLdapUserStatus(user.get().getName())) {
@@ -148,7 +154,7 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE})
-    public UserInfos deactivateUser(UserInfo info, @PathParam("id") long id) {
+    public UserInfo deactivateUser(UserInfo info, @PathParam("id") long id) {
         info.active = false;
         info.id = id;
         transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));

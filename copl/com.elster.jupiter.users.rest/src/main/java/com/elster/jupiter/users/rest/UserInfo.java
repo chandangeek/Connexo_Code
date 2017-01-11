@@ -31,25 +31,6 @@ public class UserInfo {
     public UserInfo() {
     }
 
-    public UserInfo(NlsService nlsService, User user) {
-        id = user.getId();
-        authenticationName = user.getName();
-        description = user.getDescription();
-        active = user.getStatus();
-        version = user.getVersion();
-        domain = user.getDomain();
-        language = user.getLocale().map((locale) -> new LocaleInfo(locale, locale)).orElse(null);
-        createdOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getCreationDate().atZone(ZoneId.systemDefault()));
-        modifiedOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getModifiedDate().atZone(ZoneId.systemDefault()));
-        lastSuccessfulLogin = user.getLastSuccessfulLogin() == null ? null : user.getLastSuccessfulLogin().toString();
-        lastUnSuccessfulLogin = user.getLastUnSuccessfulLogin() == null ? null : user.getLastUnSuccessfulLogin().toString();
-        for (Group group : user.getGroups()) {
-            groups.add(new GroupInfo(nlsService, group));
-        }
-
-        Collections.sort(groups, (g1, g2) -> g1.name.compareTo(g2.name));
-    }
-
     public boolean update(User user) {
         return updateDescription(user) | updateLocale(user) | updateStatus(user);
     }

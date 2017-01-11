@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.rest.LocaleInfo;
 import com.elster.jupiter.users.rest.UserInfo;
+import com.elster.jupiter.users.rest.UserInfoFactory;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -11,6 +12,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.verification.VerificationModeFactory;
 
@@ -22,10 +24,18 @@ import static org.mockito.Mockito.when;
 
 public class UserResourceTest extends UsersRestApplicationJerseyTest {
 
+    private UserInfoFactory userInfoFactory;
+    private GroupInfoFactory groupInfoFactory = new GroupInfoFactory(threadPrincipalService);
+
+    @Before
+    public void setupFactories() {
+        userInfoFactory = new UserInfoFactoryImpl(threadPrincipalService, groupInfoFactory);
+    }
+
     @Test
     public void testNothingToUpdate() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(mock(NlsService.class), user);
+        UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
 
         target("/users/1").request().put(Entity.json(info));
 
@@ -37,7 +47,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testUpdateUserLocale() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(mock(NlsService.class), user);
+        UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
         info.language = new LocaleInfo();
         info.language.languageTag = Locale.US.toLanguageTag();
 
@@ -50,7 +60,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testReleaseUserLocale() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(mock(NlsService.class), user);
+        UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
         info.language = null;
 
         target("/users/1").request().put(Entity.json(info));
@@ -62,7 +72,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testUpdateDescription() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(mock(NlsService.class), user);
+        UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
         info.description = "new description";
 
         target("/users/1").request().put(Entity.json(info));
@@ -77,7 +87,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         reset(userService);
         when(userService.findAndLockUserByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());
         when(userService.getUser(1L)).thenReturn(Optional.empty());
-        UserInfo info = new UserInfo(mock(NlsService.class), user);
+        UserInfo info = userInfoFactory.from(mock(NlsService.class), user);
 
         Response response = target("/users/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());

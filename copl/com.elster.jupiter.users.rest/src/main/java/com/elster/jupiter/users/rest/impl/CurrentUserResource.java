@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.rest.UserInfo;
+import com.elster.jupiter.users.rest.UserInfoFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -21,18 +21,20 @@ public class CurrentUserResource {
 
     private final UserService userService;
     private final NlsService nlsService;
+    private final UserInfoFactory userInfoFactory;
 
     @Inject
-    public CurrentUserResource(UserService userService, NlsService nlsService) {
+    public CurrentUserResource(UserService userService, NlsService nlsService, UserInfoFactory userInfoFactory) {
         this.userService = userService;
         this.nlsService = nlsService;
+        this.userInfoFactory = userInfoFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getCurrentUser(@Context SecurityContext securityContext) {
         User user = fetchUser((User) securityContext.getUserPrincipal());
-        return Response.ok(new UserInfo(nlsService, user)).build();
+        return Response.ok(userInfoFactory.from(nlsService, user)).build();
     }
 
     @GET
