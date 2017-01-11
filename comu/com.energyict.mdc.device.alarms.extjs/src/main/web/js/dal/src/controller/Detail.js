@@ -78,7 +78,7 @@ Ext.define('Dal.controller.Detail', {
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             store = me.getStore('Dal.store.Alarms'),
-            processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
+            processStore = me.getStore('Bpm.monitorissueprocesses.store.AlarmProcesses'),
             widgetXtype,
             model,
             widget;
