@@ -1,12 +1,14 @@
 package com.elster.jupiter.usagepoint.lifecycle.config;
 
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -51,6 +53,8 @@ public interface UsagePointTransition extends HasId, HasName {
     void doTransition(String sourceId, String sourceType, Instant transitionTime, Map<String, Object> properties);
 
     long getVersion();
+
+    List<PropertySpec> getMicroActionsProperties();
 
     @ProviderType
     interface UsagePointTransitionCreator<T extends UsagePointTransitionCreator> {

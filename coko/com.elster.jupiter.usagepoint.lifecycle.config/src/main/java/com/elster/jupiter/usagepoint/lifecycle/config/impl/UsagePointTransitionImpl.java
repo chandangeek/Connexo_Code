@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -224,6 +225,14 @@ public class UsagePointTransitionImpl implements UsagePointTransition, Persisten
             eventType.get().newInstance(this.lifeCycle.get().getStateMachine(), sourceId, sourceType,
                     this.fsmTransition.get().getFrom().getName(), transitionTime, properties).publish();
         }
+    }
+
+    @Override
+    public List<PropertySpec> getMicroActionsProperties() {
+        return DecoratedStream.decorate(this.getActions().stream())
+                .flatMap(microAction -> microAction.getPropertySpecs().stream())
+                .distinct(PropertySpec::getName)
+                .collect(Collectors.toList());
     }
 
     void setLevels(Set<UsagePointTransition.Level> transitionLevels) {
