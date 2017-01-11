@@ -1,8 +1,8 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.groups.GroupEventData;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.groups.impl.search.UsagePointGroupSearchableProperty;
@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.Collections;
 
@@ -32,7 +33,7 @@ public class UsagePointGroupDeletionVetoEventHandlerTest {
     private SearchablePropertyValue.ValueBean valueBean;
 
     @Mock
-    private MeteringGroupsService meteringGroupsService;
+    private MeteringGroupsServiceImpl meteringGroupsService;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -43,6 +44,8 @@ public class UsagePointGroupDeletionVetoEventHandlerTest {
     private UsagePointGroup usagePointGroup;
     @Mock
     private QueryUsagePointGroup queryUsagePointGroup;
+    @Mock
+    private Query<UsagePointGroup> usagePointGroupQuery;
     @Mock
     private UsagePointGroupSearchableProperty usagePointGroupSearchableProperty;
     @Mock
@@ -59,7 +62,8 @@ public class UsagePointGroupDeletionVetoEventHandlerTest {
         searchablePropertyValue = new SearchablePropertyValue(usagePointGroupSearchableProperty, valueBean);
 
         when(localEvent.getSource()).thenReturn(eventSource);
-        when(meteringGroupsService.findUsagePointGroups()).thenReturn(Collections.singletonList(queryUsagePointGroup));
+        when(meteringGroupsService.getQueryUsagePointGroupQuery()).thenReturn(usagePointGroupQuery);
+        when(usagePointGroupQuery.select(Condition.TRUE)).thenReturn(Collections.singletonList(queryUsagePointGroup));
         doReturn(usagePointGroup).when(eventSource).getGroup();
         when(queryUsagePointGroup.getSearchablePropertyValues()).thenReturn(Collections.singletonList(searchablePropertyValue));
         when(queryUsagePointGroup.isDynamic()).thenReturn(true);
