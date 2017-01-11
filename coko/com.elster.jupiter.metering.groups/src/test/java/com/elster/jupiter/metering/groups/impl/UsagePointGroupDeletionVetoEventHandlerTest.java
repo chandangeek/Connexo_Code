@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.groups.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.groups.GroupEventData;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.groups.impl.search.UsagePointGroupSearchableProperty;
@@ -33,7 +34,7 @@ public class UsagePointGroupDeletionVetoEventHandlerTest {
     private SearchablePropertyValue.ValueBean valueBean;
 
     @Mock
-    private MeteringGroupsServiceImpl meteringGroupsService;
+    private MeteringGroupsService meteringGroupsService;
     @Mock
     private Thesaurus thesaurus;
     @Mock

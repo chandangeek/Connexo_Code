@@ -4,6 +4,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.GroupEventData;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.groups.impl.search.UsagePointGroupSearchableProperty;
@@ -20,14 +21,14 @@ import javax.inject.Inject;
 @Component(name = "com.elster.jupiter.metering.groups.usagepointgroup.UsagePointGroupDeletionVetoEventHandler", service = TopicHandler.class, immediate = true)
 public class UsagePointGroupDeletionVetoEventHandler implements TopicHandler {
 
-    private volatile MeteringGroupsServiceImpl meteringGroupsService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile Thesaurus thesaurus;
 
     public UsagePointGroupDeletionVetoEventHandler() {
     }
 
     @Inject
-    public UsagePointGroupDeletionVetoEventHandler(MeteringGroupsServiceImpl meteringGroupsService,
+    public UsagePointGroupDeletionVetoEventHandler(MeteringGroupsService meteringGroupsService,
                                                    Thesaurus thesaurus) {
         this();
         this.thesaurus = thesaurus;
@@ -35,7 +36,7 @@ public class UsagePointGroupDeletionVetoEventHandler implements TopicHandler {
     }
 
     @Reference
-    public void setMeteringGroupsService(MeteringGroupsServiceImpl meteringGroupsService) {
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
 
