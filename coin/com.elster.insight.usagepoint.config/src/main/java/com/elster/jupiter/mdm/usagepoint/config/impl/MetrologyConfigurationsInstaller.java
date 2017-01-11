@@ -42,7 +42,7 @@ class MetrologyConfigurationsInstaller {
     static final String MIN15_A_PLUS_WH = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String ACTIVE_ENERGY_TOU1 = "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0";
     static final String ACTIVE_ENERGY_TOU2 = "13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
-    static final String DELTA_A_PLUS_WH = "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    static final String BULK_A_PLUS_WH = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     static final String BATTERY_STATUS = "0.0.0.12.0.41.11.0.0.0.0.0.0.0.0.-2.0.0";
     static final String BILLING_GAS_FLOW = "8.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0";
     private final MetrologyConfigurationService metrologyConfigurationService;
@@ -315,10 +315,10 @@ class MetrologyConfigurationsInstaller {
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(MIN15_A_PLUS_WH, "A+"));
-        ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(DELTA_A_PLUS_WH))
+        ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(BULK_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType(DELTA_A_PLUS_WH, "A+"));
+                .orElseGet(() -> meteringService.createReadingType(BULK_A_PLUS_WH, "A+"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
@@ -332,10 +332,10 @@ class MetrologyConfigurationsInstaller {
                 .getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
-        ReadingTypeRequirement requirementAplusRegister = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.DELTA_A_PLUS
+        ReadingTypeRequirement requirementAplusRegister = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS
                 .getNameTranslation()
                 .getDefaultFormat(), meterRole)
-                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.DELTA_A_PLUS));
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.BULK_A_PLUS));
 
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAplus, "Daily A+ kWh"));
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAplusWh, requirementAplus, "Monthly A+ kWh"));
@@ -366,10 +366,10 @@ class MetrologyConfigurationsInstaller {
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType(BATTERY_STATUS, "Battery status"));
-        ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(DELTA_A_PLUS_WH))
+        ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(BULK_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType(DELTA_A_PLUS_WH, "A+"));
+                .orElseGet(() -> meteringService.createReadingType(BULK_A_PLUS_WH, "A+"));
 
         MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
@@ -381,10 +381,10 @@ class MetrologyConfigurationsInstaller {
                 .getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.BATTERY_STATUS));
 
-        ReadingTypeRequirement requirementNumerical = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.DELTA_A_PLUS
+        ReadingTypeRequirement requirementNumerical = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS
                 .getNameTranslation()
                 .getDefaultFormat(), meterRole)
-                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.DELTA_A_PLUS));
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.BULK_A_PLUS));
 
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, DeliverableType.TEXT, readingTypeBatteryStatus, requirementTextual, "Battery status"));
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, DeliverableType.NUMERICAL, readingTypeAplusWh, requirementNumerical, "A+ kWh"));

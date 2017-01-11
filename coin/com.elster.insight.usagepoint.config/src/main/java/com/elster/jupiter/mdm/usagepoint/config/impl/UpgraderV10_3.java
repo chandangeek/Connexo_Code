@@ -66,7 +66,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                 .stream()
                 .noneMatch(d -> d.getName().equals("A+ kWh"))) {
             Optional<MeterRole> meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey());
-            Optional<ReadingTypeTemplate> readingTypeTemplate = metrologyConfigurationService.findReadingTypeTemplate(DefaultReadingTypeTemplate.DELTA_A_PLUS
+            Optional<ReadingTypeTemplate> readingTypeTemplate = metrologyConfigurationService.findReadingTypeTemplate(DefaultReadingTypeTemplate.BULK_A_PLUS
                     .getNameTranslation()
                     .getDefaultFormat());
             Optional<MetrologyPurpose> purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
@@ -77,12 +77,12 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     .findFirst());
 
             if (contract.isPresent() && meterRole.isPresent() && readingTypeTemplate.isPresent()) {
-                ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.DELTA_A_PLUS_WH))
+                ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.BULK_A_PLUS_WH))
                         .stream()
                         .findFirst()
-                        .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.DELTA_A_PLUS_WH, "A+"));
+                        .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.BULK_A_PLUS_WH, "A+"));
                 ReadingTypeRequirement requirementAplusRegister = ((UsagePointMetrologyConfiguration) metrologyConfiguration
-                        .get()).newReadingTypeRequirement(DefaultReadingTypeTemplate.DELTA_A_PLUS.getNameTranslation()
+                        .get()).newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS.getNameTranslation()
                         .getDefaultFormat(), meterRole.get())
                         .withReadingTypeTemplate(readingTypeTemplate.get());
                 contract.get()
