@@ -23,6 +23,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -201,6 +202,61 @@ public class UsagePointImplIT {
 
         // Asserts
         assertThat(metrologyConfigurations).hasSize(2);
+    }
+
+    @Test
+    @Transactional
+    public void testMakeObsolete() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint =
+                serviceCategory
+                        .newUsagePoint("testMakeObsolete", AUG_1ST_2016)
+                        .create();
+
+        // Business method
+        usagePoint.makeObsolete();
+
+        // Asserts
+        Optional<UsagePoint> foundUsagePoint;
+
+        // Asserts that usage point is available by id
+        foundUsagePoint = meteringService.findUsagePointById(usagePoint.getId());
+        assertThat(foundUsagePoint).isPresent();
+        assertThat(foundUsagePoint.get()).isEqualTo(usagePoint);
+        assertThat(foundUsagePoint.get().getObsoleteTime()).isPresent();
+
+        // Asserts that usage point is available by mrid
+        foundUsagePoint = meteringService.findUsagePointByMRID(usagePoint.getMRID());
+        assertThat(foundUsagePoint).isPresent();
+        assertThat(foundUsagePoint.get()).isEqualTo(usagePoint);
+        assertThat(foundUsagePoint.get().getObsoleteTime()).isPresent();
+
+        // Asserts that usage point is NOT available by name
+        foundUsagePoint = meteringService.findUsagePointByName(usagePoint.getName());
+        assertThat(foundUsagePoint).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testGetObsoleteTime() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint =
+                serviceCategory
+                        .newUsagePoint("nonObsolete", AUG_1ST_2016)
+                        .create();
+        UsagePoint usagePointObsolete =
+                serviceCategory
+                        .newUsagePoint("obsolete", AUG_1ST_2016)
+                        .create();
+
+        // Business method
+        usagePointObsolete.makeObsolete();
+
+        // Asserts
+        assertThat(meteringService.findUsagePointById(usagePoint.getId()).get().getObsoleteTime()).isEmpty();
+        assertThat(meteringService.findUsagePointById(usagePointObsolete.getId()).get().getObsoleteTime()).isPresent();
     }
 
     @Test

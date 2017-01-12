@@ -13,16 +13,17 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.geo.Position;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -253,7 +254,7 @@ public class ServiceLocationImplTest extends EqualsContractTest {
 
     @Test
     public void testGetUsagePoints() {
-        when(usagePointFactory.find("serviceLocation", serviceLocation)).thenReturn(Arrays.asList(usagePoint1, usagePoint2));
+        when(usagePointFactory.find("serviceLocation", serviceLocation, "obsoleteTime", null)).thenReturn(Arrays.asList(usagePoint1, usagePoint2));
 
         assertThat(serviceLocation.getUsagePoints()).hasSize(2)
                 .contains(usagePoint1)

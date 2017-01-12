@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
@@ -13,6 +15,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UsagePointBuilderImpl implements UsagePointBuilder {
 
@@ -34,6 +38,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
 
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
+    private Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetsValues = new HashMap<>();
 
     public UsagePointBuilderImpl(DataModel dataModel, String name, Instant installationTime, ServiceCategory serviceCategory) {
         this.serviceCategory = serviceCategory;
@@ -120,9 +125,25 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
+    public UsagePointBuilder addCustomPropertySetValues(RegisteredCustomPropertySet propertySet, CustomPropertySetValues values) {
+        this.customPropertySetsValues.put(propertySet, values);
+        return this;
+    }
+
+    @Override
     public UsagePoint create() {
         UsagePointImpl usagePoint = this.build();
         usagePoint.doSave();
+        if (!customPropertySetsValues.isEmpty()) {
+            customPropertySetsValues.forEach((propertySet, values) -> {
+                if (propertySet.getCustomPropertySet().isVersioned()) {
+                    usagePoint.forCustomProperties().getVersionedPropertySet(propertySet.getId()).setVersionValues(null, values);
+                } else {
+                    usagePoint.forCustomProperties().getPropertySet(propertySet.getId()).setValues(values);
+                }
+            });
+            usagePoint.update(); // force missing CAS validation
+        }
         return usagePoint;
     }
 
@@ -133,7 +154,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         return usagePoint;
     }
 
-    private UsagePointImpl build(){
+    private UsagePointImpl build() {
         UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(name, serviceCategory);
         usagePoint.setSdp(isSdp);
         usagePoint.setVirtual(isVirtual);
