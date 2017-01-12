@@ -18,6 +18,7 @@ import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
+import com.elster.jupiter.demo.impl.commands.CreateNetworkTopologyCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
@@ -121,6 +122,7 @@ import java.time.Clock;
         "osgi.command.function=setDeviceLocations",
         "osgi.command.function=createSPEDevice",
         "osgi.command.function=upgradeDemoData",
+        "osgi.command.function=createNetworkTopology"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -970,5 +972,15 @@ public class DemoServiceImpl {
 
     public void upgradeDemoData() {
         executeTransaction(() -> this.injector.getInstance(DemoDataUpgrade10_1_Command.class).run());
+    }
+
+    public void createNetworkTopology(String gatewayMrid, int deviceCount, int levelCount){
+        executeTransaction(() -> {
+            CreateNetworkTopologyCommand topologyCommand = this.injector.getInstance(CreateNetworkTopologyCommand.class);
+            topologyCommand.setGatewayMrid(gatewayMrid);
+            topologyCommand.setDeviceCount(deviceCount);
+            topologyCommand.setLevelCount(levelCount);
+            topologyCommand.run();
+        });
     }
 }

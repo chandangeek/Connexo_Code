@@ -214,6 +214,10 @@
             <artifactId>mdc.device.topology</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.topology.rest</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>export</artifactId>
         </dependency>
@@ -353,6 +357,11 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.cps.examples</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.topology.rest</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
