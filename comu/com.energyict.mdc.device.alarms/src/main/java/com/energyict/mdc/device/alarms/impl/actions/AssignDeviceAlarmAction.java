@@ -133,7 +133,7 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicableForUser(User user) {
-        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.Constants.ASSIGN_ALARM.equals(p.getName())).findAny().isPresent();
+        return user.getPrivileges().stream().filter(p -> Privileges.Constants.ASSIGN_ALARM.equals(p.getName())).findAny().isPresent();
     }
 
     private class AssigneeValueFactory implements ValueFactory<Assignee>, AssignPropertyFactory {
