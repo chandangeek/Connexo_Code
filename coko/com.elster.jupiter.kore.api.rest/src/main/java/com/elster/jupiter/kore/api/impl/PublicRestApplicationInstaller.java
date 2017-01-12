@@ -65,13 +65,6 @@ public class PublicRestApplicationInstaller implements InstallService, Privilege
 
     private void assignPrivilegesToDefaultRoles() {
         userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestApplication.APP_KEY, new String[]{Privileges.Constants.PUBLIC_REST_API});
-        //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
-        userService.getUser(1)
-                .ifPresent(u -> u.join(userService.getGroups()
-                        .stream()
-                        .filter(e -> e.getName().equals(Roles.DEVELOPER.value()))
-                        .findFirst()
-                        .get()));
     }
 
     @Override
