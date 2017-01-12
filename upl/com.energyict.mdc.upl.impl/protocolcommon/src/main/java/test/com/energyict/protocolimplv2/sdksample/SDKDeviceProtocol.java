@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -34,7 +35,6 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -65,21 +65,24 @@ import java.util.logging.Logger;
 /**
  * Provides an implementation of a DeviceProtocol which serves as a <i>guiding</i>
  * protocol for implementors
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 5/02/13
  * Time: 13:55
  */
 public class SDKDeviceProtocol implements DeviceProtocol {
 
-    private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
     private static final String DEFAULT_OPTIONAL_PROPERTY_NAME = "defaultOptionalProperty";
-
     private final CollectedDataFactory collectedDataFactory;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
-
+    /**
+     * Will group this protocols' security features.
+     * As an example the {@link DlmsSecuritySupport} component is used
+     */
+    private final DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
+    private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
      */
@@ -90,11 +93,6 @@ public class SDKDeviceProtocol implements DeviceProtocol {
      * the calls you make on this.
      */
     private ComChannel comChannel;
-    /**
-     * Will group this protocols' security features.
-     * As an example the {@link DlmsSecuritySupport} component is used
-     */
-    private final DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
     /**
      * Will hold the cache object of the Device related to this protocol
      */
@@ -180,29 +178,13 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        this.deviceProtocolCache = deviceProtocolCache;
-    }
-
-    @Override
     public DeviceProtocolCache getDeviceCache() {
         return this.deviceProtocolCache;
     }
 
     @Override
-    public void setTime(Date timeToSet) {
-        int timeDeviationForWrite = (int) Temporals.toSeconds(getTimeDeviationPropertyForWrite());
-        if (timeDeviationForWrite == 0) {
-            this.logger.log(Level.INFO, "Setting the time of the device to " + timeToSet);
-            this.comChannel.write(timeToSet.toString().getBytes());
-        } else {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(timeToSet);
-            calendar.add(Calendar.SECOND, timeDeviationForWrite);
-            this.logger.log(Level.INFO, "Setting the time of the device to " + calendar.getTime() + ". " +
-                    "This is the time added with the deviation property value of " + timeDeviationForWrite + " seconds");
-            this.comChannel.write(calendar.getTime().toString().getBytes());
-        }
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        this.deviceProtocolCache = deviceProtocolCache;
     }
 
     @Override
@@ -236,6 +218,22 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         Date timeToReturn = cal.getTime();
         this.logger.info("Returning the based on the deviationProperty " + timeToReturn);
         return timeToReturn;
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        int timeDeviationForWrite = (int) Temporals.toSeconds(getTimeDeviationPropertyForWrite());
+        if (timeDeviationForWrite == 0) {
+            this.logger.log(Level.INFO, "Setting the time of the device to " + timeToSet);
+            this.comChannel.write(timeToSet.toString().getBytes());
+        } else {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(timeToSet);
+            calendar.add(Calendar.SECOND, timeDeviationForWrite);
+            this.logger.log(Level.INFO, "Setting the time of the device to " + calendar.getTime() + ". " +
+                    "This is the time added with the deviation property value of " + timeDeviationForWrite + " seconds");
+            this.comChannel.write(calendar.getTime().toString().getBytes());
+        }
     }
 
     @Override
@@ -284,7 +282,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 new SDKLoadProfileProtocolDialectProperties(),
                 new SDKStandardDeviceProtocolDialectProperties(),
                 new SDKTimeDeviceProtocolDialectProperties(),
-                new SDKTopologyTaskProtocolDialectProperties());
+                new SDKTopologyTaskProtocolDialectProperties(),
+                new SDKFirmwareTaskProtocolDialectProperties(),
+                new SDKCalendarTaskProtocolDialectProperties(),
+                new SDKBreakerTaskProtocolDialectProperties()
+        );
     }
 
     @Override
@@ -365,11 +367,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         return this.typedProperties.getTypedProperty(SDKTimeDeviceProtocolDialectProperties.CLOCK_OFFSET_TO_WRITE_PROPERTY_NAME, Duration.ofSeconds(0));
     }
 
-    private String getSlaveOneSerialNumber(){
+    private String getSlaveOneSerialNumber() {
         return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveOneSerialNumberPropertyName, "");
     }
 
-    private String getSlaveTwoSerialNumber(){
+    private String getSlaveTwoSerialNumber() {
         return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveTwoSerialNumberPropertyName, "");
     }
 
@@ -385,17 +387,29 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public CollectedCalendar getCollectedCalendar() {
-        return null;
+        CollectedCalendar collectedCalendar = this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        collectedCalendar.setActiveCalendar((String) this.typedProperties.getProperty(SDKCalendarTaskProtocolDialectProperties.activeCalendarName, ""));
+        collectedCalendar.setPassiveCalendar((String) this.typedProperties.getProperty(SDKCalendarTaskProtocolDialectProperties.passiveCalendarName, ""));
+        return collectedCalendar;
     }
 
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
-        return null;
+        CollectedBreakerStatus breakerStatusCollectedData = collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        String breakerStatus = (String) this.typedProperties.getProperty(SDKBreakerTaskProtocolDialectProperties.breakerStatus, BreakerStatus.CONNECTED.name());
+        breakerStatusCollectedData.setBreakerStatus(BreakerStatus.valueOf(breakerStatus.toUpperCase()));
+        return breakerStatusCollectedData;
     }
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
-        return null;
+        CollectedFirmwareVersion firmwareVersionsCollectedData = this.collectedDataFactory.createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareTaskProtocolDialectProperties.activeMeterFirmwareVersion, ""));
+        firmwareVersionsCollectedData.setPassiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareTaskProtocolDialectProperties.passiveMeterFirmwareVersion, ""));
+        firmwareVersionsCollectedData.setActiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareTaskProtocolDialectProperties.activeCommunicationFirmwareVersion, ""));
+        firmwareVersionsCollectedData.setPassiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareTaskProtocolDialectProperties.passiveCommunicationFirmwareVersion, ""));
+
+        return firmwareVersionsCollectedData;
     }
 
     @Override
