@@ -19,6 +19,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmActionsFactory;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction;
+import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
 import com.energyict.mdc.device.alarms.impl.database.CreateDeviceAlarmViewOperation;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -61,7 +62,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         run(this::setAQSubscriber, "aq subscribers", logger);
         run(() -> {
             IssueType issueType = setSupportedIssueType();
-            setDeviceAlarmReasons(issueType);
+            setDefaultDeviceAlarmReasonsAndActions(issueType);
         }, "issue reasons and action types", logger);
         run(this::publishEvents, "publishing events", logger);
     }
@@ -116,12 +117,13 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         }
     }
 
-    private void setDeviceAlarmReasons(IssueType issueType) {
+    private void setDefaultDeviceAlarmReasonsAndActions(IssueType issueType) {
         //TODO - reasons to be input by hand by user in UI
         issueService.createReason(ModuleConstants.ALARM_REASON, issueType,
                 TranslationKeys.ALARM_REASON, TranslationKeys.ALARM_REASON_DESCRIPTION);
         IssueType deviceAlarmType = issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {

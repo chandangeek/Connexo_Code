@@ -7,6 +7,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -14,7 +15,6 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
@@ -44,12 +44,10 @@ import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.install.Installer;
-import com.energyict.mdc.device.alarms.impl.install.UpgraderV10_3;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.device.data.DeviceService;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -59,13 +57,13 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -135,10 +133,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap
-                .of(
-                        version(10, 3), UpgraderV10_3.class
-                ));
+        upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
@@ -208,10 +203,9 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     public Optional<? extends DeviceAlarm> findAndLockDeviceAlarmByIdAndVersion(long id, long version) {
         Optional<? extends Issue> issue = issueService.findAndLockIssueByIdAndVersion(id, version);
         if (issue.isPresent()) {
-            Optional<OpenDeviceAlarm> openDeviceAlarm = findOpenAlarm(id);
-            return openDeviceAlarm.isPresent() ? openDeviceAlarm : findHistoricalAlarm(id);
+            return findOpenAlarm(id);
         }
-        return Optional.empty();
+        return findHistoricalAlarm(id);
     }
 
     @Override
@@ -284,12 +278,12 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         if (filter.getAlarmId() != null) {
             String[] alarmIdPart = filter.getAlarmId().split("-");
             if (alarmIdPart.length == 2) {
-                if(alarmIdPart[0].toLowerCase().equals("alm")) {
+                if (alarmIdPart[0].toLowerCase().equals("alm")) {
                     condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(alarmIdPart[1])));
-                } else{
+                } else {
                     condition = condition.and(where("id").isEqualTo(0));
                 }
-            } else{
+            } else {
                 condition = condition.and(where("id").isEqualTo(0));
             }
         }
@@ -310,7 +304,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
             condition = condition.and(where("baseIssue.reason").in(filter.getAlarmReasons()));
         }
         //cleared alarm cleared status
-        if(!filter.getCleared().isEmpty()){
+        if (!filter.getCleared().isEmpty()) {
             condition = condition.and(where("clearedStatus").in(filter.getCleared()));
         }
         //filter by workGroup
@@ -343,10 +337,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
             condition = condition.and(dueDateCondition);
         }
         //filter by create time
-        if(filter.getStartCreateTime() != null){
+        if (filter.getStartCreateTime() != null) {
             condition = condition.and(where("createTime").isGreaterThanOrEqual(filter.getStartCreateTime()));
         }
-        if(filter.getEndCreateTime() != null){
+        if (filter.getEndCreateTime() != null) {
             condition = condition.and(where("createTime").isLessThanOrEqual(filter.getEndCreateTime()));
         }
         return condition;
