@@ -4,6 +4,7 @@ Ext.define('Imt.usagepointmanagement.store.Purposes', {
     proxy: {
         type: 'rest',
         url: '/api/udr/usagepoints/{usagePointId}/purposes',
+        timeout: 240000,
         reader: {
             type: 'json',
             root: 'purposes'
