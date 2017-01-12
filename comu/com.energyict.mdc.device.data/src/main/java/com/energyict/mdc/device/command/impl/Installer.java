@@ -6,9 +6,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.PrivilegeCategory;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 
 
@@ -16,9 +15,6 @@ import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.command.security.Privileges;
 
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.logging.Logger;
 
 public class Installer implements FullInstaller {
@@ -35,7 +31,7 @@ public class Installer implements FullInstaller {
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
-        doTry("Install command limitation rule privileges", this::installPrivileges, logger);
+        doTry("Install command limitation rule privileges", this::cerateResources, logger);
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         createCommandRuleStats();
     }
@@ -45,7 +41,7 @@ public class Installer implements FullInstaller {
         Save.CREATE.save(dataModel, commandRuleStats);
     }
 
-    private void installPrivileges() {
+    private void cerateResources() {
         PrivilegeCategory approveCategory = userService.findPrivilegeCategory(DualControlService.DUAL_CONTROL_APPROVE_CATEGORY)
                 .orElseThrow(() -> new IllegalStateException("Dual control not installed yet"));
         userService.buildResource()
@@ -56,5 +52,9 @@ public class Installer implements FullInstaller {
                 .addPrivilege(Privileges.ADMINISTRATE_LIMITATION_RULES.getKey()).add()
                 .addPrivilege(Privileges.VIEW_COMMAND_LIMITATION_RULES.getKey()).add()
                 .create();
+
+        Group dualControlApprover = userService.createGroup("Command limitation rule approver", "Can approve or reject changes on command limitation rules");
+
+        dualControlApprover.grant("MDC", Privileges.APPROVE_COMMAND_LIMITATION_RULES.getKey());
     }
 }
