@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -108,6 +109,7 @@ import static com.elster.jupiter.util.streams.Currying.test;
 
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_MRID + "}")
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_NAME + "}")
+@AllRequiredCustomPropertySetsHaveValues(groups = {Save.Update.class})
 public class UsagePointImpl implements UsagePoint {
     // persistent fields
     @SuppressWarnings("unused")
@@ -118,9 +120,10 @@ public class UsagePointImpl implements UsagePoint {
     private String description;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceLocationString;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String mRID;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -148,6 +151,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    private Instant obsoleteTime;
     private long location;
     private SpatialCoordinates spatialCoordinates;
 
@@ -384,6 +388,11 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
+    /**
+     * This method will not work if there are meter activations, channel containers and channels linked
+     * We keep this method for physical deletion in the future.
+     *
+     **/
     @Override
     public void delete() {
         this.removeMetrologyConfigurationCustomPropertySetValues();
@@ -391,7 +400,6 @@ public class UsagePointImpl implements UsagePoint {
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
         dataModel.remove(this);
-        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
     private void removeMetrologyConfigurations() {
@@ -562,7 +570,7 @@ public class UsagePointImpl implements UsagePoint {
                 .findFirst()
                 .ifPresent(effectiveMetrologyConfiguration -> {
                     validateOverlappingWithLatestMetrologyConfiguration(effectiveMetrologyConfiguration, newStartDate);
-                    if (effectiveMetrologyConfiguration.getEnd() != null) {
+                    if (effectiveMetrologyConfiguration.getEnd() == null) {
                         effectiveMetrologyConfiguration.close(newStartDate);
                     }
                 });
@@ -1304,5 +1312,19 @@ public class UsagePointImpl implements UsagePoint {
 
     private Optional<Location> findLocation(long id) {
         return dataModel.mapper(Location.class).getOptional(id);
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.obsoleteTime = this.clock.instant();
+        this.dataModel.update(this, "obsoleteTime");
+        this.getEffectiveMetrologyConfiguration(this.obsoleteTime)
+                .ifPresent(efmc -> efmc.close(this.obsoleteTime));
+        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteTime() {
+        return Optional.ofNullable(this.obsoleteTime);
     }
 }
