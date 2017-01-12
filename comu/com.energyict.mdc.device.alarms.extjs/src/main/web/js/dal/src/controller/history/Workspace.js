@@ -36,6 +36,17 @@ Ext.define('Dal.controller.history.Workspace', {
                             action: 'showStartProcess',
                             privileges: Dal.privileges.Alarm.viewAdminProcesses,
                         },
+                        viewProcesses: {
+                            title: Uni.I18n.translate('general.processes', 'DAL', 'Processes'),
+                            route: 'processes',
+                            controller: 'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses',
+                            action: 'showAlarmProcesses',
+                            privileges: Dal.privileges.Alarm.viewAdminProcesses,
+                            params: {
+                                process: '',
+
+                            },
+                        },
                         action: {
                             title: Uni.I18n.translate('general.action', 'DAL', 'Action'),
                             route: 'action/{actionId}',
@@ -56,18 +67,6 @@ Ext.define('Dal.controller.history.Workspace', {
 
         }
 
-        /*
-         "workspace/issues/view/viewProcesses": {
-         title: Uni.I18n.translate('general.processes','DAL','Processes'),
-         route: 'workspace/issues/{issueId}/processes',
-         controller: 'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses',
-         action: 'showProcesses',
-         privileges: Isu.privileges.Issue.viewAdminProcesses,
-         params: {
-         process: '',
-
-         },
-         }*/
     },
 
     init: function () {

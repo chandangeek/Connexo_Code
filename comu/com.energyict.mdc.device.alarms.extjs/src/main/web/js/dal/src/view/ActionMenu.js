@@ -73,7 +73,6 @@ Ext.define('Dal.view.ActionMenu', {
             itemId = me.record.getId(),
             detail = Ext.ComponentQuery.query('alarm-detail-top')[0];
 
-        //var detail = Ext.ComponentQuery.query('alarm-detail-top')[0];
         // show/hide 'Assign to me and' and 'Unassign' menu items
         var assignIssueToMe = me.predefinedItems.filter(function (menu) {
             return menu.action === 'assignIssueToMe';

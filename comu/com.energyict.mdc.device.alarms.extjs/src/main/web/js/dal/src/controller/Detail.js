@@ -1,6 +1,8 @@
 Ext.define('Dal.controller.Detail', {
     extend: 'Isu.controller.IssueDetail',
-
+    controllers: [
+        'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses'
+    ],
     stores: [
         'Isu.store.Clipboard',
         'Dal.store.Alarms',
@@ -63,10 +65,10 @@ Ext.define('Dal.controller.Detail', {
             'alarm-detail #alarm-detail-action-menu': {
                 click: this.chooseAction
             },
-            'alarm-detail #alarm-timeline-view': {
+            'alarm-detail #issue-timeline-view': {
                 onClickLink: this.showProcesses
             },
-            'alarm-detail #alarm-process-view': {
+            'alarm-detail #issue-process-view': {
                 onClickLink: this.showProcesses,
                 onClickTaskLink: this.showTask
             }
@@ -78,7 +80,7 @@ Ext.define('Dal.controller.Detail', {
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             store = me.getStore('Dal.store.Alarms'),
-            processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
+            processStore = me.getStore('Bpm.monitorissueprocesses.store.AlarmProcesses'),
             widgetXtype,
             model,
             widget;
