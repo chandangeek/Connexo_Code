@@ -320,6 +320,7 @@ public class UsagePointResource {
         Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end) : null;
         try {
             usagePoint.apply(metrologyConfiguration, start, end);
+            usagePoint.update();
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration",
                     MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
