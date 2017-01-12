@@ -19,7 +19,7 @@ Ext.define('Isu.view.issues.CommentsList', {
             action: 'add'
         }
     ],
-
+    noCommentText: Uni.I18n.translate('general.NoCommentsCreatedYet', 'ISU', 'No comments created yet on this issue'),
     initComponent: function () {
         var me = this;
 
@@ -29,7 +29,7 @@ Ext.define('Isu.view.issues.CommentsList', {
                 itemId: 'no-issue-comments',
                 title: Uni.I18n.translate('general.NoCommentsFound', 'ISU', 'No comments found'),
                 reasons: [
-                    Uni.I18n.translate('general.NoCommentsCreatedYet', 'ISU', 'No comments created yet on this issue')
+                    me.noCommentText
                 ],
                 stepItems: [
                     {
