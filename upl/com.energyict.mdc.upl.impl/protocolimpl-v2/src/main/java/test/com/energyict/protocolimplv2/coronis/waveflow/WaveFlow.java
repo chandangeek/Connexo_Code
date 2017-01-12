@@ -145,7 +145,7 @@ public abstract class WaveFlow implements DeviceProtocol, SerialNumberSupport {
 
     public WaveFlowProperties getWaveFlowProperties() {
         if (waveFlowProperties == null) {
-            waveFlowProperties = new WaveFlowProperties(TypedProperties.empty());
+            waveFlowProperties = new WaveFlowProperties(TypedProperties.empty(), this.propertySpecService);
         }
         return waveFlowProperties;
     }
