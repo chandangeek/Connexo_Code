@@ -105,7 +105,7 @@ public class UserResource {
         List<UserInfo> userInfos = list.stream()
                 .map(user -> userInfoFactory.from(nlsService, user))
                 .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("users", userInfos, jsonQueryParameters);
+        return PagedInfoList.fromPagedList("users", userInfos, jsonQueryParameters);
     }
 
     @GET

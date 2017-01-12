@@ -97,7 +97,7 @@ public class GroupResource {
         List<GroupInfo> groupInfos = list.stream()
                 .map(group -> groupInfoFactory.from(nlsService, group))
                 .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("groups", groupInfos, jsonQueryParameters);
+        return PagedInfoList.fromPagedList("groups", groupInfos, jsonQueryParameters);
     }
 
     @PUT
