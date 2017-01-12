@@ -1,48 +1,23 @@
 package test.com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.SecureConnection;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.properties.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.ProfileData;
@@ -59,22 +34,11 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
-import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
-import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
+import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 
 /**
  * <p>
@@ -197,8 +161,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
             UniversalObject uo = getMeterConfig().getSerialNumberObject();
             byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
             return AXDRDecoder.decode(responsedata).getOctetString().stringValue();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, dlmsConnection.getMaxRetries() + 1);
         }
     }
@@ -206,25 +169,26 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.string(SECURITYLEVEL.getName(), false),
-                UPLPropertySpecFactory.string(NODEID.getName(), false),
-                UPLPropertySpecFactory.string(ADDRESS.getName(), false),
-                UPLPropertySpecFactory.string(SERIALNUMBER.getName(), false),
-                UPLPropertySpecFactory.integer("Connection", false),
-                UPLPropertySpecFactory.integer("ClientMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerUpperMacAddress", false),
-                UPLPropertySpecFactory.integer("ServerLowerMacAddress", false),
-                UPLPropertySpecFactory.integer(TIMEOUT.getName(), false),
-                UPLPropertySpecFactory.integer(RETRIES.getName(), false),
-                UPLPropertySpecFactory.integer(ROUNDTRIPCORRECTION.getName(), false),
-                UPLPropertySpecFactory.integer("ForceDelay", false),
-                UPLPropertySpecFactory.integer("AddressingMode", false),
-                UPLPropertySpecFactory.string("Manufacturer", false),
-                UPLPropertySpecFactory.integer("InformationFieldSize", false),
-                UPLPropertySpecFactory.integer("IIAPInvokeId", false),
-                UPLPropertySpecFactory.integer("IIAPPriority", false),
-                UPLPropertySpecFactory.integer("IIAPServiceClass", false),
-                UPLPropertySpecFactory.integer("CipheringType", false, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
+                UPLPropertySpecFactory.specBuilder(SECURITYLEVEL.getName(), false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(NODEID.getName(), false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("Connection", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("ClientMacAddress", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("ServerUpperMacAddress", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("ServerLowerMacAddress", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("ForceDelay", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("AddressingMode", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("Manufacturer", false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("InformationFieldSize", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("IIAPInvokeId", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("IIAPPriority", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("IIAPServiceClass", false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder("CipheringType", false, this.propertySpecService::integerSpec)
+                        .addValues(CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()).finish());
     }
 
     @Override
