@@ -1,7 +1,9 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
@@ -18,6 +20,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
@@ -500,15 +503,19 @@ public class UsagePointResource {
             return Response.accepted().build();
         }
 
-        UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
-        info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
-
+        UsagePointBuilder usagePointBuilder = usagePointInfoFactory.newUsagePointBuilder(info);
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
-            UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
-                    .getPropertySet(customPropertySetInfo.id);
-            propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
-                    propertySet.getCustomPropertySet().getPropertySpecs()));
+            RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class).stream()
+                    .filter(propertySet -> propertySet.getId() == customPropertySetInfo.id)
+                    .findAny()
+                    .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetInfo.id));
+            CustomPropertySet<?, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
+            CustomPropertySetValues values = customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo, customPropertySet.getPropertySpecs());
+            usagePointBuilder.addCustomPropertySetValues(registeredCustomPropertySet, values);
         }
+
+        UsagePoint usagePoint = usagePointBuilder.create();
+        info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
         return Response.status(Response.Status.CREATED).entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
     }
 
