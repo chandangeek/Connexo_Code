@@ -5,10 +5,12 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         'Bpm.monitorissueprocesses.model.ProcessNodes'
     ],
     stores: [
-        'Bpm.monitorissueprocesses.store.IssueProcesses'
+        'Bpm.monitorissueprocesses.store.IssueProcesses',
+        'Bpm.monitorissueprocesses.store.AlarmProcesses'
     ],
     views: [
-        'Bpm.monitorissueprocesses.view.IssueProcessesMainView'
+        'Bpm.monitorissueprocesses.view.IssueProcessesMainView',
+        'Bpm.monitorissueprocesses.view.AlarmProcessesMainView'
     ],
     refs: [
         {ref: 'mainPage', selector: 'bpm-issue-processes-main-view'},
@@ -26,6 +28,9 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
             '#issue-processes #issue-processes-grid': {
                 select: this.showProcessPreview
             },
+            '#alarm-processes #issue-processes-grid': {
+                select: this.showProcessPreview
+            },
             '#issue-process-preview #process-nodes-grid': {
                 select: this.showVariablesPreview
             }
@@ -35,19 +40,55 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
     initStores: function (properties) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            issueProcessesStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses');
+            action = properties.route.action,
+            issueProcessesStore = properties.store;
 
         if(issueProcessesStore.data.items.length < 1) {
-            issueProcessesStore.getProxy().setUrl(router.arguments['issueId']);
+            issueProcessesStore.getProxy().setUrl(
+                (action === 'showProcesses') ? router.arguments['issueId']: router.arguments['alarmId']);
             issueProcessesStore.load({});
         }
 
+    },
+
+    showAlarmProcesses:function (alarmId, processId) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            processStore = me.getStore('Bpm.monitorissueprocesses.store.AlarmProcesses'),
+            widget,
+            processRecord;
+
+        viewport.setLoading();
+
+        widget = Ext.widget('bpm-alarm-processes-main-view', {
+            properties: {
+                route: router.getRoute(),
+                store:processStore
+            }
+        });
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        Ext.ModelManager.getModel('Dal.model.Alarm').load(alarmId, {
+            success: function (alarm) {
+                me.getApplication().fireEvent('issueLoad', alarm);
+            },
+            failure: function (response) {
+                viewport.setLoading(false);
+            }
+        });
+        viewport.setLoading(false);
+
+        processRecord = me.getIssueProcessesGrid().getStore().findRecord('processId', processId);
+        if(processRecord)
+            me.getIssueProcessesGrid().getSelectionModel().select(processRecord);
     },
 
     showProcesses:function (issueId, processId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
+            processStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             widget,
             processRecord;
 
@@ -56,7 +97,8 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
 
         widget = Ext.widget('bpm-issue-processes-main-view', {
             properties: {
-                route: router.getRoute()
+                route: router.getRoute(),
+                store:processStore
             }
         });
 
