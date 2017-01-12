@@ -119,7 +119,7 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
         if ((principal instanceof User)) {
             currentUser = (User) principal;
         } else {
-            return principal.getName().equals("Installer");
+            return principal.getName().equals("Installer") || principal.getName().equals("console");
         }
 
         boolean canGrantNormalPrivileges = currentUser.getPrivileges()
