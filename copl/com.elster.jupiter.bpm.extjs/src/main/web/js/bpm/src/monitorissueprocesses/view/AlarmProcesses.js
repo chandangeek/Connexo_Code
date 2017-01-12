@@ -1,7 +1,7 @@
-Ext.define('Bpm.monitorissueprocesses.view.IssueProcesses', {
+Ext.define('Bpm.monitorissueprocesses.view.AlarmProcesses', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.bpm-issue-processes',
-    store:'Bpm.monitorissueprocesses.store.IssueProcesses',
+    alias: 'widget.bpm-alarm-processes',
+    store:'Bpm.monitorissueprocesses.store.AlarmProcesses',
     requires: [
         'Bpm.monitorissueprocesses.view.IssueProcessesGrid',
         'Bpm.monitorissueprocesses.view.IssueProcessPreview'

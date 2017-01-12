@@ -5,8 +5,8 @@ Ext.define('Bpm.monitorissueprocesses.view.IssueProcessesGrid', {
     width: '100%',
     maxHeight: 150,
     requires: [
-
-        'Bpm.monitorissueprocesses.store.IssueProcesses'
+        'Bpm.monitorissueprocesses.store.IssueProcesses',
+        'Bpm.monitorissueprocesses.store.AlarmProcesses'
     ],
 
     initComponent: function () {
