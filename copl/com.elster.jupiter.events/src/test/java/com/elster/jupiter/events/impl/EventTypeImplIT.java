@@ -5,7 +5,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.ValueType;
-//import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -65,7 +65,7 @@ public class EventTypeImplIT {
             injector = Guice.createInjector(
                     new MockModule(),
                     inMemoryBootstrapModule,
-//                    new InMemoryMessagingModule(),
+                    new InMemoryMessagingModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
