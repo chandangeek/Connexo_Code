@@ -37,7 +37,7 @@ Ext.define('Dal.controller.history.Workspace', {
                             privileges: Dal.privileges.Alarm.viewAdminProcesses,
                         },
                         viewProcesses: {
-                            title: Uni.I18n.translate('general.startProcess', 'DAL', 'Processes'),
+                            title: Uni.I18n.translate('general.processes', 'DAL', 'Processes'),
                             route: 'processes',
                             controller: 'Bpm.monitorissueprocesses.controller.MonitorIssueProcesses',
                             action: 'showAlarmProcesses',
