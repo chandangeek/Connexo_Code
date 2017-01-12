@@ -146,4 +146,9 @@ public abstract class AbstractComChannel implements ComChannel {
         return disconnecting;
     }
 
+    @Override
+    public boolean isVoid() {
+        return false;
+    }
+
 }

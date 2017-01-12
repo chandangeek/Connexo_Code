@@ -70,4 +70,5 @@ public class SocketComChannel extends SynchroneousComChannel {
             throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
+
 }

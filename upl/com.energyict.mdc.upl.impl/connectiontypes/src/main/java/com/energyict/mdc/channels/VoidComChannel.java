@@ -67,4 +67,9 @@ public class VoidComChannel extends AbstractComChannel {
         // nothing to do
     }
 
+    @Override
+    public boolean isVoid() {
+        return true;
+    }
+
 }

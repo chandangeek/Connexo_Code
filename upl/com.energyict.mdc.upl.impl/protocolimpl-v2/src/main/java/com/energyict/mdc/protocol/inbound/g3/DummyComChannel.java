@@ -90,4 +90,9 @@ public class DummyComChannel implements ComChannel {
     public void setTimeout(long millis) {
 
     }
+
+    @Override
+    public boolean isVoid() {
+        return false;
+    }
 }

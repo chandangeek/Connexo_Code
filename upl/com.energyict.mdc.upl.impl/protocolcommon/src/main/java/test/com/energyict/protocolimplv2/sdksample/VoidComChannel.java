@@ -84,4 +84,10 @@ public class VoidComChannel implements ComChannel {
     public void setTimeout(long millis) {
 
     }
+
+    @Override
+    public boolean isVoid() {
+        return true;
+    }
+
 }
