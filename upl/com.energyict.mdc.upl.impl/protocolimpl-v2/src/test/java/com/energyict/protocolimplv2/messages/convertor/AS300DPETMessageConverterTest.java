@@ -68,7 +68,7 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AS300DPET(this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(), getDateFormatter());
+        return new AS300DPET(this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(), getDateFormatter(), this.getPropertySpecService());
     }
 
     @Override

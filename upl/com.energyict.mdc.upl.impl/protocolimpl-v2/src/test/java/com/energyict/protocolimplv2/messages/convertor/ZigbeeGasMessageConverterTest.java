@@ -149,7 +149,7 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new ZigbeeGas(this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.dateFormatter);
+        return new ZigbeeGas(this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.dateFormatter, this.propertySpecService);
     }
 
     @Override

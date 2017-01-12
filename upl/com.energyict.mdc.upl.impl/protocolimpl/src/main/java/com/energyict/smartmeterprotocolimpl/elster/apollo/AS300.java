@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -52,13 +53,15 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final DateFormatter dateFormatter;
+    private final PropertySpecService propertySpecService;
 
-    public AS300(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
+    public AS300(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter, PropertySpecService propertySpecService) {
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
         this.messageFileExtractor = messageFileExtractor;
         this.dateFormatter = dateFormatter;
+        this.propertySpecService = propertySpecService;
     }
 
     protected TariffCalendarFinder getCalendarFinder() {
@@ -84,7 +87,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     @Override
     public AS300Properties getProperties() {
         if (properties == null) {
-            properties = new AS300Properties();
+            properties = new AS300Properties(this.propertySpecService);
         }
         return properties;
     }

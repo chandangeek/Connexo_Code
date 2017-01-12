@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.Extractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -34,14 +35,16 @@ public class Apollo5MessageExecutorTest {
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
     private DateFormatter dateFormatter;
+    @Mock
+    private PropertySpecService propertySpecService;
 
     @Test
     public void test() throws IOException {
         String xml = "<SetPublicKeysOfAggregationGroup><KeyPair1>0102030405010203040501020304050102030405010203040501020304050101,0102030405010203040501020304050102030405010203040501020304050101</KeyPair1><KeyPair2>0102030405010203040501020304050102030405010203040501020304050101,0102030405010203040501020304050102030405010203040501020304050101</KeyPair2></SetPublicKeysOfAggregationGroup>";
         AS300DPETMessageExecutor executor =
                 new AS300DPETMessageExecutor(
-                        new AS300DPET(calendarFinder, extractor, messageFileFinder, dateFormatter),
-                        calendarFinder, extractor, messageFileFinder, dateFormatter);
+                        new AS300DPET(calendarFinder, extractor, messageFileFinder, dateFormatter, propertySpecService),
+                        calendarFinder, extractor, messageFileFinder, dateFormatter, propertySpecService);
         List<String> keyPairs = executor.parseKeyPairs(MessageEntry.fromContent(xml).trackingId("0").finish());
 
         for (String keyPair : keyPairs) {

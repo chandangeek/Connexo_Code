@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.SmartMeterProtocol;
@@ -39,6 +40,8 @@ public class WebRTUZ3RegisterFactoryTest {
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
     private Extractor extractor;
+    @Mock
+    private PropertySpecService propertySpecService;
 
     Log logger = LogFactory.getLog(this.getClass());
 
@@ -47,7 +50,7 @@ public class WebRTUZ3RegisterFactoryTest {
         try {
             TypedProperties props = new TypedProperties();
             props.setProperty(SmartMeterProtocol.SERIALNUMBER, "Master");
-            WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
+            WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor, propertySpecService);
             meterProtocol.addProperties(props);
             meterProtocol.getDlmsSession().init();
             WebRTUZ3RegisterFactory registerFactory = new WebRTUZ3RegisterFactory(meterProtocol);

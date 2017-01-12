@@ -174,7 +174,7 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new AS300(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter);
+        return new AS300(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter, propertySpecService);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -11,6 +12,7 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvi
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
@@ -36,6 +38,17 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
 
     private SecurityProvider securityProvider;
 
+    private final PropertySpecService propertySpecService;
+
+    public ZigbeeGasProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    public ZigbeeGasProperties(Properties properties, PropertySpecService propertySpecService) {
+        super(properties);
+        this.propertySpecService = propertySpecService;
+    }
+
     public DLMSReference getReference() {
         return DLMSReference.LN;
     }
@@ -43,24 +56,24 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
-                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(CONNECTION, false),
-                UPLPropertySpecFactory.integer(PK_FORCED_DELAY, false),
-                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_ERROR, false),
-                UPLPropertySpecFactory.integer(INFORMATION_FIELD_SIZE, false),
-                UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(ROUND_TRIP_CORRECTION, false),
-                UPLPropertySpecFactory.integer(BULK_REQUEST, false),
-                UPLPropertySpecFactory.integer(CIPHERING_TYPE, false),
-                UPLPropertySpecFactory.integer(NTA_SIMULATION_TOOL, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_AUTHENTICATIONKEY, false),
-                UPLPropertySpecFactory.hexString(DATATRANSPORT_ENCRYPTIONKEY, false),
-                UPLPropertySpecFactory.integer(LOGBOOK_SELECTOR, false));
+                UPLPropertySpecFactory.specBuilder(SECURITY_LEVEL, true, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ADDRESSING_MODE, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(CLIENT_MAC_ADDRESS, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(SERVER_MAC_ADDRESS, false, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(CONNECTION, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_FORCED_DELAY, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_DELAY_AFTER_ERROR, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(INFORMATION_FIELD_SIZE, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(MAX_REC_PDU_SIZE, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ROUND_TRIP_CORRECTION, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(BULK_REQUEST, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(CIPHERING_TYPE, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(NTA_SIMULATION_TOOL, false, propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(DATATRANSPORT_AUTHENTICATIONKEY, false, propertySpecService::hexStringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(DATATRANSPORT_ENCRYPTIONKEY, false, propertySpecService::hexStringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(LOGBOOK_SELECTOR, false, propertySpecService::integerSpec).finish());
     }
 
     @ProtocolProperty
