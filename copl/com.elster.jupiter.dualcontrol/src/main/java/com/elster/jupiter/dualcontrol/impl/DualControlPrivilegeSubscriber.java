@@ -70,7 +70,7 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
                 throw new GrantRefusedException(MessageSeeds.CANT_COMBINE_ROLES_WITH_PRIVILEGES_X_AND_Y, "roles",
                         privilegeThesaurus.translatePrivilegeKey(grantPrivilege.getName()), privilegeThesaurus.translatePrivilegeKey(approvePrivilege.getName()));
             }
-            if(!canCurrentUserGrantRole(group)) {
+            if (!canCurrentUserGrantRole(group)) {
                 throw new GrantRefusedException(MessageSeeds.CANT_GRANT_ROLE, "role");
             }
         }
@@ -87,7 +87,7 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
                         .anyMatch(isDualControlGrant());
                 if (aUserAlreadyHasGrant) {
                     throw new GrantRefusedException(MessageSeeds.CANT_COMBINE_WITH_GRANT, "privileges"
-                           , privilegeThesaurus.translatePrivilegeKey(privilege.getName()), privilegeThesaurus.translatePrivilegeKey(Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey()));
+                            , privilegeThesaurus.translatePrivilegeKey(privilege.getName()), privilegeThesaurus.translatePrivilegeKey(Privileges.GRANT_DUAL_CONTROL_APPROVAL.getKey()));
                 }
             }
             if (isDualControlGrant().test(privilege)) {
@@ -113,19 +113,15 @@ public class DualControlPrivilegeSubscriber implements Subscriber {
         return privilege -> privilege.getCategory().getName().equals(DualControlService.DUAL_CONTROL_GRANT_CATEGORY);
     }
 
-    private Optional<User> getCurrentUser() {
-        Principal principal = threadPrincipalService.getPrincipal();
-        if (!(principal instanceof User)) {
-            return Optional.empty();
-        }
-        return Optional.of((User) principal);
-    }
-
     private boolean canCurrentUserGrantRole(Group group) {
-        if (!getCurrentUser().isPresent()) {
-            return false;
+        Principal principal = threadPrincipalService.getPrincipal();
+        User currentUser;
+        if ((principal instanceof User)) {
+            currentUser = (User) principal;
+        } else {
+            return principal.getName().equals("Installer");
         }
-        User currentUser = getCurrentUser().get();
+
         boolean canGrantNormalPrivileges = currentUser.getPrivileges()
                 .stream()
                 .filter(privilege -> privilege.getName().equals(com.elster.jupiter.users.security.Privileges.ADMINISTRATE_USER_ROLE.getKey()))
