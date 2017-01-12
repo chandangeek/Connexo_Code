@@ -5,13 +5,13 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
@@ -64,7 +64,7 @@ public class AS300DPET extends AS300 {
 
     public AS300Properties getProperties() {
         if (properties == null) {
-            properties = new AS300DPETProperties();
+            properties = new AS300DPETProperties(this.getPropertySpecService());
         }
         return properties;
     }
