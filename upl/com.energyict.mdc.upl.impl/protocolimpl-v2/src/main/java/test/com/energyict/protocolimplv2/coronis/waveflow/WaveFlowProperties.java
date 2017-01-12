@@ -2,6 +2,7 @@ package test.com.energyict.protocolimplv2.coronis.waveflow;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -39,9 +40,11 @@ public class WaveFlowProperties {
 
 
     private TypedProperties properties;
+    private final PropertySpecService propertySpecService;
 
-    public WaveFlowProperties(TypedProperties properties) {
+    public WaveFlowProperties(TypedProperties properties, PropertySpecService propertySpecService) {
         this.properties = properties;
+        this.propertySpecService = propertySpecService;
     }
 
     /**
@@ -139,21 +142,20 @@ public class WaveFlowProperties {
 
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-            UPLPropertySpecFactory.bigDecimal(TIMEOUT, false),
-            UPLPropertySpecFactory.bigDecimal(RETRIES, false),
-            UPLPropertySpecFactory.bigDecimal(PROP_SCALE_A, false),
-            UPLPropertySpecFactory.bigDecimal(PROP_SCALE_B, false),
-            UPLPropertySpecFactory.bigDecimal(PROP_SCALE_C, false),
-            UPLPropertySpecFactory.bigDecimal(PROP_SCALE_D, false),
-            UPLPropertySpecFactory.bigDecimal(PROP_MULTIPLIER_A, false),
-            UPLPropertySpecFactory.bigDecimal(PROP_MULTIPLIER_B, false),
-            UPLPropertySpecFactory.bigDecimal(PROP_MULTIPLIER_C, false),
-            UPLPropertySpecFactory.bigDecimal(PROP_MULTIPLIER_D, false),
-            UPLPropertySpecFactory.bigDecimal(APPLICATION_STATUS_VARIANT, false),
-            UPLPropertySpecFactory.bigDecimal(INITIAL_RF_COMMAND, false),
-            UPLPropertySpecFactory.booleanValue(ROUND_DOWN_TO_NEAREST_INTERVAL, false),
-            UPLPropertySpecFactory.booleanValue(ENABLE_MULTI_FRAME_MODE, false),
-            UPLPropertySpecFactory.string(WAVENIS_BUBBLE_UP_INFO, false));
+            UPLPropertySpecFactory.specBuilder(TIMEOUT, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(RETRIES, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(PROP_SCALE_A, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(PROP_SCALE_B, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(PROP_SCALE_C, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(PROP_SCALE_D, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(PROP_MULTIPLIER_A, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(PROP_MULTIPLIER_B, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(PROP_MULTIPLIER_C, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(PROP_MULTIPLIER_D, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(APPLICATION_STATUS_VARIANT, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(INITIAL_RF_COMMAND, false, this.propertySpecService::bigDecimalSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(ROUND_DOWN_TO_NEAREST_INTERVAL, false, this.propertySpecService::booleanSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(ENABLE_MULTI_FRAME_MODE, false, this.propertySpecService::booleanSpec).finish(),
+            UPLPropertySpecFactory.specBuilder(WAVENIS_BUBBLE_UP_INFO, false, this.propertySpecService::stringSpec).finish());
     }
-
 }
