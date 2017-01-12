@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.alarms.rest.resource;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
@@ -27,6 +29,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.alarms.rest.response.AlarmProcessInfos;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmActionInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfo;
 import com.energyict.mdc.device.alarms.rest.response.DeviceAlarmInfoFactory;
@@ -34,11 +37,16 @@ import com.energyict.mdc.device.alarms.rest.transactions.AssignToMeSingleDeviceA
 import com.energyict.mdc.device.alarms.rest.transactions.UnassignSingleDeviceAlarmTransaction;
 import com.energyict.mdc.device.alarms.security.Privileges;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -66,11 +74,13 @@ public class DeviceAlarmResource extends BaseAlarmResource{
 
     private final DeviceAlarmInfoFactory deviceAlarmInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final BpmService bpmService;
 
     @Inject
-    public DeviceAlarmResource(DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
+    public DeviceAlarmResource(DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService) {
         this.conflictFactory = conflictFactory;
         this.deviceAlarmInfoFactory = deviceAlarmInfoFactory;
+        this.bpmService = bpmService;
     }
 
     @GET
@@ -198,6 +208,43 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         Function<ActionInfo, DeviceAlarm> issueProvider = result -> getDeviceAlarm(id, result);
         ActionInfo info = getTransactionService().execute(new UnassignSingleDeviceAlarmTransaction(issueProvider, getThesaurus()));
         return Response.ok().entity(info).build();
+    }
+
+    @GET @Transactional
+    @Path("/{id}/processes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
+    public AlarmProcessInfos getTimeine(@PathParam("id") long id, @BeanParam StandardParametersBean params, @HeaderParam("Authorization") String auth) {
+        String jsonContent;
+        AlarmProcessInfos issueProcessInfos = new AlarmProcessInfos();
+        JSONArray arr = null;
+        if(params.get("variableid") != null && params.get("variablevalue") != null ) {
+            try {
+                String rest = "/rest/tasks/allprocesses?";
+                rest += "variableid=" + params.get("variableid").get(0);
+                rest += "&variablevalue=" + params.get("variablevalue").get(0);
+                jsonContent = bpmService.getBpmServer().doGet(rest, auth);
+                if (!"".equals(jsonContent)) {
+                    JSONObject obj = new JSONObject(jsonContent);
+                    arr = obj.getJSONArray("processInstances");
+                }
+            } catch (JSONException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(getThesaurus().getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}."))
+                        .build());
+            } catch (RuntimeException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(String.format(getThesaurus().getString("error.flow.invalid.response", "Invalid response received, please check your Flow version."), e.getMessage()))
+                        .build());
+            }
+            List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+            issueProcessInfos = new AlarmProcessInfos(arr);
+            issueProcessInfos.processes = issueProcessInfos.processes.stream()
+                    .filter(s -> !s.status.equals("1") || activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
+                    .collect(Collectors.toList());
+        }
+        return issueProcessInfos;
+
     }
 
     private DeviceAlarm getDeviceAlarm(Long id, ActionInfo result) {

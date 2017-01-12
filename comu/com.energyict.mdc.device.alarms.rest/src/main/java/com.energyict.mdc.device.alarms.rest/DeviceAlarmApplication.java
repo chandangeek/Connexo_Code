@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.alarms.rest;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -57,6 +58,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     private volatile NlsService nlsService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile IssueActionService issueActionService;
+    private volatile BpmService bpmService;
 
     public DeviceAlarmApplication(){
 
@@ -100,6 +102,11 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference
@@ -165,6 +172,7 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(bpmService).to(BpmService.class);
         }
     }
 }
