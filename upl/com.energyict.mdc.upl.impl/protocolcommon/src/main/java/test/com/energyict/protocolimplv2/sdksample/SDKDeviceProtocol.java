@@ -140,7 +140,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Collections.singletonList(UPLPropertySpecFactory.booleanValue(DEFAULT_OPTIONAL_PROPERTY_NAME, false));
+        return Collections.singletonList(UPLPropertySpecFactory.specBuilder(DEFAULT_OPTIONAL_PROPERTY_NAME, false, this.propertySpecService::booleanSpec).finish());
     }
 
     @Override
