@@ -14,6 +14,7 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
     ],
     refs: [
         {ref: 'mainPage', selector: 'bpm-issue-processes-main-view'},
+        {ref: 'mainAlarmsProcessPage', selector: 'bpm-alarm-processes-main-view'},
         {ref: 'issueProcessesGrid', selector: '#issue-processes-grid'},
         {ref: 'processNodesGrid', selector: '#issue-process-preview #process-nodes-grid'},
         {ref: 'variablesPreviewPanel', selector: '#issue-process-preview #node-variables-preview-panel'}
@@ -125,6 +126,10 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
             openTasksValue = "";
 
 
+        if(!mainPage){
+            mainPage = me.getMainAlarmsProcessPage();
+        }
+        
         Ext.suspendLayouts();
 
         record.openTasks().each(function (rec) {
