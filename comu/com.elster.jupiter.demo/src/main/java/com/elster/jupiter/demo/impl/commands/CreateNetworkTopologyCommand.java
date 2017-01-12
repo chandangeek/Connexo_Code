@@ -54,7 +54,7 @@ public class CreateNetworkTopologyCommand  extends CommandWithTransaction{
         if (!gateway.isPresent()){
             throw new RuntimeException(String.format("No device with name %s", gatewayMrid));
         }
-
-        new NetworkTopologyBuilder(deviceService, topologyService, deviceConfigurationService, clock).havingNodes(deviceCount).havingLevels(levelCount).buildTopology(gateway.get());
+    //  Had to stop development on this branch: getting keylines license seems to be a problem
+    //    new NetworkTopologyBuilder(deviceService, topologyService, deviceConfigurationService, clock).havingNodes(deviceCount).havingLevels(levelCount).buildTopology(gateway.get());
     }
 }
