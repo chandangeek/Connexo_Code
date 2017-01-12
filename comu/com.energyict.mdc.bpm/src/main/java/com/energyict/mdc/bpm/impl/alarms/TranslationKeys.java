@@ -4,9 +4,9 @@ import com.elster.jupiter.nls.TranslationKey;
 
 
 public enum TranslationKeys implements TranslationKey {
-    DEVICE_ALARM_ASSOCIATION_PROVIDER(DeviceAlarmProcessAssociationProvider.ASSOCIATION_TYPE, "Device alarm"),
-    DEVICE_ALARM_REASON_TITLE("alarmReasons", "Device alarm reasons"),
-    DEVICE_ALARM_REASON_COLUMN("alarmReason", "Device alarm reason");
+    DEVICE_ALARM_ASSOCIATION_PROVIDER(DeviceAlarmProcessAssociationProvider.ASSOCIATION_TYPE, "Alarm"),
+    DEVICE_ALARM_REASON_TITLE("alarmReasons", "Alarm reasons"),
+    DEVICE_ALARM_REASON_COLUMN("alarmReason", "Alarm reason");
 
     private final String key;
     private final String defaultFormat;

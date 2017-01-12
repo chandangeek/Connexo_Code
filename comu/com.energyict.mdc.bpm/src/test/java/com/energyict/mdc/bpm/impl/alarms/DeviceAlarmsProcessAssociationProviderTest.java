@@ -49,7 +49,7 @@ public class DeviceAlarmsProcessAssociationProviderTest {
 
         PropertySpec spec = provider.getPropertySpec("alarmReasons").get();
         assertEquals("alarmReasons", spec.getName());
-        assertEquals("Device alarm reasons", spec.getDisplayName());
+        assertEquals("Alarm reasons", spec.getDisplayName());
         assertTrue(spec.isRequired());
         assertTrue(spec.supportsMultiValues());
         assertTrue(spec.getPossibleValues().isExhaustive());
