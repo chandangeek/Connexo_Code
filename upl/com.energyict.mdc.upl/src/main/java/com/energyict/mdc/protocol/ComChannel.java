@@ -27,7 +27,7 @@ public interface ComChannel extends Flushable {
      * Before each call, this AtomicBoolean will be checked, and if set, the communication will be aborted
      * (~ a proper ComServerRuntimeException will be thrown).
      */
-    public AtomicBoolean abortCommunication = new AtomicBoolean(false);
+    AtomicBoolean abortCommunication = new AtomicBoolean(false);
 
     /**
      * Prepares the ComChannel for reading and returns
@@ -35,7 +35,7 @@ public interface ComChannel extends Flushable {
      * before the call, i.e. if the read/write status
      * changed as a result.
      */
-    public boolean startReading();
+    boolean startReading();
 
     /**
      * Reads the next byte of data from the connected device.
@@ -51,7 +51,7 @@ public interface ComChannel extends Flushable {
      * @return The next byte of data, or <code>-1</code> if the end of the
      * communication is reached.
      */
-    public int read();
+    int read();
 
     /**
      * Reads some number of bytes from the connected device
@@ -84,7 +84,7 @@ public interface ComChannel extends Flushable {
      * @throws NullPointerException If <code>buffer</code> is <code>null</code>.
      * @see #read(byte[], int, int)
      */
-    public int read(byte buffer[]);
+    int read(byte buffer[]);
 
     /**
      * Reads up to <code>length</code> bytes of data from the connected device
@@ -128,7 +128,7 @@ public interface ComChannel extends Flushable {
      * <code>length</code> is negative, or <code>length</code> is greater than
      * <code>buffer.length - offset</code>
      */
-    public int read(byte buffer[], int offset, int length);
+    int read(byte buffer[], int offset, int length);
 
     /**
      * Returns an estimate of the number of bytes that can be read (or
@@ -141,7 +141,7 @@ public interface ComChannel extends Flushable {
      * from this communication without blocking or {@code 0} when
      * it reaches the end of the communication.
      */
-    public int available();
+    int available();
 
     /**
      * Prepares the ComChannel for writing and returns
@@ -149,7 +149,7 @@ public interface ComChannel extends Flushable {
      * before the call, i.e. if the read/write status
      * changed as a result.
      */
-    public boolean startWriting();
+    boolean startWriting();
 
     /**
      * Writes the specified byte to the connected device.
@@ -164,7 +164,7 @@ public interface ComChannel extends Flushable {
      * @param b The <code>byte</code>.
      * @return The number of bytes written
      */
-    public int write(int b);
+    int write(int b);
 
     /**
      * Writes <code>bytes.length</code> bytes from the specified byte array
@@ -178,25 +178,25 @@ public interface ComChannel extends Flushable {
      * @param bytes The data
      * @return The number of bytes written
      */
-    public int write(byte bytes[]);
+    int write(byte bytes[]);
 
     /**
      * Closes this ComChannel and releases any
      * system resources associated with it.
      */
-    public void close();
+    void close();
 
     /**
      * Adds the provided connectionTaskProperties
      *
      * @param typedProperties the connectionTaskProperties
      */
-    public void addProperties(TypedProperties typedProperties);
+    void addProperties(TypedProperties typedProperties);
 
     /**
      * @return all configured properties of the current ConnectionTask
      */
-    public TypedProperties getProperties();
+    TypedProperties getProperties();
 
     /**
      * Prepares the ComChannel for disconnect<br/>
@@ -214,5 +214,8 @@ public interface ComChannel extends Flushable {
      *
      * @param millis the time in milliseconds that the protocol implementation waits for a response from the device
      */
-    public void setTimeout(long millis);
+    void setTimeout(long millis);
+
+    boolean isVoid();
+
 }
