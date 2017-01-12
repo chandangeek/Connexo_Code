@@ -93,8 +93,11 @@ Ext.define('Dal.controller.Alarms', {
             queryString = Uni.util.QueryString.getQueryStringValues(false);
 
         if (_.values(queryString).length == 0){
-            queryString = this.getStore('Isu.store.Clipboard').get('latest-issues-filter');
-            window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+            var latestQueryString = this.getStore('Isu.store.Clipboard').get('latest-issues-filter');
+            if (latestQueryString) {
+                queryString = latestQueryString;
+                window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+            }
         }
         if (queryString.myopenalarms) {
             me.getStore('Dal.store.AlarmAssignees').load({
