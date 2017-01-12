@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -87,15 +88,17 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     private ZMDProperties properties = null;
 
     private final ZMDMessages messageProtocol;
+    private final PropertySpecService propertySpecService;
 
-    public ZMD(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
+    public ZMD(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter, PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
         this.messageProtocol = new ZMDMessages(this, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter);
     }
 
     @Override
     public ZMDProperties getProperties() {
         if (properties == null) {
-            properties = new ZMDProperties();
+            properties = new ZMDProperties(this.propertySpecService);
         }
         return properties;
     }
