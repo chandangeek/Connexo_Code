@@ -150,6 +150,13 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                             ]
                         },
                         {
+                            xtype: 'label',
+                            itemId: 'error-label',
+                            hidden: true,
+                            cls: 'x-form-invalid-under',
+                            margin: '0 0 0 264'
+                        },
+                        {
                             xtype: 'fieldcontainer',
                             ui: 'actions',
                             fieldLabel: '&nbsp',
