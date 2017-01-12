@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
+import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -163,8 +164,8 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Path("/{id}/actions/{key}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ACTION_ALARM)
-    public Response performAction(@PathParam("id") long id, @PathParam("key") long actionId, PerformActionRequest request) {
+    @RolesAllowed({Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.ACTION_ALARM})
+    public Response performAction(@PathParam("id") long id, @PathParam("key") long actionId, PerformActionRequest request, @Context SecurityContext securityContext) {
         DeviceAlarm deviceAlarm = getDeviceAlarmService().findAndLockDeviceAlarmByIdAndVersion(id, request.issue.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
                         .withActualVersion(() -> getDeviceAlarmService().findAlarm(id)
@@ -172,14 +173,14 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                                 .orElse(null))
                         .supplier());
         request.id = actionId;
-        return Response.ok(performIssueAction(deviceAlarm, request)).build();
+        return Response.ok(performIssueAction(deviceAlarm, request, securityContext)).build();
     }
 
     @PUT
     @Path("/assigntome/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ACTION_ALARM)
+    @RolesAllowed(Privileges.Constants.ASSIGN_ALARM)
     public Response postAssignToMe(@PathParam("id") long id, PerformActionRequest request, @Context SecurityContext securityContext) {
         getDeviceAlarmService().findAndLockDeviceAlarmByIdAndVersion(id, request.issue.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
@@ -197,7 +198,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @Path("/unassign/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ACTION_ALARM)
+    @RolesAllowed(Privileges.Constants.ASSIGN_ALARM)
     public Response postUnassign(@PathParam("id") long id, PerformActionRequest request, @Context SecurityContext securityContext) {
         getDeviceAlarmService().findAndLockDeviceAlarmByIdAndVersion(id, request.issue.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
@@ -285,9 +286,16 @@ public class DeviceAlarmResource extends BaseAlarmResource{
                 .map(actionType -> new DeviceAlarmActionInfo(deviceAlarm, actionType, getPropertyValueInfoService())).findFirst().get();
     }
 
-    public IssueActionResult performIssueAction(DeviceAlarm deviceAlarm, PerformActionRequest request) {
+    public IssueActionResult performIssueAction(DeviceAlarm deviceAlarm, PerformActionRequest request, SecurityContext securityContext) {
+        User performer = (User) securityContext.getUserPrincipal();
         IssueActionType action = getIssueActionService().findActionType(request.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        List<PropertySpec> propertySpecs = action.createIssueAction().get().setIssue(deviceAlarm).getPropertySpecs();
+
+        IssueAction issueAction = action.createIssueAction().orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if (!issueAction.isApplicableForUser(performer)) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        List<PropertySpec> propertySpecs = issueAction.setIssue(deviceAlarm).getPropertySpecs();
         Map<String, Object> properties = new HashMap<>();
         if (propertySpecs != null && !propertySpecs.isEmpty()) {
             for (PropertySpec propertySpec : propertySpecs) {
