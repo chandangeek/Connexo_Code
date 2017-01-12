@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryType;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -179,22 +180,21 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         mockMetrologyContract(4);
         when(usagePointDataCompletionService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
                 .thenReturn(ImmutableMap.of(
-                        readingTypeDeliverable2, summary2,
-                        readingTypeDeliverable1, summary1
+                        readingTypeDeliverable2, Collections.singletonList(summary2),
+                        readingTypeDeliverable1, Collections.singletonList(summary1)
                 ));
         when(readingTypeDeliverable1.getId()).thenReturn(1L);
         when(readingTypeDeliverable1.getName()).thenReturn("Ityvbelomplatye");
         when(readingTypeDeliverable2.getId()).thenReturn(2L);
         when(readingTypeDeliverable2.getName()).thenReturn("Vmoihobyatiah");
-        when(summary1.getSum()).thenReturn(105);
+        when(summary1.getSum()).thenReturn(18);
+        when(summary1.getType()).thenReturn(ChannelDataValidationSummaryType.GENERAL);
         when(summary1.getValues()).thenReturn(ImmutableMap.of(
-                ChannelDataValidationSummaryFlag.MISSING, 2,
                 ChannelDataValidationSummaryFlag.SUSPECT, 12,
-                ChannelDataValidationSummaryFlag.ESTIMATED, 85,
-                ChannelDataValidationSummaryFlag.EDITED, 0,
                 ChannelDataValidationSummaryFlag.VALID, 6
         ));
         when(summary2.getSum()).thenReturn(22);
+        when(summary2.getType()).thenReturn(ChannelDataValidationSummaryType.GENERAL);
         when(summary2.getValues()).thenReturn(ImmutableMap.of(
                 ChannelDataValidationSummaryFlag.VALID, 9,
                 ChannelDataValidationSummaryFlag.NOT_VALIDATED, 13
@@ -211,15 +211,15 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(2, 1);
         assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("Vmoihobyatiah", "Ityvbelomplatye");
-        assertThat(jsonModel.<List<Number>>get("$.outputs[*].total")).containsExactly(22, 105);
+        assertThat(jsonModel.<List<Number>>get("$.outputs[*].total")).containsExactly(22, 18);
         assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].key")).containsExactly("statisticsValid", "statisticsNotValidated");
         assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].displayName")).containsExactly("Valid", "Not validated");
         assertThat(jsonModel.<List<Number>>get("$.outputs[0].statistics[*].count")).containsExactly(9, 13);
         assertThat(jsonModel.<List<String>>get("$.outputs[1].statistics[*].key"))
-                .containsExactly("statisticsMissing", "statisticsSuspect", "statisticsEstimated", "statisticsEdited", "statisticsValid");
+                .containsExactly("statisticsSuspect", "statisticsValid");
         assertThat(jsonModel.<List<String>>get("$.outputs[1].statistics[*].displayName"))
-                .containsExactly("Missing", "Suspect", "Estimated", "Edited", "Valid");
-        assertThat(jsonModel.<List<Number>>get("$.outputs[1].statistics[*].count")).containsExactly(2, 12, 85, 0, 6);
+                .containsExactly("Suspect", "Valid");
+        assertThat(jsonModel.<List<Number>>get("$.outputs[1].statistics[*].count")).containsExactly(12, 6);
     }
 
     @Test
@@ -230,11 +230,12 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         when(meterActivation.getRange()).thenReturn(Range.closedOpen(meterActivated, NOW.toInstant()));
         when(usagePointDataCompletionService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
                 .thenReturn(ImmutableMap.of(
-                        readingTypeDeliverable1, summary1
+                        readingTypeDeliverable1, Collections.singletonList(summary1)
                 ));
         when(readingTypeDeliverable1.getId()).thenReturn(3L);
         when(readingTypeDeliverable1.getName()).thenReturn("DekabrJanvahrIFevral");
         when(summary1.getSum()).thenReturn(0);
+        when(summary1.getType()).thenReturn(ChannelDataValidationSummaryType.GENERAL);
         when(summary1.getValues()).thenReturn(Collections.emptyMap());
 
         // Business method
@@ -261,11 +262,12 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
         when(usagePointDataCompletionService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), eq(emptyInterval)))
                 .thenReturn(ImmutableMap.of(
-                        readingTypeDeliverable1, summary1
+                        readingTypeDeliverable1, Collections.singletonList(summary1)
                 ));
         when(readingTypeDeliverable1.getId()).thenReturn(4L);
         when(readingTypeDeliverable1.getName()).thenReturn("Lalalala");
         when(summary1.getSum()).thenReturn(0);
+        when(summary1.getType()).thenReturn(ChannelDataValidationSummaryType.GENERAL);
         when(summary1.getValues()).thenReturn(Collections.emptyMap());
 
         // Business method
