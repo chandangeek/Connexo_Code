@@ -10,7 +10,7 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
         {id: 'deviceStates.lifeCycleName', value: Uni.I18n.translate('process.deviceCycleName', 'UNI', 'Device life cycle')},
         {id: 'deviceStates.name', value: Uni.I18n.translate('process.deviceState', 'UNI', 'Device state')},
         {id: 'issueReasons.name', value: Uni.I18n.translate('process.issueReasons', 'UNI', 'Issue reason')},
-        {id: 'alarmReasons.name', value: Uni.I18n.translate('process.alarmReasons', 'UNI', 'Device alarm reason')},
+        {id: 'alarmReasons.name', value: Uni.I18n.translate('process.alarmReasons', 'UNI', 'Alarm reason')},
         {id: 'metrologyConfigurations.name', value: Uni.I18n.translate('process.metrologyConfiguration', 'UNI', 'Metrology configuration')},
         {id: 'connectionStates.name', value: Uni.I18n.translate('process.connectionState', 'UNI', 'Connection state')}
     ],
