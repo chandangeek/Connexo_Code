@@ -6,7 +6,7 @@ Ext.define('Bpm.monitorissueprocesses.store.AlarmProcesses', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/idc/issues/{alarmId}/processes?variableid=alarmId&variablevalue={Id}',
+        urlTpl: '/api/dal/alarms/{alarmId}/processes?variableid=alarmId&variablevalue={Id}',
         timeout: 240000,
         reader: {
             type: 'json',
