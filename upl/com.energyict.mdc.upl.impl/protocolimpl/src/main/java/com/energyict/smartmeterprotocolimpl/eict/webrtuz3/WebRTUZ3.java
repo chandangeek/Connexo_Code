@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -92,9 +93,12 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
 
     private static final int ObisCodeBFieldIndex = 1;
 
-    public WebRTUZ3(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+    private final PropertySpecService propertySpecService;
+
+    public WebRTUZ3(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
         this.calendarFinder = calendarFinder;
         this.messageProtocol = new WebRTUZ3Messaging(new WebRTUZ3MessageExecutor(this, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor));
+        this.propertySpecService = propertySpecService;
     }
 
 //    /**
@@ -105,7 +109,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
     @Override
     protected WebRTUZ3Properties getProperties() {
         if (properties == null) {
-            properties = new WebRTUZ3Properties();
+            properties = new WebRTUZ3Properties(this.propertySpecService);
         }
         return properties;
     }

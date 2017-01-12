@@ -1,13 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.elster.AS300P;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
 
@@ -46,7 +44,7 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, true),
+                this.integerSpec(SECURITY_LEVEL, true),
                 this.integerSpec(ADDRESSING_MODE, false),
                 this.integerSpec(CLIENT_MAC_ADDRESS, false),
                 this.stringSpec(SERVER_MAC_ADDRESS, false),
@@ -60,7 +58,7 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
                 this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false),
                 this.integerSpec(VERIFY_FIRMWARE_VERSION, false),
                 this.integerSpec(LOGBOOK_SELECTOR, false))
-            .forEach(propertySpecs::add);
+                .forEach(propertySpecs::add);
         return propertySpecs;
     }
 
@@ -92,13 +90,13 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
 
     @Override
     public SecurityProvider getSecurityProvider() {
-        if(super.securityProvider == null){
+        if (super.securityProvider == null) {
             setSecurityProvider(new AM110RSecurityProvider(getProtocolProperties()));
         }
         return super.securityProvider;
     }
 
-    public void setSecurityProvider(SecurityProvider securityProvider){
+    public void setSecurityProvider(SecurityProvider securityProvider) {
         super.securityProvider = securityProvider;
     }
 

@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.Clock;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
@@ -45,13 +46,14 @@ public class LoadProfileBuilderTest {
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
     private Extractor extractor;
-
+    @Mock
+    private PropertySpecService propertySpecService;
 
     @Test
     public void isDataObisCodeTest() {
         TypedProperties props = new TypedProperties();
         props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
-        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
+        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor, propertySpecService);
         meterProtocol.addProperties(props);
         LoadProfileBuilder lpb = new LoadProfileBuilder(meterProtocol);
         assertNotNull(lpb.isDataObisCode(ObisCode.fromString("1.0.1.8.0.255"), "MasterSerialNumber"));
@@ -68,7 +70,7 @@ public class LoadProfileBuilderTest {
     public void constructLoadProfileConfigComposedCosemObjectTest() {
         TypedProperties props = new TypedProperties();
         props.setProperty(SmartMeterProtocol.SERIALNUMBER, "MasterSerialNumber");
-        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor);
+        WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, messageFileFinder, extractor, propertySpecService);
         meterProtocol.addProperties(props);
         try {
             meterProtocol.getDlmsSession().init();

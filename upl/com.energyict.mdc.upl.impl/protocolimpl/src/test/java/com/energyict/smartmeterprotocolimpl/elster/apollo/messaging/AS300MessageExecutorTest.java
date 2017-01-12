@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
@@ -40,11 +41,13 @@ public class AS300MessageExecutorTest {
     private DeviceMessageFileExtractor messageFileExtractor;
     @Mock
     private DateFormatter dateFormatter;
+    @Mock
+    private PropertySpecService propertySpecService;
 
     @Test
     public void testExecuteMessageEntry() throws Exception {
         MessageEntry msgEntry = MessageEntry.fromContent(new String(xmlContentBytes, "US-ASCII")).trackingId("TrackingId").serialNumber("SerialNumber").finish();
-        AS300 protocol = new AS300(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter);
+        AS300 protocol = new AS300(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter, propertySpecService);
         DummyDLMSConnection connection = new DummyDLMSConnection();
         connection.setResponseByte(DLMSUtils.hexStringToByteArray(expectedResponse));
         protocol.getDlmsSession().setDlmsConnection(connection);

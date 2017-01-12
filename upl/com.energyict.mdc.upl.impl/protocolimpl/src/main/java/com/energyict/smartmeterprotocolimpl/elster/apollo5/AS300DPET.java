@@ -11,6 +11,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
@@ -31,8 +32,8 @@ import java.util.List;
  */
 public class AS300DPET extends AS300 {
 
-    public AS300DPET(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
-        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter);
+    public AS300DPET(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter, PropertySpecService propertySpecService) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter, propertySpecService);
     }
 
     @Override

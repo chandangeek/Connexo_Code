@@ -5,12 +5,14 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -26,23 +28,34 @@ class ZMDProperties extends DlmsProtocolProperties {
 
     private SecurityProvider securityProvider;
 
+    private final PropertySpecService propertySpecService;
+
+    public ZMDProperties(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    public ZMDProperties(Properties properties, PropertySpecService propertySpecService) {
+        super(properties);
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.integer(SECURITY_LEVEL, false),
-                UPLPropertySpecFactory.integer(ADDRESSING_MODE, false),
-                UPLPropertySpecFactory.integer(CLIENT_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.string(SERVER_MAC_ADDRESS, false),
-                UPLPropertySpecFactory.integer(CONNECTION, false),
-                UPLPropertySpecFactory.integer(PK_DELAY_AFTER_ERROR, false),
-                UPLPropertySpecFactory.integer(INFORMATION_FIELD_SIZE, false),
-                UPLPropertySpecFactory.integer(MAX_REC_PDU_SIZE, false),
-                UPLPropertySpecFactory.integer(PK_RETRIES, false),
-                UPLPropertySpecFactory.integer(PK_TIMEOUT, false),
-                UPLPropertySpecFactory.integer(ROUND_TRIP_CORRECTION, false),
-                UPLPropertySpecFactory.integer(BULK_REQUEST, false),
-                UPLPropertySpecFactory.integer(CIPHERING_TYPE, false),
-                UPLPropertySpecFactory.integer(INVOKE_ID_AND_PRIORITY, false));
+                UPLPropertySpecFactory.specBuilder(SECURITY_LEVEL, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ADDRESSING_MODE, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(CLIENT_MAC_ADDRESS, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(SERVER_MAC_ADDRESS, false, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(CONNECTION, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_DELAY_AFTER_ERROR, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(INFORMATION_FIELD_SIZE, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(MAX_REC_PDU_SIZE, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(ROUND_TRIP_CORRECTION, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(BULK_REQUEST, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(CIPHERING_TYPE, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(INVOKE_ID_AND_PRIORITY, false, this.propertySpecService::integerSpec).finish());
     }
 
     @Override

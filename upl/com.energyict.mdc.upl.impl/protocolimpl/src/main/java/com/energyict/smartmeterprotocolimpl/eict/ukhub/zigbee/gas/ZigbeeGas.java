@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -58,13 +59,15 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final DateFormatter dateFormatter;
+    private final PropertySpecService propertySpecService;
 
-    public ZigbeeGas(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
+    public ZigbeeGas(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter, PropertySpecService propertySpecService) {
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
         this.messageFileExtractor = messageFileExtractor;
         this.dateFormatter = dateFormatter;
+        this.propertySpecService = propertySpecService;
     }
 
     public ZigbeeGasMessaging getMessageProtocol() {
@@ -91,7 +94,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     @Override
     public ZigbeeGasProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new ZigbeeGasProperties();
+            this.properties = new ZigbeeGasProperties(this.propertySpecService);
         }
         return this.properties;
     }
