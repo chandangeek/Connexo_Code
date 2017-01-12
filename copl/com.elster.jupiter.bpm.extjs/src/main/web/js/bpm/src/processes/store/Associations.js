@@ -4,6 +4,11 @@ Ext.define('Bpm.processes.store.Associations', {
         {name: 'type', type: 'string'},
         {name: 'name', type: 'string'}
     ],
+    sorters: [{
+        property: 'name',
+        direction: 'ASC'
+    }],
+    remoteSort: false,
     proxy: {
         type: 'rest',
         pageParam: undefined,
@@ -15,7 +20,5 @@ Ext.define('Bpm.processes.store.Associations', {
             root: 'associations'
         }
     }
-
-
 
 });
