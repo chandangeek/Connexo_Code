@@ -69,7 +69,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     tooltip: me.prepareTooltip(item, 'VIEW')
                 };
 
-                if (item.key != 'EDITED') {
+                if (item.key != 'statisticsEdited') {
                     data.push(dataItem);
                 } else {
                     statisticsEdited.push(dataItem);
@@ -97,14 +97,9 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                                 trackMouse: true,
                                 showDelay: 0,
                                 hideDelay: 0,
-                                renderer: _.memoize(
-                                    function (record) {
-                                        this.update(me.prepareTooltip(record, 'CHART'));
-                                    },
-                                    function (record) {
-                                        return record.id;
-                                    }
-                                )
+                                renderer: function (record) {
+                                    this.update(me.prepareTooltip(record, 'CHART'));
+                                }
                             },
                             renderer: function (sprite, record, attributes) {
                                 var color;
@@ -147,7 +142,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     itemSelector: 'tr.trlegend',
                     tpl: ['<table>',
                         '<tpl for=".">',
-                        '<tpl if="key == \'EDITED\'">',
+                        '<tpl if="key == \'statisticsEdited\'">',
                         '<tr>',
                         '<td colspan="3"><hr></td>',
                         '</tr>',
@@ -216,7 +211,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     + '</div>');
                 break;
             case 'VIEW':
-                if ((dataObj.key == 'VALID' || dataObj.key == 'EDITED') && hasDetails) {
+                if ((dataObj.key == 'statisticsValid' || dataObj.key == 'statisticsEdited') && hasDetails) {
                     tooltip = Ext.htmlEncode(getTooltip());
                 }
                 break;
