@@ -4,6 +4,7 @@ Ext.define('Isu.controller.IssueDetail', {
         'Isu.privileges.Issue',
         'Isu.store.TimelineEntries',
         'Bpm.monitorissueprocesses.store.IssueProcesses',
+        'Bpm.monitorissueprocesses.store.AlarmProcesses',
         'Uni.util.FormEmptyMessage'
     ],
 
@@ -11,7 +12,8 @@ Ext.define('Isu.controller.IssueDetail', {
         'Isu.store.IssueActions',
         'Isu.store.Issues',
         'Isu.store.TimelineEntries',
-        'Bpm.monitorissueprocesses.store.IssueProcesses'
+        'Bpm.monitorissueprocesses.store.IssueProcesses',
+        'Bpm.monitorissueprocesses.store.AlarmProcesses'
     ],
 
     itemUrl: '/api/isu/issues/',
