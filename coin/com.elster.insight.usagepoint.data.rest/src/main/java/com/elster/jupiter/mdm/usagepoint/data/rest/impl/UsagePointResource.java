@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
@@ -251,8 +252,11 @@ public class UsagePointResource {
         info.customPropertySets
                 .forEach(customPropertySetInfo -> {
                     UsagePointPropertySet propertySet = extension.getPropertySet(customPropertySetInfo.id);
-                    propertySet.setValues(customPropertySetInfoFactory
-                            .getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet().getPropertySpecs()));
+                    CustomPropertySetValues newValues = customPropertySetInfoFactory
+                            .getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet().getPropertySpecs());
+                    if (!propertySet.getValues().equals(newValues)) {
+                        propertySet.setValues(newValues);
+                    }
                 });
 
         return usagePointInfoFactory.fullInfoFrom(usagePoint);
