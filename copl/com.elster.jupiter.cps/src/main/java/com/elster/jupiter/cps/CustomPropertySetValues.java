@@ -152,7 +152,7 @@ public final class CustomPropertySetValues {
      * @return A flag that indicates if there are properties in this set
      */
     public boolean isEmpty() {
-        return this.size() == 0;
+        return this.values.isEmpty();
     }
 
     /**
@@ -161,7 +161,7 @@ public final class CustomPropertySetValues {
      * @return The number of properties that are defined
      */
     public int size () {
-        return this.propertyNames().size();
+        return this.values.size();
     }
 
     /**
@@ -182,15 +182,10 @@ public final class CustomPropertySetValues {
 
     @Override
     public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        else if (other == null || getClass() != other.getClass()) {
-            return false;
-        }
-        else {
-            return ((CustomPropertySetValues) other).values.equals(this.values) && ((CustomPropertySetValues) other).getEffectiveRange().equals(this.getEffectiveRange());
-        }
+        return this == other
+                || other != null
+                && getClass() == other.getClass()
+                && ((CustomPropertySetValues) other).values.equals(this.values)
+                && ((CustomPropertySetValues) other).getEffectiveRange().equals(this.getEffectiveRange());
     }
-
 }
