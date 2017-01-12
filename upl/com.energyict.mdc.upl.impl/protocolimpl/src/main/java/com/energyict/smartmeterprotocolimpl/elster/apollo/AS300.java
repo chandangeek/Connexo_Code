@@ -11,10 +11,10 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -62,6 +62,10 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         this.messageFileExtractor = messageFileExtractor;
         this.dateFormatter = dateFormatter;
         this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     protected TariffCalendarFinder getCalendarFinder() {
