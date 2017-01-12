@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
@@ -31,11 +32,28 @@ class UpgraderV10_3 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
 
         dataModel.useConnectionRequiringTransaction(this::executePreAutoUpdateScript);
+        Group installerGroup = createNewGroups();
 
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 3));
 
         ((UserServiceImpl) userService).getGrantPrivilege("privilege.administrate.userAndRole")
                 .ifPresent(grantPrivilege -> grantPrivilege.addGrantableCategory(userService.getDefaultPrivilegeCategory()));
+
+        userService.findUser("admin").ifPresent(user -> {
+            user.getGroups().stream()
+                    .forEach(group -> {
+                        if (!group.getName().equals("DEFAULT_INSTALLER_ROLE")) {
+                            user.leave(group);
+                        }
+                    });
+            user.join(installerGroup);
+        });
+    }
+
+    private Group createNewGroups() {
+        userService.createGroup(UserService.DEFAULT_ADMIN_ROLE, UserService.DEFAULT_ADMIN_ROLE_DESCRIPTION);
+        userService.createGroup(UserService.SYSTEM_ADMIN_ROLE, UserService.SYSTEM_ADMIN_ROLE_DESCRIPTION);
+        return userService.createGroup(UserService.DEFAULT_INSTALLER_ROLE, UserService.DEFAULT_INSTALLER_ROLE_DESCRIPTION);
     }
 
     private void executePreAutoUpdateScript(Connection connection) {
