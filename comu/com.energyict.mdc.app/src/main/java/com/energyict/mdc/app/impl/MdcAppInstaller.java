@@ -98,7 +98,6 @@ public class MdcAppInstaller {
             userService.createGroup(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.Roles.METER_EXPERT.description());
             userService.createGroup(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.Roles.METER_OPERATOR.description());
             userService.createGroup(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.Roles.REPORT_VIEWER.description());
-            userService.createGroup(MdcAppService.Roles.COMMAND_LIMITATION_RULE_APPROVER.value(), MdcAppService.Roles.COMMAND_LIMITATION_RULE_APPROVER.description());
         }
 
         private void assignPrivilegesToDefaultRoles() {
@@ -108,8 +107,6 @@ public class MdcAppInstaller {
             userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, privilegesMeterExpert);
             userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, privilegesMeterExpert);
             userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.APPLICATION_KEY, getPrivilegesReportViewer());
-            userService.grantGroupWithPrivilege(MdcAppService.Roles.COMMAND_LIMITATION_RULE_APPROVER.value(), MdcAppService.APPLICATION_KEY,
-                    new String[]{com.energyict.mdc.device.command.security.Privileges.Constants.APPROVE_COMMAND_LIMITATION_RULE});
         }
 
         private String[] getPrivilegesMeterExpert() {
