@@ -4,9 +4,11 @@ import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +24,7 @@ import java.util.Optional;
  * Time: 16:57
  */
 @JsonIgnoreType
+@JsonPropertyOrder({ "id", "gateway"})
 public abstract class NodeInfo<T extends HasId> {
 
     @JsonIgnore
@@ -30,7 +33,7 @@ public abstract class NodeInfo<T extends HasId> {
     private List<GraphLayer<T>> layers = new ArrayList<>();
     @JsonIgnore
     private Optional<GraphLayer<T>> activeLayer = Optional.empty();
-
+    @JsonIgnore
     private NodeInfo parent;
     private List<NodeInfo<T>> children = new ArrayList<>();
 
@@ -81,7 +84,7 @@ public abstract class NodeInfo<T extends HasId> {
         }
         return null;
     }
-
+    @JsonIgnore
     public NodeInfo getRoot() {
         if (parent == null) {
             return this;
@@ -92,6 +95,10 @@ public abstract class NodeInfo<T extends HasId> {
     public long getId() {
         return nodeObject.getId();
     }
+    @JsonGetter
+    public boolean isGateway(){
+        return getRoot() == null;
+    }
 
     @JsonAnyGetter
     public Map<String, Object> getProperties(){
@@ -99,7 +106,7 @@ public abstract class NodeInfo<T extends HasId> {
         if (activeLayer.isPresent()){
             return activeLayer.get().getProperties(this);
         }else{
-            layers.parallelStream().map((layer) -> layer.getProperties(this)).forEach(allProperties::putAll);
+            layers.stream().forEach(layer -> allProperties.putAll(layer.getProperties(this)));
         }
         return allProperties;
     }

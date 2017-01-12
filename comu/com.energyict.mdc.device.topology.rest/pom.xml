@@ -107,6 +107,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>security.thread</artifactId>
+        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
@@ -146,11 +150,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>security.thread</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

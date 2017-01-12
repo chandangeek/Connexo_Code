@@ -44,7 +44,7 @@ public class DemoPluggableLayer extends AbstractGraphLayer<Device> {
         return Collections.emptyList();
     }
 
-    public Map<String, Object> getProperties(NodeInfo nodeInfo) {
+    public Map<String, Object> getProperties(NodeInfo<Device> nodeInfo) {
         return propertyMap();
     }
 

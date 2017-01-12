@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.topology.rest.layer;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -75,7 +76,8 @@ public class DeviceLifeCycleStatusLayer extends AbstractGraphLayer<Device> {
     @Override
     public Map<String, Object> getProperties(NodeInfo<Device> info) {
         Device device = ((DeviceNodeInfo) info).getDevice();
-        setDeviceLifecycleState(DefaultState.from(device.getState()).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(device.getState()::getName));
+        State state = device.getState();
+        setDeviceLifecycleState(DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName));
 
         return propertyMap();
     }

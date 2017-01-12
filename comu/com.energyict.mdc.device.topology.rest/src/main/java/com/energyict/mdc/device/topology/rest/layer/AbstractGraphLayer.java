@@ -20,7 +20,11 @@ public abstract class AbstractGraphLayer<T extends HasId> implements GraphLayer<
     private Properties properties = new Properties();
 
     public void setProperty(String propertyName, Object propertyValue){
-        this.properties.put(propertyName, propertyValue);
+        if (propertyValue == null){
+            this.properties.remove(propertyName);
+        }else {
+            this.properties.put(propertyName, propertyValue);
+        }
     }
 
     public void getProperty(String propertyName){
