@@ -47,6 +47,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -173,6 +174,7 @@ public class InMemoryIntegrationPersistence {
                 new CustomPropertySetsModule(),
                 new InMemoryMessagingModule(),
                 new FiniteStateMachineModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
                 new SearchModule(),
