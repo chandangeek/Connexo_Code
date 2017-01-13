@@ -74,6 +74,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ClockTask;
@@ -81,6 +82,7 @@ import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 import org.assertj.core.api.Condition;
@@ -108,6 +110,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -130,7 +133,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     private static final BigDecimal overflowValue = BigDecimal.valueOf(1234567);
     private static final int numberOfFractionDigits = 2;
     private static MeterRole defaultMeterRole;
-
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
     private ReadingType forwardBulkSecondaryEnergyReadingType;
     private ReadingType forwardDeltaSecondaryEnergyReadingType;
     private ReadingType reverseDeltaSecondaryMonthlyEnergyReadingType;
@@ -142,12 +148,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     private ObisCode averageForwardEnergyObisCode;
     private ObisCode forwardEnergyObisCode;
     private ObisCode reverseEnergyObisCode;
-
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @BeforeClass
     public static void setup() {
@@ -2642,7 +2642,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         }
 
         @Override
-        public String getDisplayName() {
+        public List<PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 

@@ -3,8 +3,7 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.search.SearchableProperty;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-
-import org.junit.*;
+import org.junit.Before;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -28,7 +27,7 @@ public class ProtocolDialectDynamicSearchablePropertyTest extends AbstractDynami
         super.testTranslation();
 
         // Additional asserts
-        verify(this.protocolDialect.getProtocolDialect()).getDisplayName();
+        verify(this.protocolDialect.getProtocolDialect()).getDeviceProtocolDialectDisplayName();
     }
 
 }

@@ -32,9 +32,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.google.common.base.Strings;
 import com.google.inject.Module;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.Size;
@@ -49,20 +56,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
  * Integration test for the {@link ProtocolDialectPropertiesImpl} component.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 26/04/13
  * Time: 16:46
@@ -71,14 +70,13 @@ import static org.mockito.Mockito.mock;
 public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest {
 
     public static final String REQUIRED_PROPERTY_NAME = "ThisIsTheRequiredPropertyName";
+    public static final String DIALECT_1_NAME = TestProtocolDialect1.class.getSimpleName();
     private static final String REQUIRED_PROPERTY_VALUE = "lmskdjfsmldkfjsqlmdkfj";
     private static final String OPTIONAL_PROPERTY_NAME = "ThisIsTheOptionalPropertyName";
     private static final String OPTIONAL_PROPERTY_VALUE = "sdlfkjnsqdlmfjsqdfsqdfsqdf";
     private static final String OPTIONAL_PROPERTY_WITH_CONVERTED_NAME = "OptionalPropertyWith1227106396";
     private static final String OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE = "jklmdsqfjkldsqlozidkcxjnnclsqkdkjoijfze65465zef65e6f51ze6f51zefze";
     private static final String INHERITED_OPTIONAL_PROPERTY_VALUE = "inheritedmqjdsflmdsqkjflmsqdjkfmsqldkfjlmdsqjkf";
-
-    public static final String DIALECT_1_NAME = TestProtocolDialect1.class.getSimpleName();
     private static final String DIALECT_2_NAME = TestProtocolDialect2.class.getSimpleName();
 
     private static final String MRID = "mRID";
@@ -135,8 +133,8 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     @Before
     public void refreshConfigurationProperties() {
         deviceConfiguration = inMemoryPersistence.getDeviceConfigurationService()
-                                    .findDeviceConfiguration(deviceConfiguration.getId())
-                                    .orElseThrow(() -> new RuntimeException("Failure to reload device configuration before running next test"));
+                .findDeviceConfiguration(deviceConfiguration.getId())
+                .orElseThrow(() -> new RuntimeException("Failure to reload device configuration before running next test"));
         protocolDialect1ConfigurationProperties = this.getProtocolDialectConfigurationPropertiesFromConfiguration(deviceConfiguration, DIALECT_1_NAME);
     }
 
@@ -511,7 +509,12 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         }
 
         @Override
-        public String getDisplayName() {
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return this.getDeviceProtocolDialectName();
         }
 
@@ -531,7 +534,12 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         }
 
         @Override
-        public String getDisplayName() {
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return this.getDeviceProtocolDialectName();
         }
 
@@ -543,9 +551,9 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     }
 
     public static class PersistentProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
-        @Size(max=Table.MAX_STRING_LENGTH)
+        @Size(max = Table.MAX_STRING_LENGTH)
         private String required;
-        @Size(max=Table.MAX_STRING_LENGTH)
+        @Size(max = Table.MAX_STRING_LENGTH)
         private String optional;
 
         @Override
@@ -615,15 +623,15 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                .column("REQUIRED")
-                .varChar()
-                .map("required")
-                .add();
+                    .column("REQUIRED")
+                    .varChar()
+                    .map("required")
+                    .add();
             table
-                .column("OPTIONAL")
-                .varChar()
-                .map("optional")
-                .add();
+                    .column("OPTIONAL")
+                    .varChar()
+                    .map("optional")
+                    .add();
         }
     }
 
@@ -677,17 +685,17 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         public List<PropertySpec> getPropertySpecs() {
             PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl();
             return Arrays.asList(
-                propertySpecService
-                        .stringSpec()
-                        .named(REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_NAME)
-                        .describedAs("Description for required property")
-                        .markRequired()
-                        .finish(),
-                propertySpecService
-                        .stringSpec()
-                        .named(OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_NAME)
-                        .describedAs("Description for optional property")
-                        .finish());
+                    propertySpecService
+                            .stringSpec()
+                            .named(REQUIRED_PROPERTY_NAME, REQUIRED_PROPERTY_NAME)
+                            .describedAs("Description for required property")
+                            .markRequired()
+                            .finish(),
+                    propertySpecService
+                            .stringSpec()
+                            .named(OPTIONAL_PROPERTY_NAME, OPTIONAL_PROPERTY_NAME)
+                            .describedAs("Description for optional property")
+                            .finish());
         }
     }
 
@@ -696,8 +704,8 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
      */
     private final class TestableProtocolDialectProperties extends ProtocolDialectPropertiesImpl {
 
-        private CustomPropertySetValues values = CustomPropertySetValues.empty();
         private final String dialectName;
+        private CustomPropertySetValues values = CustomPropertySetValues.empty();
 
         private TestableProtocolDialectProperties(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService) {
             this(DIALECT_1_NAME, dataModel, eventService, thesaurus, clock, protocolPluggableService, customPropertySetService);

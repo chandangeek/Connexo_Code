@@ -99,11 +99,13 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -127,7 +129,9 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -686,7 +690,12 @@ public class ComSessionCrudIT {
         }
 
         @Override
-        public String getDisplayName() {
+        public List<PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 
