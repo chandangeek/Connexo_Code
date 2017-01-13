@@ -9,12 +9,12 @@ Ext.define('Isu.view.issues.CommentsList', {
     ui: 'medium',
     buttonAlign: 'left',
     addCommentPrivileges: Isu.privileges.Issue.comment,
-
+    noProcessText: Uni.I18n.translate('processes.issue.noProcessesStarted', 'BPM', 'No process started yet on this issue'),
 
     buttons: [
         {
             itemId: 'issue-comments-add-comment-button',
-            text: Uni.I18n.translate('general.addComment','ISU','Add comment'),
+            text: me.noProcessText,
             hidden: true,
             action: 'add'
         }
