@@ -220,18 +220,6 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 .withParser(instantParser)
                 .build());
         fields.put("customPropertySetValue", CommonField
-                .withParser(new FieldParser<Map<RegisteredCustomPropertySet, CustomPropertySetRecord>>() {
-                    @Override
-                    public Class<Map<RegisteredCustomPropertySet, CustomPropertySetRecord>> getValueType() {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public Map<RegisteredCustomPropertySet, CustomPropertySetRecord> parse(String value) throws
-                            ValueParserException {
-                        throw new UnsupportedOperationException();
-                    }
-                })
                 .withParser(new EmptyFieldParser<Map<RegisteredCustomPropertySet, CustomPropertySetRecord>>())
                 .withSetter(record::setCustomPropertySets)
                 .build());

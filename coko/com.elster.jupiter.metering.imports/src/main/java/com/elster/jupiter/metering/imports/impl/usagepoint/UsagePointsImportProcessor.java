@@ -1,20 +1,17 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.GasDetailBuilder;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.HeatDetailBuilder;
-import com.elster.jupiter.metering.LocationBuilder;
-import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
@@ -36,8 +33,6 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
-
-import com.google.common.collect.Range;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -75,7 +70,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             usagePointImportHelper.setMetrologyConfigurationForUsagePoint(data, usagePoint);
             activateMeters(data, usagePoint);
             performUsagePointTransition(data, usagePoint);
-            addCustomPropertySetValues(usagePoint, data);
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
                 logger.warning(MessageSeeds.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, data.getLineNumber(),
@@ -185,118 +179,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
     }
 
-    private UsagePoint createUsagePoint(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
-        usagePointBuilder.withIsSdp(data.isSdp());
-        usagePointBuilder.withOutageRegion(data.getOutageRegion());
-        usagePointBuilder.withReadRoute(data.getReadRoute());
-        usagePointBuilder.withServicePriority(data.getServicePriority());
-        usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark());
-        setLocation(usagePointBuilder, data);
-        addCustomPropertySetsValues(usagePointBuilder, data);
-        return usagePointBuilder.create();
-    }
-
-    private void addCustomPropertySetsValues(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
-        data.getRegisteredCustomPropertySets().forEach((customPropertySet, customPropertySetRecord) -> {
-                    CustomPropertySetValues values = null;
-                    if (customPropertySet.getCustomPropertySet().isVersioned()) {
-                        Range<Instant> rangeToCreate = getRangeToCreate(customPropertySetRecord);
-                        if (!rangeToCreate.hasLowerBound()) {
-                            rangeToCreate = Range.atLeast(data.getInstallationTime().orElse(getClock().instant())).intersection(rangeToCreate);
-                        }
-                        values = CustomPropertySetValues.emptyDuring(rangeToCreate);
-                        copyValues(customPropertySetRecord.getCustomPropertySetValues(), values);
-                    } else {
-                        values = customPropertySetRecord.getCustomPropertySetValues();
-                    }
-                    usagePointBuilder.addCustomPropertySetValues(customPropertySet, values);
-                }
-        );
-    }
-
-    private void copyValues(CustomPropertySetValues source, CustomPropertySetValues target) {
-        source.propertyNames().forEach(propertyName -> {
-            Object propertyValue = source.getProperty(propertyName);
-            target.setProperty(propertyName, propertyValue);
-        });
-    }
-
-    private void setLocation(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
-        boolean isVirtual = data.isVirtual();
-        List<String> locationData = data.getLocation();
-        List<String> geoCoordinatesData = data.getGeoCoordinates();
-
-        if (locationData.stream().anyMatch(s -> s != null)) {
-            getContext().getMeteringService()
-                    .getLocationTemplate()
-                    .getTemplateMembers()
-                    .stream()
-                    .filter(LocationTemplate.TemplateField::isMandatory)
-                    .forEach(field -> {
-                        if (locationData.get(field.getRanking()) == null) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
-                        } else if (locationData.get(field.getRanking()).isEmpty()) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
-                        }
-                    });
-            LocationBuilder builder = usagePointBuilder.newLocationBuilder();
-            Map<String, Integer> ranking = getContext().getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
-
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
-            if (memberBuilder.isPresent()) {
-                setLocationAttributes(memberBuilder.get(), data, ranking);
-            } else {
-                setLocationAttributes(builder.member(), data, ranking).add();
-            }
-            usagePointBuilder.withLocation(builder.create());
-            isVirtual = false;
-        }
-        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
-            usagePointBuilder.withGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue((geoCoordinatesData.stream().collect(Collectors.joining(":")))));
-            isVirtual = false;
-        }
-        usagePointBuilder.withIsVirtual(isVirtual);
-    }
-
-    private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data) {
-        List<String> locationData = data.getLocation();
-        List<String> geoCoordinatesData = data.getGeoCoordinates();
-
-        if (locationData.stream().anyMatch(s -> s != null)) {
-            getContext().getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                    .filter(LocationTemplate.TemplateField::isMandatory)
-                    .forEach(field -> {
-                        if (locationData.get(field.getRanking()) == null) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
-                        } else if (locationData.get(field.getRanking()).isEmpty()) {
-                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
-                        }
-                    });
-            LocationBuilder builder = usagePoint.updateLocation();
-            Map<String, Integer> ranking = getContext().getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
-
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
-            if (memberBuilder.isPresent()) {
-                setLocationAttributes(memberBuilder.get(), data, ranking);
-            } else {
-                setLocationAttributes(builder.member(), data, ranking).add();
-            }
-            usagePoint.setLocation(builder.create().getId());
-        }
-        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
-            usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
-        }
-        usagePoint.setOutageRegion(data.getOutageRegion());
-        usagePoint.setReadRoute(data.getReadRoute());
-        usagePoint.setServicePriority(data.getServicePriority());
-        usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
-        addCustomPropertySetValues(usagePoint, data);
-        usagePoint.update();
-        return usagePoint;
-    }
-
     private ElectricityDetailBuilder buildElectricityDetails(ElectricityDetailBuilder detailBuilder, ElectricityDetail oldDetail, UsagePointImportRecord data) {
         detailBuilder.withCollar(data.isCollarInstalled().orElse(oldDetail.isCollarInstalled()));
         detailBuilder.withGrounded(data.isGrounded().orElse(oldDetail.isGrounded()));
@@ -358,20 +240,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     private UsagePointDetailBuilder addBaseDetails(UsagePointDetailBuilder detailBuilder, UsagePointDetail oldDetail, UsagePointImportRecord data) {
         detailBuilder.withCollar(data.isCollarInstalled().orElse(oldDetail.isCollarInstalled()));
         return detailBuilder;
-    }
-
-    private void addCustomPropertySetValues(UsagePoint usagePoint, UsagePointImportRecord data) {
-        Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getCustomPropertySets();
-
-        for (UsagePointPropertySet propertySet : usagePoint.forCustomProperties().getAllPropertySets()) {
-            if (customPropertySetValues.containsKey(propertySet.getCustomPropertySet())) {
-                if (propertySet instanceof UsagePointVersionedPropertySet) {
-                    createOrUpdateVersionedSet((UsagePointVersionedPropertySet) propertySet, customPropertySetValues.get(propertySet.getCustomPropertySet()));
-                } else {
-                    createOrUpdateNonVersionedSet(propertySet, customPropertySetValues.get(propertySet.getCustomPropertySet()));
-                }
-            }
-        }
     }
 
     private void activateMeters(UsagePointImportRecord record, UsagePoint usagePoint) {
@@ -460,8 +328,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     }
 
     private void validateMandatoryCustomProperties(UsagePoint usagePoint, UsagePointImportRecord data) {
-    private void validateMandatoryCustomProperties(UsagePoint usagePoint, UsagePointImportRecord data) {
-        Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getCustomPropertySets();
+        Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getRegisteredCustomPropertySets();
 
         for (UsagePointPropertySet propertySet : usagePoint.forCustomProperties().getAllPropertySets()) {
             for (PropertySpec propertySpec : propertySet.getCustomPropertySet().getPropertySpecs()) {
@@ -479,7 +346,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     }
 
     private void validateCustomPropertySetValues(UsagePoint usagePoint, UsagePointImportRecord data) {
-        Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getCustomPropertySets();
+        Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getRegisteredCustomPropertySets();
 
         for (UsagePointPropertySet propertySet : usagePoint.forCustomProperties().getAllPropertySets()) {
             if (customPropertySetValues.containsKey(propertySet.getCustomPropertySet())) {
@@ -518,38 +385,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
     }
 
-    private void createOrUpdateVersionedSet(UsagePointVersionedPropertySet usagePointCustomPropertySet, CustomPropertySetRecord customPropertySetRecord) {
-        if (customPropertySetRecord.getVersionId().isPresent()) {
-            CustomPropertySetValues values = usagePointCustomPropertySet.getVersionValues(customPropertySetRecord.getVersionId().get());
-            if (values != null) {
-                usagePointCustomPropertySet.getCustomPropertySet()
-                        .getPropertySpecs()
-                        .stream()
-                        .filter(spec -> customPropertySetRecord.getCustomPropertySetValues()
-                                .getProperty(spec.getName()) != null)
-                        .forEach(spec -> values.setProperty(spec.getName(),
-                                customPropertySetRecord.getCustomPropertySetValues().getProperty(spec.getName())));
-                getContext().getCustomPropertySetService()
-                        .setValuesVersionFor(usagePointCustomPropertySet.getCustomPropertySet(),
-                                usagePointCustomPropertySet.getUsagePoint(),
-                                values,
-                                getRangeToUpdate(
-                                        customPropertySetRecord,
-                                        values.getEffectiveRange()),
-                                customPropertySetRecord.getVersionId().get());
-            } else {
-                throw new ProcessorException(
-                        MessageSeeds.IMPORT_VERSIONED_VALUES_NOT_FOUND,
-                        customPropertySetRecord.getLineNumber(),
-                        customPropertySetRecord.getVersionId().get().toString());
-            }
-        } else {
-            getContext().getCustomPropertySetService()
-                    .setValuesVersionFor(usagePointCustomPropertySet.getCustomPropertySet(), usagePointCustomPropertySet
-                                    .getUsagePoint(),
-                            customPropertySetRecord.getCustomPropertySetValues(), getRangeToCreate(customPropertySetRecord));
-        }
-    }
 
     private void validateCreateOrUpdateNonVersionedSet(UsagePointPropertySet usagePointCustomPropertySet, CustomPropertySetRecord customPropertySetRecord) {
         CustomPropertySetValues values = usagePointCustomPropertySet.getValues();
@@ -566,63 +401,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
         getContext().getCustomPropertySetService()
                 .validateCustomPropertySetValues(usagePointCustomPropertySet.getCustomPropertySet(), values);
-    }
-
-    private void createOrUpdateNonVersionedSet(UsagePointPropertySet usagePointCustomPropertySet, CustomPropertySetRecord customPropertySetRecord) {
-        CustomPropertySetValues values = usagePointCustomPropertySet.getValues();
-        if (values != null) {
-            usagePointCustomPropertySet.getCustomPropertySet()
-                    .getPropertySpecs()
-                    .stream()
-                    .filter(spec -> customPropertySetRecord.getCustomPropertySetValues()
-                            .getProperty(spec.getName()) != null)
-                    .forEach(spec -> values.setProperty(spec.getName(), customPropertySetRecord.getCustomPropertySetValues()
-                            .getProperty(spec.getName())));
-            getContext().getCustomPropertySetService()
-                    .setValuesFor(usagePointCustomPropertySet.getCustomPropertySet(), usagePointCustomPropertySet.getUsagePoint(),
-                            values);
-        }
-
-        usagePointCustomPropertySet.setValues(values);
-    }
-
-    private Range<Instant> getRangeToCreate(CustomPropertySetRecord customPropertySetRecord) {
-        if ((!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH))
-                && (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH))) {
-            return Range.all();
-        } else if (!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH)) {
-            return Range.lessThan(customPropertySetRecord.getEndTime().get());
-        } else if (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH)) {
-            return Range.atLeast(customPropertySetRecord.getStartTime().get());
-        } else {
-            return Range.closedOpen(
-                    customPropertySetRecord.getStartTime().get(),
-                    customPropertySetRecord.getEndTime().get());
-        }
-    }
-
-    private Range<Instant> getRangeToUpdate(CustomPropertySetRecord customPropertySetRecord, Range<Instant> oldRange) {
-        if (!customPropertySetRecord.getStartTime().isPresent() && !customPropertySetRecord.getEndTime().isPresent()) {
-            return oldRange;
-        } else if (!customPropertySetRecord.getStartTime().isPresent()) {
-            if (oldRange.hasUpperBound()) {
-                return Range.closedOpen(customPropertySetRecord.getStartTime().get(), oldRange.upperEndpoint());
-            } else if (customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH)) {
-                return Range.all();
-            } else {
-                return Range.lessThan(customPropertySetRecord.getEndTime().get());
-            }
-        } else if (!customPropertySetRecord.getEndTime().isPresent()) {
-            if (oldRange.hasUpperBound()) {
-                return Range.closedOpen(oldRange.lowerEndpoint(), customPropertySetRecord.getEndTime().get());
-            } else if (customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH)) {
-                return Range.all();
-            } else {
-                return Range.atLeast(customPropertySetRecord.getStartTime().get());
-            }
-        } else {
-            return getRangeToCreate(customPropertySetRecord);
-        }
     }
 
     private Meter getMeter(String meterName) {
@@ -660,24 +438,6 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                 meterRoleWithMeterAndActivationDate.getMeterRole().isEmpty()) {
             throw new ProcessorException(MessageSeeds.SOME_REQUIRED_FIELDS_ARE_EMPTY);
         }
-    private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, UsagePointImportRecord data, Map<String, Integer> ranking) {
-        List<String> location = data.getLocation();
-        builder.setCountryCode(location.get(ranking.get("countryCode")))
-                .setCountryName(location.get(ranking.get("countryName")))
-                .setAdministrativeArea(location.get(ranking.get("administrativeArea")))
-                .setLocality(location.get(ranking.get("locality")))
-                .setSubLocality(location.get(ranking.get("subLocality")))
-                .setStreetType(location.get(ranking.get("streetType")))
-                .setStreetName(location.get(ranking.get("streetName")))
-                .setStreetNumber(location.get(ranking.get("streetNumber")))
-                .setEstablishmentType(location.get(ranking.get("establishmentType")))
-                .setEstablishmentName(location.get(ranking.get("establishmentName")))
-                .setEstablishmentNumber(location.get(ranking.get("establishmentNumber")))
-                .setAddressDetail(location.get(ranking.get("addressDetail")))
-                .setZipCode(location.get(ranking.get("zipCode")))
-                .isDaultLocation(true)
-                .setLocale(data.getLocation().get(ranking.get("locale")) == null || data.getLocation().get(ranking.get("locale")).equals("") ? "en" : data.getLocation()
-                        .get(ranking.get("locale")));
-        return builder;
     }
+
 }

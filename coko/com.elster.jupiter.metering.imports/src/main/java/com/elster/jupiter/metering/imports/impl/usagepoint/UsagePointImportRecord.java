@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
@@ -16,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class UsagePointImportRecord extends FileImportRecord {
     //General
@@ -372,9 +370,5 @@ public class UsagePointImportRecord extends FileImportRecord {
 
     public void setTransitionAttributes(Map<String, String> transitionAttributes) {
         this.transitionAttributes = transitionAttributes;
-    }
-
-    public Map<CustomPropertySet, CustomPropertySetRecord> getCustomPropertySets() {
-        return this.customPropertySets.entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getCustomPropertySet(), Map.Entry::getValue));
     }
 }
