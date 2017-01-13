@@ -41,6 +41,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -243,6 +244,7 @@ public class ComSessionCrudIT {
                     new UserModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule(),
                     new MeteringGroupsModule(),
                     new SearchModule(),
@@ -327,9 +329,11 @@ public class ComSessionCrudIT {
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
             connectionTypePluggableClass.save();
 
-            partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
-                    comWindow(new ComWindow(0, 7200)).
-                    build();
+            partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                    .
+                            comWindow(new ComWindow(0, 7200))
+                    .
+                            build();
             partialScheduledConnectionTask.save();
 
             outboundTcpipComPortPool = engineConfigurationService.newOutboundComPortPool("outTCPIPPool", ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
@@ -501,13 +505,13 @@ public class ComSessionCrudIT {
         ServerConnectionTaskService connectionTaskService = this.deviceDataModelService.connectionTaskService();
         try (TransactionContext ctx = transactionService.getContext()) {
             ComSessionBuilder.EndedComSessionBuilder endedComSessionBuilder =
-                connectionTaskService
-                    .buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, task1StartTime)
-                    .add(task1StopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
-                    .addComTaskExecutionSession(comTaskExecution, comTask, task2StartTime)
-                    .add(task2StopTime, ComTaskExecutionSession.SuccessIndicator.Success)
-                    .endSession(stopTime, ComSession.SuccessIndicator.Success);
+                    connectionTaskService
+                            .buildComSession(connectionTask, outboundTcpipComPortPool, comport, startTime)
+                            .addComTaskExecutionSession(comTaskExecution, comTask, task1StartTime)
+                            .add(task1StopTime, ComTaskExecutionSession.SuccessIndicator.Failure)
+                            .addComTaskExecutionSession(comTaskExecution, comTask, task2StartTime)
+                            .add(task2StopTime, ComTaskExecutionSession.SuccessIndicator.Success)
+                            .endSession(stopTime, ComSession.SuccessIndicator.Success);
             ComSession comSession = endedComSessionBuilder.create();
             id = comSession.getId();
             ctx.commit();

@@ -11,7 +11,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,18 +41,17 @@ class UpgraderV10_3 implements Upgrader {
                 .filter(ComTaskExecution::usesSharedSchedule)
                 .collect(Collectors.groupingBy(ComTaskExecution::getDevice, Collectors.groupingBy(scheduledComTaskExecution -> scheduledComTaskExecution.getComSchedule().get())));
 
-        for (Device device : collected.keySet()) {
-            List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-            Map<ComSchedule, List<ComTaskExecution>> executionsPerSchedule = collected.get(device);
-            executionsPerSchedule.keySet().stream()
-                    .forEach(comschedule -> {
+        for (Map.Entry<Device, Map<ComSchedule, List<ComTaskExecution>>> deviceWithExecutionsPerSchedule : collected.entrySet()) {
+            List<ComTaskEnablement> comTaskEnablements = deviceWithExecutionsPerSchedule.getKey().getDeviceConfiguration().getComTaskEnablements();
+            Map<ComSchedule, List<ComTaskExecution>> executionsPerSchedule = deviceWithExecutionsPerSchedule.getValue();
+            executionsPerSchedule.entrySet()
+                    .forEach(comScheduleWithTasksExecutions -> {
                         List<ComTaskEnablement> validEnablementsForSchedule = comTaskEnablements
                                 .stream()
-                                .filter(comTaskEnablement -> comschedule.containsComTask(comTaskEnablement.getComTask()))
+                                .filter(comTaskEnablement -> comScheduleWithTasksExecutions.getKey().containsComTask(comTaskEnablement.getComTask()))
                                 .collect(Collectors.toList());
 
-                        doSQL(validEnablementsForSchedule, executionsPerSchedule.get(comschedule).get(0));
-
+                        doSQL(validEnablementsForSchedule, comScheduleWithTasksExecutions.getValue().get(0));
                     });
         }
     }
@@ -81,13 +79,5 @@ class UpgraderV10_3 implements Upgrader {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
             }
         });
-    }
-
-    private void execute(Statement statement, String sql) {
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
     }
 }
