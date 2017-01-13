@@ -12,6 +12,7 @@ public class DataValidationTaskInfo extends DataValidationTaskMinimalInfo {
     public IdWithDisplayValueInfo metrologyConfiguration;
     public IdWithDisplayValueInfo<Long> metrologyContract;
     public IdWithDisplayValueInfo<Long> usagePointGroup;
+    public IdWithDisplayValueInfo<Long> metrologyPurpose;
     public String recurrence;
     public DataValidationTaskHistoryInfo lastValidationOccurence;
     public Instant lastRun;
