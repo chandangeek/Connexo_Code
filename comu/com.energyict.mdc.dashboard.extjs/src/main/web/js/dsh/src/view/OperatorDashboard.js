@@ -135,13 +135,13 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     router: me.router
                 });
         }
-        //if(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail'])) {
+        if(Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceGroup','privilege.administrate.deviceOfEnumeratedGroup','privilege.view.deviceGroupDetail','privilege.view.device'])) {
             me.items[0].items.push(
                 {
                     xtype: 'favorite-device-groups',
                     itemId: 'favorite-device-groups'
                 });
-        //}
+        }
         if (Mdc.privileges.Device.canAdministrateOrOperateDeviceCommunication()) {
             me.items[2].items[0].items.push(
                 {
