@@ -74,6 +74,8 @@ Ext.define('MdcApp.controller.Main', {
         'Isu.controller.Main',
         'Idc.controller.Main',
         'Idv.controller.Main',
+        'Idv.controller.Main',
+        'Dal.controller.Main',
         'Bpm.controller.Main',
         'Ddv.controller.Main',
         'Dsh.controller.Main',
@@ -84,7 +86,8 @@ Ext.define('MdcApp.controller.Main', {
         'Est.main.controller.Main',
         'Fim.controller.Main',
         'Dbp.controller.Main',
-        'Scs.controller.Main'
+        'Scs.controller.Main',
+        'Dal.controller.Main'
     ],
 
     init: function () {

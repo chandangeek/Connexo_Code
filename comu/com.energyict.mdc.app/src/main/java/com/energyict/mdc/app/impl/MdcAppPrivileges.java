@@ -38,6 +38,18 @@ class MdcAppPrivileges {
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ASSIGNMENT_RULE,
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE,
 
+                //alarm
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.ACTION_ALARM,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.ASSIGN_ALARM,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.CLOSE_ALARM,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.COMMENT_ALARM,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.VIEW_ALARM,
+
+                //alarm configuration
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.VIEW_ALARM_ASSIGNMENT_RULE,
+                com.energyict.mdc.device.alarms.security.Privileges.Constants.VIEW_ALARM_CREATION_RULE,
+
                 //yellowfin reports
                 com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS,
 
