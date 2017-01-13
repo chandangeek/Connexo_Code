@@ -31,7 +31,7 @@ public class DataExportTaskInfoFactory {
     @Inject
     public DataExportTaskInfoFactory(Thesaurus thesaurus, TimeService timeService, PropertyValueInfoService propertyValueInfoService,
                                      Provider<DataExportTaskHistoryInfoFactory> dataExportTaskHistoryInfoFactoryProvider,
-                                     StandardDataSelectorInfoFactory standardDataSelectorInfoFactory) {
+                                      StandardDataSelectorInfoFactory standardDataSelectorInfoFactory) {
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.propertyValueInfoService = propertyValueInfoService;
