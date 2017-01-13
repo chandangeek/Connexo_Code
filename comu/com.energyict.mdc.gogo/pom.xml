@@ -63,6 +63,10 @@
             <artifactId>mdc.masterdata</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.topology</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
         </dependency>
