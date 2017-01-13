@@ -10,6 +10,8 @@ import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.security.Privileges;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -80,6 +82,7 @@ public class EstimationResource {
     private final Thesaurus thesaurus;
     private final TimeService timeService;
     private final MeteringGroupsService meteringGroupsService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
@@ -91,7 +94,7 @@ public class EstimationResource {
                               Thesaurus thesaurus,
                               TimeService timeService,
                               MeteringGroupsService meteringGroupsService,
-                              ConcurrentModificationExceptionFactory conflictFactory,
+                              MetrologyConfigurationService metrologyConfigurationService, ConcurrentModificationExceptionFactory conflictFactory,
                               PropertyValueInfoService propertyValueInfoService,
                               EstimationRuleInfoFactory estimationRuleInfoFactory) {
         this.queryService = queryService;
@@ -100,6 +103,7 @@ public class EstimationResource {
         this.thesaurus = thesaurus;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.conflictFactory = conflictFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
@@ -413,6 +417,7 @@ public class EstimationResource {
                 .setPeriod(getRelativePeriod(info.period))
                 .setEndDeviceGroup(info.deviceGroup!=null ? endDeviceGroup(info.deviceGroup.id) : null)
                 .setUsagePointGroup(info.usagePointGroup!=null ? usagePointGroup(info.usagePointGroup.id) : null)
+                .setMetrologyPurpose(info.metrologyPurpose!=null ? metrologyPurpose(info.metrologyPurpose.id) : null)
                 .create();
 
         return Response.status(Response.Status.CREATED)
@@ -465,6 +470,9 @@ public class EstimationResource {
         }
         if(info.usagePointGroup!=null){
             task.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+            if(info.metrologyPurpose!=null){
+                task.setMetrologyPurpose(metrologyPurpose(info.metrologyPurpose.id));
+            }
         }
         if(info.usagePointGroup==null && info.deviceGroup==null){
             task.setEndDeviceGroup(null);
@@ -605,6 +613,10 @@ public class EstimationResource {
 
     private UsagePointGroup usagePointGroup(long usagePointGroupId) {
         return meteringGroupsService.findUsagePointGroup(usagePointGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private MetrologyPurpose metrologyPurpose(long metrologyPurposeId) {
+        return metrologyConfigurationService.findMetrologyPurpose(metrologyPurposeId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
