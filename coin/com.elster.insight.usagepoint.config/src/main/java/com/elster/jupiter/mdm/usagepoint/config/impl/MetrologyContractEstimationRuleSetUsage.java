@@ -11,4 +11,8 @@ public interface MetrologyContractEstimationRuleSetUsage {
     MetrologyContract getMetrologyContract();
 
     EstimationRuleSet getEstimationRuleSet();
+
+    long getPosition();
+
+    void setPosition(long position);
 }

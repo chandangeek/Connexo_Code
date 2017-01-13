@@ -63,8 +63,8 @@ class MetrologyConfigurationsInstaller {
         residentialConsumerWith4ToU();
         waterConfigurationCI();
         residentialGas();
-        residentialNonSmartInsatallation();
-        residentialGasNonSmartInsatallation();
+        residentialNonSmartInstallation();
+        residentialGasNonSmartInstallation();
     }
 
     private void residentialProsumerWith1Meter() {
@@ -343,7 +343,7 @@ class MetrologyConfigurationsInstaller {
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeAplusWh, requirementAplusRegister, "A+ kWh"));
     }
 
-    private void residentialNonSmartInsatallation() {
+    private void residentialNonSmartInstallation() {
         if (metrologyConfigurationService.findMetrologyConfiguration("Residential non-smart installation")
                 .isPresent()) {
             return;
@@ -390,7 +390,7 @@ class MetrologyConfigurationsInstaller {
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, DeliverableType.NUMERICAL, readingTypeAplusWh, requirementNumerical, "A+ kWh"));
     }
 
-    private void residentialGasNonSmartInsatallation() {
+    private void residentialGasNonSmartInstallation() {
         if (metrologyConfigurationService.findMetrologyConfiguration("Residential gas non-smart installation")
                 .isPresent()) {
             return;
