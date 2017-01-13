@@ -402,7 +402,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
                 when(customPropertySet.getDomainClass()).thenReturn(DeviceProtocolDialectPropertyProvider.class);
                 protocolDialect = mock(DeviceProtocolDialect.class);
-                when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
+                when(protocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn(PROTOCOL_DIALECT);
                 when(protocolDialect.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
                 when(protocolDialect.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
                 when(propertySpec.getValueFactory()).thenReturn(valueFactory);

@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.google.common.base.Strings;
 
 import java.util.Optional;
@@ -20,7 +19,7 @@ public class ProtocolDialectSharedData {
     private static DeviceProtocolDialect protocolDialect;
     private static ValueFactory valueFactory;
 
-    private static interface State {
+    private interface State {
         PropertySpec getPropertySpec();
 
         DeviceProtocolDialect getProtocolDialect();
@@ -50,7 +49,7 @@ public class ProtocolDialectSharedData {
             };
             propertySpec = mock(PropertySpec.class);
             protocolDialect = mock(DeviceProtocolDialect.class);
-            when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
+            when(protocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn(PROTOCOL_DIALECT);
             valueFactory = mock(ValueFactory.class);
             when(getProtocolDialect().getPropertySpec(MY_PROPERTY)).thenReturn(Optional.of(getPropertySpec()));
             when(getPropertySpec().getValueFactory()).thenReturn(getValueFactory());
