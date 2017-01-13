@@ -95,7 +95,7 @@ Ext.define('Usr.controller.User', {
             method: 'PUT',
             success: function (response) {
                 var decoded = response.responseText ? Ext.decode(response.responseText, true) : null,
-                    updatedRecord = decoded && decoded.users && decoded.users.length ? decoded.users[0] : null;
+                    updatedRecord = decoded ? decoded : null;
 
                 if (updatedRecord) {
                     record.beginEdit();
