@@ -31,7 +31,6 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.ObjectMapperFactory;
-import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -70,7 +69,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.properties.UplToMdwPropertySpecAdapter;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
@@ -324,11 +322,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
-        return this.format(offlineDeviceMessage, UplToMdwPropertySpecAdapter.adapt(propertySpec), messageAttribute);
-    }
-
-    @SuppressWarnings("rawtypes")
-    private String format(OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.broadcastAuthenticationKeyAttributeName)
@@ -451,10 +444,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     if (this.getLogger().isLoggable(Level.INFO)) {
                         this.getLogger().log(Level.INFO, "File size differs for file [" + tempFile + "], deleting.");
                     }
-
-                    final boolean deleted = tempFile.delete();
-
-                    if (!deleted) {
+                    if (!tempFile.delete()) {
                         throw new IllegalStateException("Could not delete file : [" + tempFile + "] : delete() returns false !");
                     }
                 }
@@ -465,9 +455,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     this.getLogger().log(Level.INFO, "Copying user file to [" + tempFile + "].");
                 }
 
-                final boolean created = tempFile.createNewFile();
-
-                if (!created) {
+                if (!tempFile.createNewFile()) {
                     throw new IllegalStateException("Could not create temporary file [" + tempFile + "] : create() returns false !");
                 }
 

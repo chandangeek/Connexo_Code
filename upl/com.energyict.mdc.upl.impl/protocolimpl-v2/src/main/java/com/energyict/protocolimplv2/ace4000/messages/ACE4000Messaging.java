@@ -15,8 +15,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.protocol.properties.UplToMdwPropertySpecAdapter;
 import com.energyict.protocolimplv2.ace4000.ACE4000MessageExecutor;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.common.objectserialization.codetable.CodeTableBase64Builder;
@@ -106,10 +104,6 @@ public class ACE4000Messaging implements DeviceMessageSupport {
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
-        return this.format(UplToMdwPropertySpecAdapter.adapt(propertySpec), messageAttribute);
-    }
-
-    private String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.SPECIAL_DATE_MODE_DURATION_DATE)) {
             return dateFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.ACTIVATION_DATE) ||

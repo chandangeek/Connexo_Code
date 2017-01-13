@@ -64,7 +64,7 @@ public enum DeviceSecurityProperty {
         private PropertySpec getPropertySpec(PropertySpecService propertySpecService, BigDecimal defaultValue) {
             return propertySpecService
                         .boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(0x7F))
-                        .named(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
+                        .named(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())
                         .describedAs("Description for " + SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
                         .setDefaultValue(defaultValue)
                         .addValues(getPossibleClientMacAddressValues(1, 0x7F))

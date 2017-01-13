@@ -20,9 +20,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.protocol.exceptions.DataParseException;
-import com.energyict.protocol.properties.UplToMdwPropertySpecAdapter;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
@@ -282,10 +280,6 @@ public class MessageFactory implements DeviceMessageSupport {
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
-        return this.format(UplToMdwPropertySpecAdapter.adapt(propertySpec), messageAttribute);
-    }
-
-    private String format(PropertySpec propertySpec, Object messageAttribute) {
         if (messageAttribute instanceof Date) {
             Date date = (Date) messageAttribute;    //Date, expressed in EIMaster system timezone, which can be different than ComServer timezone
             Calendar gmtCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
