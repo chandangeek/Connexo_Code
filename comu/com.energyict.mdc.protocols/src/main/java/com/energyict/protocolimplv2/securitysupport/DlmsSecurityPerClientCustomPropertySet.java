@@ -5,10 +5,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,12 +21,11 @@ import java.util.stream.Collectors;
 public class DlmsSecurityPerClientCustomPropertySet extends SecurityCustomPropertySet<DlmsSecurityPerClientProperties> {
 
     private final Thesaurus thesaurus;
-    private final PropertySpecService propertySpecService;
 
-    public DlmsSecurityPerClientCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    @Inject
+    public DlmsSecurityPerClientCustomPropertySet(Thesaurus thesaurus) {
         super();
         this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
     }
 
     @Override

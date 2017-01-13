@@ -37,7 +37,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocols.mdc.adapter.cps.CustomPropertySetNameDetective;
+import com.energyict.protocols.mdc.adapter.cps.SecurityCustomPropertySetNameDetective;
 import com.energyict.protocols.mdc.adapter.cps.UnableToCreateCustomPropertySet;
 import com.energyict.protocols.mdc.adapter.cps.UnableToLoadCustomPropertySetClass;
 import com.google.inject.AbstractModule;
@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
  */
 public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter implements DeviceProtocol {
 
-    private static CustomPropertySetNameDetective customPropertySetNameDetective;
+    private static SecurityCustomPropertySetNameDetective securityCustomPropertySetNameDetective;
 
     /**
      * The UPL deviceProtocol instance {@link com.energyict.mdc.upl.DeviceProtocol} that needs to be wrapped (adapted)
@@ -228,15 +228,13 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     }
 
     @Override
-    public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        return deviceProtocol.prepareMessageContext(offlineDevice, deviceMessage);
+    public Optional<String> prepareMessageContext(Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return deviceProtocol.prepareMessageContext(device, offlineDevice, deviceMessage);
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        List<? extends com.energyict.mdc.upl.DeviceProtocolDialect> deviceProtocolDialects = deviceProtocol.getDeviceProtocolDialects();
-        //TODO adapt, and add CPS support
-        return null;
+        return deviceProtocol.getDeviceProtocolDialects().stream().map(dialect -> new UPLDeviceProtocolDialectAdapter(dialect, injector)).collect(Collectors.toList());
     }
 
     @Override
@@ -256,9 +254,9 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        this.ensureCustomPropertySetNameMappingLoaded();
+        this.ensureSecurityCustomPropertySetNameMappingLoaded();
         return Optional
-                .ofNullable(customPropertySetNameDetective.customPropertySetClassNameFor(this.deviceProtocol.getClass()))
+                .ofNullable(securityCustomPropertySetNameDetective.securityCustomPropertySetClassNameFor(this.deviceProtocol.getClass()))
                 .flatMap(this::loadClass)
                 .map(this::toCustomPropertySet);
     }
@@ -267,7 +265,7 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
         try {
             return (CustomPropertySet) this.injector.getInstance(cpsClass);
         } catch (ConfigurationException | ProvisionException e) {
-            throw new UnableToCreateCustomPropertySet(e, cpsClass);
+            throw new UnableToCreateCustomPropertySet(e, cpsClass, SecurityCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
         }
     }
 
@@ -278,14 +276,14 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
             try {
                 return Optional.of(this.getClass().getClassLoader().loadClass(className));
             } catch (ClassNotFoundException e) {
-                throw new UnableToLoadCustomPropertySetClass(e, className);
+                throw new UnableToLoadCustomPropertySetClass(e, className, SecurityCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
             }
         }
     }
 
-    private void ensureCustomPropertySetNameMappingLoaded() {
-        if (customPropertySetNameDetective == null) {
-            customPropertySetNameDetective = new CustomPropertySetNameDetective();
+    private void ensureSecurityCustomPropertySetNameMappingLoaded() {
+        if (securityCustomPropertySetNameDetective == null) {
+            securityCustomPropertySetNameDetective = new SecurityCustomPropertySetNameDetective();
         }
     }
 

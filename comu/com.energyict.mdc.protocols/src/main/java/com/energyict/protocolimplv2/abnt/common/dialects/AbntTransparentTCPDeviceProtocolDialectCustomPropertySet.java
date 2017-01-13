@@ -1,10 +1,9 @@
-package com.energyict.protocols.mdc.protocoltasks;
+package com.energyict.protocolimplv2.abnt.common.dialects;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.tasks.CTRDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
@@ -13,17 +12,17 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 
 /**
- * Provides an implementation for the {@link CustomPropertySet} interface for {@link CTRDeviceProtocolDialect}.
+ * Provides an implementation for the {@link CustomPropertySet} interface for {@link AbntTransparentTCPDeviceProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-26 (14:44)
  */
-public class CTRDeviceProtocolDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, CTRDeviceProtocolDialectProperties> {
+public class AbntTransparentTCPDeviceProtocolDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, AbntDeviceProtocolDialectProperties> {
 
     private volatile PropertySpecService propertySpecService;
 
     @Inject
-    public CTRDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public AbntTransparentTCPDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus);
         this.propertySpecService = propertySpecService;
     }
@@ -34,12 +33,12 @@ public class CTRDeviceProtocolDialectCustomPropertySet extends AbstractDialectCu
     }
 
     @Override
-    public PersistenceSupport<DeviceProtocolDialectPropertyProvider, CTRDeviceProtocolDialectProperties> getPersistenceSupport() {
-        return new CTRDeviceProtocolDialectPropertyPersistenceSupport();
+    public PersistenceSupport<DeviceProtocolDialectPropertyProvider, AbntDeviceProtocolDialectProperties> getPersistenceSupport() {
+        return new AbntDeviceProtocolDialectPropertyPersistenceSupport();
     }
 
     @Override
     protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new CTRDeviceProtocolDialect(propertySpecService);
+        return new AbntTransparentTCPDeviceProtocolDialect(propertySpecService);
     }
 }

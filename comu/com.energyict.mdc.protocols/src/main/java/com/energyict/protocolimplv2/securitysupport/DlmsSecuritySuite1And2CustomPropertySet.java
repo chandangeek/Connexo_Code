@@ -2,14 +2,16 @@ package com.energyict.protocolimplv2.securitysupport;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
-import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
-import java.util.Arrays;
+import javax.inject.Inject;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link DeviceProtocolSecurityCapabilities} interface
@@ -23,6 +25,7 @@ public class DlmsSecuritySuite1And2CustomPropertySet extends SecurityCustomPrope
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
+    @Inject
     public DlmsSecuritySuite1And2CustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
@@ -51,13 +54,11 @@ public class DlmsSecuritySuite1And2CustomPropertySet extends SecurityCustomPrope
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(this.propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.SERVER_SIGNING_CERTIFICATE.getPropertySpec(this.propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(this.propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService, this.thesaurus));
-    }
+        com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities securitySupport = new DlmsSecuritySuite1And2Support(propertySpecService);
 
+        return securitySupport.getSecurityProperties()
+                .stream()
+                .map(UPLToConnexoPropertySpecAdapter::new)
+                .collect(Collectors.toList());
+    }
 }

@@ -6,8 +6,8 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.tasks.EiWebPlusDialect;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
-
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -71,8 +71,8 @@ public class EiWebPlusDialectPropertyPersistenceSupport implements PersistenceSu
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(EiWebPlusDialectProperties.ActualFields.values())
-            .forEach(field -> field.addTo(table));
+                .of(EiWebPlusDialectProperties.ActualFields.values())
+                .forEach(field -> field.addTo(table));
     }
 
 }

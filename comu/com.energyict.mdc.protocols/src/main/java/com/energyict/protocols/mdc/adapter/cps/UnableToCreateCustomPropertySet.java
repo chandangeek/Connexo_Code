@@ -8,8 +8,7 @@ package com.energyict.protocols.mdc.adapter.cps;
  */
 public class UnableToCreateCustomPropertySet extends RuntimeException {
 
-    public UnableToCreateCustomPropertySet(Throwable cause, Class cpsClass) {
-        super("Unable to create instance of class " + cpsClass.getName() + " that was configured in mapping file " + CustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME, cause);
+    public UnableToCreateCustomPropertySet(Throwable cause, Class cpsClass, String fileName) {
+        super("Unable to create instance of class " + cpsClass.getName() + " that was configured in mapping file " + fileName, cause);
     }
-
 }

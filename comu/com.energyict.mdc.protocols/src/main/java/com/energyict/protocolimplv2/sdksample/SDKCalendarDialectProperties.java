@@ -2,22 +2,42 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+import test.com.energyict.protocolimplv2.sdksample.SDKCalendarTaskProtocolDialectProperties;
 
 import javax.validation.constraints.Size;
 
 /**
- * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link SDKCalendarProtocolDialect}.
+ * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link SDKCalendarTaskProtocolDialectProperties}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-06-17 (12:41)
  */
 class SDKCalendarDialectProperties extends CommonDeviceProtocolDialectProperties {
+
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String activeCalendarName;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String passiveCalendarName;
+
+    @Override
+    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+        this.activeCalendarName = (String) propertyValues.getProperty(ActualFields.ACTIVE_CALENDAR_NAME.propertySpecName());
+        this.passiveCalendarName = (String) propertyValues.getProperty(ActualFields.PASSIVE_CALENDAR_NAME.propertySpecName());
+    }
+
+    @Override
+    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.ACTIVE_CALENDAR_NAME.propertySpecName(), this.activeCalendarName);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.PASSIVE_CALENDAR_NAME.propertySpecName(), this.passiveCalendarName);
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
 
     enum ActualFields {
         ACTIVE_CALENDAR_NAME("activeCalendarName", SDKTranslationKeys.ACTIVE_CALENDAR_NAME, "ActiveCalendar", "ACTIVE_CALENDAR"),
@@ -47,44 +67,12 @@ class SDKCalendarDialectProperties extends CommonDeviceProtocolDialectProperties
             return this.databaseName;
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return propertySpecService
-                    .stringSpec()
-                    .named(this.propertySpecName(), nameTranslationKey)
-                    .fromThesaurus(thesaurus)
-                    .finish();
-        }
-
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName())
-                .add();
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName())
+                    .add();
         }
-
     }
-
-    @Size(max=Table.MAX_STRING_LENGTH)
-    private String activeCalendarName;
-    @Size(max=Table.MAX_STRING_LENGTH)
-    private String passiveCalendarName;
-
-    @Override
-    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.activeCalendarName = (String) propertyValues.getProperty(ActualFields.ACTIVE_CALENDAR_NAME.propertySpecName());
-        this.passiveCalendarName = (String) propertyValues.getProperty(ActualFields.PASSIVE_CALENDAR_NAME.propertySpecName());
-    }
-
-    @Override
-    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.ACTIVE_CALENDAR_NAME.propertySpecName(), this.activeCalendarName);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.PASSIVE_CALENDAR_NAME.propertySpecName(), this.passiveCalendarName);
-    }
-
-    @Override
-    public void validateDelete() {
-        // Nothing to validate
-    }
-
 }

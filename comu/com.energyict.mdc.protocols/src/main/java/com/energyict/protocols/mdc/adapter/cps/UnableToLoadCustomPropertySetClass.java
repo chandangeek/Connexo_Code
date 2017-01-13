@@ -8,8 +8,7 @@ package com.energyict.protocols.mdc.adapter.cps;
  */
 public class UnableToLoadCustomPropertySetClass extends RuntimeException {
 
-    public UnableToLoadCustomPropertySetClass(ClassNotFoundException cause, String className) {
-        super("Unable to load class " + className + " that was configured in mapping file " + CustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME, cause);
+    public UnableToLoadCustomPropertySetClass(ClassNotFoundException cause, String className, String fileName) {
+        super("Unable to load class " + className + " that was configured in mapping file " + fileName, cause);
     }
-
 }

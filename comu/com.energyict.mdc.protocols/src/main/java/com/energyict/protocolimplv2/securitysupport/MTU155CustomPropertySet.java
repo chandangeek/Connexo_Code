@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ public class MTU155CustomPropertySet extends SecurityCustomPropertySet<MTU155Sec
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
+    @Inject
     public MTU155CustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;

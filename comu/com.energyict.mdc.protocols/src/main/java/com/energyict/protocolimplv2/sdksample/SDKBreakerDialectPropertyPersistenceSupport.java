@@ -7,8 +7,8 @@ import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
-
 import com.google.inject.Module;
+import test.com.energyict.protocolimplv2.sdksample.SDKBreakerTaskProtocolDialectProperties;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link SDKBreakerProtocolDialect}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link SDKBreakerTaskProtocolDialectProperties}.
  *
  * @author sva
  * @since 8/04/2016 - 13:10
