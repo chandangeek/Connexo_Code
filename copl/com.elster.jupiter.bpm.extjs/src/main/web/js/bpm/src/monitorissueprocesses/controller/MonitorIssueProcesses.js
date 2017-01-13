@@ -26,6 +26,9 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
             'bpm-issue-processes-main-view': {
                 initStores: this.initStores
             },
+            'bpm-alarm-processes-main-view': {
+                initStores: this.initStores
+            },
             '#issue-processes #issue-processes-grid': {
                 select: this.showProcessPreview
             },
