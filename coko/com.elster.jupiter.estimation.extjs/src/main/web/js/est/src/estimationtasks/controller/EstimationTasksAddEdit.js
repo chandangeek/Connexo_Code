@@ -6,6 +6,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     stores: [
         'Est.estimationtasks.store.DeviceGroups',
         'Est.estimationtasks.store.UsagePointGroups',
+        'Est.estimationtasks.store.MetrologyPurposes',
         'Est.estimationtasks.store.DaysWeeksMonths'
     ],
 
@@ -33,6 +34,9 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             },
             'estimationtasks-addedit #recurrence-trigger': {
                 change: this.recurrenceChange
+            },
+            'estimationtasks-addedit #reset-purpose-btn': {
+                click: this.resetPurpose
             }
         });
     },
@@ -87,6 +91,10 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                     newEstimationTask.set('usagePointGroup', {
                         id: me.getAddEditEstimationtaskForm().down('#usagePoint-group-id').getValue(),
                         displayValue: me.getAddEditEstimationtaskForm().down('#usagePoint-group-id').getRawValue()
+                    });
+                    newEstimationTask.set('metrologyPurpose', {
+                        id: me.getAddEditEstimationtaskForm().down('#cbo-estimation-task-purpose').getValue(),
+                        displayValue: me.getAddEditEstimationtaskForm().down('#cbo-estimation-task-purpose').getRawValue()
                     });
                 } break;
             }
@@ -314,6 +322,13 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         } else {
             page.down('#recurrence-values').enable();
         }
+    },
+
+    resetPurpose: function (btn) {
+        var me = this,
+            page = me.getAddEditEstimationtaskPage();
+        page.down('#cbo-estimation-task-purpose').clearValue();
+        btn.disable();
     }
 
 });
