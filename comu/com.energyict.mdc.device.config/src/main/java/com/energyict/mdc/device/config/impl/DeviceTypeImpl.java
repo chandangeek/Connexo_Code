@@ -539,8 +539,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public void removeCalendar(AllowedCalendar allowedCalendar) {
         this.getEventService().postEvent(EventType.ALLOWED_CALENDAR_VALIDATE_DELETE.topic(), allowedCalendar);
-        allowedCalendar.setObsolete(this.clock.instant());
-        this.touch();
+        this.allowedCalendars.remove(allowedCalendar);
+        save();
     }
 
     @Override

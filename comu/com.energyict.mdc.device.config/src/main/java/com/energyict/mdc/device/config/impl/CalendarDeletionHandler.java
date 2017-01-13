@@ -22,7 +22,6 @@ public class CalendarDeletionHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-
         Calendar calendar = (Calendar) localEvent.getSource();
         if (isInUse(calendar)) {
             throw new VetoCalendarDeleteException(deviceConfigurationService.getThesaurus(), calendar);
@@ -39,16 +38,11 @@ public class CalendarDeletionHandler implements TopicHandler {
 
     @Override
     public String getTopicMatcher() {
-        return EventType.CALENDAR_UPDATE.topic();
+        return EventType.CALENDAR_DELETE.topic();
     }
 
     @Reference
     public void setSchedulingService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = (ServerDeviceConfigurationService) deviceConfigurationService;
     }
-
 }
-
-
-
-
