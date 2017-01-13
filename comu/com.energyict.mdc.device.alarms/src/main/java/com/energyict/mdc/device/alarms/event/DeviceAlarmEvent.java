@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.alarms.event;
 
+import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -10,6 +12,8 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -20,12 +24,18 @@ import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.google.common.collect.Range;
 import com.google.inject.Injector;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     protected static final Logger LOGGER = Logger.getLogger(DeviceAlarmEvent.class.getName());
@@ -89,6 +99,23 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         getEventTimestamp(rawEvent);
     }
 
+    //TODO- use clock
+    public int computeOccurenceCount(String range, String endDeviceEventTypes) {
+        List<String> currentList = getDevice().getLogBooks().stream()
+                .map(logBook -> logBook.getEndDeviceEvents(Range.closed(Instant.ofEpochMilli(Instant.now().toEpochMilli() - Long.valueOf(range)), Instant.now())))
+                .flatMap(eventList -> eventList.stream()).map(event -> event.getEventType().toString())
+                .collect(Collectors.toList());
+        List<String> inputEventTypeList = Arrays.asList(endDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
+        return currentList.stream()
+                .filter(inputEventTypeList::contains)
+                .collect(Collectors.toList()).size();
+    }
+
+    public boolean isClearing(String endDeviceEventTypes) {
+        List<String> inputEventTypeList = Arrays.asList(endDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
+        return inputEventTypeList.contains(this.getEventTypeMrid());
+    }
+
 
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> endDeviceId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
@@ -141,7 +168,8 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         getEndDevice().ifPresent(filter::setDevice);
         filter.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
         filter.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-        Optional<? extends DeviceAlarm> foundIssue = deviceAlarmService.findAlarms(filter).find().stream().findFirst();//It is going to be only zero or one open alarm per device
+        Optional<? extends DeviceAlarm> foundIssue = deviceAlarmService.findAlarms(filter).find()
+                .stream().max(Comparator.comparing(Issue::getCreateTime));//It is going to be only zero or one open alarm per device
         if (foundIssue.isPresent()) {
             return Optional.of((OpenIssue) foundIssue.get());
         }

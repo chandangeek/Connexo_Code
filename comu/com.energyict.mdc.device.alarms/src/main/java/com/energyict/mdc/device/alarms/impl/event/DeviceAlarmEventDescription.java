@@ -20,18 +20,7 @@ public enum DeviceAlarmEventDescription implements EventDescription {
         public boolean validateEvent(Map<?, ?> map) {
             return super.validateEvent(map) && !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
         }
-    },
-
-    // Dummy - to be removed
-    END_DEVICE_EVENT_CREATED1(
-            "com/elster/jupiter/metering/enddeviceevent/CREATED",
-            EndDeviceEventCreatedEvent.class,
-            TranslationKeys.END_DEVICE_EVENT_CREATED1) {
-        public boolean validateEvent(Map<?, ?> map) {
-            return super.validateEvent(map) && !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
-        }
     };
-
 
     private String topic;
     private TranslationKeys title;

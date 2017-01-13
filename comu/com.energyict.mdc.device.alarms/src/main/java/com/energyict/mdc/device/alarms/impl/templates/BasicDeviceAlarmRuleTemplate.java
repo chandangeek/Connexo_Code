@@ -34,8 +34,14 @@ import java.util.Optional;
         immediate = true)
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     static final String NAME = "BasicDeviceAlarmRuleTemplate";
-
     public static final String EVENTTYPE = NAME + ".eventType";
+    public static final String LOG_ON_SAME_ALARM = NAME + ".logOnSameAlarm";
+    public static final String TRIGGERING_EVENTS = NAME + ".triggeringEvents";
+    public static final String CLEARING_EVENTS = NAME + ".clearingEvents";
+    //public static final String THRESHOLD_TYPE = NAME + ".tresholdType";
+    //public static final String THRESHOLD_VALUE = NAME + ".tresholdValue";
+    public static final String THRESHOLD = NAME + ".threshold";
+    public static final String EVENT_OCCURENCE_COUNT = NAME + ".eventCount";
 
     private String SEPARATOR = ":";
 
@@ -97,10 +103,13 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Basic device alarm rule @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\")\n" +
+                "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
+                // maybe both TRIGGERING_EVENTS + CLEARING_EVENTS
+                "\teval( event.computeOccurenceCount(@{" + THRESHOLD + "}, @{" + TRIGGERING_EVENTS +") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to create alarm by basic device alarm rule=@{ruleId}\");\n" +
-                "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
+                "\tSystem.out.println(\"Generating device alarm @{ruleId}\");\n" +
+              //  "\tboolean clearing = event.isClearing();\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM +"}, clearing));\n" +
                 "end";
     }
 
@@ -114,6 +123,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     @Override
     public Optional<? extends Issue> resolveIssue(IssueEvent event) {
+        //TODO - resolve all occurences
         Optional<? extends Issue> issue = event.findExistingIssue();
         if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
             OpenIssue openIssue = (OpenIssue) issue.get();
@@ -131,8 +141,43 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .addValues(eventTypes.getEventTypes())
+                //.addValues(eventTypes.getEventTypes())
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .finish());
+        builder.add(propertySpecService
+                .booleanSpec()
+                .named(LOG_ON_SAME_ALARM, TranslationKeys.LOG_ON_SAME_ALARM)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .longSpec()
+                .named(THRESHOLD, TranslationKeys.EVENT_TEMPORAL_THRESHOLD)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .longSpec()
+                .named(EVENT_OCCURENCE_COUNT, TranslationKeys.EVENT_OCCURENCE_COUNT)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .longSpec()
+                .named(TRIGGERING_EVENTS, TranslationKeys.TRIGGERING_EVENTS)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .longSpec()
+                .named(CLEARING_EVENTS, TranslationKeys.CLEARING_EVENTS)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                .markExhaustive()
                 .finish());
         return builder.build();
     }
@@ -143,8 +188,14 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
     private OpenIssue getAlarm(OpenIssue openIssue, IssueEvent event) {
+        //TODO - create new method for resolve alarm
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
+            if(((DeviceAlarmEvent) event).isClearing(CLEARING_EVENTS) && !alarm.isStatusCleared()){
+                alarm.setClearedStatus();
+                alarm.getPriority().lowerUrgency();
+            }
+            alarm.getPriority().increaseUrgency();
             alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent) event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
             return alarm;
         }

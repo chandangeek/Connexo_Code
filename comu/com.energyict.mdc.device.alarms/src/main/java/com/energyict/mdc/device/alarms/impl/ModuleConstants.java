@@ -6,20 +6,20 @@ public final class ModuleConstants {
 
     public static final String ALARM_REASON = "alarm.reason";
     public static final String END_DEVICE_EVENT_CREATED = "end.device.event.created";
-    public static final String END_DEVICE_EVENT_CREATED1 = "end.device.event.created1";
     public static final String AQ_DEVICE_ALARM_EVENT_SUBSC = "DeviceAlarmCreation";
     public static final String AQ_DEVICE_ALARM_EVENT_DISPLAYNAME = "Create device alarms";
 
     public static final String DEVICE_IDENTIFIER = "endDeviceId";
-    public static final String MASTER_DEVICE_IDENTIFIER = "masterDeviceId";
     public static final String SKIPPED_TASK_IDS = "skippedTaskIDs";
     public static final String EVENT_TIMESTAMP = "eventTimestamp";
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION = "basicTemplateDeviceAlarmDescription";
-    public static final String PARAMETER_NAME_EVENT_TYPE = "parameterNameEventType";
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_NAME = "basicTemplateDeviceAlarmName";
     public static final String ISSUE_TYPE_DEVICE_ALARM = "issueTypeDeviceAlarm";
     public static final String ALARM_REASON_DESCRIPTION = "alarmReasonDescription";
-
-    public static final long MDC_AMR_SYSTEM_ID = 1L;
+    public static final String EVENT_TEMPORAL_THRESHOLD = "eventTemporalThreshold";
+    public static final String LOG_ON_SAME_ALARM = "logOnSameAlarm";
+    public static final String TRIGGERING_EVENTS = "triggeringEvents";
+    public static final String CLEARING_EVENTS = "clearingEvents";
+    public static final String EVENT_OCCURENCE_COUNT = "eventOccurenceCount";
 
 }

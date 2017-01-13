@@ -7,17 +7,15 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.Injector;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -38,7 +36,7 @@ public class DeviceAlarmEventHandler implements MessageHandler {
         return injector.getInstance(JsonService.class);
     }
 
-    protected DeviceService getDeviceService(){
+    protected DeviceService getDeviceService() {
         return injector.getInstance(DeviceService.class);
     }
 
@@ -77,7 +75,7 @@ public class DeviceAlarmEventHandler implements MessageHandler {
 
     private Device getDeviceFromEventMap(Map<?, ?> map) {
         Optional<Long> amrId = getLong(map, ModuleConstants.DEVICE_IDENTIFIER);
-        if(amrId.isPresent()){
+        if (amrId.isPresent()) {
             return getDeviceService().findDeviceById(amrId.get()).orElse(null);
         } else {
             return null; // providing no device requires the event implementation to 'identify' the device in another way
@@ -86,7 +84,7 @@ public class DeviceAlarmEventHandler implements MessageHandler {
 
     protected Optional<Long> getLong(Map<?, ?> map, String key) {
         Object contents = map.get(key);
-        if (contents != null && contents instanceof Number){
+        if (contents != null && contents instanceof Number) {
             return Optional.of(((Number) contents).longValue());
         }
         return Optional.empty();
