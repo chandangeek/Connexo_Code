@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public class MetrologyConfigurationInfoFactory {
@@ -35,7 +36,11 @@ public class MetrologyConfigurationInfoFactory {
         info.status = asInfo(metrologyConfiguration.getStatus());
         info.serviceCategory = asInfo(metrologyConfiguration.getServiceCategory());
         info.version = metrologyConfiguration.getVersion();
-        info.readingTypes = metrologyConfiguration.getDeliverables().stream().map(ReadingTypeDeliverable::getReadingType).map(readingTypeInfoFactory::from).collect(Collectors.toList());
+        info.readingTypes = metrologyConfiguration.getDeliverables().stream()
+                .map(ReadingTypeDeliverable::getReadingType)
+                .map(readingTypeInfoFactory::from)
+                .sorted(Comparator.comparing(rt -> rt.fullAliasName))
+                .collect(Collectors.toList());
         return info;
     }
 
