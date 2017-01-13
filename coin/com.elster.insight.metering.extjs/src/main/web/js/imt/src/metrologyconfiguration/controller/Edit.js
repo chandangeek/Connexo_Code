@@ -186,10 +186,10 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         if (response.status == 400) {
             responseText = Ext.decode(response.responseText, true);
             if (responseText && responseText.errors) {
-                basicForm.markInvalid(me.mapErrors(responseText.errors));
+                basicForm.markInvalid(responseText.errors);
                 formErrorsPanel.show();
             } else {
-                basicForm.markInvalid(me.mapErrors(response.responseText));
+                basicForm.markInvalid(response.responseText);
                 formErrorsPanel.show();
             }
         }
@@ -312,7 +312,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                         errors = Ext.decode(response.responseText, true);
 
                     if (errors && !Ext.isEmpty(errors.errors)) {
-                        wizard.markInvalid(errors.errors);
+                        wizard.markInvalid(me.mapErrors(errors.errors));
                     }
                 }
             }, Ext.merge(options, {
