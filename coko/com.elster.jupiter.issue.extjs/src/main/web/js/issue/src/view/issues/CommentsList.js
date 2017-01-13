@@ -14,7 +14,7 @@ Ext.define('Isu.view.issues.CommentsList', {
     buttons: [
         {
             itemId: 'issue-comments-add-comment-button',
-            text: me.noProcessText,
+            text: Uni.I18n.translate('general.addComment', 'ISU', 'Add comment'),
             hidden: true,
             action: 'add'
         }
