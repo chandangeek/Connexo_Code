@@ -33,7 +33,6 @@ public class UpgraderV10_3 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 3));
-        this.upgradeOpenIssue();
         this.updateActiontypes();
     }
 
@@ -67,26 +66,6 @@ public class UpgraderV10_3 implements Upgrader {
         if (issueActionService.getActionTypeQuery()
                 .select(conditionUnassignIssueAction).isEmpty()){
             issueActionService.createActionType(IssueDefaultActionsFactory.ID, UnassignIssueAction.class.getName(), issueType);
-        }
-    }
-
-    private void upgradeOpenIssue() {
-        try (Connection connection = this.dataModel.getConnection(true)) {
-            this.upgradeOpenIssue(connection);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    private void upgradeOpenIssue(Connection connection) {
-        String[] sqlStatements = { "ALTER TABLE ISU_ISSUE_HISTORY DROP COLUMN ASSIGNEE_TYPE",
-        "ALTER TABLE ISU_ISSUE_OPEN DROP COLUMN ASSIGNEE_TYPE", "CREATE OR REPLACE VIEW ISU_ISSUE_ALL AS SELECT * FROM ISU_ISSUE_OPEN UNION SELECT * FROM ISU_ISSUE_HISTORY"};
-        for (String sqlStatement : sqlStatements) {
-            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                throw new UnderlyingSQLFailedException(e);
-            }
         }
     }
 
