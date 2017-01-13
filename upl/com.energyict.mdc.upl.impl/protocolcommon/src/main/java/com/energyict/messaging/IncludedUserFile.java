@@ -3,23 +3,31 @@ package com.energyict.messaging;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimePeriod;
-import com.energyict.cpo.*;
+import com.energyict.cpo.BusinessObject;
+import com.energyict.cpo.BusinessObjectFactory;
+import com.energyict.cpo.Dependent;
 import com.energyict.cuo.core.DesktopDecorator;
 import com.energyict.dynamicattributes.AttributeType;
-import com.energyict.mdw.core.*;
-import com.energyict.mdw.relation.*;
+import com.energyict.mdw.core.CopyContext;
+import com.energyict.mdw.core.Folder;
+import com.energyict.mdw.core.FolderMember;
+import com.energyict.mdw.core.UserAction;
+import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.relation.Relation;
+import com.energyict.mdw.relation.RelationAttributeType;
+import com.energyict.mdw.relation.RelationType;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.metadata.TypeId;
-import com.energyict.util.function.Consumer;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-
+import javax.swing.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Implements {@link com.energyict.mdw.core.UserFile} to provide for an included user file as opposed to a user file that has been fetched

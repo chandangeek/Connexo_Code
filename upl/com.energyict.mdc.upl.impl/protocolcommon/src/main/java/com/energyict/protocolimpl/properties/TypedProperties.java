@@ -43,7 +43,11 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
      */
     public static TypedProperties inheritingFrom (com.energyict.mdc.upl.properties.TypedProperties inheritedProperties) {
         TypedProperties typedProperties = empty();
-        typedProperties.inheritedProperties = TypedProperties.copyOf(inheritedProperties);
+        if (inheritedProperties == null) {
+            typedProperties.inheritedProperties = null;
+        } else {
+            typedProperties.inheritedProperties = TypedProperties.copyOf(inheritedProperties);
+        }
         return typedProperties;
     }
 
@@ -120,8 +124,14 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
             TypedProperties other = (TypedProperties) otherTypedProperties;
             this.setAllProperties(other, true);
         } else {
-            throw new IllegalArgumentException("Expected instance of " + this.getClass().getName());
+            otherTypedProperties
+                    .propertyNames()
+                    .forEach(propertyName -> this.setOneProperty(otherTypedProperties, propertyName));
         }
+    }
+
+    private void setOneProperty(com.energyict.mdc.upl.properties.TypedProperties other, String propertyName) {
+        this.props.put(propertyName, other.getProperty(propertyName));
     }
 
     /**

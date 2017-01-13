@@ -7,13 +7,13 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 
-import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
