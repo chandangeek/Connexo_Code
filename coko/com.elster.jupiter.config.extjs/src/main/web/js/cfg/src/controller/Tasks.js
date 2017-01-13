@@ -429,7 +429,7 @@ Ext.define('Cfg.controller.Tasks', {
                         }
                     });
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.run', 'CFG', 'Data validation task run'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.run', 'CFG', 'Data validation task run added to the queue'));
             },
             failure: function (response) {
                 if (response.status === 400) {
