@@ -35,6 +35,9 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             },
             '#usage-point-purpose-action-menu': {
                 click: this.chooseAction
+            },
+            'usage-point-metrology-configuration-details #unlink-metrology-configuration-button': {
+                click: this.unlinkMetrologyConfiguration
             }
         });
     },
@@ -91,6 +94,23 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.deactivated', 'IMT', 'Purpose deactivated'));
                 }
                 me.getController('Uni.controller.history.Router').getRoute().forward();
+            }
+        });
+    },
+
+    unlinkMetrologyConfiguration: function (button) {
+        var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+
+        button.usagePoint.unlinkMetrologyConfiguration({
+            success: function () {
+                console.info('success');
+            },
+            failure: function () {
+                console.info('failure');
+            },
+            callback: function () {
+                console.info('callback');
             }
         });
     }

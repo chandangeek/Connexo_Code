@@ -20,7 +20,8 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
             meterRolesAvailable = me.usagePoint.get('metrologyConfiguration_meterRoles'),
             meterRolesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles', {data: me.usagePoint.get('metrologyConfiguration_meterRoles')}),
             purposesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.Purposes', {data: me.usagePoint.get('metrologyConfiguration_purposes')}),
-            mcIsLinked = !!me.usagePoint.get('metrologyConfiguration');
+            mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
+            canModify = me.usagePoint.get('state').stage === 'PRE_OPERATIONAL';
 
         me.content = [
             {
@@ -31,8 +32,10 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                 tools: [
                     {
                         xtype: 'button',
+                        itemId: 'unlink-metrology-configuration-button',
                         text: Uni.I18n.translate('usagePoint.metrologyConfiguration.unlink', 'IMT', 'Unlink metrology configuration'),
-                        privileges: mcIsLinked
+                        privileges: mcIsLinked && canModify,
+                        usagePoint: me.usagePoint
                     }
                 ],
                 items: [
@@ -129,7 +132,8 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                                 ui: 'medium',
                                 title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
                                 maxHeight: 408,
-                                privileges: !Ext.isEmpty(meterRolesAvailable)
+                                privileges: !Ext.isEmpty(meterRolesAvailable),
+                                hasLinkMetersButton: canModify
                             },
                             {
                                 ui: 'medium',
