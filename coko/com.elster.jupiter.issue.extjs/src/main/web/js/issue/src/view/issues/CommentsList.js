@@ -9,7 +9,7 @@ Ext.define('Isu.view.issues.CommentsList', {
     ui: 'medium',
     buttonAlign: 'left',
     addCommentPrivileges: Isu.privileges.Issue.comment,
-    noProcessText: Uni.I18n.translate('processes.issue.noProcessesStarted', 'BPM', 'No process started yet on this issue'),
+    noProcessText: Uni.I18n.translate('processes.issue.noProcessesStarted', 'ISU', 'No process started yet on this issue'),
 
     buttons: [
         {
