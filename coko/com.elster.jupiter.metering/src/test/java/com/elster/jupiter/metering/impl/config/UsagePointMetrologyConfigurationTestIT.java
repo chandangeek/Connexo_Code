@@ -28,6 +28,7 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -467,7 +468,50 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.delete();
 
         // Asserts
-        assertThat(getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId())
-                .isPresent()).isFalse();
+        assertThat(getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId())).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testMakeMetrologyConfigurationObsolete() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", getServiceCategory()).create();
+
+        // Business method
+        metrologyConfiguration.makeObsolete();
+
+        // Asserts
+        assertThat(metrologyConfiguration.getObsoleteTime()).isPresent();
+    }
+
+    @Test
+    @Transactional
+    public void testGetObsoleteTime() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("config", getServiceCategory()).create();
+
+        // Business method
+        Optional<Instant> obsoleteTime = metrologyConfiguration.getObsoleteTime();
+
+        // Asserts
+        assertThat(obsoleteTime).isEmpty();
+    }
+
+    @Test(expected = CannotDeactivateMetrologyConfiguration.class)
+    @Transactional
+    public void testCanNotMakeActiveMetrologyConfigurationObsolete() {
+        // Business method
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("Name", getServiceCategory()).create();
+        UsagePoint usagePoint = getServiceCategory().newUsagePoint("Usage point", Instant.now()).create();
+
+        metrologyConfiguration.activate();
+        usagePoint.apply(metrologyConfiguration);
+
+        // Business method
+        metrologyConfiguration.makeObsolete();
+
+        //Asserts
+        // Exception is thrown
     }
 }

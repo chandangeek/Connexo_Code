@@ -300,10 +300,13 @@ public enum TableSpecs {
                     .since(version(10, 2))
                     .add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
+            Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).since(version(10, 3)).add();
             table.addAuditColumns();
+
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
-            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).since(version(10, 2, 1)).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).during(Range.closedOpen(version(10, 2, 1), version(10, 3))).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn, obsoleteTime).since(version(10, 3)).add();
             table.foreignKey("FK_MTR_USAGEPOINTSERVICECAT")
                     .on(serviceKindColumn)
                     .references(ServiceCategory.class)
@@ -730,7 +733,17 @@ public enum TableSpecs {
                     .map(MetrologyConfigurationImpl.Fields.STATUS.fieldName())
                     .notNull()
                     .add();
-            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2ENUMPLUSONE)
+                    .add();
+            Column obsoleteTime = table.column(MetrologyConfigurationImpl.Fields.OBSOLETETIME.name())
+                    .number()
+                    .map(MetrologyConfigurationImpl.Fields.OBSOLETETIME.fieldName())
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .since(version(10, 3))
+                    .add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_METROLOGYCONFIG").on(id).add();
             table.foreignKey("FK_MTR_METROLOGYCONFIG2SERVCAT")
@@ -738,7 +751,8 @@ public enum TableSpecs {
                     .on(serviceCategoryColumn)
                     .map(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.fieldName())
                     .add();
-            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name).add();
+            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name).upTo(version(10, 3)).add();
+            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name, obsoleteTime).since(version(10, 3)).add();
         }
     },
     MTR_M_CONFIG_CPS_USAGES {

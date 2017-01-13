@@ -25,6 +25,7 @@ import static com.elster.jupiter.orm.Version.version;
 public class UpgraderV10_3 implements Upgrader {
 
     private static final Version VERSION = version(10, 3);
+
     private final BundleContext bundleContext;
     private final DataModel dataModel;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
