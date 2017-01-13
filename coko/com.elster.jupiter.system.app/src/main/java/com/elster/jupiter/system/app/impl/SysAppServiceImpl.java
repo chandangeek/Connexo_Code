@@ -42,6 +42,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.elster.jupiter.orm.Version.version;
+
 @Component(
         name = "com.elster.jupiter.system.app",
         service = {SysAppService.class, TranslationKeyProvider.class, ApplicationPrivilegesProvider.class},
@@ -118,10 +120,11 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
                     bind(UserService.class).toInstance(userService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier("Pulse", "SSA"), dataModel, Installer.class, ImmutableMap.of(
-                    Version.version(10, 2), Installer.class,
-                    Version.version(10, 3), Installer.class
-            ));
+            upgradeService.register(InstallIdentifier.identifier("Pulse", "SSA"), dataModel, Installer.class,
+                    ImmutableMap.of(
+                            version(10, 2), Installer.class,
+                            version(10, 3), UpgraderV10_3.class
+                    ));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
