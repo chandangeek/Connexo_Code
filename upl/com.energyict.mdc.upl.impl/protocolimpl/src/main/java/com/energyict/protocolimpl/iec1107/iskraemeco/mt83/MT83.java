@@ -42,7 +42,6 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83RegisterConfig;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig.MT83Registry;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.google.common.base.Supplier;
 import com.google.common.collect.Range;
 
 import java.io.IOException;
@@ -53,6 +52,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;

@@ -27,7 +27,6 @@ import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
-import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +37,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 /**

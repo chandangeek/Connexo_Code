@@ -82,7 +82,6 @@ import com.energyict.protocolimpl.dlms.actarissl7000.Logbook;
 import com.energyict.protocolimpl.dlms.actarissl7000.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.actarissl7000.StoredValuesImpl;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.google.common.base.Supplier;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -96,6 +95,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
