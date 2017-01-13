@@ -3,17 +3,23 @@ package com.energyict.mdc.masterdata.rest.impl;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.time.TimeDuration;
 
+import java.util.Arrays;
+
 public enum TranslationKeys implements TranslationKey {
 
-    TIME_MINUTES(TimeDuration.TimeUnit.MINUTES.name(), "{0} minutes"),
-    TIME_HOUR(TimeDuration.TimeUnit.HOURS.name(), "{0} hour"),
-    TIME_DAY(TimeDuration.TimeUnit.DAYS.name(), "{0} day"),
-    TIME_MONTH(TimeDuration.TimeUnit.MONTHS.name(), "{0} month");
+    TIME_MINUTE("MINUTE", "{0} minute", true),
+    TIME_MINUTES(TimeDuration.TimeUnit.MINUTES.name(), "{0} minutes", false),
+    TIME_HOUR("HOUR", "{0} hour", true),
+    TIME_HOURS(TimeDuration.TimeUnit.HOURS.name(), "{0} hours", false),
+    TIME_DAY("DAY", "{0} day", true),
+    TIME_DAYS(TimeDuration.TimeUnit.DAYS.name(), "{0} days", false),
+    TIME_MONTH("MONTH", "{0} month", true),
+    TIME_MONTHS(TimeDuration.TimeUnit.MONTHS.name(), "{0} months", false);
 
     private final String key;
     private final String format;
 
-    TranslationKeys(String key, String format) {
+    TranslationKeys(String key, String format, boolean singular) {
         this.key = key;
         this.format = format;
     }
@@ -29,11 +35,6 @@ public enum TranslationKeys implements TranslationKey {
     }
 
     public static TranslationKeys getByKey(String key) {
-        for(TranslationKeys translationKey: TranslationKeys.values()) {
-            if(translationKey.getKey().equals(key)) {
-                return translationKey;
-            }
-        }
-        return null;
+        return Arrays.stream(TranslationKeys.values()).filter((k) -> k.getKey().equals(key)).findFirst().orElse(null);
     }
 }

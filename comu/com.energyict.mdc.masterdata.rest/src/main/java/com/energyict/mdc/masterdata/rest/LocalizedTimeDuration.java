@@ -15,10 +15,8 @@ public class LocalizedTimeDuration {
 
     static {
         intervals = new HashMap<>();
-        for (LoadProfileIntervals loadProfileIntervals : LoadProfileIntervals.values()) {
-            intervals.put(loadProfileIntervals.ordinal(), new LocalizedTimeDuration(loadProfileIntervals.getTimeDuration(), TranslationKeys.getByKey(loadProfileIntervals.getTimeDuration()
-                    .getTimeUnit()
-                    .name())));
+        for (LoadProfileIntervals interval : LoadProfileIntervals.values()) {
+            intervals.put(interval.ordinal(), new LocalizedTimeDuration(interval.getTimeDuration(), TranslationKeys.getByKey(interval.unitName())));
         }
     }
 
