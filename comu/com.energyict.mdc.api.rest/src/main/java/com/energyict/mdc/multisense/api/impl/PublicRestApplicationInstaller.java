@@ -95,9 +95,6 @@ public class PublicRestApplicationInstaller {
 
         private void assignPrivilegesToDeveloperRole() {
             userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestApplication.APP_KEY, new String[]{Privileges.Constants.PUBLIC_REST_API});
-            //TODO: workaround: attached 'Developer' role to user 'admin' !!! to remove this line when the user can be created/added to system
-            Group developerGroup = userService.getGroup(Roles.DEVELOPER.value()).get();
-            userService.getUser(1).ifPresent(admin -> admin.join(developerGroup));
         }
 
         @Override
