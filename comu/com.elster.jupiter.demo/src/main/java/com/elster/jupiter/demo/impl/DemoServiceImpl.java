@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
+import com.elster.jupiter.demo.impl.commands.CreateAlarmCreationRuleCommand;
 import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
 import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
@@ -121,6 +122,7 @@ import java.time.Clock;
         "osgi.command.function=importCalendar",
         "osgi.command.function=setDeviceLocations",
         "osgi.command.function=createSPEDevice",
+        "osgi.command.function=createAlarmCreationRule",
         "osgi.command.function=upgradeDemoData",
         "osgi.command.function=createPowerUser"
 }, immediate = true)
@@ -974,6 +976,14 @@ public class DemoServiceImpl {
             deviceCommand.withUsagePoint();
             deviceCommand.deviceShouldBeActive();
             deviceCommand.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createAlarmCreationRule() {
+        executeTransaction(() -> {
+            CreateAlarmCreationRuleCommand command = injector.getInstance(CreateAlarmCreationRuleCommand.class);
+            command.run();
         });
     }
 

@@ -6,28 +6,32 @@ import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.builders.UsagePointBuilder;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.MetrologyConfigurationTpl;
+import com.elster.jupiter.demo.impl.templates.UserTpl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.units.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class CreateUsagePointsForDevicesCommand {
-
+    private final ThreadPrincipalService threadPrincipalService;
     private final DeviceService deviceService;
     private final MeteringService meteringService;
     private final MetrologyConfigurationService metrologyConfigurationService;
@@ -36,10 +40,12 @@ public class CreateUsagePointsForDevicesCommand {
     private List<Device> devices;
 
     @Inject
-    public CreateUsagePointsForDevicesCommand(DeviceService deviceService,
+    public CreateUsagePointsForDevicesCommand(ThreadPrincipalService threadPrincipalService,
+                                              DeviceService deviceService,
                                               MeteringService meteringService,
                                               MetrologyConfigurationService metrologyConfigurationService,
                                               Clock clock) {
+        this.threadPrincipalService = threadPrincipalService;
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
@@ -60,12 +66,8 @@ public class CreateUsagePointsForDevicesCommand {
     }
 
     private void accept(Device device) {
-        UsagePoint usagePoint = device.getUsagePoint().isPresent() ? device.getUsagePoint().get() :
-                Builders.from(UsagePointBuilder.class)
-                        .withName(newName(device.getSerialNumber()))
-                        .withInstallationTime(clock.instant())
-                        .withLocation(device.getLocation().orElse(null))
-                        .withGeoCoordinates(device.getSpatialCoordinates().orElse(null)).get();
+        UsagePoint usagePoint = device.getUsagePoint()
+                .orElseGet(newUsagePointSupplier(device));
         usagePoint.forCustomProperties().getPropertySetsOnServiceCategory().stream()
                 .filter(cps -> "com.elster.jupiter.metering.cps.impl.UsagePointGeneralDomainExtension".equals(cps.getCustomPropertySet().getId()))
                 .forEach(cps -> cps.setValues(getUsagePointGeneralDomainExtensionValues(clock.instant())));
@@ -77,7 +79,25 @@ public class CreateUsagePointsForDevicesCommand {
         } else {
             usagePoint.apply(Builders.from(MetrologyConfigurationTpl.PROSUMER).get());
         }
+        usagePoint.update();
         setUsagePoint(device, usagePoint);
+    }
+
+    private Supplier<UsagePoint> newUsagePointSupplier(Device device) {
+        return () -> {
+            Principal currentPrincipal = threadPrincipalService.getPrincipal();
+            // need 'real' user to create usage point,
+            // so that initial UsagePointState change request will be created with this user
+            threadPrincipalService.set(Builders.from(UserTpl.MELISSA).get());
+            UsagePoint usagePoint = Builders.from(UsagePointBuilder.class)
+                    .withName(newName(device.getSerialNumber()))
+                    .withInstallationTime(clock.instant())
+                    .withLocation(device.getLocation().orElse(null))
+                    .withGeoCoordinates(device.getSpatialCoordinates().orElse(null))
+                    .get();
+            threadPrincipalService.set(currentPrincipal);
+            return usagePoint;
+        };
     }
 
     private CustomPropertySetValues getUsagePointGeneralDomainExtensionValues(Instant from) {
