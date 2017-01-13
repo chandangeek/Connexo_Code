@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.CannotDeleteWhileBusyException;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -44,6 +45,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
+    private Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private Reference<RelativePeriod> period = ValueReference.absent();
     private Instant lastRun;
 
@@ -99,6 +101,11 @@ final class EstimationTaskImpl implements IEstimationTask {
     @Override
     public Optional<UsagePointGroup> getUsagePointGroup() {
         return usagePointGroup.getOptional();
+    }
+
+    @Override
+    public Optional<MetrologyPurpose> getMetrologyPurpose() {
+        return metrologyPurpose.getOptional();
     }
 
     @Override
@@ -209,6 +216,11 @@ final class EstimationTaskImpl implements IEstimationTask {
     @Override
     public void setUsagePointGroup(UsagePointGroup usagePointGroup) {
         this.usagePointGroup.set(usagePointGroup);
+    }
+
+    @Override
+    public void setMetrologyPurpose(MetrologyPurpose metrologyPurpose) {
+        this.metrologyPurpose.set(metrologyPurpose);
     }
 
     @Override
