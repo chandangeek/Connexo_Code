@@ -61,7 +61,7 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     protected AbstractNtaMbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         this.propertySpecService = propertySpecService;
-        this.meterProtocol = new WebRTUKP(calendarFinder, calendarExtractor, messageFileExtractor);
+        this.meterProtocol = new WebRTUKP(propertySpecService, calendarFinder, calendarExtractor, messageFileExtractor);
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }

@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
@@ -50,7 +51,15 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
 
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
+    private final PropertySpecService propertySpecService;
 
+    protected AbstractSmartNtaProtocol(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
 
     public abstract MessageProtocol getMessageProtocol();
 
@@ -111,7 +120,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new Dsmr23Properties();
+            this.properties = new Dsmr23Properties(this.propertySpecService);
         }
         return this.properties;
     }

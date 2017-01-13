@@ -4,12 +4,12 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -43,13 +43,12 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileExtractor messageFileExtractor;
-    private final PropertySpecService propertySpecService;
 
     public WatchTalk(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
+        super(propertySpecService);
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
-        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -154,7 +153,7 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
     @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new WatchTalkProperties(this.propertySpecService);
+            this.properties = new WatchTalkProperties(this.getPropertySpecService());
         }
         return this.properties;
     }

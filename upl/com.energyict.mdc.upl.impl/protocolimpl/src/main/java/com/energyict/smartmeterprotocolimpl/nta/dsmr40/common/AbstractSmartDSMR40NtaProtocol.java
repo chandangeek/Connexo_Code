@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
@@ -30,7 +31,8 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
 
-    protected AbstractSmartDSMR40NtaProtocol(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+    protected AbstractSmartDSMR40NtaProtocol(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+        super(propertySpecService);
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
@@ -66,7 +68,7 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
     @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new Dsmr40Properties();
+            this.properties = new Dsmr40Properties(this.getPropertySpecService());
         }
         return this.properties;
     }

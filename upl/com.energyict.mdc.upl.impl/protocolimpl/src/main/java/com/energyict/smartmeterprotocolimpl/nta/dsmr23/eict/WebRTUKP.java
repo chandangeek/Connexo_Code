@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -32,7 +33,8 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements HHUEnabler {
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileExtractor messageFileExtractor;
 
-    public WebRTUKP(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+    public WebRTUKP(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+        super(propertySpecService);
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
