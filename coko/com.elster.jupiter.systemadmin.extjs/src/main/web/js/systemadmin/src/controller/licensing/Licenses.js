@@ -65,7 +65,8 @@ Ext.define('Sam.controller.licensing.Licenses', {
                     Ext.Array.each(content, function (property) {
                         licenseCoverageContainer.add({
                             fieldLabel: Uni.I18n.translate(property.key, 'SAM', property.key),
-                            value: property.value.replace(/,/g, '<br>')
+                            value: property.value.replace(/,/g, '<br>'),
+                            htmlEncode: false
                         });
                     });
                     Ext.resumeLayouts(true);
