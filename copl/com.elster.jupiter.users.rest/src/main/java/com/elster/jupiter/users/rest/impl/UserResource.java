@@ -85,19 +85,19 @@ public class UserResource {
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public UserInfo getUser(@PathParam("id") long id) {
         Optional<User> user = userService.getUser(id);
         if (!user.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-            return userInfoFactory.from(this.nlsService, user.get());
+        return userInfoFactory.from(this.nlsService, user.get());
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public PagedInfoList getUsers(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters jsonQueryParameters) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<User> list = getUserRestQuery().select(queryParameters, Order.ascending("authenticationName").toLowerCase());
@@ -110,12 +110,12 @@ public class UserResource {
 
     @GET
     @Path("/privileges")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PrivilegeInfos getUserPrivileges(@Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
         Map<String, List<Privilege>> privileges = user.getApplicationPrivileges();
         PrivilegeInfos infos = new PrivilegeInfos();
-        for (String application : privileges.keySet()){
+        for (String application : privileges.keySet()) {
             infos.addAll(this.nlsService, application, privileges.get(application));
         }
         return infos;
@@ -123,24 +123,24 @@ public class UserResource {
 
     @PUT
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, com.elster.jupiter.dualcontrol.Privileges.Constants.GRANT_APPROVAL})
     public Response updateUser(UserInfo info, @PathParam("id") long id) {
-            info.id = id;
-            transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
-            return Response.ok(getUser(info.id)).build();
+        info.id = id;
+        transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
+        return Response.ok(getUser(info.id)).build();
     }
 
     @PUT
     @Path("/{id}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE})
     public UserInfo activateUser(UserInfo info, @PathParam("id") long id) {
         Optional<User> user = userService.getUser(id);
-        if (   !"INT".equals(userService.findUserDirectory(user.get().getDomain()).get().getType())
-            && !userService.findUserDirectory(user.get().getDomain()).get().getLdapUserStatus(user.get().getName())) {
+        if (!"INT".equals(userService.findUserDirectory(user.get().getDomain()).get().getType())
+                && !userService.findUserDirectory(user.get().getDomain()).get().getLdapUserStatus(user.get().getName())) {
             throw new FailToActivateUser(userService.getThesaurus());
         }
         info.active = true;
@@ -152,7 +152,7 @@ public class UserResource {
     @PUT
     @Path("/{id}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE})
     public UserInfo deactivateUser(UserInfo info, @PathParam("id") long id) {
         info.active = false;
