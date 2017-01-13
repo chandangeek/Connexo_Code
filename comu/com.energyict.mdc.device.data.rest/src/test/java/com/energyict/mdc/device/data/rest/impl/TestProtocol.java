@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -350,7 +351,12 @@ public class TestProtocol implements DeviceProtocol {
         }
 
         @Override
-        public String getDisplayName() {
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return this.getDeviceProtocolDialectName();
         }
 
@@ -370,7 +376,12 @@ public class TestProtocol implements DeviceProtocol {
         }
 
         @Override
-        public String getDisplayName() {
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return this.getDeviceProtocolDialectName();
         }
 

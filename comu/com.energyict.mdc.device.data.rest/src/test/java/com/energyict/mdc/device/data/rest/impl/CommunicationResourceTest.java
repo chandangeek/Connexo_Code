@@ -137,7 +137,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.getLastSuccessfulCompletionTimestamp()).thenReturn(endTime);
         when(comTaskExecution.getNextExecutionTimestamp()).thenReturn(nextCommunicationTime);
         DeviceProtocolDialect deviceProtocolDialect = mock(DeviceProtocolDialect.class);
-        when(deviceProtocolDialect.getDisplayName()).thenReturn("WebRTU KP");
+        when(deviceProtocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn("WebRTU KP");
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);

@@ -73,7 +73,7 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
         when(numericPropertySpec.isReference()).thenReturn(false);
         this.deviceProtocolDialect = mock(DeviceProtocolDialect.class);
         when(this.deviceProtocolDialect.getDeviceProtocolDialectName()).thenReturn(DIALECT_NAME);
-        when(this.deviceProtocolDialect.getDisplayName()).thenReturn(DIALECT_NAME);
+        when(this.deviceProtocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn(DIALECT_NAME);
         when(this.deviceProtocolDialect.getPropertySpecs()).thenReturn(Arrays.asList(stringPropertySpec, numericPropertySpec));
         when(this.deviceProtocolDialect.getPropertySpec(STRING_PROPERTY_NAME)).thenReturn(Optional.of(stringPropertySpec));
         when(this.deviceProtocolDialect.getPropertySpec(NUMERIC_PROPERTY_NAME)).thenReturn(Optional.of(numericPropertySpec));

@@ -578,7 +578,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ProtocolDialectConfigurationProperties dialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(deviceConfiguration.getProtocolDialectConfigurationPropertiesList()).thenReturn(Arrays.asList(dialectConfigurationProperties));
         DeviceProtocolDialect deviceProtocolDialect = mock(DeviceProtocolDialect.class);
-        when(deviceProtocolDialect.getDisplayName()).thenReturn("protocolDialect");
+        when(deviceProtocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn("protocolDialect");
         when(dialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
 
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
