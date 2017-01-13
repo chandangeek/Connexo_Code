@@ -690,7 +690,7 @@ public class UsagePointResource {
             if (!interval.isEmpty()) {
                 interval = UsagePointOutputResource.getUsagePointAdjustedDataRange(usagePoint, interval).orElse(Range.openClosed(now, now));
                 List<ChannelDataValidationSummaryInfo> result = usagePointDataCompletionService
-                        .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
+                        .getDataCompletionStatistics(effectiveMC, metrologyContract, interval).entrySet().stream()
                         .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
                         .collect(Collectors.toList());
                 return PagedInfoList.fromCompleteList("outputs", result, queryParameters);
