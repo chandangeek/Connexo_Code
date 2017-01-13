@@ -52,6 +52,8 @@ public interface MeteringGroupsService {
      */
     List<EnumeratedEndDeviceGroup> findEnumeratedEndDeviceGroupsContaining(EndDevice endDevice);
 
+    List<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroupsContaining(UsagePoint usagePoint);
+
     Optional<EndDeviceGroup> findEndDeviceGroup(String mRID);
 
     Optional<EndDeviceGroup> findEndDeviceGroup(long id);

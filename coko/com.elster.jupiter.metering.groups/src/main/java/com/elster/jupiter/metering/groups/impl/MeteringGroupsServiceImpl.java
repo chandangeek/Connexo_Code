@@ -214,6 +214,17 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Transla
     }
 
     @Override
+    public List<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroupsContaining(UsagePoint usagePoint) {
+        return this.dataModel
+                .query(EnumeratedUsagePointGroupImpl.UsagePointEntryImpl.class)
+                .select(where("member").isEqualTo(usagePoint)
+                        .and(where("interval").isEffective()))
+                .stream()
+                .map(EnumeratedUsagePointGroupImpl.UsagePointEntryImpl::getGroup)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<QueryEndDeviceGroup> findQueryEndDeviceGroup(long id) {
         return dataModel.mapper(QueryEndDeviceGroup.class).getOptional(id);
     }

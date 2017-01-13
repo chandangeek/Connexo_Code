@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -65,6 +66,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnumeratedEndDeviceGroupImplIT {
@@ -335,5 +337,32 @@ public class EnumeratedEndDeviceGroupImplIT {
         //page 3
         List<EndDevice> devicesPage_3 = group.getMembers(Instant.now(), 20, 100);
         assertThat(devicesPage_3).hasSize(3);
+    }
+
+    @Test
+    @Transactional
+    public void testEndDeviceDeletion() {
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+        AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalStateException::new);
+        EndDevice endDevice = amrSystem.createEndDevice("amrId", "name");
+        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice).setName("test").create();
+        Instant activeMemberTime = Instant.now();
+        assertThat(enumeratedEndDeviceGroup.getMemberCount(activeMemberTime)).isEqualTo(1);
+        endDevice.makeObsolete();
+
+        EndDeviceDeletionEventHandler endDeviceDeletionEventHandler = injector.getInstance(EndDeviceDeletionEventHandler.class);
+        LocalEvent endDeviceDeletionEvent = mock(LocalEvent.class);
+        when(endDeviceDeletionEvent.getSource()).thenReturn(endDevice);
+
+        // Business method
+        endDeviceDeletionEventHandler.handle(endDeviceDeletionEvent);
+
+        // Assert
+        enumeratedEndDeviceGroup = meteringGroupsService.findEnumeratedEndDeviceGroup(enumeratedEndDeviceGroup.getId()).get();
+        assertThat(enumeratedEndDeviceGroup.getMemberCount(Instant.now())).isEqualTo(0);
+        assertThat(enumeratedEndDeviceGroup.getMembers(Instant.now())).isEmpty();
+        assertThat(enumeratedEndDeviceGroup.getMemberCount(activeMemberTime)).isEqualTo(1);
+        assertThat(enumeratedEndDeviceGroup.getMembers(activeMemberTime)).contains(endDevice);
     }
 }
