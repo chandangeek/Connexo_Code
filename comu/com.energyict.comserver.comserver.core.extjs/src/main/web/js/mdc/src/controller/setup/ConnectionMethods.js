@@ -290,26 +290,24 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         });
     },
 
-    showScheduleField: function (combobox, objList) {
+    showScheduleField: function (combobox, selectedItems) {
         this.getScheduleField().clear();
-        if(this.outboundVisible){
-            if (objList[0].get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
-                this.getScheduleFieldContainer().setVisible(true);
-                this.getScheduleField().setValue({
-                    every: {
-                        count: 5,
-                        timeUnit: 'minutes'
-                    },
-                    offset: {
-                        count: 0,
-                        timeUnit: 'seconds'
-                    }
-                });
-                this.getConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(false);
-            } else {
-                this.getScheduleFieldContainer().setVisible(false);
-                this.getConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(true);
-            }
+        if (selectedItems[0].get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
+            this.getScheduleFieldContainer().setVisible(true);
+            this.getScheduleField().setValue({
+                every: {
+                    count: 5,
+                    timeUnit: 'minutes'
+                },
+                offset: {
+                    count: 0,
+                    timeUnit: 'seconds'
+                }
+            });
+            this.getConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(false);
+        } else {
+            this.getScheduleFieldContainer().setVisible(false);
+            this.getConnectionMethodEditView().down('form').down('#numberOfSimultaneousConnections').setVisible(true);
         }
     },
 
@@ -537,6 +535,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                     me.getConnectionTypeComboBox().disable();
                                                     widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                     widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
+                                                    widget.down('form').down('#numberOfSimultaneousConnections').setVisible(
+                                                        connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE'
+                                                    );
                                                     if (connectionMethod.get('comWindowStart') || connectionMethod.get('comWindowEnd')) {
                                                         widget.down('form').down('#activateConnWindowRadiogroup').items.items[1].setValue(true);
                                                     } else {

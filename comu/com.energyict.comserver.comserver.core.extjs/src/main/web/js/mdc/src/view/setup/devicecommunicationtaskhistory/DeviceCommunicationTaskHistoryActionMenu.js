@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-communication-task-history-action-menu',
     itemId: 'device-communication-task-history-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('devicecommunicationtaskhistory.viewCommunicationLog', 'MDC', 'View communication log'),

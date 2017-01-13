@@ -150,7 +150,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
         this.setLoading(true);
     },
 
-    onLoad: function () {        
+    onLoad: function () {
         this.showGraphView();
         this.setLoading(false);
     },
@@ -224,7 +224,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
 
         return {data: data, missedValues: missedValues};
     },
-    
+
     getValueFromPoint: function (point) {
         return new Date(point.intervalEnd);
     }

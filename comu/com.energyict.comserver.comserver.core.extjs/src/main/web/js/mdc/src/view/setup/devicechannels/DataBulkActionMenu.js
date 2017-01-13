@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.channel-data-bulk-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'confirm-value',

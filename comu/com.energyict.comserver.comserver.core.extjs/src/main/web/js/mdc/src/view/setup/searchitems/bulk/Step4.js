@@ -28,14 +28,18 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         },
         {
             xtype: 'form',
+            width: '100%',
             ui: 'large',
-            layout: 'vbox',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
             itemId: 'strategyform',
             items: [
                 {
                     xtype: 'displayfield',
-                    value: Uni.I18n.translate('searchItems.bulk.chooseStrategy', 'MDC', "It's not possible to add a new shared communication schedule to a device if it " +
-                        "contains a communication task that is already scheduled with a shared communication schedule on that device. In that case, choose a strategy to deal with this.")
+                    value: Uni.I18n.translate('searchItems.bulk.chooseStrategy', 'MDC',
+                        "It's not possible to add a new shared communication schedule to a device if it contains a communication task that is already scheduled with a shared communication schedule on that device. In that case, choose a strategy to deal with this.")
                 },
                 {
                     xtype: 'radiogroup',
@@ -47,8 +51,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
                     columns: 1,
                     vertical: true,
                     items: [
-                        { boxLabel: "Keep the old shared communication schedule and don't add the new one", name: 'rb', inputValue: 'keep' },
-                        { boxLabel: 'Remove the old shared communication schedule and add the new one', name: 'rb', inputValue: 'remove'}
+                        {boxLabel: "Keep the old shared communication schedule and don't add the new one", name: 'rb', inputValue: 'keep'},
+                        {boxLabel: 'Remove the old shared communication schedule and add the new one', name: 'rb', inputValue: 'remove'}
                     ]
                 }
             ]
@@ -59,7 +63,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         this.down('#displayTitle').setValue('<h3>' + Ext.String.htmlEncode(message.title) + '</h3>');
     },
 
-    isRemove: function() {
+    isRemove: function () {
         this.down('#strategyform').hide();
     },
 

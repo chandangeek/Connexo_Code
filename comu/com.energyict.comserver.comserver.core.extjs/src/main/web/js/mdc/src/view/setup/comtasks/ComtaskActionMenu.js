@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskActionMenu', {
     alias: 'widget.comtaskActionMenu',
     communicationTask: undefined,
 
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

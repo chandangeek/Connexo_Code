@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-logbook-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'btn-edit-device-config',

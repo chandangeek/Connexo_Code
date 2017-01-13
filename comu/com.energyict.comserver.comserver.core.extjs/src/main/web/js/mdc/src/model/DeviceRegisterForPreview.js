@@ -32,7 +32,7 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
                         if(!Ext.isEmpty(record.get('lastReading').value)) {
                             return Uni.Number.formatNumber(record.get('lastReading').value, -1) + ' ' + record.get('lastReading').unit;
                         }
-                        if(!Ext.isEmpty(record.get('lastReading').calculatedValue)) {
+                        if (!Ext.isEmpty(record.get('lastReading').calculatedValue)) {
                             return Uni.Number.formatNumber(record.get('lastReading').calculatedValue, -1) + ' ' + record.get('lastReading').calculatedUnit;
                         }
                         return '-'

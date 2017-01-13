@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         }
     ],
 
-    renderFlag: function(labelsStore) {
+    renderFlag: function (labelsStore) {
         var me = this,
             toolbar = me.down('#deviceSetupFlags'),
             flag = null;
@@ -56,14 +56,14 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             pressed: !!flag,
             privileges: Mdc.privileges.Device.flagDevice,
             enableToggle: true,
-            toggleHandler: function(button, state) {
+            toggleHandler: function (button, state) {
                 button.setIconCls(state ? 'icon-star-full' : 'icon-star-empty');
                 button.setTooltip(state
                     ? Uni.I18n.translate('device.flag.tooltip.unflag', 'MDC', 'Click to remove from the list of flagged devices')
                     : Uni.I18n.translate('device.flag.tooltip.flag', 'MDC', 'Click to flag the device')
                 );
             },
-            handler: function(button) {
+            handler: function (button) {
                 if (!button.flag) {
                     button.window && button.window.isVisible()
                         ? button.window.close()
@@ -88,10 +88,10 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         });
     },
 
-    openFlagWindow: function(button, flag) {
+    openFlagWindow: function (button, flag) {
         var me = this;
         button.window = Ext.create('Ext.window.Window', {
-            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device {0}',[me.device.get('name')], false),
+            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device {0}', [me.device.get('name')], false),
             closable: false,
             height: 200,
             alignTarget: button,

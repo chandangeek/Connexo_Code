@@ -16,22 +16,21 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
         }
     },
 
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.run', 'MDC', 'Run'),
                 action: 'run',
-                visible: function() {
+                visible: function () {
                     return this.record.get('connectionDefinedOnDevice') &&
-                        this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS' &&
-                        !this.record.get('isOnHold');
+                        this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS' && !this.record.get('isOnHold');
                 },
                 section: this.SECTION_ACTION
             },
             {
                 text: Uni.I18n.translate('general.runNow', 'MDC', 'Run now'),
                 action: 'runNow',
-                visible: function() {
+                visible: function () {
                     return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold');
                 },
                 section: this.SECTION_ACTION
@@ -39,7 +38,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             {
                 text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                 action: 'toggleActivation',
-                visible: function() {
+                visible: function () {
                     return !!this.record.get('isOnHold')
                 },
                 section: this.SECTION_ACTION
@@ -47,7 +46,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             {
                 text: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
                 action: 'toggleActivation',
-                visible: function() {
+                visible: function () {
                     return !this.record.get('isOnHold')
                 },
                 section: this.SECTION_ACTION
@@ -55,7 +54,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             {
                 text: Uni.I18n.translate('general.viewHistory', 'MDC', 'View history'),
                 action: 'viewHistory',
-                handler: function() {
+                handler: function () {
                     var me = this.parentMenu;
                     me.router.getRoute('devices/device/communicationtasks/history').forward({comTaskId: me.record.get('comTask').id});
                 },

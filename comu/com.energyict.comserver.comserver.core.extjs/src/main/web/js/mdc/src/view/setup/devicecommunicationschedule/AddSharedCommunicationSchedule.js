@@ -24,9 +24,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                 items: [
                     {
                         xtype: 'uni-form-info-message',
-                        text:
-                            Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item2', 'MDC',
-                                "Shared communication schedules with a communication task that is already scheduled with a shared communication schedule on this device aren't included in the list."),
+                        text: Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item2', 'MDC',
+                            "Shared communication schedules with a communication task that is already scheduled with a shared communication schedule on this device aren't included in the list."),
                         hidden: false
                     },
                     {

@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-type-action-menu',
     itemId: 'device-type-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

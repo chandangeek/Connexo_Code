@@ -51,11 +51,11 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistoryDevicesPrevie
                                 renderer: function (value) {
                                     if (value) {
                                         var deviceUrl = me.router.getRoute('devices/device').buildUrl({
-                                            deviceId: value
-                                        }),
-                                        meterActivationHistoryUrl = me.router.getRoute('devices/device/history').buildUrl({
-                                            deviceId: value
-                                        }, {activeTab: 'meterActivations'});
+                                                deviceId: value
+                                            }),
+                                            meterActivationHistoryUrl = me.router.getRoute('devices/device/history').buildUrl({
+                                                deviceId: value
+                                            }, {activeTab: 'meterActivations'});
                                         if (Mdc.privileges.Device.canView()) {
                                             return '<a href="' + deviceUrl + '">' + value + '</a>&nbsp;&nbsp;&nbsp;&nbsp;(<a href="' + meterActivationHistoryUrl + '">' +
                                                 Uni.I18n.translate('general.viewMeterActivationHistory', 'MDC', 'View meter activation history') + '</a>)';

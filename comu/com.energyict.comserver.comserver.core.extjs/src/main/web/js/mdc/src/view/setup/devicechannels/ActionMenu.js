@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicechannels.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceLoadProfileChannelsActionMenu',
     itemId: 'deviceLoadProfileChannelsActionMenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'viewSuspects',
@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.devicechannels.ActionMenu', {
             {
                 itemId: 'validateNowChannel',
                 text: Uni.I18n.translate('deviceregisterconfiguration.menu.validate', 'MDC', 'Validate now'),
-                privileges:Cfg.privileges.Validation.validateManual,
+                privileges: Cfg.privileges.Validation.validateManual,
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationActions,
                 action: 'validateNow',
                 section: this.SECTION_ACTION

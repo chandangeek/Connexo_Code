@@ -183,7 +183,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         me.getNextButton().enable();
     },
 
-    enableConfirmButton: function(group) {
+    enableConfirmButton: function (group) {
         var me = this,
             wizard = me.getSearchItemsWizard();
         me.strategy = group.getChecked()[0].inputValue;
@@ -211,7 +211,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             this.shedulesUnchecked = false;
         }
 
-        if(me.operation === 'add') {
+        if (me.operation === 'add') {
             me.getStep3().down('#step3-errors').setVisible(false);
             me.getWarningMessage().hide();
             if (communicationSchedules.length > 1) {
@@ -220,13 +220,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         }
     },
 
-    checkOverlap: function(communicationSchedules) {
+    checkOverlap: function (communicationSchedules) {
         var me = this;
         var valuesToCheck = [];
         Ext.each(communicationSchedules, function (item) {
             valuesToCheck.push.apply(valuesToCheck, item.get('comTaskUsages'));
         });
-        if (_.uniq(valuesToCheck,function (item) {
+        if (_.uniq(valuesToCheck, function (item) {
                 return item.id;
             }).length === valuesToCheck.length) {
             me.getWarningMessage().hide();
@@ -466,7 +466,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             jsonData = {
                 'action': 'ChangeDeviceConfiguration',
                 'deviceIds': [],
-                'filter' : store.getProxy().encodeFilters(store.filters.getRange()),
+                'filter': store.getProxy().encodeFilters(store.filters.getRange()),
                 'newDeviceConfiguration': toConfig
             };
         if (!me.allDevices) {
@@ -607,7 +607,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     if (me.operation != 'changeconfig') {
                         nextCmp.showMessage(me.buildConfirmMessage());
                         wizard.down('#confirmButton').setDisabled(me.operation === 'add' && wizard.down('#strategyRadioGroup').getChecked().length === 0);
-                        if(me.operation === 'remove') {
+                        if (me.operation === 'remove') {
                             nextCmp.isRemove();
                         }
                     } else {
@@ -673,7 +673,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             return true;
         } else {
             errorPanel && errorPanel.show();
-            if(errorContainer && !errorContainer.isVisible()) {
+            if (errorContainer && !errorContainer.isVisible()) {
                 errorContainer.show();
                 errorContainer.update('<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1communicationschedule', 'MDC', 'Select at least 1 shared communication schedule') + '</span>')
             }

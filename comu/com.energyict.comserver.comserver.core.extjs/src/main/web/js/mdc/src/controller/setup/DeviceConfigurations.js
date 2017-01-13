@@ -695,11 +695,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         }
     },
 
-    showErrorPanel: function() {
+    showErrorPanel: function () {
         this.getDeviceConfigurationEdit().down('#mdc-device-config-form-errors').show();
     },
 
-    hideErrorPanel: function() {
+    hideErrorPanel: function () {
         this.getDeviceConfigurationEdit().down('#mdc-device-config-form-errors').hide();
     },
 

@@ -5,7 +5,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ActionMenu', {
     record: null,
     device: null,
     itemId: 'device-command-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('deviceCommand.actionMenu.trigger', 'MDC', 'Trigger now'),

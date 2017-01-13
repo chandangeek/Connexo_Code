@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         store.load();
     },
 
-    showCustomAttributeSet: function(deviceId) {
+    showCustomAttributeSet: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             versionsStore = me.getStore('Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnDevice'),

@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.comtasks.ComtaskActionActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.comtaskActionActionMenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

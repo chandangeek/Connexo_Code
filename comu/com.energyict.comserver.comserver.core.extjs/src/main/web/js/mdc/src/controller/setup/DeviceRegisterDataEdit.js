@@ -122,6 +122,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         }
     },
 
+
     getReadingTypePrefix: function (type) {
         if (!Ext.isEmpty(type)) {
             return (type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
@@ -219,7 +220,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 var type = register.get('type');
                                 var widget = Ext.widget('deviceregisterreportedit-' + type, {
                                     edit: true,
-                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({deviceId: encodeURIComponent(deviceId), registerId: registerId}) + (me.getController('Uni.controller.history.EventBus').getPreviousQueryString()!==null ? '?'+me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : ''),
+                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({
+                                        deviceId: encodeURIComponent(deviceId),
+                                        registerId: registerId
+                                    }) + (me.getController('Uni.controller.history.EventBus').getPreviousQueryString() !== null ? '?' + me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : ''),
                                     registerType: type,
                                     router: router
                                 });

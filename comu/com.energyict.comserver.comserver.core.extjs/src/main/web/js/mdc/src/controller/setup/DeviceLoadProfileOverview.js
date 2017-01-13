@@ -30,7 +30,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileOverview', {
             tabWidget;
 
         if(loadProfile){
-            if(loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != deviceId){
+            if (loadProfile.data.id != loadProfileId || loadProfile.data.parent.id != deviceId) {
                 loadProfile = null;
             }
         }

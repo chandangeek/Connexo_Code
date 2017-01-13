@@ -3,7 +3,7 @@ Ext.define('Mdc.timeofuseondevice.view.ActionMenu', {
     alias: 'widget.tou-device-action-menu',
     record: null,
     showPreview: true,
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 itemId: 'activate-calendar-tou',
@@ -41,7 +41,7 @@ Ext.define('Mdc.timeofuseondevice.view.ActionMenu', {
                 text: Uni.I18n.translate('timeofuse.viewPreview', 'MDC', 'View preview'),
                 privileges: Mdc.privileges.Device.viewDevice,
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.timeOfUseAllowed,
-                visible: function() {
+                visible: function () {
                     return this.showPreview;
                 },
                 action: 'viewpreview',

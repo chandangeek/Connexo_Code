@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.register-mapping-action-menu',
     itemId: 'register-mapping-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter', {
 
     requires: [
         'Mdc.store.DeviceTypes',
-        'Mdc.store.DeviceConfigurations'
+        'Mdc.store.DeviceConfigurations',
+        'Mdc.store.filter.DeviceTypes'
     ],
 
     store: 'Mdc.store.DeviceTopology',

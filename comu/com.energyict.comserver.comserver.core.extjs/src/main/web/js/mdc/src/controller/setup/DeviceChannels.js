@@ -345,7 +345,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         form.loadRecord(formRecord);
     },
 
-    editChannel: function(deviceId, channelIdAsString) {
+    editChannel: function (deviceId, channelIdAsString) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
 

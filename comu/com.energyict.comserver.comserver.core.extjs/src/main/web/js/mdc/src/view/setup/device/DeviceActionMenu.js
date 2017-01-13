@@ -39,12 +39,12 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
             changeConfigItem
         ];
 
-        me.actionsStore.each(function(item) {
+        me.actionsStore.each(function (item) {
             me.items.push({
                 itemId: 'action-menu-item' + item.get('id'),
                 text: item.get('name'),
                 section: me.SECTION_ACTION,
-                handler: function() {
+                handler: function () {
                     me.router.getRoute('devices/device/transitions').forward({transitionId: item.get('id')});
                 }
             });

@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-communication-protocol-action-menu',
     itemId: 'device-communication-protocol-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

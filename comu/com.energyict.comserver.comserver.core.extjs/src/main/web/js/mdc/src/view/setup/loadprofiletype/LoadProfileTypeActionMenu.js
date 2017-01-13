@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.load-profile-type-action-menu',
     itemId: 'load-profile-type-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.comservercomports.AddMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.comServerComPortsAddMenu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('comServerComPorts.addMenu.inbound', 'MDC', 'Inbound'),

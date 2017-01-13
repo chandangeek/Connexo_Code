@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.register-config-action-menu',
     itemId: 'register-config-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),

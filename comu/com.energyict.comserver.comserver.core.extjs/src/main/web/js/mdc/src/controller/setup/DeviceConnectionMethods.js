@@ -587,7 +587,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.remove', 'MDC', 'Connection method removed'));
                     connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfigurationCombo');
                     connectionMethodsStore.load({
-                        params:{
+                        params: {
                             available: true,
                             deviceId: me.deviceId // TOCHECK
                         },
