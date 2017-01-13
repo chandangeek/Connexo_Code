@@ -30,6 +30,8 @@ public interface IssueCreationService {
 
     void processIssueCreationEvent(long ruleId, IssueEvent event);
 
+    void processAlarmCreationEvent(long ruleId, IssueEvent event, String logOnSameAlarm);
+
     void processIssueResolutionEvent(long ruleId, IssueEvent event);
 
     boolean reReadRules();

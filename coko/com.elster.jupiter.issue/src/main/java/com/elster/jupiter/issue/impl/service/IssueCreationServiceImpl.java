@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -19,13 +20,17 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -54,7 +59,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     public static final String ISSUE_CREATION_SERVICE = "issueCreationService";
     public static final String LOGGER = "LOGGER";
-    public static final String PRIORITY = ".priority";
+    public static final String LOG_ON_SAME_ALARM = ".logOnSameAlarm";
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -173,6 +178,33 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                 createNewIssue(firedRule, event, template);
             }
         });
+    }
+
+    @Override
+    public void processAlarmCreationEvent(long ruleId, IssueEvent event, String logOnSameAlarm) {
+
+       /* Condition condition = Operator.EQUALIGNORECASE.compare("enddeviceId", event.getEndDevice().get().getId());
+        dataModel.query(EndDeviceEventRecord.class).select(condition); */
+        findCreationRuleById(ruleId).ifPresent(firedRule -> {
+            CreationRuleTemplate template = firedRule.getTemplate();
+            /*Optional<CreationRuleProperty> creationRuleProperty = firedRule.getCreationRuleProperties()
+                    .stream()
+                    .filter(property -> property.getName().endsWith(LOG_ON_SAME_ALARM))
+                    .findFirst(); */
+          //  creationRuleProperty.ifPresent(logOnSameAlarm -> {
+                        if (Boolean.parseBoolean(logOnSameAlarm)) {
+                            Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
+                            if (existingIssue.isPresent()) {
+                                template.updateIssue(existingIssue.get(), event);
+                            } else {
+                                createNewIssue(firedRule, event, template);
+                            }
+                        } else {
+                            createNewIssue(firedRule, event, template);
+                        }
+                    }
+            );
+      //  });
     }
 
     private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
