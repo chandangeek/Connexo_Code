@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -58,7 +59,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -205,7 +205,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class, version(10, 3), V10_3SimpleUpgrader.class
+                        version(10, 2), UpgraderV10_2.class, version(10, 3), UpgraderV10_3.class
                 ));
     }
 
@@ -474,6 +474,10 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         return dataModel.mapper(clazz).getOptional(key);
     }
 
+    private List<IssueType> getAllIssueTypes(){
+        return dataModel.mapper(IssueType.class).find();
+    }
+
     @Override
     public <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {
         QueryExecutor<T> queryExecutor = dataModel.query(clazz, eagers);
@@ -547,9 +551,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (eagers != null && eagers.length > 0) {
             eagerClasses.addAll(Arrays.asList(eagers));
         }
-        if ((!filter.getIssueTypes().isEmpty() || filter.getIssueId().isPresent()) && !eagerClasses.contains(IssueType.class)) {
-            eagerClasses.addAll(Arrays.asList(IssueReason.class, IssueType.class));
-        }
+        eagerClasses.addAll(Arrays.asList(IssueReason.class, IssueType.class));
         return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
     }
 
@@ -604,10 +606,12 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
         //filter by assignee
         if (!filter.getAssignees().isEmpty()) {
-            condition = condition.and(where("user").in(filter.getAssignees()));
+            Condition userCondition = Condition.TRUE;
+            userCondition = userCondition.and(where("user").in(filter.getAssignees()));
             if (filter.isUnassignedSelected()) {
-                condition = condition.or(where("user").isNull());
+                userCondition = userCondition.or(where("user").isNull());
             }
+            condition = condition.and(userCondition);
         }
         if (filter.getAssignees().isEmpty() && filter.isUnassignedSelected()) {
             condition = condition.and(where("user").isNull());
@@ -639,6 +643,10 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         //filter by issue types
         if (!filter.getIssueTypes().isEmpty()) {
             condition = condition.and(where("reason.issueType").in(filter.getIssueTypes()));
+        }else{
+            List<IssueType> issueTypes = getAllIssueTypes().stream()
+                    .filter(issueType -> !issueType.getPrefix().equals("ALM")).collect(Collectors.toList());
+            condition = condition.and(where("reason.issueType").in(Collections.unmodifiableList(issueTypes)));
         }
         //filter by due dates
         if (!filter.getDueDates().isEmpty()) {
