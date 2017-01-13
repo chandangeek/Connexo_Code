@@ -40,12 +40,15 @@ public class GroupByAssigneeImpl extends IssuesGroupOperation {
         SqlBuilder builder = new SqlBuilder();
         builder.append("SELECT " + GROUP_KEY + ", " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.*");
         builder.append(" FROM (SELECT NVL(isu.ASSIGNEE_USER_ID, -1) as " + GROUP_KEY + ", NVL(usr.AUTHNAME, \'" + DatabaseConst.UNASSIGNED + "\') as " + GROUP_TITLE + ", count(NVL(isu.ASSIGNEE_USER_ID, -1)) as " + GROUP_COUNT);
-        builder.append(" FROM " + getTableName() + " isu LEFT JOIN MTR_ENDDEVICE device ON isu.DEVICE_ID = device.ID JOIN " + TableSpecs.ISU_REASON.name());
+        builder.append(" FROM " + getTableName() + " isu ");
+        builder.append(" LEFT JOIN DAL_ALARM_OPEN dal ON isu.ID = dal.ID ");
+        builder.append(" LEFT JOIN MTR_ENDDEVICE device ON isu.DEVICE_ID = device.ID JOIN " + TableSpecs.ISU_REASON.name());
         builder.append(" reason ON isu.REASON_ID = reason.\"KEY\" JOIN " + TableSpecs.ISU_STATUS.name() + " status ON isu.STATUS = status.\"KEY\"");
         builder.append(" LEFT JOIN USR_USER usr ON isu.ASSIGNEE_USER_ID=usr.ID WHERE 1=1 ");
         builder.append(getIssueTypeCondition());
         builder.append(getStatusCondition());
         builder.append(getMeterCondition());
+        builder.append(getClearedStatuses());
         builder.append(getUserAssigneeCondition());
         builder.append(getWorkGroupCondition());
         builder.append(getDueDateCondition());

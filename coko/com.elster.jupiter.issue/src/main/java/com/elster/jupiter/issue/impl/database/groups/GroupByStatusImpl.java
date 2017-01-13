@@ -36,11 +36,12 @@ public class GroupByStatusImpl extends IssuesGroupOperation {
         SqlBuilder builder = new SqlBuilder();
         builder.append("SELECT " + GROUP_KEY + ", " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.*");
         builder.append(" FROM (SELECT DISTINCT isu.STATUS as " + GROUP_KEY + ", status.TRANSLATION as " + GROUP_TITLE + ", count(isu.STATUS) as " + GROUP_COUNT);
-        builder.append(" FROM " + getTableName() + " isu LEFT JOIN MTR_ENDDEVICE device ON isu.DEVICE_ID = device.ID JOIN " + TableSpecs.ISU_REASON.name());
+        builder.append(" FROM " + getTableName() + " isu LEFT JOIN DAL_ALARM_OPEN dal ON isu.ID = dal.ID LEFT JOIN MTR_ENDDEVICE device ON isu.DEVICE_ID = device.ID JOIN " + TableSpecs.ISU_REASON.name());
         builder.append(" reason ON isu.REASON_ID = reason.\"KEY\" JOIN " + TableSpecs.ISU_STATUS.name() + " status ON isu.STATUS = status.\"KEY\" WHERE 1=1 ");
         builder.append(getIssueTypeCondition());
         builder.append(getStatusCondition());
         builder.append(getMeterCondition());
+        builder.append(getClearedStatuses());
         builder.append(getUserAssigneeCondition());
         builder.append(getWorkGroupCondition());
         builder.append(getDueDateCondition());

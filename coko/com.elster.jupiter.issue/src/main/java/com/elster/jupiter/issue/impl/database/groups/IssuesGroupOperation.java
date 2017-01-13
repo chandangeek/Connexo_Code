@@ -132,6 +132,27 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
+    String getClearedStatuses() {
+        StringBuilder builder = new StringBuilder();
+        for (String cleared : getFilter().getClearedStatuses()) {
+            if (builder.length() != 0) {
+                builder.append(" OR ");
+            }
+            if(cleared.toLowerCase().equals("yes")){
+                builder.append("dal.CLEARED_STATUS").append(" = '").append("Y").append("'");
+            }
+            if(cleared.toLowerCase().equals("no")){
+                builder.append("dal.CLEARED_STATUS").append(" = '").append("N").append("'");
+            }
+
+        }
+        if (builder.length() != 0) {
+            builder.insert(0, " AND (").append(") ");
+            return builder.toString();
+        }
+        return "";
+    }
+
     String getMeterCondition() {
         if (getFilter().getMeterName() != null) {
             return " AND (device.name = '" + getFilter().getMeterName() + "') ";
