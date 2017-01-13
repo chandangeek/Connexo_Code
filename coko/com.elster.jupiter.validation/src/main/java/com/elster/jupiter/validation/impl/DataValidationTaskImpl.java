@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -28,6 +29,7 @@ import com.elster.jupiter.validation.DataValidationTaskStatus;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
@@ -63,6 +65,8 @@ final class DataValidationTaskImpl implements DataValidationTask {
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
+
+    private Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
 
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
 
@@ -211,6 +215,16 @@ final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public void setUsagePointGroup(UsagePointGroup usagePointGroup){
         this.usagePointGroup.set(usagePointGroup);
+    }
+
+    @Override
+    public Optional<MetrologyPurpose> getMetrologyPurpose(){
+        return metrologyPurpose.getOptional();
+    }
+
+    @Override
+    public void setMetrologyPurpose(MetrologyPurpose metrologyPurpose){
+        this.metrologyPurpose.set(metrologyPurpose);
     }
 
     @Override
