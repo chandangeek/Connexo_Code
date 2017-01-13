@@ -1,7 +1,7 @@
 package com.elster.jupiter.kore.api.impl.servicecall;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;

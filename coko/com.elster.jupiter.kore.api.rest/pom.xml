@@ -26,15 +26,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>properties.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -59,10 +51,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>rest.util</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -119,6 +107,14 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>rest.util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>security.thread</artifactId>
         </dependency>
 
         <!-- test dependencies -->
@@ -185,6 +181,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -336,12 +337,12 @@
                                 <typeReplacements>
                                     <typeReplacement>
                                         <source>javax.ws.rs.core.Link</source>
-                                        <target>com.elster.jupiter.rest.util.hypermedia.doc.LinkJson</target>
+                                        <target>com.elster.jupiter.rest.api.util.v1.hypermedia.doc.LinkJson</target>
                                         <type>alternative</type>
                                     </typeReplacement>
                                     <typeReplacement>
                                         <source>com.elster.jupiter.rest.util.JsonQueryParameters</source>
-                                        <target>com.elster.jupiter.rest.util.hypermedia.doc.PagingParametersJson
+                                        <target>com.elster.jupiter.rest.api.util.v1.hypermedia.doc.PagingParametersJson
                                         </target>
                                         <type>alternative</type>
                                     </typeReplacement>
@@ -363,5 +364,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

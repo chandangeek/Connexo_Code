@@ -10,6 +10,4 @@ public class UsagePointCommandInfo {
     public List<String> readingTypes;
     public Quantity loadLimit;
     public UsagePointCommandCallbackInfo httpCallBack;
-
-
 }
