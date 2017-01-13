@@ -285,4 +285,18 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     }
 
     ZoneId getZoneId();
+
+    /**
+     * Makes this UsagePoint obsolete.
+     * This UsagePoint will no longer show up in queries
+     * except the one that is looking for a UsagePoint by its database id or mrid.
+     */
+    void makeObsolete();
+
+    /**
+     * The Instant in time when this UsagePoint was made obsolete.
+     *
+     * @return The instant in time or {@code Optional.empty()} if this UsagePoint is not obsolete
+     */
+    Optional<Instant> getObsoleteTime();
 }
