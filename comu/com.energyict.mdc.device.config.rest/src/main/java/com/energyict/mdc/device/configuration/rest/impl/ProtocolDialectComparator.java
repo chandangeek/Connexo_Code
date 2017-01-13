@@ -9,7 +9,7 @@ public class ProtocolDialectComparator implements Comparator<ProtocolDialectConf
 
     @Override
     public int compare(ProtocolDialectConfigurationProperties o1, ProtocolDialectConfigurationProperties o2) {
-        return o1.getDeviceProtocolDialect().getDisplayName().compareToIgnoreCase(o2.getDeviceProtocolDialect().getDisplayName());
+        return o1.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName().compareToIgnoreCase(o2.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName());
     }
 }
 

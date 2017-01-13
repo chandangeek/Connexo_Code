@@ -146,7 +146,7 @@ public class ComTaskEnablementInfo {
                 protocolDialectConfigurationPropertiesInfo.name = thesaurus.getString(DEFAULT_PROTOCOL_DIALECT_NAME_KEY, DEFAULT_PROTOCOL_DIALECT_NAME_KEY);
             } else {
                 protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId();
-                protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+                protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDeviceProtocolDialectDisplayName();
             }
             return protocolDialectConfigurationPropertiesInfo;
         }
