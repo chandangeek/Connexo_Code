@@ -27,9 +27,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (16:16)
  */
-public interface DeviceProtocolDialect extends HasDynamicProperties {
-
-    String DEVICE_PROTOCOL_DIALECT_NAME = "DeviceProtocolDialect";
+public interface DeviceProtocolDialect extends HasDynamicProperties, com.energyict.mdc.upl.DeviceProtocolDialect {
 
     /**
      * Returns the {@link CustomPropertySet} that provides the storage area
@@ -48,18 +46,4 @@ public interface DeviceProtocolDialect extends HasDynamicProperties {
                 .map(CustomPropertySet::getPropertySpecs)
                 .orElseGet(Collections::emptyList);
     }
-
-    /**
-     * Provides a <b>unique</b> name for this DeviceProtocolDialect.
-     *
-     * @return the unique name for this DeviceProtocolDialect
-     */
-    String getDeviceProtocolDialectName();
-
-    /**
-     * The display name of this Dialect.
-     * @return the name the User will see for this dialect
-     */
-    String getDisplayName();
-
 }
