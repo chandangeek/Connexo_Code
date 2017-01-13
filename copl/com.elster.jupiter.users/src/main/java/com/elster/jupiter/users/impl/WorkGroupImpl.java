@@ -125,7 +125,6 @@ public class WorkGroupImpl implements WorkGroup {
 
     @Override
     public void delete() {
-        //FixMe verify whether there are issues still assigned
         this.deleteAssociationWithWorkGroup();
         dataModel.mapper(WorkGroup.class).remove(this);
     }
