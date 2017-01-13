@@ -500,7 +500,7 @@ public class JobExecutionTest {
         protocolDialect = mock(DeviceProtocolDialect.class);
         propertySpec = mock(PropertySpec.class);
 
-        when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
+        when(protocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn(PROTOCOL_DIALECT);
         when(protocolDialect.getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
         when(protocolDialect.getPropertySpec(MY_PROPERTY)).thenReturn(Optional.of(propertySpec));
 
