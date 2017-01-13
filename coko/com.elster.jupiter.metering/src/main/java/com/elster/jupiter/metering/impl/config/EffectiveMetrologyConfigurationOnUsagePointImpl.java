@@ -5,7 +5,11 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -17,6 +21,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -91,6 +96,9 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
             throw new IllegalArgumentException();
         }
         this.interval = this.interval.withEnd(closingDate);
+        if(interval.toClosedRange().isEmpty()){
+            effectiveContracts.clear();
+        }
         this.dataModel.update(this);
     }
 
@@ -162,6 +170,20 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .filter(effectiveMetrologyContract -> !effectiveMetrologyContract.getRange().hasUpperBound())
                 .findFirst()
                 .ifPresent(effectiveMetrologyContract -> effectiveMetrologyContract.close(when));
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> getReadingTypeRequirements() {
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+        this.effectiveContracts
+                .stream()
+                .map(EffectiveMetrologyContractOnUsagePoint::getMetrologyContract)
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+        return requirementsCollector.getReadingTypeRequirements();
     }
 
     @Override

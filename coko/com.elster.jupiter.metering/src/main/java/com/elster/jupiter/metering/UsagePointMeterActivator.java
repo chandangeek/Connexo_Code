@@ -9,6 +9,11 @@ import java.time.Instant;
 @ProviderType
 public interface UsagePointMeterActivator {
 
+    enum FormValidation {
+        DEFINE_METROLOGY_CONFIGURATION,
+        SET_METERS
+    }
+
     UsagePointMeterActivator activate(Meter meter, MeterRole meterRole);
 
     UsagePointMeterActivator activate(Instant start, Meter meter, MeterRole meterRole);
@@ -23,6 +28,8 @@ public interface UsagePointMeterActivator {
      * @return the activator
      */
     UsagePointMeterActivator throwingValidation();
+
+    UsagePointMeterActivator withFormValidation(FormValidation validation);
 
     /**
      * Apply changes. Note that after this operation some meters may have obsolete info regarding meter activations.

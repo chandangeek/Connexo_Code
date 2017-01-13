@@ -32,7 +32,6 @@ import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.ami.CompletionOptions;
-import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -50,7 +49,6 @@ import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDat
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
-import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
@@ -554,8 +552,18 @@ public class UsagePointImpl implements UsagePoint {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration =
                 createEffectiveMetrologyConfigurationWithContracts(metrologyConfiguration, optionalContractsToActivate, effectiveInterval);
         this.metrologyConfigurations.add(effectiveMetrologyConfiguration);
-        validateMetersProvideRequirements(effectiveMetrologyConfiguration);
+        activateMetersOnMetrologyConfiguration(this.getMeterActivations(start));
         this.update();
+    }
+
+    private void activateMetersOnMetrologyConfiguration(List<MeterActivation> meterActivations) {
+        UsagePointMeterActivator linker = this.linkMeters().withFormValidation(UsagePointMeterActivator.FormValidation.DEFINE_METROLOGY_CONFIGURATION);
+
+        meterActivations.stream()
+                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getEnd()==null)
+                .forEach(meterActivation -> linker.activate(meterActivation.getMeter().get(), meterActivation.getMeterRole().get()));
+
+        linker.complete();
     }
 
     private void validateEffectiveMetrologyConfigurationInterval(Instant start, Instant end) {
@@ -594,49 +602,6 @@ public class UsagePointImpl implements UsagePoint {
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(effectiveInterval));
         effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts(optionalContractsToActivate);
         return effectiveMetrologyConfigurationOnUsagePoint;
-    }
-
-    private void validateMetersProvideRequirements(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
-        List<MeterActivation> meterActivations = getMeterActivations(effectiveMetrologyConfiguration.getRange());
-        List<MeterRole> meterRolesOfMetrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration().getMeterRoles();
-        List<Pair<MeterRole, Meter>> metersInRoles = meterActivations.stream()
-                .filter(meterActivation -> meterActivation.getMeterRole().map(meterRolesOfMetrologyConfiguration::contains).orElse(false))
-                .map(meterActivation -> Pair.of(meterActivation.getMeterRole().get(), meterActivation.getMeter().get()))
-                .collect(Collectors.toList());
-        boolean hasUnsatisfiedReadingTypeRequirements = false;
-        UnsatisfiedReadingTypeRequirements ex = new UnsatisfiedReadingTypeRequirements(thesaurus);
-        for (Pair<MeterRole, Meter> pair : metersInRoles) {
-            MeterRole meterRole = pair.getFirst();
-            Meter meter = pair.getLast();
-            Set<ReadingTypeRequirement> requirements = getMetrologyConfigurationRequirementsForMeterRole(effectiveMetrologyConfiguration, meterRole);
-            Set<ReadingTypeRequirement> unsatisfiedRequirements = getUnsatisfiedReadingTypeRequirementsOfMeter(requirements, meter);
-            if (!unsatisfiedRequirements.isEmpty()) {
-                hasUnsatisfiedReadingTypeRequirements = true;
-                ex.addUnsatisfiedReadingTypeRequirements(meterRole, unsatisfiedRequirements.stream().collect(Collectors.toList()));
-            }
-        }
-        if (hasUnsatisfiedReadingTypeRequirements) {
-            throw ex;
-        }
-    }
-
-    private Set<ReadingTypeRequirement> getMetrologyConfigurationRequirementsForMeterRole(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MeterRole meterRole) {
-        UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
-        return metrologyConfiguration.getContracts().stream()
-                .filter(contract -> effectiveMetrologyConfiguration.getChannelsContainer(contract).isPresent()) // means that metrology contract is active/enabled
-                .flatMap(contract -> contract.getRequirements().stream())
-                .filter(readingTypeRequirement -> meterRole.equals(metrologyConfiguration.getMeterRoleFor(readingTypeRequirement).orElse(null)))
-                .collect(Collectors.toSet());
-    }
-
-    private Set<ReadingTypeRequirement> getUnsatisfiedReadingTypeRequirementsOfMeter(Set<ReadingTypeRequirement> requirements, Meter meter) {
-        List<ReadingType> meterProvidedReadingTypes = meter.getHeadEndInterface()
-                .map(headEndInterface -> headEndInterface.getCapabilities(meter))
-                .map(EndDeviceCapabilities::getConfiguredReadingTypes)
-                .orElse(Collections.emptyList());
-        return requirements.stream()
-                .filter(requirement -> !meterProvidedReadingTypes.stream().anyMatch(requirement::matches))
-                .collect(Collectors.toSet());
     }
 
     @Override
