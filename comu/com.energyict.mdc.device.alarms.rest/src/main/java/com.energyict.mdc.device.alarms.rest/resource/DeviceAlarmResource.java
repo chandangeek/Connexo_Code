@@ -8,15 +8,23 @@ import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.resource.IssueRestModuleConst;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
 import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
+import com.elster.jupiter.issue.rest.response.IssueGroupInfo;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -59,6 +67,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -246,6 +255,51 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         }
         return issueProcessInfos;
 
+    }
+
+    @GET
+    @Path("/groupedlist")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
+    public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
+        List<String> issueTypes = getIssueService().query(IssueType.class)
+                .select(Condition.TRUE)
+                .stream()
+                .filter(issueType -> issueType.getPrefix().equals("ALM"))
+                .map(IssueType::getKey)
+                .collect(Collectors.toList());
+        groupFilter.using(getQueryApiClass(filter))
+                .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))
+                .withIssueTypes(issueTypes)
+                .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS))
+                .withClearedStatuses(filter.getStringList("cleared"))
+                .withMeterName(filter.getString(IssueRestModuleConst.METER))
+                .groupBy(filter.getString(IssueRestModuleConst.FIELD))
+                .setAscOrder(false)
+                .from(params.getFrom()).to(params.getTo());
+        filter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().filter(el -> el != null).forEach(groupFilter::withUserAssignee);
+        filter.getLongList(IssueRestModuleConst.WORKGROUP).stream().filter(el -> el != null).forEach(groupFilter::withWorkGroupAssignee);
+        getDueDates(filter).stream().forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
+        List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
+        List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("alarmGroups", infos, queryParameters);
+    }
+
+    private Class<? extends Issue> getQueryApiClass(JsonQueryFilter filter) {
+        List<IssueStatus> statuses = filter.hasProperty(IssueRestModuleConst.STATUS)
+                ? filter.getStringList(IssueRestModuleConst.STATUS).stream().map(s -> getIssueService().findStatus(s).get()).collect(Collectors.toList())
+                : Collections.EMPTY_LIST;
+        if (statuses.isEmpty()) {
+            return Issue.class;
+        }
+        if (statuses.stream().allMatch(status -> !status.isHistorical())) {
+            return OpenIssue.class;
+        }
+        if (statuses.stream().allMatch(IssueStatus::isHistorical)) {
+            return HistoricalIssue.class;
+        }
+        return Issue.class;
     }
 
     private DeviceAlarm getDeviceAlarm(Long id, ActionInfo result) {
