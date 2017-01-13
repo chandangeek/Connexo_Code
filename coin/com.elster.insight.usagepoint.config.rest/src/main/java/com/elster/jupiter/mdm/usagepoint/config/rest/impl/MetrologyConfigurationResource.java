@@ -30,7 +30,6 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
-import com.elster.jupiter.validation.rest.DataValidationTaskMinimalInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -52,8 +51,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -270,7 +269,7 @@ public class MetrologyConfigurationResource {
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("contractId") long contractId) {
-        MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(contractId).get();
+        MetrologyContract metrologyContract = resourceHelper.findContractByIdOrThrowException(contractId);
         List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
                 .stream()
                 .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
@@ -289,6 +288,22 @@ public class MetrologyConfigurationResource {
         metrologyContractInfo.validationRuleSets = linkableValidationRuleSets;
         metrologyContractInfo.estimationRuleSets = linkableEstimationRuleSets;
         return metrologyContractInfo;
+    }
+
+    @PUT
+    @Path("/{id}/contracts")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response reorderEstimationRuleSetsOnContracts(@PathParam("contractId") long contractId, @QueryParam("action") String action, MetrologyContractInfos metrologyContractInfos) {
+        for (MetrologyContractInfo contract : metrologyContractInfos.contracts) {
+            MetrologyContract metrologyContract = resourceHelper.findContractByIdOrThrowException(contract.id);
+            usagePointConfigurationService.reorderEstimationRuleSets(metrologyContract, contract.estimationRuleSets.stream()
+                    .map(estimationRuleSetInfo -> estimationService.getEstimationRuleSet(estimationRuleSetInfo.id))
+                    .filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList()));
+        }
+        return Response.status(Response.Status.OK).build();
     }
 
     @GET
