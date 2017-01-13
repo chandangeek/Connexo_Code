@@ -12,11 +12,11 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
-import com.google.common.base.Supplier;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Copyrights EnergyICT

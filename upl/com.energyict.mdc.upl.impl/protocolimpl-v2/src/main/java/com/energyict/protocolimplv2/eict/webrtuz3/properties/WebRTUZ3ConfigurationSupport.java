@@ -9,12 +9,12 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.google.common.base.Supplier;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;

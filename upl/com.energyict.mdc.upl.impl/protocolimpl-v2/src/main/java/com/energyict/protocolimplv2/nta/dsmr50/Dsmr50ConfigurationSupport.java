@@ -14,11 +14,11 @@ import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
-import com.google.common.base.Supplier;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
