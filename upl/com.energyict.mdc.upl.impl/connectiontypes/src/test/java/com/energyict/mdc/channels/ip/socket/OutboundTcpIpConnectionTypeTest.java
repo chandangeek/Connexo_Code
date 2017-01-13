@@ -1,23 +1,20 @@
 package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.energyict.cbo.TimeConstants;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
 
-import org.junit.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -28,13 +25,17 @@ import static org.mockito.Mockito.mock;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (16:03)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class OutboundTcpIpConnectionTypeTest {
 
     private static final int DEFAULT_HTTP_PORT = 8080;
 
+    @Mock
+    private PropertySpecService propertySpecService;
+
     @Test(expected = UnknownHostException.class)
     public void testConnectToUnknownHost () throws Throwable {
-        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
+        OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType(this.propertySpecService);
         ComPort comPort = getMockedComPort();
 
         List<ConnectionTaskProperty> properties = getConnectionProperties("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet", DEFAULT_HTTP_PORT, 1);
