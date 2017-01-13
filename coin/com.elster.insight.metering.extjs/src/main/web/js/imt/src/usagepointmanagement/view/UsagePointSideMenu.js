@@ -11,7 +11,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
     initComponent: function () {
         var me = this,
             usagePoint = me.usagePoint,
-            purposes = usagePoint.get('purposes'),
+            purposes = usagePoint.get('metrologyConfiguration_purposes'),
             metrologyConfiguration = usagePoint.get('metrologyConfiguration'),
             iconStyle,
             serviceCategory,
@@ -73,37 +73,13 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
         if (purposes && purposes.length) {
             var items = [];
             purposes.map(function(purpose) {
-                if (purpose.get('active')) {
-                    var validationInfo = purpose.get('validationInfo'),
-                        status = purpose.get('status'),
-                        icon = '';
-
-                    switch (validationInfo.allDataValidated) {
-                        case true:
-                            if (!validationInfo.hasSuspects) {
-                                icon = '<span class="icon-checkmark-circle" style="color: #33CC33; margin-left: 10px" data-qtip="'
-                                    + Uni.I18n.translate('usagepoint.purpose.validation.icon.noSuspects.qtip', 'IMT', 'Validated, no suspects')
-                                    + '"></span>';
-                            } else {
-                                icon = '<span class="icon-warning" style="color: #eb5642; margin-left: 10px" data-qtip="'
-                                    + Uni.I18n.translate('usagepoint.purpose.validation.icon.hasSuspects.qtip', 'IMT', 'Suspects')
-                                    + '"></span>';
-                            }
-                            break;
-                        case false:
-                            icon = '<span class="icon-question4" style="color: #686868; margin-left: 10px" data-qtip="'
-                                + Uni.I18n.translate('usagepoint.purpose.validation.icon.notValidated.qtip', 'IMT', 'Not validated')
-                                + '"></span>';
-                            break;
-
-                    }
-
+                if (purpose.active) {
                     items.push({
-                        text: purpose.get('name') + icon,
+                        text: purpose.name,
                         privileges: Imt.privileges.MetrologyConfig.view,
                         htmlEncode: false,
-                        itemId: 'usage-point-pupose-' + purpose.getId(),
-                        href: me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.getId()})
+                        itemId: 'usage-point-pupose-' + purpose.id,
+                        href: me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.id})
                     });
                 }
             });
