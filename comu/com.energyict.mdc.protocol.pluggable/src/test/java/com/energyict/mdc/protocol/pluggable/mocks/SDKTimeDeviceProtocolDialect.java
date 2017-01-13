@@ -32,7 +32,7 @@ public class SDKTimeDeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "SDK dialect for time testing";
     }
 
