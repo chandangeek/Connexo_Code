@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -23,12 +24,16 @@ public class WatchTalkProperties extends Dsmr23Properties {
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
     private static final String DEFAULT_IGNORE_DST_STATUS_CODE = "1";
 
+    public WatchTalkProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROPERTY_IGNORE_DST_STATUS_CODE, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(PROPERTY_FORCED_TO_READ_CACHE, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(VALIDATE_INVOKE_ID, false));
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROPERTY_IGNORE_DST_STATUS_CODE, false, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROPERTY_FORCED_TO_READ_CACHE, false, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(VALIDATE_INVOKE_ID, false, this.getPropertySpecService()::integerSpec).finish());
         return propertySpecs;
     }
 

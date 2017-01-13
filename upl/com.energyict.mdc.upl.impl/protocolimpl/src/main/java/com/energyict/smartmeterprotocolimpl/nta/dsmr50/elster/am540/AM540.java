@@ -44,11 +44,9 @@ import java.util.logging.Level;
 public class AM540 extends E350 {
 
     private static final String TIMEOUT = "timeout";
-    private final PropertySpecService propertySpecService;
 
     protected AM540(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
-        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
-        this.propertySpecService = propertySpecService;
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, propertySpecService);
         setHasBreaker(false);
     }
 
@@ -190,7 +188,7 @@ public class AM540 extends E350 {
     @Override
     public Dsmr50Properties getProperties() {
         if (this.properties == null) {
-            this.properties = new Dsmr50Properties(this.propertySpecService);
+            this.properties = new Dsmr50Properties(this.getPropertySpecService());
         }
         return (Dsmr50Properties) this.properties;
     }

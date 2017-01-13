@@ -11,6 +11,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static com.energyict.protocolimpl.dlms.g3.G3Properties.AARQ_RETRIES;
 import static com.energyict.protocolimpl.dlms.g3.G3Properties.AARQ_TIMEOUT;
@@ -30,20 +31,23 @@ public class Dsmr50Properties extends Dsmr40Properties {
     private static final String CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME = "CheckNumberOfBlocksDuringFirmwareResume";
 
     private G3SecurityProvider g3SecurityProvider;
-    private final PropertySpecService propertySpecService;
 
     public Dsmr50Properties(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
+    }
+
+    public Dsmr50Properties(Properties properties, PropertySpecService propertySpecService) {
+        super(properties, propertySpecService);
     }
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(UPLPropertySpecFactory.string(PROP_LASTSEENDATE, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(AARQ_RETRIES, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(AARQ_TIMEOUT, false));
-        propertySpecs.add(UPLPropertySpecFactory.string(PSK, false));
-        propertySpecs.add(UPLPropertySpecFactory.integer(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, false));
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PROP_LASTSEENDATE, false, this.getPropertySpecService()::stringSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(AARQ_RETRIES, false, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(AARQ_TIMEOUT, false, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(PSK, false, this.getPropertySpecService()::stringSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, false, this.getPropertySpecService()::integerSpec).finish());
         return propertySpecs;
     }
 
@@ -53,7 +57,7 @@ public class Dsmr50Properties extends Dsmr40Properties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (g3SecurityProvider == null) {
-            g3SecurityProvider = new G3SecurityProvider(this.propertySpecService, getProtocolProperties());
+            g3SecurityProvider = new G3SecurityProvider(this.getPropertySpecService(), getProtocolProperties());
         }
         return g3SecurityProvider;
     }

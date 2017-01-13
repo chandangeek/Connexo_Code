@@ -22,7 +22,7 @@ public class SDKFirmwareTaskProtocolDialectProperties extends AbstractDeviceProt
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_TOPOLOGY_DIALECT_NAME.getName();
+        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_FIRMWARE.getName();
     }
 
     @Override

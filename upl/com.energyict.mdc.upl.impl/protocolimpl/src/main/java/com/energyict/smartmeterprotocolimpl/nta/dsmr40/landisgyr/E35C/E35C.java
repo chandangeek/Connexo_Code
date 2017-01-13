@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -33,8 +34,8 @@ public class E35C extends E350 {
     protected E35CProperties properties;
     private E35CMeterTopology meterTopology;
 
-    protected E35C(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
-        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
+    protected E35C(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, propertySpecService);
     }
 
     public ComposedMeterInfo getMeterInfo() {
@@ -55,7 +56,7 @@ public class E35C extends E350 {
     @Override
     public E35CProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new E35CProperties();
+            this.properties = new E35CProperties(this.getPropertySpecService());
         }
         return this.properties;
     }
