@@ -1,7 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -344,11 +345,11 @@ public class UsagePointResource {
                                                 @QueryParam("customPropertySetId") long customPropertySetId,
                                                 @QueryParam("upVersion") long upVersion,
                                                 MetrologyConfigurationInfo info) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
+
         if (usagePoint.getEffectiveMetrologyConfiguration(usagePoint.getInstallationTime()).isPresent()) {
             throw resourceHelper.usagePointAlreadyLinkedException(name);
         }
-        usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
 
         new RestValidationBuilder()
                 .notEmpty(info.id, "id")
@@ -373,11 +374,18 @@ public class UsagePointResource {
         }
 
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
-        try {
-            usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime());
-        } catch (UnsatisfiedReadingTypeRequirements ex) {
-            // TODO CXO-4331 to be continued
-        }
+            if (info.purposes != null) {
+                usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime(), usagePointMetrologyConfiguration.getContracts()
+                        .stream()
+                        .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                        .filter(metrologyContract -> info.purposes.stream()
+                                .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
+                        .filter(metrologyContract -> !metrologyContract.isMandatory())
+                        .distinct()
+                        .collect(Collectors.toSet()));
+            } else {
+                usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime());
+            }
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
                     .getPropertySet(customPropertySetInfo.id);
@@ -386,20 +394,22 @@ public class UsagePointResource {
         }
         usagePoint.update();
 
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-
-//        TODO CXO-4331 to be continued
-//        if (info.purposes != null) {
-//            effectiveMC.getMetrologyConfiguration().getContracts()
-//                    .stream()
-//                    .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-//                    .filter(metrologyContract -> info.purposes.stream()
-//                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
-//                    .filter(metrologyContract -> !metrologyContract.isMandatory())
-//                    .forEach(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, effectiveMC.getStart()));
-//        }
-
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/unlinkmetrologyconfiguration")
+    public Response unlinkMetrologyConfigurations(@PathParam("name") String name,
+                                                UsagePointInfo info) {
+        UsagePoint usagePoint =  resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
+
+        usagePoint.getCurrentEffectiveMetrologyConfiguration().ifPresent(emc -> emc.close(emc.getStart()));
+
+        return Response.ok().build();
     }
 
     private Set<MetrologyPurpose> getPurposesOfReadingTypeRequirements(List<ReadingTypeRequirement> requirements, UsagePointMetrologyConfiguration metrologyConfiguration) {

@@ -380,7 +380,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return builder;
     }
 
-    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
+    public List<MeterActivationInfo> getMetersOnUsagePointWithMetrologyConfigurationInfo(UsagePoint usagePoint, String authorization) {
         Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
         usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
@@ -414,6 +414,35 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                     .orElse(null);
                         });
                     }
+                    return meterActivationInfo;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
+        if(usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()){
+            return getMetersOnUsagePointWithMetrologyConfigurationInfo(usagePoint, authorization);
+        }
+        return usagePoint.getMeterActivations(clock.instant())
+                .stream()
+                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeter().isPresent())
+                .map(meterActivation -> {
+                    MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
+                    meterActivationInfo.meterRole = new MeterRoleInfo(meterActivation.getMeterRole().get());
+                    meterActivationInfo.id = meterActivation.getId();
+                    meterActivationInfo.meterRole.activationTime = meterActivation.getStart();
+                    meterActivation.getMeter().ifPresent(meter -> {
+                        meterActivationInfo.meter = new MeterInfo();
+                        meterActivationInfo.meter.id = meter.getId();
+                        meterActivationInfo.meter.mRID = meter.getMRID();
+                        meterActivationInfo.meter.name = meter.getName();
+                        meterActivationInfo.meter.version = meter.getVersion();
+                        meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
+                        meterActivationInfo.meter.url = meter.getHeadEndInterface()
+                                .flatMap(he -> he.getURLForEndDevice(meter))
+                                .map(URL::toString)
+                                .orElse(null);
+                    });
                     return meterActivationInfo;
                 })
                 .collect(Collectors.toList());
