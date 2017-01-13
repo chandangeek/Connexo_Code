@@ -2,9 +2,6 @@ Ext.define('MdcApp.Application', {
     extend: 'Ext.app.Application',
 
     requires:[
-        'Sam.privileges.DeploymentInfo',
-        'Sam.privileges.DataPurge',
-        'Sam.privileges.License',
         'Cfg.privileges.Validation',
         'Mdc.privileges.MasterData',
         'Mdc.privileges.DeviceGroup',
