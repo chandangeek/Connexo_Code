@@ -1,16 +1,21 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
+import com.google.common.collect.Range;
+
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,6 +79,7 @@ public class UsagePointImportHelper {
         usagePointBuilder.withReadRoute(data.getReadRoute());
         usagePointBuilder.withServicePriority(data.getServicePriority());
         usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark());
+        addCustomPropertySetsValues(usagePointBuilder, data);
         return usagePointBuilder.create();
     }
 
@@ -171,4 +177,45 @@ public class UsagePointImportHelper {
             usagePoint.apply(metrologyConfiguration, data.getMetrologyConfigurationApplyTime().get());
         });
     }
+
+    private void addCustomPropertySetsValues(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
+        data.getRegisteredCustomPropertySets().forEach((customPropertySet, customPropertySetRecord) -> {
+                    CustomPropertySetValues values = null;
+                    if (customPropertySet.getCustomPropertySet().isVersioned()) {
+                        Range<Instant> rangeToCreate = getRangeToCreate(customPropertySetRecord);
+                        if (!rangeToCreate.hasLowerBound()) {
+                            rangeToCreate = Range.atLeast(data.getInstallationTime().orElse(clock.instant())).intersection(rangeToCreate);
+                        }
+                        values = CustomPropertySetValues.emptyDuring(rangeToCreate);
+                        copyValues(customPropertySetRecord.getCustomPropertySetValues(), values);
+                    } else {
+                        values = customPropertySetRecord.getCustomPropertySetValues();
+                    }
+                    usagePointBuilder.addCustomPropertySetValues(customPropertySet, values);
+                }
+        );
+    }
+
+    private void copyValues(CustomPropertySetValues source, CustomPropertySetValues target) {
+        source.propertyNames().forEach(propertyName -> {
+            Object propertyValue = source.getProperty(propertyName);
+            target.setProperty(propertyName, propertyValue);
+        });
+    }
+
+    private Range<Instant> getRangeToCreate(CustomPropertySetRecord customPropertySetRecord) {
+        if ((!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH))
+                && (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH))) {
+            return Range.all();
+        } else if (!customPropertySetRecord.getStartTime().isPresent() || customPropertySetRecord.getStartTime().get().equals(Instant.EPOCH)) {
+            return Range.lessThan(customPropertySetRecord.getEndTime().get());
+        } else if (!customPropertySetRecord.getEndTime().isPresent() || customPropertySetRecord.getEndTime().get().equals(Instant.EPOCH)) {
+            return Range.atLeast(customPropertySetRecord.getStartTime().get());
+        } else {
+            return Range.closedOpen(
+                    customPropertySetRecord.getStartTime().get(),
+                    customPropertySetRecord.getEndTime().get());
+        }
+    }
+
 }

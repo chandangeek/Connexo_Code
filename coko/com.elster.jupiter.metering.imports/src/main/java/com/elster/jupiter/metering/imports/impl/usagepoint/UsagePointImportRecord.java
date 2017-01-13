@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FileImportRecord;
@@ -55,7 +56,7 @@ public class UsagePointImportRecord extends FileImportRecord {
 
     public String metrologyConfiguration;
     public Instant metrologyConfigurationApplyTime;
-    private Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets;
+    private Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySets;
     private List<MeterRoleWithMeterAndActivationDate> meterRoles;
     private String transition;
     private Instant transitionDate;
@@ -332,11 +333,11 @@ public class UsagePointImportRecord extends FileImportRecord {
         this.metrologyConfigurationApplyTime = metrologyConfigurationApplyTime;
     }
 
-    public Map<CustomPropertySet, CustomPropertySetRecord> getCustomPropertySets() {
+    public Map<RegisteredCustomPropertySet, CustomPropertySetRecord> getRegisteredCustomPropertySets() {
         return customPropertySets;
     }
 
-    public void setCustomPropertySets(Map<CustomPropertySet, CustomPropertySetRecord> customPropertySets) {
+    public void setCustomPropertySets(Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySets) {
         this.customPropertySets = customPropertySets;
     }
 
