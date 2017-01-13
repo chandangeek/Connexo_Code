@@ -27,6 +27,8 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
         htmlEncode: false
     },
 
+    titleIsPartOfDataView: false,
+
     initComponent: function () {
         var me = this,
             output = me.getOutput(),
@@ -39,11 +41,14 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             data = [],
             total = output.get('total'),
             fields = ['name', 'key', 'data', 'url', 'percentage', 'detail', 'tooltip'],
-            statisticsEdited = [];
+            statisticsEdited = [],
+            title = '<a href="' + url + '">'
+                + Ext.String.htmlEncode(output.get('name'))
+                + '</a>';
 
-        me.title = '<a href="' + url + '">'
-            + Ext.String.htmlEncode(output.get('name'))
-            + '</a>';
+        if (!me.titleIsPartOfDataView) {
+            me.title = title;
+        }
 
         if (total > 0) {
             me.titleAlign = 'right';
@@ -140,7 +145,15 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                         data: Ext.Array.merge(data, statisticsEdited)
                     }),
                     itemSelector: 'tr.trlegend',
-                    tpl: ['<table>',
+                    tpl: [
+                        '<table>',
+                        '<tpl if="this.showTitleInTable()">',
+                        '<tr>',
+                        '<td style="font-weight: bold; padding-bottom: 10px">{[ this.getTitle() ]}</td>',
+                        '<td></td>',
+                        '<td></td>',
+                        '</tr>',
+                        '</tpl>',
                         '<tpl for=".">',
                         '<tpl if="key == \'statisticsEdited\'">',
                         '<tr>',
@@ -160,13 +173,23 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                         '</td>' +
                         '</tr>',
                         '</tpl>',
-                        '</table>'],
-                    listeners: {
+                        '</table>',
+                        {
+                            disableFormats: true,
+                            getTitle: function () {
+                                return title;
+                            },
+                            showTitleInTable: function () {
+                                return me.titleIsPartOfDataView;
+                            }
+                        }
+                    ],
+                    listeners: !me.titleIsPartOfDataView ? {
                         resize: {
                             scope: me,
                             fn: me.onDataViewResize
                         }
-                    }
+                    } : null
                 }
             ];
         } else {
@@ -175,7 +198,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                 {
                     xtype: 'no-readings-found-panel',
                     itemId: 'up-no-readings-found-panel',
-                    width: 380,
+                    //width: 380,
                     margin: '0 20 0 20',
                     layout: 'fit'
                 }

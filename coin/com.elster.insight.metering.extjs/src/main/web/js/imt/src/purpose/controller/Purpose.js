@@ -15,7 +15,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Uni.store.DataIntervalAndZoomLevels',
         'Imt.purpose.store.RegisterReadings',
         'Imt.usagepointmanagement.store.UsagePointTypes',
-        'Imt.purpose.store.ValidationTasks'
+        'Imt.purpose.store.ValidationTasks',
+        'Imt.usagepointmanagement.store.Periods'
     ],
 
     models: [
@@ -37,6 +38,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
         {
             ref: 'readingPreviewPanel',
             selector: 'output-channel-main reading-preview'
+        },
+        {
+            ref: 'outputPreview',
+            selector: '#purpose-outputs #output-preview'
         }
     ],
 
@@ -47,6 +52,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
             },
             'purpose-outputs purpose-actions-menu': {
                 click: this.chooseAction
+            },
+            '#purpose-outputs #outputs-list': {
+                select: this.showOutputPreview
             }
         });
     },
@@ -62,47 +70,74 @@ Ext.define('Imt.purpose.controller.Purpose', {
     showOutputs: function (usagePointId, purposeId) {
         var me = this,
             app = me.getApplication(),
-            router = me.getController('Uni.controller.history.Router'),            
+            router = me.getController('Uni.controller.history.Router'),
+            periodsStore = me.getStore('Imt.usagepointmanagement.store.Periods'),
             purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
-            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            dependenciesCounter = 4,
+            defaultPeriod,
+            usagePoint,
+            purposes;
 
         mainView.setLoading();
-        
-        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function(usagePointTypes, op, success) {
-            if (success) {
-                me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
-                    success: function (usagePoint) {
-                        app.fireEvent('usagePointLoaded', usagePoint);
-                        purposesStore.getProxy().extraParams = {
-                            usagePointId: usagePointId
-                        };
-                        purposesStore.load(function(purposes) {
-                            usagePoint.set('purposes', purposes);
-                            app.fireEvent('purposes-loaded', purposes);
-                            var purpose = _.find(purposes, function (p) {
-                                    return p.getId() == purposeId
-                                }),
-                                widget = Ext.widget('purpose-outputs', {
-                                    itemId: 'purpose-outputs',
-                                    router: router,
-                                    usagePoint: usagePoint,
-                                    purposes: purposes,
-                                    purpose: purpose
-                                });
-                            widget.down('#purpose-details-form').loadRecord(purpose);
-                            app.fireEvent('changecontentevent', widget);
-                            if (mainView.down('purpose-actions-menu')) {
-                                mainView.down('purpose-actions-menu').record = purpose;
-                            }
-                            mainView.setLoading(false);
-                            me.loadOutputs(usagePointId, purposeId);
-                        });
-                    }                    
-                });
-            } else {
-                mainView.setLoading(false);
+
+        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(onDependenciesLoad);
+
+        periodsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+        periodsStore.load(function (records) {
+            defaultPeriod = records[0].getId();
+            onDependenciesLoad();
+        });
+
+        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
+            success: function (record) {
+                usagePoint = record;
+                app.fireEvent('usagePointLoaded', usagePoint);
+                onDependenciesLoad();
             }
         });
+
+        purposesStore.getProxy().extraParams = {usagePointId: usagePointId};
+        purposesStore.load(function (records) {
+            purposes = records;
+            app.fireEvent('purposes-loaded', purposes);
+            onDependenciesLoad();
+        });
+
+        function onDependenciesLoad() {
+            var purpose,
+                widget;
+
+            dependenciesCounter--;
+            if (!dependenciesCounter) {
+                usagePoint.set('purposes', purposes);
+                purpose = _.find(purposes, function (p) {
+                    return p.getId() == purposeId
+                });
+                widget = Ext.widget('purpose-outputs', {
+                    itemId: 'purpose-outputs',
+                    router: router,
+                    usagePoint: usagePoint,
+                    purposes: purposes,
+                    purpose: purpose,
+                    defaultPeriod: defaultPeriod
+                });
+
+                widget.down('#purpose-details-form').loadRecord(purpose);
+                app.fireEvent('changecontentevent', widget);
+                if (mainView.down('purpose-actions-menu')) {
+                    mainView.down('purpose-actions-menu').record = purpose;
+                }
+                mainView.setLoading(false);
+                me.loadOutputs(usagePointId, purposeId);
+            }
+        }
+    },
+
+    showOutputPreview: function (selectionModel, record) {
+        var me = this;
+
+        me.getOutputPreview().loadRecord(record);
     },
 
     makeLinkToOutputs: function (router) {
