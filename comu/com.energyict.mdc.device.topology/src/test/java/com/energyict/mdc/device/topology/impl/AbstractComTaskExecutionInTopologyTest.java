@@ -25,11 +25,14 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.util.Optional;
-
+import com.energyict.mdc.upl.properties.PropertySpec;
 import org.junit.Before;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
@@ -52,7 +55,7 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
     protected ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
 
     @Before
-    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
+    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
         deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
         this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
@@ -178,11 +181,16 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
 
         @Override
         public String getDeviceProtocolDialectName() {
-            return DEVICE_PROTOCOL_DIALECT_NAME;
+            return Property.DEVICE_PROTOCOL_DIALECT.getName();
         }
 
         @Override
-        public String getDisplayName() {
+        public List<PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 

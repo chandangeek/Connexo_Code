@@ -37,8 +37,16 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import org.assertj.core.api.Condition;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -48,13 +56,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
-
-import org.assertj.core.api.Condition;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -669,11 +671,16 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
         @Override
         public String getDeviceProtocolDialectName() {
-            return DEVICE_PROTOCOL_DIALECT_NAME;
+            return Property.DEVICE_PROTOCOL_DIALECT.getName();
         }
 
         @Override
-        public String getDisplayName() {
+        public List<PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 
