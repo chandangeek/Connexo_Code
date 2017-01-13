@@ -1,7 +1,8 @@
 Ext.define('Dal.controller.history.Workspace', {
     extend: 'Uni.controller.history.Converter',
     requires: [
-        'Dal.privileges.Alarm'
+        'Dal.privileges.Alarm',
+        'Dal.controller.Overview',
     ],
     rootToken: 'workspace',
     previousPath: '',
@@ -65,6 +66,13 @@ Ext.define('Dal.controller.history.Workspace', {
                 }
             }
 
+        },
+        "workspace/alarmsoverview":{
+            title: Uni.I18n.translate('device.alarms.overview', 'DAL', 'Alarms overview'),
+            route: 'workspace/alarmsoverview',
+            controller: 'Dal.controller.Overview',
+            action: 'showAlarmsOverview',
+            privileges: Dal.privileges.Alarm.viewAdminAlarm
         }
 
     },

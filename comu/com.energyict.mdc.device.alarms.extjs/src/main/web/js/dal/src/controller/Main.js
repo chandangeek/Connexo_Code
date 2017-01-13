@@ -9,7 +9,7 @@ Ext.define('Dal.controller.Main', {
         'Uni.model.PortalItem',
         'Uni.store.PortalItems',
         'Uni.store.MenuItems',
-        'Dal.privileges.Alarm'
+        'Dal.privileges.Alarm',
     ],
 
     controllers: [
@@ -17,7 +17,8 @@ Ext.define('Dal.controller.Main', {
         'Dal.controller.Alarms',
         'Dal.controller.Detail',
         'Dal.controller.ApplyAction',
-        'Dal.controller.StartProcess'
+        'Dal.controller.StartProcess',
+        'Dal.controller.Overview'
     ],
 
     stores: [
@@ -56,6 +57,11 @@ Ext.define('Dal.controller.Main', {
                         href: router.getRoute('workspace/alarms').buildUrl({}, {
                             status: ['status.open', 'status.in.progress']
                         })
+                    },
+                    {
+                        text: Uni.I18n.translate('device.alarms.alarmsOverview', 'DAL', 'Alarms overview'),
+                        itemId: 'alarms-overview-item',
+                        href: router.getRoute('workspace/alarmsoverview').buildUrl()
                     },
                     {
                         itemId: 'my-open-alarms-item',
