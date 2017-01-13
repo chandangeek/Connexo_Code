@@ -23,7 +23,7 @@ public class SDKBreakerTaskProtocolDialectProperties extends AbstractDeviceProto
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_TOPOLOGY_DIALECT_NAME.getName();
+        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_BREAKER.getName();
     }
 
     @Override
