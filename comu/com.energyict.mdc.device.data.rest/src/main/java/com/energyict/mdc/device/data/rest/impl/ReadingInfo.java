@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.data.Register;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -21,6 +22,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = TextReadingInfo.class, name = "text"),
         @JsonSubTypes.Type(value = FlagsReadingInfo.class, name = "flags")
 })
+@JsonIgnoreProperties(ignoreUnknown=true)
 public abstract class ReadingInfo {
     @JsonProperty("id")
     public String id;

@@ -27,8 +27,10 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -130,6 +132,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static SearchService searchService;
     private static MessageService messageService;
     private static IssueDataValidationService issueDataValidationService;
+    private static DeviceAlarmService deviceAlarmService;
+    private static UserService userService;
     private static RestQueryService restQueryService;
     private static FavoritesService favoritesService;
     private static DeviceLifeCycleService deviceLifecycleService;
@@ -151,6 +155,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         searchService = mock(SearchService.class);
         messageService = mock(MessageService.class);
         issueDataValidationService = mock(IssueDataValidationService.class);
+        deviceAlarmService = mock(DeviceAlarmService.class);
         restQueryService = mock(RestQueryService.class);
         favoritesService = mock(FavoritesService.class);
         deviceLifecycleService = mock(DeviceLifeCycleService.class);
@@ -158,6 +163,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         serviceCallService = mock(ServiceCallService.class);
         bpmService = mock(BpmService.class);
         threadPrincipalService = mock(ThreadPrincipalService.class);
+        userService = mock(UserService.class);
 
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
@@ -324,6 +330,8 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setEngineConfigurationService(inMemoryPersistence.getEngineConfigurationService());
         application.setIssueService(inMemoryPersistence.getIssueService());
         application.setIssueDataValidationService(issueDataValidationService);
+        application.setDeviceAlarmService(deviceAlarmService);
+        application.setUserService(userService);
         application.setMeteringGroupsService(inMemoryPersistence.getMeteringGroupsService());
         application.setMeteringService(inMemoryPersistence.getMeteringService());
         application.setLocationService(inMemoryPersistence.getLocationService());

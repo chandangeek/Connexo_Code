@@ -17,6 +17,11 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.WorkGroup;
+import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
@@ -48,20 +53,24 @@ public class GoingOnResource {
     private final IssueService issueService;
     private final ResourceHelper resourceHelper;
     private final MeteringService meteringService;
+    private final DeviceAlarmService deviceAlarmService;
     private final Thesaurus thesaurus;
     private final Clock clock;
+    private final UserService userService;
     private final Optional<IssueStatus> open;
     private final Optional<IssueStatus> inProgress;
 
     @Inject
-    public GoingOnResource(ResourceHelper resourceHelper, ServiceCallService serviceCallService, BpmService bpmService, IssueService issueService, MeteringService meteringService, Clock clock, Thesaurus thesaurus) {
+    public GoingOnResource(ResourceHelper resourceHelper, ServiceCallService serviceCallService, BpmService bpmService, IssueService issueService, MeteringService meteringService, Clock clock, Thesaurus thesaurus, DeviceAlarmService deviceAlarmService, UserService userService) {
         this.resourceHelper = resourceHelper;
         this.serviceCallService = serviceCallService;
         this.bpmService = bpmService;
         this.issueService = issueService;
         this.meteringService = meteringService;
+        this.deviceAlarmService = deviceAlarmService;
         this.clock = clock;
         this.thesaurus = thesaurus;
+        this.userService = userService;
         this.open = issueService.findStatus(IssueStatus.OPEN);
         this.inProgress = issueService.findStatus(IssueStatus.IN_PROGRESS);
 
@@ -72,17 +81,25 @@ public class GoingOnResource {
     public Response getGoingOn(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
 
-        GoingOnInfoFactory goingOnInfoFactory = new GoingOnInfoFactory(null);
+        GoingOnInfoFactory goingOnInfoFactory = new GoingOnInfoFactory(null, userService);
         if (securityContext.getUserPrincipal() instanceof User) {
-            goingOnInfoFactory = new GoingOnInfoFactory((User) securityContext.getUserPrincipal());
+            goingOnInfoFactory = new GoingOnInfoFactory((User) securityContext.getUserPrincipal(), userService);
         }
 
         Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
         Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
         IssueFilter issueFilter = issueService.newIssueFilter();
         issueFilter.addDevice(meter.get());
-        open.ifPresent(issueFilter::addStatus);
-        inProgress.ifPresent(issueFilter::addStatus);
+        DeviceAlarmFilter alarmFilter = new DeviceAlarmFilter();
+        alarmFilter.setDevice(meter.get());
+        open.ifPresent(s -> {
+            issueFilter.addStatus(s);
+            alarmFilter.setStatus(s);
+        });
+        inProgress.ifPresent(s -> {
+            issueFilter.addStatus(s);
+            alarmFilter.setStatus(s);
+        });
         List<GoingOnInfo> issues = issueService.findIssues(issueFilter)
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
@@ -93,13 +110,18 @@ public class GoingOnResource {
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
+        List<GoingOnInfo> alarms = deviceAlarmService.findAlarms(alarmFilter)
+                .stream()
+                .map(goingOnInfoFactory::toGoingOnInfo)
+                .collect(Collectors.toList());
+
         List<GoingOnInfo> processInstances = bpmService.getRunningProcesses(auth, filterFor(device), appKey)
                 .processes
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances)
+        List<GoingOnInfo> goingOnInfos = Stream.of(issues, serviceCalls, processInstances, alarms)
                 .flatMap(List::stream)
                 .sorted(GoingOnInfo.order())
                 .collect(Collectors.toList());
@@ -114,9 +136,11 @@ public class GoingOnResource {
     private class GoingOnInfoFactory {
 
         private final User currentUser;
+        private final UserService userService;
 
-        private GoingOnInfoFactory(User currentUser) {
+        private GoingOnInfoFactory(User currentUser, UserService userService) {
             this.currentUser = currentUser;
+            this.userService = userService;
         }
 
         private GoingOnInfo toGoingOnInfo(Issue issue) {
@@ -128,8 +152,13 @@ public class GoingOnResource {
             goingOnInfo.description = issue.getReason().getName();
             goingOnInfo.dueDate = issue.getDueDate();
             goingOnInfo.severity = severity(issue.getDueDate());
-            goingOnInfo.assignee = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getName()).orElse(null);
-            goingOnInfo.assigneeIsCurrentUser = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getId()).map(id -> id.equals(currentUser.getId())).orElse(false);
+            goingOnInfo.userAssignee = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getName()).orElse(null);
+            goingOnInfo.userAssigneeIsCurrentUser = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getId()).map(id -> id.equals(currentUser.getId())).orElse(false);
+            goingOnInfo.isMyWorkGroup = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getWorkGroup() != null).map(issueAssignee -> issueAssignee.getWorkGroup().getId()).map(id -> {
+                Optional<WorkGroup> workGroup = userService.getWorkGroup(id);
+                return workGroup.isPresent() && workGroup.get().getUsersInWorkGroup().contains(currentUser);
+            }).orElse(false);
+            goingOnInfo.workGroupAssignee = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getWorkGroup() != null).map(issueAssignee -> issueAssignee.getWorkGroup().getName()).orElse(null);
             goingOnInfo.status = issue.getStatus().getName();
             return goingOnInfo;
         }
@@ -143,9 +172,30 @@ public class GoingOnResource {
             goingOnInfo.description = serviceCall.getType().getName();
             goingOnInfo.dueDate = null;
             goingOnInfo.severity = null;
-            goingOnInfo.assignee = null;
-            goingOnInfo.assigneeIsCurrentUser = false;
+            goingOnInfo.userAssignee = null;
+            goingOnInfo.workGroupAssignee = null;
+            goingOnInfo.userAssigneeIsCurrentUser = false;
             goingOnInfo.status = serviceCallService.getDisplayName(serviceCall.getState());
+            return goingOnInfo;
+        }
+
+        private GoingOnInfo toGoingOnInfo(DeviceAlarm deviceAlarm){
+            GoingOnInfo goingOnInfo = new GoingOnInfo();
+            goingOnInfo.type = "alarm";
+            goingOnInfo.issueType = null;
+            goingOnInfo.id = deviceAlarm.getId();
+            goingOnInfo.reference = null;
+            goingOnInfo.description = deviceAlarm.getReason().getName();
+            goingOnInfo.dueDate = deviceAlarm.getDueDate();
+            goingOnInfo.severity = severity(deviceAlarm.getDueDate());
+            goingOnInfo.userAssignee = Optional.ofNullable(deviceAlarm.getAssignee()).filter(alarm -> alarm.getUser() != null).map(alarm -> alarm.getUser().getName()).orElse(null);
+            goingOnInfo.userAssigneeIsCurrentUser = Optional.ofNullable(deviceAlarm.getAssignee()).filter(alarm -> alarm.getUser() != null).map(alarm -> alarm.getUser().getId()).map(id -> id.equals(currentUser.getId())).orElse(false);
+            goingOnInfo.workGroupAssignee = Optional.ofNullable(deviceAlarm.getAssignee()).filter(alarm -> alarm.getWorkGroup() != null).map(alarm -> alarm.getWorkGroup().getName()).orElse(null);
+            goingOnInfo.isMyWorkGroup = Optional.ofNullable(deviceAlarm.getAssignee()).filter(alarm -> alarm.getWorkGroup() != null).map(alarm -> alarm.getWorkGroup().getId()).map(id -> {
+                Optional<WorkGroup> workGroup = userService.getWorkGroup(id);
+                return workGroup.isPresent() && workGroup.get().getUsersInWorkGroup().contains(currentUser);
+            }).orElse(false);
+            goingOnInfo.status = deviceAlarm.getStatus().getName();
             return goingOnInfo;
         }
 
@@ -161,8 +211,13 @@ public class GoingOnResource {
             goingOnInfo.description = processInstanceInfo.name;
             goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).filter(not(String::isEmpty)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
             goingOnInfo.severity = severity(goingOnInfo.dueDate);
-            goingOnInfo.assignee = processInstanceInfo.startedBy;
-            goingOnInfo.assigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);
+            goingOnInfo.userAssignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.actualOwner)).orElse(null);
+            goingOnInfo.userAssigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);
+            goingOnInfo.workGroupAssignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.workgroup)).orElse(null);
+            Optional<WorkGroup> workGroup = goingOnInfo.workGroupAssignee != null ? userService.getWorkGroup(goingOnInfo.workGroupAssignee) : Optional.empty();
+            if(workGroup.isPresent()){
+                goingOnInfo.isMyWorkGroup = workGroup.get().getUsersInWorkGroup().contains(currentUser);
+            }
             goingOnInfo.status = processInstanceInfo.status;
             if(goingOnInfo.status != null){
                 switch (goingOnInfo.status) {
