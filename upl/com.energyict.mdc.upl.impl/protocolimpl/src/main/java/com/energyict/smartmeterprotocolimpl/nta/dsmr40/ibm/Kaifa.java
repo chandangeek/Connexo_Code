@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -30,8 +31,8 @@ public class Kaifa extends E350 {
 
     private Dsmr40Messaging messageProtocol = null;
 
-    public Kaifa(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
-        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
+    public Kaifa(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, propertySpecService);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class Kaifa extends E350 {
     @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new KaifaProperties();
+            this.properties = new KaifaProperties(this.getPropertySpecService());
         }
         return this.properties;
     }

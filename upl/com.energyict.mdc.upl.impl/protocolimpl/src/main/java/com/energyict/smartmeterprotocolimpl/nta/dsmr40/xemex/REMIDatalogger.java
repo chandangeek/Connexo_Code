@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
@@ -29,14 +30,14 @@ public class REMIDatalogger extends E350 {
 
     private XemexLoadProfileBuilder loadProfileBuilder;
 
-    public REMIDatalogger(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
-        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
+    public REMIDatalogger(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, propertySpecService);
     }
 
     @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new XemexProperties();
+            this.properties = new XemexProperties(this.getPropertySpecService());
         }
         return this.properties;
     }

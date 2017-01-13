@@ -7,10 +7,12 @@ import com.energyict.mdc.upl.messages.legacy.Messaging;
 
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -22,6 +24,9 @@ import static junit.framework.Assert.assertEquals;
  * @since 30/10/13 - 14:22
  */
 public class Dsmr50MessageConverterTest extends AbstractMessageConverterTest {
+
+    @Mock
+    private PropertySpecService propertySpecService;
 
     @Test
     public void testMessageConversion() {

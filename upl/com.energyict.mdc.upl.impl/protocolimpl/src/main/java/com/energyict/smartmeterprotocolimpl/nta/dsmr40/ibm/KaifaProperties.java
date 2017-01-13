@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
@@ -10,6 +11,10 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
  * Author: khe
  */
 class KaifaProperties extends Dsmr40Properties {
+
+    public KaifaProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     @ProtocolProperty

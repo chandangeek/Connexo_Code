@@ -1,11 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.Extractor;
-import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.Messaging;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.messages.legacy.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -53,7 +49,7 @@ public class KaifaDsmr40MessageConverterTest extends AbstractMessageConverterTes
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new Kaifa(calendarFinder, extractor);
+        return new Kaifa(calendarFinder, extractor, this.propertySpecService);
     }
 
     @Override

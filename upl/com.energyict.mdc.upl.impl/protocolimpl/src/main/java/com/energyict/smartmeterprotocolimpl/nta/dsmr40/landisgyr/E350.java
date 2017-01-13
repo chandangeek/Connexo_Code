@@ -13,6 +13,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -34,9 +35,11 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
 
     protected LoadProfileBuilder loadProfileBuilder;
     protected MessageProtocol messageProtocol;
+    private final PropertySpecService propertySpecService;
 
-    protected E350(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+    protected E350(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
         super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -131,5 +134,9 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return getProperties().getUPLPropertySpecs();
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 }

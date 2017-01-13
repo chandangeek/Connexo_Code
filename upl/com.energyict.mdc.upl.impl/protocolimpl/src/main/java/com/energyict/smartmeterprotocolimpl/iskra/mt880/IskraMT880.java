@@ -11,6 +11,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -54,10 +55,16 @@ public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProt
     /** the Messaging class used to send out all device messages **/
     private MT880Messaging messaging;
 
+    private final PropertySpecService propertySpecService;
+
+    public IskraMT880(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
     @Override
     protected DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
-            this.properties = new IskraMT880Properties();
+            this.properties = new IskraMT880Properties(this.propertySpecService);
         }
         return this.properties;
     }
