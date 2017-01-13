@@ -72,13 +72,13 @@ class UpgraderV10_3 implements Upgrader {
                 "ALTER TABLE USR_PRIVILEGE ADD CONSTRAINT USR_FK_PRIVILEGE_CATEGORY FOREIGN KEY (CATEGORY) REFERENCES USR_PRIVILEGE_CATEGORY (NAME)"
         );
         try (Statement statement = connection.createStatement()) {
-            ddl.forEach(perform(this::execute).on(statement));
+            ddl.forEach(perform(this::executeDdl).on(statement));
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private void execute(Statement statement, String sql) {
+    private void executeDdl(Statement statement, String sql) {
         try {
             statement.execute(sql);
         } catch (SQLException e) {
