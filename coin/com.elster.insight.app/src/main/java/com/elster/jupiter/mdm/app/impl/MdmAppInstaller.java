@@ -2,7 +2,7 @@ package com.elster.jupiter.mdm.app.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.mdm.app.MdmAppService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -31,7 +31,7 @@ public class MdmAppInstaller {
     private volatile UpgradeService upgradeService;
     private volatile ValidationService validationService;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile UsagePointDataService usagePointDataService;
+    private volatile UsagePointDataModelService usagePointDataModelService;
 
     @Activate
     public void activate() {
@@ -112,9 +112,16 @@ public class MdmAppInstaller {
                     //Import services
                     com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
 
+                    // Usage point life cycle
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW,
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_1,
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_2,
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_3,
+                    com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.EXECUTE_TRANSITION_4,
+
                     //Usage point groups
                     com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.VIEW_USAGE_POINT_GROUP_DETAIL,
-                    
+
                     //estimation
                     com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
                     com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
@@ -144,7 +151,7 @@ public class MdmAppInstaller {
     }
 
     @Reference
-    public void setUsagePointDataService(UsagePointDataService usagePointDataService) {
-        this.usagePointDataService = usagePointDataService;
+    public void setUsagePointDataModelService(UsagePointDataModelService usagePointDataModelService) {
+        this.usagePointDataModelService = usagePointDataModelService;
     }
 }
