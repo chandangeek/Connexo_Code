@@ -109,20 +109,13 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
 
     unlinkMetrologyConfiguration: function (options) {
         var me = this,
-            url = me.getProxy().url.replace('{usagePointId}', usagePoint.get('name'))
-                + '/' + me.getId()
-                + '/' + (me.get('active') ? 'deactivate' : 'activate');
+            url = me.getProxy().url + me.get('name') + '/unlinkmetrologyconfiguration';
 
         Ext.Ajax.request(Ext.Object.merge(
             {
                 url: url,
                 method: 'PUT',
-                jsonData: {
-                    parent: {
-                        id: usagePoint.get('id'),
-                        version: usagePoint.get('version')
-                    }
-                }
+                jsonData: me.getProxy().getWriter().getRecordData(me)
             }
             , options));
     }

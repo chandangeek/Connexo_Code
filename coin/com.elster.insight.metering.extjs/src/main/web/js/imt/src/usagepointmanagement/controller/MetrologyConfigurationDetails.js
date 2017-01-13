@@ -102,15 +102,14 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         var me = this,
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
+        mainView.setLoading();
         button.usagePoint.unlinkMetrologyConfiguration({
             success: function () {
-                console.info('success');
-            },
-            failure: function () {
-                console.info('failure');
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyConfiguration.unlinked', 'IMT', 'Metrology configuration unlinked'));
+                me.getController('Uni.controller.history.Router').getRoute().forward();
             },
             callback: function () {
-                console.info('callback');
+                mainView.setLoading(false);
             }
         });
     }
