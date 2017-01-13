@@ -2,11 +2,10 @@ package com.elster.jupiter.mdm.usagepoint.data;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.function.Predicate;
 
-public enum ChannelDataValidationSummaryValidFlags implements TranslationKey, IChannelDataValidationSummaryFlag {
+public enum ValidChannelDataSummaryFlags implements IChannelDataCompletionSummaryFlag {
     CONFIRMED("statisticsConfirmed", "Confirmed", type -> type.qualityIndex().orElse(null) == QualityCodeIndex.ACCEPTED),
     INFORMATIVE("statisticsInformative", "Informative", type -> type.hasValidationCategory() && !type.isSuspect()),
     ESTIMATED("statisticsEstimated", "Estimated", ReadingQualityType::hasEstimatedCategory),
@@ -15,7 +14,7 @@ public enum ChannelDataValidationSummaryValidFlags implements TranslationKey, IC
     private String key, translation;
     private Predicate<ReadingQualityType> qualityTypePredicate;
 
-    ChannelDataValidationSummaryValidFlags(String key, String translation, Predicate<ReadingQualityType> qualityTypePredicate) {
+    ValidChannelDataSummaryFlags(String key, String translation, Predicate<ReadingQualityType> qualityTypePredicate) {
         this.key = key;
         this.translation = translation;
         this.qualityTypePredicate = qualityTypePredicate;

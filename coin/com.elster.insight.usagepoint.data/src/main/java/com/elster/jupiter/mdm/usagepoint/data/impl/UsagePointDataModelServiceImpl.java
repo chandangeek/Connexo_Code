@@ -2,7 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
@@ -227,7 +227,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(ChannelDataValidationSummaryFlag.values()),
+                Arrays.stream(ChannelDataCompletionSummaryFlag.values()),
                 Arrays.stream(Subscribers.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())

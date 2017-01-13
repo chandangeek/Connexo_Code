@@ -14,8 +14,8 @@ import java.util.Map;
 
 @ProviderType
 public interface UsagePointDataCompletionService {
-    List<ChannelDataValidationSummary> getValidationSummary(Channel channel, Range<Instant> interval);
+    List<IChannelDataCompletionSummary> getDataCompletionStatistics(Channel channel, Range<Instant> interval);
 
-    Map<ReadingTypeDeliverable, List<ChannelDataValidationSummary>> getValidationSummary(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
-                                                                                   MetrologyContract contract, Range<Instant> interval);
+    Map<ReadingTypeDeliverable, List<IChannelDataCompletionSummary>> getDataCompletionStatistics(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
+                                                                                                 MetrologyContract contract, Range<Instant> interval);
 }
