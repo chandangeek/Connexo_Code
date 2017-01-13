@@ -1,7 +1,7 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 
-import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FieldParser;
@@ -220,7 +220,19 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 .withParser(instantParser)
                 .build());
         fields.put("customPropertySetValue", CommonField
-                .withParser(new EmptyFieldParser<Map<CustomPropertySet, CustomPropertySetRecord>>())
+                .withParser(new FieldParser<Map<RegisteredCustomPropertySet, CustomPropertySetRecord>>() {
+                    @Override
+                    public Class<Map<RegisteredCustomPropertySet, CustomPropertySetRecord>> getValueType() {
+                        throw new UnsupportedOperationException();
+                    }
+
+                    @Override
+                    public Map<RegisteredCustomPropertySet, CustomPropertySetRecord> parse(String value) throws
+                            ValueParserException {
+                        throw new UnsupportedOperationException();
+                    }
+                })
+                .withParser(new EmptyFieldParser<Map<RegisteredCustomPropertySet, CustomPropertySetRecord>>())
                 .withSetter(record::setCustomPropertySets)
                 .build());
     }
