@@ -19,7 +19,7 @@ import javax.inject.Inject;
 class SDKBreakerDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKBreakerDialectProperties> {
 
     @Inject
-    SDKBreakerDialectCustomPropertySet(Thesaurus thesaurus) {
+    public SDKBreakerDialectCustomPropertySet(Thesaurus thesaurus) {
         super(thesaurus);
     }
 
