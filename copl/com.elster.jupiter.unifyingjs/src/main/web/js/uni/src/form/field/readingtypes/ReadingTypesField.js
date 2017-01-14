@@ -84,6 +84,7 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
             hasReadingTypes = !!grid.getStore().getCount();
 
         Ext.suspendLayouts();
+        grid.getStore().sort('fullAliasName', 'ASC');
         grid.setVisible(hasReadingTypes);
         emptyText.setVisible(!hasReadingTypes);
         Ext.resumeLayouts(true);
