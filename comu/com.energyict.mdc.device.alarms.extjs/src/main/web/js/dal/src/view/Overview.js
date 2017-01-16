@@ -3,8 +3,8 @@ Ext.define('Dal.view.Overview', {
     alias: 'widget.overview-of-alarms',
     requires: [
         'Dal.view.AlarmFilter',
-        'Dal.view.Section',
-        'Dal.view.NoAlarmsFoundPanel'
+        'Dal.view.NoAlarmsFoundPanel',
+        'Isu.view.overview.Section'
     ],
     router: null,
     initComponent: function () {
@@ -37,9 +37,11 @@ Ext.define('Dal.view.Overview', {
                                     align: 'stretch'
                                 },
                                 defaults: {
-                                    xtype: 'overview-of-alarms-section',
+                                    xtype: 'overview-of-issues-section',
                                     ui: 'tile',
-                                    flex: 1
+                                    flex: 1,
+                                    parentItemId: 'overview-of-alarms',
+                                    route: 'workspace/alarms'
                                 },
                                 items: [
                                     {
@@ -60,9 +62,11 @@ Ext.define('Dal.view.Overview', {
                                     type: 'hbox'
                                 },
                                 defaults: {
-                                    xtype: 'overview-of-alarms-section',
+                                    xtype: 'overview-of-issues-section',
                                     ui: 'tile',
-                                    flex: 1
+                                    flex: 1,
+                                    parentItemId: 'overview-of-alarms',
+                                    route: 'workspace/alarms'
                                 },
                                 items: [
                                     {
