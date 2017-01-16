@@ -2,21 +2,32 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
 
 import com.google.common.collect.Range;
 
@@ -27,6 +38,8 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,6 +66,8 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
     private static final String USAGE_POINT_NAME = "UP0001";
     private static final String METROLOGY_CONFIGURATION_NAME = "Metrology configuration";
     private static final Instant INSTALLATION_TIME = ZonedDateTime.of(LocalDate.of(2016, 1, 1), LocalTime.of(0, 0), ZoneId.systemDefault()).toInstant();
+    ReadingType fifteenMinuteskWhForward;
+    ReadingType fifteenMinuteskWhReverse;
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
@@ -118,6 +133,8 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
     @Test
     @Transactional
     public void applyFirstMetrologyConfigurationToUsagePointNoLinkedMeters() {
+        fifteenMinuteskWhForward = getMeteringService().getReadingType("0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> getMeteringService().createReadingType("0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+        fifteenMinuteskWhReverse = getMeteringService().getReadingType("0.0.2.4.19.2.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> getMeteringService().createReadingType("0.0.2.4.19.2.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
         UsagePointMetrologyConfiguration metrologyConfiguration = createMetrologyConfiguration(METROLOGY_CONFIGURATION_NAME);
         ServiceCategory serviceCategory = getElectricityServiceCategory();
         UsagePoint usagePoint = serviceCategory.newUsagePoint(USAGE_POINT_NAME, INSTALLATION_TIME).create();
@@ -144,6 +161,88 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         assertThat(effectiveMetrologyConfiguration).isEmpty();
     }
 
+    @Test
+    @Transactional
+    public void applyFirstMetrologyConfigurationToUsagePointWithLinkedMeters() {
+        fifteenMinuteskWhForward = getMeteringService().getReadingType("0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.3.72.0")
+                .orElseGet(() -> getMeteringService().createReadingType("0.0.2.4.1.2.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+        fifteenMinuteskWhReverse = getMeteringService().getReadingType("0.0.2.4.19.2.12.0.0.0.0.0.0.0.0.3.72.0")
+                .orElseGet(() -> getMeteringService().createReadingType("0.0.2.4.19.2.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(new TestHeadEndInterface(fifteenMinuteskWhForward, fifteenMinuteskWhReverse));
+        NlsKey name = mock(NlsKey.class);
+        when(name.getKey()).thenReturn(ApplyMetrologyConfigurationToUsagePointIT.class.getSimpleName());
+        when(name.getDefaultMessage()).thenReturn(ApplyMetrologyConfigurationToUsagePointIT.class.getSimpleName());
+        when(name.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
+        when(name.getLayer()).thenReturn(Layer.DOMAIN);
+
+        UsagePointMetrologyConfiguration metrologyConfiguration = createMetrologyConfiguration(METROLOGY_CONFIGURATION_NAME);
+
+        ServiceCategory serviceCategory = getElectricityServiceCategory();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint(USAGE_POINT_NAME, INSTALLATION_TIME).create();
+
+        Meter meterConsunption = setupMeter("meterConsunption");
+        activateMeter(meterConsunption, usagePoint, findMeterRole(DefaultMeterRole.CONSUMPTION), fifteenMinuteskWhForward);
+
+        Meter meterProduction = setupMeter("meterProduction");
+        activateMeter(meterProduction, usagePoint, findMeterRole(DefaultMeterRole.PRODUCTION), fifteenMinuteskWhReverse);
+
+        MetrologyContract contractInformation = metrologyConfiguration.getContracts()
+                .stream()
+                .filter(mcr -> mcr.getMetrologyPurpose().equals(findPurpose(DefaultMetrologyPurpose.INFORMATION)))
+                .findFirst()
+                .get();
+
+        // Business method
+        usagePoint.apply(metrologyConfiguration, INSTALLATION_TIME, Stream.of(contractInformation).collect(Collectors.toSet()));
+
+        // Asserts that usage point is now linked to metrology configuration
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> currentEffectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration();
+        assertThat(currentEffectiveMetrologyConfiguration).isPresent();
+        assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
+        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME));
+
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration;
+
+        // Asserts that usage point has linked metrology configuration in the future
+        effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME.plusMillis(1));
+        assertThat(effectiveMetrologyConfiguration).isPresent();
+        assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
+        assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME));
+        assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().get(0).getStatus(usagePoint).isComplete()).isTrue();
+
+        MetrologyContract contract1 = metrologyConfiguration.getContracts()
+                .stream()
+                .filter(mcr -> mcr.getMetrologyPurpose().equals(findPurpose(DefaultMetrologyPurpose.INFORMATION)))
+                .findFirst()
+                .get();
+        MetrologyContract contract2 = metrologyConfiguration.getContracts()
+                .stream()
+                .filter(mcr -> mcr.getMetrologyPurpose().equals(findPurpose(DefaultMetrologyPurpose.BILLING)))
+                .findFirst()
+                .get();
+
+        assertThat(currentEffectiveMetrologyConfiguration.get().getChannelsContainer(contract1).isPresent()).isTrue();
+        assertThat(currentEffectiveMetrologyConfiguration.get().getChannelsContainer(contract2).isPresent()).isTrue();
+
+
+        // Asserts that usage point has no linked metrology configuration before installation time
+        effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(INSTALLATION_TIME.minusMillis(1));
+        assertThat(effectiveMetrologyConfiguration).isEmpty();
+    }
+
+    private Meter setupMeter(String amrIdBase) {
+        AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        return mdc.newMeter(amrIdBase, amrIdBase).create();
+    }
+
+    private void activateMeter(Meter meter, UsagePoint usagePoint, MeterRole meterRole, ReadingType... readingTypes) {
+        MeterActivation meterActivationOnUsagePoint = usagePoint.activate(meter, meterRole, INSTALLATION_TIME);
+        for (ReadingType readingType : readingTypes) {
+            meterActivationOnUsagePoint.getChannelsContainer().createChannel(readingType);
+        }
+        usagePoint.update();
+    }
+
     private ServiceCategory getElectricityServiceCategory() {
         return getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY)
                 .orElseThrow(() -> new IllegalStateException("No such service category: " + ServiceKind.ELECTRICITY.getKey() + ", but should be installed already"));
@@ -154,12 +253,28 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
                 getMetrologyConfigurationService().newUsagePointMetrologyConfiguration(name, getElectricityServiceCategory()).create();
         metrologyConfiguration.addMeterRole(findMeterRole(DefaultMeterRole.CONSUMPTION));
         metrologyConfiguration.addMeterRole(findMeterRole(DefaultMeterRole.PRODUCTION));
-        MetrologyContract informationMetrologyContract = metrologyConfiguration.addMetrologyContract(findPurpose(DefaultMetrologyPurpose.INFORMATION));
+
+        FullySpecifiedReadingTypeRequirement consumption = metrologyConfiguration.newReadingTypeRequirement("A-", findMeterRole(DefaultMeterRole.CONSUMPTION))
+                .withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement production = metrologyConfiguration.newReadingTypeRequirement("A+", findMeterRole(DefaultMeterRole.PRODUCTION))
+                .withReadingType(fifteenMinuteskWhReverse);
+
+        // Setup configuration deliverables
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("consumption", fifteenMinuteskWhForward, Formula.Mode.AUTO);
+        ReadingTypeDeliverable dConsumption = builder.build(builder.requirement(consumption));
+        ReadingTypeDeliverableBuilder builderProduction = metrologyConfiguration.newReadingTypeDeliverable("production", fifteenMinuteskWhReverse, Formula.Mode.AUTO);
+        ReadingTypeDeliverable dProduction = builderProduction.build(builderProduction.requirement(production));
+
         // add deliverables with requirements to information contract
+        MetrologyContract informationMetrologyContract = metrologyConfiguration.addMetrologyContract(findPurpose(DefaultMetrologyPurpose.INFORMATION));
+        informationMetrologyContract.addDeliverable(dConsumption);
         informationMetrologyContract.update();
-        MetrologyContract billingMetrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(findPurpose(DefaultMetrologyPurpose.BILLING));
+
         // add deliverables with requirements to billing contract
+        MetrologyContract billingMetrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(findPurpose(DefaultMetrologyPurpose.BILLING));
+        billingMetrologyContract.addDeliverable(dProduction);
         billingMetrologyContract.update();
+
         return metrologyConfiguration;
     }
 

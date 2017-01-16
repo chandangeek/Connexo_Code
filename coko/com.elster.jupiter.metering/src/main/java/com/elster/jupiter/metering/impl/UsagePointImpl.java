@@ -1071,6 +1071,7 @@ public class UsagePointImpl implements UsagePoint {
     public List<MeterActivation> getMeterActivations(Instant when) {
         return this.meterActivations
                 .stream()
+                .filter(meterActivation -> !meterActivation.getInterval().toClosedRange().isEmpty())
                 .filter(meterActivation -> meterActivation.isEffectiveAt(when))
                 .sorted(Comparator.comparing(MeterActivation::getStart))
                 .collect(Collectors.toList());
