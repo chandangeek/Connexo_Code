@@ -607,9 +607,11 @@ Ext.define('Uni.service.Search', {
                         me.fireEvent('criteriaChange', me.criteria, criteria);
                     });
                 } else {
-                    criteria.refresh(function () {
-                        me.fireEvent('criteriaChange', me.criteria, criteria);
-                    });
+                    if(criteria.get('exhaustive')) {
+                        criteria.refresh(function () {
+                            me.fireEvent('criteriaChange', me.criteria, criteria);
+                        });
+                    }
                 }
                 me.fireEvent('criteriaChange', me.criteria, criteria);
             });
