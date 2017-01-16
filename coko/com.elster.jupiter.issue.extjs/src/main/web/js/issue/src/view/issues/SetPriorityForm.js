@@ -44,7 +44,8 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
                         listeners: {
                             change: function (record) {
                                 me.changePriority();
-                            }
+                            },
+                            blur: me.numberFieldValidation
                         }
 
                     },
@@ -61,7 +62,8 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
                         listeners: {
                             change: function (record) {
                                 me.changePriority();
-                            }
+                            },
+                            blur: me.numberFieldValidation
                         }
 
                     }
@@ -111,6 +113,10 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
             priorityLabel;
 
         var priority = priorityValue / 10;
+        if (priorityValue > 100){
+            priority = 10;
+            priorityValue = 100;
+        }
         priorityLabel = (priority <= 2) ? Uni.I18n.translate('bpm.task.priority.veryLow', 'ISU', 'Very low') :
             (priority <= 4) ? Uni.I18n.translate('bpm.task.priority.low', 'ISU', 'Low') :
                 (priority <= 6) ? Uni.I18n.translate('bpm.task.priority.medium', 'ISU', 'Medium') :
@@ -120,6 +126,17 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
 
         labelPriority.setText(priorityValue + ' - ' + priorityLabel);
 
+    },
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        }
+
+        if (value > field.maxValue) {
+            field.setValue(field.maxValue);
+        }
     }
 
 });
