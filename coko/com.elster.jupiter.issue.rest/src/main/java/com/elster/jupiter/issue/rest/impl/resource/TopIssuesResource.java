@@ -44,7 +44,7 @@ public class TopIssuesResource extends BaseResource {
         List<? extends Issue> issues = finder.find();
         List<Issue> items = getItems(issues, currentUser);
         return new TopIssuesInfo(items.stream()
-                .sorted(dueDateComparator.thenComparing(priorityComparator).thenComparing(nameComparator))
+                .sorted(priorityComparator.thenComparing(dueDateComparator).thenComparing(nameComparator))
                 .limit(5)
                 .collect(Collectors.toList()), getTotalUserAssigned(items, currentUser), getTotalWorkGroupAssigned(items, currentUser));
     }
@@ -55,7 +55,9 @@ public class TopIssuesResource extends BaseResource {
             for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
                 Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
                 if (issueRef.isPresent()) {
-                    items.add(issueRef.get());
+                    if(!issueRef.get().getStatus().isHistorical()) {
+                        items.add(issueRef.get());
+                    }
                 }
             }
         }
