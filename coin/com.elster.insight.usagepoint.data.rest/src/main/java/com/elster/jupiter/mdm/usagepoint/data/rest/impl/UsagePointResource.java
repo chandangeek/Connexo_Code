@@ -848,7 +848,7 @@ public class UsagePointResource {
                 throw exceptionFactory.newException(MessageSeeds.MISSING_TRANSITION_REQUIREMENT, violations.get(0)
                         .getLocalizedMessage());
             }
-            usagePointLifeCycleService.performTransition(usagePoint, transition, "INS", propertiesMap);
+            usagePointLifeCycleService.scheduleTransition(usagePoint, transition, transitionToPerform.effectiveTimestamp, "INS", propertiesMap);
         }
     }
 
