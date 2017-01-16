@@ -16,13 +16,17 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -91,6 +95,8 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         if (this.dueInType == null) {
             builder.setDueInTime(DueInType.WEEK, 1);
         } else {
+
+
             builder.setDueInTime(dueInType, 1);
         }
         if (this.priority == null) {
@@ -141,6 +147,18 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EVENTTYPE,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodes());
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodes());
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.LOG_ON_SAME_ALARM, true);
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT,
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("1"));
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.THRESHOLD,
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.THRESHOLD).get().getValueFactory().fromStringValue(String.valueOf(System.currentTimeMillis() + 5*60*1000)));
         }
         return properties;
     }
@@ -167,5 +185,16 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             }
         }
         return listValue;
+    }
+
+    private String getRandomEventCodes() {
+        return Stream.of(EndDeviceEventTypeMapping.values())
+                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                    Collections.shuffle(collected);
+                    return collected.stream();
+                }))
+                .limit(10)
+                .map(value -> value.getEndDeviceEventTypeMRID())
+                .collect(Collectors.joining(","));
     }
 }
