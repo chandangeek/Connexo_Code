@@ -16,7 +16,8 @@ Ext.define('Mdc.service.DeviceGroupSearch', {
         }
 
         if (!Ext.Array.contains(excludedCriteria, property.get('name'))) {
-            this.callParent(arguments);
+            return this.callParent(arguments);
         }
+        return property;
     }
 });
