@@ -99,17 +99,18 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public String getContent() {
         return "package com.energyict.mdc.device.device.alarms\n" +
                 "import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;\n" +
+
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Basic device alarm rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
                 // maybe both TRIGGERING_EVENTS + CLEARING_EVENTS
-                "\teval( event.computeOccurenceCount(@{" + THRESHOLD + "}, @{" + TRIGGERING_EVENTS +"}) >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
+                "\teval( event.computeOccurenceCount(\"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Generating device alarm @{ruleId}\");\n" +
               //  "\tboolean clearing = event.isClearing();\n" +
-                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM +"}));\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM +"});\n" +
                 "end";
     }
 
@@ -123,7 +124,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     @Override
     public Optional<? extends Issue> resolveIssue(IssueEvent event) {
-        //TODO - resolve all occurences
+        //TODO - resolve all occurrences
         Optional<? extends Issue> issue = event.findExistingIssue();
         if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
             OpenIssue openIssue = (OpenIssue) issue.get();

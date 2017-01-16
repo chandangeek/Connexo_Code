@@ -103,7 +103,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     public int computeOccurenceCount(String range, String endDeviceEventTypes) {
         List<String> currentList = getDevice().getLogBooks().stream()
                 .map(logBook -> logBook.getEndDeviceEvents(Range.closed(Instant.ofEpochMilli(Instant.now().toEpochMilli() - Long.valueOf(range)), Instant.now())))
-                .flatMap(eventList -> eventList.stream()).map(event -> event.getEventType().toString())
+                .flatMap(eventList -> eventList.stream()).map(event -> event.getEventType().getMRID())
                 .collect(Collectors.toList());
         List<String> inputEventTypeList = Arrays.asList(endDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
         return currentList.stream()
