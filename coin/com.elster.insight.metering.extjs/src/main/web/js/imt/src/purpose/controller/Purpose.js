@@ -204,7 +204,12 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     displayPage();
                 }
             });
+
+            // avoid handling events of the outputs store by components on the purpose page
+            var outputsStore = me.getStore('Imt.purpose.store.Outputs');
+            outputsStore.suspendEvents();
             me.loadOutputs(usagePointId, purposeId, function (records) {
+                outputsStore.resumeEvents();
                 outputs = records;
                 displayPage();
             });
