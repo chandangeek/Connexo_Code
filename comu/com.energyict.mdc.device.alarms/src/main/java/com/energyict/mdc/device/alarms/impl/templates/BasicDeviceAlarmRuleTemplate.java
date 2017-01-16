@@ -105,11 +105,11 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
                 // maybe both TRIGGERING_EVENTS + CLEARING_EVENTS
-                "\teval( event.computeOccurenceCount(@{" + THRESHOLD + "}, @{" + TRIGGERING_EVENTS +") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
+                "\teval( event.computeOccurenceCount(@{" + THRESHOLD + "}, @{" + TRIGGERING_EVENTS +"}) >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Generating device alarm @{ruleId}\");\n" +
               //  "\tboolean clearing = event.isClearing();\n" +
-                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM +"}, clearing));\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM +"}));\n" +
                 "end";
     }
 
@@ -141,7 +141,8 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                //.addValues(eventTypes.getEventTypes())
+                .addValues(eventTypes.getEventTypes())
+                .addValues(eventTypes.getEventTypes())
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
         builder.add(propertySpecService
@@ -149,35 +150,35 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .named(LOG_ON_SAME_ALARM, TranslationKeys.LOG_ON_SAME_ALARM)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .markExhaustive()
+               //.markExhaustive()
                 .finish());
         builder.add(propertySpecService
                 .longSpec()
                 .named(THRESHOLD, TranslationKeys.EVENT_TEMPORAL_THRESHOLD)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .markExhaustive()
+                //.markExhaustive()
                 .finish());
         builder.add(propertySpecService
                 .longSpec()
                 .named(EVENT_OCCURENCE_COUNT, TranslationKeys.EVENT_OCCURENCE_COUNT)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .markExhaustive()
+               // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
-                .longSpec()
+                .stringSpec()
                 .named(TRIGGERING_EVENTS, TranslationKeys.TRIGGERING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .markExhaustive()
+               // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
-                .longSpec()
+                .stringSpec()
                 .named(CLEARING_EVENTS, TranslationKeys.CLEARING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .markExhaustive()
+               // .markExhaustive()
                 .finish());
         return builder.build();
     }
