@@ -260,10 +260,19 @@ Ext.define('Uni.view.widget.WorkList', {
             userProperty = workItem.get('workItem').userProperty,
             workgroupProperty = workItem.get('workItem').workgroupProperty;
 
-        if ((item[userProperty] && item[userProperty].length > 0) || (typeof(item['userAssignee']) == 'object')) {
-            return 'icon-user';
+        if ((workItem.get('workItem').type == 'alarms') || (workItem.get('workItem').type == 'issues')) {
+            if (item[userProperty] && item[userProperty].name) {
+                return 'icon-user';
+            }
+            return 'icon-users';
         }
-        return 'icon-users';
+        else {
+            if ((item[userProperty] && item[userProperty].length > 0) || (typeof(item['userAssignee']) == 'object')) {
+                return 'icon-user';
+            }
+
+            return 'icon-users';
+        }
     },
 
     getIconTooltip: function (workItem, item) {
@@ -271,9 +280,17 @@ Ext.define('Uni.view.widget.WorkList', {
             userProperty = workItem.get('workItem').userProperty,
             workgroupProperty = workItem.get('workItem').workgroupProperty;
 
-        if ((item[userProperty] && item[userProperty].length > 0) || (typeof(item['userAssignee']) == 'object')) {
-            return Uni.I18n.translate('bpm.task.user', 'UNI', 'User');
+        if ((workItem.get('workItem').type == 'alarms') || (workItem.get('workItem').type == 'issues')) {
+            if (item[userProperty] && item[userProperty].name) {
+                return Uni.I18n.translate('bpm.task.user', 'UNI', 'User');
+            }
+            return Uni.I18n.translate('bpm.task.workgroup', 'UNI', 'Workgroup');
         }
-        return Uni.I18n.translate('bpm.task.workgroup', 'UNI', 'Workgroup');
+        else {
+            if ((item[userProperty] && item[userProperty].length > 0) || (typeof(item['userAssignee']) == 'object')) {
+                return Uni.I18n.translate('bpm.task.user', 'UNI', 'User');
+            }
+            return Uni.I18n.translate('bpm.task.workgroup', 'UNI', 'Workgroup');
+        }
     }
 });
