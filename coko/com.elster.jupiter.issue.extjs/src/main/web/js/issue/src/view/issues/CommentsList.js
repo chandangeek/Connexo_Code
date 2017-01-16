@@ -9,17 +9,17 @@ Ext.define('Isu.view.issues.CommentsList', {
     ui: 'medium',
     buttonAlign: 'left',
     addCommentPrivileges: Isu.privileges.Issue.comment,
-
+    noProcessText: Uni.I18n.translate('processes.issue.noProcessesStarted', 'ISU', 'No process started yet on this issue'),
 
     buttons: [
         {
             itemId: 'issue-comments-add-comment-button',
-            text: Uni.I18n.translate('general.addComment','ISU','Add comment'),
+            text: Uni.I18n.translate('general.addComment', 'ISU', 'Add comment'),
             hidden: true,
             action: 'add'
         }
     ],
-
+    noCommentText: Uni.I18n.translate('general.NoCommentsCreatedYet', 'ISU', 'No comments created yet on this issue'),
     initComponent: function () {
         var me = this;
 
@@ -29,7 +29,7 @@ Ext.define('Isu.view.issues.CommentsList', {
                 itemId: 'no-issue-comments',
                 title: Uni.I18n.translate('general.NoCommentsFound', 'ISU', 'No comments found'),
                 reasons: [
-                    Uni.I18n.translate('general.NoCommentsCreatedYet', 'ISU', 'No comments created yet on this issue')
+                    me.noCommentText
                 ],
                 stepItems: [
                     {
