@@ -23,10 +23,17 @@ Ext.define('Isu.controller.Overview', {
         {
             ref: 'filterToolbar',
             selector: 'overview-of-issues isu-view-issues-issuefilter'
+        },
+        {
+            ref: 'noPanelFound',
+            selector: 'overview-of-issues #overview-no-issues-found-panel'
         }
     ],
 
     sections: ['issueType', 'status', 'userAssignee', 'reason'],
+
+    widgetType: 'overview-of-issues',
+    model: 'Isu.model.Group',
 
     init: function () {
         this.control({
@@ -47,7 +54,7 @@ Ext.define('Isu.controller.Overview', {
             queryString.status = ['status.open', 'status.in.progress'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
-            me.getApplication().fireEvent('changecontentevent', Ext.widget('overview-of-issues', {
+            me.getApplication().fireEvent('changecontentevent', Ext.widget(me.widgetType, {
                 router: me.getController('Uni.controller.history.Router')
             }));
             me.getOverview().down('button[action=clearAll]').setDisabled(false);
@@ -62,7 +69,7 @@ Ext.define('Isu.controller.Overview', {
             var sectionPanel = me.getOverview().down('#' + section);
             if (!sectionPanel.store) {
                 sectionPanel.store = new Ext.data.Store({
-                    model: 'Isu.model.Group'
+                    model: me.model
                 });
                 sectionPanel.store.getProxy().pageParam = false;
                 sectionPanel.store.getProxy().startParam = false;
@@ -71,7 +78,7 @@ Ext.define('Isu.controller.Overview', {
             sectionPanel.store.load({
                 params: me.getGroupProxyParams(section),
                 callback: function () {
-                    me.getOverview().down('#overview-no-issues-found-panel').setVisible(!this.getCount());
+                    me.getNoPanelFound().setVisible(!this.getCount());
                     me.getOverview().down('#sections-panel').setVisible(this.getCount());
                     Ext.suspendLayouts();
                     sectionPanel.fillSection(this, section);

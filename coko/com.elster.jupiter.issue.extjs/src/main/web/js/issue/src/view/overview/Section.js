@@ -9,6 +9,8 @@ Ext.define('Isu.view.overview.Section', {
     minHeight: 235,
     itemsInCollapsedMode: 5,
     buttonAlign: 'left',
+    parentItemId: 'overview-of-issues',
+    route: 'workspace/issues',
     buttons: [
         {
             text: Uni.I18n.translate('overview.issues.showMore', 'ISU', 'Show more'),
@@ -47,8 +49,8 @@ Ext.define('Isu.view.overview.Section', {
                 queryString[section] = record.get('id');
                 queryString.groupingType = 'none';
                 queryString.sort = ['dueDate'];
-                if (me.up('overview-of-issues')) {
-                    var href = me.up('overview-of-issues').router.getRoute('workspace/issues').buildUrl(null, queryString);
+                if (me.up(me.parentItemId)) {
+                    var href = me.up(me.parentItemId).router.getRoute(me.route).buildUrl(null, queryString);
                     record.set('href', href);
                 }
             });
