@@ -44,6 +44,10 @@ Ext.define('Imt.purpose.controller.Readings', {
             selector: '#output-readings #readings-list'
         },
         {
+            ref: 'outputReadings',
+            selector: '#output-readings'
+        },
+        {
             ref: 'readingsGraph',
             selector: '#output-readings #readings-graph'
         },
@@ -148,6 +152,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                         rec.set('confirmedNotSaved', true);
                         chart.get(rec.get('interval').start).update({color: 'rgba(112,187,81,0.3)'});
                         grid.getView().refreshNode(grid.getStore().indexOf(rec));
+                        chart.get(rec.get('interval').start).select(false);
+                        me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', record);
                         rec.set('confirmed', true);
                     }
                 }
@@ -221,6 +227,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                     value: value
                 };
                 point.update(updatedObj);
+                point.select(false);
+                me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record);
             }
 
             if (event.column) {
