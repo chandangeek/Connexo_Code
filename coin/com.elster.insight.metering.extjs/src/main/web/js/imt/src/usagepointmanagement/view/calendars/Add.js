@@ -133,6 +133,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                             dateConfig: {
                                                 allowBlank: true,
                                                 value: new Date(),
+                                                minValue: new Date(),
                                                 editable: false,
                                                 format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                             },
