@@ -139,7 +139,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     queryParams: [{name: 'issueType', value: 'datacollection'}],
                     assignedToMeLink: me.router.getRoute('workspace/issues').buildUrl({}, {myopenissues: true, issueType: 'datacollection'}),
                     myWorkgroupsLink: me.router.getRoute('workspace/issues').buildUrl({}, {myworkgroupissues: true, issueType: 'datacollection'}),
-                    userProperty: 'actualOwner',
+                    userProperty: 'userAssignee',
                     titleProperty: 'title',
                     workgroupProperty: 'workgroup',
                     tooltipProperties: [
