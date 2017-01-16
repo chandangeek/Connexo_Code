@@ -68,7 +68,8 @@ Ext.define('Imt.purpose.view.OutputPreview', {
         me.add(Ext.apply(me.chartConfig, {
             output: record.getSummary() || record,
             purpose: me.purpose,
-            router: me.router
+            router: me.router,
+            minWidth: 400
         }));
         attributesForm = me.add(me.attributesConfig);
         attributesForm.getForm().setValues(me.prepareAttributesData(record.get('validationInfo')));
