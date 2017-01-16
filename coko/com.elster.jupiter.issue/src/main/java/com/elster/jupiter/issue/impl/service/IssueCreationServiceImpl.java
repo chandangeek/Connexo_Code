@@ -186,25 +186,26 @@ public class IssueCreationServiceImpl implements IssueCreationService {
        /* Condition condition = Operator.EQUALIGNORECASE.compare("enddeviceId", event.getEndDevice().get().getId());
         dataModel.query(EndDeviceEventRecord.class).select(condition); */
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
-            CreationRuleTemplate template = firedRule.getTemplate();
+                    CreationRuleTemplate template = firedRule.getTemplate();
             /*Optional<CreationRuleProperty> creationRuleProperty = firedRule.getCreationRuleProperties()
                     .stream()
                     .filter(property -> property.getName().endsWith(LOG_ON_SAME_ALARM))
                     .findFirst(); */
-          //  creationRuleProperty.ifPresent(logOnSameAlarm -> {
-                        if (Boolean.parseBoolean(logOnSameAlarm)) {
-                            Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
-                            if (existingIssue.isPresent()) {
-                                template.updateIssue(existingIssue.get(), event);
-                            } else {
-                                createNewIssue(firedRule, event, template);
-                            }
+                    //  creationRuleProperty.ifPresent(logOnSameAlarm -> {
+                    // if (Boolean.parseBoolean(logOnSameAlarm)) {
+                    if (Integer.parseInt(logOnSameAlarm) == 1) {
+                        Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
+                        if (existingIssue.isPresent()) {
+                            template.updateIssue(existingIssue.get(), event);
                         } else {
                             createNewIssue(firedRule, event, template);
                         }
+                    } else {
+                        createNewIssue(firedRule, event, template);
                     }
-            );
-      //  });
+                }
+        );
+        //  });
     }
 
     private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
