@@ -17,7 +17,7 @@ Ext.define('Dal.view.TimelineList', {
         {
             xtype: 'uni-form-empty-message',
             itemId: 'no-issue-timeline',
-            text: Uni.I18n.translate('general.noActivity', 'DAL', 'No activity yet on this issue'),
+            text: Uni.I18n.translate('general.noActivity', 'DAL', 'No activity yet on this alarm'),
             hidden: true
         },
         {

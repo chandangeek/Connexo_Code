@@ -78,6 +78,7 @@ Ext.define('Dal.view.Detail', {
                                     {
                                         xtype: 'issue-comments',
                                         itemId: 'alarm-comments',
+                                        noCommentText: Uni.I18n.translate('general.NoAlarmCommentsCreatedYet', 'DAL', 'No comments created yet on this alarm'),
                                         addCommentPrivileges: Dal.privileges.Alarm.comment
                                     }
                                 ]
@@ -90,7 +91,8 @@ Ext.define('Dal.view.Detail', {
                                 items: [
                                     {
                                         xtype: 'issue-process-list',
-                                        itemId: 'alarm-process'
+                                        itemId: 'alarm-process',
+                                        noProcessText: Uni.I18n.translate('processes.alarm.noProcessesStarted', 'DAL', 'No process started yet on this alarm'),
                                     }
                                 ]
                             }
