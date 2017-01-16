@@ -540,6 +540,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     color: 'rgba(112,187,81,0.3)'
                 };
                 point.update(updatedObj);
+                point.select(false);
+                me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', event.record);
             }
 
             if (event.column) {
@@ -776,6 +778,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     if (mainStatus) {
                         rec.get('mainValidationInfo').confirmedNotSaved = true;
                         chart.get(rec.get('interval').start).update({color: 'rgba(112,187,81,0.3)'});
+                        chart.get(rec.get('interval').start).select(false);
+                        me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', record)
                     }
 
                     if (bulkStatus) {
