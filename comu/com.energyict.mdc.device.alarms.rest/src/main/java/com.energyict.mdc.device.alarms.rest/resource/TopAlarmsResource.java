@@ -44,7 +44,7 @@ public class TopAlarmsResource extends BaseAlarmResource{
         List<? extends Issue> alarms = finder.find();
         List<Issue> items = getItems(alarms, currentUser);
         return new TopAlarmsInfo(items.stream()
-                .sorted(dueDateComparator.thenComparing(priorityComparator).thenComparing(nameComparator))
+                .sorted(priorityComparator.thenComparing(dueDateComparator).thenComparing(nameComparator))
                 .limit(5)
                 .collect(Collectors.toList()), getTotalUserAssigned(items, currentUser), getTotalWorkGroupAssigned(items, currentUser));
     }
