@@ -27,9 +27,8 @@ Ext.define('Imt.usagepointhistory.view.CalendarsVersionsOverview', {
                 }
             },
             emptyComponent: {
-                xtype: 'no-items-found-panel',
-                itemId: 'no-versions-found',
-                title: Uni.I18n.translate('calendar.history.title', 'IMT', 'No history available')
+                xtype: 'uni-form-empty-message',
+                text: Uni.I18n.translate('calendars.history.empty.list', 'IMT', 'There is no history available for calendars')
             },
             previewComponent: {
                 xtype: 'historyCalendarPreview',
