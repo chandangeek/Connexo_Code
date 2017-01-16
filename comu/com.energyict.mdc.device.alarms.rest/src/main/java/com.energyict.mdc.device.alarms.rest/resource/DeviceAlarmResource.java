@@ -263,15 +263,40 @@ public class DeviceAlarmResource extends BaseAlarmResource{
     @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
-        List<String> issueTypes = getIssueService().query(IssueType.class)
+        String id = null;
+        List<IssueType> issueTypes = getIssueService().query(IssueType.class)
                 .select(Condition.TRUE)
                 .stream()
                 .filter(issueType -> issueType.getPrefix().equals("ALM"))
+                .collect(Collectors.toList());
+        List<String> issueTypesKeys = issueTypes.stream()
                 .map(IssueType::getKey)
                 .collect(Collectors.toList());
+        if(filter.getString(IssueRestModuleConst.ID) != null) {
+            String[] issueIdPart = filter.getString(IssueRestModuleConst.ID).split("-");
+            if (issueIdPart.length == 2) {
+                if (isNumericValue(issueIdPart[1])) {
+                    if (issueTypes.stream()
+                            .anyMatch(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))) {
+                        issueTypesKeys = issueTypes.stream()
+                                .filter(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))
+                                .map(IssueType::getKey)
+                                .collect(Collectors.toList());
+                        id = issueIdPart[1];
+                    } else{
+                        id = "-1";
+                    }
+                } else{
+                    id = "-1";
+                }
+            } else{
+                id = "-1";
+            }
+        }
         groupFilter.using(getQueryApiClass(filter))
                 .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))
-                .withIssueTypes(issueTypes)
+                .withId(id)
+                .withIssueTypes(issueTypesKeys)
                 .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS))
                 .withClearedStatuses(filter.getStringList("cleared"))
                 .withMeterName(filter.getString(IssueRestModuleConst.METER))
@@ -284,6 +309,15 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("alarmGroups", infos, queryParameters);
+    }
+
+    private boolean isNumericValue(String id){
+        try {
+            long number = Long.parseLong(id);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private Class<? extends Issue> getQueryApiClass(JsonQueryFilter filter) {
