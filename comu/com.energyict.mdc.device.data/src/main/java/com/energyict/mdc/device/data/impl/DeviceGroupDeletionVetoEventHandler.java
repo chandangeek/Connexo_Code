@@ -4,37 +4,37 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EventType;
-import com.elster.jupiter.metering.groups.Group;
 import com.elster.jupiter.metering.groups.GroupEventData;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.search.DeviceGroupSearchableProperty;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.List;
 
-@Component(name = "com.energyict.mdc.device.data.devicegroup.deletionEventHandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.data.devicegroup.DeviceGroupDeletionVetoEventHandler", service = TopicHandler.class, immediate = true)
 public class DeviceGroupDeletionVetoEventHandler implements TopicHandler {
 
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile Thesaurus thesaurus;
-    public final static String COMPONENT_NAME = "DDC";
 
-    @SuppressWarnings("unused") // for OSGI
     public DeviceGroupDeletionVetoEventHandler() {
     }
 
     @Inject
     public DeviceGroupDeletionVetoEventHandler(MeteringGroupsService meteringGroupsService,
                                                Thesaurus thesaurus) {
-        setMeteringGroupsService(meteringGroupsService);
+
+        this();
         this.thesaurus = thesaurus;
+        setMeteringGroupsService(meteringGroupsService);
     }
 
     @Reference
@@ -44,17 +44,15 @@ public class DeviceGroupDeletionVetoEventHandler implements TopicHandler {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.SERVICE);
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.SERVICE);
     }
 
     @Override
     public void handle(LocalEvent localEvent) {
         GroupEventData eventSource = (GroupEventData) localEvent.getSource();
         EndDeviceGroup endDeviceGroup = (EndDeviceGroup) eventSource.getGroup();
-        List<EndDeviceGroup> deviceGroups = this.meteringGroupsService.findEndDeviceGroups();
 
-        deviceGroups.stream()
-                .filter(Group::isDynamic)
+        this.meteringGroupsService.getQueryEndDeviceGroupQuery().select(Condition.TRUE).stream()
                 .map(QueryEndDeviceGroup.class::cast)
                 .flatMap(deviceGroup -> deviceGroup.getSearchablePropertyValues().stream())
                 .filter(searchablePropertyValue ->
