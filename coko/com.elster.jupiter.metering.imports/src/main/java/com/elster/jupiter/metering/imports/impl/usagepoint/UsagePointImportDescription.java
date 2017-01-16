@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FieldParser;
@@ -220,7 +219,7 @@ class UsagePointImportDescription implements FileImportDescription<UsagePointImp
                 .withParser(instantParser)
                 .build());
         fields.put("customPropertySetValue", CommonField
-                .withParser(new EmptyFieldParser<Map<RegisteredCustomPropertySet, CustomPropertySetRecord>>())
+                .withParser(new EmptyFieldParser<Map<String, CustomPropertySetRecord>>())
                 .withSetter(record::setCustomPropertySets)
                 .build());
     }

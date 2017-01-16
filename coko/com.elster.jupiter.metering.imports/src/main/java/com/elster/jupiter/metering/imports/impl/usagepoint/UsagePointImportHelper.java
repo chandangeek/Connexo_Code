@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.UsagePoint;
@@ -179,19 +180,24 @@ public class UsagePointImportHelper {
     }
 
     private void addCustomPropertySetsValues(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
-        data.getRegisteredCustomPropertySets().forEach((customPropertySet, customPropertySetRecord) -> {
+        data.getRegisteredCustomPropertySets().forEach((customPropertySetId, customPropertySetRecord) -> {
                     CustomPropertySetValues values = null;
-                    if (customPropertySet.getCustomPropertySet().isVersioned()) {
-                        Range<Instant> rangeToCreate = getRangeToCreate(customPropertySetRecord);
-                        if (!rangeToCreate.hasLowerBound()) {
-                            rangeToCreate = Range.atLeast(data.getInstallationTime().orElse(clock.instant())).intersection(rangeToCreate);
+                    Optional<RegisteredCustomPropertySet> customPropertySet = context.getCustomPropertySetService()
+                            .findActiveCustomPropertySet(customPropertySetId);
+                    if (customPropertySet.isPresent()) {
+                        if ((customPropertySet.get().getCustomPropertySet()).isVersioned()) {
+                            Range<Instant> rangeToCreate = getRangeToCreate(customPropertySetRecord);
+                            if (!rangeToCreate.hasLowerBound()) {
+                                rangeToCreate = Range.atLeast(data.getInstallationTime().orElse(clock.instant()))
+                                        .intersection(rangeToCreate);
+                            }
+                            values = CustomPropertySetValues.emptyDuring(rangeToCreate);
+                            copyValues(customPropertySetRecord.getCustomPropertySetValues(), values);
+                        } else {
+                            values = customPropertySetRecord.getCustomPropertySetValues();
                         }
-                        values = CustomPropertySetValues.emptyDuring(rangeToCreate);
-                        copyValues(customPropertySetRecord.getCustomPropertySetValues(), values);
-                    } else {
-                        values = customPropertySetRecord.getCustomPropertySetValues();
+                        usagePointBuilder.addCustomPropertySetValues(customPropertySet.get(), values);
                     }
-                    usagePointBuilder.addCustomPropertySetValues(customPropertySet, values);
                 }
         );
     }

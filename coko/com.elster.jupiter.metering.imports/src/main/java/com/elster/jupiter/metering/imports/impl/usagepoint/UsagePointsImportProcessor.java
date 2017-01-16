@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetail;
@@ -328,12 +327,12 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     }
 
     private void validateMandatoryCustomProperties(UsagePoint usagePoint, UsagePointImportRecord data) {
-        Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getRegisteredCustomPropertySets();
+        Map<String, CustomPropertySetRecord> customPropertySetValues = data.getRegisteredCustomPropertySets();
 
         for (UsagePointPropertySet propertySet : usagePoint.forCustomProperties().getAllPropertySets()) {
             for (PropertySpec propertySpec : propertySet.getCustomPropertySet().getPropertySpecs()) {
                 if (propertySpec.isRequired()) {
-                    Optional.ofNullable(customPropertySetValues.get(propertySet.getCustomPropertySet()))
+                    Optional.ofNullable(customPropertySetValues.get(propertySet.getCustomPropertySet().getId()))
                             .filter(customPropertySetRecord -> customPropertySetRecord.getCustomPropertySetValues().getProperty(propertySpec.getName()) != null)
                             .orElseThrow(() -> new ProcessorException(
                                     MessageSeeds.NO_SUCH_MANDATORY_CPS_VALUE,
@@ -346,14 +345,14 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     }
 
     private void validateCustomPropertySetValues(UsagePoint usagePoint, UsagePointImportRecord data) {
-        Map<RegisteredCustomPropertySet, CustomPropertySetRecord> customPropertySetValues = data.getRegisteredCustomPropertySets();
+        Map<String, CustomPropertySetRecord> customPropertySetValues = data.getRegisteredCustomPropertySets();
 
         for (UsagePointPropertySet propertySet : usagePoint.forCustomProperties().getAllPropertySets()) {
-            if (customPropertySetValues.containsKey(propertySet.getCustomPropertySet())) {
+            if (customPropertySetValues.containsKey(propertySet.getCustomPropertySet().getId())) {
                 if (propertySet instanceof UsagePointVersionedPropertySet) {
-                    validateCreateOrUpdateVersionedSet((UsagePointVersionedPropertySet) propertySet, customPropertySetValues.get(propertySet.getCustomPropertySet()));
+                    validateCreateOrUpdateVersionedSet((UsagePointVersionedPropertySet) propertySet, customPropertySetValues.get(propertySet.getCustomPropertySet().getId()));
                 } else {
-                    validateCreateOrUpdateNonVersionedSet(propertySet, customPropertySetValues.get(propertySet.getCustomPropertySet()));
+                    validateCreateOrUpdateNonVersionedSet(propertySet, customPropertySetValues.get(propertySet.getCustomPropertySet().getId()));
                 }
             }
         }

@@ -118,7 +118,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         Map<String, String> csvRecordMap = csvRecord.toMap();
         FieldSetter fieldSetter = fields.get(CUSTOM_PROPERTY_FIELD).getSetter();
         FieldParser dateParser = fields.get(CUSTOM_PROPERTY_TIME_FIELD).getParser();
-        Map<CustomPropertySet, CustomPropertySetRecord> customPropertySetValues = new HashMap<>();
+        Map<String, CustomPropertySetRecord> customPropertySetValues = new HashMap<>();
         for (RegisteredCustomPropertySet rset : context.getCustomPropertySetService()
                 .findActiveCustomPropertySets(UsagePoint.class)) {
             CustomPropertySet set = rset.getCustomPropertySet();
@@ -179,7 +179,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
             customPropertySetRecord.setLineNumber(record.getLineNumber());
 
             if (!customPropertySetRecord.isEmpty()) {
-                customPropertySetValues.put(set, customPropertySetRecord);
+                customPropertySetValues.put(set.getId(), customPropertySetRecord);
             }
         }
         fieldSetter.setFieldWithHeader(CUSTOM_PROPERTY_FIELD, customPropertySetValues);
