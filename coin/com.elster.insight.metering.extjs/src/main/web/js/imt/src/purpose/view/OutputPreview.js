@@ -66,7 +66,7 @@ Ext.define('Imt.purpose.view.OutputPreview', {
         me.setTitle(record.get('name'));
         me.removeAll();
         me.add(Ext.apply(me.chartConfig, {
-            output: record.getSummary(),
+            output: record.getSummary() || record,
             purpose: me.purpose,
             router: me.router
         }));
