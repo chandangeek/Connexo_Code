@@ -113,7 +113,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     resetMetrologyConfiguration: function () {
         var me = this;
 
+        Ext.suspendLayouts();
         me.down('#metrology-configuration-combo').reset();
+        me.down('#metrology-configuration-with-meters-info-warning').hide();
+        me.clearInvalid();
+        Ext.resumeLayouts(true);
     },
 
     getRecord: function () {
