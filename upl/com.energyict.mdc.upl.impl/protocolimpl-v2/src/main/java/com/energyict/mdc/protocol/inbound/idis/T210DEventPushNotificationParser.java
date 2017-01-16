@@ -231,7 +231,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
     private void parsePushOnInterval1(Structure structure) {
         DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG);
-        OfflineDevice offlineDevice = inboundDAO.getOfflineDevice(deviceIdentifier, offlineContext);
+        OfflineDevice offlineDevice = inboundDAO.goOfflineDevice(deviceIdentifier, offlineContext);
         List<OfflineLoadProfile> allOfflineLoadProfiles = offlineDevice.getAllOfflineLoadProfiles();
         for(int i = 2; i <= pushObjectList.size() - 1; i++){
             ObisCode obisCode = pushObjectList.get(i).getObisCode();
