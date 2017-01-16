@@ -15,10 +15,12 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpression;
 
@@ -405,7 +407,11 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     }
 
     private EndPointConfiguration mockEndpointConfiguration(String endpointConfigurationName) {
-        EndPointConfiguration endPointConfiguration = mock(EndPointConfiguration.class);
+        InboundEndPointConfiguration endPointConfiguration = mock(InboundEndPointConfiguration.class);
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn(1L);
+        when(group.getName()).thenReturn("Name");
+        when(endPointConfiguration.getGroup()).thenReturn(Optional.of(group));
         when(endPointConfiguration.getName()).thenReturn(endpointConfigurationName);
         when(endPointConfiguration.getLogLevel()).thenReturn(LogLevel.CONFIG);
         EndPointAuthentication endPointAuthentication = EndPointAuthentication.NONE;

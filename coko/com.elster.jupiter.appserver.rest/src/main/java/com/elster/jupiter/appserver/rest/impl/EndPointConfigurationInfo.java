@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 
 
@@ -20,4 +21,5 @@ public class EndPointConfigurationInfo {
     public IdWithLocalizedValueInfo<EndPointAuthentication> authenticationMethod;
     public String type;
     public String previewUrl;
+    public LongIdWithNameInfo group;
 }

@@ -2,7 +2,9 @@ package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
@@ -32,6 +34,8 @@ public class EndPointConfigurationInfoFactory {
                     .getAuthority()
                     + "/" + ws.getProtocol().path()
                     + endPointConfiguration.getUrl());
+            ((InboundEndPointConfiguration) endPointConfiguration).getGroup()
+                    .ifPresent(g -> info.group = new LongIdWithNameInfo(g.getId(), g.getName()));
         }
         info.active = endPointConfiguration.isActive();
         info.available = webService.isPresent();
