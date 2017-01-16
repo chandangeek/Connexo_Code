@@ -62,47 +62,47 @@ Ext.define('Isu.controller.SetPriority', {
             returnUrl = form.returnLink,
             router = me.getController('Uni.controller.history.Router'),
             issueType = router.queryParams.issueType,
+            forAlarm = issueType === 'alarm',
             record,
             updatedData,
-            updateUrl;
+            acknowledgeMessage;
 
-        form.setLoading();
         form.updateRecord();
         record = form.getRecord();
 
-        updatedData = {id:record.get('id')};
-
-        if (issueType == 'datacollection' || issueType == 'datavalidation') {
-            updatedData.issue =
+        updatedData = {
+            id:record.get('id'),
+            priority:
             {
-                title: record.get('title'),
-                version:record.get('version')
+                urgency:record.get('urgency'),
+                impact:record.get('impact')
             }
+        };
 
-            updateUrl = '/api/isu/' + record.get('id') + '/priority';
-        } else {
+        if (forAlarm) {
             updatedData.alarm =
             {
                 title: record.get('title'),
                 version:record.get('version')
             }
-
-            updateUrl = '/api/dal/' + record.get('id') + '/priority';
+        } else {
+            updatedData.issue =
+            {
+                title: record.get('title'),
+                version:record.get('version')
+            }
         };
 
-        updatedData.priority=
-        {
-            urgency:record.get('urgency'),
-            impact:record.get('impact')
-        };
-
+        acknowledgeMessage = (forAlarm ? Uni.I18n.translate('issue.dal.setpriority.success', 'ISU', 'Alarm priority has been changed'):
+                                         Uni.I18n.translate('issue.isu.setpriority.success', 'ISU', 'Issue priority has been changed')
+                             );
 
         Ext.Ajax.request({
-            url: updateUrl,
+            url: '/api/' + (forAlarm ? 'dal/':'isu/') + record.get('id') + '/priority',
             method: 'PUT',
             jsonData: Ext.encode(updatedData),
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('issue.setpriority.success', 'ISU', 'Issue priority has been changed'));
+                me.getApplication().fireEvent('acknowledge', acknowledgeMessage);
                 window.location.assign(returnUrl);
             },
             failure: function (response) {

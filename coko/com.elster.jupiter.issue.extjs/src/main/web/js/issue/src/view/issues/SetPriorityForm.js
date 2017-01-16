@@ -110,15 +110,14 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
             priorityValue = numUrgencyValue + numImpactValue,
             priorityLabel;
 
-        if (priorityValue <= 30) {
-            priorityLabel = Uni.I18n.translate('general.priority.low', 'ISU', 'Low');
-        }
-        else if (priorityValue <= 70) {
-            priorityLabel =  Uni.I18n.translate('general.priority.medium', 'ISU', 'Medium');
-        }
-        else {
-            priorityLabel = Uni.I18n.translate('general.priority.high', 'ISU', 'High');
-        }
+        var priority = priorityValue / 10;
+        priorityLabel = (priority <= 2) ? Uni.I18n.translate('bpm.task.priority.veryLow', 'ISU', 'Very low') :
+            (priority <= 4) ? Uni.I18n.translate('bpm.task.priority.low', 'ISU', 'Low') :
+                (priority <= 6) ? Uni.I18n.translate('bpm.task.priority.medium', 'ISU', 'Medium') :
+                    (priority <= 8) ? Uni.I18n.translate('bpm.task.priority.high', 'ISU', 'High') :
+                        Uni.I18n.translate('bpm.task.priority.veryHigh', 'ISU', 'Very high');
+
+
         labelPriority.setText(priorityValue + ' - ' + priorityLabel);
 
     }
