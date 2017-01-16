@@ -112,7 +112,7 @@ Ext.define('Dal.controller.Alarms', {
             });
         } else if (queryString.myworkgroupalarms) {
             Ext.Ajax.request({
-                url: '/api/isu/workgroups?myworkgroups=true',
+                url: '/api/dal/workgroups?myworkgroups=true',
                 method: 'GET',
                 success: function (response) {
                     var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
