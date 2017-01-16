@@ -148,9 +148,9 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     BasicDeviceAlarmRuleTemplate.EVENTTYPE,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
             properties.put(
-                    BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodes());
+                    BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodes(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
             properties.put(
-                    BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodes());
+                    BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodes(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.LOG_ON_SAME_ALARM, true);
             properties.put(
@@ -158,7 +158,11 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("1"));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.THRESHOLD,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.THRESHOLD).get().getValueFactory().fromStringValue(String.valueOf(System.currentTimeMillis() + 5*60*1000)));
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.THRESHOLD).get().getValueFactory().fromStringValue(String.valueOf(System.currentTimeMillis() + 5 * 60 * 1000)));
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.UP_URGENCY_ON_RAISE, true);
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.DOWN_URGENCY_ON_CLEAR, true);
         }
         return properties;
     }
@@ -187,14 +191,28 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return listValue;
     }
 
-    private String getRandomEventCodes() {
-        return Stream.of(EndDeviceEventTypeMapping.values())
-                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
-                    Collections.shuffle(collected);
-                    return collected.stream();
-                }))
-                .limit(10)
-                .map(value -> value.getEndDeviceEventTypeMRID())
-                .collect(Collectors.joining(","));
+    private String getRandomEventCodes(String eventType) {
+        if (eventType.equals(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS)) {
+            return Stream.of(EndDeviceEventTypeMapping.values())
+                    .limit(30)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                        Collections.shuffle(collected);
+                        return collected.stream();
+                    }))
+                    .limit(10)
+                    .map(value -> value.getEndDeviceEventTypeMRID())
+                    .collect(Collectors.joining(","));
+        } else {
+            return Stream.of(EndDeviceEventTypeMapping.values())
+                    .skip(30)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                        Collections.shuffle(collected);
+                        return collected.stream();
+                    }))
+                    .limit(10)
+                    .map(value -> value.getEndDeviceEventTypeMRID())
+                    .collect(Collectors.joining(","));
+        }
     }
+
 }
