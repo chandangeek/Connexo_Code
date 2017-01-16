@@ -387,6 +387,20 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint, times(1)).apply(usagePointMetrologyConfiguration, now);
+
+        //unlink usage point
+
+        when(effectiveMetrologyConfigurationOnUsagePoint.getStart()).thenReturn(now);
+
+        UsagePointInfo usagePointInfo = new UsagePointInfo();
+        usagePointInfo.id = usagePoint.getId();
+        usagePointInfo.version = usagePoint.getVersion();
+
+
+        response = target("usagepoints/" + USAGE_POINT_NAME + "/unlinkmetrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(usagePointInfo));
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(effectiveMetrologyConfigurationOnUsagePoint, times(1)).close(now);
     }
 
     @Test
