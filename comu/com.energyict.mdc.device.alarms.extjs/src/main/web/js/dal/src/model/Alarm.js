@@ -76,6 +76,8 @@ Ext.define('Dal.model.Alarm', {
             name: 'usagePointMRID',
             mapping: 'device.usagePoint.name'
         },
+        {name: 'urgency', persist: false, mapping: 'priority.urgency'},
+        {name: 'impact', persist: false, mapping: 'priority.impact'},
         {name: 'deviceMRID', type: 'auto'},
         {
             name: 'location',

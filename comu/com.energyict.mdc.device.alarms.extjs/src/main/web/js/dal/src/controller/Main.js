@@ -17,7 +17,8 @@ Ext.define('Dal.controller.Main', {
         'Dal.controller.Alarms',
         'Dal.controller.Detail',
         'Dal.controller.ApplyAction',
-        'Dal.controller.StartProcess'
+        'Dal.controller.StartProcess',
+        'Dal.controller.SetPriority'
     ],
 
     stores: [
