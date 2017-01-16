@@ -36,12 +36,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -76,14 +73,7 @@ public class LoadProfileTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getIntervals(@BeanParam JsonQueryParameters queryParameters) {
-        List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(LocalizedTimeDuration.intervals.size());
-        for (Map.Entry<Integer, LocalizedTimeDuration> timeDurationEntry : LocalizedTimeDuration.intervals.entrySet()) {
-            LocalizedTimeDuration.TimeDurationInfo info = new LocalizedTimeDuration.TimeDurationInfo();
-            info.id = timeDurationEntry.getKey();
-            info.name = timeDurationEntry.getValue().toString(thesaurus);
-            infos.add(info);
-        }
-        return Response.ok(infos).build();
+        return Response.ok(LocalizedTimeDuration.getAllInfos(thesaurus)).build();
     }
 
     @GET
@@ -263,6 +253,5 @@ public class LoadProfileTypeResource {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
     }
-
 
 }
