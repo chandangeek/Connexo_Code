@@ -102,7 +102,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 padding: 0
             });
         }
-        if (!customAttributeSetId) {
+        else if (!customAttributeSetId) {
             if (router.queryParams.customAttributeSetId) {
                 delete router.queryParams.customAttributeSetId;
                 url = router.getRoute().buildUrl(router.arguments, router.queryParams);
