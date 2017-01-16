@@ -52,6 +52,13 @@ Ext.define('Isu.controller.history.Administration', {
                                         }, {single: true});
                                         return this;
                                     }
+                                },
+                                setpriority:{
+                                    title: Uni.I18n.translate('issue.setpriority','ISU','Set priority'),
+                                    route: 'setpriority',
+                                    controller: 'Isu.controller.SetPriority',
+                                    action: 'setPriority',
+                                    privileges: Isu.privileges.Issue.viewAdminDevice
                                 }
                             }
                         }

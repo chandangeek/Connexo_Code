@@ -35,6 +35,11 @@ Ext.define('Isu.view.issues.ActionMenu', {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
             privileges: Isu.privileges.Issue.comment,
             action: 'addComment'
+        },
+        {
+            text: Uni.I18n.translate('issues.actionMenu.setPriority', 'ISU', 'Set priority'),
+            privileges: Isu.privileges.Issue.action,
+            action: 'setPriority'
         }
     ],
     listeners: {
@@ -171,7 +176,8 @@ Ext.define('Isu.view.issues.ActionMenu', {
     addPredefinedActions: function () {
         var me = this,
             issueId = me.record.getId(),
-            issueType = me.record.get('issueType').uid;
+            issueType = me.record.get('issueType').uid,
+            fromDetails = Ext.ComponentQuery.query('issue-detail-top')[0];
 
         // show/hide 'Assign to me and' and 'Unassign' menu items
         var assignIssueToMe = me.predefinedItems.filter(function (menu) {
@@ -220,6 +226,17 @@ Ext.define('Isu.view.issues.ActionMenu', {
                             },
                             {
                                 details: menuItem.details,
+                                issueType: issueType
+                            }
+                        );
+                        break;
+                    case 'setPriority':
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/setpriority').buildUrl(
+                            {
+                                issueId: issueId
+                            },
+                            {
+                                details: (fromDetails) ? true : false,
                                 issueType: issueType
                             }
                         );

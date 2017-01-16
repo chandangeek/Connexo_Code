@@ -36,6 +36,8 @@ Ext.define('Isu.model.Issue', {
         },
         {name: 'issueType_name', persist: false, mapping: 'issueType.name'},
         {name: 'reason_name', persist: false, mapping: 'reason.name'},
+        {name: 'urgency', persist: false, mapping: 'priority.urgency'},
+        {name: 'impact', persist: false, mapping: 'priority.impact'},
         {name: 'status_name', persist: false, mapping: 'status.name'},
         {name: 'device_name', persist: false, mapping: 'device.name'},
         {name: 'workgroup_name', persist: false, mapping: 'workGroupAssignee.name'},
