@@ -160,6 +160,13 @@ public abstract class IssuesGroupOperation {
         return "";
     }
 
+    String getIdCondition() {
+        if (getFilter().getId() != null) {
+            return " AND (isu.ID = " + getFilter().getId() + ") ";
+        }
+        return "";
+    }
+
     String getUserAssigneeCondition() {
         StringBuilder builder = new StringBuilder();
         for (Long id : getFilter().getUserAssignees()) {

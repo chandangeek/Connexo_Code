@@ -45,6 +45,10 @@ public interface IssueGroupFilter {
 
     IssueGroupFilter withUserAssignee(long id);
 
+    IssueGroupFilter withId(String id);
+
+    String getId();
+
     IssueGroupFilter withAssignee(long id, String type);
 
     IssueGroupFilter withWorkGroupAssignee(long id);

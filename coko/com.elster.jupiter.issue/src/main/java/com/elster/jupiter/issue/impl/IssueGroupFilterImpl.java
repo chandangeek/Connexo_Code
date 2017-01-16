@@ -16,6 +16,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private Object key;
     private long to;
     private long from;
+    private String id;
     private boolean isAsc = true;
     private Class<?> sourceClass;
     private Set<String> statuses;
@@ -149,6 +150,17 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     public IssueGroupFilter withUserAssignee(long id) {
         this.userAssignees.add(id);
         return this;
+    }
+
+    @Override
+    public IssueGroupFilter withId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    @Override
+    public String getId(){
+        return this.id;
     }
 
     @Override
