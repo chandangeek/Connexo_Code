@@ -82,7 +82,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             lifeCycleAndStateStore = me.getStore('Imt.usagepointhistory.store.LifeCycleAndState'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             calendarStore = me.getStore('Imt.usagepointmanagement.store.CalendarHistory'),
-            usagePointId = router.arguments.usagePointId,
+            usagePointId = decodeURIComponent(router.arguments.usagePointId),
             customAttributeSetId = newCard.customAttributeSetId,
             cardView,
             onVersionsStoreLoad,

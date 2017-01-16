@@ -23,7 +23,7 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
                 itemId: 'reset-value',
                 privileges: Imt.privileges.UsagePoint.admin,
                 hidden: true,
-                text: Uni.I18n.translate('general.resetReadings', 'IMT', 'Reset'),
+                text: Uni.I18n.translate('general.restoreReadings', 'IMT', 'Restore'),
                 action: 'resetValue',
                 section: this.SECTION_REMOVE
             }

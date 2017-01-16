@@ -360,7 +360,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         confWindow.down('#purpose-pnl-validation-progress').add(Ext.create('Ext.ProgressBar', {
             margin: '5 0 15 0'
         })).wait({
-            duration: 120000,
+            duration: 60000,
             text: Uni.I18n.translate('purpose.dataValidation.isInProgress', 'IMT', 'Data validation is in progress. Please wait...'),
             fn: function () {
                 confWindow.destroy();
@@ -381,22 +381,25 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     }
                 }).show({
                     ui: 'notification-error',
-                    title: Uni.I18n.translate('purpose.dataValidation.timeout.title', 'IMT', 'Data validation takes longer as expected'),
-                    msg: Uni.I18n.translate('purpose.dataValidation.timeout.msg', 'IMT', 'Data validation takes longer as expected. Data validation will continue in the background'),
+                    title: Uni.I18n.translate('purpose.dataValidation.timeout.title1', 'IMT', 'Data validation takes longer than expected'),
+                    msg: Uni.I18n.translate('purpose.dataValidation.timeout.msg1', 'IMT', 'Data validation takes longer than expected. Data validation will continue in the background.'),
                     icon: Ext.MessageBox.ERROR
                 });
             }
         });
 
+        var purposeProxy = purpose.getProxy();
         purpose.set('validationInfo', {lastChecked: lastChecked});
-        purpose.getProxy().extraParams = {
+        purposeProxy.extraParams = {
             usagePointId: usagePoint.get('name'),
             upVersion: usagePoint.get('version')
         };
+        purposeProxy.timeout = 600000;
         purpose.save({
             isNotEdit: true,
             callback: function (model, operation, success) {
                 confWindow.destroy();
+                purposeProxy.timeout = 30000;
                 if (success) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'));
                     me.getController('Uni.controller.history.Router').getRoute().forward();
