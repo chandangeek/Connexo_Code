@@ -181,7 +181,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     }
 
     @Override
-    public void processAlarmCreationEvent(long ruleId, IssueEvent event, String logOnSameAlarm) {
+    public void processAlarmCreationEvent(long ruleId, IssueEvent event, int logOnSameAlarm) {
 
        /* Condition condition = Operator.EQUALIGNORECASE.compare("enddeviceId", event.getEndDevice().get().getId());
         dataModel.query(EndDeviceEventRecord.class).select(condition); */
@@ -193,7 +193,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                     .findFirst(); */
                     //  creationRuleProperty.ifPresent(logOnSameAlarm -> {
                     // if (Boolean.parseBoolean(logOnSameAlarm)) {
-                    if (Integer.parseInt(logOnSameAlarm) == 1) {
+                    if (logOnSameAlarm == 1) {
                         Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
                         if (existingIssue.isPresent()) {
                             template.updateIssue(existingIssue.get(), event);
