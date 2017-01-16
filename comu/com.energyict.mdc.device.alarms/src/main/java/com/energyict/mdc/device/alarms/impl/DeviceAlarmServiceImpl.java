@@ -203,9 +203,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     public Optional<? extends DeviceAlarm> findAndLockDeviceAlarmByIdAndVersion(long id, long version) {
         Optional<? extends Issue> issue = issueService.findAndLockIssueByIdAndVersion(id, version);
         if (issue.isPresent()) {
-            return findOpenAlarm(id);
+            Optional<OpenDeviceAlarm> openDeviceAlarm = findOpenAlarm(id);
+            return openDeviceAlarm.isPresent() ? openDeviceAlarm : findHistoricalAlarm(id);
         }
-        return findHistoricalAlarm(id);
+        return Optional.empty();
     }
 
     @Override
