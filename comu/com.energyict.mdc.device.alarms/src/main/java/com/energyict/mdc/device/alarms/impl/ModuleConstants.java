@@ -21,5 +21,7 @@ public final class ModuleConstants {
     public static final String TRIGGERING_EVENTS = "triggeringEvents";
     public static final String CLEARING_EVENTS = "clearingEvents";
     public static final String EVENT_OCCURENCE_COUNT = "eventOccurenceCount";
+    public static final String UP_URGENCY_ON_RAISE = "upUrgencyOnRaise";
+    public static final String DOWN_URGENCY_ON_CLEAR = "downUrgencyOnClear";
 
 }

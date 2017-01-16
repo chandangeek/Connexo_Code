@@ -27,12 +27,16 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
         service = CreationRuleTemplate.class,
         immediate = true)
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
+    protected static final Logger LOG = Logger.getLogger(BasicDeviceAlarmRuleTemplate.class.getName());
     static final String NAME = "BasicDeviceAlarmRuleTemplate";
     public static final String EVENTTYPE = NAME + ".eventType";
     public static final String LOG_ON_SAME_ALARM = NAME + ".logOnSameAlarm";
@@ -41,6 +45,8 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     //public static final String THRESHOLD_TYPE = NAME + ".tresholdType";
     //public static final String THRESHOLD_VALUE = NAME + ".tresholdValue";
     public static final String THRESHOLD = NAME + ".threshold";
+    public static final String UP_URGENCY_ON_RAISE = NAME + ".upUrgencyOnRaise";
+    public static final String DOWN_URGENCY_ON_CLEAR = NAME + ".downUrgencyOnClear";
     public static final String EVENT_OCCURENCE_COUNT = NAME + ".eventCount";
 
     private String SEPARATOR = ":";
@@ -109,8 +115,8 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "\teval( event.computeOccurenceCount(\"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Generating device alarm @{ruleId}\");\n" +
-              //  "\tboolean clearing = event.isClearing();\n" +
-                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM +"});\n" +
+                //  "\tboolean clearing = event.isClearing();\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM + "});\n" +
                 "end";
     }
 
@@ -143,7 +149,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .addValues(eventTypes.getEventTypes())
-                .addValues(eventTypes.getEventTypes())
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
         builder.add(propertySpecService
@@ -151,7 +156,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .named(LOG_ON_SAME_ALARM, TranslationKeys.LOG_ON_SAME_ALARM)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-               //.markExhaustive()
+                //.markExhaustive()
                 .finish());
         builder.add(propertySpecService
                 .longSpec()
@@ -165,21 +170,35 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .named(EVENT_OCCURENCE_COUNT, TranslationKeys.EVENT_OCCURENCE_COUNT)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-               // .markExhaustive()
+                // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
                 .stringSpec()
                 .named(TRIGGERING_EVENTS, TranslationKeys.TRIGGERING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-               // .markExhaustive()
+                // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
                 .stringSpec()
                 .named(CLEARING_EVENTS, TranslationKeys.CLEARING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-               // .markExhaustive()
+                // .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .stringSpec()
+                .named(UP_URGENCY_ON_RAISE, TranslationKeys.UP_URGENCY_ON_RAISE)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                // .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .stringSpec()
+                .named(DOWN_URGENCY_ON_CLEAR, TranslationKeys.DOWN_URGENCY_ON_CLEAR)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                // .markExhaustive()
                 .finish());
         return builder.build();
     }
@@ -193,14 +212,43 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         //TODO - create new method for resolve alarm
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
-            if(((DeviceAlarmEvent) event).isClearing(CLEARING_EVENTS) && !alarm.isStatusCleared()){
+            Optional<String> clearingEvents = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
+                    .findFirst().map(found -> (String) found.getValue());
+            Optional<String> upUrgencyOnRaise = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(UP_URGENCY_ON_RAISE))
+                    .findFirst().map(found -> (String) found.getValue());
+            Optional<String> downUrgencyOnClear = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(DOWN_URGENCY_ON_CLEAR))
+                    .findFirst().map(found -> (String) found.getValue());
+            if (clearingEvents.isPresent() && ((DeviceAlarmEvent) event).isClearing(clearingEvents.get()) && !alarm.isStatusCleared()) {
                 alarm.setClearedStatus();
-                alarm.getPriority().lowerUrgency();
+                if (downUrgencyOnClear.isPresent() && Integer.parseInt(downUrgencyOnClear.get()) == 1) {
+                    if (!alarm.getPriority().lowerUrgency()) {
+                        LOG.log(Level.SEVERE, "Urgency is minimum [" + alarm.getPriority().getUrgency() +"]. Unable to decrement anymore");
+                    }
+                }
             }
-            alarm.getPriority().increaseUrgency();
+            if (upUrgencyOnRaise.isPresent() && Integer.parseInt(upUrgencyOnRaise.get()) == 1) {
+                if (!alarm.getPriority().increaseUrgency()) {
+                    LOG.log(Level.SEVERE, "Urgency is maximum [" + alarm.getPriority().getUrgency() +"]. Unable to increment anymore");
+                }
+            }
             alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent) event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
             return alarm;
         }
         return openIssue;
     }
+
+
+    //TODO - write a check method to avoid exceptions
+    /*
+    public static boolean isInteger(String s) {
+    try {
+        Integer.parseInt(s);
+    } catch(NumberFormatException e) {
+        return false;
+    } catch(NullPointerException e) {
+        return false;
+    }
+    return true;
+}
+     */
 }
