@@ -220,6 +220,15 @@ Ext.define('Uni.view.widget.WorkList', {
                         Uni.I18n.translate('bpm.task.priority.low', 'UNI', 'Low')
                 tooltip += '<tr><td><b>' + label + ':</b></td>';
                 tooltip += '<td>' + priority + '</td></tr>';
+            } else if (type == 'alarmOrIssuePriority') {
+                var priority = item[name] / 10;
+                priority = (priority <= 2) ? Uni.I18n.translate('bpm.task.priority.veryLow', 'UNI', 'Very low') :
+                    (priority <= 4) ? Uni.I18n.translate('bpm.task.priority.low', 'UNI', 'Low') :
+                    (priority <= 6) ? Uni.I18n.translate('bpm.task.priority.medium', 'UNI', 'Medium') :
+                    (priority <= 8) ? Uni.I18n.translate('bpm.task.priority.high', 'UNI', 'High') :
+                        Uni.I18n.translate('bpm.task.priority.veryHigh', 'UNI', 'Very high')
+                tooltip += '<tr><td><b>' + label + ':</b></td>';
+                tooltip += '<td>' + priority + '</td></tr>';
             }
         });
         tooltip += '</table>';
