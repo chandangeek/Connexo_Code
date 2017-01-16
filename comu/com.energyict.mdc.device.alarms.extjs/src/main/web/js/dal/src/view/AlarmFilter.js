@@ -129,8 +129,6 @@ Ext.define('Dal.view.AlarmFilter', {
                 valueField: 'id',
                 store: 'Dal.store.AlarmReasons',
                 queryMode: 'local',
-                //queryMode: 'remote',
-                //queryParam: 'like',
                 loadStore: !me.isOverviewFilter,
                 queryCaching: false,
                 minChars: 0,
@@ -144,7 +142,7 @@ Ext.define('Dal.view.AlarmFilter', {
                 dataIndexTo: 'startIntervalTo',
                 text: Uni.I18n.translate('general.createdBetween', 'DAL', 'Created between'),
                 itemId: 'created-between-filter'
-            },
+            }
         ];
 
         me.callParent(arguments);
