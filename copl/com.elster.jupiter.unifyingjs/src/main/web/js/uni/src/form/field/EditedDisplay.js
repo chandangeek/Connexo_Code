@@ -48,8 +48,8 @@ Ext.define('Uni.form.field.EditedDisplay', {
                 case 'RESET':
                     iconClass = 'icon-cancel-circle';
                     tooltipText = app
-                        ? Uni.I18n.translate('general.resetOnXApp', 'UNI', 'Reset in {0} on {1}', [app, formattedDate])
-                        : Uni.I18n.translate('general.resetOnX', 'UNI', 'Reset on {0}', formattedDate);
+                        ? Uni.I18n.translate('general.restoredOnXApp', 'UNI', 'Restored in {0} on {1}', [app, formattedDate])
+                        : Uni.I18n.translate('general.restoredOnX', 'UNI', 'Restored on {0}', formattedDate);
                     break;
             }
             if (iconClass && tooltipText) {
