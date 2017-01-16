@@ -151,6 +151,11 @@ Ext.define('Dsh.view.OperatorDashboard', {
                             name: 'dueDate',
                             label: Uni.I18n.translate('widget.myWorkList.property.dueDate', 'DSH', 'Due date'),
                             type: 'datetime'
+                        },
+                        {
+                            name: 'priorityValue',
+                            label: Uni.I18n.translate('widget.myWorkList.property.priority', 'DSH', 'Priority'),
+                            type: 'alarmOrIssuePriority'
                         }
                     ]
                 };
@@ -163,7 +168,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     name: Uni.I18n.translate('widget.myWorkList.alarms', 'DSH', 'Alarms'),
                     topLabel: Uni.I18n.translate('widget.myWorkList.alarms.topLabel', 'DSH', 'Top {0} most urgent alarms'),
                     topZeroLabel: Uni.I18n.translate('widget.myWorkList.alarms.topZeroLabel', 'DSH', 'No open alarms assigned to me'),
-                    url: '/api/isu/topissues/alarms',
+                    url: '/api/dal/topalarms/alarms',
                     itemRoute: 'workspace/alarms/view',
                     routeArguments: [{name: 'alarmId', property: 'id'}],
                     assignedToMeLink: me.router.getRoute('workspace/alarms').buildUrl({}, {myopenalarms: true}),
@@ -180,6 +185,11 @@ Ext.define('Dsh.view.OperatorDashboard', {
                             name: 'dueDate',
                             label: Uni.I18n.translate('widget.myWorkList.property.dueDate', 'DSH', 'Due date'),
                             type: 'datetime'
+                        },
+                        {
+                            name: 'alarmPriority',
+                            label: Uni.I18n.translate('widget.myWorkList.property.priority', 'DSH', 'Priority'),
+                            type: 'alarmOrIssuePriority'
                         }
                     ]
                 };
