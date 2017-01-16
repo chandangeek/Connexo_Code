@@ -10864,29 +10864,25 @@
     overflow: visible
 }
 
-.x-panel-default-framed .x-panel-header {
+.x-panel-default-framed > .x-panel-header {
     border-color: #71adc7;
     background: #71adc7
 }
 
-.x-panel-default-framed .x-panel-header .x-panel-header-text-container {
+.x-panel-default-framed > .x-panel-header .x-panel-header-text-container {
     color: white
 }
 
-.x-panel-default-framed .x-panel-header .x-btn-default-small {
+.x-panel-default-framed > .x-panel-header .x-btn-default-small {
     background-color: transparent
 }
 
-.x-panel-default-framed .x-panel-header .x-btn-default-small-menu-active, .x-panel-default-framed .x-panel-header .x-btn-default-small-focus, .x-panel-default-framed .x-panel-header .x-btn-default-small-over {
+.x-panel-default-framed > .x-panel-header .x-btn-default-small-menu-active, .x-panel-default-framed > .x-panel-header .x-btn-default-small-focus, .x-panel-default-framed > .x-panel-header .x-btn-default-small-over {
     background-color: #1e7d9e
 }
 
-.x-panel-default-framed .x-panel-header-top {
+.x-panel-default-framed > .x-panel-header-top {
     padding: 4px 4px 4px 16px
-}
-
-.x-panel-default-framed .x-panel {
-    padding: 0
 }
 
 .x-panel-header .x-panel-header-sub-text {
@@ -11694,4 +11690,8 @@
 
 .x-panel-header-form-error-framed-collapsed-right-tr {
     background-position: right -30px
+}
+
+.x-panel-header-form-error-framed-collapsed-right-bl {
+    background-position: 0 -40px
 }

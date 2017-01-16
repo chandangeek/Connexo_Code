@@ -2,7 +2,6 @@
   width: 32px;
   right: auto;
 }
-
 /* line 415, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-ie6 .x-btn-action-toolbar-large-icon-text-left .x-btn-icon-el, .x-quirks .x-ie .x-btn-action-toolbar-large-icon-text-left .x-btn-icon-el {
   height: 32px;
@@ -14274,52 +14273,50 @@
   overflow: visible;
 }
 /* line 91, ../../sass/src/panel/Panel.scss */
-.x-panel-default-framed .x-panel-header {
+.x-panel-default-framed > .x-panel-header {
   border-color: #71adc7;
   background: #71adc7;
 }
 /* line 94, ../../sass/src/panel/Panel.scss */
-.x-panel-default-framed .x-panel-header .x-panel-header-text-container {
+.x-panel-default-framed > .x-panel-header .x-panel-header-text-container {
   color: white;
 }
 /* line 98, ../../sass/src/panel/Panel.scss */
-.x-panel-default-framed .x-panel-header .x-btn-default-small {
+.x-panel-default-framed > .x-panel-header .x-btn-default-small {
   background-color: transparent;
 }
 /* line 104, ../../sass/src/panel/Panel.scss */
-.x-panel-default-framed .x-panel-header .x-btn-default-small-menu-active,
-.x-panel-default-framed .x-panel-header .x-btn-default-small-focus,
-.x-panel-default-framed .x-panel-header .x-btn-default-small-over {
+.x-panel-default-framed > .x-panel-header .x-btn-default-small-menu-active,
+.x-panel-default-framed > .x-panel-header .x-btn-default-small-focus,
+.x-panel-default-framed > .x-panel-header .x-btn-default-small-over {
   background-color: #1e7d9e;
 }
 /* line 108, ../../sass/src/panel/Panel.scss */
-.x-panel-default-framed .x-panel-header-top {
+.x-panel-default-framed > .x-panel-header-top {
   padding: 4px 4px 4px 16px;
 }
-/* line 111, ../../sass/src/panel/Panel.scss */
-.x-panel-default-framed .x-panel {
-  padding: 0;
-}
 
-/* line 117, ../../sass/src/panel/Panel.scss */
+/* line 114, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text {
   float: none;
   color: #686868;
   clear: both;
   display: block;
 }
-/* line 123, ../../sass/src/panel/Panel.scss */
+
+/* line 120, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-medium {
   font-size: 20px;
   line-height: 20px;
 }
-/* line 127, ../../sass/src/panel/Panel.scss */
+
+/* line 124, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-large {
   font-size: 30px;
   line-height: 20px;
 }
 
-/* line 133, ../../sass/src/panel/Panel.scss */
+/* line 130, ../../sass/src/panel/Panel.scss */
 .x-panel-filter {
   background-color: #ebebeb;
   -webkit-border-radius: 10px;
@@ -14328,30 +14325,35 @@
   -o-border-radius: 10px;
   border-radius: 10px;
 }
-/* line 137, ../../sass/src/panel/Panel.scss */
+
+/* line 134, ../../sass/src/panel/Panel.scss */
 .x-panel-filter .x-panel-body {
   background: transparent;
 }
 
-/* line 142, ../../sass/src/panel/Panel.scss */
+/* line 139, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar {
   padding: 8px 0;
 }
-/* line 144, ../../sass/src/panel/Panel.scss */
+
+/* line 141, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-header-text-container {
   width: 64px;
   color: #686868;
   font-weight: bold;
 }
-/* line 149, ../../sass/src/panel/Panel.scss */
+
+/* line 146, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-box-item {
   margin-right: 8px;
 }
-/* line 152, ../../sass/src/panel/Panel.scss */
+
+/* line 149, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
-/* line 155, ../../sass/src/panel/Panel.scss */
+
+/* line 152, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-form-item-label {
   background: transparent;
   top: 4px !important;
@@ -15345,4 +15347,9 @@
 /* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-form-error-framed-collapsed-right-tr {
   background-position: right -30px;
+}
+
+/* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-form-error-framed-collapsed-right-bl {
+  background-position: 0 -40px;
 }

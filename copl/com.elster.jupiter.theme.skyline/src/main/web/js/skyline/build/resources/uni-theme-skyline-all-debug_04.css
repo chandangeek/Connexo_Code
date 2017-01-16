@@ -1,8 +1,3 @@
-/* line 323, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-form-error-framed-collapsed-right-bl {
-  background-position: 0 -40px;
-}
-
 /* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-form-error-framed-collapsed-right-br {
   background-position: right -50px;
@@ -936,12 +931,12 @@
   border-width: 1px !important;
 }
 
-/* line 179, ../../sass/src/panel/Panel.scss */
+/* line 176, ../../sass/src/panel/Panel.scss */
 .x-uni-form-error-msg-icon {
   background-image: url("images/form/ico_warning.png");
 }
 
-/* line 183, ../../sass/src/panel/Panel.scss */
+/* line 180, ../../sass/src/panel/Panel.scss */
 *[class*='x-panel-'].no-side-padding {
   padding-right: 0;
   padding-left: 0;
@@ -2698,7 +2693,7 @@
   color: #686868;
 }
 
-/* line 196, ../../sass/src/panel/Panel.scss */
+/* line 193, ../../sass/src/panel/Panel.scss */
 .error-border .x-panel-body {
   border-color: #eb5642 !important;
 }

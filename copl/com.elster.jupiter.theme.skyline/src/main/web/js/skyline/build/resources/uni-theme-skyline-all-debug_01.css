@@ -67,13 +67,11 @@
 .trlegend td {
   padding: 3px 5px 3px 0;
 }
-
 /* line 4, ../../sass/etc/all.scss */
 .trlegend td:first-child {
   font-weight: bold;
   text-align: right;
 }
-
 /* line 8, ../../sass/etc/all.scss */
 .trlegend td:last-child {
   padding-right: 0;

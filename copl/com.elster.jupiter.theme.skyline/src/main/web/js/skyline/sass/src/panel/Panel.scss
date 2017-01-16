@@ -88,7 +88,7 @@ $ui-body-background-color: $panel-filter-background-color
 .#{$prefix}panel-default-framed {
     overflow: visible;
 
-    .#{$prefix}panel-header {
+    & > .#{$prefix}panel-header {
         border-color: $panel-frame-header-border-color;
         background: $panel-frame-header-border-color;
         .#{$prefix}panel-header-text-container {
@@ -105,11 +105,8 @@ $ui-body-background-color: $panel-filter-background-color
             background-color: $panel-frame-pressed-menu;
         }
     }
-    .#{$prefix}panel-header-top {
+    & > .#{$prefix}panel-header-top {
         padding: $panel-frame-header-padding;
-    }
-    .#{$prefix}panel {
-        padding: 0;
     }
 }
 
