@@ -63,11 +63,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                 edit: this.resumeEditorFieldValidation,
                 canceledit: this.resumeEditorFieldValidation,
                 selectionchange: this.onDataGridSelectionChange,
-                select: function (selectionModel, record) {
-                    if (selectionModel.getSelection().length === 1) {
-                        this.getReadingPreviewPanel().updateForm(record);
-                    }
-                }
+                select: this.showPreview,
+                beforeedit: this.beforeEditRecord
             },
             'purpose-bulk-action-menu': {
                 click: this.chooseBulkAction
@@ -121,6 +118,19 @@ Ext.define('Imt.purpose.controller.Readings', {
             case 'confirmValue':
                 me.confirmValue(menu.record, false);
                 break;
+        }
+    },
+
+    beforeEditRecord: function (editor, context) {
+        var intervalFlags = context.record.get('intervalFlags');
+        context.column.getEditor().allowBlank = !(intervalFlags && intervalFlags.length);
+        this.showPreview(context.grid.getSelectionModel(), context.record);
+    },
+
+    showPreview: function (selectionModel, record) {
+        var me = this;
+        if (selectionModel.getSelection().length === 1) {
+            me.getReadingPreviewPanel().updateForm(record);
         }
     },
 
@@ -265,8 +275,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             changedData = me.getChangedData(me.getStore('Imt.purpose.store.Readings')),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
-        viewport.setLoading();
         if (!Ext.isEmpty(changedData)) {
+            viewport.setLoading();
             Ext.Ajax.request({
                 url: Ext.String.format('/api/udr/usagepoints/{0}/purposes/{1}/outputs/{2}/channelData', router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId),
                 method: 'PUT',
@@ -276,7 +286,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'IMT', 'Channel data have been saved'));
                 },
-                callback: function (response) {
+                failure: function (response) {
                     viewport.setLoading(false);
                 }
             });
