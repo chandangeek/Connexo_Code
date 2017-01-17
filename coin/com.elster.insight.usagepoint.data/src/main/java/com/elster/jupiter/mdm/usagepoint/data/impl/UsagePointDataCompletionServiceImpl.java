@@ -79,17 +79,15 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                                 (hashSet1, hashSet2) -> hashSet1, // merge is not needed, everything should be distinct already
                                 TreeMap::new
                         ));
-        Optional<Instant> lastCheckedOptional = validationService.getLastChecked(channel);
-        int uncheckedTimingsCount;
         ChannelDataCompletionSummaryImpl generalSummary = new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.GENERAL);
         ChannelDataCompletionSummaryImpl editedSummary = new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.EDITED);
         ChannelDataCompletionSummaryImpl validSummary = new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.VALID);
         summaryList.add(generalSummary);
-        channel.findReadingQualities() // supply the map with all other qualities to consider
+        channel.findReadingQualities() // supply the map with all qualities to consider
                 .inTimeInterval(interval)
                 .actual()
                 .ofQualitySystem(QualityCodeSystem.MDM)
-                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE))
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE, QualityCodeIndex.ACCEPTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED, QualityCodeCategory.VALIDATION))
                 .stream()
@@ -103,9 +101,9 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                         () -> qualityTypesByAllTimings
                 ));
         gatherEdited(qualityTypesByAllTimings, editedSummary);
-        if (editedSummary.getSum() > 0) {
-            summaryList.add(editedSummary);
-        }
+        summaryList.add(editedSummary);
+        Optional<Instant> lastCheckedOptional = validationService.getLastChecked(channel);
+        int uncheckedTimingsCount;
         if (lastCheckedOptional.isPresent()) {
             Instant lastChecked = lastCheckedOptional.get();
             Map<Instant, Set<ReadingQualityType>> uncheckedTimings = qualityTypesByAllTimings.tailMap(lastChecked, false);
@@ -113,7 +111,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
             uncheckedTimings.clear(); // removed from qualityTypesByAllTimings
             if (Range.atMost(lastChecked).isConnected(interval)) { // something is validated
                 gatherStatistics(qualityTypesByAllTimings, generalSummary);
-                gatherValid(qualityTypesByAllTimings, validSummary);
+                gatherValidated(qualityTypesByAllTimings, validSummary);
                 if (validSummary.getSum() > 0) {
                     summaryList.add(validSummary);
                 }
@@ -131,8 +129,6 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                 accountFlagValue(summary, flag, (int) qualityTypesByAllTimings.entrySet().stream()
                         .filter(entry -> entry.getValue().stream().anyMatch(flag.getQualityTypePredicate()))
                         .map(Map.Entry::getKey)
-                        .collect(Collectors.toList())
-                        .stream()
                         .count()));
     }
 
@@ -149,8 +145,8 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
         accountFlagValue(summary, ChannelDataCompletionSummaryFlag.VALID, qualityTypesByAllTimings.size());
     }
 
-    private static void gatherValid(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,
-                                     ChannelDataCompletionSummaryImpl summary) {
+    private static void gatherValidated(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,
+                                        ChannelDataCompletionSummaryImpl summary) {
         Arrays.stream(ValidChannelDataSummaryFlags.values()).forEach(flag ->
                 accountFlagValue(summary, flag, (int) qualityTypesByAllTimings.entrySet().stream()
                         .filter(entry -> entry.getValue().stream().anyMatch(flag.getQualityTypePredicate()))
@@ -191,8 +187,8 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                         .map(intervalWithData -> container.getChannel(deliverable.getReadingType())
                                 // channel cannot be unfound
                                 .map(channel -> getDataCompletionStatistics(channel, intervalWithData))
-                                .orElse(Collections.singletonList(new ChannelDataCompletionSummaryImpl(intervalWithData, ChannelDataCompletionSummaryType.GENERAL))))
-                        .orElse(Collections.singletonList(new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.GENERAL))),
+                                .orElse(Collections.singletonList(getGeneralUsagePointDataCompletionSummary(intervalWithData))))
+                        .orElse(Collections.singletonList(getGeneralUsagePointDataCompletionSummary(interval))),
                 (summary1, summary2) -> { // merge should not appear since no ReadingTypeDeliverable duplication allowed
                     throw new LocalizedException(thesaurus,
                             MessageSeeds.DUPLICATE_READINGTYPE_ON_METROLOGY_CONTRACT,
@@ -201,5 +197,10 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                 },
                 LinkedHashMap::new
         ));
+    }
+
+    @Override
+    public IChannelDataCompletionSummary getGeneralUsagePointDataCompletionSummary (Range<Instant> interval) {
+        return new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.GENERAL);
     }
 }

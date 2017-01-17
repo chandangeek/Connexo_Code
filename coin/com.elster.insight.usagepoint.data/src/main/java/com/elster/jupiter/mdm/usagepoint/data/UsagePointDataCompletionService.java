@@ -18,4 +18,6 @@ public interface UsagePointDataCompletionService {
 
     Map<ReadingTypeDeliverable, List<IChannelDataCompletionSummary>> getDataCompletionStatistics(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
                                                                                                  MetrologyContract contract, Range<Instant> interval);
+
+    IChannelDataCompletionSummary getGeneralUsagePointDataCompletionSummary(Range<Instant> intervalWithData);
 }

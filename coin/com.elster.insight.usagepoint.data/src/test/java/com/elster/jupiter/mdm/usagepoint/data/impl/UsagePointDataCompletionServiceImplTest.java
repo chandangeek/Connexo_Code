@@ -63,7 +63,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointDataCompletionServiceImplTest {
     private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
-    private static final Instant FIRST_DATE = ZonedDateTime.of(2016, 7, 5, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant FIRST_DATE = ZonedDateTime.of(2016, 7, 3, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant INFORMATIVE_DATE = ZonedDateTime.of(2016, 7, 4, 12, 0, 0, 0, PARIS).toInstant();
+    private static final Instant CONFIRMED_DATE = ZonedDateTime.of(2016, 7, 5, 12, 0, 0, 0, PARIS).toInstant();
     private static final Instant EDITED_DATE = ZonedDateTime.of(2016, 7, 6, 12, 0, 0, 0, PARIS).toInstant();
     private static final Instant ESTIMATED_DATE = ZonedDateTime.of(2016, 7, 7, 12, 0, 0, 0, PARIS).toInstant();
     private static final Instant MISSING_DATE = ZonedDateTime.of(2016, 7, 8, 12, 0, 0, 0, PARIS).toInstant();
@@ -97,7 +99,7 @@ public class UsagePointDataCompletionServiceImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ReadingQualityWithTypeFetcher fetcher;
     @Mock
-    private ReadingQualityRecord error, suspect, added, edited, removed, estimated;
+    private ReadingQualityRecord error, suspect, added, edited, removed, estimated, informative, confirmed;
 
     @Captor
     ArgumentCaptor<Range<Instant>> captor;
@@ -139,15 +141,19 @@ public class UsagePointDataCompletionServiceImplTest {
         when(removed.getReadingTimestamp()).thenReturn(REJECTED_DATE);
         when(estimated.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 42));
         when(estimated.getReadingTimestamp()).thenReturn(ESTIMATED_DATE);
+        when(informative.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1001));
+        when(informative.getReadingTimestamp()).thenReturn(INFORMATIVE_DATE);
+        when(confirmed.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED));
+        when(confirmed.getReadingTimestamp()).thenReturn(CONFIRMED_DATE);
 
         when(fetcher.inTimeInterval(captor.capture())
                 .actual()
                 .ofQualitySystem(QualityCodeSystem.MDM)
-                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE))
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE, QualityCodeIndex.ACCEPTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED, QualityCodeCategory.VALIDATION))
                 .stream())
-                .thenAnswer(invocation -> Stream.of(error, suspect, added, edited, removed, estimated)
+                .thenAnswer(invocation -> Stream.of(error, suspect, added, edited, removed, estimated, informative, confirmed)
                         .filter(record -> captor.getValue().contains(record.getReadingTimestamp())));
     }
 
@@ -197,10 +203,10 @@ public class UsagePointDataCompletionServiceImplTest {
         assertThat(summaries.values().stream()
                 .peek(summary -> assertThat(summary.get(0).getValues()).contains(
                         MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
-                        MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 4),
+                        MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 6),
                         MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2)
                 ))
-                .peek(summary -> assertThat(summary.get(0).getSum()).isEqualTo(8))
+                .peek(summary -> assertThat(summary.get(0).getSum()).isEqualTo(10))
                 .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(actualRange))
                 .count()).isEqualTo(2);
     }
@@ -264,18 +270,20 @@ public class UsagePointDataCompletionServiceImplTest {
         assertThat(summary.getValues()).contains(
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2),
-                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 5));
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 7));
         assertThat(editedSummary.getValues()).contains(
                 MapEntry.entry(ChannelDataModificationSummaryFlags.EDITED, 1),
                 MapEntry.entry(ChannelDataModificationSummaryFlags.ADDED, 1),
                 MapEntry.entry(ChannelDataModificationSummaryFlags.REMOVED, 1));
         assertThat(validSummary.getValues()).contains(
                 MapEntry.entry(ValidChannelDataSummaryFlags.VALID, 4),
+                MapEntry.entry(ValidChannelDataSummaryFlags.CONFIRMED, 1),
+                MapEntry.entry(ValidChannelDataSummaryFlags.INFORMATIVE, 1),
                 MapEntry.entry(ValidChannelDataSummaryFlags.ESTIMATED, 1));
         assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE);
-        assertThat(summary.getSum()).isEqualTo(9);
+        assertThat(summary.getSum()).isEqualTo(11);
         assertThat(editedSummary.getSum()).isEqualTo(3);
-        assertThat(validSummary.getSum()).isEqualTo(5);
+        assertThat(validSummary.getSum()).isEqualTo(7);
         assertThat(summary.getType()).isEqualTo(ChannelDataCompletionSummaryType.GENERAL);
         assertThat(editedSummary.getType()).isEqualTo(ChannelDataCompletionSummaryType.EDITED);
         assertThat(validSummary.getType()).isEqualTo(ChannelDataCompletionSummaryType.VALID);
@@ -287,8 +295,8 @@ public class UsagePointDataCompletionServiceImplTest {
         assertThat(summary.getValues()).contains(
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 3),
-                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 5));
-        assertThat(summary.getSum()).isEqualTo(10);
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 7));
+        assertThat(summary.getSum()).isEqualTo(12);
         assertThat(summary.getTargetInterval()).isEqualTo(Range.all());
     }
 
@@ -304,9 +312,9 @@ public class UsagePointDataCompletionServiceImplTest {
                 .peek(summary -> assertThat(summary.get(0).getValues()).contains(
                         MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
                         MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2),
-                        MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 5)
+                        MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 7)
                 ))
-                .peek(summary -> assertThat(summary.get(0).getSum()).isEqualTo(9))
+                .peek(summary -> assertThat(summary.get(0).getSum()).isEqualTo(11))
                 .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(NOMINAL_RANGE))
                 .count()).isEqualTo(1);
         when(metrologyContract.getDeliverables()).thenReturn(Arrays.asList(deliverable2, deliverable1));
@@ -334,8 +342,8 @@ public class UsagePointDataCompletionServiceImplTest {
         assertThat(summary.getValues()).contains(
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2),
-                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 4));
-        assertThat(summary.getSum()).isEqualTo(8);
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 6));
+        assertThat(summary.getSum()).isEqualTo(10);
         assertThat(summary.getTargetInterval()).isEqualTo(interval);
         summary = summaries.get(deliverable2).get(0);
         assertThat(summary.getValues()).contains(
@@ -350,8 +358,8 @@ public class UsagePointDataCompletionServiceImplTest {
         when(validationService.getLastChecked(channel)).thenReturn(Optional.empty());
         summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE).get(0);
         assertThat(summary.getValues()).contains(
-                MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 9));
-        assertThat(summary.getSum()).isEqualTo(9);
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 11));
+        assertThat(summary.getSum()).isEqualTo(11);
         assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE);
     }
 
@@ -370,9 +378,9 @@ public class UsagePointDataCompletionServiceImplTest {
         summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE).get(0);
         assertThat(summary.getValues()).contains(
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
-                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 5),
+                MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 7),
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2));
-        assertThat(summary.getSum()).isEqualTo(9);
+        assertThat(summary.getSum()).isEqualTo(11);
         assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE);
     }
 
