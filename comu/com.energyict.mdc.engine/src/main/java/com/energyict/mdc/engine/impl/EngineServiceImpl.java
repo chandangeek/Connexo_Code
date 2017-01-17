@@ -54,6 +54,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -85,7 +86,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
  * Time: 13:17
  */
 @Component(name = "com.energyict.mdc.engine",
-        service = {EngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {EngineService.class, ServerEngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + EngineService.COMPONENTNAME,
                 "osgi.command.scope=mdc",
                 "osgi.command.function=become",
@@ -94,7 +95,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
                 "osgi.command.function=lcs",
                 "osgi.command.function=scs"},
         immediate = true)
-public class EngineServiceImpl implements EngineService, TranslationKeyProvider, MessageSeedProvider {
+public class EngineServiceImpl implements ServerEngineService, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMSERVER_USER = "comserver";
     private volatile DataModel dataModel;
@@ -177,6 +178,11 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         setFirmwareService(firmwareService);
         setUpgradeService(upgradeService);
         activate(bundleContext);
+    }
+
+    @Override
+    public Thesaurus thesaurus() {
+        return this.thesaurus;
     }
 
     @Override
@@ -291,6 +297,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
+        keys.addAll(Arrays.asList(NextExecutionSpecsFormat.TranslationKeys.values()));
         return keys;
     }
 
@@ -369,10 +376,6 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     @SuppressWarnings("unused")
     public void removeIdentificationService(IdentificationService identificationService) {
         this.identificationService.clear();
-    }
-
-    Thesaurus getThesaurus() {
-        return thesaurus;
     }
 
     private Module getModule() {
