@@ -76,6 +76,7 @@ Ext.define('Dxp.view.tasks.Add', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.recurrence', 'DES', 'Recurrence'),
+                        required: true,
                         itemId: 'recurrence-container',
                         layout: 'hbox',
                         items: [
@@ -156,6 +157,7 @@ Ext.define('Dxp.view.tasks.Add', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.startOn', 'DES', 'Start on'),
+                        required: true,
                         layout: 'hbox',
                         items: [
                             {
