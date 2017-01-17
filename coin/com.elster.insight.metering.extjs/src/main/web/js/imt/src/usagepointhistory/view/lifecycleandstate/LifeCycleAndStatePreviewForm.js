@@ -46,7 +46,7 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndStatePrevie
                     {
                         name: 'transitionTime',
                         itemId: 'fld-state-change-time',
-                        fieldLabel: Uni.I18n.translate('general.stateChangeTime', 'IMT', 'State change time'),
+                        fieldLabel: Uni.I18n.translate('usagepointtransitionexecute.wizard.transitiondate', 'IMT', 'Transition date'),
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                         }

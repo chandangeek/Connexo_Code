@@ -12,6 +12,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
     metrologyConfig: null,
     purposes: null,
     rulesStore: null,
+    editOrder: false,
     selectByDefault: false,
 
     initComponent: function () {
@@ -41,12 +42,15 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
             };
 
             me.purposes.forEach(function (purpose) {
+                //Unique id for each group of estimation rule sets. Used by gridviewwithgroupsdragdrop plugin
+                var hiddenGroupId = Math.random() .toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
                 if (purpose.estimationRuleSets().getCount() == 0) {
                     data.push({
                         noRuleSets: true,
                         metrologyContract: purpose.get('name'),
                         metrologyContractIsMandatory: purpose.get('mandatory'),
-                        metrologyContractId: purpose.getId()
+                        metrologyContractId: purpose.getId(),
+                        hiddenGroupId: hiddenGroupId
                     });
                 } else {
                     purpose.estimationRuleSets().each(function (estimationRuleSet) {
@@ -54,7 +58,8 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
                             metrologyContract: purpose.get('name'),
                             metrologyContractIsMandatory: purpose.get('mandatory'),
                             metrologyContractId: purpose.getId(),
-                            uniqueId: estimationRuleSet.get('id') + ' ' + purpose.getId()
+                            uniqueId: estimationRuleSet.get('id') + ' ' + purpose.getId(),
+                            hiddenGroupId: hiddenGroupId
                         }));
                         ruleSetsCount++;
                     });
@@ -85,6 +90,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
             router: me.router,
             store: store,
             purposes: me.purposes,
+            editOrder: me.editOrder,
             metrologyConfig: me.metrologyConfig
         };
 
@@ -114,7 +120,7 @@ Ext.define('Imt.metrologyconfiguration.view.estimation.EstimationRuleSets', {
                     {
                         text: Uni.I18n.translate('estimation.addEstimationRule', 'IMT', 'Add estimation rule'),
                         itemId: 'est-purpose-rule-sets-add-rule-button',
-                        // privileges: Cfg.privileges.Validation.admin,
+                        privileges: Est.privileges.EstimationConfiguration.administrate,
                         preventDefault: false
                     }
                 ]

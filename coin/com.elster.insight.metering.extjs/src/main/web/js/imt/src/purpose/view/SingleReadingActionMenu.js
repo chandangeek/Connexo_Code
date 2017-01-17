@@ -26,7 +26,7 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
             {
                 itemId: 'reset-value',
                 hidden: true,
-                text: Uni.I18n.translate('general.resetReadings', 'IMT', 'Reset'),
+                text: Uni.I18n.translate('general.restoreReadings', 'IMT', 'Restore'),
                 action: 'resetValue',
                 section: this.SECTION_REMOVE
             }
