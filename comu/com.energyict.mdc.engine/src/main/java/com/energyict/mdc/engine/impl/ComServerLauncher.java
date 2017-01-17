@@ -36,6 +36,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
+import com.energyict.mdc.upl.Services;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -163,6 +164,7 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
 
     private void startOnlineComServer() {
         Optional<User> user = serviceProvider.userService().findUser(EngineServiceImpl.COMSERVER_USER);
+        Services.objectMapperService(new ObjectMapperServiceImpl(new OnlineJSONTypeMapper()));
         ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider(), user.get()); // we should always have the comserver user
         this.comServer = comServerDAO.getThisComServer();
         this.doStartOnlineComServer(comServerDAO);
@@ -222,6 +224,9 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private void startRemoteComServer() {
+        /* Todo: uncomment when porting remote ComServer to Connexo
+         * Services.objectMapperService(new ObjectMapperServiceImpl(new RemoteJSONTypeMapper()));
+         */
         RemoteComServerDAOImpl comServerDAO = new RemoteComServerDAOImpl(this.remoteQueryApiUrl, new RemoteComServerDaoServiceProvider());
         comServerDAO.start();
         this.comServer = comServerDAO.getComServer(HostName.getCurrent());

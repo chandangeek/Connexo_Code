@@ -1,0 +1,142 @@
+package com.energyict.mdc.engine.impl;
+
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.ObjectMapperService;
+
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.AnnotationIntrospector;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.DeserializationContext;
+import org.codehaus.jackson.map.JsonDeserializer;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.codehaus.jackson.map.deser.std.UntypedObjectDeserializer;
+import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
+import org.codehaus.jackson.map.module.SimpleModule;
+import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
+import org.json.JSONException;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * Provides an implementation for the {@link ObjectMapperService} interface.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2017-01-17 (08:46)
+ */
+public class ObjectMapperServiceImpl implements ObjectMapperService {
+    private final JSONTypeMapper jsonTypeMapper;
+
+    public interface JSONTypeMapper {
+
+        String TYPE_ATTRIBUTE = "type";
+
+
+        Class classForName(String className) throws ClassNotFoundException;
+
+        /**
+         * Convert all class names, used in the given JSONObject/JSONArray, to their remote variant.
+         * This operation is done in place; this method has void return type, but the given object will be modified
+         *
+         * @param objectJSON the JSON to correct class names for, which should be of type {@link org.json.JSONObject} or {@link org.json.JSONArray}
+         * @throws JSONException
+         * @throws ClassNotFoundException
+         */
+        void convertAllClassNamesFor(Object objectJSON) throws JSONException, ClassNotFoundException;
+    }
+
+    public ObjectMapperServiceImpl(JSONTypeMapper jsonTypeMapper) {
+        this.jsonTypeMapper = jsonTypeMapper;
+    }
+
+    @Override
+    public ObjectMapper newJacksonMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        AnnotationIntrospector jacksonAnnotationIntrospector = new JacksonAnnotationIntrospector();
+        AnnotationIntrospector jaxbAnnotationIntrospector = new JaxbAnnotationIntrospector();
+        AnnotationIntrospector introspector = new AnnotationIntrospector.Pair(jacksonAnnotationIntrospector, jaxbAnnotationIntrospector);
+
+        // Serialization config
+        mapper.setSerializationConfig(mapper.getSerializationConfig().withAnnotationIntrospector(jaxbAnnotationIntrospector));
+        mapper.setSerializationConfig(mapper.getSerializationConfig().with(SerializationConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS));
+        mapper.setSerializationConfig(mapper.getSerializationConfig().without(SerializationConfig.Feature.AUTO_DETECT_GETTERS));
+        mapper.setSerializationConfig(mapper.getSerializationConfig().without(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS));
+        mapper.setSerializationConfig(mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_NULL));
+
+        // Deserialization config
+        mapper.setDeserializationConfig(mapper.getDeserializationConfig().withAnnotationIntrospector(introspector));
+        mapper.setDeserializationConfig(mapper.getDeserializationConfig().without(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS));
+        mapper.setDeserializationConfig(mapper.getDeserializationConfig().with(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT));
+
+        // Registered modules
+        SimpleModule typedPropertiesDeserializerModule = new SimpleModule("TypedPropertiesDeserializerModule", new Version(1, 0, 0, null));
+        mapper.registerModule(
+                typedPropertiesDeserializerModule
+                        .addDeserializer(TypedProperties.class, new TypedPropertiesJsonDeserializer(mapper, this.jsonTypeMapper)));
+        return mapper;
+    }
+
+    private static class TypedPropertiesJsonDeserializer extends JsonDeserializer<TypedProperties> {
+
+        private final ObjectMapper mapper;
+        private final JSONTypeMapper jsonTypeMapper;
+
+        private TypedPropertiesJsonDeserializer(ObjectMapper mapper, JSONTypeMapper jsonTypeMapper) {
+            this.mapper = mapper;
+            this.jsonTypeMapper = jsonTypeMapper;
+        }
+
+        @Override
+        public TypedProperties deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+            Map typedPropertiesHashMap = (LinkedHashMap) new UntypedObjectDeserializer().deserialize(jp, ctxt);
+            return createTypedPropertiesFor(typedPropertiesHashMap);
+        }
+
+        /**
+         * Create a proper {@link TypedProperties} object from the given LinkedHashMap,
+         * which contains the JSON marshalled version of the TypedProperties object
+         *
+         * @param typedPropertiesHashMap the JSON marsahlled version of the TypedProperties object
+         * @return a proper TypedProperties object (including its inherited TypedProperties)
+         */
+        private TypedProperties createTypedPropertiesFor(Map typedPropertiesHashMap) throws JsonMappingException {
+            if (typedPropertiesHashMap != null) {
+                TypedProperties typedProperties;
+                if (typedPropertiesHashMap.containsKey("inheritedProperties")) {
+                    Map inheritedProperties = (LinkedHashMap) typedPropertiesHashMap.get("inheritedProperties");
+                    typedProperties = TypedProperties.inheritingFrom(this.createTypedPropertiesFor(inheritedProperties)); // Recursively parse the inherited TypedProperties
+                } else {
+                    typedProperties = TypedProperties.empty();
+                }
+
+                if (typedPropertiesHashMap.containsKey("hashTable")) {
+                    Map propertyMap = (LinkedHashMap) typedPropertiesHashMap.get("hashTable");
+                    Map propertyClassMap = (LinkedHashMap) typedPropertiesHashMap.get("propertyKeyPropertyClassMap");
+                    for (Object o : propertyMap.entrySet()) {
+                        Map.Entry pairs = (Map.Entry) o;
+                        String key = (String) pairs.getKey();
+                        Object value = pairs.getValue();    // Value is either of simple type (String, Integer, ...) or a LinkedHashMap (JSON variant of a more complex object)
+                        // which should be converted back to a proper object
+                        String xmlType = (String) propertyClassMap.get(key);
+                        try {
+                            Class clazz = this.jsonTypeMapper.classForName(xmlType);
+                            value = this.mapper.convertValue(value, clazz);
+                        } catch (ClassNotFoundException | NullPointerException e) {
+                            throw new JsonMappingException("Failed to unmarshall one or more of the property values of the TypedProperties");
+                        }
+                        typedProperties.setProperty(key, value);
+                    }
+                }
+                return typedProperties;
+            } else {
+                return TypedProperties.empty();
+            }
+        }
+    }
+
+}
