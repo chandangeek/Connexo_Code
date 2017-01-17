@@ -1,8 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.security.SecurityService;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -14,6 +16,11 @@ import org.osgi.service.component.annotations.Component;
 @Component(name = "com.energyict.mdc.protocol.pluggable.upl.security", service = {SecurityService.class})
 @SuppressWarnings("unused")
 public class SecurityServiceImpl implements SecurityService {
+
+    @Activate
+    public void activate() {
+        Services.securityService(this);
+    }
 
     @Override
     public Password passwordFromEncryptedString(String encrypted) {

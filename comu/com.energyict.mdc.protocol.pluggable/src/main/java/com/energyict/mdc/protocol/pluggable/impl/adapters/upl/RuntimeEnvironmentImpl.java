@@ -23,6 +23,11 @@ public class RuntimeEnvironmentImpl implements RuntimeEnvironment {
     private BundleContext bundleContext;
 
     @Activate
+    public void activate() {
+        Services.runtimeEnvironment(this);
+    }
+
+    @Activate
     public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
         Services.runtimeEnvironment(this);
