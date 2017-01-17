@@ -288,6 +288,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     me.validatePurpose(menu.record);
                     break;
             }
+            switch (item.action) {
+                case 'estimateNow':
+                    me.estimatePurpose(menu.record);
+                    break;
+            }
         }
     },
 
@@ -296,6 +301,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'purpose-validateNowConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'IMT', 'Validate'),
+                closeAction: 'destroy',
                 confirmation: function () {
                     me.onValidateNow(this, purpose);
                 }
@@ -308,9 +314,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
             icon: 'icon-question4',
             msg: ''
         });
-        confirmationWindow.on('close', function () {
-            this.destroy();
-        });
+    },
+
+    estimatePurpose: function (purpose) {
     },
 
     getActivationConfirmationContent: function (purpose) {
