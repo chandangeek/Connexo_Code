@@ -13,7 +13,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-17 (13:13)
  */
-@Component(name = "com.energyict.mdc.protocol.pluggable.upl.security", service = {Converter.class})
+@Component(name = "com.energyict.mdc.protocol.pluggable.upl.converter", service = {Converter.class})
 @SuppressWarnings("unused")
 public class ConverterImpl implements Converter {
 

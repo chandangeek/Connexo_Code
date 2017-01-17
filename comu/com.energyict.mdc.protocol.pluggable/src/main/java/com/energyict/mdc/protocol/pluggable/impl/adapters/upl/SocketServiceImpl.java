@@ -17,7 +17,7 @@ import java.net.SocketException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-17 (13:19)
  */
-@Component(name = "com.energyict.mdc.protocol.pluggable.upl.security", service = {SocketService.class})
+@Component(name = "com.energyict.mdc.protocol.pluggable.upl.socket", service = {SocketService.class})
 @SuppressWarnings("unused")
 public class SocketServiceImpl implements SocketService {
 
