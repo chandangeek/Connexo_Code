@@ -10,7 +10,7 @@ public enum ChannelDataCompletionSummaryFlag implements IChannelDataCompletionSu
     // NOT_VALIDATED and VALID are processed in another way so predicate is not used
     NOT_VALIDATED("statisticsNotValidated", "Not validated", type -> true),
     SUSPECT("statisticsSuspect", "Suspect", either(ReadingQualityType::isSuspect).or(ReadingQualityType::isError)),
-    VALID("statisticsValid", "Valid", type -> true);
+    VALID("valid", "Valid", type -> true);
 
     private String key, translation;
     private Predicate<ReadingQualityType> qualityTypePredicate;

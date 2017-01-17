@@ -7,8 +7,9 @@ import java.util.function.Predicate;
 
 public enum ValidChannelDataSummaryFlags implements IChannelDataCompletionSummaryFlag {
     CONFIRMED("statisticsConfirmed", "Confirmed", type -> type.qualityIndex().orElse(null) == QualityCodeIndex.ACCEPTED),
-    INFORMATIVE("statisticsInformative", "Informative", type -> type.hasValidationCategory() && !type.isSuspect()),
     ESTIMATED("statisticsEstimated", "Estimated", ReadingQualityType::hasEstimatedCategory),
+    INFORMATIVE("statisticsInformative", "Informative", ReadingQualityType::hasValidationCategory),
+    // VALID is processed in another way so predicate is not important
     VALID("statisticsNotSuspect", "Not suspect", type -> true);
 
     private String key, translation;

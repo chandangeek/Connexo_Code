@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 public enum ChannelDataModificationSummaryFlags implements IChannelDataCompletionSummaryFlag {
     ADDED("statisticsAdded", "Added", type -> type.qualityIndex().orElse(null) == QualityCodeIndex.ADDED),
-    EDITED("statisticsEdited", "Edited", type -> type.qualityIndex().orElse(null) == QualityCodeIndex.EDITGENERIC),
+    EDITED("edited", "Edited", type -> type.qualityIndex().orElse(null) == QualityCodeIndex.EDITGENERIC),
     REMOVED("statisticsRemoved", "Removed", type -> type.qualityIndex().orElse(null) == QualityCodeIndex.REJECTED);
 
     private String key, translation;
