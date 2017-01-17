@@ -12,9 +12,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -32,6 +29,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -74,7 +72,7 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
         when(numericPropertySpec.isReference()).thenReturn(false);
         this.deviceProtocolDialect = mock(DeviceProtocolDialect.class);
         when(this.deviceProtocolDialect.getDeviceProtocolDialectName()).thenReturn(DIALECT_NAME);
-        when(this.deviceProtocolDialect.getDisplayName()).thenReturn(DIALECT_NAME);
+        when(this.deviceProtocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn(DIALECT_NAME);
         when(this.deviceProtocolDialect.getPropertySpecs()).thenReturn(Arrays.asList(stringPropertySpec, numericPropertySpec));
         when(this.deviceProtocolDialect.getPropertySpec(STRING_PROPERTY_NAME)).thenReturn(Optional.of(stringPropertySpec));
         when(this.deviceProtocolDialect.getPropertySpec(NUMERIC_PROPERTY_NAME)).thenReturn(Optional.of(numericPropertySpec));
@@ -83,6 +81,11 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
 
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+        return Collections.emptyList();
     }
 
     @Override
@@ -216,12 +219,12 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
     }
 
     @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+    public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.emptyList();
     }
 
     @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+    public List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
     }
 

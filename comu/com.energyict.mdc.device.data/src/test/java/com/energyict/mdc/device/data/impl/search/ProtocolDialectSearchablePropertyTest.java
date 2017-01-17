@@ -25,17 +25,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -232,10 +231,10 @@ public class ProtocolDialectSearchablePropertyTest {
     @Test
     public void refreshWithConstriction() {
         DeviceProtocolDialect protocolDialect1 = mock(DeviceProtocolDialect.class);
-        when(protocolDialect1.getDisplayName()).thenReturn("Dialect 1");
+        when(protocolDialect1.getDeviceProtocolDialectDisplayName()).thenReturn("Dialect 1");
         when(protocolDialect1.getDeviceProtocolDialectName()).thenReturn("dialect.1");
         DeviceProtocolDialect protocolDialect2 = mock(DeviceProtocolDialect.class);
-        when(protocolDialect2.getDisplayName()).thenReturn("Dialect 2");
+        when(protocolDialect2.getDeviceProtocolDialectDisplayName()).thenReturn("Dialect 2");
         when(protocolDialect2.getDeviceProtocolDialectName()).thenReturn("dialect.2");
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(protocolDialect1, protocolDialect2));
@@ -263,7 +262,7 @@ public class ProtocolDialectSearchablePropertyTest {
     @Test
     public void refreshWithMultipleDeviceTypes() {
         DeviceProtocolDialect protocolDialect1 = mock(DeviceProtocolDialect.class);
-        when(protocolDialect1.getDisplayName()).thenReturn("Dialect 1");
+        when(protocolDialect1.getDeviceProtocolDialectDisplayName()).thenReturn("Dialect 1");
         when(protocolDialect1.getDeviceProtocolDialectName()).thenReturn("dialect.1");
         DeviceProtocol deviceProtocol1 = mock(DeviceProtocol.class);
         when(deviceProtocol1.getDeviceProtocolDialects()).thenReturn(Arrays.asList(protocolDialect1));
@@ -273,7 +272,7 @@ public class ProtocolDialectSearchablePropertyTest {
         when(deviceType1.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass1));
 
         DeviceProtocolDialect protocolDialect2 = mock(DeviceProtocolDialect.class);
-        when(protocolDialect2.getDisplayName()).thenReturn("Dialect 2");
+        when(protocolDialect2.getDeviceProtocolDialectDisplayName()).thenReturn("Dialect 2");
         when(protocolDialect2.getDeviceProtocolDialectName()).thenReturn("dialect.2");
         DeviceProtocol deviceProtocol2 = mock(DeviceProtocol.class);
         when(deviceProtocol2.getDeviceProtocolDialects()).thenReturn(Arrays.asList(protocolDialect2));
