@@ -59,8 +59,8 @@ public class ValidationStatusFactory {
         if (channelsContainer.isPresent()) {
             ValidationEvaluator validationEvaluator = validationService.getEvaluator();
             List<DataValidationStatus> validationStatuses = getDataValidationStatuses(validationEvaluator, channels, interval);
-            info.validationActive = isValidationActive(effectiveMetrologyConfiguration, metrologyContract);
             if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
+                info.validationActive = isValidationActive(metrologyContract, channels);
                 info.lastChecked = getLastCheckedForChannels(validationEvaluator, channelsContainer.get(), channels);
                 if (interval != null) {
                     setReasonInfo(validationStatuses, info);
@@ -173,9 +173,12 @@ public class ValidationStatusFactory {
         return validationEvaluator.isAllDataValidated(channels);
     }
 
-    public boolean isValidationActive(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
-        return metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()
-                && !usagePointConfigurationService.getValidationRuleSets(metrologyContract).isEmpty();
+    public boolean isValidationActive(MetrologyContract metrologyContract, List<Channel> channels) {
+        return channels.stream()
+                .map(Channel::getMainReadingType)
+                .anyMatch(readingType -> usagePointConfigurationService.getValidationRuleSets(metrologyContract).stream()
+                        .flatMap(validationRuleSet -> validationRuleSet.getRules().stream())
+                        .anyMatch(rule -> rule.isActive() && rule.appliesTo(readingType)));
     }
 
     public boolean hasSuspects(List<Channel> channels, Range<Instant> range) {
