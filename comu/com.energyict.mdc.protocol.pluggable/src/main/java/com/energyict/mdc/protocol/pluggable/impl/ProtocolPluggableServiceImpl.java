@@ -69,6 +69,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -87,6 +88,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -827,6 +829,16 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                 .map(Object::getClass)
                 .map(Class::getName)
                 .collect(Collectors.joining(", "));
+    }
+
+    @Override
+    public com.elster.jupiter.properties.PropertySpec adapt(PropertySpec uplPropertySpec) {
+        return new UPLToConnexoPropertySpecAdapter(uplPropertySpec);
+    }
+
+    @Override
+    public PropertySpec adapt(com.elster.jupiter.properties.PropertySpec propertySpec) {
+        return new ConnexoToUPLPropertSpecAdapter(propertySpec);
     }
 
     private Module getModule() {

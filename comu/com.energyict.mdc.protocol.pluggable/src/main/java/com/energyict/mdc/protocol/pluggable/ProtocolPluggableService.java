@@ -1,11 +1,12 @@
 package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -258,5 +259,23 @@ public interface ProtocolPluggableService {
     ConnectionType createConnectionType(String javaClassName);
 
     InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.properties.PropertySpec UPL property spec}
+     * to the Connexo interface.
+     *
+     * @param uplPropertySpec The UPL PropertySpec
+     * @return The Connexo PropertySpec
+     */
+    PropertySpec adapt(com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec);
+
+    /**
+     * Adapts a Connexo {@link PropertySpec} to the corresponding
+     * {@link com.energyict.mdc.upl.properties.PropertySpec UPL interface}.
+     *
+     * @param propertySpec The Connexo PropertySpec
+     * @return The UPL PropertySpec
+     */
+    com.energyict.mdc.upl.properties.PropertySpec adapt(PropertySpec propertySpec);
 
 }
