@@ -45,7 +45,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     {
                         xtype: 'displayfield',
                         itemId: 'usage-point-last-updated-date',
-                        value: Uni.I18n.translate('general.lastUpdatedAt', 'IMT', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())], false),
+                        value: Uni.I18n.translate('general.lastRefreshedAt', 'IMT', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date()), false),
                         height: 27 // just for aligning
                     },
                     {
