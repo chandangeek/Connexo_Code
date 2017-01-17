@@ -679,7 +679,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             errorPanel && errorPanel.show();
             if (errorContainer && !errorContainer.isVisible()) {
                 errorContainer.show();
-                errorContainer.update('<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1communicationschedule', 'MDC', 'Select at least 1 shared communication schedule') + '</span>')
+                errorContainer.update('<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectAtLeastOneDevice', 'MDC', 'Select at least 1 device') + '</span>')
             }
             me.getStatusPage().setLoading(false);
             return false;
