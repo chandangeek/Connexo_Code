@@ -105,7 +105,6 @@ Ext.define('Dal.controller.Alarms', {
                 callback: function (records) {
                     queryString.myopenalarms = undefined;
                     queryString.userAssignee = records[0].getId();
-                    queryString.status = 'status.open';
                     queryString.sort = ['dueDate'];
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                 }
@@ -122,7 +121,6 @@ Ext.define('Dal.controller.Alarms', {
                         queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
                             return wg.id;
                         });
-                        queryString.status = undefined;
                         queryString.sort = ['dueDate'];
                         window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                     }
@@ -130,6 +128,9 @@ Ext.define('Dal.controller.Alarms', {
             });
         } else if (!queryString.userAssignee && !queryString.myworkgroupalarms && !queryString.status) {
             queryString.status = ['status.open', 'status.in.progress'];
+            queryString.sort = ['dueDate'];
+            window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+        } else if (!queryString.sort) {
             queryString.sort = ['dueDate'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
