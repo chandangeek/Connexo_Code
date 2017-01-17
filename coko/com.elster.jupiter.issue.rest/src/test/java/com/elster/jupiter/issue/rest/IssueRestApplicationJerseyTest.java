@@ -6,7 +6,6 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
@@ -39,6 +38,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 
+import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -56,6 +56,7 @@ import java.util.Set;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -210,7 +211,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
-        com.elster.jupiter.issue.share.Priority priority = Priority.DEFAULT;
+        com.elster.jupiter.issue.share.Priority priority = com.elster.jupiter.issue.share.Priority.DEFAULT;
         when(issue.getPriority()).thenReturn(priority);
         return issue;
     }
@@ -297,6 +298,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(type.getId()).thenReturn(id);
         when(type.createIssueAction()).thenReturn(Optional.of(action));
         when(type.getIssueType()).thenReturn(issueType);
+        when(action.setIssue(any())).thenReturn(action);
         return type;
     }
 
