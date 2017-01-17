@@ -37,7 +37,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
@@ -52,6 +51,7 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.time.Clock;
 import java.util.ArrayList;

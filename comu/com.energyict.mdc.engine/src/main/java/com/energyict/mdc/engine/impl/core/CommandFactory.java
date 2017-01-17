@@ -7,7 +7,11 @@ import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCom
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOnCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.*;
+import com.energyict.mdc.engine.impl.commands.store.common.AddPropertiesCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolInitializeCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolSetCacheCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolTerminateCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolUpdateCacheCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.DeviceProtocolCommandCreator;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.LegacyMeterProtocolCommandCreator;
@@ -19,10 +23,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.List;
 

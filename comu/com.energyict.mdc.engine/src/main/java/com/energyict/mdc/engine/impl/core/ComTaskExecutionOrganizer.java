@@ -8,13 +8,21 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class will try to group and organize the ComTaskExecutions for a specific connection.
