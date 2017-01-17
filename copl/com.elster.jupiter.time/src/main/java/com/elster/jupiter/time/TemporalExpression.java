@@ -2,6 +2,8 @@ package com.elster.jupiter.time;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import org.joda.time.DateTimeConstants;
+
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -9,6 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * TemporalExpression represent a recurring time.
@@ -22,12 +25,40 @@ import java.util.Optional;
  */
 public final class TemporalExpression implements ScheduleExpression {
 
-	private static final int SECONDS_PER_DAY = (int) ChronoUnit.DAYS.getDuration().getSeconds();
+    private static final int SECONDS_PER_DAY = (int) ChronoUnit.DAYS.getDuration().getSeconds();
     private static final int MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS = 28;
     private static final int NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS = SECONDS_PER_DAY * MAXIMUM_NUMBER_OF_DAYS_IN_ALL_MONTHS;
+    private static final int SECONDS_IN_MINUTE = DateTimeConstants.SECONDS_PER_MINUTE;
 
     private TimeDuration offset;
     private TimeDuration every;
+
+    public static class Offsets {
+        private int days = 0;
+        private int hours = 0;
+        private int minutes = 0;
+
+        public static Offsets from(int days, int hours, int minutes) {
+            Offsets offsets = new Offsets();
+            offsets.days = days;
+            offsets.hours = hours;
+            offsets.minutes = minutes;
+            return offsets;
+        }
+
+        public int getDays() {
+            return days;
+        }
+
+        public int getHours() {
+            return hours;
+        }
+
+        public int getMinutes() {
+            return minutes;
+        }
+
+    }
 
     /**
      * Creates a new instance of TemporalExpression.
@@ -87,6 +118,79 @@ public final class TemporalExpression implements ScheduleExpression {
             buffer.append(")");
         }
         return buffer.toString();
+    }
+
+    public Offsets getOffsetInDaysHoursMinutes() {
+        TimeDuration offsetTD = getOffset();
+        int offsetInMinutes = offsetTD==null ? 0 : offsetTD.getCount();
+        if (offsetTD!=null && offsetTD.getTimeUnitCode() != Calendar.MINUTE) {
+            offsetInMinutes = offsetTD.getSeconds() / SECONDS_IN_MINUTE;
+        }
+        int days = 0;
+        int hours = 0;
+        int minutes = 0;
+        switch (this.every.getTimeUnitCode()) {
+            case Calendar.MONTH:
+            case Calendar.WEEK_OF_YEAR:
+                if (offsetInMinutes >= DateTimeConstants.MINUTES_PER_DAY) {
+                    days = offsetInMinutes / DateTimeConstants.MINUTES_PER_DAY;
+                    offsetInMinutes -= (days * DateTimeConstants.MINUTES_PER_DAY);
+                }
+                // NO BREAK! (intentionally)
+            case Calendar.DATE:
+                if (offsetInMinutes >= DateTimeConstants.MINUTES_PER_HOUR) {
+                    hours = offsetInMinutes / DateTimeConstants.MINUTES_PER_HOUR;
+                    offsetInMinutes -= (hours * DateTimeConstants.MINUTES_PER_HOUR);
+                }
+                // NO BREAK! (intentionally)
+            case Calendar.HOUR_OF_DAY:
+                minutes = offsetInMinutes;
+                break;
+
+            case Calendar.MINUTE:
+                minutes = offsetInMinutes;
+                break;
+        }
+        return Offsets.from(days, hours, minutes);
+    }
+
+    public String toCronExpression(TimeZone targetTimeZone, TimeZone definitionTimeZone) {
+        final TimeDuration every = this.getEvery();
+        final Offsets offset = this.getOffsetInDaysHoursMinutes();
+
+        Calendar localTime = Calendar.getInstance();
+        localTime.setTimeZone(definitionTimeZone);
+        if (every.getTimeUnitCode() == Calendar.MONTH){
+            localTime.set(Calendar.DAY_OF_MONTH, offset.getDays() + 1); //+1 because EiServer has 0-based days
+        } else if (every.getTimeUnitCode() == Calendar.WEEK_OF_YEAR){
+            localTime.set(Calendar.DAY_OF_WEEK, offset.getDays() + 1);
+        }
+        localTime.set(Calendar.HOUR_OF_DAY, offset.getHours());
+        localTime.set(Calendar.MINUTE, offset.getMinutes());
+
+        //convert localTime to beaconTime
+        Calendar beaconCalendar = Calendar.getInstance();
+        beaconCalendar.setTimeZone(targetTimeZone);
+        beaconCalendar.setTimeInMillis(localTime.getTimeInMillis());
+        int dayOfMonth = beaconCalendar.get(Calendar.DAY_OF_MONTH);
+        int dayOfWeek = beaconCalendar.get(Calendar.DAY_OF_WEEK);
+        int hours = beaconCalendar.get(Calendar.HOUR_OF_DAY);
+        int minutes = beaconCalendar.get(Calendar.MINUTE);
+
+        switch (every.getTimeUnitCode()) {
+            case Calendar.MONTH:
+                return "0 " + minutes + " " + hours + " " + dayOfMonth + " */" + every.getCount() + " *";  //E.g. '0 0 6 16 */3 *' means 'every 3 months, on day 16, at 06:00:00'
+            case Calendar.WEEK_OF_YEAR:
+                return "0 " + minutes + " " + hours + " */" + (every.getCount() * 7) + " * " + dayOfWeek;  //E.g. '0 0 6 */14 * 1' means 'every 2 weeks, on monday, at 06:00:00'
+            case Calendar.DATE:
+                return "0 " + minutes + " " + hours + " */" + every.getCount() + " * *";  //E.g. '0 0 6 */3 * *' means 'every 3 days, at 06:00:00'
+            case Calendar.HOUR:
+                return "0 " + offset.getMinutes() + " */" + every.getCount() + " * * *";  //E.g. '0 3 */2 * * *' means 'every 2 hours, at 00:03:00'
+            case Calendar.MINUTE:
+                return "0 */" + every.getCount() + " * * * *";  //E.g. '0 */5 * * * *' means 'every 5 minutes'
+            default:
+                return "";
+        }
     }
 
     /**
