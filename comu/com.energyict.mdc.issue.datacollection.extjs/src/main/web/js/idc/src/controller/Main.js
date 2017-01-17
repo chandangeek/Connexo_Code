@@ -67,12 +67,12 @@ Ext.define('Idc.controller.Main', {
                     {
                         text: Uni.I18n.translate('datacollection.myOpenIssues','IDC','My open issues'),
                         itemId: 'datacollection-my-open-issues',
-                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datacollection'], myopenissues: true})
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datacollection'], myopenissues: true, status: ['status.open', 'status.in.progress']})
                     },
                     {
                         text: Uni.I18n.translate('datacollection.myWorkgroupsIssues', 'IDC', 'My workgroups issues'),
                         itemId: 'datacollection-my-workgroup-issues',
-                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datacollection'], myworkgroupissues: true})
+                        href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datacollection'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
                     }
                 ]
             });
