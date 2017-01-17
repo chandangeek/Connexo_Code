@@ -38,7 +38,7 @@ public class TopIssuesResource extends BaseResource {
     public TopIssuesInfo getTopIssues(@Context SecurityContext securityContext) {
         User currentUser = (User) securityContext.getUserPrincipal();
         Comparator<Issue> dueDateComparator = Comparator.comparing(Issue::getDueDate, Comparator.nullsLast(Instant::compareTo));
-        Comparator<Issue> priorityComparator = (issue1, issue2) -> Integer.compare(issue1.getPriority().getImpact() + issue1.getPriority().getUrgency(), issue2.getPriority().getImpact() + issue2.getPriority().getUrgency());
+        Comparator<Issue> priorityComparator = (issue1, issue2) -> Integer.compare(issue2.getPriority().getImpact() + issue2.getPriority().getUrgency(), issue1.getPriority().getImpact() + issue1.getPriority().getUrgency());
         Comparator<Issue> nameComparator = (issue1, issue2) -> issue1.getTitle().toLowerCase().compareTo(issue2.getTitle());
         Finder<? extends Issue> finder = getIssueService().findIssues(getIssueService().newIssueFilter());
         List<? extends Issue> issues = finder.find();
