@@ -1,0 +1,48 @@
+package com.energyict.mdc.device.data.impl;
+
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+
+import com.energyict.obis.ObisCode;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+
+import java.util.Optional;
+
+/**
+ * Provides an implementation for the {@link DeviceExtractor} interface.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2017-01-17 (14:40)
+ */
+@Component(name = "com.energyict.mdc.device.data.upl.extractor", service = {DeviceExtractor.class})
+@SuppressWarnings("unused")
+public class DeviceExtractorImpl implements DeviceExtractor {
+
+    @Activate
+    public void activate() {
+        Services.deviceExtractor(this);
+    }
+
+    @Override
+    public String serialNumber(com.energyict.mdc.upl.meterdata.Device device) {
+        return ((Device) device).getSerialNumber();
+    }
+
+    @Override
+    public <T> T protocolProperty(com.energyict.mdc.upl.meterdata.Device device, String propertyName, T defaultValue) {
+        return this.protocolProperty((Device) defaultValue, propertyName,  defaultValue);
+    }
+
+    private <T> T protocolProperty(Device device, String propertyName, T defaultValue) {
+        return device.getDeviceProtocolProperties().getTypedProperty(propertyName, defaultValue);
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.upl.meterdata.Register> register(com.energyict.mdc.upl.meterdata.Device uplDevice, ObisCode obisCode) {
+        Device device = (Device) uplDevice;
+        return Optional.ofNullable(device.getRegisterWithDeviceObisCode(obisCode));
+    }
+
+}
