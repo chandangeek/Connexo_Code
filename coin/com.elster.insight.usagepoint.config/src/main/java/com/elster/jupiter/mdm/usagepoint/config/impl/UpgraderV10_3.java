@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static com.elster.jupiter.orm.Version.*;
+
 class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     private final DataModel dataModel;
@@ -52,7 +54,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        dataModelUpgrader.upgrade(dataModel, version(10,3));
         metrologyConfigurationsInstaller.createMetrologyConfigurations();
         upgradeResidentionalNetMeteringConsumption();
         upgradeResidentialProsumerWith1Meter();
