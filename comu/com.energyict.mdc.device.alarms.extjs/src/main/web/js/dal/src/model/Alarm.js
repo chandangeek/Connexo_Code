@@ -13,13 +13,7 @@ Ext.define('Dal.model.Alarm', {
             name: 'title',
             persist: false,
             mapping: function (data) {
-                if (data.device) {
-                    return data.alarmId + ': ' + data.reason.name + ' ' + data.device.name;
-                } else if (data.deviceName) {
-                    return data.alarmId + ': ' + data.reason.name + ' ' + data.deviceName;
-                } else {
-                    return data.alarmId + ': ' + data.reason.name;
-                }
+                return data.alarmId + ': ' + data.title;
             }
         },
         {name: 'id', type: 'int'},
@@ -76,6 +70,8 @@ Ext.define('Dal.model.Alarm', {
             name: 'usagePointMRID',
             mapping: 'device.usagePoint.name'
         },
+        {name: 'urgency', persist: false, mapping: 'priority.urgency'},
+        {name: 'impact', persist: false, mapping: 'priority.impact'},
         {name: 'deviceMRID', type: 'auto'},
         {
             name: 'location',

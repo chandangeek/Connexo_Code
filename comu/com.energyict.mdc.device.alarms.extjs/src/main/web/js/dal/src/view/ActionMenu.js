@@ -26,7 +26,13 @@ Ext.define('Dal.view.ActionMenu', {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'DAL', 'Add comment'),
             privileges: Dal.privileges.Alarm.comment,
             action: 'addComment'
+        },
+        {
+            text: Uni.I18n.translate('issues.actionMenu.setPriority', 'DAL', 'Set priority'),
+            privileges: Isu.privileges.Issue.action,
+            action: 'setPriority'
         }
+
     ],
 
     addDynamicActions: function () {
@@ -118,6 +124,17 @@ Ext.define('Dal.view.ActionMenu', {
                             },
                             {
                                 details: menuItem.details
+                            }
+                        );
+                        break;
+                    case 'setPriority':
+                        menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/setpriority').buildUrl(
+                            {
+                                alarmId: itemId
+                            },
+                            {
+                                details: (detail) ? true : false,
+                                issueType:'alarm'
                             }
                         );
                         break;

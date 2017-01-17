@@ -48,6 +48,13 @@ Ext.define('Dal.controller.history.Workspace', {
 
                             },
                         },
+                        setpriority:{
+                            title: Uni.I18n.translate('general.setpriority','DAL','Set priority'),
+                            route: 'setpriority',
+                            controller: 'Dal.controller.SetPriority',
+                            action: 'setPriority',
+                            privileges: Dal.privileges.Alarm.viewAdminAlarm
+                        },
                         action: {
                             title: Uni.I18n.translate('general.action', 'DAL', 'Action'),
                             route: 'action/{actionId}',

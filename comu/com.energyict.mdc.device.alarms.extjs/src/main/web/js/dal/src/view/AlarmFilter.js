@@ -129,8 +129,6 @@ Ext.define('Dal.view.AlarmFilter', {
                 valueField: 'id',
                 store: 'Dal.store.AlarmReasons',
                 queryMode: 'local',
-                //queryMode: 'remote',
-                //queryParam: 'like',
                 loadStore: !me.isOverviewFilter,
                 queryCaching: false,
                 minChars: 0,

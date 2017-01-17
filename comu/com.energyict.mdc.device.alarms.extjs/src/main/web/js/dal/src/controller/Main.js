@@ -9,7 +9,7 @@ Ext.define('Dal.controller.Main', {
         'Uni.model.PortalItem',
         'Uni.store.PortalItems',
         'Uni.store.MenuItems',
-        'Dal.privileges.Alarm',
+        'Dal.privileges.Alarm'
     ],
 
     controllers: [
@@ -18,7 +18,8 @@ Ext.define('Dal.controller.Main', {
         'Dal.controller.Detail',
         'Dal.controller.ApplyAction',
         'Dal.controller.StartProcess',
-        'Dal.controller.Overview'
+        'Dal.controller.Overview',
+        'Dal.controller.SetPriority'
     ],
 
     stores: [
