@@ -38,6 +38,8 @@ public interface DeviceMasterDataExtractor {
 
     String protocolJavaClassName(Device device);
 
+    Collection<CommunicationTask> enabledTasks(Device device);
+
     Collection<SecurityPropertySet> securityPropertySets(Device device);
 
     Collection<SecurityProperty> securityProperties(Device device, SecurityPropertySet securityPropertySet);
@@ -69,7 +71,6 @@ public interface DeviceMasterDataExtractor {
          */
         TypedProperties properties();
         Optional<TypedProperties> dialectProperties(String dialectName);
-        Collection<CommunicationTask> enabledTasks();
         Collection<LogBookSpec> logBookSpecs();
         Collection<LoadProfileSpec> loadProfileSpecs();
         Collection<RegisterSpec> registerSpecs();
