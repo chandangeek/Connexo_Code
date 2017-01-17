@@ -3,10 +3,11 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.rest.CustomPropertySetAttributeInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
-import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -33,6 +34,9 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
@@ -43,7 +47,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationTask;
-import com.elster.jupiter.validation.ValidationEvaluator;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -64,6 +67,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +80,6 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -86,8 +89,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
-    @Mock
-    private ValidationEvaluator evaluator;
     @Mock
     private User principal;
     @Mock
@@ -100,8 +101,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private ElectricityDetailBuilder electricityDetailBuilder;
     @Mock
     private RegisteredCustomPropertySet registeredCustomPropertySet;
-    @Mock
-    private CustomPropertySetInfoFactory customPropertySetInfoFactory;
     @Mock
     private CustomPropertySet<UsagePoint, PersistentDomainExtension<UsagePoint>> customPropertySet;
     @Mock
@@ -124,6 +123,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private UsagePointLifeCycle usagePointLifeCycle;
     @Mock
     private UsagePointStage usagePointStage;
+    @Mock
+    private PropertySpec propertySpec;
+    @Mock
+    private PropertyValueConverter propertyValueConverter;
 
     @Before
     public void setUp1() {
@@ -175,6 +178,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
         when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
+        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Collections.singletonList(usagePointMetrologyConfiguration));
 
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
@@ -186,10 +190,13 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
-        when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Collections.singletonList(usagePointMetrologyConfiguration));
-        when(usagePoint.forCustomProperties().getPropertySet(1L)).thenReturn(usagePointPropertySet);
-        doReturn(customPropertySet).when(usagePointPropertySet).getCustomPropertySet();
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.emptyList());
+
+        when(propertySpec.getName()).thenReturn("code.quality");
+        when(propertyValueConverter.convertInfoToValue(eq(propertySpec), any(Object.class)))
+                .thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1].toString());
+        when(propertyValueInfoService.getConverter(propertySpec)).thenReturn(propertyValueConverter);
+
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
         when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
@@ -291,7 +298,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     }
 
     @Test
-    public void testUsagePointCreating() {
+    public void testCreateUsagePoint() {
         UsagePointInfo info = new UsagePointInfo();
         info.name = "test";
         info.installationTime = Instant.EPOCH.toEpochMilli();
@@ -308,7 +315,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     }
 
     @Test
-    public void testUpadateUsagePoint() {
+    public void testUpdateUsagePoint() {
         when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
         UsagePointInfo info = new UsagePointInfo();
@@ -329,14 +336,96 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         Response response = target("usagepoints/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
-        verify(usagePoint, times(1)).setName("upd");
+        verify(usagePoint).setName("upd");
         verify(usagePoint, never()).setInstallationTime(any(Instant.class));
         verify(usagePoint, never()).setSdp(anyBoolean());
         verify(usagePoint, never()).setVirtual(anyBoolean());
-        verify(usagePoint, times(1)).setReadRoute("upd");
-        verify(usagePoint, times(1)).setServiceDeliveryRemark("upd");
-        verify(usagePoint, times(1)).update();
-        verify(usagePoint, times(1)).newElectricityDetailBuilder(any(Instant.class));
+        verify(usagePoint).setReadRoute("upd");
+        verify(usagePoint).setServiceDeliveryRemark("upd");
+        verify(usagePoint).update();
+        verify(usagePoint).newElectricityDetailBuilder(any(Instant.class));
+    }
+
+    @Test
+    public void testUpdateUsagePointWithCustomPropertySet() {
+        when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(usagePointPropertySet.getValues()).thenReturn(CustomPropertySetValues.empty());
+
+        CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
+        attributeInfo.key = propertySpec.getName();
+        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", "Fine", true);
+        CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
+        casInfo.id = registeredCustomPropertySet.getId();
+        casInfo.properties = Collections.singletonList(attributeInfo);
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = 1L;
+        info.mRID = "upd";
+        info.name = "upd";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.isSdp = true;
+        info.isVirtual = true;
+        info.readRoute = "upd";
+        info.serviceDeliveryRemark = "upd";
+        info.version = 1L;
+        info.techInfo = new ElectricityUsagePointDetailsInfo();
+        info.geoCoordinates = "";
+        info.location = "";
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
+        info.customPropertySets = Collections.singletonList(casInfo);
+
+        ArgumentCaptor<CustomPropertySetValues> valueCaptor = ArgumentCaptor.forClass(CustomPropertySetValues.class);
+        Response response = target("usagepoints/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(usagePointPropertySet).setValues(valueCaptor.capture());
+        assertThat(valueCaptor.getValue().getProperty(propertySpec.getName())).isEqualTo("Poor");
+    }
+
+    @Test
+    public void testUpdateUsagePointWithCustomPropertySetUnchanged() {
+        when(meteringService.findUsagePointById(1L)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findAndLockUsagePointByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePoint));
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(propertySpec.getName(), "Poor");
+        when(usagePointPropertySet.getValues()).thenReturn(values);
+
+        CustomPropertySetAttributeInfo attributeInfo = new CustomPropertySetAttributeInfo();
+        attributeInfo.key = propertySpec.getName();
+        attributeInfo.propertyValueInfo = new PropertyValueInfo<>("Poor", "Fine", true);
+        CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
+        casInfo.id = registeredCustomPropertySet.getId();
+        casInfo.properties = Collections.singletonList(attributeInfo);
+        UsagePointInfo info = new UsagePointInfo();
+        info.id = 1L;
+        info.mRID = "upd";
+        info.name = "upd";
+        info.installationTime = Instant.EPOCH.toEpochMilli();
+        info.isSdp = true;
+        info.isVirtual = true;
+        info.readRoute = "upd";
+        info.serviceDeliveryRemark = "upd";
+        info.version = 1L;
+        info.techInfo = new ElectricityUsagePointDetailsInfo();
+        info.geoCoordinates = "";
+        info.location = "";
+        info.extendedGeoCoordinates = new CoordinatesInfo();
+        info.extendedLocation = new LocationInfo();
+        info.customPropertySets = Collections.singletonList(casInfo);
+
+        Response response = target("usagepoints/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(usagePoint).setName("upd");
+        verify(usagePoint, never()).setInstallationTime(any(Instant.class));
+        verify(usagePoint, never()).setSdp(anyBoolean());
+        verify(usagePoint, never()).setVirtual(anyBoolean());
+        verify(usagePoint).setReadRoute("upd");
+        verify(usagePoint).setServiceDeliveryRemark("upd");
+        verify(usagePoint).update();
+        verify(usagePoint).newElectricityDetailBuilder(any(Instant.class));
+        verify(usagePointPropertySet, never()).setValues(any(CustomPropertySetValues.class));
     }
 
     @Test
@@ -348,7 +437,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
         CustomPropertySetInfo info = new CustomPropertySetInfo();
         info.id = registeredCustomPropertySet.getId();
-        when(customPropertySetInfoFactory.getGeneralAndPropertiesInfo(any(RegisteredCustomPropertySet.class))).thenReturn(info);
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration/linkable").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
@@ -366,7 +454,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         Instant now = Instant.ofEpochMilli(1462876396000L);
         when(usagePoint.getInstallationTime()).thenReturn(now);
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
-        casInfo.id = 1L;
+        casInfo.id = registeredCustomPropertySet.getId();
 
         MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
         info.id = 1L;
@@ -386,7 +474,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(200);
-        verify(usagePoint, times(1)).apply(usagePointMetrologyConfiguration, now);
+        verify(usagePoint).apply(usagePointMetrologyConfiguration, now);
     }
 
     @Test
@@ -569,7 +657,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testGetValidationTasksOnUsagePoint() throws Exception {
-
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationtasks").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
