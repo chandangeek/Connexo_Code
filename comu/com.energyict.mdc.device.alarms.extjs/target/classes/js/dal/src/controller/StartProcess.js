@@ -31,7 +31,7 @@ Ext.define('Dal.controller.StartProcess', {
                     properties: {
                         activeProcessesParams: {
                             type: 'devicealarm',
-                            issueReasons: alarm.data.reason,
+                            alarmReasons: alarm.data.reason,
                             privileges: Ext.encode(me.getPrivileges())
                         },
                         startProcessParams: [
@@ -48,8 +48,8 @@ Ext.define('Dal.controller.StartProcess', {
                                 value: alarmId
                             }
                         ],
-                        successLink: router.getRoute(router.currentRoute.replace(fromDetails ? '/startProcess': '/view/startProcess', '')).buildUrl({alarmId: alarmId}, queryParamsForBackUrl),
-                        cancelLink: router.getRoute(router.currentRoute.replace(fromDetails ? '/startProcess': '/view/startProcess', '')).buildUrl({alarmId: alarmId}, queryParamsForBackUrl)
+                        successLink: router.getRoute(router.currentRoute.replace('/startProcess', '')).buildUrl({alarmId: alarmId}, queryParamsForBackUrl),
+                        cancelLink: router.getRoute(router.currentRoute.replace(fromDetails ? '/startProcess' : '/view/startProcess', '')).buildUrl({alarmId: alarmId}, queryParamsForBackUrl)
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
