@@ -598,7 +598,16 @@ Ext.define('Imt.controller.History', {
             title: Uni.I18n.translate('general.label.dashboard', 'IMT', 'Dashboard'),
             route: 'dashboard',
             controller: 'Imt.dashboard.controller.OperatorDashboard',
-            action: 'showOverview'
+            action: 'showOverview',
+            items: {
+                selectfavoriteusagepointgroups: {
+                    title: Uni.I18n.translate('general.selectFavoriteUsagePointGroups', 'IMT', 'Select favorite usage point groups'),
+                    route: 'favoriteusagepointgroups',
+                    controller: 'Imt.dashboard.controller.FavoriteUsagePointGroups',
+                    privileges: Imt.privileges.UsagePointGroup.flag,
+                    action: 'showFavoriteUsagePointGroups'
+                }
+            }
         }
 
     }
