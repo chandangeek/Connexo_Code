@@ -116,16 +116,9 @@ public class UsagePointCalendarResource {
         Calendar calendar = calendarService.findCalendar(calendarOnUsagePointInfo.calendar.id)
                 .orElse(null);
         Instant start = Instant.ofEpochMilli(calendarOnUsagePointInfo.fromTime);
-        checkValidStart(start);
         CalendarOnUsagePoint calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
                 .addCalendar(start, calendar);
         return Response.ok(calendarOnUsagePointInfoFactory.from(calendarOnUsagePoint)).build();
-    }
-
-    private void checkValidStart(Instant start) {
-        if(start.isBefore(ZonedDateTime.ofInstant(Instant.now(clock), clock.getZone()).toLocalDate().atStartOfDay(clock.getZone()).toInstant())){
-            throw new CalendarActivationBeforeTodayException();
-        }
     }
 
     private CalendarOnUsagePointInfo createFrom(UsagePoint usagePoint, List<CalendarOnUsagePoint> calendars) {
