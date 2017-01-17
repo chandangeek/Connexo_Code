@@ -514,9 +514,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         switch (currentCmp.name) {
             case 'selectDevices':
                 me.allDevices = me.getDevicesGrid().isAllSelected();
-
+                errorPanel = currentCmp.down('#step1-errors');
+                errorPanel.hide();
                 if (!me.allDevices) {
                     me.devices = me.getDevicesGrid().getSelectionModel().getSelection();
+                } else {
+                    me.devices = null;
+
                 }
 
                 if (me.changeDeviceConfigAvailable(search.service.getFilters())) {
@@ -528,7 +532,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     }
 
                 }
-                errorPanel = currentCmp.down('#step1-errors');
+
                 me.validation = me.allDevices || me.devices.length;
                 break;
             case 'selectOperation':
@@ -675,7 +679,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             errorPanel && errorPanel.show();
             if (errorContainer && !errorContainer.isVisible()) {
                 errorContainer.show();
-                errorContainer.update('<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1communicationschedule', 'MDC', 'Select at least 1 shared communication schedule') + '</span>')
+                errorContainer.update('<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectAtLeastOneDevice', 'MDC', 'Select at least 1 device') + '</span>')
             }
             me.getStatusPage().setLoading(false);
             return false;

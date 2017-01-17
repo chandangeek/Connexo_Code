@@ -269,7 +269,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                             success: function (attributes) {
                                 me.getDeviceGeneralInformationForm().loadRecord(attributes);
                                 me.getDeviceSetup().down('#deviceSetupPanel #last-updated-field')
-                                    .update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', Uni.DateTime.formatTimeShort(new Date())));
+                                    .update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
                             }
                         });
                         if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
@@ -368,7 +368,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         if (connectionsList) {
             connectionsList.bindStore(deviceConnectionsStore);
             deviceConnectionsStore.getProxy().setExtraParam('deviceId', device.get('name'));
-            lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
+            lastUpdateField.update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
             deviceConnectionsStore.load(function (records) {
                 if (!widget.isDestroyed) {
                     !!widget.down('#connectionslist') && widget.down('#connectionslist').setTitle(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})', records.length));
@@ -387,7 +387,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         if (communicationsList) {
             communicationsList.bindStore(deviceCommunicationsStore);
             deviceCommunicationsStore.getProxy().setExtraParam('deviceId', device.get('name'));
-            lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', Uni.DateTime.formatTimeShort(new Date())));
+            lastUpdateField.update(Uni.I18n.translate('general.lastRefreshedAt', 'MDC', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date())));
             deviceCommunicationsStore.load(function (records) {
                 if (!widget.isDestroyed && !Ext.isEmpty(widget.down('#communicationslist'))) {
                     widget.down('#communicationslist').setTitle(
