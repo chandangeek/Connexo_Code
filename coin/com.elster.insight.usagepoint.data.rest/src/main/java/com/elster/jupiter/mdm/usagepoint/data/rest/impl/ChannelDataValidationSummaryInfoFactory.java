@@ -20,9 +20,10 @@ public class ChannelDataValidationSummaryInfoFactory {
     }
 
     ChannelDataValidationSummaryInfo from(ReadingTypeDeliverable deliverable, List<IChannelDataCompletionSummary> summary) {
-        IChannelDataCompletionSummary generalSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.GENERAL).findFirst().orElse(null);
-        IChannelDataCompletionSummary editedSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.EDITED).findFirst().orElse(null);
-        IChannelDataCompletionSummary validSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.VALID).findFirst().orElse(null);
+        IChannelDataCompletionSummary generalSummary, editedSummary, validSummary;
+        generalSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.GENERAL).findFirst().orElse(null);
+        editedSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.EDITED).findFirst().orElse(null);
+        validSummary = summary.stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.VALID).findFirst().orElse(null);
 
         ChannelDataValidationSummaryInfo channelDataValidationGeneralSummaryInfo = new ChannelDataValidationSummaryInfo(deliverable.getId(),
                 deliverable.getName(),
@@ -46,7 +47,7 @@ public class ChannelDataValidationSummaryInfoFactory {
 
     private ChannelDataValidationSummaryFlagInfo getFlagInfo(ChannelDataCompletionSummaryType channelDataCompletionSummaryType, IChannelDataCompletionSummary summary) {
         return new ChannelDataValidationSummaryFlagInfo(channelDataCompletionSummaryType.getKey(),
-                channelDataCompletionSummaryType.getDefaultFormat(),
+                channelDataCompletionSummaryType.getDisplayName(thesaurus),
                 summary.getSum(),
                 summary.getValues().entrySet().stream()
                         .map(flagEntry -> {
