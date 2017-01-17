@@ -6,18 +6,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Float32;
-import com.energyict.dlms.axrdencoding.Float64;
-import com.energyict.dlms.axrdencoding.Integer64;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.util.AXDRTime;
-import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ImageTransfer;
@@ -33,11 +22,10 @@ import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
+import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.common.composedobjects.ComposedDisconnectControl;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
-import com.energyict.protocolimplv2.edp.registers.DisconnectControlState;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastUpgradeState;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
@@ -84,6 +72,12 @@ public class RegisterFactory {
 
     public static final ObisCode RESERVE_ENERGY = ObisCode.fromString("0.0.96.6.1.255");
     public static final ObisCode TEMPERATURE = ObisCode.fromString("0.0.96.9.0.255");
+
+
+    public static final String ALARM_BITS_REGISTER = "0.0.97.98.0.255";
+    public static final String ALARM_FILTER = "0.0.97.98.10.255";
+    public static final String ALARM_DESCRIPTOR = "0.0.97.98.20.255";
+
 
     public RegisterFactory(DlmsSession dlmsSession) {
         this.dlmsSession = dlmsSession;
@@ -246,7 +240,17 @@ public class RegisterFactory {
                         } else if (attribute.isArray() || attribute.isStructure()) {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
                             continue;
-                        } else {
+                        } else if (attribute.isBitString()){
+                            if (isAlarmRegister(universalObject)) {
+                                BitString value = attribute.getBitString();
+                                if (value != null) {
+                                    AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(universalObject.getObisCode(), attribute.getBitString().toBigDecimal().longValue());
+                                    registerValue = alarmBitsRegister.getRegisterValue();
+                                }
+                            } else{
+                                registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
+                            }
+                        }else {
                             registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
                         }
                     } else {
@@ -281,6 +285,12 @@ public class RegisterFactory {
             }
         }
         return result;
+    }
+
+    private boolean isAlarmRegister(UniversalObject universalObject) {
+        return universalObject.getObisCode().equals(ObisCode.fromString(ALARM_BITS_REGISTER)) ||
+            universalObject.getObisCode().equals(ObisCode.fromString(ALARM_FILTER)) ||
+            universalObject.getObisCode().equals(ObisCode.fromString(ALARM_DESCRIPTOR));
     }
 
     private Beacon3100G3RegisterMapper getBeacon3100G3RegisterMapper() {

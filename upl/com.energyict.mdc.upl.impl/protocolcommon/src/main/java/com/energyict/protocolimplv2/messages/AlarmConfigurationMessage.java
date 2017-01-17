@@ -57,11 +57,16 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.EnableEventNotifications)
     ),
     RESET_DESCRIPTOR_FOR_ALARM_REGISTER(11,
-            alarmRegisterAttributeFor3Objects(),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmBitMaskAttributeName)),
+                                         alarmRegisterAttributeFor3Objects(),
+    PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmBitMaskAttributeName)),
     RESET_BITS_IN_ALARM_REGISTER(12, alarmRegisterAttributeFor3Objects()),
     WRITE_FILTER_FOR_ALARM_REGISTER(13,
-            alarmRegisterAttributeFor3Objects(),
+                                    alarmRegisterAttributeFor3Objects(),
+    PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
+    RESET_DESCRIPTOR_FOR_SINGLE_ALARM_REGISTER(14,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmBitMaskAttributeName)),
+    RESET_BITS_IN_ALARM_SINGLE_REGISTER(15),
+    WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER(16,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
     ;
 

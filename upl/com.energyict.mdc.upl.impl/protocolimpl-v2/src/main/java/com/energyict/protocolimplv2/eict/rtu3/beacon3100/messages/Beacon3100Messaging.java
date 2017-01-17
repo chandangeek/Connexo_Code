@@ -46,6 +46,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobject
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
@@ -96,6 +97,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode MULTI_APN_COFIG_OBISCODE = ObisCode.fromString("0.128.25.3.0.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
+
 
     /**
      * The set of supported messages (which, ironically, is not a Set).
@@ -234,6 +236,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         //DLMS Gateway
         SUPPORTED_MESSAGES.add(DLMSGatewayMessage.MeterPushNotificationSettings);
+
+        //Alarm registers
+        SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.RESET_DESCRIPTOR_FOR_SINGLE_ALARM_REGISTER);
+        SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.RESET_BITS_IN_ALARM_SINGLE_REGISTER);
+        SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER);
     }
 
     private MasterDataSync masterDataSync;
@@ -647,7 +654,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.changeHLSSecretUsingServiceKey(pendingMessage, collectedMessage);
                     }else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.COPY_ACTIVE_FIRMWARE_TO_INACTIVE_PARTITION)) {
                         copyActiveFirmwareToInactive();
-                    } else {   //Unsupported message
+                    }else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_DESCRIPTOR_FOR_SINGLE_ALARM_REGISTER)) {
+                        resetAlarmDescriptor(pendingMessage);
+                        collectedMessage.setDeviceProtocolInformation("Alarm description reset for " + RegisterFactory.ALARM_DESCRIPTOR);
+                    }  else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_BITS_IN_ALARM_SINGLE_REGISTER)) {
+                        resetAllAlarmBits();
+                        collectedMessage.setDeviceProtocolInformation("Alarm bits reset for " + RegisterFactory.ALARM_BITS_REGISTER);
+                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER)) {
+                        writeAlarmFilter(pendingMessage);
+                        collectedMessage.setDeviceProtocolInformation("Alarm filter written in " + RegisterFactory.ALARM_FILTER);
+                    }  else{   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
                         collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
@@ -2032,4 +2048,25 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private final Logger getLogger() {
         return this.getProtocol().getLogger();
     }
+
+
+    private void resetAlarmDescriptor(OfflineDeviceMessage pendingMessage) throws IOException {
+        BigDecimal alarmBits = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmBitMaskAttributeName).getDeviceMessageAttributeValue());
+        getCosemObjectFactory().getData(ObisCode.fromString(RegisterFactory.ALARM_DESCRIPTOR)).setValueAttr(new BitString(alarmBits.longValue(), 45));
+    }
+
+    protected void resetAllAlarmBits() throws IOException {
+        Data data = getCosemObjectFactory().getData(ObisCode.fromString(RegisterFactory.ALARM_BITS_REGISTER));
+        data.setValueAttr(new BitString(0, 45)); // to reset the alarm bits we have to write zero back to the register
+    }
+
+    protected void writeAlarmFilter(OfflineDeviceMessage pendingMessage) throws IOException {
+        BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getDeviceMessageAttributeValue());
+        Data data = getProtocol().getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString(RegisterFactory.ALARM_FILTER));
+        data.setValueAttr(new BitString(filter.longValue(), 45));
+    }
+
+
+
+
 }
