@@ -172,7 +172,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                             callback: function () {
                                 if (lastUpdateField) {
                                     lastUpdateField.update(
-                                        Uni.I18n.translate('general.lastUpdatedAt', 'DSH', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())])
+                                        Uni.I18n.translate('general.lastRefreshedAt', 'DSH', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date()))
                                     );
                                 }
                                 dashboard.setLoading(false);
