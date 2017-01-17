@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -149,8 +148,6 @@ class DataValidationTaskExecutor implements TaskExecutor {
                                 .getMetrologyConfiguration()
                                 .getContracts()
                                 .forEach(metrologyContract -> {
-                                    // Validate inputs provided by linked meters
-                                    validateUsagePointInputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, metrologyConfigurationOnUsagePoint);
                                     // Validate outputs provided by metrology configuration
                                     validateUsagePointOutputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, metrologyConfigurationOnUsagePoint);
                                     transactionService
@@ -164,18 +161,6 @@ class DataValidationTaskExecutor implements TaskExecutor {
     private DateTimeFormatter getTimeFormatter() {
         Locale locale = threadPrincipalService.getLocale();
         return DefaultDateTimeFormatters.longDate(locale).withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(locale);
-    }
-
-    private void validateUsagePointInputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
-        effectiveMetrologyConfiguration.getUsagePoint().getCurrentMeterActivations()
-                .stream()
-                .map(MeterActivation::getChannelsContainer)
-                .forEach(channelsContainer -> {
-                    try (TransactionContext transactionContext = transactionService.getContext()) {
-                        validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer, metrologyContract));
-                        transactionContext.commit();
-                    }
-                });
     }
 
     private void validateUsagePointOutputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
