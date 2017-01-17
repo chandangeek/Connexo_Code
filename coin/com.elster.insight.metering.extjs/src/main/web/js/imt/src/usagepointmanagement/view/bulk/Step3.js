@@ -87,6 +87,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.activateCalendar', 'IMT', 'Activate calendar'),
                         itemId: 'activate-calendar-container',
+                        required: true,
                         layout: 'hbox',
                         items: [
                             {
@@ -117,6 +118,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                                     },
                                     {
                                         itemId: 'on-activation-date',
+                                        margin: '7 0 0 0',
                                         boxLabel: Uni.I18n.translate('general.on', 'IMT', 'On'),
                                         inputValue: 'on-date-activation'
                                     }
