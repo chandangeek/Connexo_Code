@@ -1,11 +1,15 @@
 package com.energyict.mdc.common;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * TypedProperties model a set of dynamic properties.
- * Each property has a name (aka the key) and fa corresponding value.
+ * Each property has a name (aka the key) and a corresponding value.
  * <p>
  * Property values can be inherited. The inherited values
  * can be overruled on this level. When an overruled value
