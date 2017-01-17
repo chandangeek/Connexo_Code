@@ -16,7 +16,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-16 (14:52)
  */
-@Component(name = "com.energyict.mdc.service.upl.runtime", service = {RuntimeEnvironment.class})
+@Component(name = "com.energyict.mdc.protocol.pluggable.upl.runtime", service = {RuntimeEnvironment.class})
 @SuppressWarnings("unused")
 public class RuntimeEnvironmentImpl implements RuntimeEnvironment {
 
