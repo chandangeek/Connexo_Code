@@ -7,9 +7,9 @@ import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.protocols.impl.channels.inbound.EIWebConnectionProperties;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import java.util.List;
 

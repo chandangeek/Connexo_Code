@@ -2,12 +2,10 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+import com.energyict.mdc.tasks.ACE4000DeviceProtocolDialect;
 
 import java.math.BigDecimal;
 
@@ -18,6 +16,26 @@ import java.math.BigDecimal;
  * @since 2015-11-26 (11:47)
  */
 class ACE4000DeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
+
+    private BigDecimal timeoutMillis;
+    private BigDecimal retries;
+
+    @Override
+    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+        this.timeoutMillis = (BigDecimal) propertyValues.getProperty(ActualFields.TIMEOUT_PROPERTY.propertySpecName());
+        this.retries = (BigDecimal) propertyValues.getProperty(ActualFields.RETRIES.propertySpecName());
+    }
+
+    @Override
+    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.TIMEOUT_PROPERTY.propertySpecName(), this.timeoutMillis);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.RETRIES.propertySpecName(), this.retries);
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
 
     enum ActualFields {
         TIMEOUT_PROPERTY("timeoutMillis", ACE4000Properties.TranslationKeys.TIMEOUT, "TIMEOUTMILLIS"),
@@ -45,42 +63,12 @@ class ACE4000DeviceProtocolDialectProperties extends CommonDeviceProtocolDialect
             return this.databaseName;
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return propertySpecService
-                    .bigDecimalSpec()
-                    .named(this.propertySpecName(), this.nameTranslationKey)
-                    .fromThesaurus(thesaurus)
-                    .finish();
-        };
-
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .number()
-                .map(this.javaName())
-                .add();
+                    .column(this.databaseName())
+                    .number()
+                    .map(this.javaName())
+                    .add();
         }
-
     }
-
-    private BigDecimal timeoutMillis;
-    private BigDecimal retries;
-
-    @Override
-    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.timeoutMillis = (BigDecimal) propertyValues.getProperty(ActualFields.TIMEOUT_PROPERTY.propertySpecName());
-        this.retries = (BigDecimal) propertyValues.getProperty(ActualFields.RETRIES.propertySpecName());
-    }
-
-    @Override
-    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.TIMEOUT_PROPERTY.propertySpecName(), this.timeoutMillis);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.RETRIES.propertySpecName(), this.retries);
-    }
-
-    @Override
-    public void validateDelete() {
-        // Nothing to validate
-    }
-
 }

@@ -2,29 +2,42 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+import test.com.energyict.protocolimplv2.sdksample.SDKBreakerTaskProtocolDialectProperties;
 
 import javax.validation.constraints.Size;
 
 /**
- * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link SDKBreakerProtocolDialect}.
+ * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link SDKBreakerTaskProtocolDialectProperties}.
  *
  * @author sva
  * @since 8/04/2016 - 13:10
  */
 class SDKBreakerDialectProperties extends CommonDeviceProtocolDialectProperties {
 
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String breakerStatus;
+
+    @Override
+    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+        this.breakerStatus = (String) propertyValues.getProperty(ActualFields.BREAKER_STATUS.propertySpecName());
+    }
+
+    @Override
+    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.BREAKER_STATUS.propertySpecName(), this.breakerStatus);
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
     enum ActualFields {
         BREAKER_STATUS("breakerStatus", SDKTranslationKeys.BREAKER_STATUS, "breakerStatus", "BREAKER_STATUS");
 
-        private static final String CONNECTED = "connected";
-        private static final String DISCONNECTED = "disconnected";
-        private static final String ARMED = "armed";
         private final String javaName;
         private final TranslationKey nameTranslationKey;
         private final String propertySpecName;
@@ -49,16 +62,6 @@ class SDKBreakerDialectProperties extends CommonDeviceProtocolDialectProperties 
             return this.databaseName;
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return propertySpecService
-                    .stringSpec()
-                    .named(this.propertySpecName(), nameTranslationKey)
-                    .fromThesaurus(thesaurus)
-                    .addValues(CONNECTED, DISCONNECTED, ARMED)
-                    .setDefaultValue(CONNECTED)
-                    .finish();
-        }
-
         public void addTo(Table table) {
             table
                     .column(this.databaseName())
@@ -67,23 +70,5 @@ class SDKBreakerDialectProperties extends CommonDeviceProtocolDialectProperties 
                     .add();
         }
 
-    }
-
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String breakerStatus;
-
-    @Override
-    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.breakerStatus = (String) propertyValues.getProperty(ActualFields.BREAKER_STATUS.propertySpecName());
-    }
-
-    @Override
-    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.BREAKER_STATUS.propertySpecName(), this.breakerStatus);
-    }
-
-    @Override
-    public void validateDelete() {
-        // Nothing to validate
     }
 }

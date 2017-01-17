@@ -2,22 +2,50 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+import test.com.energyict.protocolimplv2.sdksample.SDKFirmwareTaskProtocolDialectProperties;
 
 import javax.validation.constraints.Size;
 
 /**
- * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link SDKFirmwareProtocolDialect}.
+ * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link SDKFirmwareTaskProtocolDialectProperties}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-27 (09:37)
  */
 class SDKFirmwareDialectProperties extends CommonDeviceProtocolDialectProperties {
+
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String activeMeterFirmwareVersion;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String passiveMeterFirmwareVersion;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String activeCommunicationFirmwareVersion;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String passiveCommunicationFirmwareVersion;
+
+    @Override
+    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+        this.activeMeterFirmwareVersion = (String) propertyValues.getProperty(ActualFields.ACTIVE_METER_FIRMWARE_VERSION.propertySpecName());
+        this.passiveMeterFirmwareVersion = (String) propertyValues.getProperty(ActualFields.PASSIVE_METER_FIRMWARE_VERSION.propertySpecName());
+        this.activeCommunicationFirmwareVersion = (String) propertyValues.getProperty(ActualFields.ACTIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName());
+        this.passiveCommunicationFirmwareVersion = (String) propertyValues.getProperty(ActualFields.PASSIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName());
+    }
+
+    @Override
+    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.ACTIVE_METER_FIRMWARE_VERSION.propertySpecName(), this.activeMeterFirmwareVersion);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.PASSIVE_METER_FIRMWARE_VERSION.propertySpecName(), this.passiveMeterFirmwareVersion);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.ACTIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName(), this.activeCommunicationFirmwareVersion);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.PASSIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName(), this.passiveCommunicationFirmwareVersion);
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
 
     enum ActualFields {
         ACTIVE_METER_FIRMWARE_VERSION("activeMeterFirmwareVersion", SDKTranslationKeys.ACTIVE_METER_FIRMWARE_VERSION, "ActiveMeterFirmwareVersion", "ACTIVE_METER_FIRMWARE_VERSION"),
@@ -49,52 +77,12 @@ class SDKFirmwareDialectProperties extends CommonDeviceProtocolDialectProperties
             return this.databaseName;
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return propertySpecService
-                    .stringSpec()
-                    .named(this.propertySpecName(), nameTranslationKey)
-                    .fromThesaurus(thesaurus)
-                    .finish();
-        }
-
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName())
-                .add();
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName())
+                    .add();
         }
-
     }
-
-    @Size(max=Table.MAX_STRING_LENGTH)
-    private String activeMeterFirmwareVersion;
-    @Size(max=Table.MAX_STRING_LENGTH)
-    private String passiveMeterFirmwareVersion;
-    @Size(max=Table.MAX_STRING_LENGTH)
-    private String activeCommunicationFirmwareVersion;
-    @Size(max=Table.MAX_STRING_LENGTH)
-    private String passiveCommunicationFirmwareVersion;
-
-    @Override
-    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.activeMeterFirmwareVersion = (String) propertyValues.getProperty(ActualFields.ACTIVE_METER_FIRMWARE_VERSION.propertySpecName());
-        this.passiveMeterFirmwareVersion = (String) propertyValues.getProperty(ActualFields.PASSIVE_METER_FIRMWARE_VERSION.propertySpecName());
-        this.activeCommunicationFirmwareVersion = (String) propertyValues.getProperty(ActualFields.ACTIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName());
-        this.passiveCommunicationFirmwareVersion = (String) propertyValues.getProperty(ActualFields.PASSIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName());
-    }
-
-    @Override
-    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.ACTIVE_METER_FIRMWARE_VERSION.propertySpecName(), this.activeMeterFirmwareVersion);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.PASSIVE_METER_FIRMWARE_VERSION.propertySpecName(), this.passiveMeterFirmwareVersion);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.ACTIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName(), this.activeCommunicationFirmwareVersion);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.PASSIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName(), this.passiveCommunicationFirmwareVersion);
-    }
-
-    @Override
-    public void validateDelete() {
-        // Nothing to validate
-    }
-
 }

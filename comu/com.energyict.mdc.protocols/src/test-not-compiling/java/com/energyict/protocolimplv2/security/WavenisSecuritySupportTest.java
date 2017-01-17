@@ -4,7 +4,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.elster.jupiter.datavault.DataVault;
 import com.elster.jupiter.datavault.LegacyDataVaultProvider;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link com.energyict.protocolimplv2.security.WavenisSecuritySupport} component
+ * Tests for the {@link com.energyict.protocolimplv2.securitysupport.WavenisSecuritySupport} component
  * <p/>
  * Copyrights EnergyICT
  * Date: 11/01/13

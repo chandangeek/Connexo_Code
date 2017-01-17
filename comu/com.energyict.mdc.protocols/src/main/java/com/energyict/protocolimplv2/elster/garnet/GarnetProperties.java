@@ -3,18 +3,17 @@ package com.energyict.protocolimplv2.elster.garnet;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
-import com.energyict.protocols.exception.ProtocolEncryptionException;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
-
-import com.energyict.dlms.DLMSUtils;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocols.exception.ProtocolEncryptionException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.math.BigDecimal;
 import java.util.Arrays;

@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
+import com.energyict.protocolimplv2.securitysupport.NoOrPasswordSecuritySupport;
 
 import java.util.ArrayList;
 import java.util.Date;

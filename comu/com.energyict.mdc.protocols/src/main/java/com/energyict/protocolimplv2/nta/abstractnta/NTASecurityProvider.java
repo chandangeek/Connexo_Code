@@ -1,15 +1,14 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
-import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.Password;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
-
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.common.Password;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.io.IOException;
 import java.util.Random;

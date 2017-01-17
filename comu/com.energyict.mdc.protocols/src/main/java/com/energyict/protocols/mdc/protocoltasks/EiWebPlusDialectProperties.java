@@ -2,13 +2,10 @@ package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+import com.energyict.mdc.tasks.EiWebPlusDialect;
 
 import javax.validation.constraints.Size;
 
@@ -22,6 +19,27 @@ public class EiWebPlusDialectProperties extends CommonDeviceProtocolDialectPrope
 
     public static final String SERVER_LOG_LEVEL_KEY = "serverLogLevel";
     public static final String PORT_LOG_LEVEL_KEY = "portLogLevel";
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String serverLogLevel;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String portLogLevel;
+
+    @Override
+    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+        this.serverLogLevel = (String) propertyValues.getProperty(ActualFields.SERVER_LOG_LEVEL.propertySpecName());
+        this.portLogLevel = (String) propertyValues.getProperty(ActualFields.PORT_LOG_LEVEL.propertySpecName());
+    }
+
+    @Override
+    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.SERVER_LOG_LEVEL.propertySpecName(), this.serverLogLevel);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.PORT_LOG_LEVEL.propertySpecName(), this.portLogLevel);
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
 
     public enum TranslationKeys implements TranslationKey {
         SERVER_LOG_LEVEL(SERVER_LOG_LEVEL_KEY, "Server log level"),
@@ -49,36 +67,8 @@ public class EiWebPlusDialectProperties extends CommonDeviceProtocolDialectPrope
     }
 
     enum ActualFields {
-        SERVER_LOG_LEVEL(SERVER_LOG_LEVEL_KEY, "ServerLogLevel", "SERVERLOGLEVEL") {
-            @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return propertySpecService
-                        .specForValuesOf(new StringFactory())
-                        .named(TranslationKeys.SERVER_LOG_LEVEL)
-                        .describedAs(TranslationKeys.SERVER_LOG_LEVEL_DESCRIPTION)
-                        .fromThesaurus(thesaurus)
-                        .addValues("SEVERE", "WARNING", "INFO", "FINE", "FINER", "FINEST", "ALL")
-                        .markExhaustive()
-                        .setDefaultValue("OFF")
-                        .finish();
-            }
-
-        },
-        PORT_LOG_LEVEL(PORT_LOG_LEVEL_KEY, "PortLogLevel", "PORTLOGLEVEL") {
-            @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return propertySpecService
-                        .specForValuesOf(new StringFactory())
-                        .named(TranslationKeys.PORT_LOG_LEVEL)
-                        .describedAs(TranslationKeys.PORT_LOG_LEVEL_DESCRIPTION)
-                        .fromThesaurus(thesaurus)
-                        .addValues("OFF", "SEVERE", "WARNING", "INFO", "FINE", "FINER", "FINEST", "ALL")
-                        .markExhaustive()
-                        .setDefaultValue(EiWebPlusDialect.DEFAULT_LOG_LEVEL)
-                        .finish();
-            }
-
-        };
+        SERVER_LOG_LEVEL(SERVER_LOG_LEVEL_KEY, "ServerLogLevel", "SERVERLOGLEVEL"),
+        PORT_LOG_LEVEL(PORT_LOG_LEVEL_KEY, "PortLogLevel", "PORTLOGLEVEL");
 
         private final String javaName;
         private final String propertySpecName;
@@ -102,38 +92,14 @@ public class EiWebPlusDialectProperties extends CommonDeviceProtocolDialectPrope
             return this.databaseName;
         }
 
-        public abstract PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
-
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName())
-                .add();
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName())
+                    .add();
         }
 
-    }
-
-    @Size(max=Table.MAX_STRING_LENGTH)
-    private String serverLogLevel;
-    @Size(max=Table.MAX_STRING_LENGTH)
-    private String portLogLevel;
-
-    @Override
-    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.serverLogLevel = (String) propertyValues.getProperty(ActualFields.SERVER_LOG_LEVEL.propertySpecName());
-        this.portLogLevel = (String) propertyValues.getProperty(ActualFields.PORT_LOG_LEVEL.propertySpecName());
-    }
-
-    @Override
-    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.SERVER_LOG_LEVEL.propertySpecName(), this.serverLogLevel);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.PORT_LOG_LEVEL.propertySpecName(), this.portLogLevel);
-    }
-
-    @Override
-    public void validateDelete() {
-        // Nothing to validate
     }
 
 }

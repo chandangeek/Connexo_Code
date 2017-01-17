@@ -2,23 +2,40 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+import test.com.energyict.protocolimplv2.sdksample.SDKTimeDeviceProtocolDialectProperties;
 
 /**
- * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link SDKTimeProtocolDialect}.
+ * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link SDKTimeDeviceProtocolDialectProperties}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-27 (09:37)
  */
 class SDKTimeDialectProperties extends CommonDeviceProtocolDialectProperties {
+
+    private TimeDuration clockOffsetWhenReading;
+    private TimeDuration clockOffsetWhenWriting;
+
+    @Override
+    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+        this.clockOffsetWhenReading = (TimeDuration) propertyValues.getProperty(ActualFields.CLOCK_OFFSET_WHEN_READING.propertySpecName());
+        this.clockOffsetWhenWriting = (TimeDuration) propertyValues.getProperty(ActualFields.CLOCK_OFFSET_WHEN_WRITING.propertySpecName());
+    }
+
+    @Override
+    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.CLOCK_OFFSET_WHEN_READING.propertySpecName(), this.clockOffsetWhenReading);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.CLOCK_OFFSET_WHEN_WRITING.propertySpecName(), this.clockOffsetWhenWriting);
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
 
     enum ActualFields {
         CLOCK_OFFSET_WHEN_READING("clockOffsetWhenReading", SDKTranslationKeys.CLOCK_OFFSET_WHEN_READING, "ClockOffsetWhenReading", "CLOCK_OFFSET_WHEN_READING"),
@@ -48,49 +65,20 @@ class SDKTimeDialectProperties extends CommonDeviceProtocolDialectProperties {
             return this.databaseName;
         }
 
-        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return propertySpecService
-                    .specForValuesOf(new TemporalAmountValueFactory())
-                    .named(this.propertySpecName, this.nameTranslationKey)
-                    .fromThesaurus(thesaurus)
-                    .finish();
-        }
-
         public void addTo(Table table) {
             table
-                .column(this.databaseName() + "VALUE")
-                .number()
-                .conversion(ColumnConversion.NUMBER2INT)
-                .map(this.javaName() + ".count")
-                .add();
+                    .column(this.databaseName() + "VALUE")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(this.javaName() + ".count")
+                    .add();
             table
-                .column(this.databaseName() + "UNIT")
-                .number()
-                .conversion(ColumnConversion.NUMBER2INT)
-                .map(this.javaName() + ".timeUnitCode")
-                .add();
+                    .column(this.databaseName() + "UNIT")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(this.javaName() + ".timeUnitCode")
+                    .add();
         }
 
     }
-
-    private TimeDuration clockOffsetWhenReading;
-    private TimeDuration clockOffsetWhenWriting;
-
-    @Override
-    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.clockOffsetWhenReading = (TimeDuration) propertyValues.getProperty(ActualFields.CLOCK_OFFSET_WHEN_READING.propertySpecName());
-        this.clockOffsetWhenWriting = (TimeDuration) propertyValues.getProperty(ActualFields.CLOCK_OFFSET_WHEN_WRITING.propertySpecName());
-    }
-
-    @Override
-    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.CLOCK_OFFSET_WHEN_READING.propertySpecName(), this.clockOffsetWhenReading);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.CLOCK_OFFSET_WHEN_WRITING.propertySpecName(), this.clockOffsetWhenWriting);
-    }
-
-    @Override
-    public void validateDelete() {
-        // Nothing to validate
-    }
-
 }

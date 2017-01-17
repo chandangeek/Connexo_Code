@@ -7,8 +7,8 @@ import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
-
 import com.google.inject.Module;
+import test.com.energyict.protocolimplv2.sdksample.SDKLoadProfileProtocolDialectProperties;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link SDKLoadProfileProtocolDialect}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link SDKLoadProfileProtocolDialectProperties}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-27 (09:37)
@@ -71,8 +71,8 @@ class SDKLoadProfileDialectPropertyPersistenceSupport implements PersistenceSupp
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(SDKLoadProfileDialectProperties.ActualFields.values())
-            .forEach(field -> field.addTo(table));
+                .of(SDKLoadProfileDialectProperties.ActualFields.values())
+                .forEach(field -> field.addTo(table));
     }
 
 }
