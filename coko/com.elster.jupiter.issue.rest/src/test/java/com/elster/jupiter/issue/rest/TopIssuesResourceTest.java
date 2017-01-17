@@ -4,6 +4,7 @@ package com.elster.jupiter.issue.rest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -62,7 +63,7 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest{
         when(reason.getIssueType()).thenReturn(issueType);
 
         IssueStatus status = mock(IssueStatus.class);
-        when(status.isHistorical()).thenReturn(true);
+        when(status.isHistorical()).thenReturn(false);
         when(status.getName()).thenReturn("name");
         when(status.getKey()).thenReturn("key");
 
@@ -76,6 +77,8 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest{
         when(meter.getAmrSystem()).thenReturn(amrSystem);
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
 
+        Priority priority = Priority.DEFAULT;
+        when(issue.getPriority()).thenReturn(priority);
         when(issue.getId()).thenReturn(1L);
         when(issue.getReason()).thenReturn(reason);
         when(issue.getStatus()).thenReturn(status);

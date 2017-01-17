@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
@@ -38,7 +39,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 
-import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -88,7 +88,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
 
 
     @Provider
-    @Priority(Priorities.AUTHORIZATION)
+    @javax.annotation.Priority(Priorities.AUTHORIZATION)
     private static class SecurityRequestFilter implements ContainerRequestFilter {
         @Override
         public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -210,6 +210,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
+        com.elster.jupiter.issue.share.Priority priority = Priority.DEFAULT;
+        when(issue.getPriority()).thenReturn(priority);
         return issue;
     }
 
