@@ -56,6 +56,7 @@ import java.util.Set;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -210,6 +211,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
+        com.elster.jupiter.issue.share.Priority priority = com.elster.jupiter.issue.share.Priority.DEFAULT;
+        when(issue.getPriority()).thenReturn(priority);
         return issue;
     }
 
@@ -295,6 +298,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(type.getId()).thenReturn(id);
         when(type.createIssueAction()).thenReturn(Optional.of(action));
         when(type.getIssueType()).thenReturn(issueType);
+        when(action.setIssue(any())).thenReturn(action);
         return type;
     }
 

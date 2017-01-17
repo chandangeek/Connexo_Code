@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
+import com.elster.jupiter.issue.rest.response.PriorityInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionPhaseInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
@@ -10,6 +11,7 @@ import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfo;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -224,7 +226,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         actionPropertyInfo.propertyValueInfo = new PropertyValueInfo<>("value", null);
         actionInfo.properties = Collections.singletonList(actionPropertyInfo);
         info.actions = Collections.singletonList(actionInfo);
-
+        info.priority = new PriorityInfo(Priority.DEFAULT);
         Response response = target("/creationrules").request().post(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -290,6 +292,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         info.actions = Collections.singletonList(actionInfo);
         info.version = 5L;
         info.id = 13L;
+        info.priority = new PriorityInfo(Priority.DEFAULT);
 
         Response response = target("/creationrules/13").request().put(Entity.json(info));
 
