@@ -22,6 +22,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.obis.ObisCode;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -178,6 +180,11 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
     @Override
     public PropertySpecBuilderWizard.NlsOptions<LocalTime> timeSpec() {
         return new NlsOptionsAdapter<>(this.actual.specForValuesOf(new LocalTimeFactory()), this.protocolPluggableService.protocolsThesaurus());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<ObisCode> obisCodeSpec() {
+        return new NlsOptionsAdapter<>(this.actual.obisCodeSpec(), this.protocolPluggableService.protocolsThesaurus());
     }
 
     @SuppressWarnings("unchecked")
