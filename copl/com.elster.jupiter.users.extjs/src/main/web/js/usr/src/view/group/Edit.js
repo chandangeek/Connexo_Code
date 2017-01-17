@@ -121,8 +121,7 @@ Ext.define('Usr.view.group.Edit', {
                                 xtype: 'fieldcontainer',
                                 fieldLabel: '&nbsp',
                                 layout: {
-                                    type: 'hbox',
-                                    align: 'stretch'
+                                    type: 'hbox'
                                 },
                                 items: [
                                     {
