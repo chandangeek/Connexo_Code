@@ -19,7 +19,7 @@ Ext.define('Sct.view.Setup', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'servicecalltypes-grid',
-                        itemId: 'grd-service-call-types',
+                        itemId: 'grd-service-call-types'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
