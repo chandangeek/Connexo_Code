@@ -56,7 +56,7 @@ Ext.define('Dlc.devicelifecycles.view.PreviewForm', {
                 items: {
                     xtype: 'uni-form-empty-message',
                     itemId: 'empty-message',
-                    text: Uni.I18n.translate('general.dlc.noLongerBeUsed', 'DLC', 'The device lifecycle was archived and can no longer be used')
+                    text: Uni.I18n.translate('general.dlc.no.longer.be.used', 'DLC', 'The device life cycle was archived and can no longer be used')
                 }
             });
         }
