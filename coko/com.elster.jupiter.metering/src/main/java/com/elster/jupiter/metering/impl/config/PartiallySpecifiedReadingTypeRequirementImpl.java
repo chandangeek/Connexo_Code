@@ -225,7 +225,8 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
                     rt -> ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(attr.getName().getDefinition(), rt) == attr.getCode()));
             this.attributeMatchers = attributeMatchersMap.values();
         }
-        return this.attributeMatchers.stream().allMatch(matcher -> matcher.apply(readingType));
+        return (!getReadingTypeTemplate().isRegular() || (getReadingTypeTemplate().isRegular() && readingType.isRegular()))
+                && this.attributeMatchers.stream().allMatch(matcher -> matcher.apply(readingType));
     }
 
     private Function<ReadingType, Boolean> getMatcherWithSystemPossibleValues(ReadingTypeTemplateAttribute attribute) {

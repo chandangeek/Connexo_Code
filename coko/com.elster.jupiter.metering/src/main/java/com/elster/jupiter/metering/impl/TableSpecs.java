@@ -1177,6 +1177,11 @@ public enum TableSpecs {
                     .conversion(NUMBER2ENUM)
                     .map(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName())
                     .add();
+            table.column(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.name())
+                    .bool()
+                    .since(version(10,3))
+                    .map(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.fieldName())
+                    .add();
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_RT_TEMPLATE").on(idColumn).add();

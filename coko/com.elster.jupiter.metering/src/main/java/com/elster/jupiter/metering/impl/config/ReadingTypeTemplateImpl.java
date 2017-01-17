@@ -34,7 +34,8 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         ID("id"),
         NAME("name"),
         ATTRIBUTES("persistedAttributes"),
-        DEFAULT_TEMPLATE("defaultTemplate");
+        DEFAULT_TEMPLATE("defaultTemplate"),
+        EQUIDISTANT("equidistant");
         private String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -60,6 +61,8 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     private Instant createTime;
     private Instant modTime;
     private String userName;
+
+    private boolean equidistant;
 
     private Set<ReadingTypeTemplateAttribute> allAttributes = new TreeSet<>(Comparator.comparing(ReadingTypeTemplateAttribute::getName));
 
@@ -134,7 +137,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
 
     @Override
     public boolean matches(ReadingType candidate) {
-        return this.allAttributes.stream().allMatch(attr -> attr.matches(candidate));
+        return (!isRegular() || (isRegular() && candidate.isRegular())) && this.allAttributes.stream().allMatch(attr -> attr.matches(candidate));
     }
 
     @Override
@@ -160,6 +163,11 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     }
 
     @Override
+    public boolean isRegular() {
+        return equidistant;
+    }
+
+    @Override
     public void delete() {
         persistedAttributes.clear();
         this.dataModel.mapper(ReadingTypeTemplate.class).remove(this);
@@ -179,6 +187,12 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         public ReadingTypeTemplateAttributeSetter setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues) {
             attributes.add(template.dataModel.getInstance(ReadingTypeTemplateAttributeImpl.class)
                     .init(template, name, code, possibleValues));
+            return this;
+        }
+
+        @Override
+        public ReadingTypeTemplateAttributeSetter setRegular() {
+            template.equidistant = true;
             return this;
         }
 

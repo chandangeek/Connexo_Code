@@ -31,6 +31,11 @@ public interface ReadingTypeTemplate extends HasId, HasName {
     boolean hasWildcards();
 
     /**
+     * Indicates that template matches only equidistant reading types.
+     */
+    boolean isRegular();
+
+    /**
      * Checks that all attributes in the given reading type (candidate) are within template limits.
      *
      * @param candidate reading type for check
@@ -53,6 +58,8 @@ public interface ReadingTypeTemplate extends HasId, HasName {
          * @return the updater
          */
         ReadingTypeTemplateAttributeSetter setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
+
+        ReadingTypeTemplateAttributeSetter setRegular();
 
         ReadingTypeTemplate done();
     }
