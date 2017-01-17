@@ -129,11 +129,11 @@ public class MasterDataSerializer {
         final String deviceTypeName = deviceConfiguration.fullyQualifiedName("_");   // DeviceTypeName_ConfigurationName
 
         final Beacon3100ProtocolConfiguration protocolConfiguration = this.getProtocolConfiguration(deviceConfiguration, masterDevice);
-        final List<Beacon3100Schedulable> schedulables = this.getSchedulables(deviceConfiguration, allMasterData);
+        final List<Beacon3100Schedulable> schedulables = this.getSchedulables(device, deviceConfiguration, allMasterData);
         if (schedulables.isEmpty()) {
             getLogger().warning("Comtask enablements on device configuration with ID " + deviceConfiguration.id() +"are empty. Device configuration should have at least one comtask enablement that reads out meter data.");
         } else {
-            final Beacon3100ClockSyncConfiguration clockSyncConfiguration = this.getClockSyncConfiguration(deviceConfiguration);
+            final Beacon3100ClockSyncConfiguration clockSyncConfiguration = this.getClockSyncConfiguration(device);
 
             //Use the security set of the first task to read out the serial number.. doesn't really matter
             final Beacon3100MeterSerialConfiguration meterSerialConfiguration = new Beacon3100MeterSerialConfiguration(FIXED_SERIAL_NUMBER_OBISCODE, schedulables.get(0).getClientTypeId());
@@ -145,7 +145,7 @@ public class MasterDataSerializer {
             final TimeZone localTimeZone = this.extractor.timeZone(device);
 
             //Now add all information about the comtasks (get from configuration level, so it's the same for every device of the same device type)
-            for (DeviceMasterDataExtractor.CommunicationTask enabledTask : deviceConfiguration.enabledTasks()) {
+            for (DeviceMasterDataExtractor.CommunicationTask enabledTask : this.extractor.enabledTasks(device)) {
                 //Only sync tasks & schedules for meter data. Don't sync basic check, messages,...
                 if (this.isMeterDataTask(enabledTask, schedulables)) {
                     //Don't add the security set again if it's already there (based on database ID)
@@ -307,8 +307,8 @@ public class MasterDataSerializer {
         }
     }
 
-    private Beacon3100ClockSyncConfiguration getClockSyncConfiguration(DeviceMasterDataExtractor.DeviceConfiguration deviceConfiguration) {
-        for (DeviceMasterDataExtractor.CommunicationTask enabledTask : deviceConfiguration.enabledTasks()) {
+    private Beacon3100ClockSyncConfiguration getClockSyncConfiguration(Device device) {
+        for (DeviceMasterDataExtractor.CommunicationTask enabledTask : this.extractor.enabledTasks(device)) {
             for (DeviceMasterDataExtractor.ProtocolTask protocolTask : enabledTask.protocolTasks()) {
                 if (protocolTask instanceof DeviceMasterDataExtractor.Clock) {
                     long min = ((DeviceMasterDataExtractor.Clock) protocolTask).minimumClockDifference().getSeconds();
@@ -323,9 +323,9 @@ public class MasterDataSerializer {
     /**
      * Gather scheduling info by iterating over the comtask enablements (on config level), this will be the same for all devices of the same device type & config.
      */
-    private List<Beacon3100Schedulable> getSchedulables(DeviceMasterDataExtractor.DeviceConfiguration deviceConfiguration, AllMasterData allMasterData) {
+    private List<Beacon3100Schedulable> getSchedulables(Device device, DeviceMasterDataExtractor.DeviceConfiguration deviceConfiguration, AllMasterData allMasterData) {
         List<Beacon3100Schedulable> schedulables = new ArrayList<>();
-        for (DeviceMasterDataExtractor.CommunicationTask enabledTask : deviceConfiguration.enabledTasks()) {
+        for (DeviceMasterDataExtractor.CommunicationTask enabledTask : this.extractor.enabledTasks(device)) {
             final long scheduleId = getScheduleId(enabledTask);
 
             //Don't add the task if it has no schedule
