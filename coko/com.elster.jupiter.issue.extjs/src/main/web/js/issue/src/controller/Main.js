@@ -97,7 +97,7 @@ Ext.define('Isu.controller.Main', {
                     {
                         text: Uni.I18n.translate('workspace.issues.myWorkgroupsIssues', 'ISU', 'My workgroups issues'),
                         itemId: 'my-workgroup-issues-item',
-                        href: router.getRoute('workspace/issues').buildUrl({}, {myworkgroupissues: true})
+                        href: router.getRoute('workspace/issues').buildUrl({}, {myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
                     }
                 ]
             });
