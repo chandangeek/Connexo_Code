@@ -13,10 +13,10 @@ import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Priority;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogHandler;
@@ -83,11 +83,17 @@ public class EstimationTaskExecutorTest {
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
+    private UsagePointGroup usagePointGroup;
+    @Mock
     private TaskLogHandler taskLogger;
     @Mock
     private Subquery endDeviceSubQuery;
     @Mock
+    private Subquery usagePointSubQuery;
+    @Mock
     private Query<Meter> meterWithSuspectsQuery;
+    @Mock
+    private Query<ChannelsContainer> channelsContainerWithSuspectsQuery;
     @Mock
     private Meter meter1, meter2;
     @Mock
@@ -115,8 +121,11 @@ public class EstimationTaskExecutorTest {
         doReturn(Optional.of(estimationTask)).when(estimationService).findEstimationTask(eq(task));
         when(estimationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
         when(meteringService.getMeterWithReadingQualitiesQuery(any(Range.class), eq(ReadingQualityType.of(QUALITY_CODE_SYSTEM, QualityCodeIndex.SUSPECT)))).thenReturn(meterWithSuspectsQuery);
+        when(meteringService.getChannelsContainerWithReadingQualitiesQuery(any(Range.class), eq(ReadingQualityType.of(QUALITY_CODE_SYSTEM, QualityCodeIndex.SUSPECT))))
+                .thenReturn(channelsContainerWithSuspectsQuery);
         when(endDeviceGroup.toSubQuery(eq("id"))).thenReturn(endDeviceSubQuery);
         when(meterWithSuspectsQuery.select(any(Condition.class))).thenReturn(Arrays.asList(meter1, meter2));
+        when(channelsContainerWithSuspectsQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(channelsContainer));
         when(estimationService.getEstimationResolvers()).thenReturn(Collections.singletonList(new EstimationResolver() {
             @Override
             public boolean isEstimationActive(Meter meter) {
@@ -141,7 +150,6 @@ public class EstimationTaskExecutorTest {
         doReturn(Optional.of(meter2Activation)).when(meter2).getMeterActivation(eq(triggerTime.toInstant()));
         when(meter2Activation.getMeter()).thenReturn(Optional.of(meter2));
         when(meter2.getMRID()).thenReturn("meter2");
-        channelsContainer = mock(ChannelsContainer.class);
         when(meter2Activation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainer.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(estimationTask.getPeriod()).thenReturn(Optional.of(relativePeriod));
@@ -162,7 +170,7 @@ public class EstimationTaskExecutorTest {
 
 
     @Test
-    public void testSuccessfullRun() {
+    public void testSuccessfullRunWithEndDevice() {
         EstimationTaskExecutor executor = new EstimationTaskExecutor(estimationService, transactionService, meteringService,
                 timeService, threadPrincipleService, estimationUser);
         executor.postExecute(occurrence);
@@ -175,7 +183,24 @@ public class EstimationTaskExecutorTest {
     }
 
     @Test
-    public void testUnSuccessfullRun() {
+    public void testSuccessfullRunWithUsagePoint() {
+        when(estimationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
+        when(estimationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
+        when(usagePointGroup.toSubQuery()).thenReturn(usagePointSubQuery);
+
+        EstimationTaskExecutor executor = new EstimationTaskExecutor(estimationService, transactionService, meteringService,
+                timeService, threadPrincipleService, estimationUser);
+        executor.postExecute(occurrence);
+        verify(transactionService, times(1)).getContext();
+        verify(transactionContext, times(1)).close();
+        verify(transactionContext, times(1)).commit();
+        verify(estimationService, times(1)).estimate(eq(QUALITY_CODE_SYSTEM), eq(channelsContainer), eq(periodRange), any(Logger.class));
+        verify(transactionService, times(1)).run(any(Runnable.class));
+        verify(estimationTask, times(1)).updateLastRun(eq(triggerTime.toInstant()));
+    }
+
+    @Test
+    public void testUnSuccessfullRunWithEndDevice() {
         when(estimationService.estimate(eq(QUALITY_CODE_SYSTEM), eq(channelsContainer), eq(periodRange), any(Logger.class)))
                 .thenThrow(new NullPointerException());
         EstimationTaskExecutor executor = new EstimationTaskExecutor(estimationService, transactionService, meteringService,

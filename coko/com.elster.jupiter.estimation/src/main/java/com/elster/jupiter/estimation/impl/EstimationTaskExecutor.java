@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationTask;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -87,13 +88,23 @@ class EstimationTaskExecutor implements TaskExecutor {
                     .flatMap(Functions.asStream())
                     .forEach(meterActivation -> doEstimateTransactional(meterActivation, system, relativePeriod, occurrence
                             .getTriggerTime(), taskLogger));
+        } else if (estimationTask.getUsagePointGroup().isPresent()) {
+            meteringService.getChannelsContainerWithReadingQualitiesQuery(relativePeriod.getOpenClosedInterval(ZonedDateTime
+                    .ofInstant(occurrence
+                            .getTriggerTime(), ZoneId.systemDefault())), ReadingQualityType.of(system, QualityCodeIndex.SUSPECT))
+                    .select(ListOperator.IN.contains(estimationTask.getUsagePointGroup()
+                            .get()
+                            .toSubQuery("id"), "effectiveMetrologyContract.metrologyConfiguration.usagePoint"))
+                    .stream()
+                    .forEach(channelsContainer -> doEstimateTransactional(channelsContainer, system, relativePeriod, occurrence
+                            .getTriggerTime(), taskLogger));
         }
     }
 
     private void doEstimateTransactional(MeterActivation meterActivation, QualityCodeSystem system, RelativePeriod relativePeriod, Instant triggerTime, Logger taskLogger) {
         try {
             try (TransactionContext transactionContext = transactionService.getContext()) {
-                estimationService.estimate(system, meterActivation.getChannelsContainer(), period(meterActivation, relativePeriod, triggerTime), taskLogger);
+                estimationService.estimate(system, meterActivation.getChannelsContainer(), period(meterActivation.getChannelsContainer(), relativePeriod, triggerTime), taskLogger);
                 transactionContext.commit();
             }
         } catch (Exception ex) {
@@ -103,8 +114,21 @@ class EstimationTaskExecutor implements TaskExecutor {
         }
     }
 
-    private Range<Instant> period(MeterActivation meterActivation, RelativePeriod relativePeriod, Instant triggerTime) {
-        ZonedDateTime referenceDate = ZonedDateTime.ofInstant(triggerTime, meterActivation.getChannelsContainer().getZoneId());
+    private void doEstimateTransactional(ChannelsContainer channelsContainer, QualityCodeSystem system, RelativePeriod relativePeriod, Instant triggerTime, Logger taskLogger) {
+        try {
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                estimationService.estimate(system, channelsContainer, period(channelsContainer, relativePeriod, triggerTime), taskLogger);
+                transactionContext.commit();
+            }
+        } catch (Exception ex) {
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to estimate "
+                    + channelsContainer.getUsagePoint().map(IdentifiedObject::getMRID).orElse("Unknown")
+                    + " . Error: " + ex.getLocalizedMessage(), ex));
+        }
+    }
+
+    private Range<Instant> period(ChannelsContainer channelsContainer, RelativePeriod relativePeriod, Instant triggerTime) {
+        ZonedDateTime referenceDate = ZonedDateTime.ofInstant(triggerTime, channelsContainer.getZoneId());
         return relativePeriod.getOpenClosedInterval(referenceDate);
     }
 
