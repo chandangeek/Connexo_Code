@@ -63,13 +63,13 @@ public class TaskInfo {
         long plannedDate = recurrentTask.getNextExecution().toEpochMilli();
         setQueueStatus(PLANNED, plannedDate);
         if (lastOccurrence != null) {
-            if (lastOccurrence.getStartDate().isPresent()) {
+            if (lastOccurrence.getStartDate().isPresent() && lastOccurrence.getEndDate().isPresent()) {
                 setLastRunStatus(lastOccurrence);
             } else {
                 // startdate is not set yet because task is not picked up by the queue yet, so we take the previous ocurence
                 List<TaskOccurrence> occurences = recurrentTask.getTaskOccurrences();
                 if (occurences.size() > 1) {
-                    setLastRunStatus(occurences.get(1));
+                    setLastOccurence(occurences);
                 }
             }
         }
@@ -88,10 +88,20 @@ public class TaskInfo {
         // Take the previous occurence to check the last run status
         List<TaskOccurrence> occurences = recurrentTask.getTaskOccurrences();
         if (occurences.size() > 1) {
-            setLastRunStatus(occurences.get(1));
+            setLastOccurence(occurences);
         }
 
         currentRunDuration = Instant.now(clock).toEpochMilli() - startDate;
+    }
+
+    private void setLastOccurence(List<TaskOccurrence> occurences) {
+        Optional<TaskOccurrence> lastOcc = occurences.stream()
+                .skip(1)
+                .filter(occurence -> occurence.getStartDate().isPresent() && occurence.getEndDate().isPresent())
+                .findFirst();
+        if(lastOcc.isPresent()) {
+            setLastRunStatus(lastOcc.get());
+        }
     }
 
     private void setQueueStatus(String status, Long date) {
