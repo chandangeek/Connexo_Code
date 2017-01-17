@@ -113,8 +113,8 @@ public class DeviceLifeCycleActionResource {
     private void validateInfo(AuthorizedActionInfo actionForEdit) {
         Predicate<Long> check = id -> id != null && id > 0;
         new RestValidationBuilder()
-                .notEmpty(actionForEdit.name, "name")
-                .notEmpty(actionForEdit.triggeredBy != null ? actionForEdit.triggeredBy.symbol : null, "triggeredBy")
+                .notEmpty(actionForEdit.name, "name", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
+                .notEmpty(actionForEdit.triggeredBy != null ? actionForEdit.triggeredBy.symbol : null, "triggeredBy", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
                 .on(actionForEdit.fromState != null ? actionForEdit.fromState.id : null).field("fromState").check(check).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).test()
                 .on(actionForEdit.toState != null ? actionForEdit.toState.id : null).field("toState").check(check).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).test()
                 .validate();
