@@ -9,6 +9,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @ProviderType
 public interface UsagePointLifeCycleService {
@@ -19,6 +20,8 @@ public interface UsagePointLifeCycleService {
     UsagePointStateChangeRequest scheduleTransition(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties);
 
     List<UsagePointStateChangeRequest> getHistory(UsagePoint usagePoint);
+
+    Optional<UsagePointStateChangeRequest> getLastUsagePointStateChangeRequest(UsagePoint usagePoint);
 
     List<UsagePointTransition> getAvailableTransitions(UsagePointState state, String application);
 }

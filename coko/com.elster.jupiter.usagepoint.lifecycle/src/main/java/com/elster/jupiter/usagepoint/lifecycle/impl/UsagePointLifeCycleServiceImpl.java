@@ -262,6 +262,14 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     }
 
     @Override
+    public Optional<UsagePointStateChangeRequest> getLastUsagePointStateChangeRequest(UsagePoint usagePoint) {
+        return this.dataModel.query(UsagePointStateChangeRequest.class, UsagePointStateChangePropertyImpl.class)
+                .select(where(UsagePointStateChangeRequestImpl.Fields.USAGE_POINT.fieldName()).isEqualTo(usagePoint),
+                new Order[]{Order.descending(UsagePointStateChangeRequestImpl.Fields.TRANSITION_TIME.fieldName())},
+                false, new String[0], 0, 1).stream().findFirst();
+    }
+
+    @Override
     public List<UsagePointTransition> getAvailableTransitions(UsagePointState usagePointState, String application) {
         Principal principal = this.threadPrincipalService.getPrincipal();
         if (!(principal instanceof User)) {
