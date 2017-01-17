@@ -31,7 +31,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
     views: [
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputChannelMain',
-        'Imt.purpose.view.ValidationStatusForm'
+        'Imt.purpose.view.ValidationStatusForm',
+        'Uni.view.window.Confirmation',
+        'Ext.ProgressBar'
     ],
 
     refs: [
@@ -317,6 +319,24 @@ Ext.define('Imt.purpose.controller.Purpose', {
     },
 
     estimatePurpose: function (purpose) {
+        var me = this,
+            usagePoint = Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint,
+            confirmationWindow = Ext.widget('confirmation-window', {
+                itemId: 'estimate-now-confirmation-window',
+                closeAction: 'destroy',
+                confirmText: Uni.I18n.translate('general.estimate', 'IMT', 'Estimate'),
+                confirmation: Ext.bind(me.onEstimateNow, me, [purpose, getConfirmationWindow])
+            });
+
+        confirmationWindow.show({
+            title: Uni.I18n.translate('purpose.estimateNow', 'IMT', "Estimate data for '{0}' purpose on usage point '{1}'?",
+                [purpose.get('name'), usagePoint.get('name')], false),
+            icon: 'icon-question4'
+        });
+
+        function getConfirmationWindow() {
+            return confirmationWindow
+        };
     },
 
     getActivationConfirmationContent: function (purpose) {
@@ -427,6 +447,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     }
                 }).show({
                     ui: 'notification-error',
+                    modal: false,
                     title: Uni.I18n.translate('purpose.dataValidation.timeout.title1', 'IMT', 'Data validation takes longer than expected'),
                     msg: Uni.I18n.translate('purpose.dataValidation.timeout.msg1', 'IMT', 'Data validation takes longer than expected. Data validation will continue in the background.'),
                     icon: Ext.MessageBox.ERROR
@@ -452,5 +473,64 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 }
             }
         });
+    },
+
+    onEstimateNow: function (purpose, getConfirmationWindow) {
+        var me = this,
+            confirmationWindow = getConfirmationWindow(),
+            progressbar = Ext.widget('progressbar', {
+                itemId: 'estimation-progressbar',
+                margin: '5 0 15 0'
+            });
+
+        confirmationWindow.insert(1, progressbar);
+        progressbar.wait({
+            duration: 3000,
+            scope: me,
+            fn: Ext.bind(me.onToLongEstimation, me, [purpose, confirmationWindow])
+        });
+
+        purpose.save({
+            isNotEdit: true,
+            notHandleTimeout: true,
+            success: function () {
+                if (confirmationWindow.rendered) {
+                    confirmationWindow.close();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'));
+                    me.getController('Uni.controller.history.Router').getRoute().forward();
+                }
+            },
+            failure: function () {
+                if (confirmationWindow.rendered) {
+                    confirmationWindow.close();
+                }
+            }
+        });
+    },
+
+    onToLongEstimation: function (purpose, confirmationWindow) {
+        var errorMessage = Ext.widget('messagebox', {
+            closeAction: 'destroy',
+            buttons: [
+                {
+                    text: Uni.I18n.translate('general.close', 'IMT', 'Close'),
+                    ui: 'remove',
+                    handler: function () {
+                        this.up('window').close();
+                    }
+                }
+            ]
+        });
+
+        Ext.suspendLayouts();
+        confirmationWindow.close();
+        errorMessage.show({
+            ui: 'notification-error',
+            modal: false,
+            title: Uni.I18n.translate('purpose.dataEstimation.timeout.title1', 'IMT', 'Data estimation takes longer than expected'),
+            msg: Uni.I18n.translate('purpose.dataEstimation.timeout.msg1', 'IMT', 'Data estimation takes longer than expected. Data estimation will continue in the background.'),
+            icon: Ext.MessageBox.ERROR
+        });
+        Ext.resumeLayouts(true);
     }
 });
