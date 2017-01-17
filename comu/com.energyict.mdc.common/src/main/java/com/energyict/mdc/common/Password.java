@@ -9,7 +9,7 @@ import static com.elster.jupiter.util.Checks.is;
  * Time: 18:32:58
  * To change this template use File | Settings | File Templates.
  */
-public class Password {
+public class Password implements com.energyict.mdc.upl.properties.Password {
 
     private String value;
 
@@ -38,7 +38,11 @@ public class Password {
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        if (value != null) {
+            return value.hashCode();
+        } else {
+            return 0;
+        }
     }
 
     @Override
