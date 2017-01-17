@@ -159,6 +159,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 }
             };
 
+        Ext.suspendLayouts(true);
         if (isBulk) {
             Ext.Array.each(record, function (reading) {
                 func(reading);
@@ -167,6 +168,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             func(record);
         }
 
+        Ext.resumeLayouts();
         me.getReadingsList().down('#save-changes-button').isDisabled() && me.showButtons();
     },
 
@@ -213,6 +215,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (event.record.isModified('value')) {
             grid.down('#save-changes-button').isDisabled() && me.showButtons();
 
+            Ext.suspendLayouts(true);
             if (!value) {
                 point.update({y: null});
                 event.record.set('value', '0');
@@ -236,6 +239,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                 event.record.get('confirmed') && event.record.set('confirmed', false);
             }
+            Ext.resumeLayouts();
         } else if (condition) {
             me.resetChanges(event.record, point);
         }
@@ -257,8 +261,9 @@ Ext.define('Imt.purpose.controller.Readings', {
         } else if (properties.informative) {
             color = '#dedc49';
         }
-
         record.get('confirmed') && record.set('confirmed', false);
+
+        Ext.suspendLayouts(true);
         grid.getView().refreshNode(store.indexOf(record));
         point.update({
             y: parseFloat(record.get('value')),
@@ -270,6 +275,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             grid.down('#save-changes-button').disable();
             grid.down('#undo-button').disable();
         }
+        Ext.resumeLayouts();
     },
 
     undoChannelDataChanges: function () {
