@@ -33,7 +33,7 @@ public enum MessageSeeds implements MessageSeed {
     LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(4009, "loadProfileType.cannotUpdateObisCode", "The obis code of the load profile type \"{0}\" can''t be updated because it is in use"),
     LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED(4010, "loadProfileType.cannotUpdateInterval", "The interval of the load profile type \"{0}\" can''t be updated because it is in use"),
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS(4011, "loadProfileType.XstillInUseByLoadProfileSpecsY", "The load profile type with reading type {0} can''t be removed because it is still in use by the following load profile spec(s): {1}"),
-    LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The load profile type with reading type {0} can''t be removed because it is still in use by the following device type(s): {1}"),
+    LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The load profile type {0} can''t be removed because it is still in use by the following device type(s): {1}"),
     LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" can''t be updated because it is in use"),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} can''t be removed because it is still in use by the following log book spec(s): {1}"),
     REGISTER_SPEC_OVERFLOW_DECREASED(6002, Keys.REGISTER_SPEC_OVERFLOW_DECREASED, "The overflow value can''t be decreased"),
