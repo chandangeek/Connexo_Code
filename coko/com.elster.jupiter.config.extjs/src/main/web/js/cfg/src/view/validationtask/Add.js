@@ -66,6 +66,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('validationTasks.general.recurrence', 'CFG', 'Recurrence'),
                         itemId: 'recurrence-container',
+                        required: true,
                         layout: 'hbox',
                         items: [
                             {
@@ -145,6 +146,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('validationTasks.general.startOn', 'CFG', 'Start on'),
+                        required: true,
                         layout: 'hbox',
                         items: [
                             {
