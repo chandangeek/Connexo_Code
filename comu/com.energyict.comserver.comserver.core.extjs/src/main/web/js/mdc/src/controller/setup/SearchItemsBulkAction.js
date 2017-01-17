@@ -514,9 +514,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         switch (currentCmp.name) {
             case 'selectDevices':
                 me.allDevices = me.getDevicesGrid().isAllSelected();
-
+                errorPanel = currentCmp.down('#step1-errors');
+                errorPanel.hide();
                 if (!me.allDevices) {
                     me.devices = me.getDevicesGrid().getSelectionModel().getSelection();
+                } else {
+                    me.devices = null;
+
                 }
 
                 if (me.changeDeviceConfigAvailable(search.service.getFilters())) {
@@ -528,7 +532,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     }
 
                 }
-                errorPanel = currentCmp.down('#step1-errors');
+
                 me.validation = me.allDevices || me.devices.length;
                 break;
             case 'selectOperation':
