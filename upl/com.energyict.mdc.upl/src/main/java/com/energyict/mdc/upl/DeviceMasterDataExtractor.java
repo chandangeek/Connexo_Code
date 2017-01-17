@@ -60,6 +60,13 @@ public interface DeviceMasterDataExtractor {
         String name();
         String fullyQualifiedName(String separator);
         String protocolJavaClassName();
+
+        /**
+         * Returns general properties of this configuration
+         * and properties of the protocol pluggable class.
+         *
+         * @return The properties
+         */
         TypedProperties properties();
         Optional<TypedProperties> dialectProperties(String dialectName);
         Collection<CommunicationTask> enabledTasks();
