@@ -193,7 +193,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
 
         if (menu.down('#reset-value')) {
-            menu.down('#reset-value').setVisible(menu.record.get('calculatedValue'));
+            menu.down('#reset-value').setVisible(menu.record.get('modificationFlag') == "EDITED" || menu.record.get('modificationFlag') == "ADDED");
         }
         Ext.resumeLayouts();
     },
@@ -377,23 +377,22 @@ Ext.define('Imt.purpose.controller.Readings', {
         Ext.suspendLayouts();
         Ext.Array.each(records, function (record) {
             calculatedValue = record.get('calculatedValue');
-            if (calculatedValue) {
-                record.beginEdit();
-                record.set('removedNotSaved', true);
-                record.set('value', calculatedValue);
-                if (record.get('confirmed')) {
-                    record.set('confirmed', false);
-                }
-                record.set('validationResult', 'validationStatus.ok');
-                record.endEdit(true);
-                gridView.refreshNode(store.indexOf(record));
-                point = chart.get(record.get('interval').start);
-                point.update({y: parseFloat(calculatedValue), color: 'rgba(112,187,81,0.3)', value: calculatedValue});
+            record.beginEdit();
+            record.set('removedNotSaved', true);
+            record.set('value', calculatedValue);
+            if (record.get('confirmed')) {
+                record.set('confirmed', false);
             }
+            record.set('validationResult', 'validationStatus.ok');
+            record.endEdit(true);
+            gridView.refreshNode(store.indexOf(record));
+            point = chart.get(record.get('interval').start);
+            point.update({y: parseFloat(calculatedValue), color: 'rgba(112,187,81,0.3)', value: calculatedValue});
+
         });
         chart.redraw();
-        me.showButtons();
         Ext.resumeLayouts(true);
+        me.showButtons();
     },
 
     estimateValue: function (record) {
