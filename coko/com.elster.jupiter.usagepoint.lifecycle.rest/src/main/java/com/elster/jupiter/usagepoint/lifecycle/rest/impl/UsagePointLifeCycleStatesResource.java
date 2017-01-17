@@ -68,8 +68,8 @@ public class UsagePointLifeCycleStatesResource {
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
     public UsagePointLifeCycleStateInfo newState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
-        validationBuilder.notEmpty(stateInfo.name, "name")
-                .notEmpty(stateInfo.stage, "stage")
+        validationBuilder.notEmpty(stateInfo.name, "name", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
+                .notEmpty(stateInfo.stage, "stage", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
                 .validate();
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
         UsagePointState.UsagePointStateCreator builder = lifeCycle.newState(stateInfo.name);
