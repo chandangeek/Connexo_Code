@@ -4,6 +4,7 @@ package com.elster.jupiter.issue.rest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TopIssuesAndAlarmsResourceTest extends IssueRestApplicationJerseyTest{
+public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest{
 
     @Mock
     IssueProvider issueProvider;
@@ -62,7 +63,7 @@ public class TopIssuesAndAlarmsResourceTest extends IssueRestApplicationJerseyTe
         when(reason.getIssueType()).thenReturn(issueType);
 
         IssueStatus status = mock(IssueStatus.class);
-        when(status.isHistorical()).thenReturn(true);
+        when(status.isHistorical()).thenReturn(false);
         when(status.getName()).thenReturn("name");
         when(status.getKey()).thenReturn("key");
 
@@ -76,6 +77,7 @@ public class TopIssuesAndAlarmsResourceTest extends IssueRestApplicationJerseyTe
         when(meter.getAmrSystem()).thenReturn(amrSystem);
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
 
+        Priority priority = Priority.DEFAULT;
         when(issue.getId()).thenReturn(1L);
         when(issue.getReason()).thenReturn(reason);
         when(issue.getStatus()).thenReturn(status);
@@ -85,9 +87,11 @@ public class TopIssuesAndAlarmsResourceTest extends IssueRestApplicationJerseyTe
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
+        when(issue.getPriority()).thenReturn(priority);
     }
 
-    @Test
+    //FixMe Move test to alarms.rest
+    /*@Test
     public void getTopAlarms(){
         Finder<? extends Issue> issueFinder = mock(Finder.class);
         doReturn(issueFinder).when(issueService).findAlarms();
@@ -100,7 +104,7 @@ public class TopIssuesAndAlarmsResourceTest extends IssueRestApplicationJerseyTe
 
         Map response = target("/topissues/alarms").request().get(Map.class);
         defaultTopTaskAsserts(response);
-    }
+    }*/
 
     @Test
     public void getTopIssues(){

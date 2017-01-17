@@ -15,6 +15,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     public String issueId;
     public IssueReasonInfo reason;
     public PriorityInfo priority;
+    public int priorityValue;
     public IssueStatusInfo status;
     public long dueDate;
     public IssueAssigneeInfo assignee;
@@ -41,6 +42,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             this.issueId = issue.getIssueId();
             this.reason = new IssueReasonInfo(issue.getReason());
             this.priority = new PriorityInfo(issue.getPriority());
+            this.priorityValue = issue.getPriority().getImpact() + issue.getPriority().getUrgency();
             this.status = new IssueStatusInfo(issue.getStatus());
             this.dueDate = issue.getDueDate() != null ? issue.getDueDate().toEpochMilli() : 0;
             this.assignee = (issue.getAssignee() != null ? new IssueAssigneeInfo(issue.getAssignee()) : null);
