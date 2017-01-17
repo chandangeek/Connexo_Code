@@ -38,6 +38,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
@@ -127,6 +128,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private PropertySpec propertySpec;
     @Mock
     private PropertyValueConverter propertyValueConverter;
+    @Mock
+    private UsagePointStateChangeRequest usagePointStateChangeRequest;
 
     @Before
     public void setUp1() {
@@ -228,6 +231,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePointState.getId()).thenReturn(1L);
         when(usagePointState.getName()).thenReturn("State");
         when(usagePointState.getVersion()).thenReturn(1L);
+
+        when(usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint)).thenReturn(Optional.of(usagePointStateChangeRequest));
+        when(usagePointStateChangeRequest.getTransitionTime()).thenReturn(Instant.EPOCH);
     }
 
     @Test
