@@ -173,9 +173,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
 
         @Override
         public TypedProperties properties() {
-            /* Both device configuration and pluggable classes do not have
-             * any properties in Connexo yet. */
-            return com.energyict.mdc.common.TypedProperties.empty();
+            return this.actual.getDeviceProtocolProperties().getTypedProperties();
         }
 
         @Override
