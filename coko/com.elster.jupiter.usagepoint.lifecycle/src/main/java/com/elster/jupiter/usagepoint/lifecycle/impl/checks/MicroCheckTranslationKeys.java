@@ -4,11 +4,9 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum MicroCheckTranslationKeys implements TranslationKey {
     METROLOGY_CONF_IS_DEFINED_NAME(Keys.NAME_PREFIX + MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), "Metrology configuration is defined"),
-    METROLOGY_CONF_IS_DEFINED_DESCRIPTION(Keys.DESCRIPTION_PREFIX + MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), "Check if a metrology configuration is defined on a usage point."),
-    METROLOGY_CONF_IS_DEFINED_MESSAGE("metrology.conf.is.defined.message", "Metrology configuration is not defined"),
+    METROLOGY_CONF_IS_DEFINED_MESSAGE(Keys.MESSAGE_PREFIX + MetrologyConfigurationIsDefinedCheck.class.getSimpleName(), "This check verifies that a metrology configuration is linked to a usage point."),
     METER_ROLES_ARE_SPECIFIED_NAME(Keys.NAME_PREFIX + MeterRolesAreSpecifiedCheck.class.getSimpleName(), "Meters are specified for all the roles"),
-    METER_ROLES_ARE_SPECIFIED_DESCRIPTION(Keys.DESCRIPTION_PREFIX + MeterRolesAreSpecifiedCheck.class.getSimpleName(), "Check if meters are specified for all of the meter roles provided by metrology configuration of a usage points."),
-    METER_ROLES_ARE_SPECIFIED_MESSAGE("meter.roles.are.specified.message", "Meters aren''t specified for all meter roles"),;
+    METER_ROLES_ARE_SPECIFIED_MESSAGE(Keys.MESSAGE_PREFIX + MeterRolesAreSpecifiedCheck.class.getSimpleName(), "This check verifies that meters are specified for all of the metrology configuration's meter roles for a usage point.");
 
     private final String key;
     private final String defaultFormat;
@@ -30,7 +28,7 @@ public enum MicroCheckTranslationKeys implements TranslationKey {
 
     public static class Keys {
         static String NAME_PREFIX = "usage.point.micro.check.name.";
-        static String DESCRIPTION_PREFIX = "usage.point.micro.check.description.";
+        static String MESSAGE_PREFIX = "usage.point.micro.check.message.";
 
         private Keys() {
         }

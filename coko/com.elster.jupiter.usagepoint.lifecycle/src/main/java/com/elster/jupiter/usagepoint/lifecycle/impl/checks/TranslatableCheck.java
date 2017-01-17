@@ -37,7 +37,7 @@ public abstract class TranslatableCheck implements ExecutableMicroCheck {
 
     @Override
     public String getDescription() {
-        return this.thesaurus.getString(MicroCheckTranslationKeys.Keys.DESCRIPTION_PREFIX + getKey(), getKey());
+        return this.thesaurus.getString(MicroCheckTranslationKeys.Keys.MESSAGE_PREFIX + getKey(), getKey());
     }
 
     @Override
