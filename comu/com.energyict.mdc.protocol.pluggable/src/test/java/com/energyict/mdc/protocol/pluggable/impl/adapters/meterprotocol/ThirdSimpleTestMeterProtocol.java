@@ -5,10 +5,11 @@ import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.protocol.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,18 +27,28 @@ import java.util.logging.Logger;
  */
 public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecurityPropertyConverter {
 
-    @Override
-    public String getProtocolDescription() {
-        return this.getClass().getName();
-    }
-
     public ThirdSimpleTestMeterProtocol() {
         super();
     }
 
     @Override
+    public String getProtocolDescription() {
+        return this.getClass().getName();
+    }
+
+    @Override
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
         // nothing to set
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
     }
 
     @Override
@@ -131,13 +142,13 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     }
 
     @Override
-    public void setCache(Object cacheObject) {
-        // nothing to set
+    public Object getCache() {
+        return null;
     }
 
     @Override
-    public Object getCache() {
-        return null;
+    public void setCache(Object cacheObject) {
+        // nothing to set
     }
 
     @Override
@@ -177,7 +188,7 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySet() {
             @Override
             public int getAuthenticationDeviceAccessLevel() {

@@ -2,27 +2,29 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Simple implementation of a {@link DeviceSecuritySupport} component.
  * Will only be used for testing
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 15/01/13
  * Time: 10:54
@@ -46,6 +48,11 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
     }
 
     @Override
+    public List<PropertySpec> getSecurityProperties() {
+        return getSecurityPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.<AuthenticationDeviceAccessLevel>singletonList(new SimpleTestAuthenticationDeviceAccessLevel());
     }
@@ -65,7 +72,7 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
         return null;
     }
 
-    public class SimpleTestAuthenticationDeviceAccessLevel implements AuthenticationDeviceAccessLevel{
+    public class SimpleTestAuthenticationDeviceAccessLevel implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -73,17 +80,22 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
         }
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "Simple Test Authentication Device Access Level";
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.propertySpec(propertySpecService));
+        public String getDefaultTranslation() {
+            return "Simple Test Authentication Device Access Level";
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+            return Collections.singletonList(new ConnexoToUPLPropertSpecAdapter(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.propertySpec(propertySpecService)));
         }
     }
 
-    private class SimpleTestEncryptionDeviceAccessLevel implements EncryptionDeviceAccessLevel{
+    private class SimpleTestEncryptionDeviceAccessLevel implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -91,15 +103,20 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
         }
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "Simple Test Encryption Device Access Level";
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public String getDefaultTranslation() {
+            return "Simple Test Encryption Device Access Level";
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    SimpleTestDeviceSecurityProperties.ActualFields.SECOND.propertySpec(propertySpecService),
-                    SimpleTestDeviceSecurityProperties.ActualFields.THIRD.propertySpec(propertySpecService));
+                    new ConnexoToUPLPropertSpecAdapter(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.propertySpec(propertySpecService)),
+                    new ConnexoToUPLPropertSpecAdapter(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.propertySpec(propertySpecService)));
         }
     }
 
