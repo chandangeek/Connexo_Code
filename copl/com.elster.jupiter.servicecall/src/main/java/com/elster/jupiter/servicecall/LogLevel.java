@@ -37,7 +37,7 @@ public enum LogLevel implements TranslationKey {
 
     @Override
     public String getKey() {
-        return name();
+        return getTranslationKey(this);
     }
 
     @Override

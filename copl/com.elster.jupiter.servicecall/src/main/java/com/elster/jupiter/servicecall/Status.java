@@ -31,7 +31,7 @@ public enum Status implements TranslationKey {
 
     @Override
     public String getKey() {
-        return name();
+        return getTranslationKey(this);
     }
 
     @Override
