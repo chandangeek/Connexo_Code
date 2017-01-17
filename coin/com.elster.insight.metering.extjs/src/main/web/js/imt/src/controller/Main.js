@@ -94,7 +94,7 @@ Ext.define('Imt.controller.Main', {
 	        Uni.store.MenuItems.add(menuItem);
 	
 	        var portalItem1 = Ext.create('Uni.model.PortalItem', {
-	            title: Uni.I18n.translate('general.usagePointLifecycleManagement', 'IMT', 'Usage point lifecycle management'),
+	            title: Uni.I18n.translate('general.usagePoint.LifecycleManagement', 'IMT', 'Usage point life cycle management'),
 	            portal: 'usagepoints',
 	            items: [
 	                {
@@ -154,7 +154,7 @@ Ext.define('Imt.controller.Main', {
 
         if (Imt.privileges.UsagePointLifeCycle.canView()) {
             Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.usagePointLifecycleManagement', 'IMT', 'Usage point lifecycle management'),
+                title: Uni.I18n.translate('general.usagePoint.LifecycleManagement', 'IMT', 'Usage point life cycle management'),
                 portal: 'administration',
                 items: [
                     {
