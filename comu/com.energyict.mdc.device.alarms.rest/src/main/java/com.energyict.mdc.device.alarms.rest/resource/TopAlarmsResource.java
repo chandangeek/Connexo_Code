@@ -38,7 +38,7 @@ public class TopAlarmsResource extends BaseAlarmResource{
     public TopAlarmsInfo getTopAlarms(@Context SecurityContext securityContext) {
         User currentUser = (User) securityContext.getUserPrincipal();
         Comparator<Issue> dueDateComparator = Comparator.comparing(Issue::getDueDate, Comparator.nullsLast(Instant::compareTo));
-        Comparator<Issue> priorityComparator = (alarm1, alarm2) -> Integer.compare(alarm1.getPriority().getImpact() + alarm1.getPriority().getUrgency(), alarm2.getPriority().getImpact() + alarm2.getPriority().getUrgency());
+        Comparator<Issue> priorityComparator = (alarm1, alarm2) -> Integer.compare(alarm2.getPriority().getImpact() + alarm2.getPriority().getUrgency(), alarm1.getPriority().getImpact() + alarm1.getPriority().getUrgency());
         Comparator<Issue> nameComparator = (alarm1, alarm2) -> alarm1.getTitle().toLowerCase().compareTo(alarm2.getTitle());
         Finder<? extends Issue> finder = getIssueService().findAlarms();
         List<? extends Issue> alarms = finder.find();
