@@ -21,12 +21,20 @@ public class RestValidationBuilder {
     }
 
     public<T> RestValidationBuilder notEmpty(T object, String field) {
-        new ValidationBuilder<>(object).field(field).check(o -> o != null).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).test();
+        return notEmpty(object, field, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY);
+    }
+
+    public<T> RestValidationBuilder notEmpty(T object, String field, MessageSeed messageSeed) {
+        new ValidationBuilder<>(object).field(field).check(o -> o != null).message(messageSeed).test();
         return this;
     }
 
     public RestValidationBuilder notEmpty(String string, String field) {
-        new ValidationBuilder<>(string).field(field).check(o -> !Checks.is(o).emptyOrOnlyWhiteSpace()).message(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY).test();
+        return notEmpty(string, field, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY);
+    }
+
+    public RestValidationBuilder notEmpty(String string, String field, MessageSeed messageSeed) {
+        new ValidationBuilder<>(string).field(field).check(o -> !Checks.is(o).emptyOrOnlyWhiteSpace()).message(messageSeed).test();
         return this;
     }
 
