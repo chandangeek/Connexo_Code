@@ -38,7 +38,7 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndStateGrid',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.stateChangeTime', 'IMT', 'State change time'),
+                header: Uni.I18n.translate('usagepointtransitionexecute.wizard.transitiondate', 'IMT', 'Transition date'),
                 dataIndex: 'transitionTime',
                 flex: 1,
                 renderer: function (value) {
