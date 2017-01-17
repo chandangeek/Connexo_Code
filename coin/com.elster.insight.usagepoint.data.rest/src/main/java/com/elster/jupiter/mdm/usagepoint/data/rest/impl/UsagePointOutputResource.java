@@ -23,6 +23,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationContextImpl;
@@ -76,6 +77,7 @@ public class UsagePointOutputResource {
     private final PurposeInfoFactory purposeInfoFactory;
     private final Clock clock;
     private final ValidationStatusFactory validationStatusFactory;
+    private final TimeService timeService;
 
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
@@ -89,7 +91,8 @@ public class UsagePointOutputResource {
                              OutputRegisterDataInfoFactory outputRegisterDataInfoFactory,
                              PurposeInfoFactory purposeInfoFactory,
                              ValidationStatusFactory validationStatusFactory,
-                             Clock clock) {
+                             Clock clock,
+                             TimeService timeService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -100,6 +103,7 @@ public class UsagePointOutputResource {
         this.purposeInfoFactory = purposeInfoFactory;
         this.validationStatusFactory = validationStatusFactory;
         this.clock = clock;
+        this.timeService = timeService;
     }
 
     @GET
@@ -124,17 +128,40 @@ public class UsagePointOutputResource {
     @GET
     @Path("/{purposeId}/outputs")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryFilter filter,
+                                                       @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
-        List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
-                .stream()
-                .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract))
-                .sorted(Comparator.comparing(info -> info.name))
-                .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
+        if (filter.hasFilters()) {
+            Instant now = clock.instant();
+            int periodId = filter.getInteger("periodId");
+            Range<Instant> interval = timeService.findRelativePeriod(periodId)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_RELATIVEPERIOD_FOR_ID, periodId))
+                    .getOpenClosedInterval(ZonedDateTime.ofInstant(now, clock.getZone()));
+            Range<Instant> upToNow = Range.atMost(now);
+            if (interval.isConnected(upToNow)) {
+                if (!interval.intersection(upToNow).isEmpty()) {
+                    List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
+                            .stream()
+                            .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract,
+                                    getUsagePointAdjustedDataRange(usagePoint, interval.intersection(upToNow)).orElse(Range.openClosed(now, now))))
+                            .sorted(Comparator.comparing(info -> info.name))
+                            .collect(Collectors.toList());
+                    return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
+                }
+            }
+            throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
+        } else {
+            List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
+                    .stream()
+                    .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, null))
+                    .sorted(Comparator.comparing(info -> info.name))
+                    .collect(Collectors.toList());
+            return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
+        }
     }
 
     @GET

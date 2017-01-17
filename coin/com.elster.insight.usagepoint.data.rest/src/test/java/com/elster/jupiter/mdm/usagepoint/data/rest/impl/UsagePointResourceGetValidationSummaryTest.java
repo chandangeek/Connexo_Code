@@ -212,14 +212,14 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(2, 1);
         assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("Vmoihobyatiah", "Ityvbelomplatye");
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].total")).containsExactly(22, 18);
-        assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].key")).containsExactly("statisticsValid", "statisticsNotValidated");
-        assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].displayName")).containsExactly("Valid", "Not validated");
-        assertThat(jsonModel.<List<Number>>get("$.outputs[0].statistics[*].count")).containsExactly(9, 13);
+        assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].key")).contains("valid", "statisticsNotValidated");
+        assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].displayName")).contains("Valid", "Not validated");
+        assertThat(jsonModel.<List<Number>>get("$.outputs[0].statistics[*].count")).contains(9, 13);
         assertThat(jsonModel.<List<String>>get("$.outputs[1].statistics[*].key"))
-                .containsExactly("statisticsSuspect", "statisticsValid");
+                .contains("statisticsSuspect", "valid");
         assertThat(jsonModel.<List<String>>get("$.outputs[1].statistics[*].displayName"))
-                .containsExactly("Suspect", "Valid");
-        assertThat(jsonModel.<List<Number>>get("$.outputs[1].statistics[*].count")).containsExactly(12, 6);
+                .contains("Suspect", "Valid");
+        assertThat(jsonModel.<List<Number>>get("$.outputs[1].statistics[*].count")).contains(12, 6);
     }
 
     @Test

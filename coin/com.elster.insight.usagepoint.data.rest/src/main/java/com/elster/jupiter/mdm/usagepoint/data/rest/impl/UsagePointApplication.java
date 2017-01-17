@@ -108,6 +108,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile JsonService jsonService;
     private volatile SearchService searchService;
     private volatile MessageService messageService;
+    private volatile UsagePointDataModelService usagePointDataModelService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -332,6 +333,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setUsagePointDataModelService(UsagePointDataModelService usagePointDataModelService) {
+        this.usagePointDataModelService = usagePointDataModelService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -380,6 +386,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(calendarOnUsagePointInfoFactory).to(CalendarOnUsagePointInfoFactory.class);
             bind(usagePointCalendarService).to(UsagePointCalendarService.class);
             bind(calendarService).to(CalendarService.class);
+            bind(usagePointDataModelService).to(UsagePointDataModelService.class);
             bind(appService).to(AppService.class);
             bind(AppServerHelper.class).to(AppServerHelper.class);
             bind(jsonService).to(JsonService.class);
