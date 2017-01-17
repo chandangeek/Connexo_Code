@@ -100,7 +100,7 @@ public class MdcAppInstaller {
             userService.createGroup(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.Roles.REPORT_VIEWER.description());
         }
 
-        private void assignPrivilegesToDefaultRoles() {
+        public void assignPrivilegesToDefaultRoles() {
             String[] privilegesMeterExpert = getPrivilegesMeterExpert();
 
             userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, getPrivilegesMeterOperator());
