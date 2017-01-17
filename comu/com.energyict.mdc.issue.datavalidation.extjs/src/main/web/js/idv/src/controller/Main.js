@@ -63,12 +63,12 @@ Ext.define('Idv.controller.Main', {
                 items.push({
                     text: Uni.I18n.translate('datavalidation.myOpenIssues','IDV','My open issues'),
                     itemId: 'datavalidation-my-open-issues',
-                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datavalidation'], myopenissues: true})
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datavalidation'], myopenissues: true, status: ['status.open', 'status.in.progress']})
                 });
                 items.push({
                     text: Uni.I18n.translate('datavalidation.myWorkgroupsIssues', 'IDV', 'My workgroups issues'),
                     itemId: 'datavalidation-my-workgroup-issues',
-                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datavalidation'], myworkgroupissues: true})
+                    href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['datavalidation'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
                 });
             }
 
