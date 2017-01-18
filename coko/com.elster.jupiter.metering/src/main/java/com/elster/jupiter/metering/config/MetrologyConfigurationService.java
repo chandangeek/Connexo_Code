@@ -50,6 +50,8 @@ public interface MetrologyConfigurationService {
 
     Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name);
 
+    Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id);
+
     MetrologyPurpose createMetrologyPurpose(NlsKey name, NlsKey description);
 
     Optional<MetrologyPurpose> findMetrologyPurpose(DefaultMetrologyPurpose defaultMetrologyPurpose);
