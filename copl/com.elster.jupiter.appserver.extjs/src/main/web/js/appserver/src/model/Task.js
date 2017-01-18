@@ -21,13 +21,13 @@ Ext.define('Apr.model.Task', {
         {
             name: 'lastRunStatusString',
             convert: function(value,record){
-                if(record.get('lastRunStatus')==='Busy'){
+                if(record.get('lastRunStatus')==='Ongoing'){
                     return Uni.I18n.translate('general.busySince','APR','Busy since {0}',Uni.DateTime.formatDateTimeShort(new Date(record.get('lastRunDate'))),false);
-                } else if (record.get('lastRunStatus')==='Success'){
+                } else if (record.get('lastRunStatus')==='Successful'){
                     return Uni.I18n.translate('general.successOn','APR','Success on {0}',Uni.DateTime.formatDateTimeShort(new Date(record.get('lastRunDate'))),false);
                 } else if (record.get('lastRunStatus')==='Failed'){
                     return Uni.I18n.translate('general.failedOn','APR','Failed on {0}',Uni.DateTime.formatDateTimeShort(new Date(record.get('lastRunDate'))),false);
-                } else if (record.get('lastRunStatus')==='Not executed yet'){
+                } else if (record.get('lastRunStatus')==='Created'){
                     return Uni.I18n.translate('general.notExecutedYet','APR','Not executed yet');
                 }
             }
