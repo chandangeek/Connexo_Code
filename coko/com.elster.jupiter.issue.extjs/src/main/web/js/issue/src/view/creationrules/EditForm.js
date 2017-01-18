@@ -126,6 +126,62 @@ Ext.define('Isu.view.creationrules.EditForm', {
             },
             {
                 xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('general.priority', 'ISU', 'Priority'),
+                margin: '0 0 20 0',
+                layout: 'hbox',
+                items: [
+                    {
+                        xtype: 'label',
+                        itemId: 'priority-label',
+                        text: ''
+                    }
+                ]
+            },
+            {
+                xtype: 'fieldcontainer',
+
+                fieldLabel: Uni.I18n.translate('general.urgency', 'ISU', 'Urgency'),
+                layout: 'hbox',
+                items: [
+                    {
+                        xtype: 'numberfield',
+                        itemId: 'priority.urgency',
+                        width: 92,
+                        name: 'priority.urgency',
+                        value: 1,
+                        minValue: 1,
+                        maxValue: 50,
+                        listeners: {
+                            change: function (record) {
+                                me.changePriority();
+                            },
+                            blur: me.numberFieldValidation
+                        }
+
+                    },
+                    {
+                        xtype: 'numberfield',
+                        itemId: 'priority.impact',
+                        labelWidth: 50,
+                        width: 157,
+                        name: 'priority.impact',
+                        fieldLabel: Uni.I18n.translate('general.impact', 'ISU', 'Impact'),
+                        value: 1,
+                        minValue: 1,
+                        maxValue: 50,
+                        margin: '0 0 0 20',
+                        listeners: {
+                            change: function (record) {
+                                me.changePriority();
+                            },
+                            blur: me.numberFieldValidation
+                        }
+
+                    }
+                ]
+            },
+            {
+                xtype: 'fieldcontainer',
                 itemId: 'issues-creation-rules-edit-field-container-due-date',
                 fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                 layout: 'hbox',
@@ -280,7 +336,9 @@ Ext.define('Isu.view.creationrules.EditForm', {
             templateCombo = me.down('[name=template]'),
             typeCombo = me.down('[name=issueType]'),
             actionsGrid = me.down('issues-creation-rules-actions-list'),
+            labelPriority = me.down('#priority-label'),
             dueIn = record.get('dueIn'),
+            priority = record.get('priority'),
             actions = record.actions(),
             template;
 
@@ -308,6 +366,15 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 }
             }
         });
+
+        if(priority.urgency) {
+            me.down('[name=priority.urgency]').setValue(priority.urgency);
+            me.down('[name=priority.impact]').setValue(priority.impact);
+        }
+        else {
+            labelPriority.setText(2 + ' - ' + Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low'));
+        }
+
         if (dueIn.number) {
             me.down('#dueDateTrigger').setValue({dueDate: true});
             me.down('[name=dueIn.number]').setValue(dueIn.number);
@@ -357,6 +424,10 @@ Ext.define('Isu.view.creationrules.EditForm', {
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
             record.propertiesStore = propertyForm.getRecord().properties();
+            record.set('priority', {
+                urgency: me.down('[name=priority.urgency]').getValue(),
+                impact: me.down('[name=priority.impact]').getValue()
+            });
         }
         if (me.down('#dueDateTrigger')) {
             record.set('dueIn', {
@@ -435,5 +506,52 @@ Ext.define('Isu.view.creationrules.EditForm', {
             item.up('container').resetButtonHidden = true;
             item.hide();
         })
+    },
+    changePriority: function()
+    {
+        var me = this,
+            labelPriority = me.down('#priority-label'),
+            numUrgency = me.down('[name=priority.urgency]'),
+            numUrgencyValue = numUrgency.value,//me.down('#priority.urgency').value,
+            numImpact = me.down('[name=priority.impact]'),
+            numImpactValue = numImpact.value,
+            priorityValue,
+            priorityLabel;
+
+        if (numUrgencyValue < 0) {
+            numUrgency.setValue(Math.abs(numUrgencyValue));
+        }
+
+        if (numImpactValue < 0) {
+            numImpact.setValue(Math.abs(numImpactValue));
+        }
+
+        priorityValue = Math.abs(numUrgencyValue) +  Math.abs(numImpactValue);
+
+        var priority = priorityValue / 10;
+        if (priorityValue > 100) {
+            priority = 10;
+            priorityValue = 100;
+        }
+
+        priorityLabel = (priority <= 2) ? Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low') :
+            (priority <= 4) ? Uni.I18n.translate('issue.priority.low', 'ISU', 'Low') :
+                (priority <= 6) ? Uni.I18n.translate('issue.priority.medium', 'ISU', 'Medium') :
+                    (priority <= 8) ? Uni.I18n.translate('issue.priority.high', 'ISU', 'High') :
+                        Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high');
+
+
+        labelPriority.setText(priorityValue + ' - ' + priorityLabel);
+
+    },
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue) {
+            field.setValue(field.minValue);
+        }
+        if (value > field.maxValue) {
+            field.setValue(field.maxValue);
+        }
     }
 });
