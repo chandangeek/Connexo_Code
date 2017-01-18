@@ -2,10 +2,13 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -29,6 +32,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -43,12 +47,14 @@ import java.util.stream.Collectors;
 public class ValidationStatusFactory {
     private final Clock clock;
     private final ValidationService validationService;
+    private final EstimationService estimationService;
     private final UsagePointConfigurationService usagePointConfigurationService;
 
     @Inject
-    public ValidationStatusFactory(Clock clock, ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService) {
+    public ValidationStatusFactory(Clock clock, ValidationService validationService, EstimationService estimationService, UsagePointConfigurationService usagePointConfigurationService) {
         this.clock = clock;
         this.validationService = validationService;
+        this.estimationService = estimationService;
         this.usagePointConfigurationService = usagePointConfigurationService;
     }
 
@@ -68,7 +74,7 @@ public class ValidationStatusFactory {
                     info.suspectReason = getSuspectReasonInfo(validationStatuses);
                 }
                 info.allDataValidated = allDataValidated(validationEvaluator, channels);
-                info.hasSuspects = hasSuspects(channels, channelsContainer.get().getRange());
+                info.hasSuspects = hasSuspects(channels, interval != null ? interval : channelsContainer.get().getRange());
             }
         }
         return info;
@@ -111,18 +117,26 @@ public class ValidationStatusFactory {
     private void setReasonInfo(List<DataValidationStatus> validationStatuses, UsagePointValidationStatusInfo info) {
         Map<ValidationRule, Long> suspectRulesCount = new HashMap<>();
         Map<ValidationRule, Long> informativeRulesCount = new HashMap<>();
-        Map<ValidationRule, Long> estimateRulesCount = new HashMap<>();
+        Map<EstimationRule, Long> estimateRulesCount = new HashMap<>();
         validationStatuses
                 .stream()
                 .forEach(validationStatus -> {
-                    boolean estimatedByRule = validationStatus.getReadingQualities().stream()
+                    Collection<? extends ReadingQuality> readingQualities = validationStatus.getReadingQualities();
+                    boolean estimatedByRule = readingQualities.stream()
                             .map(ReadingQuality::getType)
                             .anyMatch(ReadingQualityType::hasEstimatedCategory);
                     if (estimatedByRule) {
-                        validationStatus.getOffendedRules().forEach(rule -> addValidationRule(estimateRulesCount, rule));
-                        validationStatus.getBulkOffendedRules().forEach(rule -> addValidationRule(estimateRulesCount, rule));
+                        if (readingQualities.stream().map(ReadingQualityRecord.class::cast).noneMatch(ReadingQualityRecord::isSuspect)) {
+                            EstimationRule estimationRule = readingQualities.stream()
+                                    .map(ReadingQualityRecord.class::cast)
+                                    .filter(ReadingQualityRecord::hasEstimatedCategory)
+                                    .findFirst() //because reading could be estimated by only one estimation rule
+                                    .flatMap(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()))
+                                    .orElse(null);
+                            addEstimationRule(estimateRulesCount, estimationRule);
+                        }
                     } else {
-                        ValidationAction validationAction = validationStatus.getReadingQualities()
+                        ValidationAction validationAction = readingQualities
                                 .stream()
                                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                                 .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
@@ -140,7 +154,7 @@ public class ValidationStatusFactory {
                 });
         info.suspectReason = createValidationRuleInfo(suspectRulesCount);
         info.informativeReason = createValidationRuleInfo(informativeRulesCount);
-        info.estimateReason = createValidationRuleInfo(estimateRulesCount);
+        info.estimateReason = createEstimationRuleInfo(estimateRulesCount);
     }
 
     private Set<ValidationRuleInfoWithNumber> createValidationRuleInfo(Map<ValidationRule, Long> rulesCount) {
@@ -151,9 +165,22 @@ public class ValidationStatusFactory {
                 .collect(Collectors.toSet());
     }
 
+    private Set<EstimationRuleInfoWithNumber> createEstimationRuleInfo(Map<EstimationRule, Long> rulesCount) {
+        return rulesCount.entrySet()
+                .stream()
+                .map(this::getEstimationRuleWithNumberSimpleInfo)
+                .sorted(Comparator.comparing(estimationRuleInfo -> estimationRuleInfo.key.displayName))
+                .collect(Collectors.toSet());
+    }
+
     private void addValidationRule(Map<ValidationRule, Long> validationRulesCount, ValidationRule validationRule) {
         validationRulesCount.putIfAbsent(validationRule, 0L);
         validationRulesCount.compute(validationRule, (k, v) -> v + 1);
+    }
+
+    private void addEstimationRule(Map<EstimationRule, Long> estimationRulesCount, EstimationRule estimationRule) {
+        estimationRulesCount.putIfAbsent(estimationRule, 0L);
+        estimationRulesCount.compute(estimationRule, (k, v) -> v + 1);
     }
 
     private ValidationRuleInfoWithNumber getValidationRuleWithNumberSimpleInfo(Map.Entry<ValidationRule, Long> validationRuleWithNumberEntry) {
@@ -166,6 +193,16 @@ public class ValidationStatusFactory {
         info.key.ruleSetVersion.ruleSet = new ValidationRuleSetInfo();
         info.key.ruleSetVersion.ruleSet.id = validationRuleWithNumberEntry.getKey().getRuleSet().getId();
         info.value = validationRuleWithNumberEntry.getValue();
+        return info;
+    }
+
+    private EstimationRuleInfoWithNumber getEstimationRuleWithNumberSimpleInfo(Map.Entry<EstimationRule, Long> estimationRuleWithNumberEntry) {
+        EstimationRuleInfoWithNumber info = new EstimationRuleInfoWithNumber();
+        info.key = new EstimationRuleInfo();
+        info.key.id = estimationRuleWithNumberEntry.getKey().getId();
+        info.key.displayName = estimationRuleWithNumberEntry.getKey().getDisplayName();
+        info.key.ruleSetId = estimationRuleWithNumberEntry.getKey().getRuleSet().getId();
+        info.value = estimationRuleWithNumberEntry.getValue();
         return info;
     }
 
