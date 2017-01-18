@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.dlms.common;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.DlmsSessionProperties;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -8,7 +11,6 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
@@ -20,10 +22,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageElement;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
-
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.DlmsSessionProperties;
-import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import javax.inject.Inject;

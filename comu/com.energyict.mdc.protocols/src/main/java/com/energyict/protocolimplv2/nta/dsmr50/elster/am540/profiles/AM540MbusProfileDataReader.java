@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 
 /**
  * Copyrights EnergyICT

@@ -5,8 +5,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
@@ -16,9 +14,7 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
-import com.energyict.protocols.util.EventMapper;
-import com.energyict.protocols.util.ProtocolUtils;
-
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -30,6 +26,8 @@ import com.energyict.protocolimpl.coronis.wavelog.core.AlarmFrameParser;
 import com.energyict.protocolimpl.coronis.wavelog.core.ObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavelog.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavelog.core.radiocommand.RadioCommandFactory;
+import com.energyict.protocols.util.EventMapper;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -104,7 +102,7 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
         }
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         try {
             return profileDataReader.getProfileData(from, to, includeEvents);
         }
@@ -175,7 +173,7 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterInfo(obisCode);
+        return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     @Override

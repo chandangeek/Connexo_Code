@@ -4,9 +4,9 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocols.impl.channels.inbound.EIWebConnectionProperties;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -199,7 +199,7 @@ public class PacketBuilder {
         contentLength = EIWEB_BULK_HEADER_LENGTH + nrOfChannels * 2 + 4 + 1;
         if (this.ipAddress != null) {
             this.collectedData.add(
-                    this.getCollectedDataFactory().createCollectedAddressProperties(this.deviceIdentifier, this.ipAddress, EIWebConnectionProperties.Fields.IP_ADDRESS.propertySpecName()));
+                    this.getCollectedDataFactory().createDeviceIpAddress(this.deviceIdentifier, this.ipAddress, EIWebConnectionProperties.Fields.IP_ADDRESS.propertySpecName()));
         }
         this.createData(utc, code, statebits, this.parseValues(this.getDecryptedData(value)));
     }
@@ -386,7 +386,7 @@ public class PacketBuilder {
         contentLength = in.readLEInt();
 
         this.collectedData.add(
-                this.getCollectedDataFactory().createCollectedAddressProperties(
+                this.getCollectedDataFactory().createDeviceIpAddress(
                         this.deviceIdentifier,
                         this.ipAddress,
                         EIWebConnectionProperties.Fields.IP_ADDRESS.propertySpecName()));

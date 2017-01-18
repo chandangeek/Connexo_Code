@@ -10,7 +10,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
@@ -19,6 +18,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
@@ -431,7 +431,7 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     private Optional<ReadingType> findReadingTypeForObisCode(ObisCode obisCode) {
-        final Optional<OfflineRegister> offlineRegister = this.offlineDevice.getAllRegisters().stream().filter(or -> or.getObisCode().equals(obisCode) || or.getAmrRegisterObisCode().equals(obisCode)).findAny();
+        final Optional<OfflineRegister> offlineRegister = this.offlineDevice.getAllOfflineRegisters().stream().filter(or -> or.getObisCode().equals(obisCode) || or.getAmrRegisterObisCode().equals(obisCode)).findAny();
         return offlineRegister.map(OfflineRegister::getReadingType);
     }
 

@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb;
 
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 /**
  * Creates a MessageEntry that consists of one tag and one value. E.g.: <Description>1</Description>

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messaging.proxy;
 
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.protocolimpl.messaging.AnnotatedMessaging;
 import com.energyict.protocolimpl.messaging.RtuMessageAttribute;

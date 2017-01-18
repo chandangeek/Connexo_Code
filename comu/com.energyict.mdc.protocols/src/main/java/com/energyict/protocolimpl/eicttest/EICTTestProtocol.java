@@ -18,10 +18,8 @@ import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
@@ -37,14 +35,14 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.CacheObject;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.RTUCache;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -408,7 +406,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 	}
 
 	private BigDecimal calculateValueCumulative(Calendar cal, long amplitude)
-			throws UnsupportedException, IOException {
+			throws IOException {
 		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal
 				.get(Calendar.DST_OFFSET));
 		long localTime = (cal.getTime().getTime() + utcOffset) / 1000; // seconds
@@ -566,7 +564,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return connection;
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         getLogger().info("call overrided method getNumberOfChannels() (return 2 as sample)");
         getLogger().info("--> report the nr of load profile channels in the meter here");
         return 2;
@@ -590,7 +588,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         //return "EICT Test protocol version";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         getLogger().info("call getFirmwareVersion()");
         getLogger().info("--> report the firmware version and other important meterinfo here");
         return "EICT Test firmware version";

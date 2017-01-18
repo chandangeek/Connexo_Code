@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 /**
  * @author jme

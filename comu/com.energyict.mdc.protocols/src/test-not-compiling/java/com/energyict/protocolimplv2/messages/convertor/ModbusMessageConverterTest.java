@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.messaging.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.modbus.multilin.epm2200.EPM2200;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;

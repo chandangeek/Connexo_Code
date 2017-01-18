@@ -1,12 +1,11 @@
 package com.energyict.protocolimplv2.common;
 
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
-
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
 import java.util.EnumSet;
 import java.util.List;

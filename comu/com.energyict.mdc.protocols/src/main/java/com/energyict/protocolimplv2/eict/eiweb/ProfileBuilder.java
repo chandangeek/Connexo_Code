@@ -5,13 +5,12 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
 import org.joda.time.DateTimeConstants;
@@ -320,7 +319,7 @@ public class ProfileBuilder {
             for (int i = 0; i < getSmallestListSize(channels); i++) {
                 ChannelInfo oldChannelInfo = this.profileData.getChannelInfos().get(i);
                 OfflineLoadProfileChannel offlineLoadProfileChannel = channels.get(i);
-                channelInfos.add(i, new ChannelInfo(oldChannelInfo.getId(), oldChannelInfo.getName(), offlineLoadProfileChannel.getUnit(), offlineLoadProfileChannel.getMasterSerialNumber(), offlineLoadProfileChannel.getReadingType()));
+                channelInfos.add(i, new ChannelInfo(oldChannelInfo.getId(), oldChannelInfo.getName(), offlineLoadProfileChannel.getUnit(), offlineLoadProfileChannel.getMasterSerialNumber(), offlineLoadProfileChannel.getReadingTypeMRID()));
             }
         }
         return channelInfos;

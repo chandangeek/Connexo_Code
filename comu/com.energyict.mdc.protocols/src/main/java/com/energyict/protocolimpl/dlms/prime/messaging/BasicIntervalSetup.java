@@ -7,9 +7,9 @@ import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import java.io.IOException;
 import java.util.logging.Level;

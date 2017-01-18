@@ -1,13 +1,5 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
-
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Integer16;
@@ -18,6 +10,13 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 
 import java.io.IOException;
@@ -98,7 +97,7 @@ public abstract class PrimeMessageExecutor {
     	final StringBuilder patternBuilder = new StringBuilder(attributeName.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"));
     	patternBuilder.append("=\"(.*?)\"");
 
-    	String patternString = MessageFormat.format(patternBuilder.toString(), new Object[]{attributeName});
+    	String patternString = MessageFormat.format(patternBuilder.toString(), attributeName);
 
     	final Pattern pattern = Pattern.compile(patternString);
     	final Matcher matcher = pattern.matcher(messageContent);

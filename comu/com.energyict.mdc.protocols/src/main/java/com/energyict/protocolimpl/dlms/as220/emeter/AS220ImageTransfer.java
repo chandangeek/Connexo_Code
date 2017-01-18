@@ -3,18 +3,15 @@
  */
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;

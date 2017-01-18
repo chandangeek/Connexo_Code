@@ -7,11 +7,9 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -29,6 +27,7 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -98,7 +97,12 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     }
 
     @Override
-    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+    public void init(OfflineDevice offlineDevice, com.energyict.mdc.protocol.ComChannel comChannel) {
+        this.deviceProtocol.init(offlineDevice, comChannel);
+    }
+
+    @Override
+    public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.protocol.ComChannel comChannel) {
         this.deviceProtocol.init(offlineDevice, comChannel);
     }
 
@@ -233,13 +237,8 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     }
 
     @Override
-    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+    public List<? extends DeviceProtocolDialect> getDeviceProtocolDialects() {
         return deviceProtocol.getDeviceProtocolDialects().stream().map(dialect -> new UPLDeviceProtocolDialectAdapter(dialect, injector)).collect(Collectors.toList());
-    }
-
-    @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        deviceProtocol.addDeviceProtocolDialectProperties(dialectProperties);
     }
 
     @Override
@@ -309,7 +308,7 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return null;
+        return deviceProtocol.getDeviceTopology();
     }
 
     @Override
@@ -320,7 +319,7 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     @Override
     public void copyProperties(TypedProperties properties) {
         deviceProtocol.setUPLProperties(properties);
-        //TODO exception handling??
+        //TODO exception handling?? await refactoring of exceptions in UPL
     }
 
     @Override

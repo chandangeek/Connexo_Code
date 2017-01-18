@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -15,7 +14,7 @@ public class LoadLimitingController {
     private static ABBA230 meterProtocol;
 
     public LoadLimitingController(ABBA230 meterProtocol) {
-        this.meterProtocol = meterProtocol;
+        LoadLimitingController.meterProtocol = meterProtocol;
     }
 
     public void disableLoadLimiting(MessageEntry messageEntry) throws IOException {
