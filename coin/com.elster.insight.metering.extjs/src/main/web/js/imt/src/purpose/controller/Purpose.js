@@ -496,16 +496,13 @@ Ext.define('Imt.purpose.controller.Purpose', {
         purpose.save({
             isNotEdit: true,
             notHandleTimeout: true,
-            success: function () {
+            callback: function (record, operation, success) {
                 if (confirmationWindow.rendered) {
                     confirmationWindow.close();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'));
-                    me.getController('Uni.controller.history.Router').getRoute().forward();
-                }
-            },
-            failure: function () {
-                if (confirmationWindow.rendered) {
-                    confirmationWindow.close();
+                    if (success) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'));
+                        me.getController('Uni.controller.history.Router').getRoute().forward();
+                    }
                 }
             }
         });
