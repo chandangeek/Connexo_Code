@@ -20,36 +20,41 @@ Ext.define('Idv.controller.Detail', {
         'Mdc.view.setup.devicechannels.ReadingEstimationWindow'
     ],
 
-    refs: [
-        {
-            ref: 'page',
-            selector: 'data-validation-issue-detail'
-        },
-        {
-            ref: 'detailForm',
-            selector: 'data-validation-issue-detail data-validation-issue-detail-form'
-        },
-        {
-            ref: 'commentsPanel',
-            selector: 'data-validation-issue-detail #data-validation-issue-comments'
-        },
-        {
-            ref: 'readingEstimationWindow',
-            selector: '#reading-estimation-window'
-        },
-        {
-            ref: 'noEstimatedDataGrid',
-            selector: '#validation-no-estimated-data-grid'
-        },
-        {
-            ref: 'issueDetailForm',
-            selector: 'data-validation-issue-detail #issue-detail-form'
-        },
-        {
-            ref: 'actionMenu',
-            selector: 'data-validation-issue-detail #issues-action-menu'
-        }
-    ],
+    constructor: function () {
+        var me = this;
+
+        me.refs = [
+            {
+                ref: 'page',
+                selector: 'data-validation-issue-detail'
+            },
+            {
+                ref: 'detailForm',
+                selector: 'data-validation-issue-detail data-validation-issue-detail-form'
+            },
+            {
+                ref: 'commentsPanel',
+                selector: 'data-validation-issue-detail #data-validation-issue-comments'
+            },
+            {
+                ref: 'readingEstimationWindow',
+                selector: '#reading-estimation-window'
+            },
+            {
+                ref: 'noEstimatedDataGrid',
+                selector: '#validation-no-estimated-data-grid'
+            },
+            {
+                ref: 'issueDetailForm',
+                selector: 'data-validation-issue-detail #issue-detail-form'
+            },
+            {
+                ref: 'actionMenu',
+                selector: 'data-validation-issue-detail #issues-action-menu'
+            }
+        ];
+        me.callParent(arguments);
+    },
 
     itemUrl: '/api/isu/issues/',
 
