@@ -11,7 +11,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -35,11 +36,11 @@ import java.util.List;
  */
 class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements ServerLoadProfileSpec {
 
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED + "}")
     private final Reference<LoadProfileType> loadProfileType = ValueReference.absent();
+    private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
-    private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -88,7 +89,7 @@ class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements
 
     @Override
     public TimeDuration getInterval() {
-        return getLoadProfileType().getInterval();
+        return Temporals.toTimeDuration(getLoadProfileType().interval());
     }
 
     private void validateBeforeAddToDeviceConfiguration() {
@@ -206,7 +207,7 @@ class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements
             channelSpecBuilder.interval(channelSpec.getInterval());
             channelSpecBuilder.nbrOfFractionDigits(channelSpec.getNbrOfFractionDigits());
             channelSpec.getOverflow().ifPresent(channelSpecBuilder::overflow);
-            if(channelSpec.isUseMultiplier()){
+            if (channelSpec.isUseMultiplier()) {
                 channelSpecBuilder.useMultiplierWithCalculatedReadingType(channelSpec.getCalculatedReadingType().get());
             } else {
                 channelSpecBuilder.noMultiplier();

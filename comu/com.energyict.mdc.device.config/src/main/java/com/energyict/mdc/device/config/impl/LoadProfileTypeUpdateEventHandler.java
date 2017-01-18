@@ -1,21 +1,21 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.masterdata.LoadProfileType;
-
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -86,7 +86,7 @@ public class LoadProfileTypeUpdateEventHandler implements TopicHandler {
     private boolean intervalChanged(LocalEvent event, LoadProfileType loadProfileType) {
         Event osgiEvent = event.toOsgiEvent();
         Object oldIntervalSeconds = osgiEvent.getProperty("oldIntervalSeconds");
-        return oldIntervalSeconds != null && !((Long) oldIntervalSeconds == loadProfileType.getInterval().getSeconds());
+        return oldIntervalSeconds != null && !((Long) oldIntervalSeconds == loadProfileType.interval().get(ChronoUnit.SECONDS));
     }
 
     private boolean isUsed(LoadProfileType loadProfileType) {
