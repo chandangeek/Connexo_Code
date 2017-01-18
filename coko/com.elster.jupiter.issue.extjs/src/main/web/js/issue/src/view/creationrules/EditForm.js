@@ -145,7 +145,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 items: [
                     {
                         xtype: 'numberfield',
-                        itemId: 'priority.urgency',
+                        itemId: 'priority-urgency',
                         width: 92,
                         name: 'priority.urgency',
                         value: 1,
@@ -161,7 +161,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                     },
                     {
                         xtype: 'numberfield',
-                        itemId: 'priority.impact',
+                        itemId: 'priority-impact',
                         labelWidth: 50,
                         width: 157,
                         name: 'priority.impact',
