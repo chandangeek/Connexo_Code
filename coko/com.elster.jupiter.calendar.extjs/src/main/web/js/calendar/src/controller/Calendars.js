@@ -119,7 +119,7 @@ Ext.define('Cal.controller.Calendars', {
         record.getProxy().setUrl('/api/cal/calendars');
         confirmationWindow.show(
             {
-                msg: Uni.I18n.translate('calendar.remove.msg', 'CAL', 'You will not longer be able to use this calendar.'),
+                msg: Uni.I18n.translate('calendar.remove.msg', 'CAL', 'This calendar will no longer be available.'),
                 title: Uni.I18n.translate('general.removeX', 'CAL', "Remove '{0}'?", [record.data.name]),
                 fn: function (state) {
                     if (state === 'confirm') {
