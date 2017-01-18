@@ -17,9 +17,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
 
@@ -31,7 +29,6 @@ import java.util.Optional;
 
 import static com.elster.jupiter.mdm.usagepoint.data.rest.impl.OutputInfo.ChannelOutputInfo;
 import static com.elster.jupiter.mdm.usagepoint.data.rest.impl.OutputInfo.RegisterOutputInfo;
-import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class OutputInfoFactory {
 
@@ -97,17 +94,9 @@ public class OutputInfoFactory {
                         metrologyContract.getId(), effectiveMetrologyConfiguration.getUsagePoint().getName()) {
                 });
         if (interval != null) {
-            Optional<Range<Instant>> optionalIntervalWithData = Optional.of(container)
-                    .map(Effectivity::getInterval)
-                    .map(Interval::toOpenClosedRange)
-                    .filter(interval::isConnected)
-                    .map(interval::intersection)
-                    .filter(not(Range::isEmpty));
-            List<IChannelDataCompletionSummary> channelDataCompletionSummaryList = optionalIntervalWithData
-                    .map(intervalWithData -> container.getChannel(readingTypeDeliverable.getReadingType())
-                            .map(channel -> usagePointDataCompletionService.getDataCompletionStatistics(channel, intervalWithData))
-                            .orElse(Collections.singletonList(usagePointDataCompletionService.getGeneralUsagePointDataCompletionSummary(intervalWithData))))
-                    .orElse(Collections.singletonList(usagePointDataCompletionService.getGeneralUsagePointDataCompletionSummary(interval)));
+            List<IChannelDataCompletionSummary> channelDataCompletionSummaryList = container.getChannel(readingTypeDeliverable.getReadingType())
+                            .map(channel -> usagePointDataCompletionService.getDataCompletionStatistics(channel, interval))
+                            .orElse(Collections.singletonList(usagePointDataCompletionService.getGeneralUsagePointDataCompletionSummary(interval)));
             Optional.of(container).flatMap(channelContainer -> channelContainer.getChannel(readingTypeDeliverable.getReadingType()))
                     .ifPresent(outputChannel -> {
                         outputInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, Collections.singletonList(outputChannel), interval);
