@@ -10,9 +10,9 @@
 
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import java.io.IOException;
 import java.util.List;

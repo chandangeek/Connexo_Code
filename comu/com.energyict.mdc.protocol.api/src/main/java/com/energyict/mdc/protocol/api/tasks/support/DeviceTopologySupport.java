@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.api.tasks.support;
 
 
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 
 /**
  * Defines proper functionality to handle the Topology of a Device

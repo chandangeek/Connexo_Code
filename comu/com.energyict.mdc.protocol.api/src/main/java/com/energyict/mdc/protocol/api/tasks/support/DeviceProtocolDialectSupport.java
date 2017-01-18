@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.api.tasks.support;
 
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import java.util.List;
@@ -8,20 +7,13 @@ import java.util.List;
 /**
  * Provides functionality to support a {@link DeviceProtocolDialect}.
  */
-public interface DeviceProtocolDialectSupport {
+public interface DeviceProtocolDialectSupport extends com.energyict.mdc.upl.DeviceProtocolDialectSupport {
 
     /**
      * Provides a set of {@link DeviceProtocolDialect}s this protocol can support.
      *
      * @return the supported DeviceProtocolDialects
      */
-    public List<DeviceProtocolDialect> getDeviceProtocolDialects();
-
-    /**
-     * Add the set of TypedProperties of the specific DeviceProtocolDialect.
-     *
-     * @param dialectProperties the DeviceProtocolDialectProperties to add to the DeviceProtocol
-     */
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties);
+    List<? extends DeviceProtocolDialect> getDeviceProtocolDialects();
 
 }
