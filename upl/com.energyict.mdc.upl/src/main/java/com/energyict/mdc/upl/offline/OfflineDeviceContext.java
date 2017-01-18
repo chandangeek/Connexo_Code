@@ -27,4 +27,8 @@ public interface OfflineDeviceContext {
 
     boolean needsSentMessages();
 
+    boolean needsFirmwareVersions();
+
+    boolean needsTouCalendar();
+
 }

@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl.offline;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.obis.ObisCode;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -56,7 +58,7 @@ public interface OfflineLoadProfile extends Offline {
      *
      * @return the integration period.
      */
-    @XmlAttribute
+    @XmlAttribute(name = "loadProfileInterval")
     TemporalAmount interval();
 
     /**
@@ -109,4 +111,11 @@ public interface OfflineLoadProfile extends Offline {
 
     void setXmlType(String ignore);
 
+    DeviceIdentifier getDeviceIdentifier();
+
+    LoadProfileIdentifier getLoadProfileIdentifier();
+
+    default boolean isDataLoggerSlaveLoadProfile() {
+        return false;
+    }
 }

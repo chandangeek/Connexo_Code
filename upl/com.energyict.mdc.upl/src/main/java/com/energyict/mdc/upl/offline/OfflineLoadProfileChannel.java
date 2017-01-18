@@ -36,7 +36,7 @@ public interface OfflineLoadProfileChannel extends Offline {
      * @return the ID of the Device.
      */
     @XmlAttribute
-    long getDeviceId();
+    int getDeviceId();
 
     /**
      * Returns the ID of the LoadProfile
@@ -75,5 +75,12 @@ public interface OfflineLoadProfileChannel extends Offline {
     String getXmlType();
 
     void setXmlType(String ignore);
+
+    /**
+     * Returns the ReadingType MRID of the Kore channel that will store the data.
+     *
+     * @return the ReadingType MRID
+     */
+    String getReadingTypeMRID();
 
 }

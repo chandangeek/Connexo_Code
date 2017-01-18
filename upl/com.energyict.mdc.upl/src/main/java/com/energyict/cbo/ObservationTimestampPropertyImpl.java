@@ -7,7 +7,7 @@ import java.util.Date;
 
 /**
  * Used in the collected DeviceTopology to indicate when a readout slave device was last seen by the gateway/DC.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  *
  * @author khe
@@ -30,39 +30,12 @@ public class ObservationTimestampPropertyImpl implements CollectedTopology.Obser
         this.propertyValue = propertyValue;
     }
 
-    @Override
-    public String getName() {
-        return propertyName;
-    }
-
-    public Object getPropertyValue() {
-        return propertyValue;
-    }
-
-    @Override
-    public Date getValue(){
-       return new Date(toLong());
-    }
-
-    public Long toLong() {
-        return parse(getPropertyValue());
-    }
-
-    @Override
-    public String toString(){
-        try {
-            return getValue().toString();
-        }catch (Exception ex){
-            return ex.toString();
-        }
-    }
-
     /**
      * Parse the value of general property LastSeenDate.
      * Since this property can be configured on different protocols, its type can be different.
      * Currently only LastSeenDate properties of type Integer, Long, BigDecimal, Date and String are supported here.
      */
-    public static Long parse(Object lastSeenDateObject){
+    public static Long parse(Object lastSeenDateObject) {
         if (lastSeenDateObject instanceof Integer) {
             return Long.valueOf((Integer) lastSeenDateObject);
         } else if (lastSeenDateObject instanceof Long) {
@@ -79,5 +52,32 @@ public class ObservationTimestampPropertyImpl implements CollectedTopology.Obser
             }
         }
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return propertyName;
+    }
+
+    public Object getPropertyValue() {
+        return propertyValue;
+    }
+
+    @Override
+    public Date getValue() {
+        return new Date(toLong());
+    }
+
+    public Long toLong() {
+        return parse(getPropertyValue());
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return getValue().toString();
+        } catch (Exception ex) {
+            return ex.toString();
+        }
     }
 }

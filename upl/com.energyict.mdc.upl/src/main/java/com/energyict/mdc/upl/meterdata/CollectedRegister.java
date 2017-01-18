@@ -75,13 +75,6 @@ public interface CollectedRegister extends CollectedData {
     RegisterIdentifier getRegisterIdentifier();
 
     /**
-     * Gets the MRID of the ReadingType of the collected Register
-     *
-     * @return the MRID of the ReadingType of the collected Register
-     */
-    String getReadingTypeMRID();
-
-    /**
      * Indicates whether this is a text register
      *
      * @return true if this is a text register, false otherwise

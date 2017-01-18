@@ -5,8 +5,8 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.LoadProfileType;
 import com.energyict.mdc.upl.meterdata.RegisterGroup;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -37,6 +37,7 @@ public interface OfflineDevice extends Offline {
 
     /**
      * Get the device TimeZone
+     *
      * @return the device TimeZone
      */
     @XmlAttribute
@@ -167,11 +168,28 @@ public interface OfflineDevice extends Offline {
     @XmlAttribute
     DeviceProtocolCache getDeviceProtocolCache();
 
+    DeviceIdentifier getDeviceIdentifier();
+
+    List<OfflineCalendar> getCalendars();
+
+    boolean touCalendarManagementAllowed();
+
+    boolean firmwareVersionManagementAllowed();
+
     @XmlElement(name = "type")
     default String getXmlType() {
         return getClass().getName();
     }
 
-    default void setXmlType(String ignore) {}
+    default void setXmlType(String ignore) {
+    }
+
+    /**
+     * Get the list of all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}s
+     * that are for some reason no longer valid to be sent to the device.
+     *
+     * @return the list of pending messages that have become invalid since creation
+     */
+    List<OfflineDeviceMessage> getAllInvalidPendingDeviceMessages();
 
 }

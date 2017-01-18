@@ -17,6 +17,8 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
  */
 public class MessageEntry {
 
+    public final static MessageEntry EMPTY = new MessageEntry("","");
+
     private final String content;
     private final String trackingId;
     private String serialNumber;
@@ -55,6 +57,10 @@ public class MessageEntry {
 
     public String getTrackingId() {
         return trackingId;
+    }
+
+    public void setTrackingId(String trackingId) {
+        this.trackingId = trackingId;
     }
 
     public String getSerialNumber() {
