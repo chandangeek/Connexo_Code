@@ -481,8 +481,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             progressbar = Ext.widget('progressbar', {
                 itemId: 'estimation-progressbar',
                 margin: '5 0 15 0'
-            }),
-            purposeProxy = purpose.getProxy();
+            });
 
         confirmationWindow.insert(1, progressbar);
         progressbar.wait({
@@ -491,7 +490,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             fn: Ext.bind(me.onTooLongEstimation, me, [purpose, confirmationWindow])
         });
 
-        purposeProxy.extraParams = {
+        purpose.getProxy().extraParams = {
             usagePointId: usagePoint.get('name'),
             upVersion: usagePoint.get('version')
         };
