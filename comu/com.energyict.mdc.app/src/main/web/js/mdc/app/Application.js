@@ -26,7 +26,8 @@ Ext.define('MdcApp.Application', {
         'Scs.privileges.ServiceCall',
         'Mdc.privileges.Monitor',
         'Mdc.privileges.MetrologyConfiguration',
-        'Mdc.privileges.CommandLimitationRules'
+        'Mdc.privileges.CommandLimitationRules',
+        'Dal.privileges.Alarm'
     ],
     controllers: [
         'MdcApp.controller.Main'
