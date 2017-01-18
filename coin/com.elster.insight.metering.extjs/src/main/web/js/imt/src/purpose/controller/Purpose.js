@@ -486,7 +486,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
         confirmationWindow.insert(1, progressbar);
         progressbar.wait({
             duration: 60000,
-            scope: me,
             fn: Ext.bind(me.onTooLongEstimation, me, [purpose, confirmationWindow])
         });
 
