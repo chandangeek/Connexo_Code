@@ -14,10 +14,18 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 class DeviceMessageServiceImpl implements DeviceMessageService {
@@ -104,17 +112,19 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         if (threadPrincipalService.getPrincipal() instanceof User) {
             User currentUser = (User) threadPrincipalService.getPrincipal();
             if (currentUser != null) {
-                Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId)).findFirst();
+                Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements()
+                        .stream()
+                        .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
+                        .findFirst();
                 if (deviceMessageEnablementOptional.isPresent()) {
                     DeviceMessageEnablement deviceMessageEnablement = deviceMessageEnablementOptional.get();
                     return deviceMessageEnablement
-                                .getUserActions()
-                                .stream()
-                                .anyMatch(deviceMessageUserAction -> currentUser.hasPrivilege("MDC", deviceMessageUserAction.getPrivilege()));
+                            .getUserActions()
+                            .stream()
+                            .anyMatch(deviceMessageUserAction -> currentUser.hasPrivilege("MDC", deviceMessageUserAction.getPrivilege()));
                 }
             }
         }
         return true;
     }
-
 }

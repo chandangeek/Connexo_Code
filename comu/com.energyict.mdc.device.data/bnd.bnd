@@ -3,7 +3,8 @@
 Import-Package: !net.jcip.annotations,\
 	*
 Private-Package:  \
-	com.energyict.mdc.device.data.impl.*
+	com.energyict.mdc.device.data.impl.*,\
+	com.energyict.mdc.device.command.impl.*
 Export-Package:  \
 	com.energyict.mdc.device.data,\
 	com.energyict.mdc.device.data.ami,\
@@ -11,4 +12,6 @@ Export-Package:  \
 	com.energyict.mdc.device.data.kpi,\
 	com.energyict.mdc.device.data.security,\
 	com.energyict.mdc.device.data.tasks,\
-	com.energyict.mdc.device.data.tasks.history
+	com.energyict.mdc.device.data.tasks.history,\
+	com.energyict.mdc.device.command,\
+	com.energyict.mdc.device.command.security

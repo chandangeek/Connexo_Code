@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
@@ -29,6 +31,7 @@ class UpgraderV10_3 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         upgradeExistingScheduledComTaskExecutions();
+        dataModelUpgrader.upgrade(dataModel, Version.version(10,3));
     }
 
     private void upgradeExistingScheduledComTaskExecutions() {

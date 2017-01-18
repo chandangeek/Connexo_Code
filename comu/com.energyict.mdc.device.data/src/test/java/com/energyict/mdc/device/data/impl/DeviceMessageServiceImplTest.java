@@ -25,6 +25,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -68,6 +69,8 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     PropertySpecService propertySpecService;
     @Mock
     ThreadPrincipalService threadPrincipalService;
+    @Mock
+    Clock clock;
 
     DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService);
 
