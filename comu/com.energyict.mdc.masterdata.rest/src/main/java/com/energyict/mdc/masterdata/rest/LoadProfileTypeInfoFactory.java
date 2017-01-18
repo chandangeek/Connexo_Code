@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.rest;
 
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MeasurementType;
 
@@ -29,7 +30,7 @@ public class LoadProfileTypeInfoFactory {
         info.id = loadProfileType.getId();
         info.name = loadProfileType.getName();
         info.obisCode = loadProfileType.getObisCode();
-        info.timeDuration=loadProfileType.getInterval();
+        info.timeDuration= Temporals.toTimeDuration(loadProfileType.interval());
 
         info.registerTypes = new ArrayList<>(loadProfileType.getChannelTypes().size());
         for (MeasurementType measurementType : loadProfileType.getChannelTypes()) {

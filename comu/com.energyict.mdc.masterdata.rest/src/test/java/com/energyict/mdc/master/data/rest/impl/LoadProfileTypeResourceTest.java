@@ -14,14 +14,14 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
-
+import com.energyict.obis.ObisCode;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
@@ -99,7 +97,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         assertThat(map.get("id")).isEqualTo(1);
         assertThat((String) map.get("name")).isEqualTo("Load Profile Type 0001");
         assertThat(map.get("obisCode")).isEqualTo("10.20.30.40.50.60");
-        assertThat((List)map.get("registerTypes")).hasSize(2);
+        assertThat((List) map.get("registerTypes")).hasSize(2);
         assertThat((Integer) ((Map) map.get("timeDuration")).get("id")).isBetween(0, 11);
     }
 
@@ -152,7 +150,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     private String getServerAnswer(Response response) {
         ByteArrayInputStream entity = (ByteArrayInputStream) response.getEntity();
         byte[] bytes = new byte[entity.available()];
-        entity.read(bytes,0, entity.available());
+        entity.read(bytes, 0, entity.available());
         return new String(bytes);
     }
 
@@ -171,7 +169,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         List<ChannelType> channelTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
             RegisterType registerType = mockRegisterType(1000 + i, String.format("Register type %04d", i), new ObisCode(i, i, i, i, i, i));
-            channelTypes.add(mockChannelType(1000 + i, String.format("Channel type %04d", i), new ObisCode(i, i, i, i, i, i),interval ,registerType));
+            channelTypes.add(mockChannelType(1000 + i, String.format("Channel type %04d", i), new ObisCode(i, i, i, i, i, i), interval, registerType));
         }
         return channelTypes;
     }
@@ -185,7 +183,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         return (int) (start + new Random().nextDouble() * range);
     }
 
-    private TimeDuration getRandomTimeDuration(){
+    private TimeDuration getRandomTimeDuration() {
         return LocalizedTimeDuration.intervals.get(getRandomInt(LocalizedTimeDuration.intervals.size() - 1)).getTimeDuration();
     }
 
@@ -204,7 +202,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getId()).thenReturn(id);
         when(loadProfileType.getName()).thenReturn(name);
-        when(loadProfileType.getInterval()).thenReturn(interval);
+        when(loadProfileType.interval()).thenReturn(interval.asTemporalAmount());
         when(loadProfileType.getObisCode()).thenReturn(obisCode);
         when(loadProfileType.getChannelTypes()).thenReturn(channelTypes);
         when(loadProfileType.getVersion()).thenReturn(OK_VERSION);
