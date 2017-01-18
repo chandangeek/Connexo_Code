@@ -57,7 +57,7 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
                         layout: {
                             type: 'vbox'
                         },
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.usagePointGroup', 'EST', 'Usage point group'),
                         required: true,
                         items: [
                             {
