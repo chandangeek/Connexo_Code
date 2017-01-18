@@ -5,7 +5,6 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
@@ -19,6 +18,7 @@ import com.energyict.mdc.tasks.rest.impl.ComTaskInfo;
 import com.energyict.mdc.tasks.rest.impl.ParameterInfo;
 import com.energyict.mdc.tasks.rest.impl.ProtocolTaskInfo;
 import com.energyict.mdc.tasks.rest.impl.util.RestHelper;
+import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -447,7 +447,7 @@ public enum Categories {
 
     private String id;
 
-    private Categories(final String id) {
+    Categories(final String id) {
         this.id = id;
     }
 
