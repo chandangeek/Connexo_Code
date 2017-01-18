@@ -325,7 +325,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 itemId: 'estimate-now-confirmation-window',
                 closeAction: 'destroy',
                 confirmText: Uni.I18n.translate('general.estimate', 'IMT', 'Estimate'),
-                confirmation: Ext.bind(me.onEstimateNow, me, [purpose, getConfirmationWindow])
+                confirmation: Ext.bind(me.onEstimateNow, me, [purpose, usagePoint, getConfirmationWindow])
             });
 
         confirmationWindow.show({
@@ -336,7 +336,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         function getConfirmationWindow() {
             return confirmationWindow
-        };
+        }
     },
 
     getActivationConfirmationContent: function (purpose) {
@@ -475,13 +475,14 @@ Ext.define('Imt.purpose.controller.Purpose', {
         });
     },
 
-    onEstimateNow: function (purpose, getConfirmationWindow) {
+    onEstimateNow: function (purpose, usagePoint, getConfirmationWindow) {
         var me = this,
             confirmationWindow = getConfirmationWindow(),
             progressbar = Ext.widget('progressbar', {
                 itemId: 'estimation-progressbar',
                 margin: '5 0 15 0'
-            });
+            }),
+            purposeProxy = purpose.getProxy();
 
         confirmationWindow.insert(1, progressbar);
         progressbar.wait({
@@ -490,6 +491,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
             fn: Ext.bind(me.onTooLongEstimation, me, [purpose, confirmationWindow])
         });
 
+        purposeProxy.extraParams = {
+            usagePointId: usagePoint.get('name'),
+            upVersion: usagePoint.get('version')
+        };
         purpose.save({
             isNotEdit: true,
             notHandleTimeout: true,
