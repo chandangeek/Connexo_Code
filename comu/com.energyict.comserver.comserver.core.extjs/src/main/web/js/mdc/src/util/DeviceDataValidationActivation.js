@@ -9,7 +9,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
     dataValidationLastChecked: null,
 	validationOnStorage: null,
 
-    updateDataValidationStatusSection: function (deviceId, view) {
+    updateDataValidationStatusSection: function (deviceId, view, deviceRecord) {
         var me = this;
         me.deviceId = deviceId;
         if (view.down('#deviceDataValidationStatusField')) {
@@ -17,13 +17,16 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             view.down('#dataValidationStatusPanel').setLoading(true);
             !!view.down('#deviceDataValidationStateChangeBtn') && view.down('#deviceDataValidationStateChangeBtn').setDisabled(true);
         }
-        if (view && view.device) {
+        if (view && view.device && Ext.isEmpty(deviceRecord)) {
             me.getModel('Mdc.model.Device').load(deviceId, {
                 success: function (record) {
                     view.device = record;
                 }
             });
+        } else if(view && view.device) {
+            view.device = deviceRecord;
         }
+
         Ext.Ajax.request({
             url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',

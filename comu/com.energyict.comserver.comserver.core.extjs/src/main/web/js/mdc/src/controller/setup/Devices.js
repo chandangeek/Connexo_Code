@@ -287,7 +287,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                         }
                         if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
                             && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
-                            me.updateDataValidationStatusSection(deviceId, widget);
+                            me.updateDataValidationStatusSection(deviceId, widget, device);
                         } else {
                             !Ext.isEmpty(widget.down('device-data-validation-panel')) && widget.down('device-data-validation-panel').hide();
                         }
