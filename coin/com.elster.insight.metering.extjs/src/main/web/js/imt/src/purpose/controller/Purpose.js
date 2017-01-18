@@ -325,7 +325,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 itemId: 'estimate-now-confirmation-window',
                 closeAction: 'destroy',
                 confirmText: Uni.I18n.translate('general.estimate', 'IMT', 'Estimate'),
-                confirmation: Ext.bind(me.onEstimateNow, me, [purpose, usagePoint, getConfirmationWindow])
+                confirmation: _.once(Ext.bind(me.onEstimateNow, me, [purpose, usagePoint, getConfirmationWindow]))
             });
 
         confirmationWindow.show({
