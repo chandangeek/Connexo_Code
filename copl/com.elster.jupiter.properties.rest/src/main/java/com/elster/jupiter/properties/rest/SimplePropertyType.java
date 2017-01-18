@@ -28,8 +28,8 @@ public enum SimplePropertyType implements PropertyType {
     LISTVALUE(ListValueFactory.class),
     DEVICECONFIGURATIONLIST(ListValueFactory.class),
     QUANTITY(Quantity.class),
-    LISTREADINGQUALITY(ListReadingQualityFactory.class),
-    ASSIGN(String.class);
+    LISTREADINGQUALITY(ListReadingQualityFactory.class)
+    ;
 
     private Class typeClass;
 
