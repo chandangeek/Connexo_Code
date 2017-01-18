@@ -42,6 +42,8 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
+import com.elster.jupiter.users.GrantPrivilege;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -72,6 +74,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -86,12 +89,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Provides initialization services that is typically used by classes that focus
@@ -103,7 +106,7 @@ import static org.mockito.Mockito.withSettings;
 public class InMemoryPersistence {
 
     private BundleContext bundleContext;
-    private Principal principal;
+    private User principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
     private EventServiceImpl eventService;
@@ -268,7 +271,12 @@ public class InMemoryPersistence {
         this.mockProtocolPluggableService = mockedProtocolPluggableService;
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(User.class);
+        GrantPrivilege superGrant = mock(GrantPrivilege.class);
+        when(superGrant.canGrant(any())).thenReturn(true);
+        Group superUser = mock(Group.class);
+        when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", asList(superGrant)));
+        when(this.principal.getGroups()).thenReturn(asList(superUser));
         when(this.principal.getName()).thenReturn(testName);
         if (this.mockProtocolPluggableService) {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
@@ -392,7 +400,7 @@ public class InMemoryPersistence {
     }
 
     public User getMockedUser() {
-        return (User) this.principal;
+        return this.principal;
     }
 
     public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
