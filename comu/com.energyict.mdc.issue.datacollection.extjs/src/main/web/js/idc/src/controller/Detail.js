@@ -36,6 +36,10 @@ Ext.define('Idc.controller.Detail', {
                 selector: 'data-collection-issue-detail #data-collection-issue-comments'
             },
             {
+                ref: 'issueDetailForm',
+                selector: 'data-collection-issue-detail #issue-detail-form'
+            },
+            {
                 ref: 'actionMenu',
                 selector: 'data-collection-issue-detail #issue-detail-action-menu'
             }
