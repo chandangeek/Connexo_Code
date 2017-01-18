@@ -118,6 +118,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>dualcontrol</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>events</artifactId>
                 <version>2.2.0${revision}</version>
                 <scope>provided</scope>
@@ -245,7 +251,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>orm</artifactId>
-                <version>3.1.0${revision}</version>
+                <version>4.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -449,7 +455,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>users.rest</artifactId>
-                <version>3.1.0${revision}</version>
+                <version>4.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -702,6 +708,7 @@
                 <module>../com.elster.jupiter.cps.extjs</module>
                 <module>../com.elster.jupiter.datavault</module>
                 <module>../com.elster.jupiter.domain.util</module>
+                <module>../com.elster.jupiter.dualcontrol</module>
                 <module>../com.elster.jupiter.events</module>
                 <module>../com.elster.jupiter.events.rest</module>
                 <module>../com.elster.jupiter.extjs</module>
