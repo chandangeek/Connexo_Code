@@ -1,8 +1,7 @@
 package com.energyict.mdc.masterdata;
 
-import com.elster.jupiter.util.HasId;
-
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import java.util.List;
@@ -13,21 +12,21 @@ import java.util.List;
  * @author Geert
  */
 @ProviderType
-public interface RegisterGroup extends HasId, HasName {
+public interface RegisterGroup extends HasId, HasName, com.energyict.mdc.upl.meterdata.RegisterGroup {
 
-    public void setName (String newName);
+    void setName(String newName);
 
-    public void save();
+    void save();
 
-    public void delete();
+    void delete();
 
-    public List<RegisterType> getRegisterTypes();
+    List<RegisterType> getRegisterTypes();
 
-    public void addRegisterType(RegisterType registerType);
+    void addRegisterType(RegisterType registerType);
 
-    public void removeRegisterType(RegisterType registerType);
+    void removeRegisterType(RegisterType registerType);
 
-    public void updateRegisterTypes(List<RegisterType> registerTypes);
+    void updateRegisterTypes(List<RegisterType> registerTypes);
 
     long getVersion();
 }

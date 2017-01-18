@@ -16,7 +16,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
@@ -24,6 +23,10 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
+import com.energyict.obis.ObisCode;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -31,10 +34,6 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -75,7 +74,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         assertThat(loadProfileType.getName()).isEqualTo(loadProfileTypeName);
         assertThat(loadProfileType.getDescription()).isNotEmpty();
         assertThat(loadProfileType.getObisCode()).isEqualTo(OBIS_CODE);
-        assertThat(loadProfileType.getInterval()).isEqualTo(interval);
+        assertThat(loadProfileType.interval()).isEqualTo(interval);
     }
 
     @Test
@@ -97,7 +96,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         assertThat(loadProfileType.getName()).isEqualTo(loadProfileTypeName);
         assertThat(loadProfileType.getDescription()).isNotEmpty();
         assertThat(loadProfileType.getObisCode()).isEqualTo(OBIS_CODE);
-        assertThat(loadProfileType.getInterval()).isEqualTo(interval);
+        assertThat(loadProfileType.interval()).isEqualTo(interval);
     }
 
     @Test
@@ -317,7 +316,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         assertThat(loadProfileType.getName()).isEqualTo(loadProfileTypeName);
         assertThat(loadProfileType.getDescription()).isNotEmpty();
         assertThat(loadProfileType.getObisCode()).isEqualTo(OBIS_CODE);
-        assertThat(loadProfileType.getInterval()).isEqualTo(updatedInterval);
+        assertThat(loadProfileType.interval()).isEqualTo(updatedInterval);
     }
 
     @Test
@@ -488,7 +487,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         LoadProfileType finalLoadProfile = masterDataService.findLoadProfileType(reloadedLoadProfile.getId()).get();
 
         assertThat(finalLoadProfile.getChannelTypes()).hasSize(1);
-        assertThat(finalLoadProfile.getInterval()).isEqualTo(newInterval);
+        assertThat(finalLoadProfile.interval()).isEqualTo(newInterval);
         assertThat(finalLoadProfile.getChannelTypes().get(0).getInterval()).isEqualTo(newInterval);
         assertThat(inMemoryPersistence.getMasterDataService().findAllChannelTypes().find()).hasSize(2); // the old one should still exist
     }
