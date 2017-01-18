@@ -48,6 +48,7 @@ public interface ReadingTypeTemplate extends HasId, HasName {
 
     void delete();
 
+    @ProviderType
     interface ReadingTypeTemplateAttributeSetter {
         /**
          * Updates attribute in template.
