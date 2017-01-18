@@ -42,6 +42,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
             selector: 'output-channel-main reading-preview'
         },
         {
+            ref: 'purposePage',
+            selector: '#purpose-outputs'
+        },
+        {
             ref: 'outputPreview',
             selector: '#purpose-outputs #output-preview'
         }
@@ -477,6 +481,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     onEstimateNow: function (purpose, usagePoint, getConfirmationWindow) {
         var me = this,
+            purposePage = me.getPurposePage(),
             confirmationWindow = getConfirmationWindow(),
             progressbar = Ext.widget('progressbar', {
                 itemId: 'estimation-progressbar',
@@ -497,12 +502,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
             isNotEdit: true,
             notHandleTimeout: true,
             callback: function (record, operation, success) {
-                if (confirmationWindow.rendered) {
-                    confirmationWindow.close();
-                    if (success) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'));
-                        me.getController('Uni.controller.history.Router').getRoute().forward();
-                    }
+                confirmationWindow.close();
+                if (purposePage.rendered && success) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'));
+                    me.getController('Uni.controller.history.Router').getRoute().forward();
                 }
             }
         });
