@@ -2,12 +2,13 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.util.Checks;
-import com.energyict.license.FamilyRule;
-import com.energyict.license.LicensedProtocolRule;
 import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.ProtocolFamily;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+
+import com.energyict.license.FamilyRule;
+import com.energyict.license.LicensedProtocolRule;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
     /**
      * Every protocol, except the ones from the TEST family
      */
-    private final static List<LicensedProtocol> ALL_PROTOCOLS;
+    private static final List<LicensedProtocol> ALL_PROTOCOLS;
 
     static {
         ALL_PROTOCOLS = Arrays.stream(LicensedProtocolRule.values())
@@ -81,7 +82,7 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
          * @param className The name of the protocol class
          * @return A flag that indicates of the protocol class is covered by the license
          */
-        public boolean isCovered(String className);
+        boolean isCovered(String className);
 
     }
 
