@@ -59,10 +59,6 @@ public class MessageEntry {
         return trackingId;
     }
 
-    public void setTrackingId(String trackingId) {
-        this.trackingId = trackingId;
-    }
-
     public String getSerialNumber() {
         return serialNumber;
     }
