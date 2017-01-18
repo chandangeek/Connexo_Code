@@ -4,7 +4,6 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -15,14 +14,14 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.obis.ObisCode;
+import org.junit.Ignore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-
-import org.junit.Ignore;
 
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
@@ -125,7 +124,7 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getId()).thenReturn(id);
         when(loadProfileType.getName()).thenReturn(name);
-        when(loadProfileType.getInterval()).thenReturn(interval);
+        when(loadProfileType.interval()).thenReturn(interval.asTemporalAmount());
         when(loadProfileType.getObisCode()).thenReturn(obisCode);
         when(loadProfileType.getChannelTypes()).thenReturn(channelTypes);
         when(loadProfileType.getVersion()).thenReturn(OK_VERSION);
