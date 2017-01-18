@@ -22,8 +22,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.associations.Effectivity;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.ImmutableSet;
@@ -43,8 +41,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.streams.Predicates.not;
 
 class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionService {
     private final Thesaurus thesaurus;
@@ -175,20 +171,12 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                         contract.getId(), effectiveMetrologyConfiguration.getUsagePoint()
                         .getName()) {
                 });
-        Optional<Range<Instant>> optionalIntervalWithData = Optional.of(container)
-                .map(Effectivity::getInterval)
-                .map(Interval::toOpenClosedRange)
-                .filter(interval::isConnected)
-                .map(interval::intersection)
-                .filter(not(Range::isEmpty));
         return contract.getDeliverables().stream().collect(Collectors.toMap(
                 Function.identity(),
-                deliverable -> optionalIntervalWithData
-                        .map(intervalWithData -> container.getChannel(deliverable.getReadingType())
+                deliverable -> container.getChannel(deliverable.getReadingType())
                                 // channel cannot be unfound
-                                .map(channel -> getDataCompletionStatistics(channel, intervalWithData))
-                                .orElse(Collections.singletonList(getGeneralUsagePointDataCompletionSummary(intervalWithData))))
-                        .orElse(Collections.singletonList(getGeneralUsagePointDataCompletionSummary(interval))),
+                                .map(channel -> getDataCompletionStatistics(channel, interval))
+                                .orElse(Collections.singletonList(getGeneralUsagePointDataCompletionSummary(interval))),
                 (summary1, summary2) -> { // merge should not appear since no ReadingTypeDeliverable duplication allowed
                     throw new LocalizedException(thesaurus,
                             MessageSeeds.DUPLICATE_READINGTYPE_ON_METROLOGY_CONTRACT,

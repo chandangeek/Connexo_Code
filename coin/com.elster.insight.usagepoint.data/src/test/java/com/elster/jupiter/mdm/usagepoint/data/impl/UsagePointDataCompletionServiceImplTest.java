@@ -195,35 +195,6 @@ public class UsagePointDataCompletionServiceImplTest {
     }
 
     @Test
-    public void testGetValidationSummaryForPeriodStartingBeforeChannelsContainerStart() {
-        Range<Instant> actualRange = Range.openClosed(FIRST_DATE, NOW);
-        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(FIRST_DATE)));
-        summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
-        assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
-        assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.get(0).getValues()).contains(
-                        MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
-                        MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 6),
-                        MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2)
-                ))
-                .peek(summary -> assertThat(summary.get(0).getSum()).isEqualTo(10))
-                .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(actualRange))
-                .count()).isEqualTo(2);
-    }
-
-    @Test
-    public void testGetValidationSummaryForPeriodEndingBeforeChannelsContainerStart() {
-        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(NOW)));
-        summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
-        assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
-        assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.get(0).getValues()).isEmpty())
-                .peek(summary -> assertThat(summary.get(0).getSum()).isZero())
-                .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(NOMINAL_RANGE))
-                .count()).isEqualTo(2);
-    }
-
-    @Test
     public void testGetValidationSummaryForEmptyPeriod() {
         summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, Range.openClosed(NOW, NOW));
         assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
@@ -231,18 +202,6 @@ public class UsagePointDataCompletionServiceImplTest {
                 .peek(summary -> assertThat(summary.get(0).getValues()).isEmpty())
                 .peek(summary -> assertThat(summary.get(0).getSum()).isZero())
                 .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(Range.openClosed(NOW, NOW)))
-                .count()).isEqualTo(2);
-    }
-
-    @Test
-    public void testGetValidationSummaryForPeriodStartingBeforeChannelsContainerEnd() {
-        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.closedOpen(FIRST_DATE.minusSeconds(1), FIRST_DATE.minusNanos(1))));
-        summaries = usagePointDataCompletionService.getDataCompletionStatistics(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
-        assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
-        assertThat(summaries.values().stream()
-                .peek(summary -> assertThat(summary.get(0).getValues()).isEmpty())
-                .peek(summary -> assertThat(summary.get(0).getSum()).isZero())
-                .peek(summary -> assertThat(summary.get(0).getTargetInterval()).isEqualTo(NOMINAL_RANGE))
                 .count()).isEqualTo(2);
     }
 
