@@ -3,8 +3,9 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+
 import javax.inject.Inject;
 import java.util.Optional;
 

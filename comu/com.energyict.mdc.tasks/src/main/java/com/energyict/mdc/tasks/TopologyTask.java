@@ -1,6 +1,6 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.upl.tasks.TopologyAction;
 
 /**
  * Models the {@link com.energyict.mdc.tasks.ProtocolTask} which can check/update the Topology of a Device.
@@ -15,6 +15,6 @@ public interface TopologyTask extends ProtocolTask {
      *
      * @return the TopologyAction
      */
-    public TopologyAction getTopologyAction();
-    public void setTopologyAction(TopologyAction topologyAction);
+    TopologyAction getTopologyAction();
+    void setTopologyAction(TopologyAction topologyAction);
 }

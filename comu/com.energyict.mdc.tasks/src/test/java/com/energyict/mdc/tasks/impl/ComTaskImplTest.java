@@ -5,18 +5,17 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.upl.tasks.TopologyAction;
+import org.junit.Test;
+
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

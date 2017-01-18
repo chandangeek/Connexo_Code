@@ -2,13 +2,14 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.tasks.TopologyAction;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 /**
  * Implementation for a {@link com.energyict.mdc.tasks.TopologyTask}.

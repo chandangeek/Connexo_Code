@@ -6,10 +6,10 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 
 import javax.inject.Inject;
 import java.time.Instant;

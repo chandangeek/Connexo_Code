@@ -4,9 +4,10 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.util.Optional;

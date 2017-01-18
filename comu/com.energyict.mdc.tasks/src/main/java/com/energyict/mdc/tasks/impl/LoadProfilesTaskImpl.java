@@ -4,8 +4,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.*;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.MASTER_LOAD_PROFILES_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 /**
  * Implementation for a {@link com.energyict.mdc.tasks.LoadProfilesTask}

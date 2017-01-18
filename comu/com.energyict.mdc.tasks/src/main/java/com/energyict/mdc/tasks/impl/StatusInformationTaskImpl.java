@@ -1,15 +1,15 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
 
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.FIRMWARE_VERSIONS_FLAG;
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.REGISTERS_FLAG;
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.TOU_CALENDAR_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.FIRMWARE_VERSIONS_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.REGISTERS_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.TOU_CALENDAR_FLAG;
 
 /**
  * Implementation for a {@link com.energyict.mdc.tasks.StatusInformationTask}.

@@ -1,21 +1,20 @@
 package com.energyict.mdc.tasks.impl;
 
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.tasks.MessagesTask;
-
-import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.PENDING_MESSAGES_FLAG;
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SENT_MESSAGES_FLAG;
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.PENDING_MESSAGES_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SENT_MESSAGES_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 /**
  * Implementation of a {@link com.energyict.mdc.tasks.MessagesTask}.

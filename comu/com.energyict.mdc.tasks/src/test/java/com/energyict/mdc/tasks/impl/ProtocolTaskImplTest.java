@@ -2,17 +2,15 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.obis.ObisCode;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
@@ -24,6 +22,8 @@ import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.tasks.TopologyAction;
+import com.energyict.obis.ObisCode;
 import org.assertj.core.api.Condition;
 import org.junit.Test;
 
