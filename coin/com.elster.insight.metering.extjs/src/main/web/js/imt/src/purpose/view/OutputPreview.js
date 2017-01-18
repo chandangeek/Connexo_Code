@@ -28,29 +28,29 @@ Ext.define('Imt.purpose.view.OutputPreview', {
         },
         items: [
             {
-                fieldLabel: Uni.I18n.translate('general.allDataValidated', 'INS', 'All data validated'),
+                fieldLabel: Uni.I18n.translate('general.allDataValidated', 'IMT', 'All data validated'),
                 name: 'allDataValidated',
                 itemId: 'all-data-validated-field'
             },
             {
-                fieldLabel: Uni.I18n.translate('general.lastChecked', 'INS', 'Last checked'),
+                fieldLabel: Uni.I18n.translate('general.lastChecked', 'IMT', 'Last checked'),
                 name: 'lastChecked',
                 itemId: 'last-checked-field'
             },
             {
-                fieldLabel: Uni.I18n.translate('general.suspects', 'INS', 'Suspects'),
+                fieldLabel: Uni.I18n.translate('general.suspects', 'IMT', 'Suspects'),
                 name: 'suspects',
                 itemId: 'suspects-field',
                 htmlEncode: false
             },
             {
-                fieldLabel: Uni.I18n.translate('general.informatives', 'INS', 'Informatives'),
+                fieldLabel: Uni.I18n.translate('general.informatives', 'IMT', 'Informatives'),
                 name: 'informatives',
                 itemId: 'informatives-field',
                 htmlEncode: false
             },
             {
-                fieldLabel: Uni.I18n.translate('general.estimates', 'INS', 'Estimates'),
+                fieldLabel: Uni.I18n.translate('general.estimates', 'IMT', 'Estimates'),
                 name: 'estimates',
                 itemId: 'estimates-field',
                 htmlEncode: false
