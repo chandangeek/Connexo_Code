@@ -443,7 +443,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
             isNotEdit: true,
             notHandleTimeout: true,
             callback: function (record, operation, success) {
-                confirmationWindow.close();
+                if (operation.response.status) {
+                    confirmationWindow.close();
+                }
                 if (purposePage.rendered && success) {
                     me.getApplication().fireEvent('acknowledge', successMessage);
                     me.getController('Uni.controller.history.Router').getRoute().forward();
