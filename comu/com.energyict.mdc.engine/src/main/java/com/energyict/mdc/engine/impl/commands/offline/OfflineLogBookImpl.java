@@ -69,6 +69,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
         setDeviceId((int) this.logBook.getDevice().getId());
         setMasterSerialNumber(this.logBook.getDevice().getSerialNumber());
         Optional<Instant> lastLogBook = this.logBook.getLastLogBook();
+        setOfflineLogBookSpec(new OfflineLogBookSpecImpl(logBook.getLogBookSpec()));
         setLastLogBook(lastLogBook.isPresent() ? Date.from(lastLogBook.get()) : null);
     }
 
