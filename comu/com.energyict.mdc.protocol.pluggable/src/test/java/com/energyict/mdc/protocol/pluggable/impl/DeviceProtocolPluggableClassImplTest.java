@@ -28,7 +28,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -37,7 +36,6 @@ import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
@@ -57,11 +55,19 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.SDKDeviceProtocolTestWithMandatoryProperty;
-
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.joda.time.DateMidnight;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -69,11 +75,6 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;

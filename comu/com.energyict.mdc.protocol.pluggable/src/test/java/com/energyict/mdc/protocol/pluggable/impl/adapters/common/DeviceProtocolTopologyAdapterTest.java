@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;

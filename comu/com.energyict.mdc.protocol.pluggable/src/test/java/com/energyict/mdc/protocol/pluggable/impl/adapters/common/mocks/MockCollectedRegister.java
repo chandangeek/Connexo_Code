@@ -18,7 +18,6 @@ import java.util.List;
  * @since 2014-01-27 (13:47)
  */
 public class MockCollectedRegister implements CollectedRegister {
-    private final String readingTypeMRID;
     private Date fromTime;
     private Date toTime;
     private Date eventTime;
@@ -29,9 +28,8 @@ public class MockCollectedRegister implements CollectedRegister {
     private ResultType resultType;
     private List<Issue> issues = new ArrayList<>();
 
-    public MockCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
+    public MockCollectedRegister(RegisterIdentifier registerIdentifier) {
         super();
-        this.readingTypeMRID = readingTypeMRID;
         this.setRegisterIdentifier(registerIdentifier);
     }
 
@@ -40,18 +38,13 @@ public class MockCollectedRegister implements CollectedRegister {
         return registerIdentifier;
     }
 
-    @Override
-    public String getReadingTypeMRID() {
-        return this.readingTypeMRID;
+    public void setRegisterIdentifier(RegisterIdentifier registerIdentifier) {
+        this.registerIdentifier = registerIdentifier;
     }
 
     @Override
     public boolean isTextRegister() {
         return false;
-    }
-
-    public void setRegisterIdentifier(RegisterIdentifier registerIdentifier) {
-        this.registerIdentifier = registerIdentifier;
     }
 
     @Override
