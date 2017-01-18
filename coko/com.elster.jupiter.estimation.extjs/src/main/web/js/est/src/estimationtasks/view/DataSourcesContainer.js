@@ -132,8 +132,8 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
                     Ext.suspendLayouts();
                     me.showNoItemsField();
                     Ext.resumeLayouts(true);
-                    callback && callback();
                 }
+                callback && callback();
             };
 
         switch (me.appName) {
@@ -141,10 +141,15 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
                 me.down('#device-group-combo').store.load(onGroupsLoad);
                 break;
             case 'MdmApp':
-                me.down('#usagePoint-group-id').store.load(onGroupsLoad);
-                me.down('#cbo-estimation-task-purpose').store.load();
+                me.down('#cbo-estimation-task-purpose').store.load({
+                    callback: function(){
+                        me.down('#usagePoint-group-id').store.load(onGroupsLoad);
+                    }
+                });
                 break;
         }
+
+
         // var me =this,
         //     groupCombo = me.down('combobox'),
         //     noGroups = me.down('displayfield');
@@ -157,9 +162,18 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
         //     callback && callback();
         // });
     },
-    setComboValue: function(value){
+    setComboValue: function (record) {
         var me = this;
-        me.down('combobox').setValue(me.down('combobox').store.getById(value));
+
+        switch (me.appName) {
+            case 'MultiSense':
+                me.down('#device-group-combo').setValue(me.down('#device-group-combo').store.getById(record.get('deviceGroup').id));
+                break;
+            case 'MdmApp':
+                me.down('#usagePoint-group-id').setValue(me.down('#usagePoint-group-id').store.getById(record.get('usagePointGroup').id));
+                me.down('#cbo-estimation-task-purpose').setValue(me.down('#cbo-estimation-task-purpose').store.getById(record.get('metrologyPurpose').id));
+                break;
+        }
     },
     getValue: function(){
 

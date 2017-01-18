@@ -35,6 +35,11 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.usagePointGroup', 'EST', 'Usage point group'),
                         name: 'usagePointGroup',
                         hidden: typeof(MdmApp) == 'undefined'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.purpose', 'EST', 'Purpose'),
+                        name: 'metrologyPurpose',
+                        hidden: typeof(MdmApp) == 'undefined'
                     }
                 ]
             },

@@ -270,16 +270,13 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         taskModel.load(currentTaskId, {
             success: function (record) {
                 var schedule = record.get('schedule'),
-                    deviceGroup = record.get('deviceGroup'),
-                    usagePointGroup = record.get('usagePointGroup'),
-                    period = record.get('period'),
-                    groupId = deviceGroup ? deviceGroup.id : usagePointGroup ? usagePointGroup.id : null;
+                    period = record.get('period');
                 me.taskModel = record;
                 taskForm.loadRecord(record);
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
                 taskForm.setTitle(Uni.I18n.translate('general.editx', 'EST', "Edit '{0}'",[record.get('name')]));
                 dataSourcesContainer.loadGroupStore(function(){
-                    dataSourcesContainer.setComboValue(groupId);
+                    dataSourcesContainer.setComboValue(record);
                     me.getEstimationPeriodCombo().store.load(function () {
                         if (period && (period.id !== 0)) {
                             widget.down('#estimation-period-trigger').setValue({estimationPeriod: true});
