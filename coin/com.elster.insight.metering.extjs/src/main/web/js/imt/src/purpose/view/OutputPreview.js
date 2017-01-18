@@ -114,7 +114,7 @@ Ext.define('Imt.purpose.view.OutputPreview', {
                 } else {
                     if (isEstimation) {
                         url = me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({
-                            ruleSetId: rule.ruleSet.id,
+                            ruleSetId: rule.ruleSetId,
                             ruleId: rule.id
                         });
                     } else {
