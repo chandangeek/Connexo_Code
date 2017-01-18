@@ -77,7 +77,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     if (issueType === 'datacollection') {
                         me.loadDataCollectionIssueDetails(widget, record);
                     } else {
-                        me.getIssueDetailForm().loadRecord(record);
+                        widget.down('#issue-detail-form').loadRecord(record);
                     }
                     Ext.resumeLayouts(true);
                     if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
@@ -445,7 +445,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     if (issueType === 'datacollection') {
                         me.loadDataCollectionIssueDetails(widget, record);
                     } else {
-                        me.getIssueDetailForm().loadRecord(record);
+                        widget.down('#issue-detail-form').loadRecord(record);
                     }
                     Ext.resumeLayouts(true);
                     if (me.getActionMenu()) {

@@ -232,7 +232,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                                     Ext.ComponentQuery.query('#data-collection-issue-detail-container')[0].down('form').loadRecord(issue);
                                     Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
                                 } else if (issueType == 'datavalidation') {
-
+                                    Ext.ComponentQuery.query('#issue-detail-form')[0].loadRecord(issue);
+                                    Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
                                 }
                                 else {
                                     Ext.ComponentQuery.query('#alarm-detail-form')[0].loadRecord(issue);
