@@ -154,8 +154,13 @@ public class MockCollectedRegister implements CollectedRegister {
     }
 
     @Override
+    public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+        this.setResultType(resultType);
+        this.issues.addAll(issues);
+    }
+
+    @Override
     public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
         return false;
     }
-
 }
