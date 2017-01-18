@@ -2227,6 +2227,70 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         }
+                    },
+                    commandrules: {
+                        title: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
+                        route: 'commandrules',
+                        privileges: Mdc.privileges.CommandLimitationRules.view,
+                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                        action: 'showRulesView',
+                        items: {
+                            add: {
+                                title: Uni.I18n.translate('commandRules.create', 'MDC', 'Add command limitation rule'),
+                                route: 'add',
+                                privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                action: 'showAddEditCommandRule',
+                                items: {
+                                    commands: {
+                                        title: Uni.I18n.translate('general.addCommands', 'MDC', 'Add commands'),
+                                        route: 'commands',
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                        action: 'showAddCommandsPage'
+                                    }
+                                }
+                            },
+                            view: {
+                                title: Uni.I18n.translate('general.Overview', 'MDC', 'Overview'),
+                                route: '{ruleId}',
+                                privileges: Mdc.privileges.CommandLimitationRules.view,
+                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                action: 'showCommandRuleOverview',
+                                callback: function (route) {
+                                    this.getApplication().on('loadCommandRule', function (record) {
+                                        route.setTitle(record.get('name'));
+                                        return true;
+                                    }, {single: true});
+                                    return this;
+                                },
+                                items: {
+                                    edit: {
+                                        title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                        route: 'edit',
+                                        privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        action: 'showAddEditCommandRule',
+                                        items: {
+                                            commands: {
+                                                title: Uni.I18n.translate('general.addCommands', 'MDC', 'Add commands'),
+                                                route: 'commands',
+                                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                                privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                                action: 'showAddCommandsPage'
+                                            }
+                                        }
+                                    },
+                                    changes: {
+                                        title: Uni.I18n.translate('general.pendingChanges', 'MDC', 'Pending changes'),
+                                        route: 'changes',
+                                        privileges: Mdc.privileges.CommandLimitationRules.view,
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        action: 'showCommandRulePendingChanges'
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },

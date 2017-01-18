@@ -113,7 +113,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.metrologyconfiguration.controller.ListView',
         'Mdc.metrologyconfiguration.controller.AddView',
         'Mdc.usagepointmanagement.controller.UsagePointHistory',
-        'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities'
+        'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
+        'Mdc.controller.setup.CommandLimitationRules'
     ],
 
     stores: [
@@ -268,6 +269,12 @@ Ext.define('Mdc.controller.Main', {
                             href: '#/administration/datacollectionkpis',
                             privileges: Mdc.privileges.DataCollectionKpi.view,
                             route: 'datacollectionkpis'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
+                            href: '#/administration/commandrules',
+                            privileges: Mdc.privileges.CommandLimitationRules.view,
+                            route: 'commandrules'
                         }
                     ]
                 });
