@@ -125,7 +125,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
             openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).get());
         }
-        getAlarm(openIssue, event).update();
+        getAlarmForUpdate(openIssue, event).update();
     }
 
     @Override
@@ -134,7 +134,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         Optional<? extends Issue> issue = event.findExistingIssue();
         if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
             OpenIssue openIssue = (OpenIssue) issue.get();
-            issue = Optional.of(getAlarm(openIssue, event).close(issueService.findStatus(IssueStatus.RESOLVED).get()));
+            issue = Optional.of(getAlarmForClosure(openIssue, event).close(issueService.findStatus(IssueStatus.RESOLVED).get()));
         }
         return issue;
     }
@@ -208,8 +208,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DEVICE_ALARM_NAME).format();
     }
 
-    private OpenIssue getAlarm(OpenIssue openIssue, IssueEvent event) {
-        //TODO - create new method for resolve alarm
+    private OpenIssue getAlarmForUpdate(OpenIssue openIssue, IssueEvent event) {
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
             Optional<String> clearingEvents = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
@@ -237,6 +236,13 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         return openIssue;
     }
 
+    private OpenIssue getAlarmForClosure(OpenIssue openIssue, IssueEvent event) {
+        if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
+            OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
+            return alarm;
+        }
+        return openIssue;
+    }
 
     //TODO - write a check method to avoid exceptions
     /*
