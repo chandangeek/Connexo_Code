@@ -487,7 +487,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         progressbar.wait({
             duration: 3000,
             scope: me,
-            fn: Ext.bind(me.onToLongEstimation, me, [purpose, confirmationWindow])
+            fn: Ext.bind(me.onTooLongEstimation, me, [purpose, confirmationWindow])
         });
 
         purpose.save({
@@ -508,7 +508,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         });
     },
 
-    onToLongEstimation: function (purpose, confirmationWindow) {
+    onTooLongEstimation: function (purpose, confirmationWindow) {
         var errorMessage = Ext.widget('messagebox', {
             closeAction: 'destroy',
             buttons: [
