@@ -2,13 +2,16 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
+import com.energyict.mdc.upl.offline.OfflineLogBookSpec;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -23,10 +26,13 @@ public class OfflineLogBookImpl implements OfflineLogBook {
      * The {@link com.energyict.mdc.upl.meterdata.LogBook} which is going offline
      */
     private final LogBook logBook;
+    private final Device device;
     private IdentificationService identificationService;
 
-    private final Device device;
-
+    /**
+     * The {@link OfflineLogBookSpec} for the LogBookType.
+     */
+    private OfflineLogBookSpec offlineLogBookSpec;
     /**
      * The database ID of this {@link com.energyict.mdc.protocol.api.device.offline.OfflineDevice devices'} {@link com.energyict.mdc.upl.meterdata.LogBook}
      */
@@ -44,17 +50,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     /**
      * The Date from where to start fetching data from the {@link com.energyict.mdc.upl.meterdata.LogBook}
      */
-    private Optional<Instant> lastLogBook;
-    /**
-     * The ObisCode of the LogBookSpec
-     */
-    private ObisCode obisCode;
-    /**
-     * The ID of the LogBookType
-     */
-    private long logBookTypeId;
-
-    private String deviceMRID;
+    private Date lastLogBook;
 
     public OfflineLogBookImpl(LogBook logBook, IdentificationService identificationService) {
         this.logBook = logBook;
@@ -71,11 +67,9 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     protected void goOffline() {
         setLogBookId(this.logBook.getId());
         setDeviceId((int) this.logBook.getDevice().getId());
-        setLogBookTypeId(this.logBook.getLogBookType().getId());
-        setObisCode(this.logBook.getLogBookSpec().getDeviceObisCode());
         setMasterSerialNumber(this.logBook.getDevice().getSerialNumber());
-        setLastLogBook(this.logBook.getLastLogBook());
-        setDeviceMRID(this.logBook.getDevice().getmRID());
+        Optional<Instant> lastLogBook = this.logBook.getLastLogBook();
+        setLastLogBook(lastLogBook.isPresent() ? Date.from(lastLogBook.get()) : null);
     }
 
     @Override
@@ -83,9 +77,27 @@ public class OfflineLogBookImpl implements OfflineLogBook {
         return logBookId;
     }
 
+    public void setLogBookId(long logBookSpecId) {
+        this.logBookId = logBookSpecId;
+    }
+
+    @Override
+    @XmlAttribute
+    public OfflineLogBookSpec getOfflineLogBookSpec() {
+        return offlineLogBookSpec;
+    }
+
+    public void setOfflineLogBookSpec(OfflineLogBookSpec offlineLogBookSpec) {
+        this.offlineLogBookSpec = offlineLogBookSpec;
+    }
+
     @Override
     public int getDeviceId() {
         return deviceId;
+    }
+
+    public void setDeviceId(int deviceId) {
+        this.deviceId = deviceId;
     }
 
     @Override
@@ -93,19 +105,17 @@ public class OfflineLogBookImpl implements OfflineLogBook {
         return serialNumber;
     }
 
+    public void setMasterSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
     @Override
-    public Optional<Instant> getLastLogBook() {
+    public Date getLastReading() {
         return lastLogBook;
     }
 
-    @Override
-    public long getLogBookTypeId() {
-        return logBookTypeId;
-    }
-
-    @Override
-    public ObisCode getObisCode() {
-        return obisCode;
+    void setLastLogBook(Date lastLogBook) {
+        this.lastLogBook = lastLogBook;
     }
 
     @Override
@@ -118,40 +128,12 @@ public class OfflineLogBookImpl implements OfflineLogBook {
         return this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook);
     }
 
-    public void setLogBookId(long logBookSpecId) {
-        this.logBookId = logBookSpecId;
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
     }
 
-    public void setDeviceId(int deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public void setMasterSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
-
-    void setLastLogBook(Optional<Instant> lastLogBook) {
-        if (lastLogBook.isPresent()) {
-            this.lastLogBook = Optional.of(lastLogBook.get());
-        }
-        else {
-            this.lastLogBook = Optional.empty();
-        }
-    }
-
-    public void setObisCode(ObisCode obisCode) {
-        this.obisCode = obisCode;
-    }
-
-    public void setLogBookTypeId(long logBookTypeId) {
-        this.logBookTypeId = logBookTypeId;
-    }
-
-    public String getDeviceMRID() {
-        return deviceMRID;
-    }
-
-    private void setDeviceMRID(String deviceMRID) {
-        this.deviceMRID = deviceMRID;
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

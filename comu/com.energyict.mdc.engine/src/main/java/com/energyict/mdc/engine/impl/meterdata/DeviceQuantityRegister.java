@@ -13,10 +13,9 @@ public abstract class DeviceQuantityRegister extends DeviceRegister {
      * Default constructor
      *
      * @param registerIdentifier the identifier of the Register
-     * @param readingTypeMRID
      */
-    public DeviceQuantityRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-        super(registerIdentifier, readingTypeMRID);
+    public DeviceQuantityRegister(RegisterIdentifier registerIdentifier) {
+        super(registerIdentifier);
     }
 
     @Override

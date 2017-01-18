@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 
 import java.util.ArrayList;
 import java.util.List;

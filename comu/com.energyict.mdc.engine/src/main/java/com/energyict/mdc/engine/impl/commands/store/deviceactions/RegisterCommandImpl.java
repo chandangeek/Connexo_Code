@@ -12,12 +12,12 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.tasks.RegistersTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,9 +68,16 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
         if (registersTask.getRegisterGroups().size() > 0) {
             //Only add the registers of the master or the slave, not both
             List<Long> ids = registersTask.getRegisterGroups().stream().map(RegisterGroup::getId).collect(Collectors.toList());
-            registers.addAll(offlineDevice.getRegistersForRegisterGroupAndMRID(ids, comTaskExecution.getDevice().getmRID()));
+
+            List<OfflineRegister> filteredRegisters = offlineDevice
+                    .getAllOfflineRegisters()
+                    .stream()
+                    .filter(register -> register.inAtLeastOneGroup(ids) && register.getDeviceMRID().equals(comTaskExecution.getDevice().getmRID()))
+                    .collect(Collectors.toList());
+
+            registers.addAll(filteredRegisters);
         } else {
-            List<OfflineRegister> allRegisters = offlineDevice.getAllRegisters();
+            List<OfflineRegister> allRegisters = offlineDevice.getAllOfflineRegisters();
             //Only add the registers of the master or the slave, not both
             registers.addAll(allRegisters.stream().filter(register -> comTaskExecution.getDevice().getmRID().equals(register.getDeviceMRID())).collect(Collectors.toList()));
         }

@@ -9,6 +9,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
 import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
@@ -16,10 +17,10 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -134,9 +135,9 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         List<RegisterGroup> registerGroups_B = Arrays.asList(registerGroupB);
         when(registersTask_B.getRegisterGroups()).thenReturn(registerGroups_B);
 
-        when(offlineDevice.getAllRegisters()).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B, offlineRegister_C));
-        when(offlineDevice.getRegistersForRegisterGroupAndMRID(Arrays.asList(1L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_C));
-        when(offlineDevice.getRegistersForRegisterGroupAndMRID(Arrays.asList(2L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B));
+        when(offlineDevice.getAllOfflineRegisters()).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B, offlineRegister_C));
+        when(((OfflineDeviceImpl) offlineDevice).getRegistersForRegisterGroupAndMRID(Arrays.asList(1L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_C));
+        when(((OfflineDeviceImpl) offlineDevice).getRegistersForRegisterGroupAndMRID(Arrays.asList(2L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B));
 
         GroupedDeviceCommand groupedDeviceCommand = spy(getGroupedDeviceCommand());
         when(groupedDeviceCommand.getOfflineDevice()).thenReturn(offlineDevice);
@@ -177,9 +178,9 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         List<RegisterGroup> registerGroups_B = new ArrayList<>(0); // No groups defined - thus 'all registers'
         when(registersTask_B.getRegisterGroups()).thenReturn(registerGroups_B);
 
-        when(offlineDevice.getAllRegisters()).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B, offlineRegister_C));
-        when(offlineDevice.getRegistersForRegisterGroupAndMRID(Arrays.asList(1L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_C));
-        when(offlineDevice.getRegistersForRegisterGroupAndMRID(new ArrayList<>(), MR_ID)).thenReturn(Arrays.asList(offlineRegister_B));
+        when(offlineDevice.getAllOfflineRegisters()).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_B, offlineRegister_C));
+        when(((OfflineDeviceImpl) offlineDevice).getRegistersForRegisterGroupAndMRID(Arrays.asList(1L), MR_ID)).thenReturn(Arrays.asList(offlineRegister_A, offlineRegister_C));
+        when(((OfflineDeviceImpl) offlineDevice).getRegistersForRegisterGroupAndMRID(new ArrayList<>(), MR_ID)).thenReturn(Arrays.asList(offlineRegister_B));
 
         GroupedDeviceCommand groupedDeviceCommand = spy(getGroupedDeviceCommand());
         when(groupedDeviceCommand.getOfflineDevice()).thenReturn(offlineDevice);
@@ -219,7 +220,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         RegisterCommand registerCommand = spy(new RegisterCommandImpl(groupedDeviceCommand, mock(RegistersTask.class), comTaskExecution));
 
         CollectedData noCollectedRegisterCollectedData = mock(CollectedData.class);
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class), mock(String.class));
+        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(mock(RegisterIdentifier.class));
         List<CollectedData> collectedDataItems = new ArrayList<>(2);
         collectedDataItems.add(noCollectedRegisterCollectedData);
         collectedDataItems.add(collectedRegister);

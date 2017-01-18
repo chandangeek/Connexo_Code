@@ -38,7 +38,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
@@ -49,6 +48,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import org.junit.Before;
@@ -338,8 +338,8 @@ public class OfflineDeviceImplTest {
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         // asserts
-        assertNotNull(offlineRtu.getAllRegisters());
-        assertEquals("Should have gotten 2 registers", 2, offlineRtu.getAllRegisters().size());
+        assertNotNull(offlineRtu.getAllOfflineRegisters());
+        assertEquals("Should have gotten 2 registers", 2, offlineRtu.getAllOfflineRegisters().size());
     }
 
     @Test
@@ -369,8 +369,8 @@ public class OfflineDeviceImplTest {
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         // asserts
-        assertNotNull(offlineRtu.getAllRegisters());
-        assertEquals("Should have gotten 3 registers", 3, offlineRtu.getAllRegisters().size());
+        assertNotNull(offlineRtu.getAllOfflineRegisters());
+        assertEquals("Should have gotten 3 registers", 3, offlineRtu.getAllOfflineRegisters().size());
     }
 
     @Test
@@ -394,7 +394,7 @@ public class OfflineDeviceImplTest {
         when(offlineRegister2.getDeviceMRID()).thenReturn("getRegistersForRegisterGroup");
 
         OfflineDeviceImpl offlineRtu = spy(new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider));
-        when(offlineRtu.getAllRegisters()).thenReturn(Arrays.asList(offlineRegister1, offlineRegister2));
+        when(offlineRtu.getAllOfflineRegisters()).thenReturn(Arrays.asList(offlineRegister1, offlineRegister2));
 
         // asserts
         assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroupAndMRID(Arrays.asList(rtuRegisterGroupId), "getRegistersForRegisterGroup").size());

@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.protocol.api.device.offline.OfflineCalendar;
+import com.energyict.mdc.upl.offline.OfflineCalendar;
 
 /**
  * Provides an implementation for the {@link OfflineCalendar} interface.

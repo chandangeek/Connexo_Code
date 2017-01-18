@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -29,7 +29,7 @@ public class CollectedDeviceTopologyEvent extends AbstractCollectedDataProcessin
         writer.key("deviceIdentifier").value(topology.getDeviceIdentifier().toString());
         writer.key("slaveDeviceIdentifiers");
         writer.array();
-        for (DeviceIdentifier each : topology.getSlaveDeviceIdentifiers()) {
+        for (DeviceIdentifier each : topology.getSlaveDeviceIdentifiers().keySet()) {
             writer.object();
             writer.key("deviceIdentifier").value(each.toString());
             writer.endObject();

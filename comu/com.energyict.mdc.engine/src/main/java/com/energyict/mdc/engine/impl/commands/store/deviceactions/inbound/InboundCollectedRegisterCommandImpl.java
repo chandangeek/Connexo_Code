@@ -9,11 +9,11 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,7 @@ public class InboundCollectedRegisterCommandImpl extends RegisterCommandImpl {
                 PropertyDescriptionBuilder registersToReadBuilder = builder.addListProperty("registers");
                 for (CollectedRegister register : getListOfCollectedRegisters()) {
                     registersToReadBuilder.append("(");
-                    registersToReadBuilder.append(register.getRegisterIdentifier().getDeviceRegisterObisCode());
+                    registersToReadBuilder.append(register.getRegisterIdentifier().getRegisterObisCode());
                     if (register.getCollectedQuantity() != null) {
                         registersToReadBuilder.append(" - ");
                         registersToReadBuilder.append(register.getCollectedQuantity());

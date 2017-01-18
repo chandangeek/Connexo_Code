@@ -1,22 +1,25 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -61,10 +64,10 @@ public class LoadProfileCommandHelperTest extends CommonCommandImplTests {
         OfflineLoadProfile offlineLoadProfile4 = mockOfflineLoadProfile(4);
 
         OfflineLoadProfileChannel mockChannel = getMockChannel();
-        when(offlineLoadProfile1.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile2.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile3.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile4.getChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile1.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile2.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile3.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile4.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
 
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
@@ -81,7 +84,6 @@ public class LoadProfileCommandHelperTest extends CommonCommandImplTests {
     private OfflineLoadProfile mockOfflineLoadProfile(long loadProfileId) {
         OfflineLoadProfile offlineLoadProfile = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile.getLoadProfileId()).thenReturn(loadProfileId);
-        when(offlineLoadProfile.getLastReading()).thenReturn(Optional.empty());
         return offlineLoadProfile;
     }
 
@@ -93,13 +95,13 @@ public class LoadProfileCommandHelperTest extends CommonCommandImplTests {
         OfflineLoadProfileChannel loadProfileChannel2 = createMockedOfflineLoadProfileChannel(channelObisCodes[1]);
         OfflineLoadProfileChannel loadProfileChannel3 = createMockedOfflineLoadProfileChannel(channelObisCodes[2]);
         OfflineLoadProfile offlineLoadProfile = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
-        when(offlineLoadProfile.getChannels()).thenReturn(Arrays.asList(loadProfileChannel1, loadProfileChannel2, loadProfileChannel3));
+        when(offlineLoadProfile.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile.getOfflineChannels()).thenReturn(Arrays.asList(loadProfileChannel1, loadProfileChannel2, loadProfileChannel3));
 
         OfflineLoadProfileChannel mockChannel1 = getMockChannel(channelObisCodes[0]);
         OfflineLoadProfileChannel mockChannel2 = getMockChannel(channelObisCodes[1]);
         OfflineLoadProfileChannel mockChannel3 = getMockChannel(channelObisCodes[2]);
-        when(offlineLoadProfile.getChannels()).thenReturn(Arrays.asList(mockChannel1, mockChannel2, mockChannel3));
+        when(offlineLoadProfile.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel1, mockChannel2, mockChannel3));
 
         // Asserts
         List<ChannelInfo> channelInfos = LoadProfileCommandHelper.createChannelInfos(offlineLoadProfile, comTaskExecution);

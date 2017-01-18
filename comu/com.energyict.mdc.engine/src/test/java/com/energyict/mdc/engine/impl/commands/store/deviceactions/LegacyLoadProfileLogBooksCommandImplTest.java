@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBookService;
@@ -9,19 +8,29 @@ import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.impl.commands.collect.*;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
+import com.energyict.mdc.upl.offline.OfflineLogBookSpec;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,12 +42,19 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 /**
@@ -96,7 +112,7 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     @Mock
     private ComTaskExecution comTaskExecution;
     @Mock
-    private OfflineDevice offlineDevice;
+    private OfflineDeviceImpl offlineDevice;
     @Mock
     private Device device;
     @Mock
@@ -119,26 +135,32 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         when(device.getmRID()).thenReturn(MY_MRID);
         when(offlineLogBook_A.getLogBookId()).thenReturn(LOGBOOK_ID_1);
         when(offlineLogBook_A.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_1, logBookService, LOGBOOK1_OBIS));
-        when(offlineLogBook_A.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_1));
+        when(offlineLogBook_A.getLastReading()).thenReturn(Date.from(LAST_LOGBOOK_1));
         when(offlineLogBook_A.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
-        when(offlineLogBook_A.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_1);
-        when(offlineLogBook_A.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_1);
+        OfflineLogBookSpec offlineLogBookSpec1 = mock(OfflineLogBookSpec.class);
+        when(offlineLogBookSpec1.getDeviceObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_1);
+        when(offlineLogBookSpec1.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_1);
+        when(offlineLogBook_A.getOfflineLogBookSpec()).thenReturn(offlineLogBookSpec1);
         when(offlineLogBook_A.getDeviceIdentifier()).thenReturn(serialNumberDeviceIdentifier);
 
         when(offlineLogBook_B.getLogBookId()).thenReturn(LOGBOOK_ID_2);
         when(offlineLogBook_B.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_2, logBookService, LOGBOOK2_OBIS));
-        when(offlineLogBook_B.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_2));
+        when(offlineLogBook_B.getLastReading()).thenReturn(Date.from(LAST_LOGBOOK_2));
         when(offlineLogBook_B.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
-        when(offlineLogBook_B.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_2);
-        when(offlineLogBook_B.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_2);
+        OfflineLogBookSpec offlineLogBookSpec2 = mock(OfflineLogBookSpec.class);
+        when(offlineLogBookSpec2.getDeviceObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_2);
+        when(offlineLogBookSpec2.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_2);
+        when(offlineLogBook_B.getOfflineLogBookSpec()).thenReturn(offlineLogBookSpec2);
         when(offlineLogBook_B.getDeviceIdentifier()).thenReturn(serialNumberDeviceIdentifier);
 
         when(offlineLogBook_C.getLogBookId()).thenReturn(LOGBOOK_ID_3);
         when(offlineLogBook_C.getLogBookIdentifier()).thenReturn(new LogBookIdentifierById(LOGBOOK_ID_3, logBookService, LOGBOOK3_OBIS));
-        when(offlineLogBook_C.getLastLogBook()).thenReturn(Optional.of(LAST_LOGBOOK_3));
+        when(offlineLogBook_C.getLastReading()).thenReturn(Date.from(LAST_LOGBOOK_3));
         when(offlineLogBook_C.getMasterSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
-        when(offlineLogBook_C.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_3);
-        when(offlineLogBook_C.getObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_3);
+        OfflineLogBookSpec offlineLogBookSpec3 = mock(OfflineLogBookSpec.class);
+        when(offlineLogBookSpec3.getDeviceObisCode()).thenReturn(DEVICE_OBISCODE_LOGBOOK_3);
+        when(offlineLogBookSpec3.getLogBookTypeId()).thenReturn(LOGBOOK_TYPE_3);
+        when(offlineLogBook_C.getOfflineLogBookSpec()).thenReturn(offlineLogBookSpec3);
         when(offlineLogBook_C.getDeviceIdentifier()).thenReturn(serialNumberDeviceIdentifier);
 
         when(logBookType_A.getId()).thenReturn(LOGBOOK_TYPE_1);
@@ -224,10 +246,10 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineLoadProfile offlineLoadProfile4 = mockOfflineLoadProfile(4);
 
         OfflineLoadProfileChannel mockChannel = getMockChannel();
-        when(offlineLoadProfile1.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile2.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile3.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile4.getChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile1.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile2.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile3.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile4.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
@@ -244,7 +266,6 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
     private OfflineLoadProfile mockOfflineLoadProfile(long loadProfileId) {
         OfflineLoadProfile offlineLoadProfile = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile.getLoadProfileId()).thenReturn(loadProfileId);
-        when(offlineLoadProfile.getLastReading()).thenReturn(Optional.empty());
         return offlineLoadProfile;
     }
 
@@ -263,11 +284,11 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineLoadProfile offlineLoadProfile2 = mockOfflineLoadProfile(2);
         when(offlineLoadProfile2.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
         OfflineLoadProfileChannel mockChannel = getMockChannel();
-        when(offlineLoadProfile2.getChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile2.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
         OfflineLoadProfile offlineLoadProfile3 = mockOfflineLoadProfile(3);
         OfflineLoadProfile offlineLoadProfile4 = mockOfflineLoadProfile(4);
         when(offlineLoadProfile4.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
-        when(offlineLoadProfile4.getChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile4.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfilesTask, mock(LogBooksTask.class), comTaskExecution);
@@ -303,10 +324,10 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineLoadProfile offlineLoadProfile4 = mockOfflineLoadProfile(4);
 
         OfflineLoadProfileChannel mockChannel = getMockChannel();
-        when(offlineLoadProfile1.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile2.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile3.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile4.getChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile1.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile2.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile3.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile4.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
 
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
@@ -338,17 +359,13 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile1.getLastReading()).thenReturn(Optional.<Instant>empty());
-        when(offlineLoadProfile1.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
+        when(offlineLoadProfile1.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile2.getLastReading()).thenReturn(Optional.<Instant>empty());
-        when(offlineLoadProfile2.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
+        when(offlineLoadProfile2.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile3.getLastReading()).thenReturn(Optional.<Instant>empty());
-        when(offlineLoadProfile3.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
+        when(offlineLoadProfile3.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile4.getLastReading()).thenReturn(Optional.<Instant>empty());
-        when(offlineLoadProfile4.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
+        when(offlineLoadProfile4.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = new LegacyLoadProfileLogBooksCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), loadProfilesTask, mock(LogBooksTask.class), comTaskExecution);
@@ -397,10 +414,9 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
         when(logBooksTask.getLogBookTypes()).thenReturn(new ArrayList<LogBookType>());  // No LogBookTypes are specified in the LogBooksTask
 
-        OfflineDevice device = mock(OfflineDevice.class);
+        OfflineDeviceImpl device = mock(OfflineDeviceImpl.class);
         when(device.getSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         List<OfflineLogBook> logBooksForDevice = Arrays.asList(offlineLogBook_A, offlineLogBook_B, offlineLogBook_C);
-        when(device.getAllOfflineLogBooksForMRID(MY_MRID)).thenReturn(logBooksForDevice);
         when(device.getAllOfflineLogBooks()).thenReturn(logBooksForDevice);
         when(device.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
@@ -425,10 +441,9 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
         when(logBooksTask.getLogBookTypes()).thenReturn(Arrays.asList(logBookType_A, logBookType_C));    // The logBookTypes are specified in the LogBooksTask
 
-        OfflineDevice device = mock(OfflineDevice.class);
+        OfflineDeviceImpl device = mock(OfflineDeviceImpl.class);
         when(device.getSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         List<OfflineLogBook> logBooksForDevice = Arrays.asList(offlineLogBook_A, offlineLogBook_B, offlineLogBook_C);
-        when(device.getAllOfflineLogBooksForMRID(MY_MRID)).thenReturn(logBooksForDevice);
         when(device.getAllOfflineLogBooks()).thenReturn(logBooksForDevice);
         when(device.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
@@ -450,10 +465,9 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
         LogBooksTask logBooksTask = mock(LogBooksTask.class);
         when(logBooksTask.getLogBookTypes()).thenReturn(Arrays.asList(logBookType_A, logBookType_C));    // The logBookTypes are specified in the LogBooksTask
 
-        OfflineDevice device = mock(OfflineDevice.class);
+        OfflineDeviceImpl device = mock(OfflineDeviceImpl.class);
         when(device.getSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
         List<OfflineLogBook> logBooksForDevice = Arrays.asList(offlineLogBook_A, offlineLogBook_B, offlineLogBook_C);
-        when(device.getAllOfflineLogBooksForMRID(MY_MRID)).thenReturn(logBooksForDevice);
         when(device.getAllOfflineLogBooks()).thenReturn(logBooksForDevice);
         when(device.getSerialNumber()).thenReturn(FIXED_DEVICE_SERIAL_NUMBER);
 
@@ -490,9 +504,8 @@ public class LegacyLoadProfileLogBooksCommandImplTest extends CommonCommandImplT
 
         OfflineLoadProfileChannel mockChannel = getMockChannel();
         OfflineLoadProfile offlineLoadProfile = mockOfflineLoadProfile(4);
-        when(offlineLoadProfile.getChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
         when(offlineLoadProfile.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
-        when(offlineDevice.getAllOfflineLoadProfilesForMRID(MY_MRID)).thenReturn(Arrays.asList(offlineLoadProfile));
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile));
         LegacyLoadProfileLogBooksCommandImpl legacyCommand = getLegacyLoadProfileLogBooksCommand(null, loadProfilesTask, groupedDeviceCommand);
 

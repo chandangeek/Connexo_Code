@@ -1,12 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
+import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
 import com.energyict.obis.ObisCode;
 
-import java.math.BigDecimal;
+import javax.xml.bind.annotation.XmlElement;
 
 
 /**
@@ -34,12 +33,12 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     /**
      * The ID of the {@link com.energyict.mdc.upl.meterdata.Device Device} owning this {@link Channel}
      */
-    private int rtuId;
+    private long deviceId;
 
     /**
      * The ID of the {@link com.energyict.mdc.upl.meterdata.LoadProfile} where this {@link Channel} is referring to
      */
-    private int loadProfileId;
+    private long loadProfileId;
 
     /**
      * Indication whether to store meterData in this channel
@@ -51,13 +50,9 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
      */
     private String serialNumber;
     /**
-     * The ReadingType of the Kore channel that will store the data
+     * The ReadingType MRID (string) of the Kore channel that will store the data
      */
-    private ReadingType readingType;
-    /**
-     * The configured overflow
-     */
-    private BigDecimal overflow;
+    private String readingTypeMRID;
 
     public OfflineLoadProfileChannelImpl(Channel channel) {
         this.channel = channel;
@@ -72,12 +67,16 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     protected void goOffline() {
         setChannelObisCode(this.channel.getObisCode());
         setUnit(this.channel.getUnit());
-        setRtuId((int) this.channel.getDevice().getId());
-        setLoadProfileId((int) this.channel.getLoadProfile().getId());
+        setDeviceId(this.channel.getDevice().getId());
+        setLoadProfileId(this.channel.getLoadProfile().getId());
         setStoreData(true);
         setSerialNumber(this.channel.getDevice().getSerialNumber());
-        setReadingType(this.channel.getChannelSpec().getReadingType());
-        this.channel.getOverflow().ifPresent(overflow -> this.overflow = overflow);
+        setReadingTypeMRID(this.channel.getChannelSpec().getReadingType().getMRID());
+    }
+
+    @Override
+    public String getName() {
+        return getReadingTypeMRID();
     }
 
     /**
@@ -96,8 +95,12 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
      * @return the ID of the {@link com.energyict.mdc.upl.meterdata.Device}.
      */
     @Override
-    public int getRtuId() {
-        return this.rtuId;
+    public int getDeviceId() {
+        return (int) this.deviceId;
+    }
+
+    private void setDeviceId(final long deviceId) {
+        this.deviceId = deviceId;
     }
 
     /**
@@ -106,8 +109,12 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
      * @return the ID of the {@link com.energyict.mdc.upl.meterdata.LoadProfile}.
      */
     @Override
-    public int getLoadProfileId() {
+    public long getLoadProfileId() {
         return this.loadProfileId;
+    }
+
+    private void setLoadProfileId(final long loadProfileId) {
+        this.loadProfileId = loadProfileId;
     }
 
     /**
@@ -120,6 +127,10 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
         return this.unit;
     }
 
+    private void setUnit(final Unit unit) {
+        this.unit = unit;
+    }
+
     /**
      * Indication whether we should store data for this channel
      *
@@ -128,6 +139,10 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     @Override
     public boolean isStoreData() {
         return storeData;
+    }
+
+    private void setStoreData(final boolean storeData) {
+        this.storeData = storeData;
     }
 
     /**
@@ -140,41 +155,30 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
         return serialNumber;
     }
 
-    @Override
-    public ReadingType getReadingType() {
-        return this.readingType;
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return getClass().getName();
     }
 
     @Override
-    public BigDecimal getOverflow() {
-        return this.overflow;
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
+    @Override
+    public String getReadingTypeMRID() {
+        return this.readingTypeMRID;
+    }
+
+    private void setReadingTypeMRID(String readingTypeMRID) {
+        this.readingTypeMRID = readingTypeMRID;
     }
 
     private void setChannelObisCode(final ObisCode channelObisCode) {
         this.channelObisCode = channelObisCode;
     }
 
-    private void setUnit(final Unit unit) {
-        this.unit = unit;
-    }
-
-    private void setLoadProfileId(final int loadProfileId) {
-        this.loadProfileId = loadProfileId;
-    }
-
-    private void setRtuId(final int rtuId) {
-        this.rtuId = rtuId;
-    }
-
     private void setSerialNumber(final String serialNumber) {
         this.serialNumber = serialNumber;
-    }
-
-    private void setStoreData(final boolean storeData) {
-        this.storeData = storeData;
-    }
-
-    private void setReadingType(ReadingType readingType) {
-        this.readingType = readingType;
     }
 }
