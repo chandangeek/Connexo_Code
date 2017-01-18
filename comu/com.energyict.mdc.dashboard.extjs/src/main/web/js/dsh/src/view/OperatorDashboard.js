@@ -45,19 +45,12 @@ Ext.define('Dsh.view.OperatorDashboard', {
                             {
                                 xtype: 'component',
                                 itemId: 'last-updated-field',
-                                width: 150,
-                                style: {
-                                    'font': 'normal 13px/17px Lato',
-                                    'color': '#686868'
-                                }
+                                margins: '0 15 0 0'
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'refresh-btn',
-                                style: {
-                                    'background-color': '#71adc7'
-                                },
-                                text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
+                                text: Uni.I18n.translate('general.refresh', 'DSH', 'Refresh'),
                                 iconCls: 'icon-spinner11'
                             }
                         ]
