@@ -1286,6 +1286,11 @@ public class UsagePointImpl implements UsagePoint {
         this.dataModel.update(this, "obsoleteTime");
         this.getEffectiveMetrologyConfiguration(this.obsoleteTime)
                 .ifPresent(efmc -> efmc.close(this.obsoleteTime));
+        this.getMeterActivations().stream().filter(ma -> ma.getEnd()==null)
+                .forEach(ma -> ma.getMeter().ifPresent(meter -> {
+                    ma.endAt(ma.getStart());
+                    meter.activate(ma.getStart());
+                }));
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
