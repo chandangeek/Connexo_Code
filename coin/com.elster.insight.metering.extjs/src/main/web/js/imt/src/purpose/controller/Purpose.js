@@ -32,6 +32,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputChannelMain',
         'Imt.purpose.view.ValidationStatusForm',
+        'Imt.purpose.view.ValidationDate',
         'Uni.view.window.Confirmation',
         'Ext.ProgressBar'
     ],
@@ -304,22 +305,64 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     validatePurpose: function (purpose) {
         var me = this,
+            usagePoint = Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint,
+            lastChecked = purpose.get('validationInfo').lastChecked,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'purpose-validateNowConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'IMT', 'Validate'),
                 closeAction: 'destroy',
-                confirmation: function () {
-                    me.onValidateNow(this, purpose);
-                }
+                confirmation: _.once(Ext.bind(me.onValidateNow, me, [purpose, usagePoint, getConfirmationWindow]))
             });
 
-        confirmationWindow.insert(1, me.getActivationConfirmationContent(purpose));
-        confirmationWindow.show({
-            title: Uni.I18n.translate('purpose.validateNow', 'IMT', 'Validate data for "{0}" purpose on usage point "{1}"',
-                [purpose.get('name'), Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint.get('name')], false),
-            icon: 'icon-question4',
-            msg: ''
+        confirmationWindow.insert(1, {
+            xtype: 'validation-date',
+            itemId: 'purpose-rdg-validation-run',
+            defaultDate: lastChecked ? new Date(lastChecked) : new Date(),
+            padding: '-10 0 0 45'
         });
+        confirmationWindow.show({
+            title: Uni.I18n.translate('purpose.validateNow', 'IMT', "Validate data for '{0}' purpose on usage point '{1}'?",
+                [purpose.get('name'), usagePoint.get('name')], false),
+            icon: 'icon-question4'
+        });
+
+        function getConfirmationWindow() {
+            return confirmationWindow
+        }
+    },
+
+    onValidateNow: function (purpose, usagePoint, getConfirmationWindow) {
+        var me = this,
+            confWindow = getConfirmationWindow(),
+            progressbar = confWindow.insert(2, {
+                xtype: 'progressbar',
+                itemId: 'validation-progressbar',
+                margin: '5 0 15 0'
+            }),
+            lastChecked;
+
+        progressbar.wait({
+            duration: 60000,
+            fn: Ext.bind(me.onTooLongOperation, me, [purpose, confWindow, {
+                title: Uni.I18n.translate('purpose.dataValidation.timeout.title1', 'IMT', 'Data validation takes longer than expected'),
+                msg: Uni.I18n.translate('purpose.dataValidation.timeout.msg1', 'IMT', 'Data validation takes longer than expected. Data validation will continue in the background.')
+            }])
+        });
+
+        if (confWindow.down('#purpose-rdg-validation-run').getValue().validation === 'newValidation') {
+            lastChecked = confWindow.down('#purpose-dtm-validation-from-date').getValue().getTime();
+        } else if (purpose.get('validationInfo').lastChecked) {
+            lastChecked = purpose.get('validationInfo').lastChecked;
+        } else {
+            lastChecked = new Date().getTime();
+        }
+
+        purpose.set('validationInfo', {lastChecked: lastChecked});
+        me.doOperation(purpose, {
+            usagePointId: usagePoint.get('name'),
+            upVersion: usagePoint.get('version'),
+            type: 'validate'
+        }, confWindow, Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'));
     },
 
     estimatePurpose: function (purpose) {
@@ -343,175 +386,31 @@ Ext.define('Imt.purpose.controller.Purpose', {
         }
     },
 
-    getActivationConfirmationContent: function (purpose) {
-        var lastCheckedDate = purpose.get('validationInfo').lastChecked ? Uni.DateTime.formatDateShort(new Date(purpose.get('validationInfo').lastChecked)) :  Uni.DateTime.formatDateShort(new Date());
-        return Ext.create('Ext.container.Container', {
-            defaults: {
-                labelAlign: 'left'
-            },
-            items: [
-                {
-                    xtype: 'radiogroup',
-                    itemId: 'purpose-rdg-validation-run',
-                    columns: 1,
-                    padding: '-10 0 0 45',
-                    defaults: {
-                        name: 'validationRun'
-                    },
-                    items: [
-                        {
-                            boxLabel: Uni.I18n.translate('validationResults.validate.fromLast', 'IMT', 'Validate data from last validation ({0})',
-                                lastCheckedDate),
-                            inputValue: 'lastValidation',
-                            itemId: 'purpose-rdo-validate-from-last',
-                            xtype: 'radiofield',
-                            checked: true,
-                            name: 'validation'
-                        },
-                        {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
-                            width: 300,
-                            items: [
-                                {
-                                    boxLabel: Uni.I18n.translate('validationResults.validate.from', 'IMT', 'Validate data from'),
-                                    inputValue: 'newValidation',
-                                    itemId: 'purpose-rdo-validate-from-date',
-                                    xtype: 'radiofield',
-                                    name: 'validation'
-                                },
-                                {
-                                    xtype: 'datefield',
-                                    itemId: 'purpose-dtm-validation-from-date',
-                                    editable: false,
-                                    showToday: false,
-                                    value: purpose.get('validationInfo').lastChecked ? new Date(purpose.get('validationInfo').lastChecked) : new Date(),
-                                    fieldLabel: '  ',
-                                    labelWidth: 10,
-                                    width: 150,
-                                    listeners: {
-                                        focus: {
-                                            fn: function () {
-                                                var radioButton = Ext.ComponentQuery.query('#purpose-rdg-validation-run #purpose-rdo-validate-from-date')[0];
-                                                radioButton.setValue(true);
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    xtype: 'panel',
-                    itemId: 'purpose-pnl-validation-progress',
-                    layout: 'fit',
-                    padding: '0 0 0 50'
-                }
-            ]
-        });
-    },
-
-    onValidateNow: function (confWindow, purpose) {
-        var me = this,
-            lastChecked,
-            usagePoint = Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint;
-
-        if (confWindow.down('#purpose-rdg-validation-run').getValue().validation === 'newValidation') {
-            lastChecked = confWindow.down('#purpose-dtm-validation-from-date').getValue().getTime();
-        } else if (purpose.get('validationInfo').lastChecked) {
-            lastChecked = purpose.get('validationInfo').lastChecked;
-        } else {
-            lastChecked = new Date().getTime();
-        }
-        confWindow.down('#purpose-pnl-validation-progress').add(Ext.create('Ext.ProgressBar', {
-            margin: '5 0 15 0'
-        })).wait({
-            duration: 60000,
-            text: Uni.I18n.translate('purpose.dataValidation.isInProgress', 'IMT', 'Data validation is in progress. Please wait...'),
-            fn: function () {
-                confWindow.destroy();
-                Ext.widget('messagebox', {
-                    buttons: [
-                        {
-                            text: Uni.I18n.translate('general.close', 'IMT', 'Close'),
-                            ui: 'remove',
-                            handler: function () {
-                                this.up('window').close();
-                            }
-                        }
-                    ],
-                    listeners: {
-                        close: function () {
-                            this.destroy();
-                        }
-                    }
-                }).show({
-                    ui: 'notification-error',
-                    modal: false,
-                    title: Uni.I18n.translate('purpose.dataValidation.timeout.title1', 'IMT', 'Data validation takes longer than expected'),
-                    msg: Uni.I18n.translate('purpose.dataValidation.timeout.msg1', 'IMT', 'Data validation takes longer than expected. Data validation will continue in the background.'),
-                    icon: Ext.MessageBox.ERROR
-                });
-            }
-        });
-
-        var purposeProxy = purpose.getProxy();
-        purpose.set('validationInfo', {lastChecked: lastChecked});
-        purposeProxy.extraParams = {
-            usagePointId: usagePoint.get('name'),
-            upVersion: usagePoint.get('version')
-        };
-        purposeProxy.timeout = 600000;
-        purpose.save({
-            isNotEdit: true,
-            callback: function (model, operation, success) {
-                confWindow.destroy();
-                purposeProxy.timeout = 30000;
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'));
-                    me.getController('Uni.controller.history.Router').getRoute().forward();
-                }
-            }
-        });
-    },
-
     onEstimateNow: function (purpose, usagePoint, getConfirmationWindow) {
         var me = this,
-            purposePage = me.getPurposePage(),
             confirmationWindow = getConfirmationWindow(),
-            progressbar = Ext.widget('progressbar', {
+            progressbar = confirmationWindow.insert(1, {
+                xtype: 'progressbar',
                 itemId: 'estimation-progressbar',
                 margin: '5 0 15 0'
             });
 
-        confirmationWindow.insert(1, progressbar);
         progressbar.wait({
             duration: 60000,
-            fn: Ext.bind(me.onTooLongEstimation, me, [purpose, confirmationWindow])
+            fn: Ext.bind(me.onTooLongOperation, me, [purpose, confirmationWindow, {
+                title: Uni.I18n.translate('purpose.dataEstimation.timeout.title1', 'IMT', 'Data estimation takes longer than expected'),
+                msg: Uni.I18n.translate('purpose.dataEstimation.timeout.msg1', 'IMT', 'Data estimation takes longer than expected. Data estimation will continue in the background.')
+            }])
         });
 
-        purpose.getProxy().extraParams = {
+        me.doOperation(purpose, {
             usagePointId: usagePoint.get('name'),
-            upVersion: usagePoint.get('version')
-        };
-        purpose.save({
-            isNotEdit: true,
-            notHandleTimeout: true,
-            callback: function (record, operation, success) {
-                confirmationWindow.close();
-                if (purposePage.rendered && success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'));
-                    me.getController('Uni.controller.history.Router').getRoute().forward();
-                }
-            }
-        });
+            upVersion: usagePoint.get('version'),
+            type: 'estimate'
+        }, confirmationWindow, Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'));
     },
 
-    onTooLongEstimation: function (purpose, confirmationWindow) {
+    onTooLongOperation: function (purpose, confirmationWindow, errorMessageConfig) {
         var errorMessage = Ext.widget('messagebox', {
             closeAction: 'destroy',
             buttons: [
@@ -527,13 +426,29 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         Ext.suspendLayouts();
         confirmationWindow.close();
-        errorMessage.show({
+        errorMessage.show(Ext.apply({
             ui: 'notification-error',
             modal: false,
-            title: Uni.I18n.translate('purpose.dataEstimation.timeout.title1', 'IMT', 'Data estimation takes longer than expected'),
-            msg: Uni.I18n.translate('purpose.dataEstimation.timeout.msg1', 'IMT', 'Data estimation takes longer than expected. Data estimation will continue in the background.'),
             icon: Ext.MessageBox.ERROR
-        });
+        }, errorMessageConfig));
         Ext.resumeLayouts(true);
+    },
+
+    doOperation: function (purpose, extraParams, confirmationWindow, successMessage) {
+        var me = this,
+            purposePage = me.getPurposePage();
+
+        purpose.getProxy().extraParams = extraParams;
+        purpose.save({
+            isNotEdit: true,
+            notHandleTimeout: true,
+            callback: function (record, operation, success) {
+                confirmationWindow.close();
+                if (purposePage.rendered && success) {
+                    me.getApplication().fireEvent('acknowledge', successMessage);
+                    me.getController('Uni.controller.history.Router').getRoute().forward();
+                }
+            }
+        });
     }
 });
