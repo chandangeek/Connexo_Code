@@ -104,7 +104,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
             success: function () {
                 confWindow.destroy();
                 router.getRoute().forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.run', 'EST', 'Estimation task run'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.runQueued', 'EST', 'Estimation task run queued'));
             },
             failure: function (response) {
                 var res = Ext.JSON.decode(response.responseText, true);
