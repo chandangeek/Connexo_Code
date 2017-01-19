@@ -25,7 +25,6 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
-import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationOccurrenceLogInfos;
 import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfo;
@@ -108,6 +107,8 @@ public class DataValidationTaskResource {
         }
         if (info.usagePointGroup != null) {
             builder = builder.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+        }
+        if(info.metrologyPurpose != null) {
             builder = builder.setMetrologyPurpose(metrologyPurpose(info.metrologyPurpose.id));
         }
         DataValidationTask dataValidationTask = builder.create();
