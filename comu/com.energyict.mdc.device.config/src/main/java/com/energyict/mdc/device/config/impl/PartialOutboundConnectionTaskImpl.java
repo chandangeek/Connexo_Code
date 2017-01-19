@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
  * @author sva
  * @since 22/01/13 - 11:52
  */
-@ConnectionTypeDirectionValidForConnectionTask(groups = {Save.Create.class, Save.Update.class}, direction = ConnectionType.Direction.OUTBOUND)
+@ConnectionTypeDirectionValidForConnectionTask(groups = {Save.Create.class, Save.Update.class}, direction = ConnectionType.ConnectionTypeDirection.OUTBOUND)
 @DeviceConfigurationMustBeDirectlyAddressable(groups = {Save.Create.class, Save.Update.class})
 abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
 

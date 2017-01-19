@@ -13,16 +13,16 @@ import javax.validation.ConstraintValidatorContext;
  */
 public class ConnectionTaskTypeDirectionValidator implements ConstraintValidator<ConnectionTypeDirectionValidForConnectionTask, PartialConnectionTask> {
 
-    private ConnectionType.Direction direction;
+    private ConnectionType.ConnectionTypeDirection connectionTypeDirection;
 
     @Override
     public void initialize(ConnectionTypeDirectionValidForConnectionTask connectionTypeDirectionValidForConnectionTask) {
-        direction = connectionTypeDirectionValidForConnectionTask.direction();
+        connectionTypeDirection = connectionTypeDirectionValidForConnectionTask.direction();
     }
 
     @Override
     public boolean isValid(PartialConnectionTask partialConnectionTask, ConstraintValidatorContext context) {
-        if (partialConnectionTask.getConnectionType().getDirection() != direction) {
+        if (partialConnectionTask.getConnectionType().getDirection() != connectionTypeDirection) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD + "}")
                     .addPropertyNode("connectionType").addConstraintViolation();
