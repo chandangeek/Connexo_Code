@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 /**
  * A MessageResult created by the Protocol driver with additional MeterData information.
  */

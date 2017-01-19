@@ -3,8 +3,8 @@ package com.energyict.mdc.protocol.api;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.pluggable.Pluggable;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
 import java.util.Collections;
@@ -32,7 +32,7 @@ public interface ConnectionType extends Pluggable {
      *     (This does not mean that we cannot provide a list of properties)</li>
      * </ul>
      */
-    enum Direction {
+    enum ConnectionTypeDirection {
         OUTBOUND,
         INBOUND,
 
@@ -42,10 +42,10 @@ public interface ConnectionType extends Pluggable {
          */
         NULL;
 
-        public static Direction fromString(String direction) {
-            for (Direction connectionTypeDirection : Direction.values()) {
-                if (connectionTypeDirection.name().equalsIgnoreCase(direction)) {
-                    return connectionTypeDirection;
+        public static ConnectionTypeDirection fromString(String direction) {
+            for (ConnectionTypeDirection connectionTypeConnectionTypeDirection : ConnectionTypeDirection.values()) {
+                if (connectionTypeConnectionTypeDirection.name().equalsIgnoreCase(direction)) {
+                    return connectionTypeConnectionTypeDirection;
                 }
             }
             return NULL;
@@ -87,11 +87,11 @@ public interface ConnectionType extends Pluggable {
     boolean supportsComWindow();
 
     /**
-     * Gets the {@link ComPortType}s that are supported by this ConnectionType.
+     * Gets the {@link com.energyict.mdc.ports.ComPortType}s that are supported by this ConnectionType.
      *
      * @return The Set of support ComPortType
      */
-    Set<ComPortType> getSupportedComPortTypes();
+    Set<com.energyict.mdc.ports.ComPortType> getSupportedComPortTypes();
 
     /**
      * Establishes a connection with a device from the values
@@ -118,6 +118,6 @@ public interface ConnectionType extends Pluggable {
      *
      * @return the direction of the ConnectionType
      */
-    Direction getDirection();
+    ConnectionTypeDirection getDirection();
 
 }

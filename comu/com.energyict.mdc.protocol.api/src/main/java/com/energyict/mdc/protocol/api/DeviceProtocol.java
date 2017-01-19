@@ -1,12 +1,10 @@
 package com.energyict.mdc.protocol.api;
 
 import aQute.bnd.annotation.ProviderType;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.tasks.support.ConnectionTypeSupport;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceProtocolDialectSupport;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
 
 /**
  * Defines an Interface between the Data Collection System and a Device. The interface can both be
@@ -14,7 +12,7 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
  */
 @ProviderType
 public interface DeviceProtocol extends Pluggable, DeviceProtocolDialectSupport,
-        DeviceTopologySupport, DeviceSecuritySupport, ConnectionTypeSupport, com.energyict.mdc.upl.DeviceProtocol {
+        DeviceSecuritySupport, ConnectionTypeSupport, com.energyict.mdc.upl.DeviceProtocol {
 
     /**
      * Initializes the DeviceProtocol.
@@ -26,6 +24,6 @@ public interface DeviceProtocol extends Pluggable, DeviceProtocolDialectSupport,
      * @param offlineDevice contains the complete definition/configuration of a Device
      * @param comChannel    the used ComChannel where all read/write actions are going to be performed
      */
-    void init(final OfflineDevice offlineDevice, ComChannel comChannel);
+    void init(final OfflineDevice offlineDevice, com.energyict.mdc.protocol.ComChannel comChannel);
 
 }

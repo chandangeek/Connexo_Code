@@ -2,9 +2,9 @@ package com.energyict.mdc.protocol.api.messaging;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import java.util.Set;
 
