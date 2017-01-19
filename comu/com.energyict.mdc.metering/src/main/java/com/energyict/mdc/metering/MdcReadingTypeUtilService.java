@@ -1,11 +1,12 @@
 package com.energyict.mdc.metering;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
+
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import java.util.Optional;
 
@@ -25,7 +26,7 @@ public interface MdcReadingTypeUtilService {
      * @param readingType the readingType string
      * @return the ReadingTypeInformation modeled by the given readingType string
      */
-    public ReadingTypeInformation getReadingTypeInformationFor(String readingType);
+    ReadingTypeInformation getReadingTypeInformationFor(String readingType);
 
     /**
      * Creates a {@link ReadingTypeInformation} based on the given readingType
@@ -33,7 +34,7 @@ public interface MdcReadingTypeUtilService {
      * @param readingType the ReadingType
      * @return the ReadingTypeInformation modeled by the given ReadingType
      */
-    public ReadingTypeInformation getReadingTypeInformationFor(ReadingType readingType);
+    ReadingTypeInformation getReadingTypeInformationFor(ReadingType readingType);
 
     /**
      * Creates a ReadingType string based on the given arguments
@@ -42,9 +43,9 @@ public interface MdcReadingTypeUtilService {
      * @param unit     the Unit that models the ReadingType
      * @return the ReadingType string modeled by the given arguments
      */
-    public String getReadingTypeMridFrom(ObisCode obisCode, Unit unit);
+    String getReadingTypeMridFrom(ObisCode obisCode, Unit unit);
 
-    public ReadingType getReadingTypeFrom(ObisCode obisCode, Unit unit);
+    ReadingType getReadingTypeFrom(ObisCode obisCode, Unit unit);
 
     /**
      * Creates a ReadingType string based on the given arguments
@@ -54,7 +55,7 @@ public interface MdcReadingTypeUtilService {
      * @param interval the Interval that models the ReadingType
      * @return the ReadingType string modeled by the given arguments
      */
-    public String getReadingTypeFrom(ObisCode obisCode, Unit unit, TimeDuration interval);
+    String getReadingTypeFrom(ObisCode obisCode, Unit unit, TimeDuration interval);
 
     /**
      * Gets a readingType from the given ReadingType with the given interval applied.
@@ -65,7 +66,7 @@ public interface MdcReadingTypeUtilService {
      *
      * @return an optional ReadingType
      */
-    public Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
+    Optional<ReadingType> getIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
 
     /**
      * Creates a readingType from the given ReadingType with the given interval applied.
@@ -77,7 +78,7 @@ public interface MdcReadingTypeUtilService {
      *
      * @return the interval applied ReadingType
      */
-    public ReadingType getOrCreateIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
+    ReadingType getOrCreateIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
 
     /**
      * Finds the ReadingType which is
@@ -86,16 +87,25 @@ public interface MdcReadingTypeUtilService {
      * @param alias the alias to give to the readingType in case you have to create one
      * @return the requested ReadingType
      */
-    public ReadingType findOrCreateReadingType(String mrid, String alias);
+    ReadingType findOrCreateReadingType(String mrid, String alias);
 
     /**
      * Gets the MDC unit according to the CIM ReadingType.
-     * If no proper ReadingType is provided or nor proper unit matching can be done, the unit "UNDEFINED" will be returned
+     * If no proper ReadingType is provided or no proper unit matching can be done, the unit "UNDEFINED" will be returned.
      *
      * @param readingType the ReadingType
      * @return the mdc Unit
      */
-    public Unit getMdcUnitFor(String readingType);
+    Unit getMdcUnitFor(String readingType);
+
+    /**
+     * Gets the MDC unit according to the CIM ReadingType.
+     * If no proper ReadingType is provided or no proper unit matching can be done, the unit "UNDEFINED" will be returned.
+     *
+     * @param readingType the ReadingType
+     * @return the mdc Unit
+     */
+    Unit getMdcUnitFor(ReadingType readingType);
 
     /**
      * Creates a ReadingTypeCodeBuilder from a given readingType
@@ -103,6 +113,6 @@ public interface MdcReadingTypeUtilService {
      * @param readingType the readingType which will serve as template for the ReadingTypeCodeBuilder
      * @return the readingTypeCodeBuilder
      */
-    public ReadingTypeCodeBuilder createReadingTypeCodeBuilderFrom(ReadingType readingType);
+    ReadingTypeCodeBuilder createReadingTypeCodeBuilderFrom(ReadingType readingType);
 
     }

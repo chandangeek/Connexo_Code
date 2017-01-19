@@ -1,16 +1,16 @@
 package com.energyict.mdc.metering.impl;
 
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.Unit;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.metering.ReadingTypeInformation;
-
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.ReadingTypeInformation;
+
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -151,12 +151,15 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
 
     @Override
     public Unit getMdcUnitFor(String readingTypeStr) {
-        Optional<ReadingType> readingType = this.meteringService.getReadingType(readingTypeStr);
-        if (readingType.isPresent()) {
-                return ReadingTypeUnitMapping.getMdcUnitFor(readingType.get().getUnit(), readingType.get().getMultiplier());
-        } else {
-            return Unit.getUndefined();
-        }
+        return this.meteringService
+                    .getReadingType(readingTypeStr)
+                    .map(this::getMdcUnitFor)
+                    .orElseGet(Unit::getUndefined);
+    }
+
+    @Override
+    public Unit getMdcUnitFor(ReadingType readingType) {
+        return ReadingTypeUnitMapping.getMdcUnitFor(readingType.getUnit(), readingType.getMultiplier());
     }
 
     @Override
