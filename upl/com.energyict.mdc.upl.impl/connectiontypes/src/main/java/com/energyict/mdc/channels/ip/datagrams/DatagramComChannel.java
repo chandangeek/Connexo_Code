@@ -3,6 +3,7 @@ package com.energyict.mdc.channels.ip.datagrams;
 
 import com.energyict.mdc.channels.SynchroneousComChannel;
 import com.energyict.mdc.io.VirtualUdpSession;
+import com.energyict.mdc.protocol.ComChannelType;
 
 /**
  * A DatagramComChannel is a {@link com.energyict.mdc.protocol.ComChannel} that will be used
@@ -24,5 +25,10 @@ public class DatagramComChannel extends SynchroneousComChannel {
      */
     public DatagramComChannel(VirtualUdpSession udpSession) {
         super(udpSession.getInputStream(), udpSession.getOutputStream());
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.DatagramComChannel;
     }
 }

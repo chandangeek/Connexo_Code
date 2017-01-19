@@ -1,17 +1,17 @@
 package com.energyict.mdc.channels;
 
 import com.energyict.comserver.exceptions.CodingException;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocol.exceptions.CommunicationException;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
@@ -35,12 +35,12 @@ public class SynchroneousComChannelTest {
     private OutputStream outputStream;
 
     @Before
-    public void initializeMocks () {
+    public void initializeMocks() {
 
     }
 
     @Test(expected = CodingException.class)
-    public void testCreateIsWriteMode () {
+    public void testCreateIsWriteMode() {
         SynchroneousComChannel comChannel = this.newComChannel();
 
         // Business method
@@ -50,7 +50,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testSwitchToWriteModeWhenAlreadyInWriteMode () throws IOException {
+    public void testSwitchToWriteModeWhenAlreadyInWriteMode() throws IOException {
         SynchroneousComChannel comChannel = this.newComChannel();
 
         // Business method
@@ -62,7 +62,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testStartWritingReturnsFalseWhenAlreadyInWritingMode () throws IOException {
+    public void testStartWritingReturnsFalseWhenAlreadyInWritingMode() throws IOException {
         SynchroneousComChannel comChannel = this.newComChannel();
 
         // Business method
@@ -73,7 +73,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testStartReadingReturnsFalseWhenAlreadyInReadingMode () throws IOException {
+    public void testStartReadingReturnsFalseWhenAlreadyInReadingMode() throws IOException {
         SynchroneousComChannel comChannel = this.newComChannel();
         comChannel.startReading();
 
@@ -85,7 +85,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testWrite () throws IOException {
+    public void testWrite() throws IOException {
         SynchroneousComChannel comChannel = this.newComChannel();
 
         // Business method
@@ -96,7 +96,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testWriteWithIOException () throws IOException {
+    public void testWriteWithIOException() throws IOException {
         doThrow(IOException.class).when(this.outputStream).write(BYTE_VALUE);
         SynchroneousComChannel comChannel = this.newComChannel();
 
@@ -107,9 +107,9 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testWriteIntoBuffer () throws IOException {
+    public void testWriteIntoBuffer() throws IOException {
         SynchroneousComChannel comChannel = this.newComChannel();
-        byte[]bytes = "testWriteFromBuffer".getBytes();
+        byte[] bytes = "testWriteFromBuffer".getBytes();
 
         // Business method
         comChannel.write(bytes);
@@ -119,9 +119,9 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testWriteIntoBufferWithIOException () throws IOException {
+    public void testWriteIntoBufferWithIOException() throws IOException {
         SynchroneousComChannel comChannel = this.newComChannel();
-        byte[]bytes = "testWriteFromBuffer".getBytes();
+        byte[] bytes = "testWriteFromBuffer".getBytes();
         doThrow(IOException.class).when(this.outputStream).write(bytes);
 
         // Business method
@@ -131,7 +131,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testStartReadingWhenFlushThrowsException () throws IOException {
+    public void testStartReadingWhenFlushThrowsException() throws IOException {
         doThrow(IOException.class).when(this.outputStream).flush();
         SynchroneousComChannel comChannel = this.newComChannel();
 
@@ -142,7 +142,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testAvailable () throws IOException {
+    public void testAvailable() throws IOException {
         int expectedAvailableBytes = BUFFER_SIZE;
         when(this.inputStream.available()).thenReturn(expectedAvailableBytes);
         SynchroneousComChannel comChannel = this.newComChannel();
@@ -157,7 +157,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testAvailableWithIOException () throws IOException {
+    public void testAvailableWithIOException() throws IOException {
         when(this.inputStream.available()).thenThrow(new IOException("For unit testing purposes only"));
         SynchroneousComChannel comChannel = this.newComChannel();
         comChannel.startReading();
@@ -169,7 +169,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testRead () throws IOException {
+    public void testRead() throws IOException {
         when(this.inputStream.read()).thenReturn(BYTE_VALUE);
         SynchroneousComChannel comChannel = this.newComChannel();
         comChannel.startReading();
@@ -183,7 +183,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testSwithToReadModeWhenAlreadyInReadMode () throws IOException {
+    public void testSwithToReadModeWhenAlreadyInReadMode() throws IOException {
         when(this.inputStream.read()).thenReturn(BYTE_VALUE);
         SynchroneousComChannel comChannel = this.newComChannel();
         comChannel.startReading();
@@ -198,7 +198,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testReadWithIOException () throws IOException {
+    public void testReadWithIOException() throws IOException {
         when(this.inputStream.read()).thenThrow(new IOException("For unit testing purposes only"));
         SynchroneousComChannel comChannel = this.newComChannel();
         comChannel.startReading();
@@ -208,7 +208,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testReadIntoBuffer () throws IOException {
+    public void testReadIntoBuffer() throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         when(this.inputStream.read(buffer)).thenReturn(BUFFER_SIZE);
         SynchroneousComChannel comChannel = this.newComChannel();
@@ -223,7 +223,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testReadIntoBufferWithIOException () throws IOException {
+    public void testReadIntoBufferWithIOException() throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         when(this.inputStream.read(buffer)).thenThrow(new IOException("For unit testing purposes only"));
         SynchroneousComChannel comChannel = this.newComChannel();
@@ -236,7 +236,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testReadIntoBufferWithOffsetAndLength () throws IOException {
+    public void testReadIntoBufferWithOffsetAndLength() throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         int bytesWanted = BUFFER_SIZE / 2;
         int expectedBytesRead = BUFFER_SIZE / 3;
@@ -253,7 +253,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testReadIntoBufferWithOffsetAndLengthWithIOException () throws IOException {
+    public void testReadIntoBufferWithOffsetAndLengthWithIOException() throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
         int bytesWanted = BUFFER_SIZE / 2;
         when(this.inputStream.read(buffer, 0, bytesWanted)).thenThrow(new IOException("For unit testing purposes only"));
@@ -267,7 +267,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CodingException.class)
-    public void testWriteWhileReading () {
+    public void testWriteWhileReading() {
         SynchroneousComChannel comChannel = this.newComChannel();
         comChannel.startReading();
 
@@ -278,7 +278,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test
-    public void testClose () {
+    public void testClose() {
         SynchroneousComChannel comChannel = this.newComChannel();
 
         // Business method
@@ -288,7 +288,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testCloseWithIOExceptionOnInputStream () throws IOException {
+    public void testCloseWithIOExceptionOnInputStream() throws IOException {
         doThrow(IOException.class).when(this.inputStream).close();
         SynchroneousComChannel comChannel = this.newComChannel();
 
@@ -299,7 +299,7 @@ public class SynchroneousComChannelTest {
     }
 
     @Test(expected = CommunicationException.class)
-    public void testCloseWithIOExceptionOnOutputStream () throws IOException {
+    public void testCloseWithIOExceptionOnOutputStream() throws IOException {
         doThrow(IOException.class).when(this.outputStream).close();
         SynchroneousComChannel comChannel = this.newComChannel();
 
@@ -309,8 +309,13 @@ public class SynchroneousComChannelTest {
         // Expected a CommunicationException because the OutputStream caused an IOException when closoutg
     }
 
-    private SynchroneousComChannel newComChannel () {
-        return new SynchroneousComChannel(this.inputStream, this.outputStream);
+    private SynchroneousComChannel newComChannel() {
+        return new SynchroneousComChannel(this.inputStream, this.outputStream) {
+            @Override
+            public ComChannelType getComChannelType() {
+                return ComChannelType.SocketComChannel;
+            }
+        };
     }
 
 }

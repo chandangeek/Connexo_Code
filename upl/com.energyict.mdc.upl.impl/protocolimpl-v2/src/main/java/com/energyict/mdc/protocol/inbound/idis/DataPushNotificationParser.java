@@ -1,21 +1,5 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.io.NestedIOException;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.g3.DummyComChannel;
-import com.energyict.mdc.upl.InboundDAO;
-import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.security.SecurityProperty;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -32,6 +16,20 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.g3.DummyComChannel;
+import com.energyict.mdc.upl.InboundDAO;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.SecurityProperty;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.CommunicationException;
@@ -237,10 +235,6 @@ public class DataPushNotificationParser {
         securityProperties.addProperties(getSecurityPropertySet().getSecurityProperties());
 
         DummyComChannel dummyComChannel = new DummyComChannel();    //Dummy channel, no bytes will be read/written
-        TypedProperties comChannelProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
-        comChannelProperties.setProperty(ComChannelType.TYPE, ComChannelType.SocketComChannel.getType());
-        dummyComChannel.addProperties(comChannelProperties);
-
         DlmsSession dlmsSession = new DlmsSession(dummyComChannel, securityProperties);
         SecurityContext securityContext = dlmsSession.getAso().getSecurityContext();
         securityContext.getSecurityProvider().setRespondingFrameCounterHandling(new DefaultRespondingFrameCounterHandler());

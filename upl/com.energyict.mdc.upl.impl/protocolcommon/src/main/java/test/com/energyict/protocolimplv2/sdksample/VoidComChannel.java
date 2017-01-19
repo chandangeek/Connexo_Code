@@ -1,6 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.io.IOException;
 public class VoidComChannel implements ComChannel {
 
     @Override
-    public boolean startReading () {
+    public boolean startReading() {
         //nothing to do
         return true;
     }
@@ -40,7 +41,7 @@ public class VoidComChannel implements ComChannel {
     }
 
     @Override
-    public boolean startWriting () {
+    public boolean startWriting() {
         //nothing to do
         return true;
     }
@@ -90,4 +91,8 @@ public class VoidComChannel implements ComChannel {
         return true;
     }
 
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.Invalid;
+    }
 }

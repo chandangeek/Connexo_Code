@@ -2,6 +2,7 @@ package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.mdc.channels.serial.SerialComChannelImpl;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.protocol.ComChannelType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ public class AbstractModemTests {
         private List<String> responses = new ArrayList<String>();
 
         public TestableSerialComChannel(ServerSerialPort serialPort) {
-            super(serialPort);
+            super(serialPort, ComChannelType.SerialComChannel);
         }
 
         public void setResponses(List<String> responses) {

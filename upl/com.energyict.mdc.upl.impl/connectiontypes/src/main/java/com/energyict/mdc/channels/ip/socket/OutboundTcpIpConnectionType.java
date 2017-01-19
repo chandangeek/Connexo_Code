@@ -1,10 +1,8 @@
 package com.energyict.mdc.channels.ip.socket;
 
-import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
 
@@ -27,9 +25,7 @@ public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
 
     @Override
     public ComChannel connect() throws ConnectionException {
-        ComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
-        comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
-        return comChannel;
+        return this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
     }
 
     @Override

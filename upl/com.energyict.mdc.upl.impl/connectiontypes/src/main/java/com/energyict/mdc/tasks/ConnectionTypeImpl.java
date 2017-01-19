@@ -1,20 +1,20 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
 import com.energyict.mdc.channels.ip.socket.SocketComChannel;
 import com.energyict.mdc.channels.nls.MessageSeeds;
 import com.energyict.mdc.channels.nls.Thesaurus;
+import com.energyict.mdc.channels.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.SerialComChannelImpl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 
@@ -60,7 +60,7 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     }
 
     @Override
-    public void disconnect(ComChannel comChannel) throws ConnectionException{
+    public void disconnect(ComChannel comChannel) throws ConnectionException {
         // Prepare the comChannel for disconnect
         comChannel.prepareForDisConnect();
 
@@ -73,8 +73,8 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
      * Creates a new {@link com.energyict.mdc.protocol.ComChannel}
      * that uses Sockets as the actual connection mechanism.
      *
-     * @param host The host name, or <code>null</code> for the loopback address.
-     * @param port The port number
+     * @param host    The host name, or <code>null</code> for the loopback address.
+     * @param port    The port number
      * @param timeOut the timeOut in milliseconds to wait before throwing a ConnectionException
      * @return The ComChannel
      * @throws ConnectionException Indicates a failure in the actual connection mechanism
@@ -100,7 +100,8 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     protected SerialPortComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         ServerSerialPort serialPort = new RxTxSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
-        return new SerialComChannelImpl(serialPort);
+        ComChannelType comChannelType = this instanceof OpticalDriver ? ComChannelType.OpticalComChannel : ComChannelType.SerialComChannel;
+        return new SerialComChannelImpl(serialPort, comChannelType);
     }
 
     /**
@@ -114,7 +115,8 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     protected SerialComChannelImpl newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         ServerSerialPort serialPort = new SioSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
-        return new SerialComChannelImpl(serialPort);
+        ComChannelType comChannelType = this instanceof OpticalDriver ? ComChannelType.OpticalComChannel : ComChannelType.SerialComChannel;
+        return new SerialComChannelImpl(serialPort, comChannelType);
     }
 
     /**
@@ -122,8 +124,8 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
      * that uses UDP Datagrams as the actual connection mechanism
      *
      * @param bufferSize the bufferSize of the ByteArray which receives the UDP data
-     * @param host the host to which to connect
-     * @param port the portNumber to which we need to connect
+     * @param host       the host to which to connect
+     * @param port       the portNumber to which we need to connect
      * @return the newly created DatagramComChannel
      * @throws ConnectionException if the connection setup did not work
      */
@@ -139,15 +141,5 @@ public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.Connect
     @Override
     public boolean equals(Object obj) {
         return obj != null && this.getClass() == obj.getClass();
-    }
-
-    /**
-     * Create a property that indicates the type of the ComChannel.
-     * This is used by the protocols to determine the transport layer.
-     */
-    public static TypedProperties createTypeProperty(ComChannelType comChannelType) {
-        TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(ComChannelType.TYPE, comChannelType.getType());
-        return typedProperties;
     }
 }

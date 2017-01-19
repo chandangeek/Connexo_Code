@@ -1,14 +1,14 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.protocol.ComChannel;
-
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.io.IOException;
 
 /**
  * Provides an implementation for the {@link ComChannel} interface that basically does nothing.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/10/12
  * Time: 14:06
@@ -20,6 +20,11 @@ public class DummyComChannel implements ComChannel {
     @Override
     public boolean startReading() {
         return false;
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.SocketComChannel;
     }
 
     @Override
@@ -67,13 +72,13 @@ public class DummyComChannel implements ComChannel {
         this.setProperties(TypedProperties.copyOf(typedProperties));
     }
 
-    private void setProperties(TypedProperties typedProperties) {
-        this.typedProperties.setAllProperties(typedProperties);
-    }
-
     @Override
     public TypedProperties getProperties() {
         return typedProperties;
+    }
+
+    private void setProperties(TypedProperties typedProperties) {
+        this.typedProperties.setAllProperties(typedProperties);
     }
 
     @Override

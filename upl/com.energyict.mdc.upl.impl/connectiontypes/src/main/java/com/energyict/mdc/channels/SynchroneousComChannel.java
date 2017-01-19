@@ -1,7 +1,6 @@
 package com.energyict.mdc.channels;
 
 import com.energyict.mdc.protocol.ComChannel;
-
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
@@ -19,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-15 (10:11)
  */
-public class SynchroneousComChannel extends AbstractComChannel {
+public abstract class SynchroneousComChannel extends AbstractComChannel {
 
     private AtomicBoolean reading;
     private InputStream in;
