@@ -260,7 +260,7 @@ public class ReadingTypeRequirementTestIT {
     public void testAPlusMatchesSecondaryMeteredChannel() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeTemplate("APlus")
-                .setRegular()
+                .setRegular(true)
                 .setAttribute(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE.getId())
                 .setAttribute(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD.getId())
                 .setAttribute(
@@ -316,7 +316,7 @@ public class ReadingTypeRequirementTestIT {
     public void testDoNotMatchWildCardPartiallySpecifiedReadingTypeWithRegister() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeTemplate("Regular reading type template")
-                .setRegular()
+                .setRegular(true)
                 .done();
         ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("8.0.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Billing period reading type");
         ReadingType readingTypeRegular = inMemoryBootstrapModule.getMeteringService().createReadingType("11.0.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Daily reading type");

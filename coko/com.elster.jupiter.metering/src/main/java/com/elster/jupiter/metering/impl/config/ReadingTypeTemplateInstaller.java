@@ -30,7 +30,7 @@ public class ReadingTypeTemplateInstaller {
 
     private void installElectricityTemplates() {
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.A_PLUS)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
@@ -38,7 +38,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.A_MINUS)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.REVERSE)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
@@ -46,7 +46,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.INDUCTIVE_ENERGY_Q1)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.Q1)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
@@ -54,7 +54,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.INDUCTIVE_ENERGY_Q2)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.Q2)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
@@ -62,7 +62,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.INDUCTIVE_ENERGY_Q3)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.Q3)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
@@ -70,7 +70,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.INDUCTIVE_ENERGY_Q4)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.Q4)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
@@ -78,7 +78,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.REACTIVE_ENERGY_PLUS)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.LAGGING)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
@@ -86,7 +86,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLTAMPEREREACTIVEHOUR)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.Reactive_ENERGY_MINUS)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.LEADING)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
@@ -105,7 +105,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.NOTAPPLICABLE)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.AVERAGE_POWER_FACTOR)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD, FlowDirection.REVERSE)
@@ -125,7 +125,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATT)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.AVERAGE_POWER)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD, FlowDirection.REVERSE)
@@ -146,7 +146,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.AMPERE)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.AVERAGE_CURRENT)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD, FlowDirection.REVERSE)
@@ -169,7 +169,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.VOLT)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.AVERAGE_VOLTAGE)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD, FlowDirection.REVERSE)
@@ -219,7 +219,7 @@ public class ReadingTypeTemplateInstaller {
 
     private void installGasTemplates() {
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_VOLUME)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.NATURALGAS)
@@ -227,7 +227,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETER, ReadingTypeUnit.LITRE)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_VOLUME_NORM)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.NATURALGAS)
@@ -245,7 +245,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.KELVIN, ReadingTypeUnit.DEGREESCELSIUS, ReadingTypeUnit.DEGREESFAHRENHEIT)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_PRESSURE)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -254,7 +254,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.PASCAL, ReadingTypeUnit.BAR)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_FLOW)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -263,7 +263,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETERPERHOUR)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_NORMALIZED_FLOW)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -272,7 +272,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETERPERHOURCOMPENSATED)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_CONVERSION_FACTOR)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -284,7 +284,7 @@ public class ReadingTypeTemplateInstaller {
 
     private void installWaterTemplates() {
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.WATER_VOLUME)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.POTABLEWATER)
@@ -292,7 +292,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETER, ReadingTypeUnit.LITRE)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.WATER_VOLUME_BACKFLOW)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.REVERSE)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.POTABLEWATER)
@@ -300,7 +300,7 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETER, ReadingTypeUnit.LITRE)
                 .done();
         new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.WATER_FLOW)
-                .setRegular()
+                .setRegular(true)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
@@ -351,8 +351,8 @@ public class ReadingTypeTemplateInstaller {
             this.setter = metrologyConfigurationService.createReadingTypeTemplate(defaultTemplate);
         }
 
-        final <T> Template setRegular() {
-            this.setter.setRegular();
+        final <T> Template setRegular(boolean regular) {
+            this.setter.setRegular(regular);
             return this;
         }
 

@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.config.ReadingTypeRestriction;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
@@ -62,7 +63,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     private Instant modTime;
     private String userName;
 
-    private boolean equidistant;
+    private ReadingTypeRestriction equidistant;
 
     private Set<ReadingTypeTemplateAttribute> allAttributes = new TreeSet<>(Comparator.comparing(ReadingTypeTemplateAttribute::getName));
 
@@ -137,7 +138,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
 
     @Override
     public boolean matches(ReadingType candidate) {
-        return (!isRegular() || (isRegular() && candidate.isRegular())) && this.allAttributes.stream().allMatch(attr -> attr.matches(candidate));
+        return getReadingTypeRestrictions().stream().allMatch(e -> e.test(candidate)) && this.allAttributes.stream().allMatch(attr -> attr.matches(candidate));
     }
 
     @Override
@@ -163,8 +164,8 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
     }
 
     @Override
-    public boolean isRegular() {
-        return equidistant;
+    public List<ReadingTypeRestriction> getReadingTypeRestrictions() {
+        return equidistant != null ? Collections.singletonList(equidistant) : Collections.emptyList();
     }
 
     @Override
@@ -191,8 +192,8 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
         }
 
         @Override
-        public ReadingTypeTemplateAttributeSetter setRegular() {
-            template.equidistant = true;
+        public ReadingTypeTemplateAttributeSetter setRegular(boolean regular) {
+            template.equidistant = regular ? ReadingTypeRestriction.REGULAR : ReadingTypeRestriction.IRREGULAR;
             return this;
         }
 

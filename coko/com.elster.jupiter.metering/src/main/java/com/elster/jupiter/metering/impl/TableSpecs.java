@@ -1178,7 +1178,8 @@ public enum TableSpecs {
                     .map(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName())
                     .add();
             table.column(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.name())
-                    .bool()
+                    .varChar(NAME_LENGTH)
+                    .conversion(CHAR2ENUM)
                     .since(version(10,3))
                     .map(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.fieldName())
                     .add();
