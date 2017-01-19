@@ -616,7 +616,12 @@ public class EstimationResource {
     }
 
     private MetrologyPurpose metrologyPurpose(long metrologyPurposeId) {
-        return metrologyConfigurationService.findMetrologyPurpose(metrologyPurposeId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if (metrologyPurposeId != 0) {
+            return metrologyConfigurationService.findMetrologyPurpose(metrologyPurposeId)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        } else {
+            return null;
+        }
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
