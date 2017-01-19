@@ -31,6 +31,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationAction;
@@ -67,7 +68,7 @@ import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceValidationTest extends UsagePointDataRestApplicationJerseyTest {
     private static final Instant NOW = ZonedDateTime.of(2016, 6, 1, 12, 40, 30, 0, ZoneId.systemDefault()).toInstant();
-    private static final ZonedDateTime ZONED_NOW = ZonedDateTime.of(2016, 2, 29, 0, 1, 0, 0, ZoneId.of("Europe/Brussels"));
+    private static final ZonedDateTime ZONED_NOW = ZonedDateTime.of(2016, 6, 1, 12, 40, 30, 0, ZoneId.of("Europe/Brussels"));
 
     private static final RelativePeriod TODAY = mockRelativePeriod(5, "Today", ZONED_NOW.withMinute(0), ZONED_NOW.plusDays(1).withMinute(0));
     private static final Instant DAY_BEFORE = NOW.minus(1, ChronoUnit.DAYS);
@@ -305,6 +306,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
     @Test
     public void testUsagePointDeliverablesWithFilterInfo() throws Exception {
         when(informativeDataValidationStatus.getOffendedRules()).thenReturn(Collections.singletonList(informativeRule));
+        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(NOW)));
         String json = target("/usagepoints/UP/purposes/1/outputs").queryParam("filter", buildFilter()).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Boolean>get("$.outputs[0].validationInfo.hasSuspects")).isTrue();

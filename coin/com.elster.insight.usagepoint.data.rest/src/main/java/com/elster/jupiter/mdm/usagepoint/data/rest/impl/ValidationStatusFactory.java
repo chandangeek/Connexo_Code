@@ -9,13 +9,11 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
@@ -68,6 +66,7 @@ public class ValidationStatusFactory {
             if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
                 info.validationActive = isValidationActive(metrologyContract, channels);
                 info.lastChecked = getLastCheckedForChannels(validationEvaluator, channelsContainer.get(), channels);
+                // it is not needed to set informativeReason and estimateReason fields of UsagePointValidationStatusInfo if interval is not defined
                 if (interval != null) {
                     setReasonInfo(validationStatuses, info);
                 } else {
@@ -122,33 +121,21 @@ public class ValidationStatusFactory {
                 .stream()
                 .forEach(validationStatus -> {
                     Collection<? extends ReadingQuality> readingQualities = validationStatus.getReadingQualities();
-                    boolean estimatedByRule = readingQualities.stream()
-                            .map(ReadingQuality::getType)
-                            .anyMatch(ReadingQualityType::hasEstimatedCategory);
-                    if (estimatedByRule) {
-                        if (readingQualities.stream().map(ReadingQualityRecord.class::cast).noneMatch(ReadingQualityRecord::isSuspect)) {
-                            EstimationRule estimationRule = readingQualities.stream()
-                                    .map(ReadingQualityRecord.class::cast)
-                                    .filter(ReadingQualityRecord::hasEstimatedCategory)
-                                    .findFirst() //because reading could be estimated by only one estimation rule
-                                    .flatMap(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()))
-                                    .orElse(null);
-                            addEstimationRule(estimateRulesCount, estimationRule);
-                        }
+                    Optional<? extends EstimationRule> estimationRuleOptional = readingQualities.stream()
+                            .map(ReadingQualityRecord.class::cast)
+                            .filter(ReadingQualityRecord::hasEstimatedCategory)
+                            .findFirst()
+                            .flatMap(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()));
+                    if (estimationRuleOptional.isPresent()) {
+                        addEstimationRule(estimateRulesCount, estimationRuleOptional.get());
                     } else {
-                        ValidationAction validationAction = readingQualities
+                        boolean suspect = readingQualities
                                 .stream()
-                                .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
-                                .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                                .sorted(Comparator.reverseOrder())
-                                .findFirst()
-                                .orElse(null);
-                        if (validationAction == ValidationAction.FAIL) {
+                                .anyMatch(quality -> quality.getType().isSuspect());
+                        if (suspect) {
                             validationStatus.getOffendedRules().forEach(rule -> addValidationRule(suspectRulesCount, rule));
-                            validationStatus.getBulkOffendedRules().forEach(rule -> addValidationRule(suspectRulesCount, rule));
                         } else {
                             validationStatus.getOffendedRules().forEach(rule -> addValidationRule(informativeRulesCount, rule));
-                            validationStatus.getBulkOffendedRules().forEach(rule -> addValidationRule(informativeRulesCount, rule));
                         }
                     }
                 });
