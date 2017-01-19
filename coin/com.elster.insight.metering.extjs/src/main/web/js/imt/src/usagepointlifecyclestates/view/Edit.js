@@ -61,7 +61,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                         {
                             xtype: 'displayfield-with-info-icon',
                             itemId: 'usagepoint-life-cycle-stage-info-icon',
-                            infoTooltip: Uni.I18n.translate('general.addUsagePointLifeCycleState.stage.qtip', 'IMT', 'Stage of usage point life cycle state influences an available actions for usage point in such state.'),
+                            infoTooltip: Uni.I18n.translate('general.addUsagePointLifeCycleState.stage.tooltip', 'IMT', 'Stage in a usage point life cycle impacts the available actions on the usage point that is in the current state.'),
                             onlyIcon: true
                         }
                     ]
