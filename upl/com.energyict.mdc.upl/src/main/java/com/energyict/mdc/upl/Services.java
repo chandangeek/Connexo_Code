@@ -5,10 +5,10 @@ import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.MD5Cryptographer;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
@@ -51,7 +51,7 @@ public class Services {
     private static AtomicReference<DeviceMessageFileFinder> DEVICE_MESSAGE_FINDER = new AtomicReference<>();
     private static AtomicReference<CollectedDataFactory> COLLECTED_DATA_FACTORY = new AtomicReference<>();
     private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
-    private static AtomicReference<DateFormatter> DATE_FORMATTER = new AtomicReference<>();
+    private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
     private static AtomicReference<MD5Cryptographer> MD5_CRYPTOGRAPHER = new AtomicReference<>();
     private static AtomicReference<X509Service> X509 = new AtomicReference<>();
     private static AtomicReference<KeyStoreService> KEY_STORE_SERVICE = new AtomicReference<>();
@@ -93,8 +93,8 @@ public class Services {
             return collectedDataFactory();
         } else if (IssueFactory.class.equals(serviceType)) {
             return issueFactory();
-        } else if (DateFormatter.class.equals(serviceType)) {
-            return dateFormatter();
+        } else if (Formatter.class.equals(serviceType)) {
+            return formatter();
         } else if (MD5Cryptographer.class.equals(serviceType)) {
             return md5Cryptographer();
         } else if (X509Service.class.equals(serviceType)) {
@@ -258,12 +258,12 @@ public class Services {
         ISSUE_FACTORY.set(issueFactory);
     }
 
-    public static DateFormatter dateFormatter() {
-        return DATE_FORMATTER.get();
+    public static Formatter formatter() {
+        return FORMATTER.get();
     }
 
-    public static void dateFormatter(DateFormatter dateFormatter) {
-        DATE_FORMATTER.set(dateFormatter);
+    public static void formatter(Formatter dateFormatter) {
+        FORMATTER.set(dateFormatter);
     }
 
     public static MD5Cryptographer md5Cryptographer() {
