@@ -2,10 +2,13 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import java.util.Optional;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +40,35 @@ public class TariffCalendarFinderImplTest {
     public void intializeMocks() {
         when(this.service.findCalendar(CALENDAR_ID)).thenReturn(Optional.of(this.calendar));
         when(this.calendar.getId()).thenReturn(CALENDAR_ID);
+    }
+
+    @After
+    public void clearServices() {
+        Services.tariffCalendarFinder(null);
+    }
+
+    @Test
+    public void activate() {
+        // Make sure that no service is registered
+        Services.tariffCalendarFinder(null);
+
+        // Business methods
+        this.getInstance().activate();
+
+        // Asserts
+        assertThat(Services.tariffCalendarFinder()).isNotNull();
+    }
+
+    @Test
+    public void deactivate() {
+        // Make sure that a service is registered
+        Services.tariffCalendarFinder(mock(TariffCalendarFinder.class));
+
+        // Business methods
+        this.getInstance().deactivate();
+
+        // Asserts
+        assertThat(Services.tariffCalendarFinder()).isNull();
     }
 
     @Test
