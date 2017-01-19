@@ -2,17 +2,15 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
-
+import com.energyict.mdc.ports.ComPortType;
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONObject;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.Collections;
 import java.util.Optional;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;

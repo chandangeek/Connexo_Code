@@ -1,7 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 public class ComPortTypeAdapter extends MapBasedXmlAdapter<ComPortType> {
 
