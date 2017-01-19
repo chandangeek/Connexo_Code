@@ -149,18 +149,6 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
                 break;
         }
 
-
-        // var me =this,
-        //     groupCombo = me.down('combobox'),
-        //     noGroups = me.down('displayfield');
-        // groupCombo.store.load(function () {
-        //     if (this.getCount() === 0) {
-        //         groupCombo.allowBlank = true;
-        //         groupCombo.hide();
-        //         noGroups.show();
-        //     }
-        //     callback && callback();
-        // });
     },
     setComboValue: function (record) {
         var me = this;
@@ -171,7 +159,9 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
                 break;
             case 'MdmApp':
                 me.down('#usagePoint-group-id').setValue(me.down('#usagePoint-group-id').store.getById(record.get('usagePointGroup').id));
-                me.down('#cbo-estimation-task-purpose').setValue(me.down('#cbo-estimation-task-purpose').store.getById(record.get('metrologyPurpose').id));
+                if(record.get('metrologyPurpose')){
+                    me.down('#cbo-estimation-task-purpose').setValue(me.down('#cbo-estimation-task-purpose').store.getById(record.get('metrologyPurpose').id));
+                }
                 break;
         }
     },
