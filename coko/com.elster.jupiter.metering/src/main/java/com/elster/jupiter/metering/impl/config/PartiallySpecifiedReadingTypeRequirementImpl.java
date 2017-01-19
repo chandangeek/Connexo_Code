@@ -63,8 +63,10 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
     @Override
     public String getDescription() {
         List<Optional<String>> valueElements = new ArrayList<>();
-        valueElements.add(Stream.of(getAttributeValue(ReadingTypeTemplateAttributeName.MACRO_PERIOD), getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION))
-                .flatMap(com.elster.jupiter.util.streams.Functions.asStream()).findFirst().map(v -> "[" + v + "]"));
+        if(!getAttributeValue(ReadingTypeTemplateAttributeName.MACRO_PERIOD).equals(Optional.of(MacroPeriod.NOTAPPLICABLE.getDescription()))){
+            valueElements.add(Stream.of(getAttributeValue(ReadingTypeTemplateAttributeName.MACRO_PERIOD), getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION))
+                    .flatMap(com.elster.jupiter.util.streams.Functions.asStream()).findFirst().map(v -> "[" + v + "]"));
+        }
         valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION));
         valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.FLOW_DIRECTION));
         valueElements.add(getAttributeValue(ReadingTypeTemplateAttributeName.COMMODITY));
