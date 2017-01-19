@@ -26,28 +26,28 @@ public interface TariffCalendarExtractor {
      * Extracts the unique identifier of a {@link TariffCalendar}
      * and returns it as a String for easy formatting in XML based content.
      *
-     * @param calender The TariffCalendar
+     * @param calendar The TariffCalendar
      * @return The String representation of the TariffCalendar's identifier
      */
-    String id(TariffCalendar calender);
+    String id(TariffCalendar calendar);
 
-    String name(TariffCalendar calender);
+    String name(TariffCalendar calendar);
 
-    Optional<String> seasonSetId(TariffCalendar calender);
+    Optional<String> seasonSetId(TariffCalendar calendar);
 
-    TimeZone definitionTimeZone(TariffCalendar calender);
+    TimeZone definitionTimeZone(TariffCalendar calendar);
 
-    TimeZone destinationTimeZone(TariffCalendar calender);
+    TimeZone destinationTimeZone(TariffCalendar calendar);
 
-    int intervalInSeconds(TariffCalendar calender);
+    int intervalInSeconds(TariffCalendar calendar);
 
-    Range<Year> range(TariffCalendar calender);
+    Range<Year> range(TariffCalendar calendar);
 
-    Optional<CalendarSeasonSet> season(TariffCalendar calender);
+    Optional<CalendarSeasonSet> season(TariffCalendar calendar);
 
-    List<CalendarDayType> dayTypes(TariffCalendar calender);
+    List<CalendarDayType> dayTypes(TariffCalendar calendar);
 
-    List<CalendarRule> rules(TariffCalendar calender);
+    List<CalendarRule> rules(TariffCalendar calendar);
 
     /**
      * Gets (or creates) the {@link ThreadContext} for the current Thread.
