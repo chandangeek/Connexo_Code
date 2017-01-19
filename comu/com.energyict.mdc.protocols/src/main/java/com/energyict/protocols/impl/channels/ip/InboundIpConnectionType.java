@@ -2,8 +2,8 @@ package com.energyict.protocols.impl.channels.ip;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
@@ -51,8 +51,8 @@ public class InboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public Direction getDirection() {
-        return Direction.INBOUND;
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
     }
 
     @Override

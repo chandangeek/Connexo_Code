@@ -1,6 +1,5 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.HDLC2Connection;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
@@ -8,8 +7,8 @@ import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;

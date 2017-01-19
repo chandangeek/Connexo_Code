@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.common.Connection;
 import com.energyict.protocolimplv2.elster.garnet.common.GPRSConnection;

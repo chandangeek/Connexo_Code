@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnectionState;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
@@ -17,8 +16,6 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.logging.Logger;
 
 /**

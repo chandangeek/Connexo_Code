@@ -16,10 +16,10 @@ import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.HDLCConnection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
-import com.energyict.mdc.io.ComChannelType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.TimeZone;

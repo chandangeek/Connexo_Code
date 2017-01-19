@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
-
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;

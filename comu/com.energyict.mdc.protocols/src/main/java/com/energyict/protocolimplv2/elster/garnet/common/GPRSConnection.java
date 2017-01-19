@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.garnet.common;
 
 import com.energyict.mdc.common.ComServerExecutionException;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.exception.CipheringException;

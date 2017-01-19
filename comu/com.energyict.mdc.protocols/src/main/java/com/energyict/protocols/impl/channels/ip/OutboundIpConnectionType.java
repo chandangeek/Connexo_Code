@@ -67,8 +67,8 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public Direction getDirection() {
-        return Direction.OUTBOUND;
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
     }
 
 }

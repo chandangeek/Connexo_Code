@@ -1,7 +1,7 @@
 package com.energyict.protocols.impl.channels.ip.datagrams;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;

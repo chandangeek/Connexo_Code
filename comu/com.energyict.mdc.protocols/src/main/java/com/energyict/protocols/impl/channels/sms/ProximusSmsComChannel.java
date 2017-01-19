@@ -1,10 +1,9 @@
 package com.energyict.protocols.impl.channels.sms;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.CommunicationException;
-
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.ByteArrayInputStream;

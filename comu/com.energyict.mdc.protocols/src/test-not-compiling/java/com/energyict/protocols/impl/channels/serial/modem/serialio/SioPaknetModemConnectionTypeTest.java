@@ -2,7 +2,7 @@ package com.energyict.protocols.impl.channels.serial.modem.serialio;
 
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.engine.model.ComPort;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.io.impl.PaknetModemProperties;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;

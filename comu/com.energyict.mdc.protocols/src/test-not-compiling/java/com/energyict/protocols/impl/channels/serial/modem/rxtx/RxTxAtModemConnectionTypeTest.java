@@ -2,7 +2,7 @@ package com.energyict.protocols.impl.channels.serial.modem.rxtx;
 
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.io.impl.TypedAtModemProperties;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;

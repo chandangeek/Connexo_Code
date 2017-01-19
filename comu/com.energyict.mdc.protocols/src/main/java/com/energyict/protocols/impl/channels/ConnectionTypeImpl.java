@@ -1,12 +1,12 @@
 package com.energyict.protocols.impl.channels;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 

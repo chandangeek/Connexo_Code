@@ -13,7 +13,7 @@ import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
@@ -116,8 +116,8 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public Direction getDirection() {
-        return Direction.OUTBOUND;
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
     }
 
 }

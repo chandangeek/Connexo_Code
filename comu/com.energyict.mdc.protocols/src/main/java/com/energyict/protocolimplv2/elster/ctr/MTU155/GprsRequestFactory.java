@@ -4,10 +4,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
@@ -64,6 +62,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.VF;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.GasQuality;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.MeterInfo;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -778,7 +777,7 @@ public class GprsRequestFactory implements RequestFactory {
         //Check the response: should be Ack or Nack
         Data executeResponse;
         if (response.getData() instanceof AckStructure) {
-            executeResponse = (AckStructure) response.getData();
+            executeResponse = response.getData();
         } else if (response.getData() instanceof NackStructure) {
             throw new CTRNackException((NackStructure) response.getData());
         } else {
@@ -800,7 +799,7 @@ public class GprsRequestFactory implements RequestFactory {
         Data writeRegisterResponse;
         response.doParse();
         if (response.getData() instanceof AckStructure) {
-            writeRegisterResponse = (AckStructure) response.getData();
+            writeRegisterResponse = response.getData();
         } else if (response.getData() instanceof NackStructure) {
             throw new CTRNackException((NackStructure) response.getData());
         } else {
@@ -826,7 +825,7 @@ public class GprsRequestFactory implements RequestFactory {
         Data writeRegisterResponse;
         response.doParse();
         if (response.getData() instanceof AckStructure) {
-            writeRegisterResponse = (AckStructure) response.getData();
+            writeRegisterResponse = response.getData();
         } else if (response.getData() instanceof NackStructure) {
             throw new CTRNackException((NackStructure) response.getData());
         } else {

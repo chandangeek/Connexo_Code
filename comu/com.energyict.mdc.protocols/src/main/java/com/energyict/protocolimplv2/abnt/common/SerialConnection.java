@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.mdc.common.ComServerExecutionException;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ConnectionException;
 import com.energyict.protocolimplv2.abnt.common.exception.CrcMismatchException;

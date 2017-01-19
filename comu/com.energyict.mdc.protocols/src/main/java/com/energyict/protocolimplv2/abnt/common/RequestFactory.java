@@ -2,11 +2,9 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.exception.UnknownFunctionCodeParsingException;
@@ -45,6 +43,7 @@ import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandR
 import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileDataSelector;
 import com.energyict.protocolimplv2.abnt.common.structure.field.LoadProfileReadSizeArgument;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.util.Calendar;
 import java.util.Date;

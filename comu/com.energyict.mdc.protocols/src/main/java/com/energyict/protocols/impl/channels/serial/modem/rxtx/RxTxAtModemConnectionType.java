@@ -1,10 +1,10 @@
 package com.energyict.protocols.impl.channels.serial.modem.rxtx;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;

@@ -3,7 +3,7 @@ package com.energyict.protocols.impl.channels.ip.socket;
 
 import com.energyict.mdc.common.InvalidValueException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import org.joda.time.DateTimeConstants;
 import org.junit.Test;
 import org.junit.runner.RunWith;

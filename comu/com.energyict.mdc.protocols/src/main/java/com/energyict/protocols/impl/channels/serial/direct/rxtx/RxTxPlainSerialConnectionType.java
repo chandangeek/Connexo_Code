@@ -1,8 +1,8 @@
 package com.energyict.protocols.impl.channels.serial.direct.rxtx;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
