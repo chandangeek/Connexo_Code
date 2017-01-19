@@ -77,6 +77,8 @@ abstract public class EventLogCodeFactory {
         stdList.add(new EventLogCode(46, "Demand overload detected","",MeterEvent.REGISTER_OVERFLOW));
         stdList.add(new EventLogCode(47, "Tamper attempt detected",""));
         stdList.add(new EventLogCode(48, "Reverse rotation detected",""));
+        stdList.add(new EventLogCode(32, "Test mode started","", MeterEvent.TEST_MODE_START));
+        stdList.add(new EventLogCode(33, "Test mode stopped","", MeterEvent.TEST_MODE_STOP));
     }
     
     /** Creates a new instance of EventLogCodeFactory */
