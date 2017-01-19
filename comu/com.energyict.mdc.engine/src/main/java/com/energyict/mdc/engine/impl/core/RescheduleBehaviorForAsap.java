@@ -117,11 +117,12 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
     }
 
     private void rescheduleComTaskExecutionAccordingToConnectionRetry(Instant connectionTaskRetryNextExecution, ComTaskExecution comTaskExecution) {
-        if (connectionTaskRetryNextExecution == null || ((OutboundConnectionTask) getConnectionTask()).getCurrentRetryCount() == 0) {
+        OutboundConnectionTask connectionTask = (OutboundConnectionTask) getConnectionTask();
+        if (connectionTask.lastExecutionFailed() && connectionTask.getCurrentRetryCount() == 0) {
             Instant nextExecutionTimeStamp = calculateNextExecutionTimestampFromNow(comTaskExecution);
             getComServerDAO().executionRescheduled(comTaskExecution, nextExecutionTimeStamp);
-            return;
+        } else {
+            getComServerDAO().executionRescheduled(comTaskExecution, connectionTaskRetryNextExecution);
         }
-        getComServerDAO().executionRescheduled(comTaskExecution, connectionTaskRetryNextExecution);
     }
 }

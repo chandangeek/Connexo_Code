@@ -132,7 +132,6 @@ public class RescheduleBehaviorForAsapTest extends AbstractRescheduleBehaviorTes
 
         RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(comServerDAO, connectionTask, clock);
 
-
         when(connectionTask.getNextExecutionTimestamp()).thenReturn(clock.instant());
         when(connectionTask.getCurrentRetryCount()).thenReturn(1);
         rescheduleBehavior.reschedule(mockedCommandRoot);
@@ -140,6 +139,34 @@ public class RescheduleBehaviorForAsapTest extends AbstractRescheduleBehaviorTes
         // asserts
         verify(comServerDAO, never()).executionCompleted(any(ComTaskExecution.class));
         verify(comServerDAO, times(1)).executionRescheduled(comTaskExecution, clockPlus5Min.instant()); // we want the comTask to be rescheduled in ASAP
+        verify(comServerDAO, never()).executionFailed(any(ComTaskExecution.class));
+        verify(comServerDAO, times(1)).executionFailed(connectionTask);
+
+        verify(comTaskExecutionSessionBuilder).addComCommandJournalEntry(any(Instant.class), eq(CompletionCode.NotExecuted), anyString(), anyString());
+    }
+
+    @Test
+    public void rescheduleDueToConnectionSetupErrorWithoutScheduleOnComTaskExecTest() {
+        ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
+        when(this.comSessionBuilder.addComTaskExecutionSession(eq(comTaskExecution), eq(comTask), any(Instant.class))).thenReturn(comTaskExecutionSessionBuilder);
+
+        SimpleComCommand successfulComCommand = mockSuccessfulComCommand();
+        CommandRootImpl mockedCommandRoot = createMockedCommandRootWithCommands(successfulComCommand);
+        mockedCommandRoot.execute(false);
+
+        Clock clock = Clock.fixed(new DateTime(2016, 4, 5, 10, 0, 0, 0).toDate().toInstant(), ZoneId.systemDefault());
+        Clock clockPlus5Min = Clock.fixed(new DateTime(2016, 4, 5, 10, 5, 0, 0).toDate().toInstant(), ZoneId.systemDefault());
+
+        RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(comServerDAO, connectionTask, clock);
+
+        when(connectionTask.getNextExecutionTimestamp()).thenReturn(clock.instant());
+        when(connectionTask.getCurrentRetryCount()).thenReturn(0);
+        when(connectionTask.lastExecutionFailed()).thenReturn(true);
+        rescheduleBehavior.reschedule(mockedCommandRoot);
+
+        // asserts
+        verify(comServerDAO, never()).executionCompleted(any(ComTaskExecution.class));
+        verify(comServerDAO, times(1)).executionRescheduled(comTaskExecution, null); // we want the comTask to its own schedule (none)
         verify(comServerDAO, never()).executionFailed(any(ComTaskExecution.class));
         verify(comServerDAO, times(1)).executionFailed(connectionTask);
 

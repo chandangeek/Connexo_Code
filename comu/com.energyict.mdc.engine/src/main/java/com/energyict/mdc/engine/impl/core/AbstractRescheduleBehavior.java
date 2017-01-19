@@ -85,7 +85,7 @@ abstract class AbstractRescheduleBehavior {
         if (nextExecutionSpecs.isPresent()) {
             return nextExecutionSpecs.get().getNextTimestamp(calendar).toInstant();
         } else {
-            return calendar.getTime().toInstant();
+            return null;
         }
     }
 
