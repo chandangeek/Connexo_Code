@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.properties.DeviceGroup;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -62,6 +63,11 @@ public class DeviceGroupExtractorImpl implements DeviceGroupExtractor {
     @Activate
     public void activate() {
         Services.deviceGroupExtractor(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.deviceGroupExtractor(null);
     }
 
     @Override

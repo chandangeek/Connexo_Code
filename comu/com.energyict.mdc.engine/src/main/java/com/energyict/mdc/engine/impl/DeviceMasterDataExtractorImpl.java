@@ -28,6 +28,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Duration;
@@ -61,6 +62,11 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     @Activate
     public void activate() {
         Services.deviceMasterDataExtractor(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.deviceMasterDataExtractor(null);
     }
 
     @Reference

@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -42,6 +43,11 @@ public class LoadProfileExtractorImpl implements LoadProfileExtractor {
     @Activate
     public void activate() {
         Services.loadProfileExtractor(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.loadProfileExtractor(null);
     }
 
     @Reference

@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 
 import com.energyict.cbo.Unit;
@@ -14,6 +15,7 @@ import com.energyict.obis.ObisCode;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +57,23 @@ public class LoadProfileExtractorImplTest {
         when(this.loadProfileSpec.getDeviceObisCode()).thenReturn(ObisCode.fromString(DEVICE_OBIS_CODE));
         when(this.loadProfile.getDevice()).thenReturn(this.device);
         when(this.device.getSerialNumber()).thenReturn(DEVICE_SERIAL_NUMBER);
+    }
+
+    @After
+    public void cleanServices() {
+        Services.loadProfileExtractor(null);
+    }
+
+    @Test
+    public void activate() {
+        // Make sure there is no LoadProfileExtractor service
+        Services.loadProfileExtractor(null);
+
+        // Business method
+        this.getInstance().activate();
+
+        // Asserts
+        assertThat(Services.loadProfileExtractor()).isNotNull();
     }
 
     @Test
@@ -147,7 +166,7 @@ public class LoadProfileExtractorImplTest {
         assertThat(extractedRegister.obisCode()).isEqualTo(DEVICE_OBIS_CODE);
     }
 
-    private LoadProfileExtractor getInstance() {
+    private LoadProfileExtractorImpl getInstance() {
         return new LoadProfileExtractorImpl(this.readingTypeUtilService);
     }
 
