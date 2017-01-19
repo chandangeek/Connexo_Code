@@ -9,7 +9,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.impl.security.BasicAuthenticationCustomPropertySet;
 import com.energyict.mdc.device.data.impl.security.BasicAuthenticationSecurityProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
