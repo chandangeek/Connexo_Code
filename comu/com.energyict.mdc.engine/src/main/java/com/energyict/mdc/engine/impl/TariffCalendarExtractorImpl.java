@@ -32,7 +32,9 @@ import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link TariffCalendarExtractor} interface
- * that assumes that all UPL objects are in fact {@link Calendar}s.
+ * that assumes that all UPL objects have been returned by the {@link TariffCalendarFinderImpl}
+ * and are therefore in fact {@link TariffCalendarAdapter} from which the wrapped {@link Calendar}
+ * can be obtained.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (11:07)
@@ -58,9 +60,13 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
         return this.threadContextThreadLocal.get();
     }
 
+    private Calendar toCalendar(TariffCalendar calendar) {
+        return ((TariffCalendarAdapter) calendar).getActual();
+    }
+
     @Override
-    public String id(TariffCalendar calender) {
-        return this.id((Calendar) calender);
+    public String id(TariffCalendar calendar) {
+        return this.id(this.toCalendar(calendar));
     }
 
     private String id(Calendar calender) {
@@ -68,8 +74,8 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
     }
 
     @Override
-    public String name(TariffCalendar calender) {
-        return ((Calendar) calender).getName();
+    public String name(TariffCalendar calendar) {
+        return (this.toCalendar(calendar)).getName();
     }
 
     @Override
@@ -78,8 +84,8 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
     }
 
     @Override
-    public Optional<CalendarSeasonSet> season(TariffCalendar calender) {
-        return this.season((Calendar) calender);
+    public Optional<CalendarSeasonSet> season(TariffCalendar calendar) {
+        return this.season(this.toCalendar(calendar));
     }
 
     private Optional<CalendarSeasonSet> season(Calendar calender) {
@@ -110,8 +116,8 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
     }
 
     @Override
-    public Range<Year> range(TariffCalendar calender) {
-        return this.range((Calendar) calender);
+    public Range<Year> range(TariffCalendar calendar) {
+        return this.range(this.toCalendar(calendar));
     }
 
     private Range<Year> range(Calendar calender) {
@@ -119,8 +125,8 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
     }
 
     @Override
-    public List<CalendarDayType> dayTypes(TariffCalendar calender) {
-        return this.dayTypes((Calendar) calender);
+    public List<CalendarDayType> dayTypes(TariffCalendar calendar) {
+        return this.dayTypes(this.toCalendar(calendar));
     }
 
     private List<CalendarDayType> dayTypes(Calendar calender) {
@@ -132,8 +138,8 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
     }
 
     @Override
-    public List<CalendarRule> rules(TariffCalendar calender) {
-        return this.rules((Calendar) calender);
+    public List<CalendarRule> rules(TariffCalendar calendar) {
+        return this.rules(this.toCalendar(calendar));
     }
 
     private List<CalendarRule> rules(Calendar calender) {
