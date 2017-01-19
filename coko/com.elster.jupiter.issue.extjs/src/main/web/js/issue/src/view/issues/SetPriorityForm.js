@@ -37,9 +37,9 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
                     {
                         xtype: 'numberfield',
                         itemId: 'num-urgency',
-                        width: 100,
+                        width: 92,
                         name: 'urgency',
-                        minValue: 0,
+                        minValue: 1,
                         maxValue: 50,
                         listeners: {
                             change: function (record) {
@@ -53,10 +53,10 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
                         xtype: 'numberfield',
                         itemId: 'num-impact',
                         labelWidth: 50,
-                        width: 150,
+                        width: 157,
                         name: 'impact',
                         fieldLabel: Uni.I18n.translate('general.impact', 'ISU', 'Impact'),
-                        minValue: 0,
+                        minValue: 1,
                         maxValue: 50,
                         margin: '0 0 0 20',
                         listeners: {
@@ -107,21 +107,34 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
     {
         var me = this,
             labelPriority = me.down('#priority-label'),
-            numUrgencyValue = me.down('#num-urgency').value,
-            numImpactValue = me.down('#num-impact').value,
-            priorityValue = numUrgencyValue + numImpactValue,
+            numUrgency = me.down('#num-urgency'),
+            numUrgencyValue = numUrgency.value,
+            numImpact = me.down('#num-impact'),
+            numImpactValue = numImpact.value,
+            priorityValue,
             priorityLabel;
 
+        if (numUrgencyValue < 0) {
+            numUrgency.setValue(Math.abs(numUrgencyValue));
+        }
+
+        if (numImpactValue < 0) {
+            numImpact.setValue(Math.abs(numImpactValue));
+        }
+
+        priorityValue = Math.abs(numUrgencyValue) +  Math.abs(numImpactValue);
+
         var priority = priorityValue / 10;
-        if (priorityValue > 100){
+        if (priorityValue > 100) {
             priority = 10;
             priorityValue = 100;
         }
-        priorityLabel = (priority <= 2) ? Uni.I18n.translate('bpm.task.priority.veryLow', 'ISU', 'Very low') :
-            (priority <= 4) ? Uni.I18n.translate('bpm.task.priority.low', 'ISU', 'Low') :
-                (priority <= 6) ? Uni.I18n.translate('bpm.task.priority.medium', 'ISU', 'Medium') :
-                    (priority <= 8) ? Uni.I18n.translate('bpm.task.priority.high', 'ISU', 'High') :
-                        Uni.I18n.translate('bpm.task.priority.veryHigh', 'ISU', 'Very high');
+
+        priorityLabel = (priority <= 2) ? Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low') :
+            (priority <= 4) ? Uni.I18n.translate('issue.priority.low', 'ISU', 'Low') :
+                (priority <= 6) ? Uni.I18n.translate('issue.priority.medium', 'ISU', 'Medium') :
+                    (priority <= 8) ? Uni.I18n.translate('issue.priority.high', 'ISU', 'High') :
+                        Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high');
 
 
         labelPriority.setText(priorityValue + ' - ' + priorityLabel);

@@ -23,6 +23,10 @@ Ext.define('Isu.model.CreationRule', {
             type: 'string'
         },
         {
+            name: 'priority',
+            type: 'auto'
+        },
+        {
             name: 'creationDate',
             dateFormat: 'time',
             type: 'date',
