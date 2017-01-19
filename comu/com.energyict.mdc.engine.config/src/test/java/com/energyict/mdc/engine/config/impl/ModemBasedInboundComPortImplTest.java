@@ -17,16 +17,15 @@ import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertFalse;

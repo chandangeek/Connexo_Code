@@ -18,12 +18,11 @@ import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-
-import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;

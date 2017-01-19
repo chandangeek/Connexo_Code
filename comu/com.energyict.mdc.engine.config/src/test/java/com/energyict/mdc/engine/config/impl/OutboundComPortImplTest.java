@@ -9,14 +9,12 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.PersistenceTest;
-import com.energyict.mdc.protocol.api.ComPortType;
-
+import com.energyict.mdc.ports.ComPortType;
 import com.google.inject.Provider;
-
-import java.sql.SQLException;
-
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

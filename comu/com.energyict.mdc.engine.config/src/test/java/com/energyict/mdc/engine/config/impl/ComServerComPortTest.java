@@ -20,7 +20,11 @@ import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -30,11 +34,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;

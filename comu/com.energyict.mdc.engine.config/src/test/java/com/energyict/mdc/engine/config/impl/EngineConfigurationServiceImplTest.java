@@ -10,13 +10,12 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.protocol.api.ComPortType;
-
-import java.util.List;
-
+import com.energyict.mdc.ports.ComPortType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

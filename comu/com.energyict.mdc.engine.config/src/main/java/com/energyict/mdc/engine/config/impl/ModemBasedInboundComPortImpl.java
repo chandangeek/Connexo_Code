@@ -17,7 +17,7 @@ import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -78,7 +78,7 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
 
     @Override
     public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
-        if (!Range.<Integer>closed(1, 1).contains(numberOfSimultaneousConnections)) {
+        if (!Range.closed(1, 1).contains(numberOfSimultaneousConnections)) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.VALUE_NOT_IN_RANGE);
         }
     }

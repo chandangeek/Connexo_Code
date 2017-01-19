@@ -1,12 +1,11 @@
 package com.energyict.mdc.engine.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;

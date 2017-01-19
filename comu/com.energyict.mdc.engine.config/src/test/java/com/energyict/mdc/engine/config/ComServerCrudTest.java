@@ -4,13 +4,12 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.ComPortType;
-
-import java.text.MessageFormat;
-
+import com.energyict.mdc.ports.ComPortType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.text.MessageFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

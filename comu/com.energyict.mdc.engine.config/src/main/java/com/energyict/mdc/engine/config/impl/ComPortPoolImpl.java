@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;

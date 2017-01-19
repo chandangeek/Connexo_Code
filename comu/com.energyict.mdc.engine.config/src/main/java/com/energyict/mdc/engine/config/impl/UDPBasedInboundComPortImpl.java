@@ -5,7 +5,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+
 import javax.inject.Inject;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;

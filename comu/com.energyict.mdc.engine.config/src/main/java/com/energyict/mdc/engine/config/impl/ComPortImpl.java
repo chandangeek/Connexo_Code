@@ -12,7 +12,7 @@ import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPoolMember;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;

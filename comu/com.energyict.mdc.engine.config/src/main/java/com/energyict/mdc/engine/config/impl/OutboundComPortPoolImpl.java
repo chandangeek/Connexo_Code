@@ -1,15 +1,14 @@
 package com.energyict.mdc.engine.config.impl;
 
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.ComPortPoolMember;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.engine.config.ComPortPoolMember;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.ports.ComPortType;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;

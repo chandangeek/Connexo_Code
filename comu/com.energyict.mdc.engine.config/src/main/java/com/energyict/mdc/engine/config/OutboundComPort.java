@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.config;
 
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 /**
  * Models a {@link ComPort} that is dedicated to outbound communication.
@@ -19,10 +19,10 @@ public interface OutboundComPort extends ComPort {
      * feel free to create another outbound com port of the
      * same type and set the remaining number of connections you need.
      */
-    public static final int MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 1000;
+    int MAXIMUM_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 1000;
 
     interface OutboundComPortBuilder extends ComPort.Builder<OutboundComPortBuilder, OutboundComPort>{
-        public OutboundComPortBuilder comPortType(ComPortType comPortType);
+        OutboundComPortBuilder comPortType(ComPortType comPortType);
     }
 
 }

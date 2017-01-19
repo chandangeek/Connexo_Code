@@ -39,10 +39,9 @@ import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
