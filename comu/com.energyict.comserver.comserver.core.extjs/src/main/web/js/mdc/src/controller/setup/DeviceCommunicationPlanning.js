@@ -492,7 +492,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
         var me = this;
 
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(deviceName) + '/schedules',
+            url: '/api/ddr/devices/' + deviceName + '/schedules',
             isNotEdit: true,
             method: 'PUT',
             params: '',
