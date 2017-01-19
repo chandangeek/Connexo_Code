@@ -53,7 +53,8 @@ public enum MessageSeeds implements MessageSeed {
     INTERVAL_END_BEFORE_START(52, "intervalEndBeforeStart", "End time before start time"),
     NO_SUCH_MESSAGE_QUEUE(53, "usagepoint.bulk.no.such.messagequeue", "Unable to queue command: no message queue was found"),
     INVALID_ACTIVATION_TIME_OF_METER_ROLE(54, "usagepoint.meterrole.activation.must.be.greater.than.up.creation.date", "Meter role activation time must be greater or equal to Created date of usage point"),
-    MISSING_TRANSITION_REQUIREMENT(55, "missing.transition.requirements", "Pre-transition check failed: {0}");
+    MISSING_TRANSITION_REQUIREMENT(55, "missing.transition.requirements", "Pre-transition check failed: {0}"),
+    NO_USAGEPOINT_TRANSITION_WITH_ID(56, Keys.NO_TRANSITION_WITH_ID, "No usage point transition with id {0}");
 
     private final int number;
     private final String key;
@@ -113,6 +114,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_METROLOGY_PURPOSE = "NoSuchMetrologyPurpose";
         public static final String CANNOT_ACTIVATE_METROLOGY_PURPOSE = "CannotActivateMetrologyPurpose";
         public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS = "UnsatisfiedReadingTypeRequirements";
+        public static final String NO_TRANSITION_WITH_ID = "NoTransitionWithId";
     }
 
 }

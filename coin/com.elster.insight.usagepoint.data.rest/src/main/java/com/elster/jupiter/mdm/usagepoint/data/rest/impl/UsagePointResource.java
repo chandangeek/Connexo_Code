@@ -828,24 +828,23 @@ public class UsagePointResource {
 
     private void performLifeCycleTransition(UsagePointTransitionInfo transitionToPerform, UsagePoint usagePoint, RestValidationBuilder validationBuilder) {
         if (transitionToPerform != null) {
-            UsagePointTransition transition = usagePointLifeCycleConfigurationService.findUsagePointTransition(transitionToPerform.id)
-                    .get();
+            UsagePointTransition transition = resourceHelper.findUsagePointTransitionOrThrowException(transitionToPerform.id);
             checkRequiredProperties(transitionToPerform, validationBuilder);
             Map<String, Object> propertiesMap = DecoratedStream.decorate(transition.getActions().stream())
                     .flatMap(microAction -> microAction.getPropertySpecs().stream())
                     .distinct(PropertySpec::getName)
                     .collect(Collectors.toMap(PropertySpec::getName, propertySpec -> this.propertyValueInfoService.findPropertyValue(propertySpec, transitionToPerform.properties)));
 
-            List<ExecutableMicroCheckViolation> violations = transition.getChecks().stream()
+            Optional<ExecutableMicroCheckViolation> violation = transition.getChecks().stream()
                     .filter(check -> check instanceof ExecutableMicroCheck)
                     .map(ExecutableMicroCheck.class::cast)
                     .map(check -> check.execute(usagePoint, transitionToPerform.effectiveTimestamp))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .collect(Collectors.toList());
+                    .findFirst();
 
-            if (!violations.isEmpty()) {
-                throw exceptionFactory.newException(MessageSeeds.MISSING_TRANSITION_REQUIREMENT, violations.get(0)
+            if (violation.isPresent()) {
+                throw exceptionFactory.newException(MessageSeeds.MISSING_TRANSITION_REQUIREMENT, violation.get()
                         .getLocalizedMessage());
             }
             usagePointLifeCycleService.scheduleTransition(usagePoint, transition, transitionToPerform.effectiveTimestamp, "INS", propertiesMap);
@@ -853,28 +852,24 @@ public class UsagePointResource {
     }
 
     private void checkRequiredProperties(UsagePointTransitionInfo transitionInfo, RestValidationBuilder validationBuilder) {
-        Optional<PropertyInfo> optionalInfo = transitionInfo.properties.stream()
-                .filter(propertyInfo -> propertyInfo.required
-                        && (propertyInfo.getPropertyValueInfo() == null
-                        || propertyInfo.getPropertyValueInfo().getValue() == null
-                        || "".equals(propertyInfo.getPropertyValueInfo().getValue())))
-                .findFirst();
-        if (optionalInfo.isPresent()) {
-            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, optionalInfo
-                    .get().key));
+        transitionInfo.properties.stream()
+                .filter(propertyInfo -> Checks.is(String.valueOf(propertyInfo.getPropertyValueInfo().getValue()))
+                        .emptyOrOnlyWhiteSpace())
+                .findFirst()
+                .ifPresent(propertyInfo -> {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, propertyInfo.key));
             validationBuilder.validate();
-        }
+        });
     }
 
     private void checkMeterRolesActivationTime(List<MeterRoleInfo> meterRoles, Instant usagePointCreateDate, RestValidationBuilder restValidationBuilder) {
-        Optional<MeterRoleInfo> meterRole = meterRoles.stream()
+        meterRoles.stream()
                 .filter(role -> role.activationTime.isBefore(usagePointCreateDate))
-                .findFirst();
-        if (meterRole.isPresent()) {
-            restValidationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_ACTIVATION_TIME_OF_METER_ROLE, "meter.role." + meterRole
-                    .get().name));
+                .findFirst()
+                .ifPresent(meterRoleInfo -> {
+            restValidationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_ACTIVATION_TIME_OF_METER_ROLE, "meter.role." + meterRoleInfo.name));
             restValidationBuilder.validate();
-        }
+        });
     }
 
     private void validateUsagePointAttributes(UsagePointInfo info, RestValidationBuilder validationBuilder) {
@@ -897,8 +892,7 @@ public class UsagePointResource {
                 UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
                 info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
                 checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getCreateDate(), validationBuilder);
-                usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService
-                        .findMetrologyConfiguration(info.metrologyConfiguration.id).orElse(null);
+                usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
                 usagePoint.apply(usagePointMetrologyConfiguration);
                 resourceHelper.activateMeters(info, usagePoint);
             }
@@ -921,11 +915,10 @@ public class UsagePointResource {
 
             usagePoint = usagePointBuilder.create();
             info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
-            UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
             if (info.metrologyConfiguration != null) {
-                usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfigurationService
-                        .findMetrologyConfiguration(info.metrologyConfiguration.id).orElse(null);
-                usagePoint.apply(usagePointMetrologyConfiguration);
+
+                usagePoint.apply((UsagePointMetrologyConfiguration)resourceHelper
+                        .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id));
             }
 
             resourceHelper.activateMeters(info, usagePoint);

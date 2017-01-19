@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -23,6 +24,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.Checks;
 
@@ -45,12 +47,14 @@ public class ResourceHelper {
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final Clock clock;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Inject
     public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService,
                           ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory,
-                          MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleService usagePointLifeCycleService, Clock clock) {
+                          MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleService usagePointLifeCycleService, Clock clock,
+                          UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -59,6 +63,7 @@ public class ResourceHelper {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.clock = clock;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
@@ -138,6 +143,16 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getName()));
     }
 
+    public UsagePointTransition findUsagePointTransitionOrThrowException(long transitionId) {
+        return usagePointLifeCycleConfigurationService.findUsagePointTransition(transitionId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGEPOINT_TRANSITION_WITH_ID, transitionId));
+    }
+
+    public MetrologyConfiguration findMetrologyConfigurationOrThrowException(long metrologyConfigurationId) {
+        return metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigurationId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, metrologyConfigurationId));
+    }
+
     public ReadingTypeDeliverable findReadingTypeDeliverableOrThrowException(MetrologyContract metrologyContract, long outputId, String usagePointName) {
         return metrologyContract.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getId() == outputId)
@@ -181,7 +196,7 @@ public class ResourceHelper {
         return metrologyConfigurationService
                 .findLinkableMetrologyConfigurations(usagePoint)
                 .stream()
-                .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
+                .filter(mc -> !mc.getCustomPropertySets().stream().noneMatch(RegisteredCustomPropertySet::isEditableByCurrentUser))
                 .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
                         .stream()
                         .sorted(Comparator.comparing(rcps -> rcps.getCustomPropertySet()
