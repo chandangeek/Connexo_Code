@@ -6,12 +6,12 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.protocol.ProfileData;
 

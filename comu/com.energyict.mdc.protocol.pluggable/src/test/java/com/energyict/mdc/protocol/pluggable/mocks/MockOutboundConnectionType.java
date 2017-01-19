@@ -3,8 +3,8 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -47,8 +47,8 @@ public class MockOutboundConnectionType implements ConnectionType {
     }
 
     @Override
-    public Direction getDirection() {
-        return Direction.OUTBOUND;
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
     }
 
     @Override

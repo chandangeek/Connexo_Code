@@ -3,7 +3,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
@@ -17,6 +16,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleLegacyMessageConverter;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import org.junit.After;
 import org.junit.Before;

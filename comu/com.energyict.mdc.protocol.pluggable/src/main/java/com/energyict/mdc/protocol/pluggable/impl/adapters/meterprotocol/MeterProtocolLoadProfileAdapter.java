@@ -6,13 +6,13 @@ import com.energyict.cbo.Unit;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -87,13 +87,13 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
             CollectedLoadProfileConfiguration loadProfileConfiguration;
             for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
+                loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier());
                 if (GENERIC_LOAD_PROFILE_OBISCODE.equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
-                    loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier());
                     loadProfileConfiguration.setChannelInfos(getDefaultChannelInfo(loadProfileReader));
                     // the B-field will be used as marker for the interval in minutes
                     loadProfileConfiguration.setProfileInterval(loadProfileReader.getProfileObisCode().getB() * DateTimeConstants.SECONDS_PER_MINUTE);
                 } else { // if it is not the standard ObisCode, then we indicate the LoadProfile is not supported
-                    loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier(), false);
+                    loadProfileConfiguration.setSupportedByMeter(false);
                 }
                 loadProfileConfigurations.add(loadProfileConfiguration);
             }

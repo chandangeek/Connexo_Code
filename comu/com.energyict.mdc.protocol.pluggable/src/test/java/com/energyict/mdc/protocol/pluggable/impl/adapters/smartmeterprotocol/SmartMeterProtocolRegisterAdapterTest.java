@@ -1,16 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks.MockCollectedRegister;
 import com.energyict.mdc.upl.issue.Warning;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -53,6 +52,10 @@ public class SmartMeterProtocolRegisterAdapterTest {
     private final Date eventDate = new Date(1389613500000L);// Same as toDate
     private final String text = "Some Text From a Register";
     private final Quantity quantity = mock(Quantity.class);
+    @Mock
+    private CollectedDataFactory collectedDataFactory;
+    @Mock
+    private IssueService issueService;
 
     private static OfflineRegister getMockedRegister() {
         OfflineRegister register = mock(OfflineRegister.class);
@@ -61,32 +64,24 @@ public class SmartMeterProtocolRegisterAdapterTest {
         return register;
     }
 
-    @Mock
-    private CollectedDataFactory collectedDataFactory;
-    @Mock
-    private IssueService issueService;
-
     @Before
     public void initializeEnvironment() {
-        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), any(String.class))).
+        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class))).
                 thenAnswer(invocationOnMock -> {
                     RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-
-                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType.getMRID());
+                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier);
                     collectedRegister.setResultType(ResultType.Supported);
                     return collectedRegister;
                 });
-        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), any(String.class))).
+        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class))).
                 thenAnswer(invocationOnMock -> {
                     RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-                    return new MockCollectedRegister(registerIdentifier, readingType.getMRID());
+                    return new MockCollectedRegister(registerIdentifier);
                 });
     }
 
     @Before
-    public void initializeIssueService () {
+    public void initializeIssueService() {
         when(this.issueService.newWarning(any(), any(), anyVararg())).thenAnswer(invocationOnMock -> {
             Warning warning = mock(Warning.class);
             when(warning.getSource()).thenReturn(invocationOnMock.getArguments()[0]);
@@ -132,11 +127,11 @@ public class SmartMeterProtocolRegisterAdapterTest {
     }
 
     @Test
-    public void unSupportedSizeTest(){
+    public void unSupportedSizeTest() {
         OfflineRegister register = getMockedRegister();
         final int registerListSize = 10;
         List<OfflineRegister> registerList = new ArrayList<>(registerListSize);
-        for(int i = 0; i < registerListSize; i++){
+        for (int i = 0; i < registerListSize; i++) {
             registerList.add(register);
         }
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);

@@ -1,17 +1,16 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks.MockCollectedRegister;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -59,34 +58,32 @@ public class MeterProtocolRegisterAdapterTest {
     @Mock
     private CollectedDataFactory collectedDataFactory;
 
-    @Before
-    public void initializeIssueService () {
-        when(this.issueService.newProblem(anyString(), any(), anyVararg())).thenReturn(mock(Problem.class));
-    }
-
-    @Before
-    public void initializeMocksAndFactories() {
-        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), any(String.class))).
-            thenAnswer(invocationOnMock -> {
-                RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-                MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType.getMRID());
-                collectedRegister.setResultType(ResultType.Supported);
-                return collectedRegister;
-            });
-        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), any(String.class))).
-            thenAnswer(invocationOnMock -> {
-                RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-                return new MockCollectedRegister(registerIdentifier, readingType.getMRID());
-            });
-    }
-
     private static OfflineRegister getMockedRegister() {
         OfflineRegister register = mock(OfflineRegister.class);
         ObisCode obisCode = mock(ObisCode.class);
         when(register.getObisCode()).thenReturn(obisCode);
         return register;
+    }
+
+    @Before
+    public void initializeIssueService() {
+        when(this.issueService.newProblem(anyString(), any(), anyVararg())).thenReturn(mock(Problem.class));
+    }
+
+    @Before
+    public void initializeMocksAndFactories() {
+        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class))).
+                thenAnswer(invocationOnMock -> {
+                    RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier);
+                    collectedRegister.setResultType(ResultType.Supported);
+                    return collectedRegister;
+                });
+        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class))).
+                thenAnswer(invocationOnMock -> {
+                    RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
+                    return new MockCollectedRegister(registerIdentifier);
+                });
     }
 
     private RegisterValue getMockedRegisterValue() {
@@ -139,11 +136,11 @@ public class MeterProtocolRegisterAdapterTest {
     }
 
     @Test
-    public void unSupportedSizeTest(){
+    public void unSupportedSizeTest() {
         OfflineRegister register = getMockedRegister();
         final int registerListSize = 10;
         List<OfflineRegister> registerList = new ArrayList<>(registerListSize);
-        for(int i = 0; i < registerListSize; i++){
+        for (int i = 0; i < registerListSize; i++) {
             registerList.add(register);
         }
         MeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(null, issueService, collectedDataFactory);

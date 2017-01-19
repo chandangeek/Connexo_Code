@@ -8,12 +8,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -22,8 +22,6 @@ import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -44,6 +42,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -53,12 +52,14 @@ import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
@@ -144,7 +145,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     private MeterProtocolMessageAdapter meterProtocolMessageAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceTopologySupport} functionality
      */
     private DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter;
 
@@ -227,9 +228,18 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     @Override
-    public void init(final OfflineDevice offlineDevice, ComChannel comChannel) {
+    public void init(final OfflineDevice offlineDevice, com.energyict.mdc.protocol.ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
+        doInit(comChannel);
+    }
 
+    @Override
+    public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = new UPLOfflineDeviceAdapter(offlineDevice);
+        doInit(comChannel);
+    }
+
+    private void doInit(ComChannel comChannel) {
         try {
             this.meterProtocol.init(
                     new ComChannelInputStreamAdapter(comChannel),
@@ -387,8 +397,8 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     @Override
-    public String prepareMessageContext(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        return "";
+    public Optional<String> prepareMessageContext(Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return Optional.empty();
     }
 
     @Override
@@ -474,7 +484,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
         this.propertiesAdapter.copyProperties(dialectProperties); // Adds all the dialectProperties to the deviceProperties
     }
 

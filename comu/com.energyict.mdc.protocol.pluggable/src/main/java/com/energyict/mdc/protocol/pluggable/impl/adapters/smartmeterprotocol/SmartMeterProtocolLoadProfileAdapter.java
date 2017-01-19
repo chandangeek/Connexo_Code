@@ -4,12 +4,12 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.StackTracePrinter;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -98,8 +98,8 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                     CollectedLoadProfileConfiguration deviceLoadProfileConfiguration =
                             collectedDataFactory.createCollectedLoadProfileConfiguration(
                                     loadProfileReader.getProfileObisCode(),
-                                    loadProfileReader.getDeviceIdentifier(),
-                                    false);
+                                    loadProfileReader.getDeviceIdentifier());
+                    deviceLoadProfileConfiguration.setSupportedByMeter(false);
                     deviceLoadProfileConfiguration.setFailureInformation(
                             ResultType.DataIncomplete,
                             getIssue(this, com.energyict.mdc.protocol.api.MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e)));

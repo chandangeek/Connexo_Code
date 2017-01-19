@@ -1,12 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -60,8 +60,8 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
                 final List<RegisterValue> registerValues = smartMeterProtocol.readRegisters(convertedRegisters);
                 for (OfflineRegister register : offlineRegisters) {
                     RegisterValue registerValue = findRegisterValue(register, registerValues);
-                    if(!registerValue.equals(INVALID_REGISTER_VALUE)){
-                        CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(register.getRegisterIdentifier(), register.getReadingTypeMRID());
+                    if (!registerValue.equals(INVALID_REGISTER_VALUE)) {
+                        CollectedRegister adapterDeviceRegister = collectedDataFactory.createCollectedRegisterForAdapter(register.getRegisterIdentifier());
                         adapterDeviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                         adapterDeviceRegister.setCollectedTimeStamps(
                                 registerValue.getReadTime(),
@@ -70,7 +70,7 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
                                 registerValue.getEventTime());
                         collectedRegisters.add(adapterDeviceRegister);
                     } else {
-                        CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(register.getRegisterIdentifier(), register.getReadingTypeMRID());
+                        CollectedRegister defaultDeviceRegister = collectedDataFactory.createDefaultCollectedRegister(register.getRegisterIdentifier());
                         defaultDeviceRegister.setFailureInformation(
                                 ResultType.NotSupported,
                                 this.issueService.newWarning(

@@ -2,12 +2,12 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfile;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks.MockCollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -30,7 +30,6 @@ import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -63,16 +62,11 @@ public class SmartMeterProtocolLoadProfileAdapterTest {
                 thenAnswer(invocationOnMock -> new MockCollectedLoadProfileConfiguration(
                         (ObisCode) invocationOnMock.getArguments()[0],
                         (String) invocationOnMock.getArguments()[1]));
-        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(DeviceIdentifier.class), eq(true))).
+        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(DeviceIdentifier.class))).
                 thenAnswer(invocationOnMock -> new MockCollectedLoadProfileConfiguration(
                         (ObisCode) invocationOnMock.getArguments()[0],
-                        (String) invocationOnMock.getArguments()[1],
-                        true));
-        when(this.collectedDataFactory.createCollectedLoadProfileConfiguration(any(ObisCode.class), any(DeviceIdentifier.class), eq(false))).
-                thenAnswer(invocationOnMock -> new MockCollectedLoadProfileConfiguration(
-                        (ObisCode) invocationOnMock.getArguments()[0],
-                        (String) invocationOnMock.getArguments()[1],
-                        false));
+                        (String) invocationOnMock.getArguments()[1]
+                ));
     }
 
     @Test

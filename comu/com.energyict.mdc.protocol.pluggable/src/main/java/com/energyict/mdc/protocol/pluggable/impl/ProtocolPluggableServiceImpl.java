@@ -34,12 +34,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceCache;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
@@ -74,22 +68,24 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoProper
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
-import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -163,20 +159,20 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     // For unit testing purposes
     @Inject
     public ProtocolPluggableServiceImpl(
-                    OrmService ormService,
-                    ThreadPrincipalService threadPrincipalService,
-                    EventService eventService,
-                    NlsService nlsService,
-                    IssueService issueService,
-                    UserService userService,
-                    MeteringService meteringService,
-                    PropertySpecService propertySpecService,
-                    PluggableService pluggableService,
-                    CustomPropertySetService customPropertySetService,
-                    LicenseService licenseService,
-                    DataVaultService dataVaultService,
-                    TransactionService transactionService,
-                    UpgradeService upgradeService
+            OrmService ormService,
+            ThreadPrincipalService threadPrincipalService,
+            EventService eventService,
+            NlsService nlsService,
+            IssueService issueService,
+            UserService userService,
+            MeteringService meteringService,
+            PropertySpecService propertySpecService,
+            PluggableService pluggableService,
+            CustomPropertySetService customPropertySetService,
+            LicenseService licenseService,
+            DataVaultService dataVaultService,
+            TransactionService transactionService,
+            UpgradeService upgradeService
     ) {
         this();
         setOrmService(ormService);
@@ -213,15 +209,13 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         for (DeviceProtocolService service : this.deviceProtocolServices) {
             try {
                 return service.createProtocol(javaClassName);
-            }
-            catch (ProtocolCreationException e) {
+            } catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolService
             }
         }
         if (this.deviceProtocolServices.isEmpty()) {
             LOGGER.fine("No registered device protocol services");
-        }
-        else {
+        } else {
             LOGGER.log(Level.FINE, this::allDeviceProtocolServiceClassNames);
         }
         throw new NoServiceFoundThatCanLoadTheJavaClass(javaClassName);
@@ -240,8 +234,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         for (DeviceProtocolMessageService service : this.deviceProtocolMessageServices) {
             try {
                 return service.createDeviceProtocolMessagesFor(javaClassName);
-            }
-            catch (ProtocolCreationException e) {
+            } catch (ProtocolCreationException e) {
                 // Try the next DeviceProtocolMessageService
             }
         }
@@ -253,8 +246,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         for (DeviceProtocolSecurityService service : this.deviceProtocolSecurityServices) {
             try {
                 return service.createDeviceProtocolSecurityFor(javaClassName);
-            }
-            catch (DeviceProtocolAdapterCodingExceptions e) {
+            } catch (DeviceProtocolAdapterCodingExceptions e) {
                 // Try the next DeviceProtocolSecurityService
             }
         }
@@ -311,8 +303,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                 licensedProtocols.addAll(licensedProtocolService.getAllLicensedProtocols(mdcLicense.get()));
             }
             return licensedProtocols;
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -340,9 +331,9 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             @Override
             public List<DeviceProtocolPluggableClass> convert(List<PluggableClass> pluggableClasses) {
                 return pluggableClasses
-                            .stream()
-                            .map(pluggableClass -> DeviceProtocolPluggableClassImpl.from(ProtocolPluggableServiceImpl.this.dataModel, pluggableClass))
-                            .collect(Collectors.toList());
+                        .stream()
+                        .map(pluggableClass -> DeviceProtocolPluggableClassImpl.from(ProtocolPluggableServiceImpl.this.dataModel, pluggableClass))
+                        .collect(Collectors.toList());
             }
         };
     }
@@ -376,8 +367,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         if (pluggableClass.isPresent()) {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.from(this.dataModel, pluggableClass.get());
             return Optional.of(deviceProtocolPluggableClass);
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -543,13 +533,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             for (DeviceCacheMarshallingService service : this.deviceCacheMarshallingServices) {
                 try {
                     return service.unMarshallCache(jsonCache);
-                }
-                catch (NotAppropriateDeviceCacheMarshallingTargetException e) {
+                } catch (NotAppropriateDeviceCacheMarshallingTargetException e) {
                     // Try the next service
                 }
             }
-        }
-        catch (DeviceCacheMarshallingException e) {
+        } catch (DeviceCacheMarshallingException e) {
             // A service accepted the
             LOGGER.severe(e.getMessage());
             LOGGER.log(Level.FINE, e.getMessage(), e);
@@ -563,11 +551,9 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             for (DeviceCacheMarshallingService service : this.deviceCacheMarshallingServices) {
                 try {
                     return service.marshall(legacyCache);
-                }
-                catch (NotAppropriateDeviceCacheMarshallingTargetException e) {
+                } catch (NotAppropriateDeviceCacheMarshallingTargetException e) {
                     // Try the next service
-                }
-                catch (DeviceCacheMarshallingException e) {
+                } catch (DeviceCacheMarshallingException e) {
                     /* Some services don't distinguish between DeviceCacheMarshallingException and NotAppropriateDeviceCacheMarshallingTargetException.
                      * Log the failure and try the next service. */
                     LOGGER.severe(e.getMessage());
@@ -596,13 +582,13 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     }
 
     @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -773,20 +759,17 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         for (ConnectionTypeService connectionTypeService : this.connectionTypeServices) {
             try {
                 connectionType = connectionTypeService.createConnectionType(javaClassName);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throwable = e;
                 // silently ignore, will try other service
             }
         }
         if (connectionType != null) {
             return connectionType;
-        }
-        else {
+        } else {
             if (this.connectionTypeServices.isEmpty()) {
                 LOGGER.fine("No registered connection type services");
-            }
-            else {
+            } else {
                 LOGGER.log(Level.FINE, this::allConnectionTypeServiceClassNames);
             }
             throw new UnableToCreateConnectionType(throwable, javaClassName);
@@ -811,16 +794,14 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                 if (inboundDeviceProtocol != null) {
                     return inboundDeviceProtocol;
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throwable = e;
                 // silently ignore, will try other service
             }
         }
         if (this.inboundDeviceProtocolServices.isEmpty()) {
             LOGGER.fine("No registered inbound device protocol services");
-        }
-        else {
+        } else {
             LOGGER.log(Level.FINE, this::allInboundDeviceProtocolServiceClassNames);
         }
         throw DeviceProtocolAdapterCodingExceptions.genericReflectionError(MessageSeeds.GENERIC_JAVA_REFLECTION_ERROR, throwable, pluggableClass.getJavaClassName());
@@ -908,8 +889,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             this.setPrincipal();
             DeviceProtocolPluggableClassRegistrar registrar = new DeviceProtocolPluggableClassRegistrar(this, this.transactionService, this.meteringService);
             registrar.registerAll(this.getAllLicensedProtocols());
-        }
-        else {
+        } else {
             LOGGER.fine("No device protocol services have registered yet, makes no sense to attempt to register all device protocol pluggable classes");
         }
     }
@@ -919,8 +899,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             this.setPrincipal();
             InboundDeviceProtocolPluggableClassRegistrar registrar = new InboundDeviceProtocolPluggableClassRegistrar(this, this.transactionService);
             registrar.registerAll(Collections.unmodifiableList(this.inboundDeviceProtocolServices));
-        }
-        else {
+        } else {
             LOGGER.fine("No inbound protocol services have registered yet, makes no sense to attempt to register all inbound device protocol pluggable classes");
         }
     }
@@ -930,8 +909,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             this.setPrincipal();
             ConnectionTypePluggableClassRegistrar registrar = new ConnectionTypePluggableClassRegistrar(this, this.transactionService);
             registrar.registerAll(Collections.unmodifiableList(this.connectionTypeServices));
-        }
-        else {
+        } else {
             LOGGER.fine("No connection type services have registered yet, makes no sense to attempt to register all connection type pluggable classes");
         }
     }
@@ -987,23 +965,23 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
 
         @Override
-        public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-            return this.getCollectedDataFactory().createMaximumDemandCollectedRegister(registerIdentifier, readingTypeMRID);
+        public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier) {
+            return this.getCollectedDataFactory().createMaximumDemandCollectedRegister(registerIdentifier);
         }
 
         @Override
-        public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-            return this.getCollectedDataFactory().createCollectedRegisterForAdapter(registerIdentifier, readingTypeMRID);
+        public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier) {
+            return this.getCollectedDataFactory().createCollectedRegisterForAdapter(registerIdentifier);
         }
 
         @Override
-        public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-            return this.getCollectedDataFactory().createBillingCollectedRegister(registerIdentifier, readingTypeMRID);
+        public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier) {
+            return this.getCollectedDataFactory().createBillingCollectedRegister(registerIdentifier);
         }
 
         @Override
-        public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-            return this.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier, readingTypeMRID);
+        public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier) {
+            return this.getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
         }
 
         @Override
@@ -1027,11 +1005,6 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
 
         @Override
-        public CollectedMessage createCollectedMessageTopology(MessageIdentifier messageIdentifier, CollectedTopology collectedTopology) {
-            return this.getCollectedDataFactory().createCollectedMessageTopology(messageIdentifier, collectedTopology);
-        }
-
-        @Override
         public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier) {
             return this.getCollectedDataFactory().createCollectedDeviceCache(deviceIdentifier);
         }
@@ -1052,28 +1025,18 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
 
         @Override
-        public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier) {
-            return this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, deviceIdentifier);
-        }
-
-        @Override
-        public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier, boolean supported) {
-            return this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, deviceIdentifier, supported);
-        }
-
-        @Override
         public CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents) {
             return this.getCollectedDataFactory().createCollectedConfigurationInformation(deviceIdentifier, fileExtension, contents);
         }
 
         @Override
-        public CollectedData createCollectedAddressProperties(DeviceIdentifier deviceIdentifier, String ipAddress, String ipAddressPropertyName) {
-            return this.getCollectedDataFactory().createCollectedAddressProperties(deviceIdentifier, ipAddress, ipAddressPropertyName);
+        public CollectedDeviceInfo createDeviceIpAddress(DeviceIdentifier deviceIdentifier, String ipAddress, String ipAddressPropertyName) {
+            return this.getCollectedDataFactory().createDeviceIpAddress(deviceIdentifier, ipAddress, ipAddressPropertyName);
         }
 
         @Override
-        public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, PropertySpec propertySpec, Object propertyValue) {
-            return this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(deviceIdentifier, propertySpec, propertyValue);
+        public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+            return this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(deviceIdentifier, propertyName, propertyValue);
         }
 
         @Override
