@@ -205,6 +205,7 @@ public class EstimationTaskExecutorTest {
     public void testSuccessfullRunWithUsagePoint() {
         when(estimationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
         when(estimationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
+        when(estimationTask.getMetrologyPurpose()).thenReturn(Optional.empty());
         when(usagePointGroup.toSubQuery()).thenReturn(usagePointSubQuery);
 
         EstimationTaskExecutor executor = new EstimationTaskExecutor(estimationService, transactionService, meteringService,
