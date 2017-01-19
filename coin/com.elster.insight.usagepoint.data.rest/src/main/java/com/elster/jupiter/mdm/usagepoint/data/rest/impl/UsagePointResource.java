@@ -853,8 +853,10 @@ public class UsagePointResource {
 
     private void checkRequiredProperties(UsagePointTransitionInfo transitionInfo, RestValidationBuilder validationBuilder) {
         transitionInfo.properties.stream()
-                .filter(propertyInfo -> Checks.is(String.valueOf(propertyInfo.getPropertyValueInfo().getValue()))
-                        .emptyOrOnlyWhiteSpace())
+                .filter(propertyInfo -> propertyInfo.required
+                        && (propertyInfo.getPropertyValueInfo() == null
+                        || propertyInfo.getPropertyValueInfo().getValue() == null || Checks.is(String.valueOf(propertyInfo.getPropertyValueInfo().getValue()))
+                        .emptyOrOnlyWhiteSpace()))
                 .findFirst()
                 .ifPresent(propertyInfo -> {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, propertyInfo.key));
