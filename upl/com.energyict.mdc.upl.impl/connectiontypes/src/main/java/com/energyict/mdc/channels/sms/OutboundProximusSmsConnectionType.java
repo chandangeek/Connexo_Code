@@ -1,11 +1,9 @@
 package com.energyict.mdc.channels.sms;
 
-import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -38,7 +36,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec phoneNumberPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER_PROPERTY_NAME, true,this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER_PROPERTY_NAME, true, this.propertySpecService::stringSpec).finish();
     }
 
     protected String phoneNumberPropertyValue() {
@@ -79,10 +77,8 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
 
     @Override
     public ComChannel connect() throws ConnectionException {
-        ProximusSmsComChannel smsComChannel = new ProximusSmsComChannel(this.phoneNumberPropertyValue(),
+        return new ProximusSmsComChannel(this.phoneNumberPropertyValue(),
                 this.connectionURLPropertyValue(), this.sourcePropertyValue(), this.authenticationPropertyValue(), this.serviceCodePropertyValue());
-        smsComChannel.addProperties(createTypeProperty(ComChannelType.ProximusSmsComChannel));
-        return smsComChannel;
     }
 
     @Override

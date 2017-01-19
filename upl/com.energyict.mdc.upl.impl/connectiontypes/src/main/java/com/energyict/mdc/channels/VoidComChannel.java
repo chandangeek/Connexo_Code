@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 
 import java.io.IOException;
 
@@ -8,7 +9,7 @@ import java.io.IOException;
  * Provides an implementation of a {@link ComChannel} that can be handled by the ComServer framework,
  * but that basically does nothing. It will mostly be created when exceptions occur during the creation
  * of Inbound connections.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/10/12
  * Time: 14:06
@@ -16,9 +17,14 @@ import java.io.IOException;
 public class VoidComChannel extends AbstractComChannel {
 
     @Override
-    public boolean doStartReading () {
+    public boolean doStartReading() {
         //nothing to do
         return true;
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.Invalid;
     }
 
     @Override
@@ -42,7 +48,7 @@ public class VoidComChannel extends AbstractComChannel {
     }
 
     @Override
-    public boolean doStartWriting () {
+    public boolean doStartWriting() {
         //nothing to do
         return true;
     }

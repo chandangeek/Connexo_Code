@@ -1,6 +1,6 @@
 package com.energyict.mdc.channels.serial.rf;
 
-import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.mdc.channels.nls.MessageSeeds;
 import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.channels.serial.BaudrateValue;
@@ -13,8 +13,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
@@ -53,9 +51,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
         try {
             wavenisStack = WavenisStackUtils.start(serialPort.getInputStream(), serialPort.getOutputStream());
             WavenisStackUtils.WavenisInputOutStreams inOutStreams = WavenisStackUtils.createInputOutStreams(getRFAddress(), wavenisStack);
-            SerialPortComChannel comChannel = new WavenisSerialComChannel(inOutStreams.inputStream, inOutStreams.outputStream, serialPort);
-            comChannel.addProperties(createTypeProperty(ComChannelType.WavenisSerialComChannel));
-            return comChannel;
+            return new WavenisSerialComChannel(inOutStreams.inputStream, inOutStreams.outputStream, serialPort);
         } catch (IOException e) {
             wavenisStack.stop();
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.WavenisStackSetupError, e);

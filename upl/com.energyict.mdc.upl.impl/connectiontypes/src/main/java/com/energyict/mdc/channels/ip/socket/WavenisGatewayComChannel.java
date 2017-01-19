@@ -1,13 +1,14 @@
 package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
+import com.energyict.mdc.protocol.ComChannelType;
 
 import java.io.IOException;
 import java.net.Socket;
 
 /**
  * Extension of the socket comchannel, it adds a reference to a Wavenis stack instance.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 30/05/13
  * Time: 9:45
@@ -30,6 +31,11 @@ public class WavenisGatewayComChannel extends SocketComChannel implements Server
     public WavenisGatewayComChannel(Socket socket, WavenisStack wavenisStack) throws IOException {
         super(socket);
         this.wavenisStack = wavenisStack;
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.WavenisGatewayComChannel;
     }
 
     public WavenisStack getWavenisStack() {

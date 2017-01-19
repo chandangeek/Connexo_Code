@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.sms;
 
 import com.energyict.mdc.channels.AbstractComChannel;
-
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.ByteArrayInputStream;
@@ -28,6 +28,11 @@ public class ProximusSmsComChannel extends AbstractComChannel implements ServerP
         this.smsSender.setSource(apiSource);
         this.smsSender.setAuthentication(apiAuthentication);
         this.smsSender.setServiceCode(apiServiceCode);
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.ProximusSmsComChannel;
     }
 
     @Override

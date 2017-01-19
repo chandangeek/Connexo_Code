@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
 import com.energyict.mdc.protocol.ComChannel;
-
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -11,7 +11,7 @@ import java.io.IOException;
  * ComChannel that does not actually send any bytes.
  * It just remembers the last request that was sent.
  * Reading does nothing.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  *
  * @author khe
@@ -85,13 +85,13 @@ public class LatchComChannel implements ComChannel {
         this.setProperties(TypedProperties.copyOf(typedProperties));
     }
 
-    private void setProperties(TypedProperties typedProperties) {
-        this.properties.setAllProperties(typedProperties);
-    }
-
     @Override
     public TypedProperties getProperties() {
         return properties;
+    }
+
+    private void setProperties(TypedProperties typedProperties) {
+        this.properties.setAllProperties(typedProperties);
     }
 
     @Override
@@ -112,5 +112,10 @@ public class LatchComChannel implements ComChannel {
     @Override
     public boolean isVoid() {
         return false;
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.SocketComChannel;
     }
 }

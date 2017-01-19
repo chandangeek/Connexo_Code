@@ -1,11 +1,9 @@
 package com.energyict.mdc.channels.ip.datagrams;
 
-import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -34,9 +32,7 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
 
     @Override
     public ComChannel connect() throws ConnectionException {
-        ComChannel comChannel = this.newUDPConnection(this.getBufferSizePropertyValue(), this.hostPropertyValue(), this.portNumberPropertyValue());
-        comChannel.addProperties(createTypeProperty(ComChannelType.DatagramComChannel));
-        return comChannel;
+        return this.newUDPConnection(this.getBufferSizePropertyValue(), this.hostPropertyValue(), this.portNumberPropertyValue());
     }
 
     @Override

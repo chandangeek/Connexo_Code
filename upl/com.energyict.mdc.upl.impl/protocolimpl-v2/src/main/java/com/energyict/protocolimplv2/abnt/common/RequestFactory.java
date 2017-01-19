@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
@@ -56,11 +55,10 @@ import java.util.TimeZone;
 public class RequestFactory {
 
     private static final int NUMBER_OF_MILLIS_IN_5_MIN = 300000;
+    private final PropertySpecService propertySpecService;
     private Connection connection;
     private ComChannel comChannel;
     private AbntProperties properties;
-    private final PropertySpecService propertySpecService;
-
     private String meterSerialNumber;
     private ReadParametersResponse defaultParameters;
 
@@ -141,8 +139,8 @@ public class RequestFactory {
     }
 
     public RegisterReadResponse readActualRegisters(int channelGroup) throws ParsingException {
-            // Read out the parameters for the appropriate channel group
-        RequestFrame parameterReadRequest = getParameterReadRequest(Function.FunctionCode.ACTUAL_PARAMETERS, LoadProfileDataSelector.newFullProfileDataSelector(), channelGroup -1);
+        // Read out the parameters for the appropriate channel group
+        RequestFrame parameterReadRequest = getParameterReadRequest(Function.FunctionCode.ACTUAL_PARAMETERS, LoadProfileDataSelector.newFullProfileDataSelector(), channelGroup - 1);
         sendFrameGetResponse(parameterReadRequest);
 
         // Read out the registers
@@ -152,7 +150,7 @@ public class RequestFactory {
 
     public RegisterReadResponse readBillingRegisters(int channelGroup) throws ParsingException {
         // Read out the parameters for the appropriate channel group
-        RequestFrame parameterReadRequest = getParameterReadRequest(Function.FunctionCode.PREVIOUS_PARAMETERS, LoadProfileDataSelector.newFullProfileDataSelector(), channelGroup -1);
+        RequestFrame parameterReadRequest = getParameterReadRequest(Function.FunctionCode.PREVIOUS_PARAMETERS, LoadProfileDataSelector.newFullProfileDataSelector(), channelGroup - 1);
         sendFrameGetResponse(parameterReadRequest);
 
         // Read out the registers
@@ -217,7 +215,7 @@ public class RequestFactory {
 
     public LoadProfileReadoutResponse readPreviousBillingLoadProfileData(int maxNrOfSegments) throws ParsingException {
         ResponseFrame response = sendFrameGetResponse(getPreviousBillingLoadProfileReadoutRequest(), maxNrOfSegments);
-         return (LoadProfileReadoutResponse) response.getData();
+        return (LoadProfileReadoutResponse) response.getData();
     }
 
     private RequestFrame getPreviousBillingLoadProfileReadoutRequest() {
@@ -290,7 +288,7 @@ public class RequestFactory {
         int timeShift = (int) (timeToSet.getTime() - new Date().getTime());
         if (Math.abs(timeShift) >= NUMBER_OF_MILLIS_IN_5_MIN) { // Only program date/time change if time difference exceeds 5 min.
             Calendar shiftedCal = (Calendar) calendar.clone();
-            shiftedCal.add(Calendar.MILLISECOND, (timeShift - timeShift%NUMBER_OF_MILLIS_IN_5_MIN));    // And round down the timeShift to a multiple of 5 min
+            shiftedCal.add(Calendar.MILLISECOND, (timeShift - timeShift % NUMBER_OF_MILLIS_IN_5_MIN));    // And round down the timeShift to a multiple of 5 min
 
             if (shiftedCal.get(Calendar.DAY_OF_MONTH) != calendar.get(Calendar.DAY_OF_MONTH)) {
                 changeDate(shiftedCal);   // Only change the date if necessary
@@ -389,9 +387,9 @@ public class RequestFactory {
 
     public Connection getConnection() {
         if (this.connection == null) {
-            if (ComChannelType.OpticalComChannel.is(comChannel)) {
+            if (comChannel.getComChannelType() == ComChannelType.OpticalComChannel) {
                 this.connection = new OpticalConnection(getComChannel(), getProperties());
-            } else if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.SocketComChannel.is(comChannel)) { // Serial ComChannel or a transparent socket ComChannel
+            } else if (comChannel.getComChannelType() == ComChannelType.SerialComChannel || comChannel.getComChannelType() == ComChannelType.SocketComChannel) { // Serial ComChannel or a transparent socket ComChannel
                 this.connection = new SerialConnection(getComChannel(), getProperties());
             } else {
                 throw DeviceConfigurationException.unexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.OpticalComChannel.name(), comChannel.getClass().getSimpleName());

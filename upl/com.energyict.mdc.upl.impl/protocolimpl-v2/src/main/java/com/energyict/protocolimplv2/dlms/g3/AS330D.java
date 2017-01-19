@@ -1,9 +1,13 @@
 package com.energyict.protocolimplv2.dlms.g3;
 
-import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
@@ -29,13 +33,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
-
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -95,12 +92,6 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-
-        //If no type is provided, use 'SocketComChannel', resulting in the TCP/IP connection layer.
-        if (!comChannel.getProperties().hasValueFor(ComChannelType.TYPE)) {
-            TypedProperties comChannelProperties = ConnectionTypeImpl.createTypeProperty(ComChannelType.SocketComChannel);
-            comChannel.addProperties(comChannelProperties);
-        }
 
         DlmsSession publicDlmsSession = createPublicDlmsSession(comChannel);
         readFrameCounter(publicDlmsSession);

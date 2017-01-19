@@ -1,12 +1,10 @@
 package com.energyict.mdc.channels.ip.socket;
 
-import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.mdc.channels.nls.MessageSeeds;
 import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
@@ -32,9 +30,7 @@ public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public ComChannel connect() throws ConnectionException {
-        ComChannel comChannel = this.newWavenisConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
-        comChannel.addProperties(createTypeProperty(ComChannelType.WavenisGatewayComChannel));
-        return comChannel;
+        return this.newWavenisConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
     }
 
     private ComChannel newWavenisConnection(String host, int port, int timeOut) throws ConnectionException {

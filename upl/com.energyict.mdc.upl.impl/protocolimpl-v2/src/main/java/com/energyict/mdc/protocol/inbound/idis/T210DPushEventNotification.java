@@ -1,11 +1,8 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +16,6 @@ public class T210DPushEventNotification extends DataPushNotification {
 
     @Override
     public DiscoverResultType doDiscovery() {
-        //If no type is provided, use 'SocketComChannel', resulting in the TCP/IP connection layer.
-        if (!comChannel.getProperties().hasValueFor(ComChannelType.TYPE)) {
-            TypedProperties comChannelProperties = ConnectionTypeImpl.createTypeProperty(ComChannelType.SocketComChannel);
-            comChannel.addProperties(comChannelProperties);
-        }
         parser = new T210DEventPushNotificationParser(comChannel, getContext());
         parser.parseInboundFrame();
         return DiscoverResultType.DATA;
@@ -37,17 +29,17 @@ public class T210DPushEventNotification extends DataPushNotification {
     @Override
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedDatas = new ArrayList<>();
-        if(parser.getCollectedDeviceIpAddres() != null){
+        if (parser.getCollectedDeviceIpAddres() != null) {
             collectedDatas.add(parser.getCollectedDeviceIpAddres());
         }
 
-        if(parser.getCollectedLoadProfile() != null && !parser.getCollectedLoadProfile().isEmpty()){
-            for(CollectedLoadProfile collectedLoadProfile: parser.getCollectedLoadProfile()){
+        if (parser.getCollectedLoadProfile() != null && !parser.getCollectedLoadProfile().isEmpty()) {
+            for (CollectedLoadProfile collectedLoadProfile : parser.getCollectedLoadProfile()) {
                 collectedDatas.add(collectedLoadProfile);
             }
         }
 
-        if(parser.getCollectedLogBooks() != null){
+        if (parser.getCollectedLogBooks() != null) {
             collectedDatas.addAll(parser.getCollectedLogBooks());
         }
 

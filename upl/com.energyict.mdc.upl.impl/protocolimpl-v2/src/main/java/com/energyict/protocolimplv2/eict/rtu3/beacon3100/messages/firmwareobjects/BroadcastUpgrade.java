@@ -1,14 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSConnectionException;
@@ -22,6 +13,12 @@ import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
@@ -171,7 +168,6 @@ public class BroadcastUpgrade {
         blockTransferProperties.getSecurityProvider().setInitialFrameCounter(highestFrameCounter + 1);
 
         final LatchComChannel latchComChannel = new LatchComChannel();
-        latchComChannel.addProperties(ConnectionTypeImpl.createTypeProperty(ComChannelType.SocketComChannel));
         final DlmsSession apduGeneratingDlmsSession = new DlmsSession(latchComChannel, blockTransferProperties);
         apduGeneratingDlmsSession.assumeConnected(blockTransferProperties.getMaxRecPDUSize(), blockTransferProperties.getConformanceBlock());
 

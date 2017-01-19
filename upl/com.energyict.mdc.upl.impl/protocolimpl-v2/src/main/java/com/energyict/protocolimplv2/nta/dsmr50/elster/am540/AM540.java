@@ -1,10 +1,17 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
@@ -37,14 +44,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CommunicationException;
@@ -80,9 +79,9 @@ import java.util.Optional;
  * Copyrights EnergyICT
  * V2 version of the AM540 protocol.
  * This version adds breaker & relais support and other IDIS features.
- * <p/>
+ * <p>
  * Note that this is a hybrid between DSMR5.0 and IDISP2.
- * <p/>
+ * <p>
  * The frame counter is not read out (no register in the meter has it), it is stored in the device cache so it can be re-used in the next communication session
  *
  * @author khe
@@ -90,13 +89,6 @@ import java.util.Optional;
  */
 public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol, SerialNumberSupport {
 
-    private Dsmr50LogBookFactory dsmr50LogBookFactory;
-    private AM540Messaging am540Messaging;
-    private long initialFrameCounter = -1;
-    private IDISMeterTopology meterTopology;
-    private LoadProfileBuilder loadProfileBuilder;
-    private Dsmr50RegisterFactory registerFactory;
-    private AM540Cache am540Cache;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
@@ -104,6 +96,13 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final TariffCalendarExtractor calendarExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
+    private Dsmr50LogBookFactory dsmr50LogBookFactory;
+    private AM540Messaging am540Messaging;
+    private long initialFrameCounter = -1;
+    private IDISMeterTopology meterTopology;
+    private LoadProfileBuilder loadProfileBuilder;
+    private Dsmr50RegisterFactory registerFactory;
+    private AM540Cache am540Cache;
 
     public AM540(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -124,7 +123,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
 
         HHUSignOnV2 hhuSignOn = null;
-        if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
+        if (comChannel.getComChannelType() == ComChannelType.SerialComChannel || comChannel.getComChannelType() == ComChannelType.OpticalComChannel) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, "P07210"));
@@ -155,7 +154,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         if (getDlmsSession() != null) { // this is called in init(), where we don't have a DLMS Session yet
             try {
                 this.am540Cache.setTXFrameCounter(getDlmsSessionProperties().getClientMacAddress(),
-                                                    getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
+                        getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
             } catch (Exception ex) {
                 getLogger().severe(ex.getCause() + ex.getMessage());
             }
@@ -169,7 +168,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
             am540Cache = (AM540Cache) deviceProtocolCache;
             this.initialFrameCounter = this.am540Cache.getTXFrameCounter(1);
-            getLogger().info(" - saving frameCounter: "+this.initialFrameCounter);
+            getLogger().info(" - saving frameCounter: " + this.initialFrameCounter);
         }
     }
 

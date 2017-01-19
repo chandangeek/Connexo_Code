@@ -1,16 +1,24 @@
 package com.energyict.dlms.protocolimplv2;
 
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.HDLCConnection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
-import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
@@ -23,7 +31,7 @@ import java.util.logging.Logger;
 /**
  * V2 version of the DlmsSession object, using a comChannel instead of input/output streams.
  * For usage with DeviceProtocols (not MeterProtocol or SmartMeterProtocol)
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 11/02/11
  * Time: 18:18
@@ -97,9 +105,9 @@ public class DlmsSession implements ProtocolLink {
      * @return the newly defined DLMSConnection
      */
     protected DlmsV2Connection defineTransportDLMSConnection() {
-        if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
+        if (comChannel.getComChannelType() == ComChannelType.SerialComChannel || comChannel.getComChannelType() == ComChannelType.OpticalComChannel) {
             return new HDLCConnection(comChannel, getProperties());
-        } else if (ComChannelType.SocketComChannel.is(comChannel)) {
+        } else if (comChannel.getComChannelType() == ComChannelType.SocketComChannel) {
             return new TCPIPConnection(comChannel, getProperties());
         } else {
             throw DeviceConfigurationException.unexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.SocketComChannel.name(), comChannel.getClass().getSimpleName());
@@ -162,7 +170,7 @@ public class DlmsSession implements ProtocolLink {
      * We fill our (client) signing certificate in the calling-AE-qualifier field, but only
      * if use digital signing (either for data transport security or for HLS7 authentication)
      * in this session, and we don't know the server signing certificate yet.
-     * <p/>
+     * <p>
      * Note that this is the ASN.1 DER encoded version of the X.509 v3 certificate.
      */
     private byte[] getCallingAEQualifier() {

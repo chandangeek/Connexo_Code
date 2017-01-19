@@ -3,6 +3,7 @@ package com.energyict.mdc.channels.serial.rf;
 import com.energyict.mdc.channels.SynchroneousComChannel;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 
 import java.io.InputStream;
@@ -11,7 +12,7 @@ import java.io.OutputStream;
 /**
  * Comchannel that represents the link to an RF Wavenis module over a serial port.
  * This is meant for usage with Waveport devices connected via USB.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/06/13
  * Time: 10:52
@@ -24,6 +25,11 @@ public class WavenisSerialComChannel extends SynchroneousComChannel implements S
     public WavenisSerialComChannel(InputStream inputStream, OutputStream outputStream, ServerSerialPort serialPort) {
         super(inputStream, outputStream);
         this.serialPort = serialPort;
+    }
+
+    @Override
+    public ComChannelType getComChannelType() {
+        return ComChannelType.WavenisSerialComChannel;
     }
 
     @Override

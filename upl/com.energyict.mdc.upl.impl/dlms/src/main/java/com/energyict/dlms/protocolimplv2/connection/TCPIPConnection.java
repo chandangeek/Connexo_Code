@@ -1,9 +1,5 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
-import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSUtils;
@@ -12,6 +8,9 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationConsumer;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationHandler;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataParseException;
@@ -109,7 +108,7 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
 
     /**
      * Listen for a while, to receive a response from the meter.
-     * <p/>
+     * <p>
      * Frames that have a wrong WPDU source or destination will be fully read & ignored.
      * After that, we will attempt to read out the next full frame, so the normal protocol sequence can continue.
      *
@@ -130,7 +129,7 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
 
         //If the protocol indicates we should avoid polling, AND it is a TCP connection, use this way of reading responses.
         //Else, use the old way (polling .available() frequently).
-        if ((pollingDelay == 0) && ComChannelType.SocketComChannel.is(comChannel)) {
+        if ((pollingDelay == 0) && comChannel.getComChannelType() == ComChannelType.SocketComChannel) {
             wpdu = new WPDU();
 
             //Read the header
@@ -305,7 +304,7 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
     /**
      * Read in a fixed number of bytes, or throw an IOException in case of a timeout.
      * No polling is done here. Timeout management is done in the underlying socket inputstream.
-     * <p/>
+     * <p>
      * If we receive an incomplete frame, the mechanism will keep trying to read in the remaining bytes until the timeout period.
      */
     private int readFixedNumberOfBytesWithoutPolling(byte[] frame) throws IOException {
@@ -449,7 +448,7 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
                     } else {
                         throw ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(e, maxRetries + 1);
                     }
-                }  else {
+                } else {
                     data = getRetryRequestPreparationHandler().prepareRetryRequest(data);
                 }
             }
@@ -589,10 +588,6 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
         return incrementFrameCounterForRetries;
     }
 
-    public void setRetryRequestPreparationHandler(RetryRequestV2PreparationHandler retryRequestPreparationHandler) {
-        this.retryRequestPreparationHandler = retryRequestPreparationHandler;
-    }
-
     public RetryRequestV2PreparationHandler getRetryRequestPreparationHandler() {
         if (this.retryRequestPreparationHandler == null) {
             this.retryRequestPreparationHandler = new RetryRequestV2PreparationHandler() {
@@ -603,6 +598,10 @@ public class TCPIPConnection implements DlmsV2Connection, RetryRequestV2Preparat
             };
         }
         return retryRequestPreparationHandler;
+    }
+
+    public void setRetryRequestPreparationHandler(RetryRequestV2PreparationHandler retryRequestPreparationHandler) {
+        this.retryRequestPreparationHandler = retryRequestPreparationHandler;
     }
 
     private enum State {
