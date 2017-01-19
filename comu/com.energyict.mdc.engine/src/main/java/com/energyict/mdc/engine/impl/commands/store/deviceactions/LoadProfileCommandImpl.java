@@ -19,13 +19,14 @@ import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.protocol.LoadProfileReader;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -140,7 +141,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      */
     public int findLoadProfileIntervalForLoadProfileReader(final LoadProfileReader loadProfileReader) {
         if (getLoadProfileReaderMap().containsKey(loadProfileReader)) {
-            return getLoadProfileReaderMap().get(loadProfileReader).getInterval().getSeconds();
+            return (int) getLoadProfileReaderMap().get(loadProfileReader).interval().get(ChronoUnit.SECONDS);
         }
         return LoadProfileCommand.INVALID_LOAD_PROFILE_INTERVAL;
     }

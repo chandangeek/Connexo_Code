@@ -13,10 +13,9 @@ public class DeviceTextRegister extends DeviceRegister {
      * Default constructor
      *
      * @param registerIdentifier the identifier of the Register
-     * @param readingTypeMRID
      */
-    public DeviceTextRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-        super(registerIdentifier, readingTypeMRID);
+    public DeviceTextRegister(RegisterIdentifier registerIdentifier) {
+        super(registerIdentifier);
     }
 
     @Override

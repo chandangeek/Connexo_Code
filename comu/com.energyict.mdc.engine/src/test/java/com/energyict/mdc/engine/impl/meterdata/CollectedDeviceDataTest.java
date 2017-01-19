@@ -28,7 +28,7 @@ public class CollectedDeviceDataTest {
     }
 
     private static CollectedData getSimpleCollectedData(){
-        return new BillingDeviceRegisters(getMockedRegisterIdentifier(), mock(String.class));
+        return new BillingDeviceRegisters(getMockedRegisterIdentifier());
     }
 
     @Test

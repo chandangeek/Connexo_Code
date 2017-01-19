@@ -1,7 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -13,18 +11,20 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.tasks.TopologyAction;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,7 +52,11 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         DeviceIdentifierById slaveDevice1 = new DeviceIdentifierById(2L, mock(DeviceService.class));
         DeviceIdentifierById slaveDevice2 = new DeviceIdentifierById(3L, mock(DeviceService.class));
 
-        CollectedTopology collectedTopology = new DeviceTopology(masterDevice, Arrays.asList(slaveDevice1, slaveDevice2));
+        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slaveDevice1, mock(CollectedTopology.ObservationTimestampProperty.class));
+        slaveDeviceIdentifiers.put(slaveDevice2, mock(CollectedTopology.ObservationTimestampProperty.class));
+
+        CollectedTopology collectedTopology = new DeviceTopology(masterDevice, slaveDeviceIdentifiers);
         CollectedDeviceInfo additionalDeviceInfoOfMaster = getAdditionalDeviceInfoOfMaster(masterDevice);
         collectedTopology.addAdditionalCollectedDeviceInfo(additionalDeviceInfoOfMaster);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -112,13 +116,8 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
     }
 
     private CollectedDeviceInfo getAdditionalDeviceInfoOfMaster(DeviceIdentifierById masterDevice) {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        ValueFactory valueFactory = mock(ValueFactory.class);
-        when(propertySpec.getName()).thenReturn("myProperty");
-        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         String propertyValue = "myPropertyValue";
-        when(valueFactory.toStringValue(propertyValue)).thenReturn(propertyValue);
-        return new DeviceProtocolProperty(masterDevice, propertySpec, propertyValue);
+        return new DeviceProtocolProperty(masterDevice, "myProperty", propertyValue);
     }
 
     @Test

@@ -3,9 +3,9 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
 
 import java.time.Clock;
 import java.time.Instant;

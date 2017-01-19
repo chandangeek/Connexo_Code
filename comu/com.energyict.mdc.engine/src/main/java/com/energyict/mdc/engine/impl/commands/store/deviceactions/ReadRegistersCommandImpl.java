@@ -98,22 +98,22 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     private Function<CollectedRegister, Stream<CollectedRegister>> toCollectedRegister(List<OfflineRegister> offlineRegisters) {
         return collectedRegister ->
                 offlineRegisters.stream().
-                        filter(offlineRegister -> offlineRegister.getReadingTypeMRID().equals(collectedRegister.getReadingTypeMRID())).
+                        filter(offlineRegister -> offlineRegister.getObisCode().equals(collectedRegister.getRegisterIdentifier().getRegisterObisCode())).
                         map(offlineRegister -> this.toCollectedRegister(offlineRegister, collectedRegister));
     }
 
     private CollectedRegister toCollectedRegister(OfflineRegister offlineRegister, CollectedRegister collectedRegister) {
         CollectedRegister register;
         if (!offlineRegister.isText()) {
-            register = new DefaultDeviceRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingTypeMRID());
+            register = new DefaultDeviceRegister(collectedRegister.getRegisterIdentifier());
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime(), collectedRegister.getEventTime());
             register.setCollectedData(collectedRegister.getCollectedQuantity());
         } else if (collectedRegister.getCollectedQuantity() != null) {
-            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingTypeMRID());
+            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier());
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
             register.setCollectedData(collectedRegister.getCollectedQuantity().toString());
         } else {
-            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingTypeMRID());
+            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier());
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
             register.setCollectedData(collectedRegister.getText());
         }
@@ -167,7 +167,7 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
 
     private CollectedRegister getCollectedRegisterForRegister(OfflineRegister register) {
         for (CollectedRegister collectedRegister : collectedRegisters) {
-            ObisCode registerObisCode = collectedRegister.getRegisterIdentifier().getDeviceRegisterObisCode();
+            ObisCode registerObisCode = collectedRegister.getRegisterIdentifier().getRegisterObisCode();
             if (registerObisCode != null && registerObisCode.equals(register.getObisCode())) {
                 return collectedRegister;
             }

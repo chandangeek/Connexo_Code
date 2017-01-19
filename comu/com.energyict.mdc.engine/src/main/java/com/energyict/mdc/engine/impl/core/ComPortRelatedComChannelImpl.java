@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.util.time.StopWatch;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
@@ -13,11 +12,12 @@ import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.ServerSerialPort;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,21 +30,21 @@ import java.time.Duration;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-24 (13:44)
  */
-public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
+public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
 
     private static final long NANOS_IN_MILLI = 1000000L;
 
     private final Clock clock;
     private final HexService hexService;
     private final EventPublisher eventPublisher;
+    private final StopWatch talking;
+    private final Counters sessionCounters = new Counters();
+    private final Counters taskSessionCounters = new Counters();
     private ComChannel comChannel;
     private ComChannelLogger logger;
     private ComPort comPort;
     private ByteArrayOutputStream bytesReadForLogging;
     private ByteArrayOutputStream bytesWrittenForLogging;
-    private final StopWatch talking;
-    private final Counters sessionCounters = new Counters();
-    private final Counters taskSessionCounters = new Counters();
 
     public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, HexService hexService, EventPublisher eventPublisher) {
         super();
@@ -69,7 +69,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
 
     @Override
     public ServerSerialPort getSerialPort() {
-        if (ComChannelType.SERIAL_COM_CHANNEL.is(getActualComChannel()) || ComChannelType.OPTICAL_COM_CHANNEL.is(getActualComChannel())) {
+        if (getComChannelType() == ComChannelType.SerialComChannel || getComChannelType() == ComChannelType.OpticalComChannel) {
             return ((SerialComChannel) getActualComChannel()).getSerialPort();
         }
         return null;
@@ -90,11 +90,11 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
         return this.getServerLogLevel(this.comPort);
     }
 
-    private LogLevel getServerLogLevel (ComPort comPort) {
+    private LogLevel getServerLogLevel(ComPort comPort) {
         return this.getServerLogLevel(comPort.getComServer());
     }
 
-    private LogLevel getServerLogLevel (ComServer comServer) {
+    private LogLevel getServerLogLevel(ComServer comServer) {
         return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
     }
 
@@ -117,8 +117,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
             this.bytesReadForLogging.write(byteRead);
             this.afterReading(1);
             return byteRead;
-        }
-        else {
+        } else {
             return this.afterReading(byteRead);
         }
     }
@@ -170,17 +169,16 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
         return bytesRead;
     }
 
-    private void safeWriteTo (byte[] bytes, ByteArrayOutputStream os) {
+    private void safeWriteTo(byte[] bytes, ByteArrayOutputStream os) {
         try {
             os.write(bytes);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             // Should not occur since the ByteArrayOutputStream is in memory
             e.printStackTrace(System.err);
         }
     }
 
-    private void safeWriteTo (byte[] bytes, int offset, int length, ByteArrayOutputStream os) {
+    private void safeWriteTo(byte[] bytes, int offset, int length, ByteArrayOutputStream os) {
         os.write(bytes, offset, length);
     }
 
@@ -207,8 +205,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
             this.ensureBytesWrittenForLogging();
             this.bytesWrittenForLogging.write(b);
             return this.afterWriting(1);
-        }
-        else {
+        } else {
             return this.afterWriting(numberOfBytesWritten);
         }
     }
@@ -224,13 +221,13 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
         return this.afterWriting(numberOfBytesWritten);
     }
 
-    private void ensureBytesWrittenForLogging () {
+    private void ensureBytesWrittenForLogging() {
         if (this.bytesWrittenForLogging == null) {
             this.bytesWrittenForLogging = new ByteArrayOutputStream();
         }
     }
 
-    private int afterWriting (int numberOfBytesWritten) {
+    private int afterWriting(int numberOfBytesWritten) {
         talking.stop();
         if (numberOfBytesWritten != -1) {
             Counters sessionCounters = this.sessionCounters;
@@ -275,6 +272,21 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
     }
 
     @Override
+    public void prepareForDisConnect() {
+        comChannel.prepareForDisConnect();
+    }
+
+    @Override
+    public void setTimeout(long millis) {
+        comChannel.setTimeout(millis);
+    }
+
+    @Override
+    public boolean isVoid() {
+        return comChannel.isVoid();
+    }
+
+    @Override
     public ComChannelType getComChannelType() {
         return comChannel.getComChannelType();
     }
@@ -284,7 +296,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
         comChannel.flush();
     }
 
-    private void logBytesWrittenIfAny () {
+    private void logBytesWrittenIfAny() {
         if (this.bytesWrittenForLogging != null) {
             this.logBytesWrittenAndReset();
             this.bytesWrittenForLogging = null;
@@ -300,7 +312,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
         this.publish(new WriteEvent(new ComServerEventServiceProvider(), this.comPort, bytesWrittenForLogging));
     }
 
-    private void logBytesReadIfAny () {
+    private void logBytesReadIfAny() {
         if (this.bytesReadForLogging != null) {
             this.logBytesReadAndReset();
             this.bytesReadForLogging = null;
@@ -331,7 +343,7 @@ public class ComPortRelatedComChannelImpl  implements ComPortRelatedComChannel {
         return this.taskSessionCounters;
     }
 
-    private void publish (ComServerEvent event) {
+    private void publish(ComServerEvent event) {
         this.eventPublisher.publish(event);
     }
 

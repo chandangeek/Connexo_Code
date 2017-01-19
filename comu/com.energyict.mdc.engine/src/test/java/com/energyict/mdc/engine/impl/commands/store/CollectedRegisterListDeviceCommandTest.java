@@ -97,14 +97,14 @@ public class CollectedRegisterListDeviceCommandTest {
         when(this.collectedRegister.getResultType()).thenReturn(ResultType.Supported);
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0");
-        when(this.collectedRegister.getReadingTypeMRID()).thenReturn(readingType.getMRID());
+        when(this.offlineRegister.getReadingTypeMRID()).thenReturn(readingType.getMRID());
         when(this.collectedRegisterIdentifier.getRegisterObisCode()).thenReturn(REGISTER_OBIS);
         when(this.collectedRegister.getRegisterIdentifier()).thenReturn(this.collectedRegisterIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.meteringService.getReadingType(Matchers.<String>any())).thenReturn(Optional.empty());
         when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl(this.meteringService));
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
-   }
+    }
 
     @Test
     public void testExecutionOfDeviceCommand() {
@@ -150,8 +150,8 @@ public class CollectedRegisterListDeviceCommandTest {
 //        freezeClock(currentTimeStamp);
 //
 //        // Assert That the channels are not linked
-//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getChannels().get(0), fromClock.toInstant()).isPresent()).isFalse();
-//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getChannels().get(1), fromClock.toInstant()).isPresent()).isFalse();
+//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getOfflineChannels().get(0), fromClock.toInstant()).isPresent()).isFalse();
+//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getOfflineChannels().get(1), fromClock.toInstant()).isPresent()).isFalse();
 //
 //        assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 //
@@ -167,8 +167,8 @@ public class CollectedRegisterListDeviceCommandTest {
 //        assertThat(singlePreStoredLoadProfile.getDeviceIdentifier().findDevice().getId()).isEqualTo(dataLogger.getId());
 //
 //        assertThat(singlePreStoredLoadProfile.getIntervalBlocks()).hasSize(2);
-//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(0).getReadingTypeMRID().getMRID());
-//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(1).getReadingTypeMRID().getMRID());
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getReadingTypeCode()).isEqualTo(loadProfile.getOfflineChannels().get(0).getReadingTypeMRID().getMRID());
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getReadingTypeCode()).isEqualTo(loadProfile.getOfflineChannels().get(1).getReadingTypeMRID().getMRID());
 //        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getIntervals()).hasSize(4);
 //        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getIntervals()).hasSize(4);
 //

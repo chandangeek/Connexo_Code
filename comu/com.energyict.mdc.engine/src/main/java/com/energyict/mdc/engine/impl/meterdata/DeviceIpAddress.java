@@ -5,18 +5,18 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceIpAddress;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.data.CollectedAddressProperties;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 /**
- * Provides an implementation for the {@link CollectedAddressProperties} interface
+ * Provides an implementation for the {@link CollectedDeviceInfo} interface
  * for address properties of an ip based {@link ConnectionType}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (15:29)
  */
-public class DeviceIpAddress extends CollectedDeviceData implements CollectedAddressProperties {
+public class DeviceIpAddress extends CollectedDeviceData implements CollectedDeviceInfo {
 
     private DeviceIdentifier deviceIdentifier;
     private String ipAddress;

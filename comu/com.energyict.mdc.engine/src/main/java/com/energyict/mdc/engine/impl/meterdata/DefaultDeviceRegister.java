@@ -25,8 +25,8 @@ public class DefaultDeviceRegister extends DeviceQuantityRegister {
      *
      * @param registerIdentifier the register identifier linked the to readOut data
      */
-    public DefaultDeviceRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-        super(registerIdentifier, readingTypeMRID);
+    public DefaultDeviceRegister(RegisterIdentifier registerIdentifier) {
+        super(registerIdentifier);
     }
 
     @Override

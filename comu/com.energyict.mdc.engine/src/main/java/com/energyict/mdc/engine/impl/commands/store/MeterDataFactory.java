@@ -10,12 +10,12 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterProtocolEvent;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,23 +40,23 @@ public final class MeterDataFactory {
      * @param deviceRegister The given collectedRegister
      * @return the newly created Reading
      */
-    public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister) {
-        ReadingImpl reading = getRegisterReading(deviceRegister);
+    public static Reading createReadingForDeviceRegisterAndObisCode(final CollectedRegister deviceRegister, final String readingTypeMRID) {
+        ReadingImpl reading = getRegisterReading(deviceRegister, readingTypeMRID);
         if (deviceRegister.getFromTime() != null && deviceRegister.getToTime() != null) {
             reading.setTimePeriod(deviceRegister.getFromTime().toInstant(), deviceRegister.getToTime().toInstant());
         }
         return reading;
     }
 
-    private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister) {
+    private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister, final String readingTypeMRID) {
         if (!collectedRegister.isTextRegister()) {
             return ReadingImpl.of(
-                    collectedRegister.getReadingTypeMRID(),
+                    readingTypeMRID,
                     collectedRegister.getCollectedQuantity() != null ? collectedRegister.getCollectedQuantity().getAmount() : BigDecimal.ZERO,
                     (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime().toInstant() : collectedRegister.getReadTime().toInstant()));
         } else {
             return ReadingImpl.of(
-                    collectedRegister.getReadingTypeMRID(),
+                    readingTypeMRID,
                     collectedRegister.getText(),
                     (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime().toInstant() : collectedRegister.getReadTime().toInstant()));
         }

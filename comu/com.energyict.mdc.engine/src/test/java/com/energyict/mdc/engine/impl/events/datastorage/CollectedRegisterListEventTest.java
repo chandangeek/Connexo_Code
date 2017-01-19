@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;

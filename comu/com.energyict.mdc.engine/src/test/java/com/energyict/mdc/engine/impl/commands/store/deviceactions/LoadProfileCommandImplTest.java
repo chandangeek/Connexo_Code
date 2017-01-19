@@ -1,20 +1,24 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.impl.commands.collect.*;
+import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.protocol.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.LoadProfileReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,10 +29,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -100,7 +105,6 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
     private OfflineLoadProfile mockOfflineLoadProfile(long loadProfileId) {
         OfflineLoadProfile offlineLoadProfile = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile.getLoadProfileId()).thenReturn(loadProfileId);
-        when(offlineLoadProfile.getLastReading()).thenReturn(Optional.empty());
         return offlineLoadProfile;
     }
 
@@ -169,10 +173,10 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         OfflineLoadProfile offlineLoadProfile4 = mockOfflineLoadProfile(4);
 
         OfflineLoadProfileChannel mockChannel = getMockChannel();
-        when(offlineLoadProfile1.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile2.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile3.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile4.getChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile1.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile2.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile3.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile4.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
 
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
@@ -201,11 +205,11 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         OfflineLoadProfile offlineLoadProfile2 = mockOfflineLoadProfile(2);
         when(offlineLoadProfile2.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
         List<OfflineLoadProfileChannel> channels = Arrays.asList(getMockChannel(), getMockChannel());
-        when(offlineLoadProfile2.getChannels()).thenReturn(channels);
+        when(offlineLoadProfile2.getOfflineChannels()).thenReturn(channels);
         OfflineLoadProfile offlineLoadProfile3 = mockOfflineLoadProfile(3);
         OfflineLoadProfile offlineLoadProfile4 = mockOfflineLoadProfile(4);
         when(offlineLoadProfile4.getLoadProfileTypeId()).thenReturn(loadProfileTypeId);
-        when(offlineLoadProfile4.getChannels()).thenReturn(channels);
+        when(offlineLoadProfile4.getOfflineChannels()).thenReturn(channels);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
         // Business method
@@ -232,10 +236,10 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         OfflineLoadProfile offlineLoadProfile4 = mockOfflineLoadProfile(4);
 
         OfflineLoadProfileChannel mockChannel = getMockChannel();
-        when(offlineLoadProfile1.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile2.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile3.getChannels()).thenReturn(Arrays.asList(mockChannel));
-        when(offlineLoadProfile4.getChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile1.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile2.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile3.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
+        when(offlineLoadProfile4.getOfflineChannels()).thenReturn(Arrays.asList(mockChannel));
 
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 
@@ -270,13 +274,13 @@ public class LoadProfileCommandImplTest extends CommonCommandImplTests {
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
 
         OfflineLoadProfile offlineLoadProfile1 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile1.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
+        when(offlineLoadProfile1.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile2 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile2.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
+        when(offlineLoadProfile2.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile3 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile3.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
+        when(offlineLoadProfile3.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineLoadProfile offlineLoadProfile4 = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile4.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL);
+        when(offlineLoadProfile4.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getAllOfflineLoadProfiles()).thenReturn(Arrays.asList(offlineLoadProfile1, offlineLoadProfile2, offlineLoadProfile3, offlineLoadProfile4));
 

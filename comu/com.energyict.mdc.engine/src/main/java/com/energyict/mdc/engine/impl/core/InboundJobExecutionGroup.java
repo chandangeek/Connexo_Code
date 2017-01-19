@@ -7,7 +7,7 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 

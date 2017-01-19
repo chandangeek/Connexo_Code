@@ -1,29 +1,25 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.device.data.CollectedConfigurationInformation;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceCache;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -62,23 +58,23 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-        return new MaximumDemandDeviceRegister(registerIdentifier, readingTypeMRID);
+    public CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier) {
+        return new MaximumDemandDeviceRegister(registerIdentifier);
     }
 
     @Override
-    public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-        return new AdapterDeviceRegister(registerIdentifier, readingTypeMRID);
+    public CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier) {
+        return new AdapterDeviceRegister(registerIdentifier);
     }
 
     @Override
-    public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-        return new BillingDeviceRegisters(registerIdentifier, readingTypeMRID);
+    public CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier) {
+        return new BillingDeviceRegisters(registerIdentifier);
     }
 
     @Override
-    public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-        return new DefaultDeviceRegister(registerIdentifier, readingTypeMRID);
+    public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier) {
+        return new DefaultDeviceRegister(registerIdentifier);
     }
 
     @Override
@@ -101,13 +97,6 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedMessage createCollectedMessageTopology(MessageIdentifier messageIdentifier, CollectedTopology collectedTopology) {
-        DeviceProtocolMessageWithCollectedTopology collectedMessage = new DeviceProtocolMessageWithCollectedTopology(messageIdentifier, collectedTopology);
-        collectedMessage.setSentDate(clock.instant());
-        return collectedMessage;
-    }
-
-    @Override
     public CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier) {
         return new UpdatedDeviceCache(deviceIdentifier);
     }
@@ -121,7 +110,7 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedMessage createCollectedMessage (MessageIdentifier deviceIdentifier) {
+    public CollectedMessage createCollectedMessage(MessageIdentifier deviceIdentifier) {
         DeviceProtocolMessage deviceProtocolMessage = new DeviceProtocolMessage(deviceIdentifier);
         deviceProtocolMessage.setSentDate(clock.instant());
         return deviceProtocolMessage;
@@ -133,28 +122,18 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier) {
-        return new DeviceLoadProfileConfiguration(profileObisCode, deviceIdentifier);
-    }
-
-    @Override
-    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier, boolean supported) {
-        return new DeviceLoadProfileConfiguration(profileObisCode, deviceIdentifier, supported);
-    }
-
-    @Override
     public CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileExtension, byte[] contents) {
         return new DeviceUserFileConfigurationInformation(deviceIdentifier, fileExtension, contents);
     }
 
     @Override
-    public CollectedData createCollectedAddressProperties(DeviceIdentifier deviceIdentifier, String ipAddress, String ipAddressPropertyName) {
+    public CollectedDeviceInfo createDeviceIpAddress(DeviceIdentifier deviceIdentifier, String ipAddress, String ipAddressPropertyName) {
         return new DeviceIpAddress(deviceIdentifier, ipAddress, ipAddressPropertyName);
     }
 
     @Override
-    public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, PropertySpec propertySpec, Object propertyValue) {
-        return new DeviceProtocolProperty(deviceIdentifier, propertySpec, propertyValue);
+    public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+        return new DeviceProtocolProperty(deviceIdentifier, propertyName, propertyValue);
     }
 
     @Override

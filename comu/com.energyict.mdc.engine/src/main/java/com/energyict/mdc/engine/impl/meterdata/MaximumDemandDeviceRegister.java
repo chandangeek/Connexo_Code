@@ -29,7 +29,7 @@ public class MaximumDemandDeviceRegister extends DeviceQuantityRegister {
      *
      * @param registerIdentifier the register identifier linked the to readOut data
      */
-    public MaximumDemandDeviceRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-        super(registerIdentifier, readingTypeMRID);
+    public MaximumDemandDeviceRegister(RegisterIdentifier registerIdentifier) {
+        super(registerIdentifier);
     }
 }

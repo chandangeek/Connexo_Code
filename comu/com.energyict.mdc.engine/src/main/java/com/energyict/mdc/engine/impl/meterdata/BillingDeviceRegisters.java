@@ -29,7 +29,7 @@ public class BillingDeviceRegisters extends DeviceQuantityRegister {
      *
      * @param registerIdentifier the register identifier linked the to readOut data
      */
-    public BillingDeviceRegisters(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
-        super(registerIdentifier, readingTypeMRID);
+    public BillingDeviceRegisters(RegisterIdentifier registerIdentifier) {
+        super(registerIdentifier);
     }
 }

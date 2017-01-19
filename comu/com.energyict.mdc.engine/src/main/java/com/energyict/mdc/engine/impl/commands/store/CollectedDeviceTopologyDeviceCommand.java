@@ -12,15 +12,16 @@ import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceTopologyEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
+import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<CollectedDeviceTopologyEvent> {
 
@@ -105,7 +106,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
 
     private void doStoreG3DeviceAddressInformation(ComServerDAO comServerDAO) {
         G3TopologyDeviceAddressInformation g3TopologyDeviceAddressInformation = this.deviceTopology.getG3TopologyDeviceAddressInformation();
-        if(g3TopologyDeviceAddressInformation != null){
+        if (g3TopologyDeviceAddressInformation != null) {
             try {
                 comServerDAO.storeG3IdentificationInformation(g3TopologyDeviceAddressInformation);
             } catch (CanNotFindForIdentifier e) {
@@ -117,13 +118,13 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
     }
 
     private void doStoreNeighbours(ComServerDAO comServerDAO) {
-        if(this.deviceTopology.getTopologyNeighbours().size() >= 1){
+        if (this.deviceTopology.getTopologyNeighbours().size() >= 1) {
             comServerDAO.storeNeighbours(this.deviceTopology.getDeviceIdentifier(), this.deviceTopology.getTopologyNeighbours());
         }
     }
 
     private void doStorePathSegments(ComServerDAO comServerDAO) {
-        if(this.deviceTopology.getTopologyPathSegments().size() >= 1){
+        if (this.deviceTopology.getTopologyPathSegments().size() >= 1) {
             comServerDAO.storePathSegments(this.deviceTopology.getTopologyPathSegments().get(0).getSource(), this.deviceTopology.getTopologyPathSegments());
         }
     }
@@ -167,7 +168,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
     private void signalTopologyChangedEvent(ComServerDAO comServerDAO) {
         if (this.topologyChanged && isVerifyTopologyAction()) {
             DeviceIdentifier deviceFinder = deviceTopology.getDeviceIdentifier();
-            comServerDAO.signalEvent(EventType.DEVICE_TOPOLOGY_CHANGED.topic(), new DeviceTopologyChangedEvent(deviceFinder, deviceTopology.getSlaveDeviceIdentifiers()));
+            comServerDAO.signalEvent(EventType.DEVICE_TOPOLOGY_CHANGED.topic(), new DeviceTopologyChangedEvent(deviceFinder, deviceTopology.getSlaveDeviceIdentifiers().keySet()));
         }
     }
 
@@ -193,7 +194,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         return serialBuilder.substring(0, serialBuilder.lastIndexOf(separator));
     }
 
-    private void handleSlaveMoves (ComServerDAO comServerDAO, Map<String, OfflineDevice> oldSlavesBySerialNumber, Map<String, DeviceIdentifier> actualSlavesByDeviceId) {
+    private void handleSlaveMoves(ComServerDAO comServerDAO, Map<String, OfflineDevice> oldSlavesBySerialNumber, Map<String, DeviceIdentifier> actualSlavesByDeviceId) {
         Set<String> actualSerialNumbers = new HashSet<>(actualSlavesByDeviceId.keySet());
         actualSerialNumbers.removeAll(oldSlavesBySerialNumber.keySet());
         for (String actualSerialNumber : actualSerialNumbers) {
@@ -210,7 +211,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         }
     }
 
-    private void handleSlaveRemoval (ComServerDAO comServerDAO, Map<String, OfflineDevice> oldSlavesBySerialNumber, Map<String, DeviceIdentifier> actualSlavesByDeviceId) {
+    private void handleSlaveRemoval(ComServerDAO comServerDAO, Map<String, OfflineDevice> oldSlavesBySerialNumber, Map<String, DeviceIdentifier> actualSlavesByDeviceId) {
         Set<String> oldSerialNumbers = new HashSet<>(oldSlavesBySerialNumber.keySet());
         oldSerialNumbers.removeAll(actualSlavesByDeviceId.keySet());
         for (String oldSerialNumber : oldSerialNumbers) {
@@ -227,9 +228,10 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         }
     }
 
-    private Map<String, DeviceIdentifier> mapActualSlavedToDeviceIdAndHandleUnknownDevices (ComServerDAO comServerDAO) {
+    private Map<String, DeviceIdentifier> mapActualSlavedToDeviceIdAndHandleUnknownDevices(ComServerDAO comServerDAO) {
+        //TODO port EISERVERSG-4445 from 9.1 code
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = new HashMap<>();
-        List<DeviceIdentifier> actualSlaveDevices = deviceTopology.getSlaveDeviceIdentifiers();
+        Collection<DeviceIdentifier> actualSlaveDevices = deviceTopology.getSlaveDeviceIdentifiers().keySet();
         for (DeviceIdentifier slaveId : actualSlaveDevices) {
             Optional<OfflineDevice> slave = Optional.empty();
             try {
@@ -241,8 +243,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
             }
             if (slave.isPresent()) {
                 actualSlavesByDeviceId.put(slave.get().getSerialNumber(), slaveId);
-            }
-            else {
+            } else {
                 this.handleAdditionOfSlave(comServerDAO, slaveId);
                 this.unknownSerialNumbersAddedToTopology.add(slaveId.getIdentifier());
                 this.topologyChanged = true;
@@ -251,7 +252,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         return actualSlavesByDeviceId;
     }
 
-    private Map<String, OfflineDevice> mapOldSlavesToSerialNumber (OfflineDevice device) {
+    private Map<String, OfflineDevice> mapOldSlavesToSerialNumber(OfflineDevice device) {
         Map<String, OfflineDevice> oldSlavesBySerialNumber = new HashMap<>();
         List<OfflineDevice> oldSlaveDevices = device.getAllSlaveDevices();
         for (OfflineDevice slave : oldSlaveDevices) {
@@ -299,7 +300,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
     }
 
     @Override
-    public ComServer.LogLevel getJournalingLogLevel () {
+    public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.INFO;
     }
 
@@ -312,7 +313,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
     }
 
     protected Optional<CollectedDeviceTopologyEvent> newEvent(List<Issue> issues) {
-        CollectedDeviceTopologyEvent event  =  new CollectedDeviceTopologyEvent(new ComServerEventServiceProvider(), deviceTopology);
+        CollectedDeviceTopologyEvent event = new CollectedDeviceTopologyEvent(new ComServerEventServiceProvider(), deviceTopology);
         event.addIssues(issues);
         return Optional.of(event);
     }

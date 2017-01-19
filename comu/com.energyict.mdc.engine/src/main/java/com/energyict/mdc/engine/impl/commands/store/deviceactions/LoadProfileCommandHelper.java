@@ -5,13 +5,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,13 +56,11 @@ public class LoadProfileCommandHelper {
         if (!channelInfos.isEmpty()) {
             LoadProfileReader loadProfileReader = new LoadProfileReader(
                     loadProfile.getObisCode(),
-                    loadProfile.getLastReading().isPresent() ? Date.from(loadProfile.getLastReading().get()) : null,
+                    loadProfile.getLastReading(),
                     null,
                     (int) loadProfile.getLoadProfileId(),
                     loadProfile.getMasterSerialNumber(),
-                    channelInfos,
-                    loadProfile.getDeviceIdentifier(),
-                    loadProfile.getLoadProfileIdentifier());
+                    channelInfos);
             if (!loadProfileReaderMap.containsValue(loadProfile)) {
                 loadProfileReaderMap.put(loadProfileReader, loadProfile);
             }
@@ -79,14 +76,14 @@ public class LoadProfileCommandHelper {
     protected static List<ChannelInfo> createChannelInfos(final OfflineLoadProfile offlineLoadProfile, ComTaskExecution comTaskExecution) {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         //Only the channels of the actual device. This is relevant for master/slave setup with 'combined' load profiles
-        offlineLoadProfile.getChannels().stream().filter(lpChannel -> lpChannel.isStoreData() && comTaskExecution.getDevice().getId() == lpChannel.getRtuId()).forEach(lpChannel -> {
+        offlineLoadProfile.getOfflineChannels().stream().filter(lpChannel -> lpChannel.isStoreData() && comTaskExecution.getDevice().getId() == lpChannel.getDeviceId()).forEach(lpChannel -> {
             //Only the channels of the actual device. This is relevant for master/slave setup with 'combined' load profiles
             channelInfos.add(new ChannelInfo(
                     channelInfos.size(),
                     lpChannel.getObisCode().toString(),
                     lpChannel.getUnit(),
                     getMasterDeviceIdentifier(lpChannel, offlineLoadProfile),
-                    lpChannel.getReadingType().getMRID()
+                    lpChannel.getReadingTypeMRID()
             ));
         });
         return channelInfos;

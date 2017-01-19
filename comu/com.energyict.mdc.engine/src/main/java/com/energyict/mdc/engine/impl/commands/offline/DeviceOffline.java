@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 
 /**
  * Implementation of OfflineDeviceContext that indicates to need everything.

@@ -28,11 +28,6 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
     private final RegisterIdentifier registerIdentifier;
 
     /**
-     * The MRID of the ReadingType of the Collected Register
-     */
-    private final String readingTypeMRID;
-
-    /**
      * The collected {@link Quantity}
      */
     private Quantity collectedQuantity;
@@ -72,10 +67,9 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
      *
      * @param registerIdentifier the identifier of the Register
      */
-    public DeviceRegister(RegisterIdentifier registerIdentifier, String readingTypeMRID) {
+    public DeviceRegister(RegisterIdentifier registerIdentifier) {
         super();
         this.registerIdentifier = registerIdentifier;
-        this.readingTypeMRID = readingTypeMRID;
     }
 
     @Override
@@ -123,42 +117,37 @@ public abstract class DeviceRegister extends CollectedDeviceData implements Coll
         return readTime;
     }
 
-    public Date getFromTime() {
-        return fromTime;
-    }
-
-    public Date getToTime() {
-        return toTime;
-    }
-
-    public Date getEventTime() {
-        return eventTime;
-    }
-
-    @Override
-    public String getReadingTypeMRID() {
-        return this.readingTypeMRID;
-    }
-
-    @Override
-    public RegisterIdentifier getRegisterIdentifier() {
-        return this.registerIdentifier;
-    }
-
     public void setReadTime(final Date readTime) {
         this.readTime = readTime;
+    }
+
+    public Date getFromTime() {
+        return fromTime;
     }
 
     protected void setFromTime(final Date fromTime) {
         this.fromTime = fromTime;
     }
 
+    public Date getToTime() {
+        return toTime;
+    }
+
     protected void setToTime(final Date toTime) {
         this.toTime = toTime;
     }
 
+    public Date getEventTime() {
+        return eventTime;
+    }
+
     protected void setEventTime(final Date eventTime) {
         this.eventTime = eventTime;
+    }
+
+    @Override
+    public RegisterIdentifier getRegisterIdentifier() {
+        return this.registerIdentifier;
     }
 
     @Override

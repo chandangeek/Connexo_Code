@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +11,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -29,12 +30,12 @@ public class CollectedDeviceTopologyEventTest {
     private AbstractComServerEventImpl.ServiceProvider serviceProvider;
 
     @Before
-    public void initMocks(){
+    public void initMocks() {
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
     }
 
     @Test
-    public void testCategory(){
+    public void testCategory() {
         CollectedTopology topology = mock(CollectedTopology.class);
 
         CollectedDeviceTopologyEvent event = new CollectedDeviceTopologyEvent(serviceProvider, topology);
@@ -42,13 +43,13 @@ public class CollectedDeviceTopologyEventTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNoPayload(){
+    public void testNoPayload() {
         // Business method
         new CollectedDeviceTopologyEvent(serviceProvider, null);
     }
 
     @Test
-    public void testToStringWithoutSlaveDevices(){
+    public void testToStringWithoutSlaveDevices() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
         CollectedTopology topology = mock(CollectedTopology.class);
@@ -63,7 +64,7 @@ public class CollectedDeviceTopologyEventTest {
     }
 
     @Test
-    public void testToStringWithSlaveDevices(){
+    public void testToStringWithSlaveDevices() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
 
@@ -75,7 +76,12 @@ public class CollectedDeviceTopologyEventTest {
 
         CollectedTopology topology = mock(CollectedTopology.class);
         when(topology.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        when(topology.getSlaveDeviceIdentifiers()).thenReturn(Arrays.asList(slave1,slave2));
+
+        Map<DeviceIdentifier, com.energyict.mdc.upl.meterdata.CollectedTopology.ObservationTimestampProperty> map = new HashMap<>();
+        com.energyict.mdc.upl.meterdata.CollectedTopology.ObservationTimestampProperty date = mock(com.energyict.mdc.upl.meterdata.CollectedTopology.ObservationTimestampProperty.class);
+        map.put(slave1, date);
+        map.put(slave2, date);
+        when(topology.getSlaveDeviceIdentifiers()).thenReturn(map);
 
         CollectedDeviceTopologyEvent event = new CollectedDeviceTopologyEvent(serviceProvider, topology);
         // Business method

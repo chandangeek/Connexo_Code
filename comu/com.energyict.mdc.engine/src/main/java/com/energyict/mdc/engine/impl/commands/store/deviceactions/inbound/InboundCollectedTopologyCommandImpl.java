@@ -10,10 +10,10 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.Collection;
@@ -73,7 +73,7 @@ public class InboundCollectedTopologyCommandImpl extends TopologyCommandImpl {
         PropertyDescriptionBuilder originalSlavesBuilder = builder.addListProperty("originalSlaves");
         appendSlaves(originalSlavesBuilder, getSlaveIdentifiersFromOfflineDevices());
         PropertyDescriptionBuilder receivedSlavesBuilder = builder.addListProperty("receivedSlaves");
-        appendSlaves(receivedSlavesBuilder, deviceTopology.getSlaveDeviceIdentifiers());
+        appendSlaves(receivedSlavesBuilder, deviceTopology.getSlaveDeviceIdentifiers().keySet());
         appendCollectedDeviceInfo(builder, deviceTopology.getAdditionalCollectedDeviceInfo());
     }
 

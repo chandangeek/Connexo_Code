@@ -104,9 +104,9 @@ public class OfflineLoadProfileImplTest {
         assertThat(offlineLoadProfile).isNotNull();
         assertThat(offlineLoadProfile.getObisCode()).isEqualTo(loadProfileObisCode);
         assertThat(offlineLoadProfile.getLoadProfileId()).isEqualTo(LOAD_PROFILE_ID);
-        assertThat(offlineLoadProfile.getInterval()).isEqualTo(PROFILE_INTERVAL);
-        assertThat(offlineLoadProfile.getLastReading().isPresent()).isTrue();
-        assertThat(offlineLoadProfile.getLastReading().get()).isEqualTo(LAST_READING);
+        assertThat(offlineLoadProfile.interval()).isEqualTo(PROFILE_INTERVAL.asTemporalAmount());
+        assertThat(offlineLoadProfile.getLastReading() != null).isTrue();
+        assertThat(offlineLoadProfile.getLastReading()).isEqualTo(LAST_READING);
         assertThat(offlineLoadProfile.getDeviceId()).isEqualTo(RTU_ID);
         assertThat(offlineLoadProfile.getLoadProfileTypeId()).isEqualTo(LOAD_PROFILE_TYPE_ID);
         assertThat(offlineLoadProfile.getMasterSerialNumber()).isEqualTo(MASTER_SERIAL_NUMBER);
@@ -120,10 +120,10 @@ public class OfflineLoadProfileImplTest {
         OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, topologyService, identificationService);
 
         // asserts
-        assertThat(offlineLoadProfile.getChannels()).isNotNull();
-        assertThat(offlineLoadProfile.getChannels().size()).isEqualTo(2);
-        assertThat(offlineLoadProfile.getAllChannels()).isNotNull();
-        assertThat(offlineLoadProfile.getAllChannels().size()).isEqualTo(4);
+        assertThat(offlineLoadProfile.getOfflineChannels()).isNotNull();
+        assertThat(offlineLoadProfile.getOfflineChannels().size()).isEqualTo(2);
+        assertThat(offlineLoadProfile.getAllOfflineChannels()).isNotNull();
+        assertThat(offlineLoadProfile.getAllOfflineChannels().size()).isEqualTo(4);
     }
 
     @Test
