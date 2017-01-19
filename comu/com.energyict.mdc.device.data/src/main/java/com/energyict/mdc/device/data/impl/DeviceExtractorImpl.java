@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 import java.util.Optional;
 
@@ -23,6 +24,11 @@ public class DeviceExtractorImpl implements DeviceExtractor {
     @Activate
     public void activate() {
         Services.deviceExtractor(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.deviceExtractor(null);
     }
 
     @Override
