@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.inbound;
 
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 
 /**
  * Adds behavior to {@link InboundDeviceProtocol}.
@@ -23,6 +23,6 @@ public interface BinaryInboundDeviceProtocol extends InboundDeviceProtocol {
      *
      * @param comChannel The ComChannel
      */
-    public void initComChannel(ComChannel comChannel);
+    void initComChannel(ComChannel comChannel);
 
 }

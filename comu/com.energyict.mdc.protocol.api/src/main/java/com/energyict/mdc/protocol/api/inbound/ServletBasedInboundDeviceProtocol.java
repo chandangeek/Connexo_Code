@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.api.inbound;
 
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +26,6 @@ public interface ServletBasedInboundDeviceProtocol extends InboundDeviceProtocol
      * @param request The HttpServletRequest
      * @param response The HttpServletResponse
      */
-    public void init (HttpServletRequest request, HttpServletResponse response);
+    void init(HttpServletRequest request, HttpServletResponse response);
 
 }
