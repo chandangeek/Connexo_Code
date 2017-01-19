@@ -62,6 +62,12 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
             PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName),
             PropertySpecFactory.bigDecimalPropertySpecWithValues(defaultTariffCodeAttrributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3))),
+    ACTIVITY_CALENDER_WITH_DATETIME_AND_DAY_PROFILE_DEFINITION(15, PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
+            PropertySpecFactory.stringPropertySpec(activityCalendarObiscodeAttributeName),
+            PropertySpecFactory.stringPropertySpec(specialDaysTableObiscodeAttributeName),
+            PropertySpecFactory.stringPropertySpec(dayProfileTableDefinitionAttributeName),
+            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
     ;
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;

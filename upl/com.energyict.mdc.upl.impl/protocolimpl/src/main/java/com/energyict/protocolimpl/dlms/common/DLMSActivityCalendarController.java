@@ -87,6 +87,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
     private static final byte[] initialSpecialDayDateArray = new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
     private static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");
     private static final ObisCode SPECIAL_DAYS_TABLE_OBISCODE = ObisCode.fromString("0.0.11.0.0.255");
+    private ObisCode dayProfileScriptDefaultLogicalNameObis = ObisCode.fromString("0.0.10.0.100.255");
 
     private CosemObjectFactory cosemObjectFactory;
     private TimeZone timeZone;
@@ -143,6 +144,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
      * If the content is encoded as Base64, then during parsing it will be decoded back to plain content.?
      */
     protected final boolean xmlContentEncodedAsBase64;
+    private Array dayProfileTable;
 
     public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone) {
         this(cosemObjectFactory, timeZone, true);
@@ -154,6 +156,11 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
 
     public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode) {
         this(cosemObjectFactory, timeZone, true, activityCalendarObisCode, specialDaysCalendarObisCode);
+    }
+
+    public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode, Array dayProfileTable) {
+        this(cosemObjectFactory, timeZone, true, activityCalendarObisCode, specialDaysCalendarObisCode);
+        this.dayProfileTable = dayProfileTable;
     }
 
     public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, boolean xmlContentEncodedAsBase64, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode) {
@@ -194,6 +201,9 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
      * @return the current {@link #dayArray}
      */
     protected Array getDayArray() {
+        if(dayProfileTable != null){
+            return dayProfileTable;
+        }
         return dayArray;
     }
 
@@ -564,7 +574,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
                                 dpa.setScriptSelector(new Unsigned16(Integer.valueOf(schedule.getTextContent())));
                             }
                         }
-                        dpa.setScriptLogicalName(OctetString.fromObisCode("0.0.10.0.100.255"));
+                        dpa.setScriptLogicalName(OctetString.fromObisCode(dayProfileScriptDefaultLogicalNameObis));
                         dpsArray.addDataType(dpa);
                     }
                     dp.setDayProfileActions(dpsArray);

@@ -280,9 +280,17 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     protected CollectedRegister getCollectedRegisterForComposedObject(ComposedObject composedObject, OfflineRegister offlineRegister, ComposedCosemObject composedCosemObject) throws IOException {
         ComposedRegister composedRegister = ((ComposedRegister) composedObject);
         Unit unit = Unit.get(BaseUnit.UNITLESS);
+        Issue scalerUnitIssue = null;
         if (composedRegister.getRegisterUnitAttribute() != null &&
                 composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()).getStructure().getDataType(1) != null) {
-            unit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute())).getEisUnit();
+            ScalerUnit scalerUnit = null;
+            try {
+                scalerUnit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()));
+                unit = scalerUnit.getEisUnit();
+            } catch (Exception e) {
+                scalerUnitIssue =  MdcManager.getIssueFactory().createProblem(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
+                        "Unable to resolve the unit code value: " + scalerUnit.getUnitCode());
+            }
         }
         Date captureTime = null;
         Issue timeZoneIssue = null;
@@ -311,6 +319,9 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         CollectedRegister collectedRegister = createCollectedRegister(registerValue, offlineRegister);
         if (timeZoneIssue!=null) {
             collectedRegister.setFailureInformation(ResultType.ConfigurationError, timeZoneIssue);
+        }
+        if(scalerUnitIssue != null) {
+            collectedRegister.setFailureInformation(ResultType.DataIncomplete, scalerUnitIssue);
         }
 
         return collectedRegister;

@@ -57,6 +57,7 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_DATA_PROTECTION);
 
         supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
+        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_WITH_DATETIME_AND_DAY_PROFILE_DEFINITION);
         supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
         supportedMessages.add(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDevices);
         supportedMessages.add(MBusSetupDeviceMessage.InstallWirelessMbusDevices);

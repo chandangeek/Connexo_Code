@@ -64,6 +64,9 @@ public class DeviceMessageConstants {
     public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
+    public static final String activityCalendarObiscodeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.obiscode";
+    public static final String specialDaysTableObiscodeAttributeName = "ActivityCalendarDeviceMessage.specialDaysTable.obiscode";
+    public static final String dayProfileTableDefinitionAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.dayProfileTable";
     public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
     public static final String contractsXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.contractsxmluserfile";
     public static final String specialDaysCodeTableAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";

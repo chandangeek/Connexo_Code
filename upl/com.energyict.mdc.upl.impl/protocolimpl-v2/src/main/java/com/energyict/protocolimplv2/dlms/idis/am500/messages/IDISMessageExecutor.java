@@ -415,7 +415,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         data.setValueAttr(new Unsigned32(filter));
     }
 
-    private void writeActivityCalendar(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    protected void writeActivityCalendar(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String name = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue();
         String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();

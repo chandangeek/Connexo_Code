@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D;
 
+import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -10,6 +11,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message.T210DMessaging;
+import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties.T210DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties.T210DProperties;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.registers.T210DRegisterFactory;
 
@@ -21,11 +23,6 @@ import java.util.logging.Level;
  * Created by cisac on 6/27/2016.
  */
 public class T210D extends AM130 {
-
-    @Override
-    protected IDISProperties getNewInstanceOfProperties() {
-        return new T210DProperties();
-    }
 
     @Override
     protected void checkCacheObjects() {
@@ -80,6 +77,16 @@ public class T210D extends AM130 {
             getLogger().log(Level.FINEST, e.getMessage());
             throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
         }
+    }
+
+    @Override
+    protected IDISProperties getNewInstanceOfProperties() {
+        return new T210DProperties();
+    }
+
+    @Override
+    protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
+        return new T210DConfigurationSupport();
     }
 
     //TODO: remove this when the device will offer propper support for realeasing the association

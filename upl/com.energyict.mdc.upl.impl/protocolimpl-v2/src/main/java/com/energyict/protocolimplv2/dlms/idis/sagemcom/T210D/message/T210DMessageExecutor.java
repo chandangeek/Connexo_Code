@@ -17,6 +17,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor;
@@ -62,6 +64,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     private DataProtection dataProtection;
     private OfflineDeviceMessage pendingMessage;
     private CollectedMessage collectedMessage;
+    private ActivityCalendarController activityCalendarController;
 
     public T210DMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);
@@ -98,12 +101,40 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             remoteReconnectWithDataProtection();
         } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION)) {
             firmwareImageActivationWithDataProtection();
+        } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_WITH_DATETIME_AND_DAY_PROFILE_DEFINITION)) {
+            writeActivityCalendarOverconsumptions();
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP)) {
             setDataProtectionRequiredProtection();
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
         }
         return collectedMessage;
+    }
+
+    private void writeActivityCalendarOverconsumptions() throws IOException {
+        ObisCode activityCalendarObisCode = ObisCode.fromString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarObiscodeAttributeName).getDeviceMessageAttributeValue());
+        ObisCode specialDaysTableObisCode = ObisCode.fromString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.specialDaysTableObiscodeAttributeName).getDeviceMessageAttributeValue());
+        String dayProfileTableStringDefinition = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dayProfileTableDefinitionAttributeName).getDeviceMessageAttributeValue();
+        activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone(), activityCalendarObisCode, specialDaysTableObisCode, getDayProfileTable(dayProfileTableStringDefinition));
+        writeActivityCalendar(pendingMessage);
+    }
+
+    /**
+     *
+     * @param dayProfileTableStringDefinition the string definition of the day_profile_table as described bellow
+     *                                        day1_id, <start_time, script_logical_name, threshold><start_time, script_logical_name, threshold>etc;
+     *                                        day2_id, <start_time, script_logical_name, threshold><start_time, script_logical_name, threshold>etc;
+     *                                        etc
+     * @return
+     */
+    private Array getDayProfileTable(String dayProfileTableStringDefinition){
+        String[] dayProfilesStringDefinition = dayProfileTableStringDefinition.split(";");
+        Array dayProfileTable = new Array();
+        for(String dayProfileDefinition: dayProfilesStringDefinition){
+            DayProfile dayProfile = new DayProfile(dayProfileDefinition);
+            dayProfileTable.addDataType(dayProfile);
+        }
+        return dayProfileTable;
     }
 
     protected int getMaxMBusSlaves() {
@@ -537,6 +568,11 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         return encryptedData;
     }
 
+    /**
+     * NOTE: Currently the device supports only digital signing for data protection
+     * @return
+     * @throws IOException
+     */
     private List<ProtectionType> getRequestProtectionTypeLayers() throws IOException {
         //read the required protection configured in Data Protection object
 
@@ -573,6 +609,14 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
 
     private SecurityContext getSecurityContext() {
         return getProtocol().getDlmsSession().getAso().getSecurityContext();
+    }
+
+    @Override
+    protected ActivityCalendarController getActivityCalendarController() {
+        if(activityCalendarController == null){
+            activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone());
+        }
+        return activityCalendarController;
     }
 
 }

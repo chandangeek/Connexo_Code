@@ -31,7 +31,7 @@ public class T210DPushEventNotification extends DataPushNotification {
 
     @Override
     public boolean hasSupportForRequestsOnInbound() {
-        return true;
+        return false;
     }
 
     @Override
