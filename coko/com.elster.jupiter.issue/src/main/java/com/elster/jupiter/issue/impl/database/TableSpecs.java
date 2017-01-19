@@ -64,6 +64,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_REASON_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_TEMPLATE_NAME;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.CREATION_RULE_UQ_NAME;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_ASSIGNEE_TYPE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_DEVICE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_DUE_DATE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_IMPACT;
@@ -400,6 +401,7 @@ public enum TableSpecs {
             Column reasonRefIdColumn = table.column(ISSUE_COLUMN_REASON_ID).varChar(NAME_LENGTH).notNull().add();
             Column statusRefIdColumn = table.column(ISSUE_COLUMN_STATUS_ID).varChar(NAME_LENGTH).notNull().add();
             Column deviceRefIdColumn = table.column(ISSUE_COLUMN_DEVICE_ID).number().conversion(NUMBER2LONG).add();
+            table.column(ISSUE_COLUMN_ASSIGNEE_TYPE).map("assigneeType").number().conversion(NUMBER2ENUM).upTo(Version.version(10,3)).add();
             Column userRefIdColumn = table.column(ISSUE_COLUMN_USER_ID).number().conversion(NUMBER2LONG).add();
             Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();

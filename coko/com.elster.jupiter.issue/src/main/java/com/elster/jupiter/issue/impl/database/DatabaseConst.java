@@ -19,6 +19,7 @@ public final class DatabaseConst {
     public static final String ISSUE_COLUMN_REASON_ID = "REASON_ID";
     public static final String ISSUE_COLUMN_STATUS_ID = "STATUS";
     public static final String ISSUE_COLUMN_DEVICE_ID = "DEVICE_ID";
+    public static final String ISSUE_COLUMN_ASSIGNEE_TYPE = "ASSIGNEE_TYPE";
     public static final String ISSUE_COLUMN_USER_ID = "ASSIGNEE_USER_ID";
     public static final String ISSUE_COLUMN_WORKGROUP_ID = "ASSIGNEE_WORKGROUP_ID";
     public static final String ISSUE_COLUMN_RULE_ID = "RULE_ID";
