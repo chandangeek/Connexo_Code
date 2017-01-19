@@ -140,6 +140,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         when(rule.getTemplate()).thenReturn(template);
         when(rule.getModTime()).thenReturn(instant);
         when(rule.getCreateTime()).thenReturn(instant);
+        when(rule.getPriority()).thenReturn(com.elster.jupiter.issue.share.Priority.DEFAULT);
         when(rule.getVersion()).thenReturn(2L);
         when(issueCreationService.findCreationRuleById(1)).thenReturn(Optional.of(rule));
         PropertyInfo propertyInfo = new PropertyInfo("property", "property", new PropertyValueInfo<>("value_for_rule", null), null, false);

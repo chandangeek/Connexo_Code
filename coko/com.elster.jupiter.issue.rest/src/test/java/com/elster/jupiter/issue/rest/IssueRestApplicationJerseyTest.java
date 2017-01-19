@@ -328,6 +328,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(rule.getTemplate()).thenReturn(template);
         when(rule.getModTime()).thenReturn(instant);
         when(rule.getCreateTime()).thenReturn(instant);
+        when(rule.getPriority()).thenReturn(com.elster.jupiter.issue.share.Priority.DEFAULT);
         when(rule.getVersion()).thenReturn(2L);
         return rule;
     }
