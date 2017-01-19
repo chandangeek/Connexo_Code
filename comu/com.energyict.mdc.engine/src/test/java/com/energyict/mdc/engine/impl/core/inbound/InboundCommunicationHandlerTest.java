@@ -43,7 +43,7 @@ import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.impl.monitor.InboundComPortMonitorImpl;
 import com.energyict.mdc.engine.impl.monitor.InboundComPortOperationalStatisticsImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;

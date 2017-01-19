@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 
 import java.time.Duration;
 

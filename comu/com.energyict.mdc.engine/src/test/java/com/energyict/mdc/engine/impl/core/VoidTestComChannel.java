@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.ComChannelType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 
 /**
  * Provides an implementation of the {@link ComChannel} interface

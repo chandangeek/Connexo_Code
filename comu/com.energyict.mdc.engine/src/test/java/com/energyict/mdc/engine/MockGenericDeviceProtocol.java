@@ -10,7 +10,7 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;

@@ -18,10 +18,10 @@ import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.OpticalDriver;
@@ -45,7 +45,11 @@ import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link HandHeldUnitEnablerCommand} component
@@ -246,8 +250,8 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
         }
 
         @Override
-        public Direction getDirection() {
-            return Direction.OUTBOUND;
+        public ConnectionTypeDirection getDirection() {
+            return ConnectionTypeDirection.OUTBOUND;
         }
 
         @Override

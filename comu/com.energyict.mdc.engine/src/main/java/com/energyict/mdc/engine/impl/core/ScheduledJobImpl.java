@@ -1,7 +1,11 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
@@ -10,7 +14,7 @@ import com.energyict.mdc.engine.impl.commands.store.RescheduleToNextComWindow;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 

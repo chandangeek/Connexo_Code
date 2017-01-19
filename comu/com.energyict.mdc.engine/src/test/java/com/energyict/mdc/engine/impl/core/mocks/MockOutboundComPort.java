@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.ports.ComPortType;
 
 import java.util.Collections;
 import java.util.List;

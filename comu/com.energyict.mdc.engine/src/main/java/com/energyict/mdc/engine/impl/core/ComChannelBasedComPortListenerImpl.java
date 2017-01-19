@@ -4,9 +4,9 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.protocol.ComChannel;
 
 import java.util.concurrent.ThreadFactory;
 

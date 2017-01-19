@@ -6,7 +6,6 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.ModemComponent;
@@ -16,7 +15,8 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.SerialPortException;
 import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import java.io.IOException;

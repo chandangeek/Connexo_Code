@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.core.mocks;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 /**
  * Provides a mock implementation for the {@link TCPBasedInboundComPort} interface.

@@ -49,9 +49,9 @@ import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailur
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
