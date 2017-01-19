@@ -20,6 +20,7 @@ import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
+import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.DemoDataUpgrade10_1_Command;
@@ -123,6 +124,7 @@ import java.time.Clock;
         "osgi.command.function=createSPEDevice",
         "osgi.command.function=createAlarmCreationRule",
         "osgi.command.function=upgradeDemoData",
+        "osgi.command.function=createPowerUser"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -727,6 +729,13 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
+    public void createPowerUser() {
+        CreatePowerUserCommand command = injector.getInstance(CreatePowerUserCommand.class);
+        //creates a user with user & pass: root root
+        command.run();
+    }
+
+    @SuppressWarnings("unused")
     public void createDemoData() {
         System.err.println("Usage: createDemoData <comServerName> <host> <startDate, e.g. 2015-01-01> [<numberOfDevicesPerType>]");
     }
@@ -749,14 +758,14 @@ public class DemoServiceImpl {
      */
     @SuppressWarnings("unused")
     public void createDemoData(String comServerName, String host, String ignored, String numberOfDevicesPerType, boolean skipFirmwareManagementData) {
-            CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
-            command.setComServerName(comServerName);
-            command.setHost(host);
-            if (numberOfDevicesPerType != null) {
-                command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
-            }
-            command.setSkipFirmwareManagementData(skipFirmwareManagementData);
-            command.run();
+        CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
+        command.setComServerName(comServerName);
+        command.setHost(host);
+        if (numberOfDevicesPerType != null) {
+            command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
+        }
+        command.setSkipFirmwareManagementData(skipFirmwareManagementData);
+        command.run();
     }
 
     @SuppressWarnings("unused")
@@ -767,15 +776,15 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host, String numberOfDevicesPerType) {
-            CreateCollectRemoteDataSetupCommand command = injector.getInstance(CreateCollectRemoteDataSetupCommand.class);
-            command.setComServerName(comServerName);
-            command.setHost(host);
-            if (numberOfDevicesPerType != null) {
-                command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
-            } else {
-                command.setDevicesPerType(null);
-            }
-            command.run();
+        CreateCollectRemoteDataSetupCommand command = injector.getInstance(CreateCollectRemoteDataSetupCommand.class);
+        command.setComServerName(comServerName);
+        command.setHost(host);
+        if (numberOfDevicesPerType != null) {
+            command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
+        } else {
+            command.setDevicesPerType(null);
+        }
+        command.run();
     }
 
     @SuppressWarnings("unused")
