@@ -88,7 +88,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                     title: Uni.I18n.translate('general.selectFavoriteDeviceGroups', 'DSH', 'Select favorite device groups'),
                     route: 'selectfavoritedevicegroups',
                     controller: 'Dsh.controller.OperatorDashboard',
-                    //privileges: ['privilege.administrate.deviceGroup'],
+                    privileges: ['privilege.view.deviceGroupDetail','privilege.administrate.deviceOfEnumeratedGroup','privilege.administrate.deviceGroup','privilege.view.device'],
                     action: 'showMyFavoriteDeviceGroups'
                 }
             }
