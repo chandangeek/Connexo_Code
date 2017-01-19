@@ -5,7 +5,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -31,7 +31,7 @@ public interface Issue {
      * @return The timestamp on which this Issue was created
      */
     @XmlAttribute
-    Date getTimestamp();
+    Instant getTimestamp();
 
     /**
      * Gets a human readable description that explains this Issue.
