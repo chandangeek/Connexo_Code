@@ -1,7 +1,10 @@
 Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
     extend: 'Ext.window.Window',
     alias: 'widget.changeConnectionItemPopUp',
+    closable: false,
     autoShow: true,
+    minWidth: 450,
+    resizable: false,
     modal: true,
     floating: true,
     frame: true,
@@ -18,7 +21,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                 {
                     xtype: 'label',
                     itemId: 'mdc-padding-label',
-                    margin: '20 0 20 0'
+                    margin: '10 0 10 0'
                 }
             ]
         }
@@ -89,7 +92,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
                         itemId: 'cancelLink',
                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                         ui: 'link',
-                        handler: function () {
+                        handler: function() {
                             me.close();
                         }
                     }
