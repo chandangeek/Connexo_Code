@@ -233,8 +233,11 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case firmwareUpdateUserFileAttributeName: {
                 return ProtocolTools.getHexStringFromBytes(this.messageFileExtractor.binaryContents((DeviceMessageFile) messageAttribute), "");
             }
-            case activityCalendarCodeTableAttributeName:
+            case activityCalendarCodeTableAttributeName: {
+                this.calendarExtractor.threadContext().setDevice(offlineDevice);
+                this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
                 return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
+            }
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
             case emergencyProfileGroupIdListAttributeName:

@@ -150,6 +150,8 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());     //Epoch
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+            this.calendarExtractor.threadContext().setDevice(offlineDevice);
+            this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
             return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return convertSpecialDaysCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);

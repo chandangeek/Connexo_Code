@@ -290,6 +290,8 @@ public class MessageFactory implements DeviceMessageSupport {
                 return dateFormatter.format(gmtCal.getTime());
             }
         } else if (messageAttribute instanceof TariffCalendar) {
+            this.extractor.threadContext().setDevice(offlineDevice);
+            this.extractor.threadContext().setMessage(offlineDeviceMessage);
             return convertCodeTableToXML((TariffCalendar) messageAttribute);
         } else {
             return messageAttribute.toString();
