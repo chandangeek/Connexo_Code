@@ -3,6 +3,8 @@ package com.energyict.protocolimplv2.common.objectserialization.codetable.object
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -24,8 +26,12 @@ public class SeasonTransitionObject implements Serializable {
         SeasonTransitionObject sto = new SeasonTransitionObject();
         sto.setSeasonId(0);
         sto.setSeasonName(null);
-        sto.setStartDate(transition.start().map(Date::from).orElse(null));
+        sto.setStartDate(transition.start().map(SeasonTransitionObject::toDate).orElse(null));
         return sto;
+    }
+
+    private static Date toDate(LocalDate localDate) {
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     public int getSeasonId() {
@@ -60,12 +66,10 @@ public class SeasonTransitionObject implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("SeasonTransitionObject");
-        sb.append("{seasonId=").append(seasonId);
-        sb.append(", seasonName='").append(seasonName).append('\'');
-        sb.append(", startDate=").append(startDate);
-        sb.append('}');
-        return sb.toString();
+        return "SeasonTransitionObject" +
+                "{seasonId=" + seasonId +
+                ", seasonName='" + seasonName + '\'' +
+                ", startDate=" + startDate +
+                '}';
     }
 }

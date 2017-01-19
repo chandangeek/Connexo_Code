@@ -78,7 +78,7 @@ public class CodeTableXml extends CodeTableXmlParsing {
             } else {
                 root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
             }
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calendar)));
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calendar).orElse("0")));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);
             rootActCalendar.appendChild(convertSeasonProfileToXml(ctp.getSeasonProfiles(), document));

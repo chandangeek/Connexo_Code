@@ -156,7 +156,7 @@ public class CodeTableXmlParsing {
                 root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
             } else {
             }
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calender)));
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calender).orElse("0")));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);
