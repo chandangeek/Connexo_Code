@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 

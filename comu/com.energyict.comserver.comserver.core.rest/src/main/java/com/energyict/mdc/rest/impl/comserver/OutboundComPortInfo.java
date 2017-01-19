@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, OutboundComPort.OutboundComPortBuilder> {
 
-    public List<VersionInfo<Long>> outboundComPortPoolIds = new ArrayList<>();;
+    public List<VersionInfo<Long>> outboundComPortPoolIds = new ArrayList<>();
 
     public OutboundComPortInfo() {
         this.direction = "outbound";

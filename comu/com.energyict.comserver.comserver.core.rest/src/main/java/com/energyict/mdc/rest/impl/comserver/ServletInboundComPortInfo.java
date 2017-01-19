@@ -3,7 +3,8 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+
 import java.util.Optional;
 
 public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedInboundComPort, ServletBasedInboundComPort.ServletBasedInboundComPortBuilder> {

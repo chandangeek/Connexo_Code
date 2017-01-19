@@ -14,7 +14,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.config.security.Privileges;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -109,7 +109,7 @@ public class ComPortPoolResource {
         ConnectionTypePluggableClass connectionTypePluggableClass = this.findConnectionTypePluggableClassOrThrowException(Long.parseLong(compatibleWithConnectionType));
         Set<ComPortType> supportedComPortTypes = connectionTypePluggableClass.getConnectionType().getSupportedComPortTypes();
         for (ComPortType supportedComPortType : supportedComPortTypes) {
-            if(connectionTypePluggableClass.getConnectionType().getDirection().equals(ConnectionType.Direction.OUTBOUND)){
+            if(connectionTypePluggableClass.getConnectionType().getDirection().equals(ConnectionType.ConnectionTypeDirection.OUTBOUND)){
                 comPortPools.addAll(engineConfigurationService.findOutboundComPortPoolsByType(supportedComPortType));
             } else {
                 comPortPools.addAll(engineConfigurationService.findInboundComPortPoolsByType(supportedComPortType));
@@ -129,7 +129,7 @@ public class ComPortPoolResource {
         PartialConnectionTask partialConnectionTask = this.deviceConfigurationService.findPartialConnectionTask(Integer.parseInt(compatibleWithConnectionTask)).get();
         Set<ComPortType> supportedComPortTypes =  partialConnectionTask.getConnectionType().getSupportedComPortTypes();
         for (ComPortType supportedComPortType : supportedComPortTypes) {
-            if(partialConnectionTask.getPluggableClass().getConnectionType().getDirection().equals(ConnectionType.Direction.OUTBOUND)){
+            if(partialConnectionTask.getPluggableClass().getConnectionType().getDirection().equals(ConnectionType.ConnectionTypeDirection.OUTBOUND)){
                 comPortPools.addAll(engineConfigurationService.findOutboundComPortPoolsByType(supportedComPortType));
             } else {
                 comPortPools.addAll(engineConfigurationService.findInboundComPortPoolsByType(supportedComPortType));

@@ -3,7 +3,7 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.Parities;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 public enum ComServerFieldTranslationKeys implements TranslationKey {
 
