@@ -20,7 +20,9 @@ public class DeviceOfflineFlags implements OfflineDeviceContext, Serializable {
     public static final int LOG_BOOKS_FLAG = 0b0000_0000_0000_0000_0000_0000_0001_0000;
     public static final int PENDING_MESSAGES_FLAG = 0b0000_0000_0000_0000_0000_0000_0010_0000;
     public static final int SENT_MESSAGES_FLAG = 0b0000_0000_0000_0000_0000_0000_0100_0000;
-    public static final int ALL_FLAG = 0b0000_0000_0000_0000_0000_0000_0111_1111;
+    public static final int FIRMWARE_VERSIONS_FLAG = 0b0000_0000_0000_0000_0000_0000_1000_0000;
+    public static final int TOU_CALENDAR_FLAG = 0b0000_0000_0000_0000_0000_0001_0000_0000;
+    public static final int ALL_FLAG = 0b0000_0000_0000_0000_0000_0001_1111_1111;
 
     private final int flags;
 
@@ -67,6 +69,12 @@ public class DeviceOfflineFlags implements OfflineDeviceContext, Serializable {
         if (context.needsSentMessages()) {
             flag |= SENT_MESSAGES_FLAG;
         }
+        if(context.needsFirmwareVersions()){
+            flag |= FIRMWARE_VERSIONS_FLAG;
+        }
+        if(context.needsTouCalendar()){
+            flag |= TOU_CALENDAR_FLAG;
+        }
         return new DeviceOfflineFlags(flag);
     }
 
@@ -103,6 +111,16 @@ public class DeviceOfflineFlags implements OfflineDeviceContext, Serializable {
     @Override
     public boolean needsSlaveDevices() {
         return isSet(SLAVE_DEVICES_FLAG);
+    }
+
+    @Override
+    public boolean needsFirmwareVersions() {
+        return isSet(FIRMWARE_VERSIONS_FLAG);
+    }
+
+    @Override
+    public boolean needsTouCalendar() {
+        return isSet(TOU_CALENDAR_FLAG);
     }
 
     private boolean isSet(int flag) {

@@ -3,6 +3,7 @@ package com.energyict.mdc.upl.meterdata;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +21,9 @@ public interface CollectedTopology extends CollectedData {
     /**
      * @return a map containing the unique device identifiers of all attached slave devices, mapped to the proper LastSeenDate info for each slave device.
      * Note that protocols don't have to provide the LastSeenDate info, it can be null.
-     * <p/>
+     * <p>
      * The ComServer framework will take the provided LastSeenDate info into account when updating the GW link of the slaves.
-     * <p/>
+     * <p>
      * If this device has no attached slaves, the return list is empty.
      */
     Map<DeviceIdentifier, ObservationTimestampProperty> getSlaveDeviceIdentifiers();
@@ -37,7 +38,7 @@ public interface CollectedTopology extends CollectedData {
     /**
      * Add a slave device to the topology
      *
-     * @param slaveIdentifier  the device identifier of the slave device
+     * @param slaveIdentifier              the device identifier of the slave device
      * @param observationTimestampProperty information on when this slave device was last seen by the gateway/DC.
      */
     void addSlaveDevice(DeviceIdentifier slaveIdentifier, ObservationTimestampProperty observationTimestampProperty);
@@ -72,6 +73,18 @@ public interface CollectedTopology extends CollectedData {
      */
     void setTopologyAction(TopologyAction topologyAction);
 
+    void addPathSegmentFor(DeviceIdentifier source, DeviceIdentifier target, DeviceIdentifier intermediateHop, Duration timeToLive, int cost);
+
+    void addTopologyNeighbour(DeviceIdentifier neighbour, int modulationSchema, long toneMap, int modulation, int txGain, int txRes, int txCoeff, int lqi, int phaseDifferential, int tmrValidTime, int neighbourValidTime);
+
+    void addG3IdentificationInformation(String formattedIPv6Address, int ipv6ShortAddress, int logicalDeviceId);
+
+    List<TopologyPathSegment> getTopologyPathSegments();
+
+    List<TopologyNeighbour> getTopologyNeighbours();
+
+    G3TopologyDeviceAddressInformation getG3TopologyDeviceAddressInformation();
+
     /**
      * Models the timestamp on which a slave device was last observed.
      *
@@ -83,5 +96,4 @@ public interface CollectedTopology extends CollectedData {
 
         Date getValue();
     }
-
 }

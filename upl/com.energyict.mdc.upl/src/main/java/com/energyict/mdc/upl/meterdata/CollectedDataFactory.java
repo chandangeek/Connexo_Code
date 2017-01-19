@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.energyict.obis.ObisCode;
 
 import java.util.List;
@@ -26,6 +25,8 @@ public interface CollectedDataFactory {
     CollectedLogBook createCollectedLogBook(LogBookIdentifier logBookIdentifier);
 
     CollectedRegister createMaximumDemandCollectedRegister(RegisterIdentifier registerIdentifier);
+
+    CollectedRegister createCollectedRegisterForAdapter(RegisterIdentifier registerIdentifier);
 
     CollectedRegister createBillingCollectedRegister(RegisterIdentifier registerIdentifier);
 

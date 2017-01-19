@@ -12,12 +12,13 @@ import java.util.Date;
  */
 public final class ObservationTimestampProperties {
 
+    // Hide factory class constructor
+    private ObservationTimestampProperties() {
+    }
+
     public static CollectedTopology.ObservationTimestampProperty from(Date date, String propertyName) {
         return new DateObservationTimestampProperty(propertyName, date);
     }
-
-    // Hide factory class constructor
-    private ObservationTimestampProperties() {}
 
     private static class DateObservationTimestampProperty implements CollectedTopology.ObservationTimestampProperty {
         private final String name;
@@ -38,5 +39,4 @@ public final class ObservationTimestampProperties {
             return value;
         }
     }
-
 }

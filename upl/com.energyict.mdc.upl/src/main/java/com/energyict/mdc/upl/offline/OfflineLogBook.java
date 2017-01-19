@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl.offline;
 
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -47,7 +49,7 @@ public interface OfflineLogBook extends Offline {
      *
      * @return the SerialNumber of the Master Device
      */
-    @XmlAttribute(name="serialNumber")
+    @XmlAttribute(name = "serialNumber")
     String getMasterSerialNumber();
 
     /**
@@ -64,4 +66,7 @@ public interface OfflineLogBook extends Offline {
 
     void setXmlType(String ignore);
 
+    DeviceIdentifier getDeviceIdentifier();
+
+    LogBookIdentifier getLogBookIdentifier();
 }

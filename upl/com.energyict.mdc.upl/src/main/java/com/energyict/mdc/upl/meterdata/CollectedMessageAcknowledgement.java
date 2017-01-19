@@ -1,7 +1,10 @@
 package com.energyict.mdc.upl.meterdata;
 
+import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+
+import java.time.Instant;
 
 /**
  * Models acknowledgement information about {@link DeviceMessage DeviceMessages} that was collected from the device.<br></br>
@@ -12,13 +15,17 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
  */
 public interface CollectedMessageAcknowledgement extends CollectedData {
 
-    public MessageIdentifier getMessageIdentifier();
+    MessageIdentifier getMessageIdentifier();
 
-    public DeviceMessageStatus getDeviceMessageStatus();
+    DeviceMessageStatus getDeviceMessageStatus();
 
-    public void setDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus);
+    void setDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus);
 
-    public String getProtocolInfo();
+    Instant getSentDate();
 
-    public void setProtocolInfo(String newProtocolInfo);
+    void setSentDate(Instant sentDate);
+
+    String getProtocolInfo();
+
+    void setProtocolInfo(String newProtocolInfo);
 }
