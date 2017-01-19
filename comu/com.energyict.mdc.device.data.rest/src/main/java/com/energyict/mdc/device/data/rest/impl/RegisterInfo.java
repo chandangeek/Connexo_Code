@@ -38,6 +38,7 @@ public abstract class RegisterInfo {
     @JsonProperty("lastReading")
     public ReadingInfo lastReading;
     public boolean isCumulative;
+    @JsonProperty("name")  //FE still uses 'name'
     public String deviceName;
     public long version;
     public VersionInfo<Long> parent;
