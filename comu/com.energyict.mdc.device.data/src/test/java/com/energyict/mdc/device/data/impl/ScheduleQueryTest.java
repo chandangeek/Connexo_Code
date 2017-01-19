@@ -10,13 +10,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
+import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Iterator;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

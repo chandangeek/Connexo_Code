@@ -16,6 +16,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.dynamic.TemporalAmountValueFactory;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -107,7 +108,8 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
     @Override
     public PropertySpec getSpecification() {
         Stream<TimeDurationWrapper> defaultValues = DecoratedStream.decorate(this.masterDataService.findAllLoadProfileTypes().stream())
-                .map(LoadProfileType::getInterval)
+                .map(LoadProfileType::interval)
+                .map(Temporals::toTimeDuration)
                 .map(TimeDurationWrapper::new)
                 .distinct(TimeDurationWrapper::getId);
         return this.propertySpecService
@@ -144,22 +146,6 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
         //nothing to refresh
     }
 
-    class TimeDurationWrapperValueFactory extends SearchHelperValueFactory<TimeDurationWrapper> {
-        private TimeDurationWrapperValueFactory() {
-            super(TimeDurationWrapper.class);
-        }
-
-        @Override
-        public TimeDurationWrapper fromStringValue(String stringValue) {
-            return new TimeDurationWrapper(TIME_DURATION_VALUE_FACTORY.fromStringValue(stringValue));
-        }
-
-        @Override
-        public String toStringValue(TimeDurationWrapper object) {
-            return object.getId();
-        }
-    }
-
     static class TimeDurationWrapper extends HasIdAndName {
         private TimeDuration timeDuration;
 
@@ -177,17 +163,33 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
             return this.timeDuration.toString();
         }
 
-        public int getCount(){
+        public int getCount() {
             return this.timeDuration.getCount();
         }
 
-        public int getUnitCode(){
+        public int getUnitCode() {
             return this.timeDuration.getTimeUnitCode();
         }
 
         @Override
         public String toString() {
             return this.timeDuration.toString();
+        }
+    }
+
+    class TimeDurationWrapperValueFactory extends SearchHelperValueFactory<TimeDurationWrapper> {
+        private TimeDurationWrapperValueFactory() {
+            super(TimeDurationWrapper.class);
+        }
+
+        @Override
+        public TimeDurationWrapper fromStringValue(String stringValue) {
+            return new TimeDurationWrapper(TIME_DURATION_VALUE_FACTORY.fromStringValue(stringValue));
+        }
+
+        @Override
+        public String toStringValue(TimeDurationWrapper object) {
+            return object.getId();
         }
     }
 
