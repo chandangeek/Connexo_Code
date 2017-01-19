@@ -1,5 +1,6 @@
 Ext.define('Imt.purpose.view.registers.MainAddEdit', {
     extend: 'Uni.view.container.ContentContainer',
+    alias: 'widget.add-main-register-reading',
 
     requires: [
         'Uni.view.menu.SideMenu'
@@ -7,6 +8,7 @@ Ext.define('Imt.purpose.view.registers.MainAddEdit', {
 
     edit: false,
     registerType: null,
+    menuHref: null,
 
     isEdit: function () {
         return this.edit
@@ -17,23 +19,22 @@ Ext.define('Imt.purpose.view.registers.MainAddEdit', {
     },
 
     setEdit: function (edit, returnLink) {
-        var me = this,
-            menuHref;
+        var me = this;
         me.edit = edit;
+        Ext.suspendLayouts();
         if (me.isEdit()) {
             me.down('#addEditButton').setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
             me.down('#addEditButton').action = 'editRegisterDataAction';
             me.down('#registerDataEditForm').setTitle(Uni.I18n.translate('usagepoint.registerData.editReading', 'IMT', 'Edit reading'));
             me.down('#editReading').setText(Uni.I18n.translate('usagepoint.registerData.editReading', 'IMT', 'Edit reading'));
-            me.menuHref = me.router.getRoute('usagepoints/view/purpose/output/editregisterdata').buildUrl();
+
         } else {
             me.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'IMT', 'Add'));
             me.down('#addEditButton').action = 'addRegisterDataAction';
             me.down('#registerDataEditForm').setTitle(Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'));
             me.down('#editReading').setText(Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'));
-            me.menuHref = me.router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl();
         }
-        me.down('#cancelLink').href = returnLink;
+        Ext.resumeLayouts();
     },
 
     isValid: function () {
@@ -43,11 +44,11 @@ Ext.define('Imt.purpose.view.registers.MainAddEdit', {
     showErrors: function (errors) {
         var me = this,
             formErrorsPlaceHolder = me.down('#registerDataEditFormErrors');
+        Ext.suspendLayouts();
         if(errors){
             me.down('#registerDataEditForm').getForm().markInvalid(errors);
         }
         formErrorsPlaceHolder.hide();
-        Ext.suspendLayouts();
         formErrorsPlaceHolder.removeAll();
         formErrorsPlaceHolder.add({
             html: Uni.I18n.translate('general.formErrors', 'IMT', 'There are errors on this page that require your attention.')

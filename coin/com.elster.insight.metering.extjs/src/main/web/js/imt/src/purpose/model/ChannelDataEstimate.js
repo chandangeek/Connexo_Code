@@ -6,7 +6,6 @@ Ext.define('Imt.purpose.model.ChannelDataEstimate', {
 
     fields: [
         'estimatorImpl',
-        'estimateBulk',
         'intervals'
     ],
 

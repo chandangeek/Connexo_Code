@@ -66,6 +66,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 itemId: 'register-data-grid-action-column',
+                privileges: Imt.privileges.UsagePoint.admin,
                 menu: {
                     xtype: 'purpose-register-readings-data-action-menu',
                     itemId: 'purpose-register-readings-data-action-menu',
@@ -87,7 +88,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                         itemId: 'add-reading-button',
                         text: Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'),
                         href: me.router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl(),
-                        // disabled: true
+                        privileges: Imt.privileges.UsagePoint.admin
                     }
                 ]
             },

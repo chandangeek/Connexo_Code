@@ -11,7 +11,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
     ],
     selModel: {
         mode: 'MULTI'
-    },    
+    },
     viewConfig: {
         loadMask: false,
         enableTextSelection: true,
@@ -23,7 +23,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         var me = this,
             readingType = me.output.get('readingType'),
             unit = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined;
-        
+
         me.plugins = [
             {
                 ptype: 'bufferedrenderer',
@@ -91,6 +91,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 xtype: 'uni-actioncolumn',
                 itemId: 'channel-data-grid-action-column',
+                privileges: Imt.privileges.UsagePoint.admin,
                 menu: {
                     xtype: 'purpose-readings-data-action-menu',
                     itemId: 'purpose-readings-data-action-menu'
@@ -140,7 +141,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
             icon = '';
-        
+
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';

@@ -1,16 +1,27 @@
 Ext.define('Imt.purpose.model.RegisterReading', {
-    // extend: 'Uni.model.Version',
     extend: 'Ext.data.Model',
     idProperty: 'timeStamp',
     requires: [],
     fields: [
         {name: 'value', type: 'auto', useNull: true},
         {name: 'timeStamp', type: 'auto', useNull: true},
-        {name: 'type', type: 'auto', defaultValue: 'numerical'},
+        {name: 'type', type: 'auto'},
         {name: 'validationResult', type: 'auto', useNull: true, persist: false},
         {name: 'validationRules', type: 'auto', useNull: true, persist: false},
         {name: 'isConfirmed', type: 'auto'},
         {name: 'calculatedValue', type: 'auto'},
+        {name: 'reportedDateTime', type: 'auto', defaultValue: null, useNull: true},
+        {name: 'interval', type:'auto', useNull: true},
+        {
+            name: 'interval.end',
+            defaultValue: null,
+            useNull: true
+        },
+        {
+            name: 'interval.start',
+            defaultValue: null,
+            useNull: true
+        },
         {name: 'confirmedNotSaved', type: 'auto', useNull: true, persist: false},
         {name: 'readingQualities', type: 'auto', defaultValue: null},
         {
@@ -55,7 +66,7 @@ Ext.define('Imt.purpose.model.RegisterReading', {
                 }
                 return result;
             }
-        },
+        }
     ],
     proxy: {
         type: 'rest',

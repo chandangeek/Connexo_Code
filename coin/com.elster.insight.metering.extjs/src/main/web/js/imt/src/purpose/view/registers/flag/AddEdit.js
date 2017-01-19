@@ -1,5 +1,5 @@
 Ext.define('Imt.purpose.view.registers.flag.AddEdit', {
-    extend: 'Imt.purpose.view.registers.MainEdit',
+    extend: 'Imt.purpose.view.registers.MainAddEdit',
     alias: 'widget.add-flag-register-reading',
     itemId: 'add-flag-register-reading',
 
@@ -22,16 +22,6 @@ Ext.define('Imt.purpose.view.registers.flag.AddEdit', {
             me.down('#timeStampContainer').setDisabled(false);
             me.down('#timeStampContainer').show();
         }
-    },
-
-    hideErrors: function () {
-        var me = this;
-        me.callParent(arguments);
-    },
-
-    showErrors: function (errors) {
-        var me = this;
-        me.callParent(arguments);
     },
 
     initComponent: function () {
@@ -65,7 +55,7 @@ Ext.define('Imt.purpose.view.registers.flag.AddEdit', {
                         itemId: 'timeStampDisplayField',
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
-                                Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
+                                return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
                                     [ Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]
                                 )
                             }
@@ -124,7 +114,8 @@ Ext.define('Imt.purpose.view.registers.flag.AddEdit', {
                                 text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                                 xtype: 'button',
                                 ui: 'link',
-                                itemId: 'cancelLink'
+                                itemId: 'cancelLink',
+                                href: me.returnLink
                             }
                         ]
                     }

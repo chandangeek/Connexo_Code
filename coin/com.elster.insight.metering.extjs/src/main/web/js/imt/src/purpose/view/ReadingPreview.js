@@ -5,7 +5,8 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         'Cfg.view.field.ReadingQualities'        
     ],
     outputType: null,
-    output: null,    
+    output: null,
+    withOutAppName: false,
     frame: false,
 
     updateForm: function (record) {
@@ -70,7 +71,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
     },
 
     getValidationResult: function (validationResult) {
-        var validationResultText = '';
+        var me =this,
+            validationResultText = '',
+            record = me.down('form').getRecord();
 
         switch (validationResult.split('.')[1]) {
             case 'notValidated':
@@ -83,6 +86,10 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 break;
             case 'ok':
                 validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
+                if(record.get('isConfirmed')){
+                    validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+                }
+
                 break;
         }
 
@@ -186,7 +193,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             generalTimeField,
             {
                 fieldLabel: Uni.I18n.translate('reading.readingTime', 'IMT', 'Reading time'),
-                name: 'readingTime',
+                name: 'reportedDateTime',
                 itemId: 'reading-time-field',
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
@@ -229,7 +236,25 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 itemId: 'reading-qualities-field',
                 usedInInsight: true,
                 name: 'validationRules',
-                withOutAppName: true
+                withOutAppName: true,
+                renderer : function(value, field) {
+                    var rec = field.up('form').getRecord(),
+                        validationRules = Ext.isArray(value) ? value : value.validationRules;
+                    field.show();
+                    if (rec.get('isConfirmed')) {
+                        return this.getConfirmed(value.confirmedInApps);
+                    } else if (!Ext.isEmpty(validationRules)) {
+                        var valueToRender = this.getValidationRules(validationRules);
+                        if (Ext.isEmpty(valueToRender)) {
+                            field.hide();
+                        }
+                        return valueToRender;
+                    } else if (value.estimatedByRule) {
+                        return this.getEstimatedByRule(value.estimatedByRule);
+                    } else {
+                        field.hide();
+                    }
+                }
             }
         );
 
@@ -244,15 +269,15 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 fieldLabel: Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality'),
                 itemId: 'device-quality'
             },
-            {                
+            {
                 fieldLabel: Uni.I18n.translate('general.MDCQuality', 'MDC', 'MDC quality'),
                 itemId: 'multiSense-quality'
             },
-            {                
+            {
                 fieldLabel: Uni.I18n.translate('general.MDMQuality', 'MDC', 'MDM quality'),
                 itemId: 'insight-quality'
             },
-            {                
+            {
                 fieldLabel: Uni.I18n.translate('general.thirdPartyQuality', 'MDC', 'Third party quality'),
                 itemId: 'thirdParty-quality'
             }

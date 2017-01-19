@@ -21,13 +21,37 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     initComponent: function () {
         var me = this,
             output = me.output,
-            emptyComponent = {
-                xtype: 'no-readings-found-panel',
-                itemId: 'readings-empty-panel'
-            },
+            emptyComponent,
             durations,
             all,
             duration;
+        switch (output.get('outputType')){
+            case 'channel' : {
+                emptyComponent = {
+                    xtype: 'no-readings-found-panel',
+                    itemId: 'readings-empty-panel'
+                }
+            } break;
+            case 'register': {
+                emptyComponent = Ext.create('Uni.view.notifications.NoItemsFoundPanel',{
+                    itemId: 'register-data-empty-panel',
+                    title: Uni.I18n.translate('register-data.list.empty', 'IMT', 'No readings have been defined yet'),
+                    reasons: [
+                        Uni.I18n.translate('register-data.list.reason1', 'IMT', 'No readings have been defined yet'),
+                        Uni.I18n.translate('register-data.list.reason3', 'IMT', 'No readings comply with the filter')
+                    ],
+                    stepItems: [
+                        {
+                            text: Uni.I18n.translate('register-data.list.add', 'IMT', 'Add reading'),
+                            privileges: Imt.privileges.UsagePoint.admin,
+                            href: me.router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl(),
+                            action: 'add',
+                            itemId: 'add-register-data'
+                        }
+                    ]
+                })
+            }
+        }
 
         if (me.interval) {
             durations = Ext.create('Uni.store.Durations');
@@ -148,7 +172,10 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     },
 
     onLoad: function () {
-        this.showGraphView();
+        var me =this;
+        if(me.output.get('outputType') == 'channel'){
+            this.showGraphView();
+        }
         this.setLoading(false);
     },
 
@@ -190,6 +217,9 @@ Ext.define('Imt.purpose.view.OutputReadings', {
 
             point.validationRules = record.get('validationRules');
 
+            if (record.get('modificationFlag')) {
+                point.edited = true;
+            }
             if (record.get('estimatedByRule')) {
                 point.color = estimatedColor;
                 point.tooltipColor = tooltipEstimatedColor;

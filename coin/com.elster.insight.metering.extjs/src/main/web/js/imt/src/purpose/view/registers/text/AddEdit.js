@@ -1,5 +1,5 @@
 Ext.define('Imt.purpose.view.registers.text.AddEdit', {
-    extend: 'Imt.purpose.view.registers.MainEdit',
+    extend: 'Imt.purpose.view.registers.MainAddEdit',
     alias: 'widget.add-text-register-reading',
     itemId: 'add-text-register-reading',
 
@@ -22,16 +22,6 @@ Ext.define('Imt.purpose.view.registers.text.AddEdit', {
             me.down('#timeStampContainer').setDisabled(false);
             me.down('#timeStampContainer').show();
         }
-    },
-
-    hideErrors: function () {
-        var me = this;
-        me.callParent(arguments);
-    },
-
-    showErrors: function (errors) {
-        var me = this;
-        me.callParent(arguments);
     },
 
     initComponent: function () {
@@ -119,7 +109,8 @@ Ext.define('Imt.purpose.view.registers.text.AddEdit', {
                                 text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                                 xtype: 'button',
                                 ui: 'link',
-                                itemId: 'cancelLink'
+                                itemId: 'cancelLink',
+                                href: me.returnLink
                             }
                         ]
                     }

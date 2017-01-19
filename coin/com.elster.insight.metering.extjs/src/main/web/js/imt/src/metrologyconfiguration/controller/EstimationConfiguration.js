@@ -45,6 +45,9 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
             },
             'add-estimation-rule-sets-to-purpose #add-estimation-rule-sets-to-purpose-add-button': {
                 click: this.addRuleSetsToPurpose
+            },
+            'est-purpose-with-rule-sets-grid [action=saveEstimationRuleSetsOrder]': {
+                click: this.saveEstimationRuleSetsOrder
             }
         });
     },
@@ -57,7 +60,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
             metrologyConfigurationController = me.getController('Imt.metrologyconfiguration.controller.View');
 
         if (tab != 'rules') { //only 'rules' tab is available
-            window.location.replace(router.getRoute('administration/metrologyconfiguration/view/estimation').buildUrl({tab: 'rules'}));
+            window.location.replace(router.getRoute('administration/metrologyconfiguration/view/estimation').buildUrl({tab: 'rules'}, router.queryParams));
         } else {
             pageMainContent.setLoading();
             metrologyConfigurationController.loadMetrologyConfiguration(mcid, {
@@ -191,7 +194,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
                 store.add(purpose.estimationRuleSets().getRange());
                 store.fireEvent('load');
             },
-            callback: function(){
+            callback: function () {
                 me.getAddEstimationRuleSetsView().setLoading(false);
             }
         });
@@ -216,7 +219,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
         });
     },
 
-    showEstRulesTab: function(panel) {
+    showEstRulesTab: function (panel) {
         var me = this,
             purposesWithLinkedRuleSetsStore = me.getStore('Imt.metrologyconfiguration.store.PurposesWithValidationRuleSets'),
             rulesStore = me.getStore('Imt.store.EstimationRules'),
@@ -224,7 +227,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
 
         Uni.util.History.suspendEventsForNextCall();
         Uni.util.History.setParsePath(false);
-        router.getRoute('administration/metrologyconfiguration/view/estimation').forward({tab: 'rules'});
+        router.getRoute('administration/metrologyconfiguration/view/estimation').forward({tab: 'rules'}, router.queryParams);
 
         purposesWithLinkedRuleSetsStore.getProxy().extraParams = {
             metrologyConfigurationId: router.arguments.mcid
@@ -236,6 +239,7 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
                 xtype: 'estimation-mc-rule-sets',
                 itemId: 'estimation-mc-rule-sets-id',
                 metrologyConfig: panel.metrologyConfig,
+                editOrder: router.queryParams.editOrder,
                 rulesStore: rulesStore,
                 purposes: purposes,
                 router: router
@@ -246,6 +250,40 @@ Ext.define('Imt.metrologyconfiguration.controller.EstimationConfiguration', {
                 btn.setDisabled(panel.metrologyConfig.get('status').id == 'deprecated');
             }
             Ext.resumeLayouts(true);
+        });
+    },
+
+    saveEstimationRuleSetsOrder: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            ruleSetsStore = me.getEstimationRuleSetsView().down('#est-purpose-with-rule-sets-grid').getStore(),
+            purposesStore = me.getEstimationRuleSetsView().down('#est-purpose-with-rule-sets-grid').purposes,
+            jsonData = {
+                'total': purposesStore.length,
+                'contracts': []
+            };
+
+
+
+        purposesStore.forEach(function (purpose) {
+            var contract = purpose.getData(),
+                estimationRuleSets = [];
+            ruleSetsStore.each(function (ruleSet) {
+                if(ruleSet.get('metrologyContractId') === contract.id && !ruleSet.get('noRuleSets'))
+                    estimationRuleSets.push(ruleSet.getData());
+                });
+            contract.estimationRuleSets = estimationRuleSets;
+            jsonData['contracts'].push(contract);
+        });
+
+        Ext.Ajax.request({
+            url: '/api/ucr/metrologyconfigurations/' + router.arguments.mcid + '/contracts',
+            method: 'PUT',
+            jsonData: Ext.JSON.encode(jsonData),
+            isNotEdit: true,
+            success: function () {
+                router.getRoute().forward();
+            }
         });
     }
 });
