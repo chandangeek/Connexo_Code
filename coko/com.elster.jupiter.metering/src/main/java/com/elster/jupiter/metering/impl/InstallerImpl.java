@@ -71,7 +71,7 @@ public class InstallerImpl implements FullInstaller {
     private final DataModel dataModel;
     private final BundleContext bundleContext;
     private final InstallerV10_2Impl installerV10_2;
-    private final InstallerV10_3Impl installerV10_3;
+    private final PrivilegesProviderV10_3 installerV10_3;
 
     @Inject
     public InstallerImpl(BundleContext bundleContext,
@@ -86,7 +86,7 @@ public class InstallerImpl implements FullInstaller {
                          Clock clock,
                          MeteringDataModelServiceImpl meteringDataModelService,
                          InstallerV10_2Impl installerV10_2,
-                         InstallerV10_3Impl installerV10_3) {
+                         PrivilegesProviderV10_3 installerV10_3) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.meteringService = meteringService;

@@ -6,10 +6,12 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
 
 import org.fest.reflect.core.Reflection;
 
+import java.time.Clock;
 import java.util.Optional;
 
 import org.junit.runner.RunWith;
@@ -39,13 +41,17 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     private CustomPropertySetService customPropertySetService;
     @Mock
     private SearchService searchService;
+    @Mock
+    private Clock clock;
+    @Mock
+    private Publisher publisher;
 
     private MetrologyConfigurationImpl instanceA;
 
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService, this.customPropertySetService);
+            instanceA = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, this.customPropertySetService, clock, publisher);
             Reflection.field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
         }
         return instanceA;
@@ -53,14 +59,14 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Object getInstanceEqualToA() {
-        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService, customPropertySetService);
+        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, customPropertySetService, clock, publisher);
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
         return other;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService, customPropertySetService);
+        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, customPropertySetService, clock, publisher);
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
         return singletonList(other);
     }
@@ -74,7 +80,7 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     protected Object getInstanceOfSubclassEqualToA() {
         when(searchDomain.getId()).thenReturn("UsagePoint");
         when(searchService.findDomain(any())).thenReturn(Optional.of(searchDomain));
-        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(metrologyConfigurationService, eventService, this.customPropertySetService, searchDomain, searchService);
+        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(dataModel, metrologyConfigurationService, eventService, this.customPropertySetService, searchDomain, searchService, clock, publisher);
         Reflection.field("id").ofType(Long.TYPE).in(subInst).set(INSTANCE_A_ID);
         return subInst;
     }
