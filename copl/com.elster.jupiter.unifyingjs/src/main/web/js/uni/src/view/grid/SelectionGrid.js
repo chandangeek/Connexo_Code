@@ -130,7 +130,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
     onSelectionChange: function () {
         var me = this,
-            selection = me.view.getSelectionModel().getSelection();
+            selection = me.getSelectedItems();
 
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.getUncheckAllButton().setDisabled(selection.length === 0);
