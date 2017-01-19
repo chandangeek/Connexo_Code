@@ -178,60 +178,6 @@ public class CodeTableXmlParsing {
     }
 
     /**
-     * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
-     *
-     * @param calender     the {@link com.energyict.mdw.core.Code calender}
-     * @return the complete xml for the RTUMessage
-     * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
-     */
-    public static String parseActivityCalendarAndSpecialDayTable(TariffCalendar calender, TariffCalendarExtractor extractor) throws ParserConfigurationException {
-        CodeTableParser ctp = new CodeTableParser(calender, extractor);
-        try {
-
-            ctp.parse();
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.newDocument();
-            Element root = document.createElement(rootTOUMessage);
-
-            root.appendChild(createSingleElement(document, rootActCalendarName, extractor.name(calender)));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, extractor.definitionTimeZone(calender).getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, extractor.destinationTimeZone(calender).getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(extractor.intervalInSeconds(calender))));
-            Range<Year> range = extractor.range(calender);
-            if (range.hasLowerBound()) {
-                root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(range.lowerEndpoint().getValue())));
-            } else {
-                root.appendChild(createSingleElement(document, codeTableFromYear, "1980"));
-            }
-            if (range.hasUpperBound()) {
-                root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(range.upperEndpoint().getValue())));
-                root.appendChild(createSingleElement(document, codeTableToYear, "2050"));
-            } else {
-            }
-            root.appendChild(createSingleElement(document, codeTableSeasonSetId, extractor.seasonSetId(calender)));
-
-            Element rootActCalendar = document.createElement(rootActCodeTable);
-            rootActCalendar.appendChild(convertSeasonProfileToXml(ctp.getSeasonProfiles(), document));
-            rootActCalendar.appendChild(convertWeekProfileToXml(ctp.getWeekProfiles(), document));
-            rootActCalendar.appendChild(convertDayProfileToXml(ctp.getDayProfiles(), document));
-            root.appendChild(rootActCalendar);
-
-            Element rootSpdCalendar = document.createElement(rootSpDCodeTable);
-            rootSpdCalendar.appendChild(convertSpecialDayProfileToXml(ctp.getSpecialDaysProfile(), document));
-            root.appendChild(rootSpdCalendar);
-
-            document.appendChild(root);
-            return getXmlWithoutDocType(document);
-        } catch (ParserConfigurationException e) {
-            logger.error(e.getMessage());
-            throw e;
-        }
-    }
-
-    /**
      * Convert the given SeasonProfile to an XML format. One season will look like this :<br>
      * <pre>{@code
      * <SeasonProfiles>
