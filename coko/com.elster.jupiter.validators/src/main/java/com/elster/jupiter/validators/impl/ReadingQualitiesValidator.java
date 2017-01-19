@@ -23,9 +23,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,7 +34,7 @@ class ReadingQualitiesValidator extends AbstractValidator {
     static final String READING_QUALITIES = "readingQualities";
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
-    private Set<ReadingQualityPropertyValue> selectedReadingQualities;
+    private List<ReadingQualityPropertyValue> selectedReadingQualities;
 
     ReadingQualitiesValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
@@ -87,42 +87,48 @@ class ReadingQualitiesValidator extends AbstractValidator {
     /**
      * The received properties contain the CIM code(s) of the selected reading qualities.
      */
+    @SuppressWarnings("unchecked")
     private void initParameters(Map<String, Object> properties) {
         Object value = properties.get(READING_QUALITIES);
         if (value != null) {
             if (value instanceof Collection) {
-                for (Object element : ((Collection) value)) {
-                    getSelectedReadingQualities().add(new ReadingQualityPropertyValue(String.valueOf(element)));
-                }
+                ((Collection<Object>) value).stream().forEach((e) -> addToSelectedReadingQualities(String.valueOf(e)));
             } else {
-                getSelectedReadingQualities().add(new ReadingQualityPropertyValue(String.valueOf(value)));
+                addToSelectedReadingQualities(String.valueOf(value));
             }
         }
     }
 
-    private Set<ReadingQualityPropertyValue> getSelectedReadingQualities() {
+    private void addToSelectedReadingQualities(String cimCode){
+        getSelectedReadingQualities().add(new ReadingQualityPropertyValue(cimCode));
+    }
+
+    private List<ReadingQualityPropertyValue> getSelectedReadingQualities() {
         if (selectedReadingQualities == null) {
-            selectedReadingQualities = new HashSet<>();
+            selectedReadingQualities = new ArrayList<>();
         }
         return selectedReadingQualities;
     }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        List<ReadingQualityPropertyValue> readingQualities = intervalReadingRecord.getReadingQualities()
+        return validate(intervalReadingRecord.getReadingQualities()
                 .stream()
                 .map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode()))
-                .collect(Collectors.toList());
-        return Collections.disjoint(readingQualities, getSelectedReadingQualities()) ? ValidationResult.VALID : ValidationResult.SUSPECT;
-    }
+                .collect(Collectors.toList()));
+     }
 
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
-        List<ReadingQualityPropertyValue> readingQualities = readingRecord.getReadingQualities()
+        return validate (readingRecord.getReadingQualities()
                 .stream()
                 .map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode()))
-                .collect(Collectors.toList());
-        return Collections.disjoint(readingQualities, getSelectedReadingQualities()) ? ValidationResult.VALID : ValidationResult.SUSPECT;
+                .collect(Collectors.toList()));
+    }
+
+    private ValidationResult validate(List<ReadingQualityPropertyValue> readingQualities){
+        Optional<ReadingQualityPropertyValue> selected = readingQualities.stream().filter((rq) -> selectedReadingQualities.contains(rq)).findFirst();
+        return selected.isPresent() ? ValidationResult.SUSPECT : ValidationResult.VALID;
     }
 
     @Override
