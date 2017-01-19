@@ -4,6 +4,7 @@ Ext.define('Imt.metrologyconfiguration.model.EstimationRuleSet', {
         'id', 'name', 'inactiveRules', 'activeRules',
         {name: 'currentVersionId', persist: false},
         {name: 'metrologyContract', persist: false},
+        {name: 'hiddenGroupId', persist: false},
         {name: 'metrologyContractIsMandatory', persist: false},
         {name: 'metrologyContractId', persist: false},
         {name: 'noRuleSets', persist: false, defaultValue: false},

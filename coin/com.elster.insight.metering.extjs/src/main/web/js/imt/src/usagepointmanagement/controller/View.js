@@ -40,29 +40,45 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         var me = this,
             app = me.getApplication(),
             failure = callback.failure,
-            purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes');
+            purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
+            dependenciesCounter = 3,
+            onDependenciesLoad = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    callback.success(usagePointTypes, usagePoint, purposes);
+                }
+            },
+            usagePointTypes,
+            usagePoint,
+            purposes;
 
-        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function(usagePointTypes, op, success) {
+        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function (records, operation, success) {
             if (success) {
-                me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
-                    success: function (usagePoint) {
-                        app.fireEvent('usagePointLoaded', usagePoint);
-                        purposesStore.getProxy().extraParams = {usagePointId: usagePointId};
-                        purposesStore.load(function(purposes, op, success) {
-                            if (success) {
-                                usagePoint.set('purposes', purposes);
-                                app.fireEvent('purposes-loaded', purposes);
-                                callback.success(usagePointTypes, usagePoint, purposes);
-                            } else {
-                                failure();
-                            }
-                        });
-                    },
-                    failure: failure
-                });
+                usagePointTypes = records;
+                onDependenciesLoad();
             } else {
                 failure();
             }
+        });
+
+        purposesStore.getProxy().extraParams = {usagePointId: usagePointId};
+        purposesStore.load(function (records, operation, success) {
+            if (success) {
+                purposes = records;
+                app.fireEvent('purposes-loaded', purposes);
+                onDependenciesLoad();
+            } else {
+                failure();
+            }
+        });
+
+        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
+            success: function (record) {
+                usagePoint = record;
+                app.fireEvent('usagePointLoaded', usagePoint);
+                onDependenciesLoad();
+            },
+            failure: failure
         });
     },
 

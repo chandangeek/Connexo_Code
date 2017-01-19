@@ -175,7 +175,25 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 itemId: 'reading-qualities-field',
                 usedInInsight: true,
                 name: 'validationRules',
-                withOutAppName: me.withOutAppName
+                withOutAppName: me.withOutAppName,
+                renderer : function(value, field) {
+                    var rec = field.up('form').getRecord(),
+                        validationRules = Ext.isArray(value) ? value : value.validationRules;
+                    field.show();
+                    if (rec.get('isConfirmed')) {
+                        return this.getConfirmed(value.confirmedInApps);
+                    } else if (!Ext.isEmpty(validationRules)) {
+                        var valueToRender = this.getValidationRules(validationRules);
+                        if (Ext.isEmpty(valueToRender)) {
+                            field.hide();
+                        }
+                        return valueToRender;
+                    } else if (value.estimatedByRule) {
+                        return this.getEstimatedByRule(value.estimatedByRule);
+                    } else {
+                        field.hide();
+                    }
+                }
             }
         );
 
