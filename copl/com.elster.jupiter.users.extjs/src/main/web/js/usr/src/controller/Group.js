@@ -46,8 +46,11 @@ Ext.define('Usr.controller.Group', {
     },
 
     editGroup: function (record) {
+        var me = this;
         this.getApplication().getController('Usr.controller.GroupEdit').showEditOverviewWithHistory(record.get('id'));
-        this.getApplication().fireEvent('editRole', record);
+        if(record.get('canEdit')) {
+            this.getApplication().fireEvent('editRole', record);
+        }
     },
 
     removeGroupMenu: function (button) {

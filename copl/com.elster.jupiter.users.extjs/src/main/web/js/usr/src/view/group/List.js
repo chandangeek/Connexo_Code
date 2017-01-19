@@ -14,6 +14,7 @@ Ext.define('Usr.view.group.List', {
     store: 'Usr.store.Groups',
 
     initComponent: function () {
+        var me = this;
         this.columns = {
             defaults: {
                 flex: 1,
@@ -38,7 +39,8 @@ Ext.define('Usr.view.group.List', {
                     menu: {
                         xtype: 'group-action-menu',
                         itemId: 'group-action-action-menu'
-                    }
+                    },
+                    isDisabled: me.fnIsDisabled,
                 }
             ]
         };
@@ -70,5 +72,9 @@ Ext.define('Usr.view.group.List', {
         ];
 
         this.callParent();
+    },
+
+    fnIsDisabled: function (view, rowIndex, colIndex, item, record) {
+        return !record.get('canEdit')
     }
 });

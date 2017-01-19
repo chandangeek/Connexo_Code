@@ -10,8 +10,19 @@ Ext.define('Usr.model.Group', {
         'version',
         'createdOn',
         'modifiedOn',
-        'selected'
+        'selected',
+        'canEdit',
+        'currentUserCanGrant',
+        {
+            name: 'disableGrantCheckbox',
+            persist: false,
+            mapping: function (data) {
+                return !data.currentUserCanGrant;
+            }
+        }
     ],
+
+
     idProperty: 'id',
     associations: [
         {
@@ -26,8 +37,7 @@ Ext.define('Usr.model.Group', {
         type: 'rest',
         url: '/api/usr/groups',
         reader: {
-            type: 'json',
-            root: 'groups'
+            type: 'json'
         }
     }
 });

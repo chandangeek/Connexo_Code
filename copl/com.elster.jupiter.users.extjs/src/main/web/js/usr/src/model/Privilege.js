@@ -5,6 +5,7 @@ Ext.define('Usr.model.Privilege', {
         'applicationName',
         'translatedName',
         'translatedApplicationName',
+        'canGrant',
         {
             name: 'selected',
             type: 'boolean',

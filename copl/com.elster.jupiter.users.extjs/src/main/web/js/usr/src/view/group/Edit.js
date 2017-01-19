@@ -32,6 +32,15 @@ Ext.define('Usr.view.group.Edit', {
 
                 items: [
                     {
+                        itemId: 'form-errors',
+                        xtype: 'uni-form-error-message',
+                        name: 'form-errors',
+                        align: 'left',
+                        margin: '0 0 10 0',
+                        hidden: true,
+                        maxWidth: 650
+                    },
+                    {
                         xtype: 'form',
                         itemId: 'editForm',
                         hydrator: 'Uni.util.Hydrator',
@@ -40,15 +49,6 @@ Ext.define('Usr.view.group.Edit', {
                             labelWidth: 250
                         },
                         items: [
-                            {
-                                itemId: 'form-errors',
-                                xtype: 'uni-form-error-message',
-                                name: 'form-errors',
-                                maxWidth: 650,
-                                align: 'left',
-                                margin: '0 0 10 0',
-                                hidden: true
-                            },
                             {
                                 xtype: 'uni-form-info-message',
                                 itemId: 'alertmessagerole',
@@ -63,8 +63,7 @@ Ext.define('Usr.view.group.Edit', {
                                 name: 'name',
                                 itemId: 'txt-name',
                                 fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
-                                maxWidth: 650,
-                                width: 750,
+                                width: 650,
                                 required: true,
                                 msgTarget: 'under',
                                 allowBlank: false,
@@ -83,8 +82,7 @@ Ext.define('Usr.view.group.Edit', {
                                 name: 'description',
                                 itemId: 'txt-description',
                                 fieldLabel: Uni.I18n.translate('general.description', 'USR', 'Description'),
-                                maxWidth: 650,
-                                width: 750,
+                                width: 650,
                                 listeners: {
                                     afterrender: function (field) {
                                         if(me.edit) {
@@ -114,6 +112,13 @@ Ext.define('Usr.view.group.Edit', {
                                         itemId: 'featureList',
                                         margin: '0 0 0 0',
                                         maxHeight: 396
+                                    },
+                                    {
+                                        xtype: 'label',
+                                        cls: 'x-form-invalid-under',
+                                        itemId: 'privilegesError',
+                                        hidden: true,
+                                        margin: '-40 0 0 0'
                                     }
                                 ]
                             },
