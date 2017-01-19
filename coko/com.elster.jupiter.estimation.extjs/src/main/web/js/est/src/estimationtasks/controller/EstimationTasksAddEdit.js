@@ -93,7 +93,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                         displayValue: me.getAddEditEstimationtaskForm().down('#usagePoint-group-id').getRawValue()
                     });
                     newEstimationTask.set('metrologyPurpose', {
-                        id: me.getAddEditEstimationtaskForm().down('#cbo-estimation-task-purpose').getValue(),
+                        id: me.getAddEditEstimationtaskForm().down('#cbo-estimation-task-purpose').getValue() || 0,
                         displayValue: me.getAddEditEstimationtaskForm().down('#cbo-estimation-task-purpose').getRawValue()
                     });
                 } break;
