@@ -21,7 +21,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.ConnectionType.Direction;
+import com.energyict.mdc.protocol.api.ConnectionType.ConnectionTypeDirection;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
@@ -235,7 +235,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(connectionTask.getSuccessIndicator()).thenReturn(SuccessIndicator.FAILURE);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionType.getDirection()).thenReturn(Direction.OUTBOUND);
+        when(connectionType.getDirection()).thenReturn(ConnectionTypeDirection.OUTBOUND);
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
         when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
         doReturn(mockPartialScheduledConnectionTask()).when(connectionTask).getPartialConnectionTask();

@@ -634,7 +634,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution1.getExecutionPriority()).thenReturn(-20);
 
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
+        when(connectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.OUTBOUND);
 
         ConnectionTypePluggableClass pluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggeableClass.getName()).thenReturn("GPRS");

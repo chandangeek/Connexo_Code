@@ -17,8 +17,8 @@ public class InboundIpConnectionTypeImpl extends IpConnectionType {
     }
 
     @Override
-    public Direction getDirection() {
-        return Direction.INBOUND;
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
     }
 
 }

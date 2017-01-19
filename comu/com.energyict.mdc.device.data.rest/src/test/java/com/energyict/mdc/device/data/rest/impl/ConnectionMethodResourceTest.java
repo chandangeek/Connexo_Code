@@ -27,11 +27,14 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.ConnectionType.Direction;
+import com.energyict.mdc.protocol.api.ConnectionType.ConnectionTypeDirection;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -42,11 +45,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -274,7 +272,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getSuccessIndicator()).thenReturn(SuccessIndicator.FAILURE);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionType.getDirection()).thenReturn(Direction.OUTBOUND);
+        when(connectionType.getDirection()).thenReturn(ConnectionTypeDirection.OUTBOUND);
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
         when(connectionTask.getPluggableClass()).thenReturn(pluggableClass);
         doReturn(mockPartialScheduledConnectionTask()).when(connectionTask).getPartialConnectionTask();
@@ -299,7 +297,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getName()).thenReturn(name);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionType.getDirection()).thenReturn(Direction.OUTBOUND);
+        when(connectionType.getDirection()).thenReturn(ConnectionTypeDirection.OUTBOUND);
         ConnectionTypePluggableClass pluggableClass = mockPluggableClass();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("connectionTimeout");
