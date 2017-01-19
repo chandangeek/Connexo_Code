@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.properties.HexString;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 /**
  * Provides an implementation for the {@link Converter} interface.
@@ -20,6 +21,11 @@ public class ConverterImpl implements Converter {
     @Activate
     public void activate() {
         Services.converter(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.converter(null);
     }
 
     @Override

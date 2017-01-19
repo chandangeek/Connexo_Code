@@ -27,6 +27,7 @@ import com.energyict.obis.ObisCode;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
@@ -84,6 +85,11 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
     @Activate
     public void activate() {
         Services.propertySpecService(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.propertySpecService(null);
     }
 
     @Override

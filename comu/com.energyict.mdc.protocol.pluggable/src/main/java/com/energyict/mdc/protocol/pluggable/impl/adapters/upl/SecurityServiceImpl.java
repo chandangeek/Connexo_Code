@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.security.SecurityService;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 /**
  * Provides an implementation for the {@link SecurityService} interface.
@@ -20,6 +21,11 @@ public class SecurityServiceImpl implements SecurityService {
     @Activate
     public void activate() {
         Services.securityService(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.securityService(null);
     }
 
     @Override

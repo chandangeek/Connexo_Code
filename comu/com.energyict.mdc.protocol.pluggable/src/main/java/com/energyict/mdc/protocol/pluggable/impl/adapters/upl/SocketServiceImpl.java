@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.Services;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -24,6 +25,11 @@ public class SocketServiceImpl implements SocketService {
     @Activate
     public void activate() {
         Services.socketService(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.socketService(null);
     }
 
     @Override
