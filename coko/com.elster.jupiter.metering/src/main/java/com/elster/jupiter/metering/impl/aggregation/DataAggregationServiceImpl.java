@@ -57,15 +57,17 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     private volatile ServerMeteringService meteringService;
     private volatile InstantTruncaterFactory truncaterFactory;
+    private volatile SourceChannelSetFactory sourceChannelSetFactory;
     private SqlBuilderFactory sqlBuilderFactory;
     private Provider<VirtualFactory> virtualFactoryProvider;
     private CustomPropertySetService customPropertySetService;
     private ReadingTypeDeliverableForMeterActivationFactory readingTypeDeliverableForMeterActivationFactory;
 
-    public DataAggregationServiceImpl(ServerMeteringService meteringService, InstantTruncaterFactory truncaterFactory, CustomPropertySetService customPropertySetService) {
+    public DataAggregationServiceImpl(ServerMeteringService meteringService, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory, CustomPropertySetService customPropertySetService) {
         this(SqlBuilderFactoryImpl::new, VirtualFactoryImpl::new, () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
         this.meteringService = meteringService;
         this.truncaterFactory = truncaterFactory;
+        this.sourceChannelSetFactory = sourceChannelSetFactory;
         this.customPropertySetService = customPropertySetService;
     }
 
@@ -141,7 +143,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     }
 
     private CalculatedMetrologyContractDataImpl noData(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
-        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap(), this.truncaterFactory);
+        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap(), this.truncaterFactory, this.sourceChannelSetFactory);
     }
 
     private List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationForUsagePointInPeriod(UsagePoint usagePoint, Range<Instant> period) {
@@ -308,7 +310,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     }
 
     private CalculatedMetrologyContractData postProcess(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
-        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, calculatedReadingRecords, this.truncaterFactory);
+        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, calculatedReadingRecords, this.truncaterFactory, this.sourceChannelSetFactory);
     }
 
     private DataModel getDataModel() {

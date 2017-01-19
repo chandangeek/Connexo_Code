@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Currying.test;
 
@@ -39,11 +40,13 @@ import static com.elster.jupiter.util.streams.Currying.test;
  */
 class CalculatedReadingRecord implements BaseReadingRecord, Comparable<CalculatedReadingRecord> {
 
-    private static final int SUSPECT = 4;
-    private static final int MISSING = 3;
-    private static final int ESTIMATED_EDITED = 1;
+    static final int SUSPECT = 4;
+    static final int MISSING = 3;
+    static final int ESTIMATED_EDITED = 1;
 
     private final InstantTruncaterFactory truncaterFactory;
+    private final SourceChannelSetFactory sourceChannelSetFactory;
+
     private String readingTypeMRID;
     private IReadingType readingType;
     private BigDecimal rawValue;
@@ -53,11 +56,13 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
     private UsagePoint usagePoint;
     private long readingQuality;
     private long count;
+    private SourceChannelSet sourceChannelSet;
 
     @Inject
-    CalculatedReadingRecord(InstantTruncaterFactory truncaterFactory) {
+    CalculatedReadingRecord(InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
         super();
         this.truncaterFactory = truncaterFactory;
+        this.sourceChannelSetFactory = sourceChannelSetFactory;
     }
 
     @Override
@@ -65,7 +70,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         return this.getTimeStamp().compareTo(other.getTimeStamp());
     }
 
-    static CalculatedReadingRecord merge(CalculatedReadingRecord r1, CalculatedReadingRecord r2, Instant mergedTimestamp, InstantTruncaterFactory truncaterFactory) {
+    static CalculatedReadingRecord merge(CalculatedReadingRecord r1, CalculatedReadingRecord r2, Instant mergedTimestamp, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
         if (!r1.readingTypeMRID.equals(r2.readingTypeMRID)) {
             throw new IllegalArgumentException("Cannot merge two CalculatedReadingRecords with different reading type");
         }
@@ -76,7 +81,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
             if (r1.readingType == null) {
                 throw new IllegalStateException("CalculatedReadingRecords can only be merged if ReadingType was injected first: see com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecord.setReadingType");
             }
-            CalculatedReadingRecord merged = new CalculatedReadingRecord(truncaterFactory);
+            CalculatedReadingRecord merged = new CalculatedReadingRecord(truncaterFactory, sourceChannelSetFactory);
             merged.readingTypeMRID = r1.readingTypeMRID;
             merged.readingType = r1.readingType;
             merged.rawValue = mergeValue(VirtualReadingType.from(r1.readingType).aggregationFunction(), r1.rawValue, r2.rawValue);
@@ -86,9 +91,10 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
             merged.usagePoint = r1.usagePoint;
             merged.readingQuality = Math.max(r1.readingQuality, r2.readingQuality);
             merged.count = r1.count + r2.count;
+            merged.sourceChannelSet = sourceChannelSetFactory.merge(r1.sourceChannelSet, r2.sourceChannelSet);
             return merged;
         } else {
-            return merge(r2, r1, mergedTimestamp, truncaterFactory);
+            return merge(r2, r1, mergedTimestamp, truncaterFactory, sourceChannelSetFactory);
         }
     }
 
@@ -117,6 +123,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
             this.timestamp = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
             this.readingQuality = resultSet.getLong(columnIndex++);
             this.count = resultSet.getLong(columnIndex++);
+            this.sourceChannelSet = sourceChannelSetFactory.parseFromString(resultSet.getString(columnIndex++));
             if (this.count != 1) {
                 checkCount(deliverablesPerMeterActivation);
             }
@@ -163,7 +170,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
      * @return The copied CalculatedReadingRecord that occurs on the specified timestamp
      */
     CalculatedReadingRecord atTimeStamp(Instant timeStamp) {
-        CalculatedReadingRecord record = new CalculatedReadingRecord(this.truncaterFactory);
+        CalculatedReadingRecord record = new CalculatedReadingRecord(this.truncaterFactory, this.sourceChannelSetFactory);
         record.usagePoint = this.usagePoint;
         record.rawValue = this.rawValue;
         record.readingTypeMRID = this.readingTypeMRID;
@@ -172,6 +179,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         record.timestamp = timeStamp;
         record.readingQuality = this.readingQuality;
         record.count = 1;
+        record.sourceChannelSet = this.sourceChannelSet;
         return record;
     }
 
@@ -243,7 +251,18 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
 
     @Override
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-        List<ReadingQualityRecord> readingQualityRecords = new ArrayList<>();
+        Optional<ReadingQualityRecord> aggregatedReadingQuality = getAggregatedReadingQuality();
+        if (aggregatedReadingQuality.isPresent()) {
+            List<ReadingQualityRecord> readingQualitiesFromSourceChannels = fetchReadingQualitiesFromSourceChannels();
+            List<ReadingQualityRecord> readingQualities = new ArrayList<>(readingQualitiesFromSourceChannels);
+            readingQualities.add(aggregatedReadingQuality.get());
+            return readingQualities;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private Optional<ReadingQualityRecord> getAggregatedReadingQuality() {
         ReadingQuality readingQualityValue = null;
         if (readingQuality == SUSPECT) {
             readingQualityValue = ReadingQuality.DERIVED_SUSPECT;
@@ -253,10 +272,23 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
             readingQualityValue = ReadingQuality.DERIVED_INDETERMINISTIC;
         }
         if (readingQualityValue != null) {
-            readingQualityRecords.add(
-                    new AggregatedReadingQualityImpl(this.readingType, new ReadingQualityType(readingQualityValue.getCode()), this.timestamp));
+            return Optional.of(newAggregatedReadingQuality(new ReadingQualityType(readingQualityValue.getCode())));
+        } else {
+            return Optional.empty();
         }
-        return readingQualityRecords;
+    }
+
+    private AggregatedReadingQualityImpl newAggregatedReadingQuality(ReadingQualityType readingQualityType) {
+        return new AggregatedReadingQualityImpl(this.readingType, readingQualityType, this.timestamp);
+    }
+
+    private List<ReadingQualityRecord> fetchReadingQualitiesFromSourceChannels() {
+        Range<Instant> timePeriod = getTimePeriod().orElse(Range.singleton(getTimeStamp()));
+        return this.sourceChannelSet.fetchReadingQualities(timePeriod)
+                .map(ReadingQualityRecord::getType)
+                .distinct()
+                .map(this::newAggregatedReadingQuality)
+                .collect(Collectors.toList());
     }
 
     Timestamp getLocalDate() {
@@ -341,4 +373,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         return null;
     }
 
+    SourceChannelSet getSourceChannelSet() {
+        return sourceChannelSet;
+    }
 }

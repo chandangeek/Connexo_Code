@@ -36,16 +36,18 @@ import java.util.stream.Collectors;
 class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContractData {
 
     private final InstantTruncaterFactory truncaterFactory;
+    private final SourceChannelSetFactory sourceChannelSetFactory;
     private final UsagePoint usagePoint;
     private final MetrologyContract contract;
     private final Range<Instant> period;
     private final Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords;
 
-    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords, InstantTruncaterFactory truncaterFactory) {
+    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
         this.usagePoint = usagePoint;
         this.contract = contract;
         this.period = period;
         this.truncaterFactory = truncaterFactory;
+        this.sourceChannelSetFactory = sourceChannelSetFactory;
         this.injectUsagePoint(calculatedReadingRecords);
         this.calculatedReadingRecords = this.generateTimeSeriesIfNecessary(contract, this.mergeMeterActivations(calculatedReadingRecords));
     }
@@ -109,7 +111,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         }
         merged.compute(
                 endOfInterval,
-                (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecord.merge(existingRecord, record, endOfInterval, this.truncaterFactory));
+                (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecord.merge(existingRecord, record, endOfInterval, this.truncaterFactory, this.sourceChannelSetFactory));
     }
 
     private Map<ReadingType, List<CalculatedReadingRecord>> generateTimeSeriesIfNecessary(MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {

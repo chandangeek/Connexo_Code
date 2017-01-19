@@ -251,6 +251,8 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.appendTimelineToSelectClause(sqlBuilder);
         sqlBuilder.append(", ");
         this.appendReadingQualityToSelectClause(sqlBuilder);
+        sqlBuilder.append(", ");
+        this.appendSourceChannelsToSelectClause(sqlBuilder);
         sqlBuilder.append("\n  FROM ");
         sqlBuilder.append(this.sqlName());
         this.appendGroupByClauseIfApplicable(sqlBuilder);
@@ -339,8 +341,18 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
         sqlBuilder.append("MAX(");
-        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
         sqlBuilder.append(")");
+    }
+
+    private void appendSourceChannelsToSelectClause(SqlBuilder sqlBuilder) {
+        if (this.resultValueNeedsTimeBasedAggregation()) {
+            sqlBuilder.append("MAX(");
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS, sqlBuilder, this.sqlName());
+            sqlBuilder.append(")");
+        } else {
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS, sqlBuilder, this.sqlName());
+        }
     }
 
     private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {

@@ -97,6 +97,7 @@ public class CalculatedReadingRecordTest {
         when(this.resultSet.getLong(4)).thenReturn(JAN_1_2016_UTC.toEpochMilli());
         when(this.resultSet.getLong(5)).thenReturn(0L);
         when(this.resultSet.getLong(6)).thenReturn(1L);
+        when(this.resultSet.getString(7)).thenReturn("1001");
         ProcessStatus expectedProcessStatus = new ProcessStatus(0);
         MeterActivation meterActivation = mock(MeterActivation.class);
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
@@ -147,6 +148,7 @@ public class CalculatedReadingRecordTest {
         when(this.resultSet.getLong(4)).thenReturn(jan1st2016.getTime());
         when(this.resultSet.getLong(5)).thenReturn(0L);
         when(this.resultSet.getLong(6)).thenReturn(1L);
+        when(this.resultSet.getString(7)).thenReturn("1001");
         testInstance.init(this.resultSet, deliverablesPerMeterActivation);
 
         //Business method
@@ -161,7 +163,7 @@ public class CalculatedReadingRecordTest {
         CalculatedReadingRecord r2 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
 
         // Business method
-        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService));
+        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts: see expected exception rule
     }
@@ -174,7 +176,7 @@ public class CalculatedReadingRecordTest {
         r2.setUsagePoint(mock(UsagePoint.class));
 
         // Business method
-        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService));
+        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts: see expected exception rule
     }
@@ -188,7 +190,7 @@ public class CalculatedReadingRecordTest {
         r2.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService));
+        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts: see expected exception rule
     }
@@ -203,16 +205,16 @@ public class CalculatedReadingRecordTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         Instant old = Instant.ofEpochSecond(86400L);
-        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, old);   // One day
+        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, old, "1001");   // One day
         r1.setReadingType(readingType);
         r1.setUsagePoint(usagePoint);
         Instant moreRecent = Instant.ofEpochSecond(172800L);
-        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 3L, 99L, moreRecent);    // Two days
+        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 3L, 99L, moreRecent, "1002");    // Two days
         r2.setReadingType(readingType);
         r2.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, moreRecent, new InstantTruncaterFactory(this.meteringService));
+        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, moreRecent, new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts
         assertThat(merged.getReadingType()).isEqualTo(readingType);
@@ -220,6 +222,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getTimeStamp()).isEqualTo(moreRecent);
         assertThat(merged.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
         assertThat(merged.getCount()).isEqualTo(200L);
+        assertThat(merged.getSourceChannelSet().getSourceChannelIds()).containsOnly(1001L, 1002L);
     }
 
     @Test
@@ -232,16 +235,16 @@ public class CalculatedReadingRecordTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         Instant recent = Instant.ofEpochSecond(172800L);
-        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, recent);   // Two days (reading quality 4 = suspect)
+        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, recent, "1001");   // Two days (reading quality 4 = suspect)
         r1.setReadingType(readingType);
         r1.setUsagePoint(usagePoint);
         Instant old = Instant.ofEpochSecond(86400L);
-        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 1L, 99L, old);    // One day (reading quality 3 = missing)
+        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 1L, 99L, old, "1001");    // One day (reading quality 3 = missing)
         r2.setReadingType(readingType);
         r2.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, recent, new InstantTruncaterFactory(this.meteringService));
+        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, recent, new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
 
         // Asserts
         assertThat(merged.getReadingType()).isEqualTo(readingType);
@@ -249,6 +252,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getTimeStamp()).isEqualTo(recent);
         assertThat(merged.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));  // 4 (suspect) = max(4, 3)
         assertThat(merged.getCount()).isEqualTo(200L);
+        assertThat(merged.getSourceChannelSet().getSourceChannelIds()).containsOnly(1001L);
     }
 
     @Test
@@ -262,7 +266,7 @@ public class CalculatedReadingRecordTest {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         Instant may1st2016 = Instant.ofEpochMilli(1462053600000L);
         Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
-        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 3L, 1L, may1st2016);
+        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 3L, 1L, may1st2016, "1001");
         r1.setReadingType(readingType);
         r1.setUsagePoint(usagePoint);
 
@@ -273,6 +277,12 @@ public class CalculatedReadingRecordTest {
         assertThat(may.getReadingType()).isEqualTo(readingType);
         assertThat(may.getValue()).isEqualTo(BigDecimal.valueOf(97L));
         assertThat(may.getTimeStamp()).isEqualTo(june1st2016);
+        assertThat(may.getSourceChannelSet().getSourceChannelIds()).containsOnly(1001L);
+    }
+
+    @Test
+    public void test() {
+
     }
 
     private CalculatedReadingRecord testInstance() {
@@ -280,14 +290,14 @@ public class CalculatedReadingRecordTest {
     }
 
     private CalculatedReadingRecord newTestInstance() {
-        return new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService));
+        return new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService));
     }
 
     private CalculatedReadingRecord newTestInstance(String readingTypeMRID) throws SQLException {
-        return this.newTestInstance(readingTypeMRID, 0, 0, 0, Instant.now());
+        return this.newTestInstance(readingTypeMRID, 0, 0, 0, Instant.now(), "1");
     }
 
-    private CalculatedReadingRecord newTestInstance(String readingTypeMRID, long value, long readingQuality, long count, Instant now) throws SQLException {
+    private CalculatedReadingRecord newTestInstance(String readingTypeMRID, long value, long readingQuality, long count, Instant now, String sourceChannels) throws SQLException {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getString(1)).thenReturn(readingTypeMRID);
@@ -296,7 +306,7 @@ public class CalculatedReadingRecordTest {
         when(resultSet.getLong(4)).thenReturn(now.toEpochMilli());
         when(resultSet.getLong(5)).thenReturn(readingQuality);
         when(resultSet.getLong(6)).thenReturn(count);
+        when(resultSet.getString(7)).thenReturn(sourceChannels);
         return newTestInstance().init(resultSet, deliverablesPerMeterActivation);
     }
-
 }
