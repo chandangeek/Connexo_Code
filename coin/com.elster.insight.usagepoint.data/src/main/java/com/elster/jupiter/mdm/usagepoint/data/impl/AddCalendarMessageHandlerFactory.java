@@ -35,9 +35,13 @@ public class AddCalendarMessageHandlerFactory implements MessageHandlerFactory {
             UsagePoint usagePoint = meteringService.findUsagePointById(addCalendarMessage.getUsagePointId()).get();
             Calendar calendar = calendarService.findCalendar(addCalendarMessage.getCalendarId()).get();
             Instant startTime = Instant.ofEpochMilli(addCalendarMessage.getStartTime());
+            if(addCalendarMessage.isImmediately()){
+                usagePointCalendarService.calendarsFor(usagePoint).addCalendar(calendar);
+            } else {
+                usagePointCalendarService.calendarsFor(usagePoint)
+                        .addCalendar(startTime, calendar);
+            }
 
-            usagePointCalendarService.calendarsFor(usagePoint)
-                    .addCalendar(startTime, calendar);
         };
     }
 

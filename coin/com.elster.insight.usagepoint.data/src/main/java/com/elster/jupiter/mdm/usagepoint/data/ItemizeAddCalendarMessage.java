@@ -11,6 +11,15 @@ public class ItemizeAddCalendarMessage {
     private List<Long> calendarIds;
     private UsagePointFilter usagePointFilter;
     private long startTime;
+    private boolean immediately;
+
+    public boolean isImmediately() {
+        return immediately;
+    }
+
+    public void setImmediately(boolean immediately) {
+        this.immediately = immediately;
+    }
 
     public Action getAction() {
         return action;

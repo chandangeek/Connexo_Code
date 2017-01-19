@@ -47,7 +47,7 @@ public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
                     .orElseThrow(() -> new IllegalStateException("Queue " + UsagePointDataModelService.BULK_HANDLING_QUEUE_DESTINATION + " does not exist"));
             ItemizeAddCalendarMessage queueMessage = jsonService.deserialize(message.getPayload(), ItemizeAddCalendarMessage.class);
             Stream<UsagePoint> usagePointStream = toUsagePointStream(searchDomain, queueMessage.getUsagePointFilter(), queueMessage.getUsagePointMRIDs());
-            usagePointStream.flatMap(usagePoint -> toMessagesStream(usagePoint, queueMessage.getCalendarIds(), queueMessage.getStartTime()))
+            usagePointStream.flatMap(usagePoint -> toMessagesStream(usagePoint, queueMessage.getCalendarIds(), queueMessage.isImmediately(), queueMessage.getStartTime()))
                     .map(jsonService::serialize)
                     .map(destinationSpec::message)
                     .forEach(MessageBuilder::send);
@@ -88,9 +88,9 @@ public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
         }
     }
 
-    Stream<AddCalendarMessage> toMessagesStream(UsagePoint usagePoint, List<Long> calendarIds, long startTime) {
+    Stream<AddCalendarMessage> toMessagesStream(UsagePoint usagePoint, List<Long> calendarIds, boolean immediately, long startTime) {
         return calendarIds.stream()
-                .map(calendarId -> new AddCalendarMessage(usagePoint.getId(), calendarId, startTime));
+                .map(calendarId -> new AddCalendarMessage(usagePoint.getId(), calendarId, immediately, startTime));
     }
 
     private Function<SearchableProperty, SearchablePropertyValue> getPropertyMapper(UsagePointFilter usagePointFilter) {
