@@ -31,7 +31,7 @@ Ext.define('MdmApp.controller.Main', {
 
     applicationTitle: 'Connexo Insight',
     applicationKey: 'INS',
-    defaultToken: '/search',
+    defaultToken: '/dashboard',
     searchEnabled: true,
     onlineHelpEnabled: false,
 
