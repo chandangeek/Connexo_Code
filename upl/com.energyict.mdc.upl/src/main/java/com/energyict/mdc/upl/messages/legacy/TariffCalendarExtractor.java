@@ -1,10 +1,12 @@
 package com.energyict.mdc.upl.messages.legacy;
 
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
 import com.google.common.collect.Range;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Year;
 import java.util.List;
@@ -31,7 +33,7 @@ public interface TariffCalendarExtractor {
 
     String name(TariffCalendar calender);
 
-    String seasonSetId(TariffCalendar calender);
+    Optional<String> seasonSetId(TariffCalendar calender);
 
     TimeZone definitionTimeZone(TariffCalendar calender);
 
@@ -47,6 +49,25 @@ public interface TariffCalendarExtractor {
 
     List<CalendarRule> rules(TariffCalendar calender);
 
+    /**
+     * Gets (or creates) the {@link ThreadContext} for the current Thread.
+     * Each Thread will get its own ThreadContext.
+     *
+     * @return The ThreadContext
+     */
+    ThreadContext threadContext();
+
+    /**
+     * Models contextual information that can be different
+     * for each Thread that uses this TariffCalendarExtractor.
+     */
+    interface ThreadContext {
+        OfflineDevice getDevice();
+        void setDevice(OfflineDevice offlineDevice);
+        OfflineDeviceMessage getMessage();
+        void setMessage(OfflineDeviceMessage offlineDeviceMessage);
+    }
+
     interface CalendarSeasonSet {
         String id();
         String name();
@@ -60,8 +81,7 @@ public interface TariffCalendarExtractor {
     }
 
     interface CalendarSeasonTransition {
-        String id();
-        Optional<Instant> start();
+        Optional<LocalDate> start();
     }
 
     interface CalendarDayType {
