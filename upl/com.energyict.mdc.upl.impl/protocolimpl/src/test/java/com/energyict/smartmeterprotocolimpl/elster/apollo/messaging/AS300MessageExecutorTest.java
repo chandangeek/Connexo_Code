@@ -1,14 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
@@ -40,7 +40,7 @@ public class AS300MessageExecutorTest {
     @Mock
     private DeviceMessageFileExtractor messageFileExtractor;
     @Mock
-    private DateFormatter dateFormatter;
+    private Formatter dateFormatter;
     @Mock
     private PropertySpecService propertySpecService;
 

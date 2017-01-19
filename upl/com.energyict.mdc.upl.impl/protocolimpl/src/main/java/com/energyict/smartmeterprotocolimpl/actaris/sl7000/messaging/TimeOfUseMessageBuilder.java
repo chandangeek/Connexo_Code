@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 
@@ -22,8 +22,8 @@ public class TimeOfUseMessageBuilder extends com.energyict.messaging.TimeOfUseMe
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";
 
-    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, DateFormatter dateFormatter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
-        super(calendarFinder, tariffCalendarExtractor, messageFileFinder, deviceMessageFileExtractor, dateFormatter);
+    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, DeviceMessageFileFinder messageFileFinder, Formatter formatter, DeviceMessageFileExtractor deviceMessageFileExtractor, TariffCalendarExtractor tariffCalendarExtractor) {
+        super(calendarFinder, tariffCalendarExtractor, messageFileFinder, deviceMessageFileExtractor, formatter);
     }
 
     /**

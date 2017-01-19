@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -96,15 +96,15 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     private final PropertySpecService propertySpecService;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
-    private final DateFormatter dateFormatter;
+    private final Formatter formatter;
 
-    public ActarisSl7000(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, DateFormatter dateFormatter) {
+    public ActarisSl7000(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, Formatter formatter) {
         this.calendarFinder = calendarFinder;
         this.propertySpecService = propertySpecService;
         this.tariffCalendarExtractor = tariffCalendarExtractor;
         this.messageFileFinder = messageFileFinder;
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
-        this.dateFormatter = dateFormatter;
+        this.formatter = formatter;
     }
 
     @Override
@@ -307,7 +307,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
      public Messages getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Messages(this, this.calendarFinder, this.tariffCalendarExtractor, this.messageFileFinder, this.deviceMessageFileExtractor, this.dateFormatter);
+            messageProtocol = new Messages(this, this.calendarFinder, this.tariffCalendarExtractor, this.messageFileFinder, this.deviceMessageFileExtractor, this.formatter);
         }
         return messageProtocol;
     }

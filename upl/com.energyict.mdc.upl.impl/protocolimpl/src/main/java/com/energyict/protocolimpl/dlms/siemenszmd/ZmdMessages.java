@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
@@ -33,15 +33,15 @@ public class ZmdMessages extends ProtocolMessages {
     private final TariffCalendarExtractor tariffCalendarExtractor;
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
-    private final DateFormatter dateFormatter;
+    private final Formatter formatter;
 
-    public ZmdMessages(final DLMSZMD protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, DateFormatter dateFormatter) {
+    public ZmdMessages(final DLMSZMD protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, Formatter formatter) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
         this.tariffCalendarExtractor = tariffCalendarExtractor;
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.messageFileFinder = messageFileFinder;
-        this.dateFormatter = dateFormatter;
+        this.formatter = formatter;
     }
 
     /**
@@ -93,7 +93,7 @@ public class ZmdMessages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder, this.tariffCalendarExtractor, this.messageFileFinder, this.deviceMessageFileExtractor, this.dateFormatter);
+        final ZMDTimeOfUseMessageBuilder builder = new ZMDTimeOfUseMessageBuilder(this.calendarFinder, this.tariffCalendarExtractor, this.messageFileFinder, this.deviceMessageFileExtractor, this.formatter);
         ActivityCalendarController activityCalendarController = new ZMDActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (!builder.getCalendarId().isEmpty()) { // codeTable implementation

@@ -1,8 +1,8 @@
 package com.energyict.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -50,7 +50,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
 
     private final TariffCalendarFinder calendarFinder;
     private final DeviceMessageFileFinder messageFileFinder;
-    private final DateFormatter dateFormatter;
+    private final Formatter formatter;
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final TariffCalendarExtractor calendarExtractor;
     private String name;
@@ -80,10 +80,10 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
      */
     private boolean encodeB64;
 
-    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
+    public TimeOfUseMessageBuilder(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Formatter formatter) {
         this.calendarFinder = calendarFinder;
         this.messageFileFinder = messageFileFinder;
-        this.dateFormatter = dateFormatter;
+        this.formatter = formatter;
         this.messageFileExtractor = messageFileExtractor;
         this.calendarExtractor = calendarExtractor;
     }
@@ -259,7 +259,7 @@ public class TimeOfUseMessageBuilder extends AbstractMessageBuilder {
         builder.append(" ");
         builder.append("Name='").append(name).append("', ");
         if (activationDate != null) {
-            builder.append("ActivationDate='").append(dateFormatter.format(activationDate)).append("', ");
+            builder.append("ActivationDate='").append(formatter.format(activationDate.toInstant())).append("', ");
         }
         if (!calendarId.isEmpty()) {
             builder.append("Code='").append(calendarExtractor.name(getCalendar())).append("', ");

@@ -1,9 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
@@ -101,17 +101,17 @@ public class ZigbeeMessageExecutor extends MessageParser {
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
-    private final DateFormatter dateFormatter;
+    private final Formatter formatter;
     private ActivityCalendarController activityCalendarController;
     private boolean success;
 
-    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
+    public ZigbeeMessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Formatter formatter) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
         this.messageFileExtractor = messageFileExtractor;
-        this.dateFormatter = dateFormatter;
+        this.formatter = formatter;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -578,7 +578,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.dateFormatter);
+        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.formatter);
 
         try {
             builder.initFromXml(content);

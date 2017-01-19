@@ -1,9 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
 import com.energyict.mdc.io.NestedIOException;
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -58,15 +58,15 @@ public class Messages extends ProtocolMessages {
     private final TariffCalendarExtractor tariffCalendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
-    private final DateFormatter dateFormatter;
+    private final Formatter formatter;
 
-    public Messages(final ActarisSl7000 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, DateFormatter dateFormatter) {
+    public Messages(final ActarisSl7000 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, Formatter formatter) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
         this.tariffCalendarExtractor = tariffCalendarExtractor;
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.messageFileFinder = messageFileFinder;
-        this.dateFormatter = dateFormatter;
+        this.formatter = formatter;
     }
 
     /**
@@ -206,7 +206,7 @@ public class Messages extends ProtocolMessages {
     }
 
     private void updateTimeOfUse(MessageEntry messageEntry) throws IOException, SAXException {
-        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.calendarFinder, this.messageFileFinder, this.dateFormatter, this.deviceMessageFileExtractor, this.tariffCalendarExtractor);
+        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.calendarFinder, this.messageFileFinder, this.formatter, this.deviceMessageFileExtractor, this.tariffCalendarExtractor);
         ActivityCalendarController activityCalendarController = new com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.ActivityCalendarController(this.protocol);
         builder.initFromXml(messageEntry.getContent());
         if (!builder.getCalendarId().isEmpty()) { // codeTable implementation

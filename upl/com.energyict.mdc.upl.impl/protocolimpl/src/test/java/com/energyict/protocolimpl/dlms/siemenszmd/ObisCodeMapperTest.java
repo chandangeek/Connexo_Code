@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -41,7 +41,7 @@ public class ObisCodeMapperTest {
     @Mock
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
-    private DateFormatter dateFormatter;
+    private Formatter dateFormatter;
     @Mock
     private Extractor extractor;
 

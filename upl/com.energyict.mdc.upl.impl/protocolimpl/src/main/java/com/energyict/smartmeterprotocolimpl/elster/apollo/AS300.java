@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -52,15 +52,15 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
-    private final DateFormatter dateFormatter;
+    private final Formatter formatter;
     private final PropertySpecService propertySpecService;
 
-    public AS300(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter, PropertySpecService propertySpecService) {
+    public AS300(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Formatter formatter, PropertySpecService propertySpecService) {
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
         this.messageFileExtractor = messageFileExtractor;
-        this.dateFormatter = dateFormatter;
+        this.formatter = formatter;
         this.propertySpecService = propertySpecService;
     }
 
@@ -84,8 +84,8 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return messageFileExtractor;
     }
 
-    protected DateFormatter getDateFormatter() {
-        return dateFormatter;
+    protected Formatter getFormatter() {
+        return formatter;
     }
 
     @Override
@@ -223,7 +223,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.dateFormatter));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.formatter));
         }
         return messageProtocol;
     }

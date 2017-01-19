@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -32,8 +32,8 @@ import java.util.List;
  */
 public class AS300DPET extends AS300 {
 
-    public AS300DPET(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter, PropertySpecService propertySpecService) {
-        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter, propertySpecService);
+    public AS300DPET(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Formatter formatter, PropertySpecService propertySpecService) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, formatter, propertySpecService);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class AS300DPET extends AS300 {
     @Override
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(), this.getDateFormatter()));
+            this.messageProtocol = new AS300DPETMessaging(new AS300DPETMessageExecutor(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(), this.getFormatter()));
         }
         return messageProtocol;
     }

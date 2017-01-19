@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
@@ -30,8 +30,8 @@ public class AS300DPETMessageExecutor extends AS300MessageExecutor {
 
     private static final ObisCode PET_SETUP = ObisCode.fromString("0.128.0.2.0.255");
 
-    public AS300DPETMessageExecutor(AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, DateFormatter dateFormatter) {
-        super(protocol, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, dateFormatter);
+    public AS300DPETMessageExecutor(AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Formatter formatter) {
+        super(protocol, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, formatter);
     }
 
     @Override

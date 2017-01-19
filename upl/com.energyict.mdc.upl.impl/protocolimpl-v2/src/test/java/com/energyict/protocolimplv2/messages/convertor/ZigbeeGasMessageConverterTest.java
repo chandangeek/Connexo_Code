@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
@@ -72,7 +72,7 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
     @Mock
     private DeviceMessageFileExtractor messageFileExtractor;
 
-    private DateFormatter dateFormatter = new DefaultDateFormatter();
+    private Formatter dateFormatter = new DefaultDateFormatter();
 
     @Test
     public void testMessageConversion() {
@@ -207,7 +207,7 @@ public class ZigbeeGasMessageConverterTest extends AbstractMessageConverterTest 
         }
     }
 
-    private static class DefaultDateFormatter implements DateFormatter {
+    private static class DefaultDateFormatter implements Formatter {
         @Override
         public String format(Date date) {
             return date.toString();

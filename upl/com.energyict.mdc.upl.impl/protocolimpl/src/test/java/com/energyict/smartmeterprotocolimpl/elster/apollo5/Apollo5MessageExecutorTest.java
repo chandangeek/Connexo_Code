@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class Apollo5MessageExecutorTest {
     @Mock
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
-    private DateFormatter dateFormatter;
+    private Formatter dateFormatter;
     @Mock
     private PropertySpecService propertySpecService;
 

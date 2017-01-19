@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DateFormatter;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Extractor;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
@@ -42,7 +42,7 @@ public class CryptoDsmr40MessageConverterTest extends AbstractMessageConverterTe
     @Mock
     private DeviceMessageFileFinder messageFileFinder;
     @Mock
-    private DateFormatter dateFormatter;
+    private Formatter dateFormatter;
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
