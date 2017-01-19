@@ -85,7 +85,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
         if (menu.down('#reset-value')) {
             menu.down('#reset-value').setVisible(modificationFlag == "EDITED" || modificationFlag == "ADDED");
             menu.down('#reset-value').setText(calculatedValue ?
-                Uni.I18n.translate('general.actions.reset', 'IMT', 'Reset') :
+                Uni.I18n.translate('general.actions.restore', 'IMT', 'Restore') :
                 Uni.I18n.translate('general.actions.remove', 'IMT', 'Remove')
             )
         }
@@ -241,9 +241,9 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                     [Uni.DateTime.formatDateShort(new Date(lastSelected.get('timeStamp'))),
                         Uni.DateTime.formatTimeShort(new Date(lastSelected.get('timeStamp')))],
                     false) :
-                Uni.I18n.translate('usagepoint.registerData.reset.message.new',
+                Uni.I18n.translate('usagepoint.registerData.restored.message.new',
                     'IMT',
-                    'The register reading with the reading time {0} at {1} will be reset to the value of the aggregated reading from the meter',
+                    'The register reading with the reading time {0} at {1} will be restored to the value of the aggregated reading from the meter',
                     [Uni.DateTime.formatDateShort(new Date(lastSelected.get('timeStamp'))),
                         Uni.DateTime.formatTimeShort(new Date(lastSelected.get('timeStamp')))],
                     false);
@@ -252,13 +252,13 @@ Ext.define('Imt.purpose.controller.RegisterData', {
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: removeAction ?
                 Uni.I18n.translate('general.actions.remove', 'IMT', 'Remove') :
-                Uni.I18n.translate('general.actions.reset', 'IMT', 'Reset')
+                Uni.I18n.translate('general.actions.restore', 'IMT', 'Restore')
 
         }).show({
             msg: msg,
             title: removeAction ?
                 Uni.I18n.translate('usagepoint.registerData.delete.title.question', 'IMT', 'Remove the reading?') :
-                Uni.I18n.translate('usagepoint.registerData.reset.title.question', 'IMT', 'Reset the reading?'),
+                Uni.I18n.translate('usagepoint.registerData.reset.title.question1', 'IMT', 'Restore the reading?'),
             config: {
                 readingToDelete: lastSelected,
                 removeAction: removeAction,
@@ -272,7 +272,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
         var me = cfg.config.me,
             msg = cfg.config.removeAction ?
                 Uni.I18n.translate('usagepoint.registerData.removed', 'IMT', 'Register data sucessfully removed') :
-                Uni.I18n.translate('usagepoint.registerData.reset', 'IMT', 'Register data sucessfully reset to aggregated'),
+                Uni.I18n.translate('usagepoint.registerData.restored', 'IMT', 'Register data sucessfully restored to aggregated'),
             record = cfg.config.readingToDelete,
             router = me.getController('Uni.controller.history.Router');
         if (btn === 'confirm') {
