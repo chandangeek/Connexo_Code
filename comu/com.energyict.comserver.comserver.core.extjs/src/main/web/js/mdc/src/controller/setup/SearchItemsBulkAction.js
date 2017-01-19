@@ -139,42 +139,43 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             searchResults = Ext.getStore('Uni.store.search.Results'),
             widget;
 
-        // in case user forgot to press apply filters on search page we need ensure that search filters state matches search results state
-        search.service.applyFilters();
-        if (!searchResults.getCount()) {
-            this.goBack();
-        } else {
-            me.devices = null;
-            me.allDevices = false;
-            me.schedules = null;
-            me.operation = null;
-            me.configData = null;
-            me.shedulesUnchecked = false;
+        searchResults.on('load', function() {
+            if (!searchResults.getCount()) {
+                this.goBack();
+            } else {
+                me.devices = null;
+                me.allDevices = false;
+                me.schedules = null;
+                me.operation = null;
+                me.configData = null;
+                me.shedulesUnchecked = false;
 
-            var store = Ext.create('Ext.data.Store', {
-                buffered: true,
-                pageSize: 100,
-                remoteFilter: true,
-                model: searchResults.model,
-                filters: searchResults.filters.getRange(),
-                proxy: searchResults.getProxy()
-            });
+                var store = Ext.create('Ext.data.Store', {
+                    buffered: true,
+                    pageSize: 100,
+                    remoteFilter: true,
+                    model: searchResults.model,
+                    filters: searchResults.filters.getRange(),
+                    proxy: searchResults.getProxy()
+                });
 
-            // we replace reader to buffered due to our store is buffered
-            store.getProxy().setReader(Ext.create('Uni.data.reader.JsonBuffered', store.getProxy().getReader()));
+                // we replace reader to buffered due to our store is buffered
+                store.getProxy().setReader(Ext.create('Uni.data.reader.JsonBuffered', store.getProxy().getReader()));
 
-            widget = Ext.widget('searchitems-bulk-browse', {
-                deviceStore: store
-            });
-            me.getApplication().fireEvent('changecontentevent', widget);
-            widget.setLoading();
-            store.load({
-                callback: function () {
+                widget = Ext.widget('searchitems-bulk-browse', {
+                    deviceStore: store
+                });
+                me.getApplication().fireEvent('changecontentevent', widget);
+                widget.setLoading();
+                store.load(function() {
                     widget.setLoading(false);
-                }
-            });
-            me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load();
-        }
+                });
+                me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load();
+            }
+        }, me, {single:true});
+
+        // In case the user forgot to press "Search" on the search page, we need to ensure that the state of the search criteria match the search results:
+        search.service.applyFilters();
     },
 
     enableNextButton: function() {
