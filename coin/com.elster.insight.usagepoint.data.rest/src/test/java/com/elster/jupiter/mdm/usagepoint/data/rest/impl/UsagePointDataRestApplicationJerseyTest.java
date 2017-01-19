@@ -23,7 +23,6 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
@@ -141,8 +140,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     SearchService searchService;
     @Mock
     MessageService messageService;
-    @Mock
-    UsagePointDataModelService usagePointDataModelService;
 
     @Override
     protected Application getApplication() {
@@ -187,7 +184,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setAppService(appService);
         application.setSearchService(searchService);
         application.setMessageService(messageService);
-        application.setUsagePointDataModelService(usagePointDataModelService);
         return application;
     }
 

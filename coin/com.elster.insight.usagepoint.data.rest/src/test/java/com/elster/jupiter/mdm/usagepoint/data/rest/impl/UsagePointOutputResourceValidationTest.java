@@ -159,12 +159,12 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(usagePointDataCompletionService.getDataCompletionStatistics(eq(channel), any())).thenReturn(Collections.singletonList(summary));
         when(summary.getType()).thenReturn(ChannelDataCompletionSummaryType.GENERAL);
         EstimationRule estimationRule = mock(EstimationRule.class);
-        ReadingQualityType estimatedReadingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
+        ReadingQualityType estimatedReadingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, 13);
         ReadingQualityType suspectReadingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT);
-        ReadingQualityType informativeReadingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, (int) informativeRule.getId());
-        ReadingQualityRecord readingQualityEstimated = mockReadingQuality(estimatedReadingQualityType.getCode());
-        ReadingQualityRecord readingQualitySuspect = mockReadingQuality(suspectReadingQualityType.getCode());
-        ReadingQualityRecord readingQualityInformative = mockReadingQuality(informativeReadingQualityType.getCode());
+        ReadingQualityType informativeReadingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 2);
+        ReadingQualityRecord readingQualityEstimated = mockReadingQuality(estimatedReadingQualityType);
+        ReadingQualityRecord readingQualitySuspect = mockReadingQuality(suspectReadingQualityType);
+        ReadingQualityRecord readingQualityInformative = mockReadingQuality(informativeReadingQualityType);
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);
         when(estimationRule.getDisplayName()).thenReturn("EstimationRule");
@@ -178,9 +178,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         doReturn(Collections.singletonList(readingQualityEstimated)).when(estimatedDataValidationStatus).getReadingQualities();
     }
 
-    private ReadingQualityRecord mockReadingQuality(String code) {
+    private ReadingQualityRecord mockReadingQuality(ReadingQualityType readingQualityType) {
         ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
-        ReadingQualityType readingQualityType = new ReadingQualityType(code);
         when(readingQuality.getType()).thenReturn(readingQualityType);
         when(readingQuality.isActual()).thenReturn(true);
         return readingQuality;

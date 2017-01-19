@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -26,6 +27,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -64,6 +66,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class UsagePointOutputResource {
 
@@ -201,6 +205,13 @@ public class UsagePointOutputResource {
             if (requestedInterval != null) {
                 EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
                 ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
+                Optional<Range<Instant>> optionalIntervalWithData = Optional.of(channelsContainer)
+                        .map(Effectivity::getInterval)
+                        .map(Interval::toOpenClosedRange)
+                        .filter(requestedInterval::isConnected)
+                        .map(requestedInterval::intersection)
+                        .filter(not(Range::isEmpty));
+                Range<Instant> modifiedInterval = optionalIntervalWithData.orElse(requestedInterval);
                 AggregatedChannel channel = effectiveMetrologyConfiguration.getAggregatedChannel(metrologyContract, readingTypeDeliverable
                         .getReadingType()).get();
                 TemporalAmount intervalLength = channel.getIntervalLength().get();
@@ -209,16 +220,16 @@ public class UsagePointOutputResource {
                         channel,
                         validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
-                Map<Instant, ReadingWithValidationStatus<IntervalReadingRecord>> preFilledChannelDataMap = channel.toList(requestedInterval)
+                Map<Instant, ReadingWithValidationStatus<IntervalReadingRecord>> preFilledChannelDataMap = channel.toList(modifiedInterval)
                         .stream()
                         .collect(Collectors.toMap(Function.identity(), timeStamp -> builder.from(ZonedDateTime.ofInstant(timeStamp, clock.getZone()), intervalLength)));
 
                 // add readings to pre filled channel data map
-                Map<Instant, IntervalReadingRecord> intervalReadings = channel.getCalculatedIntervalReadings(requestedInterval)
+                Map<Instant, IntervalReadingRecord> intervalReadings = channel.getCalculatedIntervalReadings(modifiedInterval)
                         .stream()
                         .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
                                 .identity()));
-                Map<Instant, IntervalReadingRecord> persistedIntervalReadings = channel.getPersistedIntervalReadings(requestedInterval)
+                Map<Instant, IntervalReadingRecord> persistedIntervalReadings = channel.getPersistedIntervalReadings(modifiedInterval)
                         .stream()
                         .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
                                 .identity()));
@@ -242,7 +253,7 @@ public class UsagePointOutputResource {
                 List<DataValidationStatus> dataValidationStatuses = evaluator
                         .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, Stream
                                 .concat(persistedIntervalReadings.values().stream(), intervalReadings.values().stream())
-                                .collect(Collectors.toList()), requestedInterval);
+                                .collect(Collectors.toList()), modifiedInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     ReadingWithValidationStatus<IntervalReadingRecord> readingWithValidationStatus = preFilledChannelDataMap
                             .get(dataValidationStatus.getReadingTimestamp());
@@ -598,29 +609,32 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response validateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long purposeId, @QueryParam("upVersion") long upVersion, @QueryParam("type") String type, PurposeInfo purposeInfo) {
+    public Response validateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, @QueryParam("upVersion") long upVersion, @QueryParam("type") String type, PurposeInfo purposeInfo) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, purposeId);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
         usagePoint.update();
-        if (type.equals("validate")) {
-            effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
-                    .ifPresent(channelsContainer ->
-                            validationService.validate(
-                                    new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
-                                    purposeInfo.validationInfo.lastChecked));
+        switch (type) {
+            case "validate":
+                effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
+                        .ifPresent(channelsContainer ->
+                                validationService.validate(
+                                        new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
+                                        purposeInfo.validationInfo.lastChecked));
 
-            effectiveMetrologyConfigurationOnUsagePoint.getUsagePoint().getCurrentMeterActivations()
-                    .stream()
-                    .map(MeterActivation::getChannelsContainer)
-                    .forEach(channelsContainer ->
-                            validationService.validate(
-                                    new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
-                                    purposeInfo.validationInfo.lastChecked));
-        } else {
-            effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
-                    .ifPresent(channelsContainer ->
-                            estimationService.estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange()));
+                effectiveMetrologyConfigurationOnUsagePoint.getUsagePoint().getCurrentMeterActivations()
+                        .stream()
+                        .map(MeterActivation::getChannelsContainer)
+                        .forEach(channelsContainer ->
+                                validationService.validate(
+                                        new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
+                                        purposeInfo.validationInfo.lastChecked));
+                break;
+            case "estimate":
+                effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
+                        .ifPresent(channelsContainer ->
+                                estimationService.estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange()));
+                break;
         }
 
         return Response.status(Response.Status.OK).build();

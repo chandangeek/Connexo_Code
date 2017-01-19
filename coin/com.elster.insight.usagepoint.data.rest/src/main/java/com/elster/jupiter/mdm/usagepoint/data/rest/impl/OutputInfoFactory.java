@@ -7,7 +7,6 @@ import com.elster.jupiter.mdm.common.rest.TimeDurationInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.data.IChannelDataCompletionSummary;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -46,13 +45,13 @@ public class OutputInfoFactory {
     public OutputInfoFactory(ValidationStatusFactory validationStatusFactory,
                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
                              ReadingTypeInfoFactory readingTypeInfoFactory,
-                             UsagePointDataModelService usagePointDataModelService,
                              UsagePointDataCompletionService usagePointDataCompletionService,
-                             ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory) {
+                             ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
+                             Thesaurus thesaurus) {
         this.validationStatusFactory = validationStatusFactory;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
-        this.thesaurus = usagePointDataModelService.thesaurus();
+        this.thesaurus = thesaurus;
         this.usagePointDataCompletionService = usagePointDataCompletionService;
         this.validationSummaryInfoFactory = validationSummaryInfoFactory;
     }
@@ -96,30 +95,27 @@ public class OutputInfoFactory {
                 .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT,
                         metrologyContract.getId(), effectiveMetrologyConfiguration.getUsagePoint().getName()) {
                 });
-        if (interval != null) {
-            Optional<Range<Instant>> optionalIntervalWithData = Optional.of(container)
-                    .map(Effectivity::getInterval)
-                    .map(Interval::toOpenClosedRange)
-                    .filter(interval::isConnected)
-                    .map(interval::intersection)
-                    .filter(not(Range::isEmpty));
-            List<IChannelDataCompletionSummary> channelDataCompletionSummaryList = optionalIntervalWithData
-                    .map(intervalWithData -> container.getChannel(readingTypeDeliverable.getReadingType())
-                            .map(channel -> usagePointDataCompletionService.getDataCompletionStatistics(channel, intervalWithData))
-                            .orElse(Collections.singletonList(usagePointDataCompletionService.getGeneralUsagePointDataCompletionSummary(intervalWithData))))
-                    .orElse(Collections.singletonList(usagePointDataCompletionService.getGeneralUsagePointDataCompletionSummary(interval)));
-            Optional.of(container).flatMap(channelContainer -> channelContainer.getChannel(readingTypeDeliverable.getReadingType()))
-                    .ifPresent(outputChannel -> {
+        Optional.of(container).flatMap(channelContainer -> channelContainer.getChannel(readingTypeDeliverable.getReadingType()))
+                .ifPresent(outputChannel -> {
+                    if (interval != null) {
+                        Optional<Range<Instant>> optionalIntervalWithData = Optional.of(container)
+                                .map(Effectivity::getInterval)
+                                .map(Interval::toOpenClosedRange)
+                                .filter(interval::isConnected)
+                                .map(interval::intersection)
+                                .filter(not(Range::isEmpty));
+                        List<IChannelDataCompletionSummary> channelDataCompletionSummaryList = optionalIntervalWithData
+                                .map(intervalWithData -> container.getChannel(readingTypeDeliverable.getReadingType())
+                                        .map(channel -> usagePointDataCompletionService.getDataCompletionStatistics(channel, intervalWithData))
+                                        .orElse(Collections.singletonList(usagePointDataCompletionService.getGeneralUsagePointDataCompletionSummary(intervalWithData))))
+                                .orElse(Collections.singletonList(usagePointDataCompletionService.getGeneralUsagePointDataCompletionSummary(interval)));
                         outputInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, Collections.singletonList(outputChannel), interval);
                         outputInfo.summary = validationSummaryInfoFactory.from(readingTypeDeliverable, channelDataCompletionSummaryList);
-                    });
-        } else {
-            Optional.of(container).flatMap(channelContainer -> channelContainer.getChannel(readingTypeDeliverable.getReadingType()))
-                    .ifPresent(outputChannel -> {
+                    } else {
                         outputInfo.validationInfo = new UsagePointValidationStatusInfo();
                         outputInfo.validationInfo.hasSuspects = validationStatusFactory.hasSuspects(Collections.singletonList(outputChannel), container.getRange());
-                    });
-        }
+                    }
+                });
     }
 
     private ChannelOutputInfo asChannelCommonOutputInfo(ReadingTypeDeliverable readingTypeDeliverable) {
