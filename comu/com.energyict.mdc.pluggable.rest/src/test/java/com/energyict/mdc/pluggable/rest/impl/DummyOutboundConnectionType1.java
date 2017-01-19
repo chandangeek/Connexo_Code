@@ -8,7 +8,7 @@ package com.energyict.mdc.pluggable.rest.impl;
  */
 public class DummyOutboundConnectionType1 extends DummyConnectionType {
     @Override
-    public Direction getDirection() {
-        return Direction.OUTBOUND;
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.OUTBOUND;
     }
 }
