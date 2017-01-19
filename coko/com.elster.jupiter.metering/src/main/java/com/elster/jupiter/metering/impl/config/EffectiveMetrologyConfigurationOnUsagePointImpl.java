@@ -177,6 +177,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
         this.effectiveContracts
                 .stream()
+                .filter(emct -> !emct.getRange().hasUpperBound())
                 .map(EffectiveMetrologyContractOnUsagePoint::getMetrologyContract)
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(Collection::stream)
