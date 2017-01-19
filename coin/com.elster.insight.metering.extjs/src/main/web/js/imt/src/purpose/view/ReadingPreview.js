@@ -266,19 +266,19 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 padding: '10'
             },
             {
-                fieldLabel: Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality'),
+                fieldLabel: Uni.I18n.translate('general.deviceQuality', 'IMT', 'Device quality'),
                 itemId: 'device-quality'
             },
             {
-                fieldLabel: Uni.I18n.translate('general.MDCQuality', 'MDC', 'MDC quality'),
+                fieldLabel: Uni.I18n.translate('general.MDCQuality', 'IMT', 'MDC quality'),
                 itemId: 'multiSense-quality'
             },
             {
-                fieldLabel: Uni.I18n.translate('general.MDMQuality', 'MDC', 'MDM quality'),
+                fieldLabel: Uni.I18n.translate('general.MDMQuality', 'IMT', 'MDM quality'),
                 itemId: 'insight-quality'
             },
             {
-                fieldLabel: Uni.I18n.translate('general.thirdPartyQuality', 'MDC', 'Third party quality'),
+                fieldLabel: Uni.I18n.translate('general.thirdPartyQuality', 'IMT', 'Third party quality'),
                 itemId: 'thirdParty-quality'
             }
         );
