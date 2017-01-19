@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class ReadingQualitiesValidator extends AbstractValidator {
 
@@ -112,22 +113,16 @@ class ReadingQualitiesValidator extends AbstractValidator {
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        return validate(intervalReadingRecord.getReadingQualities()
-                .stream()
-                .map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode()))
-                .collect(Collectors.toList()));
+        return validate(intervalReadingRecord.getReadingQualities().stream().map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode())));
      }
 
     @Override
     public ValidationResult validate(ReadingRecord readingRecord) {
-        return validate (readingRecord.getReadingQualities()
-                .stream()
-                .map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode()))
-                .collect(Collectors.toList()));
+        return validate (readingRecord.getReadingQualities().stream().map(readingQualityRecord -> new ReadingQualityPropertyValue(readingQualityRecord.getType().getCode())));
     }
 
-    private ValidationResult validate(List<ReadingQualityPropertyValue> readingQualities){
-        Optional<ReadingQualityPropertyValue> selected = readingQualities.stream().filter((rq) -> selectedReadingQualities.contains(rq)).findFirst();
+    private ValidationResult validate(Stream<ReadingQualityPropertyValue> readingQualityPropertyValueStream){
+        Optional<ReadingQualityPropertyValue> selected = readingQualityPropertyValueStream.filter((rq) -> selectedReadingQualities.contains(rq)).findFirst();
         return selected.isPresent() ? ValidationResult.SUSPECT : ValidationResult.VALID;
     }
 
