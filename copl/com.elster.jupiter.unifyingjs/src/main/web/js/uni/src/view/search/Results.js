@@ -99,6 +99,7 @@ Ext.define('Uni.view.search.Results', {
         }));
 
         serviceListeners.push(service.on('loadingcount', function(){
+            service.applyFilters();
             me.setLoading(true);
         }, me, {
             destroyable: true
