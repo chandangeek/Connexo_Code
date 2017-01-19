@@ -1,14 +1,5 @@
 package com.energyict.mdc.issue.datacollection.impl.actions;
 
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
@@ -18,6 +9,14 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+import com.energyict.mdc.protocol.api.ConnectionType;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -53,7 +52,7 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
             if (!dcIssue.getStatus().isHistorical() && dcIssue.getConnectionTask().isPresent() && dcIssue.getCommunicationTask().isPresent()){
                 ConnectionTask<?, ?> task = dcIssue.getConnectionTask().get();
                 return task instanceof ScheduledConnectionTask
-                        && task.getConnectionType().getDirection() == ConnectionType.Direction.OUTBOUND
+                        && task.getConnectionType().getDirection() == ConnectionType.ConnectionTypeDirection.OUTBOUND
                         && ((ScheduledConnectionTask) task).getConnectionStrategy() == ConnectionStrategy.MINIMIZE_CONNECTIONS;
             }
         }
