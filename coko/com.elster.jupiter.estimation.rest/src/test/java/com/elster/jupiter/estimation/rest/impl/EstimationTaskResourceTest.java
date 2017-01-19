@@ -4,8 +4,8 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskBuilder;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
@@ -38,7 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,6 +54,8 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
     private Query<EstimationTask> query;
     @Mock
     private RestQuery<EstimationTask> restQuery;
+    @Mock
+    private MetrologyPurpose metrologyPurpose;
 
     private EstimationTaskBuilder initBuilderStub() {
         final Object proxyInstance = Proxy.newProxyInstance(EstimationTaskBuilder.class.getClassLoader(), new Class<?>[]{EstimationTaskBuilder.class}, new InvocationHandler() {
@@ -97,6 +98,7 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         when(estimationTask.getId()).thenReturn(750L);
         when(estimationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(estimationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
+        when(estimationTask.getMetrologyPurpose()).thenReturn(Optional.of(metrologyPurpose));
 
         doReturn(Optional.of(estimationTask)).when(estimationService).findEstimationTask(TASK_ID);
         doReturn(Optional.of(estimationTask)).when(estimationService).findAndLockEstimationTask(TASK_ID, 1L);
