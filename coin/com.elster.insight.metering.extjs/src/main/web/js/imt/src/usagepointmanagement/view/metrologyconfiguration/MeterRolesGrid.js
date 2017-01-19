@@ -17,7 +17,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                 dataIndex: 'required',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.no', 'IMT', 'No');
+                    return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : '-';
                 }
             },
             {
@@ -52,7 +52,9 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.meterRolesCount', 'IMT', '{0} meter role(s)'),
+                displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.meterRolesCount', 'IMT', '{2} meter role(s)'),
+                isFullTotalCount: true,
+                noBottomPaging: true,
                 items: [
                     {
                         xtype: 'button',

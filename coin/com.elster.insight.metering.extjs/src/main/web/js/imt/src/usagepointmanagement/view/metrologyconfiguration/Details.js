@@ -18,8 +18,16 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
     initComponent: function () {
         var me = this,
             meterRolesAvailable = me.usagePoint.get('metrologyConfiguration_meterRoles'),
-            meterRolesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles', {data: me.usagePoint.get('metrologyConfiguration_meterRoles')}),
-            purposesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.Purposes', {data: me.usagePoint.get('metrologyConfiguration_purposes')}),
+            meterRoles = me.usagePoint.get('metrologyConfiguration_meterRoles'),
+            meterRolesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles', {
+                data: meterRoles || [],
+                totalCount: !Ext.isEmpty(meterRoles) ? meterRoles.length : 0
+            }),
+            purposes = me.usagePoint.get('metrologyConfiguration_purposes'),
+            purposesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.Purposes', {
+                data: purposes || [],
+                totalCount: !Ext.isEmpty(purposes) ? purposes.length : 0
+            }),
             mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
             canModify = me.usagePoint.get('state').stage === 'PRE_OPERATIONAL';
 
@@ -58,6 +66,12 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         privileges: !mcIsLinked
                     },
                     {
+                        title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
+                        ui: 'medium',
+                        style: 'padding-left: 0; padding-right: 0; padding-bottom: 0',
+                        privileges: !mcIsLinked
+                    },
+                    {
                         xtype: 'emptygridcontainer',
                         privileges: !mcIsLinked,
                         grid: {
@@ -66,7 +80,6 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                             store: 'Imt.usagepointmanagement.store.MeterRoles',
                             router: me.router,
                             style: 'padding-left: 0; padding-right: 0',
-                            ui: 'medium',
                             hasLinkMetersButton: false
                         },
                         emptyComponent: {
