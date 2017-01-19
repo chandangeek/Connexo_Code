@@ -29,7 +29,7 @@ Ext.define('Dal.view.ActionMenu', {
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.setPriority', 'DAL', 'Set priority'),
-            privileges: Isu.privileges.Issue.action,
+            privileges: Dal.privileges.Alarm.viewAdminAlarm,
             action: 'setPriority'
         }
 
