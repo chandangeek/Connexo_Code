@@ -4,7 +4,7 @@ import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;
 import java.util.List;

@@ -5,7 +5,7 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;
 import java.util.Optional;
