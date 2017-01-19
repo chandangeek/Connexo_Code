@@ -111,6 +111,32 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     }
 
     @Test
+    public void createTaskWithMetrologyPurpose() {
+        DataValidationTaskInfo dataValidationTaskInfo = new DataValidationTaskInfo();
+        dataValidationTaskInfo.deviceGroup = null;
+        dataValidationTaskInfo.metrologyPurpose = new IdWithDisplayValueInfo<>(1L, "Information");
+        Entity<DataValidationTaskInfo> json = Entity.json(dataValidationTaskInfo);
+
+        Response response= target("/validationtasks").request().header(HEADER_NAME, INSIGHT_KEY).post(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
+
+    @Test
+    public void updateTaskWithMetrologyPurpose() {
+        mockDataValidationTask(TASK_ID, QualityCodeSystem.MDM);
+        DataValidationTaskInfo info = new DataValidationTaskInfo();
+        info.id = TASK_ID;
+        info.version = OK_VERSION;
+        info.deviceGroup = null;
+        info.metrologyPurpose = new IdWithDisplayValueInfo<>(1L, "Billing");
+        Entity<DataValidationTaskInfo> json = Entity.json(info);
+
+        Response response = target("/validationtasks/" + TASK_ID).request().header(HEADER_NAME, INSIGHT_KEY).put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
     public void updateTaskForDeviceGroup() {
         DataValidationTaskInfo info = new DataValidationTaskInfo();
         info.id = TASK_ID;
@@ -271,6 +297,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(validationTask.getName()).thenReturn("Name");
         when(validationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
+        when(validationTask.getMetrologyPurpose()).thenReturn(Optional.of(metrologyPurpose));
         if(qualityCodeSystem.equals(QualityCodeSystem.MDC)) {
             when(validationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
             when(validationTask.getUsagePointGroup()).thenReturn(Optional.empty());
