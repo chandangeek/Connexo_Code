@@ -117,7 +117,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(0);
         PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
         // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100").queryParam("upVersion", usagePoint.getVersion()).queryParam("type", "validate").request().put(Entity.json(purposeInfo));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100").queryParam("upVersion", usagePoint.getVersion()).queryParam("action", "validate").request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -130,7 +130,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(0);
         PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
         // Business method
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100").queryParam("upVersion", usagePoint.getVersion()).queryParam("type", "estimate").request().put(Entity.json(purposeInfo));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100").queryParam("upVersion", usagePoint.getVersion()).queryParam("action", "estimate").request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

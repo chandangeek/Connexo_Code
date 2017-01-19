@@ -43,6 +43,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -609,12 +610,13 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response validateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, @QueryParam("upVersion") long upVersion, @QueryParam("type") String type, PurposeInfo purposeInfo) {
+    public Response validateOrEstimateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, @QueryParam("upVersion") long upVersion,
+                                                        @QueryParam("action") @DefaultValue("") String action, PurposeInfo purposeInfo) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
         usagePoint.update();
-        switch (type) {
+        switch (action) {
             case "validate":
                 effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
                         .ifPresent(channelsContainer ->
@@ -635,6 +637,8 @@ public class UsagePointOutputResource {
                         .ifPresent(channelsContainer ->
                                 estimationService.estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange()));
                 break;
+            default:
+                throw exceptionFactory.newException(MessageSeeds.WRONG_ACTION_SPECIFIED);
         }
 
         return Response.status(Response.Status.OK).build();
