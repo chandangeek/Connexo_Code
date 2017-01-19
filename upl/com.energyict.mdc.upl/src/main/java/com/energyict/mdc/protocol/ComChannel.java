@@ -218,4 +218,6 @@ public interface ComChannel extends Flushable {
 
     boolean isVoid();
 
+    ComChannelType getComChannelType();
+
 }
