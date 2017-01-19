@@ -1,13 +1,12 @@
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.ModemComponent;
-import com.energyict.mdc.io.SignalController;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.ModemTimeoutException;
-
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.SignalController;
+import com.energyict.mdc.protocol.ComChannel;
 
 import java.util.ArrayList;
 import java.util.Iterator;

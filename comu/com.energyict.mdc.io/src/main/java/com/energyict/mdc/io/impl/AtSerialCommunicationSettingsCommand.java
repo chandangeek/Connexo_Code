@@ -1,12 +1,12 @@
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.protocol.ComChannel;
 
 import java.math.BigDecimal;
 

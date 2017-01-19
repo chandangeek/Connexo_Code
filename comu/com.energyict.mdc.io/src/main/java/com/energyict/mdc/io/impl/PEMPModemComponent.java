@@ -1,8 +1,8 @@
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 
 /**
  * Modem component for PEMP communication, which is based on the {@link PaknetModemComponent}.

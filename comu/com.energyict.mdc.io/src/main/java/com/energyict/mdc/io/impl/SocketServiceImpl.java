@@ -1,9 +1,8 @@
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.InboundUdpSession;
 import com.energyict.mdc.io.SocketService;
-
+import com.energyict.mdc.protocol.ComChannel;
 import org.osgi.service.component.annotations.Component;
 
 import java.io.IOException;

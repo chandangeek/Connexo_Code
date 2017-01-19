@@ -1,6 +1,7 @@
 package com.energyict.mdc.io;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.protocol.ComChannel;
 
 /**
  * Insert your comments here.
@@ -16,6 +17,6 @@ public interface InboundUdpSession extends VirtualUdpSession {
      *
      * @return a DatagramComChannel modeled by the initial UDP packet.
      */
-    public ComChannel accept();
+    ComChannel accept();
 
 }

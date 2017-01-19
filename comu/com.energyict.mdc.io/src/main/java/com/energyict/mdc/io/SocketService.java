@@ -1,6 +1,7 @@
 package com.energyict.mdc.io;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.protocol.ComChannel;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -24,7 +25,7 @@ public interface SocketService {
      * @return The newly created ServerSocket
      * @throws IOException Thrown by the ServerSocket constructor
      */
-    public ServerSocket newInboundTCPSocket(int portNumber) throws IOException;
+    ServerSocket newInboundTCPSocket(int portNumber) throws IOException;
 
     /**
      * {@link DatagramSocket#DatagramSocket(int)}
@@ -33,14 +34,14 @@ public interface SocketService {
      * @return The newly created DatagramSocket
      * @throws SocketException Thrown by the DatagramSocket constructor
      */
-    public DatagramSocket newInboundUDPSocket(int portNumber) throws SocketException;
+    DatagramSocket newInboundUDPSocket(int portNumber) throws SocketException;
 
-    public ComChannel newOutboundTcpIpConnection(String host, int port, int timeOut) throws IOException;
+    ComChannel newOutboundTcpIpConnection(String host, int port, int timeOut) throws IOException;
 
-    public ComChannel newOutboundUDPConnection(int bufferSize, String host, int port) throws IOException;
+    ComChannel newOutboundUDPConnection(int bufferSize, String host, int port) throws IOException;
 
-    public InboundUdpSession newInboundUdpSession(int bufferSize, int port);
+    InboundUdpSession newInboundUdpSession(int bufferSize, int port);
 
-    public ComChannel newSocketComChannel (Socket socket) throws IOException;
+    ComChannel newSocketComChannel(Socket socket) throws IOException;
 
 }

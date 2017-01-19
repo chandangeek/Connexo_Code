@@ -1,5 +1,7 @@
 package com.energyict.mdc.io;
 
+import com.energyict.mdc.protocol.ComChannel;
+
 /**
  * A {@link ComChannel} that wraps a {@link ServerSerialPort}.
  *
@@ -8,6 +10,6 @@ package com.energyict.mdc.io;
  */
 public interface SerialComChannel extends ComChannel {
 
-    public ServerSerialPort getSerialPort();
+    ServerSerialPort getSerialPort();
 
 }

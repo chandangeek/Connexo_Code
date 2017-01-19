@@ -1,6 +1,7 @@
 package com.energyict.mdc.io;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.protocol.ComChannel;
 
 /**
  * Insert your comments here.
@@ -11,9 +12,9 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ModemComponent {
 
-    public void connect(String name, SerialComChannel comChannel);
+    void connect(String name, SerialComChannel comChannel);
 
-    public void disconnect(SerialComChannel comChannel);
+    void disconnect(SerialComChannel comChannel);
 
     /**
      * Initialize the modem so it is ready for dialing/receival of a call.
@@ -27,12 +28,12 @@ public interface ModemComponent {
      * @param name
      * @param comChannel
      */
-    public void initializeModem(String name, SerialComChannel comChannel);
+    void initializeModem(String name, SerialComChannel comChannel);
 
-    public void initializeAfterConnect(ComChannel comChannel);
+    void initializeAfterConnect(ComChannel comChannel);
 
-    public void write(ComChannel comChannel, String dataToWrite);
+    void write(ComChannel comChannel, String dataToWrite);
 
-    public boolean readAndVerify(ComChannel comChannel, String expectedAnswer, long timeOutInMillis);
+    boolean readAndVerify(ComChannel comChannel, String expectedAnswer, long timeOutInMillis);
 
 }

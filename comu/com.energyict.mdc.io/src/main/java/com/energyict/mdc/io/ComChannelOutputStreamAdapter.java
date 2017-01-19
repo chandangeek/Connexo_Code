@@ -1,7 +1,5 @@
 package com.energyict.mdc.io;
 
-import com.energyict.mdc.io.ComChannel;
-
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -22,37 +20,37 @@ import java.io.OutputStream;
  */
 public class ComChannelOutputStreamAdapter extends OutputStream {
 
-    private ComChannel comChannel;
+    private com.energyict.mdc.protocol.ComChannel comChannel;
 
-    public ComChannelOutputStreamAdapter (ComChannel comChannel) {
+    public ComChannelOutputStreamAdapter(com.energyict.mdc.protocol.ComChannel comChannel) {
         super();
         this.comChannel = comChannel;
     }
 
     @Override
-    public void close () throws IOException {
+    public void close() throws IOException {
         this.comChannel.close();
     }
 
     @Override
-    public void flush () throws IOException {
+    public void flush() throws IOException {
         comChannel.flush();
     }
 
     @Override
-    public void write (byte[] b) throws IOException {
+    public void write(byte[] b) throws IOException {
         this.comChannel.startWriting();
         this.comChannel.write(b);
     }
 
     @Override
-    public void write (int b) throws IOException {
+    public void write(int b) throws IOException {
         this.comChannel.startWriting();
         this.comChannel.write(b);
     }
 
     @Override
-    public void write (byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) throws IOException {
         this.comChannel.startWriting();
         this.comChannel.write(b);
     }

@@ -1,7 +1,7 @@
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 
 /**
  * @author sva

@@ -1,8 +1,8 @@
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.VirtualUdpSession;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
 
 import java.net.DatagramSocket;
 
@@ -45,6 +45,6 @@ public class DatagramComChannel extends SynchronousComChannel {
 
     @Override
     public ComChannelType getComChannelType() {
-        return ComChannelType.DATAGRAM_COM_CHANNEL;
+        return ComChannelType.DatagramComChannel;
     }
 }

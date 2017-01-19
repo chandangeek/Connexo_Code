@@ -1,9 +1,9 @@
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.OpticalComChannel;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.ServerSerialPort;
+import com.energyict.mdc.protocol.ComChannelType;
 
 /**
  * Serves as an Optical ComChannel.
@@ -28,6 +28,6 @@ public class OpticalComChannelImpl extends SynchronousComChannel implements Opti
 
     @Override
     public ComChannelType getComChannelType() {
-        return ComChannelType.OPTICAL_COM_CHANNEL;
+        return ComChannelType.OpticalComChannel;
     }
 }
