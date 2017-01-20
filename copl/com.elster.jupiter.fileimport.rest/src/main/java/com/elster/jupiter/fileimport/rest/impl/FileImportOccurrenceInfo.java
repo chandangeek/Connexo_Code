@@ -2,6 +2,8 @@ package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 
+import java.time.Instant;
+
 /**
  * Created by Lucian on 6/2/2015.
  */
@@ -43,8 +45,10 @@ public class FileImportOccurrenceInfo {
     }
 
     private static Long calculateDuration(Long startedOn, Long finishedOn) {
-        if (startedOn == null || finishedOn == null) {
+        if (startedOn == null) {
             return null;
+        } else if (finishedOn == null) {
+            return Instant.now().minusMillis(startedOn).toEpochMilli();
         }
         return finishedOn - startedOn;
     }
