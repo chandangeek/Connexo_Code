@@ -13,12 +13,10 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.Dimension;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,8 +34,9 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
 
     private final DataModel dataModel;
 
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<ReadingTypeTemplate> readingTypeTemplate = ValueReference.absent();
+    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    private Long readingTypeTemplateId;
+    private transient ReadingTypeTemplate cachedReadingTypeTemplate;
     private List<PartiallySpecifiedReadingTypeAttributeValueImpl> overriddenAttributes = new ArrayList<>(ReadingTypeTemplateAttributeName.values().length);
 
     private Collection<Function<ReadingType, Boolean>> attributeMatchers;
@@ -51,13 +50,17 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
 
     public PartiallySpecifiedReadingTypeRequirementImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingTypeTemplate template) {
         super.init(metrologyConfiguration, name);
-        this.readingTypeTemplate.set(template);
+        this.readingTypeTemplateId = template != null ? template.getId() : null;
         return this;
     }
 
     @Override
     public ReadingTypeTemplate getReadingTypeTemplate() {
-        return this.readingTypeTemplate.get();
+        if (cachedReadingTypeTemplate == null) {
+            cachedReadingTypeTemplate = this.getMetrologyConfigurationService().findReadingTypeTemplate(readingTypeTemplateId)
+                    .orElseThrow(() -> new IllegalStateException("No such reading type template with id = " + readingTypeTemplateId));
+        }
+        return cachedReadingTypeTemplate;
     }
 
     @Override
@@ -225,7 +228,8 @@ class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequiremen
                     rt -> ReadingTypeTemplateAttributeName.getReadingTypeAttributeCode(attr.getName().getDefinition(), rt) == attr.getCode()));
             this.attributeMatchers = attributeMatchersMap.values();
         }
-        return this.attributeMatchers.stream().allMatch(matcher -> matcher.apply(readingType));
+        return getReadingTypeTemplate().getReadingTypeRestrictions().stream().allMatch(e -> e.test(readingType))
+                && this.attributeMatchers.stream().allMatch(matcher -> matcher.apply(readingType));
     }
 
     private Function<ReadingType, Boolean> getMatcherWithSystemPossibleValues(ReadingTypeTemplateAttribute attribute) {

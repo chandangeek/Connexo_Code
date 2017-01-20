@@ -34,7 +34,7 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
         ID("id"),
         NAME("name"),
         METROLOGY_CONFIGURATION("metrologyConfiguration"),
-        TEMPLATE("readingTypeTemplate"),
+        TEMPLATE("readingTypeTemplateId"),
         ATTRIBUTES("overriddenAttributes"),
         READING_TYPE("readingType"),;
 
