@@ -31,7 +31,7 @@ Ext.define('Imt.dashboard.view.widget.FlaggedItems', {
                 emptyText: me.emptyText,
 
                 tpl: new Ext.XTemplate(
-                    '<table  style="margin: 5px 0 10px 5px">',
+                    '<table style="margin: 5px 0 10px 2px">',
                     '<tpl for=".">',
                     '<tr id="{name}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
                     '<td width="100%"><a href="{href}">{[Ext.htmlEncode(values.name)]}</a></td>',
