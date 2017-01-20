@@ -49,7 +49,8 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         xtype: 'output-validation-status-form',
                         itemId: 'output-validation-status-form',
                         defaults: defaults,
-                        router: me.router
+                        router: me.router,
+                        showSuspectReasonField: false
                     }
                 ]
             },
