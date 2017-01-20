@@ -1,13 +1,17 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.Optional;
 
 public class EstimationRuleInfoFactory {
 
@@ -33,6 +37,11 @@ public class EstimationRuleInfoFactory {
                     .orElse(null);
         }
         return null;
+    }
+
+    public IdWithNameInfo getEstimationApplicationInfo(ReadingQualityType readingQualityType) {
+        Optional<? extends EstimationRule> estimationRule = estimationService.findEstimationRuleByQualityType(readingQualityType);
+        return estimationRule.isPresent() ?  resourceHelper.getApplicationInfo(estimationRule.get().getRuleSet().getQualityCodeSystem()) : null;
     }
 
     private EstimationRuleInfo asInfo(EstimationRule estimationRule) {
