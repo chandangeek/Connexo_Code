@@ -1499,6 +1499,8 @@ public enum TableSpecs {
             table.column(ReadingTypeDeliverableImpl.Fields.DELIVERABLE_TYPE.name())
                     .map(ReadingTypeDeliverableImpl.Fields.DELIVERABLE_TYPE.fieldName())
                     .number()
+                    .since(version(10, 3))
+                    .installValue("2")
                     .notNull()
                     .conversion(NUMBER2ENUMPLUSONE).add();
             table.addAuditColumns();
