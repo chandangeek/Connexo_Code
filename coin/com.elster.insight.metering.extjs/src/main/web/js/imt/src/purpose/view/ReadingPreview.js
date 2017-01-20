@@ -111,19 +111,25 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
 
         if (!Ext.isEmpty(dataQualities)) {
             Ext.Array.forEach(dataQualities, function (readingQuality) {
-                if (Ext.String.startsWith(readingQuality.cimCode, '1.')) {
-                    showDeviceQuality |= true;
-                    field = deviceQualityField;
-                } else if (Ext.String.startsWith(readingQuality.cimCode, '2.')) {
-                    showMultiSenseQuality |= true;
-                    field = multiSenseQualityField;
-                } else if (Ext.String.startsWith(readingQuality.cimCode, '3.')) {
-                    showInsightQuality |= true;
-                    field = insightQualityField;
-                } else if (Ext.String.startsWith(readingQuality.cimCode, '4.') || Ext.String.startsWith(readingQuality.cimCode, '5.')) {
-                    show3rdPartyQuality |= true;
-                    field = thirdPartyQualityField;
-                }
+                switch (readingQuality.cimCode.slice(0,2)) {
+                    case '1.':
+                        showDeviceQuality |= true;
+                        field = deviceQualityField;
+                        break;
+                    case '2.':
+                        showMultiSenseQuality |= true;
+                        field = multiSenseQualityField;
+                        break;
+                    case '3.':
+                        showInsightQuality |= true;
+                        field = insightQualityField;
+                        break;
+                    case '4.':
+                    case '5.':
+                        show3rdPartyQuality |= true;
+                        field = thirdPartyQualityField;
+                        break;
+                }                
                 if (!Ext.isEmpty(field)) {
                     field.setValue(field.getValue()
                         + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
@@ -135,10 +141,12 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             });
         }
 
+        Ext.suspendLayouts();
         deviceQualityField.setVisible(showDeviceQuality);
         multiSenseQualityField.setVisible(showMultiSenseQuality);
         insightQualityField.setVisible(showInsightQuality);
         thirdPartyQualityField.setVisible(show3rdPartyQuality);
+        Ext.resumeLayouts(true);
     },
 
     getTooltip: function(systemName, categoryName, indexName) {

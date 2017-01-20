@@ -7,7 +7,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         'Uni.view.toolbar.PagingTop',
         'Imt.purpose.view.SingleReadingActionMenu',
         'Imt.purpose.view.MultipleReadingsActionMenu',
-        'Uni.grid.column.Edited'
+        'Uni.grid.column.Edited',
+        'Imt.purpose.util.TooltipRenderer'
     ],
     selModel: {
         mode: 'MULTI'
@@ -41,59 +42,12 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval',
-                renderer: function (interval, metaData, record) {
-                    var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
-                        text = interval.end
+                renderer: function (interval, metaData, record) {                    
+                    var text = interval.end
                             ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
-                            : '-',
-                        tooltipContent = '',
-                        addCategoryAndNames = function (tooltipContent, category, qualities) {
-                            if (qualities.length) {
-                                tooltipContent += '<b>' + category + '</b><br>';
-                                Ext.Array.each(qualities, function (q) {
-                                    if (q == qualities[qualities.length - 1]) {
-                                        tooltipContent += q + '<br><br>';
-                                    } else {
-                                        tooltipContent += q + '<br>';
-                                    }
-                                });
-                            }
-                            return tooltipContent;
-                        },
-                        icon = '';
-
-                    if (readingQualitiesPresent) {
-                        var deviceQualities = [],
-                            mdcQualities = [],
-                            mdmQualities = [],
-                            thirdPartyQualities = [];
-
-                        Ext.Array.forEach(record.get('readingQualities'), function (readingQuality) {
-                            var cimCode = readingQuality.cimCode,
-                                indexName = readingQuality.indexName;
-
-                            if (Ext.String.startsWith(cimCode, '1.')) {
-                                deviceQualities.push(indexName);
-                            } else if (Ext.String.startsWith(cimCode, '2.')) {
-                                mdcQualities.push(indexName);
-                            } else if (Ext.String.startsWith(cimCode, '3.')) {
-                                mdmQualities.push(indexName);
-                            } else if (Ext.String.startsWith(cimCode, '4.') || Ext.String.startsWith(cimCode, '5.')) {
-                                thirdPartyQualities.push(indexName);
-                            }
-                        });
-
-                        tooltipContent = addCategoryAndNames(tooltipContent, Uni.I18n.translate('general.deviceQuality', 'IMT', 'Device quality'), deviceQualities);
-                        tooltipContent = addCategoryAndNames(tooltipContent, Uni.I18n.translate('general.MDCQuality', 'IMT', 'MDC quality'), mdcQualities);
-                        tooltipContent = addCategoryAndNames(tooltipContent, Uni.I18n.translate('general.MDMQuality', 'IMT', 'MDM quality'), mdmQualities);
-                        tooltipContent = addCategoryAndNames(tooltipContent, Uni.I18n.translate('general.thirdPartyQuality', 'IMT', 'Third party quality'), thirdPartyQualities);
-
-                        if (tooltipContent.length > 0) {
-                            tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'IMT', 'View reading quality details for more information.');
-                            icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtip="' + tooltipContent + '"></span>';
-                        }
-                    }
-                    return text + icon;
+                            : '-';
+                    
+                    return text + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
                 },
                 flex: 1
             },
