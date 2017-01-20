@@ -2,7 +2,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
     extend: 'Ext.tab.Panel',
     alias: 'widget.reading-preview',
     requires: [
-        'Cfg.view.field.ReadingQualities'        
+        'Cfg.view.field.ReadingQualities'
     ],
     outputType: null,
     output: null,
@@ -14,15 +14,19 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             intervalEnd = record.get('readingTime'),
             title;
 
-        switch(me.output.get('outputType')){
-            case 'channel': {
+        switch (me.output.get('outputType')) {
+            case 'channel':
+            {
                 title = Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
                     [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
                     false);
-            } break;
-            case 'register':{
-                title =  Uni.DateTime.formatDateTimeShort(new Date(record.get('timeStamp')));
-            } break;
+            }
+                break;
+            case 'register':
+            {
+                title = Uni.DateTime.formatDateTimeShort(new Date(record.get('timeStamp')));
+            }
+                break;
         }
 
 
@@ -41,9 +45,12 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             validationResult = record.get('validationResult'),
             readingType = me.output.get('readingType'),
             unitOfMeasure = readingType.names ? readingType.names.unitOfMeasure : readingType.unit,
-            validationResultText = '';            
+            validationResultText = '';
 
-        if (validationResult) {
+        if (!Ext.isEmpty(record) && record.get('isConfirmed')) {
+            validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect') + ')' +
+                '<span class="icon-checkmark" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
+        } else if (validationResult) {
             switch (validationResult.split('.')[1]) {
                 case 'notValidated':
                     validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' +
@@ -59,17 +66,22 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             }
         }
 
-        if (!Ext.isEmpty(value)) {            
+        if (!Ext.isEmpty(value)) {
             return value + ' ' + unitOfMeasure + ' ' + validationResultText;
-        } else {            
-            return Uni.I18n.translate('general.missingx', 'IMT', 'Missing {0}', [validationResultText], false);            
+        } else {
+            return Uni.I18n.translate('general.missingx', 'IMT', 'Missing {0}', [validationResultText], false);
         }
     },
 
     getValidationResult: function (validationResult) {
-        var me =this,
+        var me = this,
             validationResultText = '',
             record = me.down('form').getRecord();
+        if (!Ext.isEmpty(record) && record.get('isConfirmed')) {
+            validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
+            validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+            return validationResultText;
+        }
 
         switch (validationResult.split('.')[1]) {
             case 'notValidated':
@@ -82,7 +94,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 break;
             case 'ok':
                 validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
-                if(record.get('isConfirmed')){
+                if (record.get('isConfirmed')) {
                     validationResultText += '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
                 }
 
@@ -98,8 +110,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             valuesItems = [],
             generalTimeField;
 
-        switch(me.output.get('outputType')){
-            case 'channel': {
+        switch (me.output.get('outputType')) {
+            case 'channel':
+            {
                 generalTimeField = {
                     fieldLabel: Uni.I18n.translate('general.interval', 'IMT', 'Interval'),
                     name: 'interval',
@@ -113,8 +126,10 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     },
                     htmlEncode: false
                 }
-            } break;
-            case 'register':{
+            }
+                break;
+            case 'register':
+            {
                 generalTimeField = {
                     fieldLabel: Uni.I18n.translate('general.measurementTime', 'IMT', 'Measurement time'),
                     name: 'timeStamp',
@@ -125,7 +140,8 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                             : '-';
                     }
                 }
-            } break;
+            }
+                break;
         }
 
         generalItems.push(
@@ -154,7 +170,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     return me.getValidationResult(value);
                 }
             }
-        );       
+        );
 
         valuesItems.push(
             {
@@ -176,7 +192,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 usedInInsight: true,
                 name: 'validationRules',
                 withOutAppName: me.withOutAppName,
-                renderer : function(value, field) {
+                renderer: function (value, field) {
                     var rec = field.up('form').getRecord(),
                         validationRules = Ext.isArray(value) ? value : value.validationRules;
                     field.show();
