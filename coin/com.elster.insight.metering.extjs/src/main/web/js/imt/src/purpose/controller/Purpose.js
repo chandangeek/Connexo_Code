@@ -362,7 +362,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         me.doOperation(purpose, {
             usagePointId: usagePoint.get('name'),
             upVersion: usagePoint.get('version'),
-            type: 'validate'
+            action: 'validate'
         }, confWindow, Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'));
     },
 
@@ -407,7 +407,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         me.doOperation(purpose, {
             usagePointId: usagePoint.get('name'),
             upVersion: usagePoint.get('version'),
-            type: 'estimate'
+            action: 'estimate'
         }, confirmationWindow, Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'));
     },
 
