@@ -9,7 +9,6 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Dxp.view.tasks.HistoryActionMenu',
         'Uni.DateTime'
     ],
 
@@ -46,13 +45,6 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 dataIndex: 'exportPeriod_range',
                 textAlign: 'center',
                 flex: 3
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                width: 100,
-                menu: {
-                    xtype: 'tasks-history-action-menu'
-                }
             }
         ];
 
