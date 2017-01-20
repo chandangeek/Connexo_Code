@@ -290,9 +290,10 @@ public class ReadingTypeTemplateInstaller {
     }
 
     public void installTemplatesFor10_3(){
-        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.DELTA_A_PLUS)
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.BULK_A_PLUS)
                 .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.BULKQUANTITY)
                 .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
