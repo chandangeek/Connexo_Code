@@ -72,21 +72,18 @@ Ext.define('Imt.purpose.view.ScheduleField', {
                     '<tpl for=".">',
                     '<tr>',
                     '<td>',
-                    '<a href="{[ this.getUrl(values) ]}">{[ values.get("name") ]}</a>',
+                    '<a href="{[ this.getUrl(values.getId()) ]}">{[ values.get("name") ]}</a>',
                     '</td>',
-                    '<td>{[ this.getRecurrence(values) ]}</td>',
+                    '<td>{[ values.getTriggerText()]}</td>',
                     '</tr>',
                     '</tpl>',
                     '</table>',
                     {
                         disableFormats: true,
-                        getUrl: function (task) {
+                        getUrl: function (id) {
                             return me.route.buildUrl({
-                                taskId: task.get('id')
+                                taskId: id
                             });
-                        },
-                        getRecurrence: function (task) {
-                            return task.getTriggerText ? task.getTriggerText() : task.get('recurrence');
                         }
                     }
                 )
