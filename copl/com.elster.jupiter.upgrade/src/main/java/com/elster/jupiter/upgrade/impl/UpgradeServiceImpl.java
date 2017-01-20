@@ -65,7 +65,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
     private volatile FileSystem fileSystem;
     private State state;
     private Map<InstallIdentifier, UpgradeClasses> registered = new HashMap<>();
-    private final Logger logger = Logger.getLogger("com.elster.jupiter.upgrade");
+    private final Logger logger = Logger.getLogger("upgrade");
     private UserInterface userInterface = new ConsoleUserInterface();
     private OptionalServiceContainer<UpgradeCheckList> checkLists = new CopyOnWriteServiceContainer<>();
     private Set<InstallIdentifier> checked = Collections.newSetFromMap(new ConcurrentHashMap<>());
