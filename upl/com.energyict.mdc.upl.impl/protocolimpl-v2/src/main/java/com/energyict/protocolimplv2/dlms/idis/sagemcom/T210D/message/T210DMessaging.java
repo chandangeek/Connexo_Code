@@ -28,7 +28,7 @@ public class T210DMessaging extends AM540Messaging {
     protected void addSupportedDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         //Security
         supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS);
-        supportedMessages.add(SecurityMessage.SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP);
+//        supportedMessages.add(SecurityMessage.SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP);
         //Supervision monitor
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT);
         //FW messages
