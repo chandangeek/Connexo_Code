@@ -220,17 +220,19 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this,
             title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'",[record.get('command').name]),
             router = me.getController('Uni.controller.history.Router'),
-            responseText;
+            responseText,
+            store = me.getStore('Mdc.store.DeviceCommands');
 
+        store.getProxy().setExtraParam('deviceId', device.get('name'));
         Ext.widget('device-command-change-release-date', {
             title: title,
             record: record,
             listeners: {
                 save: {
                     fn: function (newDate, record, oldDate) {
+                        record.setProxy(store.getProxy());
                         record.set('releaseDate', newDate);
                         record.save({
-                            url: me.getStore('Mdc.store.DeviceCommands').getProxy().url.replace('{deviceId}', Uni.util.Common.encodeURIComponent(device.get('name'))),
                             isNotEdit: true,
                             success: function () {
                                 router.getRoute().forward();
@@ -238,7 +240,6 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             },
                             failure: function (record, operation) {
                                 responseText = Ext.decode(operation.response.responseText, true);
-                                me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceCommand.changeReleaseDateFailed', 'MDC', "'Change release date' failed"), responseText.errors[0].msg);
                                 record.reject();
                             }
                         });
@@ -252,10 +253,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this,
             store = me.getStore('Mdc.store.DeviceCommands');
 
-        store.getProxy().setExtraParam('deviceId', deviceId);
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
+
+                me.getStore('Mdc.store.DeviceCommands').getProxy().setExtraParam('deviceId', device.get('name'));
                 var widget = Ext.widget('deviceCommandsSetup', {
                     device: device
                 });
@@ -370,8 +372,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
 
     commandChange: function (combo, records) {
         var me = this,
-            command = records[0],
+            command = records[0].copy(),
             propertyHeader = me.getAddPropertyHeader();
+        records[0].properties().each(function(record) {
+            command.properties().add(record)
+        });
         if (command) {
             me.getAddPropertyForm().loadRecord(command);
             if (command.properties() && (command.properties().getCount() > 0)) {
@@ -399,22 +404,22 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         if (commandForm.isValid() && (propertyForm && propertyForm.isValid())) {
             addCommandPnl.down('#form-errors').hide();
             propertyForm.updateRecord();
-            var record = propertyForm.getRecord(),
+            var newRecord = propertyForm.getRecord(),
                 releaseDate = new Date(commandForm.getValues().releaseDate).getTime(),
                 messageSpecification;
-            if (!Ext.isEmpty(record.get('id'))) {
-                messageSpecification = {id: record.get('id')}
+            if (!Ext.isEmpty(newRecord.get('id'))) {
+                messageSpecification = {id: newRecord.get('id')}
             }
-            record.beginEdit();
-            record.set('id', '');
-            releaseDate && record.set('releaseDate', releaseDate);
-            messageSpecification && record.set('messageSpecification', messageSpecification);
-            record.set('status', null);
+            newRecord.beginEdit();
+            newRecord.set('id', '');
+            releaseDate && newRecord.set('releaseDate', releaseDate);
+            messageSpecification && newRecord.set('messageSpecification', messageSpecification);
+            newRecord.set('status', null);
             if (Ext.isEmpty(commandForm.getValues().trackingCategory)) {
-                record.set('trackingCategory', null);
+                newRecord.set('trackingCategory', null);
             }
-            record.endEdit();
-            record.save({
+            newRecord.endEdit();
+            newRecord.save({
                 url: '/api/ddr/devices/' + encodeURIComponent(btn.deviceId) + '/devicemessages',
                 method: 'POST',
                 success: function (record, operation) {
@@ -433,6 +438,8 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 failure: function (record, operation) {
                     if (operation && operation.response && operation.response.status === 400) {
                         me.formMarkInvalid(Ext.decode(operation.response.responseText));
+                        addCommandPnl.down('#form-errors').show();
+                        newRecord.set('id', messageSpecification.id);
                     }
                 }
             });
@@ -454,18 +461,22 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     },
 
     getEditField: function (key) {
-        var editForm = this.getAddPropertyForm();
+        var editPropertyForm = this.getAddPropertyForm(),
+            editForm = this.getAddCommandForm();
 
-        if (editForm) {
+        if (editPropertyForm) {
             if (key.indexOf('deviceMessageAttributes.')==0)
             {
                 key = key.replace('deviceMessageAttributes.', '');
-                return editForm.down('component[itemId='+key+']');
+                return editPropertyForm.down('component[itemId='+key+']');
             }
-        } else {
-            return null
         }
+        if(editForm) {
+            return editForm.down('component[name='+key+']');
+        }
+        return null;
     }
+
 
 })
 ;
