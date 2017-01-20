@@ -10,6 +10,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
         {name: 'period', type: 'auto', defaultValue: null},
         {name: 'deviceGroup', type: 'auto', defaultValue: null},
         {name: 'usagePointGroup', type: 'auto', defaultValue: null},
+        {name: 'metrologyPurpose', type: 'auto', defaultValue: null},
         {name: 'lastEstimationOccurrence', type: 'auto', defaultValue: null},
         {name: 'nextRun', type: 'number', useNull: true},
         {name: 'lastRun', type: 'number', useNull: true},
@@ -30,6 +31,17 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
             mapping: function (data) {
                 if (data.usagePointGroup && data.usagePointGroup.displayValue) {
                     return data.usagePointGroup.displayValue;
+                } else {
+                    return '-'
+                }
+            }
+        },
+        {
+            name: 'metrologyPurpose_name',
+            persist: false,
+            mapping: function (data) {
+                if (data.metrologyPurpose && data.metrologyPurpose.displayValue) {
+                    return data.metrologyPurpose.displayValue;
                 } else {
                     return '-'
                 }
