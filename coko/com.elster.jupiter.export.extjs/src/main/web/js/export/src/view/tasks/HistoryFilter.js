@@ -18,6 +18,15 @@ Ext.define('Dxp.view.tasks.HistoryFilter', {
             dataIndexFrom: 'finishedOnFrom',
             dataIndexTo: 'finishedOnTo',
             text: Uni.I18n.translate('tasks.historyFilter.finishedBetween', 'DES', 'Finished between')
+        },
+        {
+            type: 'combobox',
+            dataIndex: 'status',
+            emptyText: Uni.I18n.translate('general.status', 'DES', 'Status'),
+            multiSelect: true,
+            displayField: 'display',
+            valueField: 'value',
+            store: 'Dxp.store.Status'
         }
     ]
 });

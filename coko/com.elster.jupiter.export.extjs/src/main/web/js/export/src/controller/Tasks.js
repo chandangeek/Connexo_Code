@@ -49,7 +49,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.DataSelectors',
         'Dxp.store.UpdateWindows',
         'Dxp.store.UpdateTimeframes',
-        'Dxp.store.SelectedReadingTypes'
+        'Dxp.store.SelectedReadingTypes',
+        'Dxp.store.Status'
     ],
 
     models: [
@@ -223,9 +224,6 @@ Ext.define('Dxp.controller.Tasks', {
             },
             'dxp-tasks-destination-action-menu': {
                 click: this.chooseDestinationAction
-            },
-            'tasks-history-action-menu': {
-                click: this.chooseAction
             },
             'AddReadingTypesToTaskBulk': {
                 selectionchange: this.onSelectionChange
@@ -429,7 +427,7 @@ Ext.define('Dxp.controller.Tasks', {
             previewForm.down('displayfield[name=startedOn_formatted]').setVisible(true);
             previewForm.down('displayfield[name=finishedOn_formatted]').setVisible(true);
             previewForm.loadRecord(record);
-            preview.down('tasks-history-action-menu').record = record;
+            // preview.down('tasks-history-action-menu').record = record;
 
             if (record.get('status') === 'Failed') {
                 previewForm.down('#reason-field').show();
@@ -1298,9 +1296,6 @@ Ext.define('Dxp.controller.Tasks', {
             case 'removeTask':
                 me.removeTask(menu.record);
                 break;
-            case 'viewLog':
-                route = 'administration/dataexporttasks/dataexporttask/history/occurrence';
-                break;
             case 'viewHistory':
                 route = 'administration/dataexporttasks/dataexporttask/history';
                 break;
@@ -1336,8 +1331,8 @@ Ext.define('Dxp.controller.Tasks', {
         );
 
         confirmationWindow.show({
-            msg: Uni.I18n.translate('dataExportTasks.runMsg', 'DES', 'The data export task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('general.runDataExportTaskx', 'DES', "Run data export task {0}?", [record.data.name])
+            msg: Uni.I18n.translate('exportTasks.runMsg', 'DES', 'Data export task will be queued to run at the earliest possible time.'),
+            title: Uni.I18n.translate('general.runExportTaskx', 'DES', "Run export task {0}?", [record.data.name])
         });
     },
 
@@ -1381,7 +1376,7 @@ Ext.define('Dxp.controller.Tasks', {
                         }
                     });
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataExportTasks.runQueued', 'DES', 'Data export task run queued'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.run', 'DES', 'Export task run'));
             },
             failure: function (response) {
                 var res = Ext.decode(response.responseText, true);
@@ -1400,7 +1395,7 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
-            msg: Uni.I18n.translate('general.remove.msg', 'DES', 'This data export task will no longer be available.'),
+            msg: Uni.I18n.translate('general.remove.msgx', 'DES', 'This export task will no longer be available.'),
             title: Uni.I18n.translate('general.removex', 'DES', 'Remove {0}?', [record.data.name]),
             config: {},
             fn: function (state) {
@@ -1425,7 +1420,7 @@ Ext.define('Dxp.controller.Tasks', {
                 } else {
                     me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msg', 'DES', 'Data export task removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msgx', 'DES', 'Export task removed'));
             },
             failure: function (object, operation) {
                 if (operation.response.status === 409) {
@@ -2139,9 +2134,9 @@ Ext.define('Dxp.controller.Tasks', {
                         me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                     }
                     if (button.action === 'editTask') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editDataExportTask.successMsg.saved', 'DES', 'Data export task saved'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('editExportTask.successMsg.saved', 'DES', 'Export task saved'));
                     } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addDataExportTask.successMsg', 'DES', 'Data export task added'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('addExportTask.successMsg', 'DES', 'Export task added'));
                     }
                 },
                 failure: function (record, operation) {

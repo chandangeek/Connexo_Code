@@ -18,7 +18,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
+                fieldLabel: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
                 name: 'name',
                 labelWidth: 250
             },
