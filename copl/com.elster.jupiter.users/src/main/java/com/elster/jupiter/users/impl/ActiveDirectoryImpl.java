@@ -32,6 +32,8 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.elster.jupiter.util.Checks.is;
+
 final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     static final String TYPE_IDENTIFIER = "ACD";
@@ -57,15 +59,9 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return ((UserImpl) user).doGetGroups();
         }
 
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, getUrl());
-        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-
         List<Group> groupList = new ArrayList<>();
         try {
-            DirContext context = new InitialDirContext(env);
+            DirContext context = new InitialDirContext(createEnvironment(getUrl(), getDirectoryUser(), getPasswordDecrypt()));
             String attrIDs[] = {"memberOf"};
             SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, attrIDs, true, true);
             NamingEnumeration<SearchResult> answer = context.search(getBaseUser(), "(&(objectClass=person)(userPrincipalName=" + user.getName() + "@" + getRealDomain(getBaseUser()) + "))", controls);
@@ -101,18 +97,12 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateSimple(String name, String password, List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, name + "@" + getRealDomain(getBaseUser()));
-        env.put(Context.SECURITY_CREDENTIALS, password);
         try {
-            new InitialDirContext(env);
+            new InitialDirContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password));
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
-                urls.remove(0);
-                return authenticateSimple(name, password, urls);
+                return authenticateSimple(name, password, urls.subList(1, urls.size() - 1));
             } else {
                 return Optional.empty();
             }
@@ -120,19 +110,12 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateSSL(String name, String password, List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, name + "@" + getRealDomain(getBaseUser()));
-        env.put(Context.SECURITY_CREDENTIALS, password);
-        env.put(Context.SECURITY_PROTOCOL, "ssl");
         try {
-            new InitialDirContext(env);
+            new InitialDirContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password, "ssl"));
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
-                urls.remove(0);
-                return authenticateSSL(name, password, urls);
+                return authenticateSSL(name, password, urls.subList(1, urls.size() - 1));
             } else {
                 return Optional.empty();
             }
@@ -140,14 +123,9 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private Optional<User> authenticateTLS(String name, String password, List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
         StartTlsResponse tls = null;
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
         try {
-            env.put(Context.SECURITY_PRINCIPAL, name + "@" + getRealDomain(getBaseUser()));
-            env.put(Context.SECURITY_CREDENTIALS, password);
-            LdapContext ctx = new InitialLdapContext(env, null);
+            LdapContext ctx = new InitialLdapContext(createEnvironment(urls.get(0), name + "@" + getRealDomain(getBaseUser()), password), null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
@@ -155,8 +133,7 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             return findUser(name);
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
-                urls.remove(0);
-                return authenticateTLS(name, password, urls);
+                return authenticateTLS(name, password, urls.subList(1, urls.size() - 1));
             } else {
                 return Optional.empty();
             }
@@ -211,40 +188,11 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private List<LdapUser> getLdapUsersSimple(List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        List<LdapUser> ldapUsers = new ArrayList<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         try {
-            String userName;
-            DirContext ctx = new InitialDirContext(env);
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
-            while (results.hasMore()) {
-                LdapUser ldapUser = new LdapUserImpl();
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("sAMAccountName") != null) {
-                    userName = attributes.get("sAMAccountName").get().toString();
-                    ldapUser.setUsername(userName);
-                    ldapUser.setStatus(true);
-                    if (attributes.get("useraccountcontrol") != null) {
-                        if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
-                            ldapUser.setStatus(false);
-                        }
-                    }
-                    ldapUsers.add(ldapUser);
-                }
-
-            }
-            return ldapUsers;
+            return getLdapUsersFromContext(new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt())));
         } catch (NumberFormatException | NamingException e) {
-            if (urls.size() > 1){
-                urls.remove(0);
-                return getLdapUsersSimple(urls);
+            if (urls.size() > 1) {
+                return getLdapUsersSimple(urls.subList(1, urls.size() - 1));
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -253,40 +201,11 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
 
     private List<LdapUser> getLdapUsersSSL(List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        List<LdapUser> ldapUsers = new ArrayList<>();
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-        env.put(Context.SECURITY_PROTOCOL, "ssl");
         try {
-            String userName;
-            DirContext ctx = new InitialDirContext(env);
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
-            while (results.hasMore()) {
-                LdapUser ldapUser = new LdapUserImpl();
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("sAMAccountName") != null) {
-                    userName = attributes.get("sAMAccountName").get().toString();
-                    ldapUser.setUsername(userName);
-                    ldapUser.setStatus(true);
-                    if (attributes.get("useraccountcontrol") != null) {
-                        if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
-                            ldapUser.setStatus(false);
-                        }
-                    }
-                    ldapUsers.add(ldapUser);
-                }
-            }
-            return ldapUsers;
+            return getLdapUsersFromContext(new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt(), "ssl")));
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUsersSSL(urls);
+                return getLdapUsersSSL(urls.subList(1, urls.size() - 1));
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -294,44 +213,17 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private List<LdapUser> getLdapUsersTLS(List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        List<LdapUser> ldapUsers = new ArrayList<>();
         StartTlsResponse tls = null;
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
         try {
-            String userName;
-            env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-            LdapContext ctx = new InitialLdapContext(env, null);
+            LdapContext ctx = new InitialLdapContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt()), null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate();
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(&(objectclass=person))", controls);
-            while (results.hasMore()) {
-                LdapUser ldapUser = new LdapUserImpl();
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("sAMAccountName") != null) {
-                    userName = attributes.get("sAMAccountName").get().toString();
-                    ldapUser.setUsername(userName);
-                    ldapUser.setStatus(true);
-                    if (attributes.get("useraccountcontrol") != null) {
-                        if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
-                            ldapUser.setStatus(false);
-                        }
-                    }
-                    ldapUsers.add(ldapUser);
-                }
-            }
-            return ldapUsers;
+            return getLdapUsersFromContext(ctx);
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUsersTLS(urls);
+                return getLdapUsersTLS(urls.subList(1, urls.size() - 1));
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -346,34 +238,37 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
+    private List<LdapUser> getLdapUsersFromContext(DirContext ctx) throws NamingException {
+        List<LdapUser> ldapUsers = new ArrayList<>();
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        NamingEnumeration results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+        while (results.hasMore()) {
+            LdapUser ldapUser = new LdapUserImpl();
+            SearchResult searchResult = (SearchResult) results.next();
+            Attributes attributes = searchResult.getAttributes();
+            if (attributes.get("sAMAccountName") != null) {
+                ldapUser.setUsername(attributes.get("sAMAccountName").get().toString());
+                ldapUser.setStatus(true);
+                if (attributes.get("useraccountcontrol") != null) {
+                    ldapUser.setStatus(isUserActive(attributes.get("useraccountcontrol")));
+                } else {
+                    ldapUser.setStatus(true);
+                }
+                ldapUsers.add(ldapUser);
+            }
+
+        }
+        return ldapUsers;
+    }
+
 
     private boolean getLdapUserStatusSimple(String user, List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         try {
-            DirContext ctx = new InitialDirContext(env);
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);
-            while (results.hasMore()) {
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("useraccountcontrol") != null) {
-                    if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            return getUserStatusFromContext(user, new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt())));
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUserStatusSimple(user, urls);
+                return getLdapUserStatusSimple(user, urls.subList(1, urls.size() - 1));
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -381,33 +276,11 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private boolean getLdapUserStatusSSL(String user, List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
-        env.put(Context.PROVIDER_URL, urls.get(0));
-        env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-        env.put(Context.SECURITY_PROTOCOL, "ssl");
         try {
-            DirContext ctx = new InitialDirContext(env);
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = ctx.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);
-            while (results.hasMore()) {
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("useraccountcontrol") != null) {
-                    if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            return getUserStatusFromContext(user, new InitialDirContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt(), "ssl")));
         } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUserStatusSSL(user, urls);
+                return getLdapUserStatusSSL(user, urls.subList(1, urls.size() - 1));
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -415,38 +288,17 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private boolean getLdapUserStatusTLS(String user, List<String> urls) {
-        Hashtable<String, Object> env = new Hashtable<>();
-        env.putAll(commonEnvLDAP);
         StartTlsResponse tls = null;
-        env.put(Context.PROVIDER_URL, urls.get(0));
         try {
-            env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
-            LdapContext ctx = new InitialLdapContext(env, null);
+            LdapContext ctx = new InitialLdapContext(createEnvironment(urls.get(0), getDirectoryUser(), getPasswordDecrypt()), null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate();
-            SearchControls controls = new SearchControls();
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            NamingEnumeration results = null;
-            results = ctx.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);
-            while (results.hasMore()) {
-                SearchResult searchResult = (SearchResult) results.next();
-                Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("useraccountcontrol") != null) {
-                    if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            return getUserStatusFromContext(user, ctx);
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
-                urls.remove(0);
-                return getLdapUserStatusTLS(user, urls);
+                return getLdapUserStatusTLS(user, urls.subList(1, urls.size() - 1));
             } else {
                 throw new LdapServerException(userService.getThesaurus());
             }
@@ -459,6 +311,24 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
         }
+    }
+
+    private boolean getUserStatusFromContext(String user, DirContext context) throws NamingException {
+        SearchControls controls = new SearchControls();
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        NamingEnumeration results = context.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);
+        while (results.hasMore()) {
+            SearchResult searchResult = (SearchResult) results.next();
+            Attributes attributes = searchResult.getAttributes();
+            if (attributes.get("useraccountcontrol") != null) {
+                return isUserActive(attributes.get("useraccountcontrol"));
+            }
+        }
+        return false;
+    }
+
+    private boolean isUserActive(Attribute userAccountControl) throws NamingException {
+        return (Integer.parseInt(userAccountControl.get().toString()) & 2) == 0;
     }
 
     @Override
@@ -473,6 +343,22 @@ final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         } else {
             return false;
         }
+    }
+
+    private Hashtable<String, Object> createEnvironment(String url, String username, String password) {
+        return createEnvironment(url, username, password, null);
+    }
+
+    private Hashtable<String, Object> createEnvironment(String url, String username, String password, String securityProtocol) {
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        env.put(Context.PROVIDER_URL, url);
+        env.put(Context.SECURITY_PRINCIPAL, username);
+        env.put(Context.SECURITY_CREDENTIALS, password);
+        if (!is(securityProtocol).emptyOrOnlyWhiteSpace()) {
+            env.put(Context.SECURITY_PROTOCOL, "ssl");
+        }
+        return env;
     }
 
 }
