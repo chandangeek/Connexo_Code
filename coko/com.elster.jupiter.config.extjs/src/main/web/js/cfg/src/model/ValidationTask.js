@@ -137,7 +137,7 @@ Ext.define('Cfg.model.ValidationTask', {
 
         return Ext.isEmpty(me.get('schedule'))
             ? Uni.I18n.translate('validation.schedule.manual', 'CFG', 'On request')
-            : Uni.I18n.translate('validation.schedule.scheduled', 'CFG', '{1}. Next run {0}', [
+            : Uni.I18n.translate('validation.schedule.scheduled', 'CFG', '{0}. Next run {1}', [
             me.get('recurrence'),
             nextRun ? Uni.DateTime.formatDateTimeLong(Ext.isDate(nextRun) ? nextRun : new Date(nextRun)) : '-'
         ]);
