@@ -152,6 +152,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>

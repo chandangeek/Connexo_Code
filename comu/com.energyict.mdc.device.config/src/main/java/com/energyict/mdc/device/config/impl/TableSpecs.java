@@ -4,9 +4,31 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.KeyAccessorType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingConnectionMethodSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingSecuritySetSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
@@ -23,7 +45,6 @@ import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -53,6 +74,7 @@ public enum TableSpecs {
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeImpl.Fields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
             table.column("DEVICETYPEPURPOSE").number().notNull().conversion(NUMBER2ENUM).map(DeviceTypeImpl.Fields.DEVICETYPEPURPOSE.fieldName()).since(version(10, 2)).installValue("0").add();
+            table.column("KEYACCESSOR").number().notNull().map(DeviceTypeImpl.Fields.KEY_ACCESSOR_TYPE.fieldName()).since(version(10, 2)).add();
             table.column("FILEMNGMTENABLED")
                     .number()
                     .notNull()
@@ -66,6 +88,27 @@ public enum TableSpecs {
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
         }
     },
+
+    DTC_KEYACCESSOR {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<KeyAccessorType> table = dataModel.addTable(name(), KeyAccessorType.class);
+            table.map(KeyAccessorTypeImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").varChar().notNull().map(KeyAccessorTypeImpl.Fields.NAME.fieldName()).add();
+            Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
+            table.column("DESCRIPTION").varChar().map(KeyAccessorTypeImpl.Fields.DESCRIPTION.fieldName()).add();
+            table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE")
+                    .on(deviceType)
+                    .references(DTC_DEVICETYPE.name())
+                    .map(KeyAccessorTypeImpl.Fields.DEVICETYPE.fieldName())
+                    .reverseMap("deviceConfigurations")
+                    .composition()
+                    .add();
+            table.primaryKey("PK_DTC_KAYACCESSOR").on(id).add();
+        }
+    },
+
     DTC_DEVICETYPE_DLC {
         @Override
         void addTo(DataModel dataModel) {

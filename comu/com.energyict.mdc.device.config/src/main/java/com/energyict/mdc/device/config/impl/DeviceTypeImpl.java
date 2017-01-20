@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -29,6 +30,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.KeyAccessorType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -65,6 +67,7 @@ import javax.validation.constraints.Size;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,6 +89,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DEVICETYPEPURPOSE("deviceTypePurpose"),
         DEVICE_LIFE_CYCLE("deviceLifeCycle"),
         FILE_MANAGEMENT_ENABLED("fileManagementEnabled"),
+        KEY_ACCESSOR_TYPE("keyAccessors"),
         DEVICE_MESSAGE_FILES("deviceMessageFiles"),;
 
         private final String javaFieldName;
@@ -114,6 +118,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     private List<AllowedCalendar> allowedCalendars = new ArrayList<>();
+    private List<KeyAccessorType> keyAccessors = new ArrayList<>();
     @Valid
     private List<DeviceConfigConflictMappingImpl> deviceConfigConflictMappings = new ArrayList<>();
     @Valid
@@ -276,6 +281,44 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.closeCurrentDeviceLifeCycle(now);
         this.setDeviceLifeCycle(deviceLifeCycle, now);
         this.touch();
+    }
+
+    @Override
+    public List<KeyAccessorType> getKeyAccessorTypes() {
+        return Collections.unmodifiableList(this.keyAccessors);
+    }
+
+    @Override
+    public KeyAccessorType.Builder addKeyAccessor(String name, KeyType keyType) {
+        return new KeyAccessorTypeBuilder(name, keyType);
+    }
+
+    private class KeyAccessorTypeBuilder implements KeyAccessorType.Builder {
+        private final KeyAccessorTypeImpl underConstruction;
+
+        private KeyAccessorTypeBuilder(String name, KeyType keyType) {
+            underConstruction = new KeyAccessorTypeImpl();
+            underConstruction.setName(name);
+            underConstruction.setKeyType(keyType);
+        }
+
+        @Override
+        public KeyAccessorType.Builder description(String description) {
+            underConstruction.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public KeyAccessorType.Builder duration(Duration duration) {
+            underConstruction.setDuration(duration);
+            return this;
+        }
+
+        @Override
+        public KeyAccessorType add() {
+            DeviceTypeImpl.this.keyAccessors.add(underConstruction);
+            return underConstruction;
+        }
     }
 
     @Override

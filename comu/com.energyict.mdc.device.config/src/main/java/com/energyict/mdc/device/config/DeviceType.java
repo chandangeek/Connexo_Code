@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.config.exceptions.DuplicateDeviceMessageFileException;
@@ -232,6 +233,11 @@ public interface DeviceType extends HasId, HasName {
     void removeDeviceMessageFile(DeviceMessageFile obsolete);
 
     void update();
+
+    List<KeyAccessorType> getKeyAccessorTypes();
+
+    KeyAccessorType.Builder addKeyAccessor(String name, KeyType keyType);
+
 
     interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);
