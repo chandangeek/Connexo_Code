@@ -102,7 +102,22 @@ Ext.define('Dxp.controller.history.Export', {
                             }
                         }
                     }
-                }
+                },
+                exporthistory: {
+                    title: Uni.I18n.translate('general.exportTasksHistory', 'DES', 'Export tasks history'),
+                    route: 'exporthistory',
+                    controller: 'Dxp.controller.Tasks',
+                    action: 'showDataExportTaskHistory',
+                    filter: 'Dxp.model.HistoryFilter',
+                    // items: {
+                    //     occurrence: {
+                    //         title: Uni.I18n.translate('general.exportTaskLog', 'DES', 'Export task log'),
+                    //         route: '{occurrenceId}',
+                    //         controller: 'Dxp.controller.Log',
+                    //         action: 'showLog'
+                    //     }
+                    // }
+                },
             }
         }
     }

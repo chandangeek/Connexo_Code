@@ -3,6 +3,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
     alias: 'widget.dxp-tasks-history-grid',
     store: 'Dxp.store.DataExportTasksHistory',
     router: null,
+    showExportTask: true,
 
     requires: [
         'Uni.grid.column.Action',
@@ -25,6 +26,11 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                         date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                     return '<a href="' + url + '">' + date + '</a>';
                 }
+            },
+            {
+                header: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
+                hidden: !me.showExportTask,
+                dataIndex: 'exportTaskName'
             },
             {
                 xtype: 'uni-grid-column-duration',

@@ -42,13 +42,18 @@ Ext.define('Dxp.controller.Main', {
             Uni.store.MenuItems.add(menuItem);
 
             var exportItem = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.dataexport', 'DES', 'Data export'),
+                title: Uni.I18n.translate('general.dataExchange', 'DES', 'Data exchange'),
                 portal: 'administration',
                 items: [
                     {
                         text: Uni.I18n.translate('general.exportTasks', 'DES', 'Export tasks'),
                         href: '#/administration/dataexporttasks',
                         route: 'dataexporttasks'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.exportHistory', 'DES', 'Export history'),
+                        href: '#/administration/exporthistory',
+                        route: 'exporthistory'
                     }
                 ]
             });

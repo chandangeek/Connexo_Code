@@ -7,11 +7,11 @@ Ext.define('Dxp.store.Status', {
         me.callParent([Ext.apply({
             data: [
                 {
-                    value: 'FAILURE',
+                    value: 'FAILED',
                     display: Uni.I18n.translate('exportTask.history.failStatus', 'DES', 'Failed')
                 },
                 {
-                    value: 'PROCESSING',
+                    value: 'BUSY',
                     display: Uni.I18n.translate('exportTask.history.busyStatus', 'DES', 'Ongoing')
                 },
                 {

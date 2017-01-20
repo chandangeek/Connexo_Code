@@ -50,7 +50,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.UpdateWindows',
         'Dxp.store.UpdateTimeframes',
         'Dxp.store.SelectedReadingTypes',
-        'Dxp.store.Status'
+        'Dxp.store.Status',
+        'Dxp.store.DataExportTaskFilter'
     ],
 
     models: [
@@ -387,31 +388,36 @@ Ext.define('Dxp.controller.Tasks', {
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Dxp.store.DataExportTasksHistory'),
             taskModel = me.getModel('Dxp.model.DataExportTask'),
+            noSpecificExportTask = (currentTaskId === undefined),
             view;
 
-        store.getProxy().setUrl(router.arguments);
+        noSpecificExportTask ? store.getProxy().setCommonUrl() : store.getProxy().setUrl(router.arguments);
+
         view = Ext.widget('data-export-tasks-history', {
             router: router,
-            taskId: currentTaskId
+            taskId: currentTaskId,
+            showExportTask: !noSpecificExportTask
         });
 
         me.getApplication().fireEvent('changecontentevent', view);
-        Ext.getStore('Dxp.store.DataExportTasksHistory').load();
+        store.load();
 
-        taskModel.load(currentTaskId, {
-            success: function (record) {
-                me.getApplication().fireEvent('dataexporttaskload', record);
-                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
-                if (record.get('dataSelector').selectorType === 'CUSTOM') {
-                    view.down('#export-period-column').hide();
-                } else {
-                    view.down('#export-period-column').show();
-                    if (record.get('dataSelector').selectorType === 'DEFAULT_EVENTS') {
-                        view.down('#tasks-view-menu').removeDataSourcesMenuItem();
+        if(!noSpecificExportTask){
+            taskModel.load(currentTaskId, {
+                success: function (record) {
+                    me.getApplication().fireEvent('dataexporttaskload', record);
+                    view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+                    if (record.get('dataSelector').selectorType === 'CUSTOM') {
+                        view.down('#export-period-column').hide();
+                    } else {
+                        view.down('#export-period-column').show();
+                        if (record.get('dataSelector').selectorType === 'DEFAULT_EVENTS') {
+                            view.down('#tasks-view-menu').removeDataSourcesMenuItem();
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     },
 
     showHistoryPreview: function (selectionModel, record) {

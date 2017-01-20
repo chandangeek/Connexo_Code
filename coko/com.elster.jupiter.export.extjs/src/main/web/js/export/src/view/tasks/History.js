@@ -3,34 +3,39 @@ Ext.define('Dxp.view.tasks.History', {
     alias: 'widget.data-export-tasks-history',
 
     requires: [
+        // 'Uni.form.filter.FilterCombobox',
         'Dxp.view.tasks.Menu',
         'Dxp.view.tasks.HistoryPreview',
         'Dxp.view.tasks.HistoryPreviewForm',
         'Dxp.view.tasks.PreviewForm',
         'Dxp.view.tasks.HistoryGrid',
-        'Dxp.view.tasks.HistoryFilter'
+        'Dxp.view.tasks.HistoryFilter',
     ],
 
     router: null,
     taskId: null,
+    showExportTask: true,
 
     initComponent: function () {
         var me = this;
 
-        me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'dxp-tasks-menu',
-                        itemId: 'tasks-view-menu',
-                        taskId: me.taskId,
-                        router: me.router
-                    }
-                ]
-            }
-        ];
+        if(me.showExportTask){
+            me.side = [
+                {
+                    xtype: 'panel',
+                    ui: 'medium',
+                    items: [
+                        {
+                            xtype: 'dxp-tasks-menu',
+                            itemId: 'tasks-view-menu',
+                            taskId: me.taskId,
+                            router: me.router
+                        }
+                    ]
+                }
+            ];
+        }
+
 
         me.content = {
             xtype: 'panel',
@@ -42,6 +47,7 @@ Ext.define('Dxp.view.tasks.History', {
                     grid: {
                         xtype: 'dxp-tasks-history-grid',
                         itemId: 'data-export-history-grid',
+                        showExportTask: me.showExportTask,
                         router: me.router
                     },
                     emptyComponent: {
@@ -61,7 +67,8 @@ Ext.define('Dxp.view.tasks.History', {
             dockedItems: [
                 {
                     dock: 'top',
-                    xtype: 'dxp-view-tasks-historyfilter'
+                    xtype: 'dxp-view-tasks-historyfilter',
+                    showExportTask: me.showExportTask
                 }
             ]
         };
