@@ -442,7 +442,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         activityCalendarController.writeCalendar();
     }
 
-    private void writeSpecialDays(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    protected void writeSpecialDays(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, specialDaysCodeTableAttributeName).getDeviceMessageAttributeValue();
         String type = "Special_Days";
 

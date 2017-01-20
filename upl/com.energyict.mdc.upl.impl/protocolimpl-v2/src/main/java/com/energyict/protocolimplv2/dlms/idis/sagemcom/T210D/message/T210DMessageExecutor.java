@@ -49,6 +49,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     private static final ObisCode WIRED_MBUS_PORT_REFERENCE = ObisCode.fromString("0.0.24.6.0.255");
     private static final ObisCode WIRELESS_MBUS_PORT_REFERENCE = ObisCode.fromString("0.1.24.6.0.255");
     private static final ObisCode TIMED_CONNECTOR_ACTION_OBISCODE = ObisCode.fromString("0.0.15.0.1.255");
+    private static ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");
+    private static ObisCode SPECIAL_DAYS_TABLE_OBISCODE = ObisCode.fromString("0.0.11.0.0.255");
     private static final long SUPERVISION_MAXIMUM_THRESHOLD_VALUE = 0x80000000l;
     private final String undefined_hour = "FF"; //not defined
     private final String undefined_minute = "FF"; //not defined
@@ -103,6 +105,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             firmwareImageActivationWithDataProtection();
         } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_WITH_DATETIME_AND_DAY_PROFILE_DEFINITION)) {
             writeActivityCalendarOverconsumptions();
+        } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_FOR_GIVEN_TABLE_OBIS)) {
+            writeSpecialDaysForGivenTableObis();
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP)) {
             setDataProtectionRequiredProtection();
         } else {
@@ -111,11 +115,18 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         return collectedMessage;
     }
 
+    private void writeSpecialDaysForGivenTableObis() throws IOException {
+        ObisCode specialDaysTableObisCode = ObisCode.fromString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.specialDaysTableObiscodeAttributeName).getDeviceMessageAttributeValue());
+        ACTIVITY_CALENDAR_OBISCODE.setB(specialDaysTableObisCode.getB());
+        activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone(), ACTIVITY_CALENDAR_OBISCODE, specialDaysTableObisCode);
+        writeSpecialDays(pendingMessage);
+    }
+
     private void writeActivityCalendarOverconsumptions() throws IOException {
         ObisCode activityCalendarObisCode = ObisCode.fromString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarObiscodeAttributeName).getDeviceMessageAttributeValue());
-        ObisCode specialDaysTableObisCode = ObisCode.fromString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.specialDaysTableObiscodeAttributeName).getDeviceMessageAttributeValue());
         String dayProfileTableStringDefinition = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dayProfileTableDefinitionAttributeName).getDeviceMessageAttributeValue();
-        activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone(), activityCalendarObisCode, specialDaysTableObisCode, getDayProfileTable(dayProfileTableStringDefinition));
+        SPECIAL_DAYS_TABLE_OBISCODE.setB(activityCalendarObisCode.getB());
+        activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone(), activityCalendarObisCode, SPECIAL_DAYS_TABLE_OBISCODE, getDayProfileTable(dayProfileTableStringDefinition));
         writeActivityCalendar(pendingMessage);
     }
 
