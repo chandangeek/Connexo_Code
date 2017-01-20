@@ -1,6 +1,6 @@
 Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     extend: 'Ext.form.Panel',
-    xtype: 'purpose-details-form',
+    alias: 'widget.purpose-details-form',
     requires: [
         'Imt.purpose.view.PurposeActionsMenu',
         'Imt.purpose.view.ValidationStatusForm',
