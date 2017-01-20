@@ -5,6 +5,7 @@ Ext.define('Uni.view.container.PortalContainer', {
     padding: '16px 0 0 0 ',
     layout: 'column',
     columnCount: 3,
+    portalWidgetHeight: 270,
 
     addPortalItem: function (model) {
         var me = this,
@@ -36,7 +37,7 @@ Ext.define('Uni.view.container.PortalContainer', {
             ui: 'tile',
             itemId:itemId,
             columnWidth: 1 / me.columnCount,
-            height: 256,
+            height: me.portalWidgetHeight,
             overflowY:true,
             items: [
                 {

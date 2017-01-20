@@ -4,6 +4,15 @@
 Ext.define('Uni.view.window.Confirmation', {
     extend: 'Ext.window.MessageBox',
     xtype: 'confirmation-window',
+
+    /**
+     * @cfg {Boolean}
+     *
+     * Indicates if you want the icon, the title and the confirmation button in green.
+     * By default false.
+     */
+    green: false,
+
     cls: Uni.About.baseCssPrefix + 'confirmation-window',
     confirmBtnUi: 'remove',
     /**
@@ -46,6 +55,10 @@ Ext.define('Uni.view.window.Confirmation', {
     initComponent: function () {
         var me = this;
 
+        if (me.green) {
+            me.cls = Uni.About.baseCssPrefix + 'confirmation-window-green';
+            me.confirmBtnUi = 'action';
+        }
         me.callParent(arguments);
         me.add(
             {
