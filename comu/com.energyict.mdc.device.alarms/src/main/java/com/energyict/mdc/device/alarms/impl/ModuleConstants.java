@@ -11,6 +11,7 @@ public final class ModuleConstants {
 
     public static final String DEVICE_IDENTIFIER = "endDeviceId";
     public static final String SKIPPED_TASK_IDS = "skippedTaskIDs";
+    public static final String END_DEVICE_EVENT_TYPE = "endDeviceEventType";
     public static final String EVENT_TIMESTAMP = "eventTimestamp";
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION = "basicTemplateDeviceAlarmDescription";
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_NAME = "basicTemplateDeviceAlarmName";
@@ -23,5 +24,8 @@ public final class ModuleConstants {
     public static final String EVENT_OCCURENCE_COUNT = "eventOccurenceCount";
     public static final String UP_URGENCY_ON_RAISE = "upUrgencyOnRaise";
     public static final String DOWN_URGENCY_ON_CLEAR = "downUrgencyOnClear";
+    public static final String DEVICE_LIFECYCLE_STATE = "deviceLifecycleState";
+    public static final String DEVICE_TYPES = "deviceTypes";
+    public static final String EIS_CODES = "eiServerCodes";
 
 }

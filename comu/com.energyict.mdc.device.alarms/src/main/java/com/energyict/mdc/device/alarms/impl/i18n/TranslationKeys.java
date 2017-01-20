@@ -27,10 +27,13 @@ public enum TranslationKeys implements TranslationKey {
     CLEARING_EVENTS(ModuleConstants.CLEARING_EVENTS, "Alarm clearing events"),
     EVENT_OCCURENCE_COUNT(ModuleConstants.EVENT_OCCURENCE_COUNT, "Event occurence count"),
     UP_URGENCY_ON_RAISE(ModuleConstants.UP_URGENCY_ON_RAISE, "Increase alarm urgency on subsequent triggering event raise"),
-    DOWN_URGENCY_ON_CLEAR(ModuleConstants.DOWN_URGENCY_ON_CLEAR, "Decrease alarm urgency on clearing event");
+    DOWN_URGENCY_ON_CLEAR(ModuleConstants.DOWN_URGENCY_ON_CLEAR, "Decrease alarm urgency on clearing event"),
+    DEVICE_LIFECYCLE_STATE(ModuleConstants.DEVICE_LIFECYCLE_STATE, "Device lifecycle state"),
+    DEVICE_TYPES(ModuleConstants.DEVICE_TYPES, "Device types"),
+    EIS_CODES(ModuleConstants.EIS_CODES, "EIServer codes")
     ;
     //TODO - update list
-;
+
     private final String key;
     private final String defaultFormat;
 

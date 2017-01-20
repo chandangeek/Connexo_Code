@@ -48,6 +48,9 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public static final String UP_URGENCY_ON_RAISE = NAME + ".upUrgencyOnRaise";
     public static final String DOWN_URGENCY_ON_CLEAR = NAME + ".downUrgencyOnClear";
     public static final String EVENT_OCCURENCE_COUNT = NAME + ".eventCount";
+    public static final String DEVICE_LIFECYCLE_STATE = NAME + ".deviceLifecyle";
+    public static final String DEVICE_TYPES = NAME + ".deviceTypes";
+    public static final String EIS_CODES = NAME + ".eisCodes";
 
     private String SEPARATOR = ":";
 
@@ -112,7 +115,8 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
                 // maybe both TRIGGERING_EVENTS + CLEARING_EVENTS
-                "\teval( event.computeOccurenceCount(\"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
+                "\teval( event.computeOccurenceCount(\"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + DEVICE_TYPES + "}\", \"@{" + EIS_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
+                "\teval( event.getAssociatedDeviceLifecycleState() == @{" + DEVICE_LIFECYCLE_STATE + "} )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Generating device alarm @{ruleId}\");\n" +
                 //  "\tboolean clearing = event.isClearing();\n" +
@@ -188,6 +192,27 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .finish());
         builder.add(propertySpecService
                 .stringSpec()
+                .named(DEVICE_LIFECYCLE_STATE, TranslationKeys.DEVICE_LIFECYCLE_STATE)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                // .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .stringSpec()
+                .named(DEVICE_TYPES, TranslationKeys.DEVICE_TYPES)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                // .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .stringSpec()
+                .named(EIS_CODES, TranslationKeys.EIS_CODES)
+                .fromThesaurus(this.getThesaurus())
+                .markRequired()
+                // .markExhaustive()
+                .finish());
+        builder.add(propertySpecService
+                .stringSpec()
                 .named(UP_URGENCY_ON_RAISE, TranslationKeys.UP_URGENCY_ON_RAISE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
@@ -238,13 +263,12 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     private OpenIssue getAlarmForClosure(OpenIssue openIssue, IssueEvent event) {
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
-            OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
-            return alarm;
+            return OpenDeviceAlarm.class.cast(openIssue);
         }
         return openIssue;
     }
 
-    //TODO - write a check method to avoid exceptions
+    //TODO - write a check method to avoid number format exceptions
     /*
     public static boolean isInteger(String s) {
     try {

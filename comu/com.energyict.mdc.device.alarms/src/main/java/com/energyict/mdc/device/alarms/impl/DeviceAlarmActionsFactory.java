@@ -137,7 +137,6 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
 
     private void addDefaultActions() {
         try {
-			//TODO move this to front end
             actionProviders.put(CloseDeviceAlarmAction.class.getName(), injector.getProvider(CloseDeviceAlarmAction.class));
             actionProviders.put(AssignDeviceAlarmAction.class.getName(), injector.getProvider(AssignDeviceAlarmAction.class));
         } catch (ConfigurationException | ProvisionException e) {

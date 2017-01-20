@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.alarms.event;
 
-import com.elster.jupiter.cbo.EndDeviceEventTypeCodeBuilder;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -13,7 +12,6 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -28,12 +26,13 @@ import com.google.common.collect.Range;
 import com.google.inject.Injector;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -99,16 +98,54 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         getEventTimestamp(rawEvent);
     }
 
-    //TODO- use clock
-    public int computeOccurenceCount(String range, String endDeviceEventTypes) {
+    //TODO- use clock, use lists for endDeviceEventTypes and deviceTypes
+    public int computeOccurenceCount(String range, String endDeviceEventTypes, String deviceTypes, String eisCodes) {
+        List<String> inputEventTypeList = new ArrayList<>();
+        if (deviceTypes != null && !deviceTypes.isEmpty()) {
+            /*List<EndDeviceEventType> inputListAsEventTypes = Arrays.asList(endDeviceEventTypes.split(","))
+                    .stream()
+                    .map(mRID -> meteringService.getEndDeviceEventType(mRID))
+                    .filter(Optional::isPresent).map(Optional::get)
+                    .collect(Collectors.toList()); */
+
+            List<String> deviceTypesList = Arrays.asList(deviceTypes.split(",")).stream().collect(Collectors.toList());
+            List<String> rawInputEventTypeList = Arrays.asList(endDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
+            for (String devType : deviceTypesList) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(devType);
+                for (String inputEventType : rawInputEventTypeList) {
+                    inputEventTypeList.add(sb.toString() + inputEventType.substring(inputEventType.indexOf(".") + 1));
+                }
+            }
+        } else {
+            inputEventTypeList = Arrays.asList(endDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
+        }
         List<String> currentList = getDevice().getLogBooks().stream()
                 .map(logBook -> logBook.getEndDeviceEvents(Range.closed(Instant.ofEpochMilli(Instant.now().toEpochMilli() - Long.valueOf(range)), Instant.now())))
-                .flatMap(eventList -> eventList.stream()).map(event -> event.getEventType().getMRID())
+                .flatMap(Collection::stream).map(event -> event.getEventType().getMRID())
                 .collect(Collectors.toList());
-        List<String> inputEventTypeList = Arrays.asList(endDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
+        List<String> currentEISCodeList = getDevice().getLogBooks().stream()
+                .map(logBook -> logBook.getEndDeviceEvents(Range.closed(Instant.ofEpochMilli(Instant.now().toEpochMilli() - Long.valueOf(range)), Instant.now())))
+                .flatMap(Collection::stream).map(EndDeviceEventRecord::getDeviceEventType)
+                .collect(Collectors.toList());
+        List<String> eisCodesList = Arrays.asList(eisCodes.split(",")).stream().collect(Collectors.toList());
         return currentList.stream()
                 .filter(inputEventTypeList::contains)
-                .collect(Collectors.toList()).size();
+                .filter(eventTypes -> eventTypes.equals("0.0.0.0"))
+                .collect(Collectors.toList()).size() +
+                currentEISCodeList.stream()
+                        .filter(eisCodesList::contains)
+                        .collect(Collectors.toList()).size();
+    }
+
+
+    public long getAssociatedDeviceLifecycleState() {
+        return getDevice().getState().getId();
+    }
+
+    public String getEISCode() {
+        //TODO - update this to code to retrieve EIS code
+        return this.getEventType().contains(".") ? "-1" : this.getEventType();
     }
 
     public boolean isClearing(String endDeviceEventTypes) {
