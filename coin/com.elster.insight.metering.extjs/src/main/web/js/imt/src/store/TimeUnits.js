@@ -11,7 +11,10 @@ Ext.define('Imt.store.TimeUnits',{
         reader: {
             type: 'json',
             root: 'timeUnits'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
 
