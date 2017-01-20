@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class X509ServiceImpl implements X509Service {
 
-    private static final char[] DLMS_KEYSTORE_PARAMETERS = new char[]{'i', '#', '?', 'r', 'P', '1', '_', 'L', 'v', '/', 'T', '@', '>', 'k', 'h', '*'};
+    private static final char[] DLMS_KEYSTORE_PARAMETERS = DLMSKeyStoreUserFile.PARAMETERS;
 
     @Activate
     public void activate() {

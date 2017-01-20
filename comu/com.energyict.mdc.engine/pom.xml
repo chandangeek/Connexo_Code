@@ -24,6 +24,10 @@
     <dependencies>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>datavault</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
         </dependency>
         <dependency>
@@ -245,11 +249,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>datavault</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
