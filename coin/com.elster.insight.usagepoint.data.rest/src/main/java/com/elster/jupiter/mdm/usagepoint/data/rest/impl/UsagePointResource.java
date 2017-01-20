@@ -274,7 +274,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public UsagePointInfo getUsagePoint(@PathParam("name") String name) {
-        return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByNameOrThrowException(name));
+        return usagePointInfoFactory.fullInfoWithLastTransitionTime(resourceHelper.findUsagePointByNameOrThrowException(name));
     }
 
     @GET

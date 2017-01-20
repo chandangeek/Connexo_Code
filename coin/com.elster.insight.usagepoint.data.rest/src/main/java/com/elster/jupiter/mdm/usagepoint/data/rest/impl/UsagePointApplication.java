@@ -42,6 +42,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.rest.BusinessProcessInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
@@ -108,6 +109,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile JsonService jsonService;
     private volatile SearchService searchService;
     private volatile MessageService messageService;
+    private volatile UsagePointLifeCycleService usagePointLifeCycleService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -332,6 +334,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setUsagePointLifeCycleService(UsagePointLifeCycleService usagePointLifeCycleService) {
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -391,6 +398,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(UsagePointLifeCycleStateInfoFactory.class).to(UsagePointLifeCycleStateInfoFactory.class);
             bind(UsagePointLifeCycleTransitionInfoFactory.class).to(UsagePointLifeCycleTransitionInfoFactory.class);
             bind(BusinessProcessInfoFactory.class).to(BusinessProcessInfoFactory.class);
+            bind(usagePointLifeCycleService).to(UsagePointLifeCycleService.class);
         }
     }
 

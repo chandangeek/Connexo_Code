@@ -39,6 +39,8 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -79,6 +81,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile UsagePointLifeCycleStateInfoFactory stateInfoFactory;
     private volatile UsagePointLifeCycleInfoFactory lifeCycleInfoFactory;
+    private volatile UsagePointLifeCycleService usagePointLifeCycleService;
 
     public UsagePointInfoFactory() {
     }
@@ -96,7 +99,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
                                  PropertyValueInfoService propertyValueInfoService,
                                  UsagePointLifeCycleStateInfoFactory stateInfoFactory,
-                                 UsagePointLifeCycleInfoFactory lifeCycleInfoFactory) {
+                                 UsagePointLifeCycleInfoFactory lifeCycleInfoFactory, UsagePointLifeCycleService usagePointLifeCycleService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
@@ -111,6 +114,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.propertyValueInfoService = propertyValueInfoService;
         this.stateInfoFactory = stateInfoFactory;
         this.lifeCycleInfoFactory = lifeCycleInfoFactory;
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
         activate();
     }
 
@@ -427,6 +431,12 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.openIssues = issueService.findIssues(issueFilter).find().size();
         info.ongoingServiceCalls = serviceCallService.findServiceCalls(meter, EnumSet.of(DefaultState.ONGOING)).size();
         info.ongoingProcesses = bpmService.getRunningProcesses(authorization, filterFor(meter)).total;
+        return info;
+    }
+
+    public UsagePointInfo fullInfoWithLastTransitionTime(UsagePoint usagePoint){
+        UsagePointInfo info = fullInfoFrom(usagePoint);
+        info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
         return info;
     }
 
