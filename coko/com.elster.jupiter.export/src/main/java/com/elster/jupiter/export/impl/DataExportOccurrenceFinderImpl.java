@@ -3,11 +3,13 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -59,6 +61,14 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     @Override
     public DataExportOccurrenceFinder withExportPeriodContaining(Instant timeStamp) {
         condition = condition.and(where("exportedDataInterval").isEffective(timeStamp));
+        return this;
+    }
+
+    @Override
+    public DataExportOccurrenceFinder withExportStatus(List<DataExportStatus> statuses) {
+        if (!statuses.isEmpty()) {
+            this.condition = this.condition.and(where("status").in(statuses));
+        }
         return this;
     }
 

@@ -17,6 +17,8 @@ public interface DataExportOccurrenceFinder {
 
     DataExportOccurrenceFinder withExportPeriodContaining(Instant timeStamp);
 
+    DataExportOccurrenceFinder withExportStatus(List<DataExportStatus> statuses);
+
     List<? extends DataExportOccurrence> find();
 
     QueryStream<DataExportOccurrence> stream();
