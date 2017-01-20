@@ -4,14 +4,11 @@ Ext.define('Imt.purpose.store.EstimationTasks', {
 
     proxy: {
         type: 'rest',
-        tplUrl: '/api/udr/usagepoints/{id}/estimationtasks',
+        url: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/estimationtasks',
         timeout: 240000,
         reader: {
             type: 'json',
             root: 'dataEstimationTasks'
-        },
-        setUrl: function (id) {
-            this.url = this.tplUrl.replace('{id}', encodeURIComponent(id))
         }
     }
 });
