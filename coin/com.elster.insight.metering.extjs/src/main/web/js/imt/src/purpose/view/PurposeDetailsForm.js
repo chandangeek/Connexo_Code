@@ -14,23 +14,15 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
         flex: 1
     },
 
-    usagePoint: null,
-    record: null,
     router: null,
 
     initComponent: function () {
         var me = this,
-            extraParams = {
-                usagePointId: me.usagePoint.get('name'),
-                purposeId: me.record.getId()
-            },
             defaults = {
                 xtype: 'displayfield',
                 labelWidth: 200
             };
 
-        Ext.getStore('Imt.purpose.store.ValidationTasks').getProxy().extraParams = extraParams;
-        Ext.getStore('Imt.purpose.store.EstimationTasks').getProxy().extraParams = extraParams;
         me.items = [
             {
                 defaults: defaults,

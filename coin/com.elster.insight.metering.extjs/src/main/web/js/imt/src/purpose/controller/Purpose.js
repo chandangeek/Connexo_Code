@@ -82,6 +82,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
             periodsStore = me.getStore('Imt.usagepointmanagement.store.Periods'),
             purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            extraParams = {
+                usagePointId: usagePointId,
+                purposeId: purposeId
+            },
             dependenciesCounter = 4,
             defaultPeriod,
             usagePoint,
@@ -89,6 +93,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         mainView.setLoading();
 
+        me.getStore('Imt.purpose.store.ValidationTasks').getProxy().extraParams = extraParams;
+        me.getStore('Imt.purpose.store.EstimationTasks').getProxy().extraParams = extraParams;
         me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(onDependenciesLoad);
 
         periodsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};

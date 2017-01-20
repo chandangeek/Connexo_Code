@@ -43,8 +43,6 @@ Ext.define('Imt.purpose.view.Outputs', {
                 items: [
                     {
                         xtype: 'purpose-details-form',
-                        record: me.purpose,
-                        usagePoint: me.usagePoint,
                         itemId: 'purpose-details-form',
                         router: me.router
                     },
