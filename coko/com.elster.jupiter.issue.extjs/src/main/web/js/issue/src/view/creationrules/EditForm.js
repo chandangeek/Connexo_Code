@@ -121,8 +121,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 store: 'Isu.store.IssueReasons',
                 queryMode: 'local',
                 displayField: 'name',
-                valueField: 'id',
-                forceSelection: true
+                valueField: 'id'
             },
             {
                 xtype: 'fieldcontainer',
@@ -152,7 +151,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         minValue: 1,
                         maxValue: 50,
                         listeners: {
-                            change: function (record) {
+                            change: function () {
                                 me.changePriority();
                             },
                             blur: me.numberFieldValidation
@@ -171,7 +170,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         maxValue: 50,
                         margin: '0 0 0 20',
                         listeners: {
-                            change: function (record) {
+                            change: function () {
                                 me.changePriority();
                             },
                             blur: me.numberFieldValidation
@@ -404,9 +403,22 @@ Ext.define('Isu.view.creationrules.EditForm', {
     updateRecord: function () {
         var me = this,
             propertyForm = me.down('property-form'),
+            comboReason = me.down('#issueReason'),
+            reasonEditedValue = comboReason.getRawValue(),
+            reason = comboReason.store.find('name', reasonEditedValue),
             record;
 
         me.callParent(arguments);
+
+        if(reason === -1){
+            var rec = {
+                id: reasonEditedValue,
+                name: reasonEditedValue
+            };
+            comboReason.store.add(rec);
+            comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
+        }
+
         record = me.getRecord();
         record.beginEdit();
         record.associations.each(function (association) {
@@ -512,7 +524,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
         var me = this,
             labelPriority = me.down('#priority-label'),
             numUrgency = me.down('[name=priority.urgency]'),
-            numUrgencyValue = numUrgency.value,//me.down('#priority.urgency').value,
+            numUrgencyValue = numUrgency.value,
             numImpact = me.down('[name=priority.impact]'),
             numImpactValue = numImpact.value,
             priorityValue,
