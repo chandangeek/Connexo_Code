@@ -33,6 +33,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
+import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -68,6 +69,14 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     public void initializeCommonUsagePointStateChangeFields() {
         UserService userService = get(UserService.class);
+        //to overcome granting privilege issues we need to let the system think we are not a normal user
+        Principal principal = new Principal() {
+            @Override
+            public String getName() {
+                return "console";
+            }
+        };
+        get(ThreadPrincipalService.class).set(principal);
         group = userService.findOrCreateGroup("Test");
         userService.grantGroupWithPrivilege(group.getName(), APPLICATION, new String[]{UsagePointTransition.Level.FOUR.getPrivilege()});
         user = userService.findOrCreateUser("TestUser", "domain", "directoryType");
