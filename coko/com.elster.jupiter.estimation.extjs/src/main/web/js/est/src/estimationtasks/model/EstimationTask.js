@@ -158,6 +158,19 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
             }
         }
     ],
+
+    getTriggerText: function () {
+        var me = this,
+            nextRun = me.get('nextRun');
+
+        return Ext.isEmpty(me.get('schedule'))
+            ? Uni.I18n.translate('estimation.schedule.manual', 'EST', 'On request')
+            : Uni.I18n.translate('estimation.schedule.scheduled', 'EST', '{1}. Next run {0}', [
+            me.get('recurrence'),
+            nextRun ? Uni.DateTime.formatDateTimeLong(Ext.isDate(nextRun) ? nextRun : new Date(nextRun)) : '-'
+        ]);
+    },
+
     proxy: {
         type: 'rest',
         url: '/api/est/estimation/tasks',
