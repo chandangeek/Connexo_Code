@@ -11,12 +11,15 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.data.Device;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +54,11 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceAlarm deviceAlarm = mock(DeviceAlarm.class);
         ProcessInstanceInfos infos = new ProcessInstanceInfos();
         IssueAssignee issueAssignee = mock(IssueAssignee.class);
+        Privilege userTaskPrivilege = mock(Privilege.class);
+        Privilege issuePrivilege = mock(Privilege.class);
+        Privilege alarmPrivilege = mock(Privilege.class);
+        Map<String, List<Privilege>> appPrivileges = new HashMap<>();
+        appPrivileges.put("MDC", Arrays.asList(userTaskPrivilege, issuePrivilege, alarmPrivilege));
         User user = mock(User.class);
 
         when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
@@ -67,6 +75,7 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issueType.getKey()).thenReturn("issueType.key");
         when(issueType.getName()).thenReturn("issueType.name");
         when(issue.getId()).thenReturn(1L);
+        when(issue.getIssueId()).thenReturn("DCI-1");
         when(issue.getDueDate()).thenReturn(null);
         when(issue.getStatus()).thenReturn(openStatus);
         when(openStatus.getName()).thenReturn(IssueStatus.OPEN);
@@ -75,6 +84,7 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         doReturn(Collections.singletonList(deviceAlarm).stream()).when(alarmFinder).stream();
         when(bpmService.getRunningProcesses(any(), any(), any())).thenReturn(infos);
         when(deviceAlarm.getId()).thenReturn(1L);
+        when(deviceAlarm.getIssueId()).thenReturn("ALM-1");
         when(deviceAlarm.getReason()).thenReturn(reason);
         when(deviceAlarm.getDueDate()).thenReturn(null);
         when(deviceAlarm.getStatus()).thenReturn(openStatus);
@@ -84,6 +94,10 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(user.getId()).thenReturn(1L);
         when(deviceAlarm.getAssignee()).thenReturn(issueAssignee);
         when(securityContext.getUserPrincipal()).thenReturn(user);
+        when(user.getApplicationPrivileges()).thenReturn(appPrivileges);
+        when(userTaskPrivilege.getName()).thenReturn("privilege.execute.task");
+        when(issuePrivilege.getName()).thenReturn("privilege.comment.issue");
+        when(alarmPrivilege.getName()).thenReturn("privilege.action.alarm");
 
         Map<String, Object> response = target("/devices/SPE01/whatsgoingon").request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
@@ -91,7 +105,7 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(data).hasSize(2);
         Map<?, ?> issueMap = (Map<?, ?>) data.get(0);
         assertThat(issueMap.get("type")).isEqualTo("issue");
-        assertThat(issueMap.get("id")).isEqualTo(1);
+        assertThat(issueMap.get("id")).isEqualTo("DCI-1");
         assertThat(issueMap.get("isMyWorkGroup")).isEqualTo(false);
         assertThat(issueMap.get("userAssigneeIsCurrentUser")).isEqualTo(true);
         assertThat(issueMap.get("status")).isEqualTo("status.open");
@@ -100,7 +114,7 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         Map<?, ?> alarmMap = (Map<?, ?>) data.get(1);
         assertThat(alarmMap.get("type")).isEqualTo("alarm");
-        assertThat(alarmMap.get("id")).isEqualTo(1);
+        assertThat(alarmMap.get("id")).isEqualTo("ALM-1");
         assertThat(alarmMap.get("isMyWorkGroup")).isEqualTo(false);
         assertThat(alarmMap.get("userAssigneeIsCurrentUser")).isEqualTo(true);
         assertThat(alarmMap.get("status")).isEqualTo("status.open");

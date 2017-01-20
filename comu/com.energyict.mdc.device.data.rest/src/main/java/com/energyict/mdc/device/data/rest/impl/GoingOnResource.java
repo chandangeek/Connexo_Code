@@ -143,16 +143,17 @@ public class GoingOnResource {
         return Response.ok(PagedInfoList.fromPagedList("goingsOn", goingOnInfos, queryParameters)).build();
     }
 
-    private boolean hasCurrentUserIssuePrivileges(Map<String, List<Privilege>> appPrivileges){
-        return appPrivileges.get("MDC").stream().anyMatch(privilege -> privilege.getName().equals("privilege.view.issue") ||
-                privilege.getName().equals("privilege.comment.issue") ||
-                privilege.getName().equals("privilege.close.issue") ||
-                privilege.getName().equals("privilege.action.issue") ||
-                privilege.getName().equals("privilege.assign.issue"));
+    private boolean hasCurrentUserIssuePrivileges(Map<String, List<Privilege>> appPrivileges) {
+        return appPrivileges.get("MDC") != null && appPrivileges.get("MDC")
+                .stream()
+                .anyMatch(privilege -> privilege.getName().equals("privilege.view.issue") || privilege.getName()
+                        .equals("privilege.comment.issue") || privilege.getName()
+                        .equals("privilege.close.issue") || privilege.getName()
+                        .equals("privilege.action.issue") || privilege.getName().equals("privilege.assign.issue"));
     }
 
     private boolean hasCurrentUserAlarmPrivileges(Map<String, List<Privilege>> appPrivileges){
-        return appPrivileges.get("MDC").stream().anyMatch(privilege -> privilege.getName().equals("privilege.view.alarm") ||
+        return appPrivileges.get("MDC") != null && appPrivileges.get("MDC").stream().anyMatch(privilege -> privilege.getName().equals("privilege.view.alarm") ||
                 privilege.getName().equals("privilege.comment.alarm") ||
                 privilege.getName().equals("privilege.close.alarm") ||
                 privilege.getName().equals("privilege.assign.alarm") ||
@@ -160,7 +161,7 @@ public class GoingOnResource {
     }
 
     private boolean hasCurrentUserTasksPrivileges(Map<String, List<Privilege>> appPrivileges){
-        return appPrivileges.get("MDC").stream().anyMatch(privilege -> privilege.getName().equals("privilege.view.task") ||
+        return appPrivileges.get("MDC") != null && appPrivileges.get("MDC").stream().anyMatch(privilege -> privilege.getName().equals("privilege.view.task") ||
                 privilege.getName().equals("privilege.execute.task") ||
                 privilege.getName().equals("privilege.assign.task"));
     }
@@ -183,7 +184,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "issue";
             goingOnInfo.issueType = issue.getReason().getIssueType().getKey();
-            goingOnInfo.id = issue.getId();
+            goingOnInfo.id = issue.getIssueId();
             goingOnInfo.reference = null;
             goingOnInfo.description = issue.getReason().getName();
             goingOnInfo.dueDate = issue.getDueDate();
@@ -203,7 +204,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "servicecall";
             goingOnInfo.issueType = null;
-            goingOnInfo.id = serviceCall.getId();
+            goingOnInfo.id = String.valueOf(serviceCall.getId());
             goingOnInfo.reference = serviceCall.getNumber();
             goingOnInfo.description = serviceCall.getType().getName();
             goingOnInfo.dueDate = null;
@@ -219,7 +220,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "alarm";
             goingOnInfo.issueType = null;
-            goingOnInfo.id = deviceAlarm.getId();
+            goingOnInfo.id = deviceAlarm.getIssueId();
             goingOnInfo.reference = null;
             goingOnInfo.description = deviceAlarm.getReason().getName();
             goingOnInfo.dueDate = deviceAlarm.getDueDate();
@@ -242,7 +243,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "process";
             goingOnInfo.issueType = null;
-            goingOnInfo.id = Long.parseLong(processInstanceInfo.processId);
+            goingOnInfo.id = processInstanceInfo.processId;
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
             goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).filter(not(String::isEmpty)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
