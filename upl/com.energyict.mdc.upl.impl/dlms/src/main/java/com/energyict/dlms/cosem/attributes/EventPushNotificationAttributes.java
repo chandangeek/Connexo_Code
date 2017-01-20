@@ -12,7 +12,8 @@ public enum EventPushNotificationAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
     PUSH_OBJECT_LIST(2, 0x08),
-    SEND_DESTINATION_AND_METHOD(3, 0x10);
+    SEND_DESTINATION_AND_METHOD(3, 0x10),
+    NOTIFICATION_CYPHERING(-3, 0x38);
 
     private final int attributeNumber;
     private final int shortName;

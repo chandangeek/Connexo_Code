@@ -68,7 +68,8 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
     RESET_BITS_IN_ALARM_SINGLE_REGISTER(15),
     WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER(16,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName)),
-    ;
+    CONFIGURE_PUSH_EVENT_NOTIFICATION_CIPHERING(17, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.notificationCiphering, NotificationCipheringType.getTypes()) ),
+    CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION(18, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.echoTestNotification) );
 
 
     public enum PushType {
@@ -167,6 +168,30 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
         }
     }
 
+    public enum NotificationCipheringType {
+        NONE(0),
+        GLOBAL_CIPHERING(1),
+        GLOBAL_CIPHERING_WITH_SIGNATURE(2);
+
+        private final int id;
+
+        NotificationCipheringType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            NotificationCipheringType[] allTypes = values();
+            String[] result = new String[allTypes.length];
+            for (int index = 0; index < allTypes.length; index++) {
+                result[index] = allTypes[index].name();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+    }
     private static PropertySpec<BigDecimal> alarmRegisterAttribute() {
         return PropertySpecFactory.bigDecimalPropertySpecWithValues(
                 DeviceMessageConstants.alarmRegisterAttributeName,
@@ -188,7 +213,7 @@ public enum AlarmConfigurationMessage implements DeviceMessageSpec {
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
 
-    private AlarmConfigurationMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+    AlarmConfigurationMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
         this.id = id;
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
