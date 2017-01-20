@@ -113,7 +113,8 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
 
     saveCalendar: function (btn) {
         var me = this,
-            values = this.getForm().getValues()
+            values = this.getForm().getValues();
+
         Ext.Ajax.request({
             url: '../../api/udr/usagepoints/' + encodeURIComponent(btn.usagePointname) + '/calendars',
             method: 'POST',
@@ -121,6 +122,7 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 calendar: {
                     id: values.calendar
                 },
+                immediately: values.activateCalendar === 'immediate-activation',
                 fromTime: values.activateCalendar === 'immediate-activation' ? new Date().getTime() : this.getForm().down('#activation-date-values').down('#activation-on').getValue().getTime()
             },
             success: function () {
@@ -132,6 +134,11 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 if (responseText && Ext.isArray(responseText.errors)) {
                     me.getForm().form.markInvalid(responseText.errors);
                     me.getForm().down('#form-errors').show();
+                    var fromTimeError = Ext.Array.findBy(responseText.errors, function (item) { return item.id == 'fromTime';});
+                    if(fromTimeError) {
+                        me.getForm().down('#error-label').setText(fromTimeError.msg);
+                        me.getForm().down('#error-label').show();
+                    }
                 }
             }
         });
