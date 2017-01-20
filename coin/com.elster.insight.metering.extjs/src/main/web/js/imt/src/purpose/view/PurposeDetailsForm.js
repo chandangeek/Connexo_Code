@@ -14,6 +14,8 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
         flex: 1
     },
 
+    usagePoint: null,
+    record: null,
     router: null,
 
     initComponent: function () {
