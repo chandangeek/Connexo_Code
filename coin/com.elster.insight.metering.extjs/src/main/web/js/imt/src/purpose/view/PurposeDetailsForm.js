@@ -81,7 +81,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         emptyText: Uni.I18n.translate('usagepoint.purpose.estimation.task.noTasks.on.usagePoint', 'IMT', 'No estimation tasks has been configured for this usage point yet ({0}manage estimation tasks{1})',
                             [
                                 '<a href="'
-                                + me.router.getRoute('administration/validationtasks').buildUrl()
+                                + me.router.getRoute('administration/estimationtasks').buildUrl()
                                 + '">',
                                 '</a>'
                             ],
