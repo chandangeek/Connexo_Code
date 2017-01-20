@@ -126,7 +126,7 @@ public class ReadingTypeDeliverableFactoryImpl implements ReadingTypeDeliverable
                     .map(Collections::singletonList).orElse(null);
             info.readingTypePattern.attributes.timePeriod =
                     Stream.of(partiallySpecified.getAttributeValue(ReadingTypeTemplateAttributeName.MACRO_PERIOD),
-                            partiallySpecified.getAttributeValue(ReadingTypeTemplateAttributeName.ACCUMULATION))
+                            partiallySpecified.getAttributeValue(ReadingTypeTemplateAttributeName.TIME))
                             .flatMap(com.elster.jupiter.util.streams.Functions.asStream()).findFirst()
                             .map(Collections::singletonList).orElse(null);
             List<String> unitValues = partiallySpecified.getAttributeValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE)
