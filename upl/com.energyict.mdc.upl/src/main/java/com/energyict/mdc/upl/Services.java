@@ -2,7 +2,6 @@ package com.energyict.mdc.upl;
 
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.upl.crypto.KeyStoreService;
-import com.energyict.mdc.upl.crypto.MD5Cryptographer;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
@@ -52,7 +51,6 @@ public class Services {
     private static AtomicReference<CollectedDataFactory> COLLECTED_DATA_FACTORY = new AtomicReference<>();
     private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
     private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
-    private static AtomicReference<MD5Cryptographer> MD5_CRYPTOGRAPHER = new AtomicReference<>();
     private static AtomicReference<X509Service> X509 = new AtomicReference<>();
     private static AtomicReference<KeyStoreService> KEY_STORE_SERVICE = new AtomicReference<>();
 
@@ -95,8 +93,6 @@ public class Services {
             return issueFactory();
         } else if (Formatter.class.equals(serviceType)) {
             return formatter();
-        } else if (MD5Cryptographer.class.equals(serviceType)) {
-            return md5Cryptographer();
         } else if (X509Service.class.equals(serviceType)) {
             return x509Service();
         } else if (KeyStoreService.class.equals(serviceType)) {
@@ -264,14 +260,6 @@ public class Services {
 
     public static void formatter(Formatter dateFormatter) {
         FORMATTER.set(dateFormatter);
-    }
-
-    public static MD5Cryptographer md5Cryptographer() {
-        return MD5_CRYPTOGRAPHER.get();
-    }
-
-    public static void md5Cryptographer(MD5Cryptographer md5Cryptographer) {
-        MD5_CRYPTOGRAPHER.set(md5Cryptographer);
     }
 
     public static X509Service x509Service() {
