@@ -11,7 +11,7 @@ public enum DataProtectionMethods implements DLMSClassMethods {
 
 	GET_PROTECTED_ATTRIBUTES(1, 0x30),
     SET_PROTECTED_ATTRIBUTES(2, 0x38),
-    INVOKE_PROTECTED_METHOD(2, 0x40);
+    INVOKE_PROTECTED_METHOD(3, 0x40);
 
 	/** The method number. */
 	private final int methodNumber;
