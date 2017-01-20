@@ -179,8 +179,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
     public void validateMeterCapabilities(List<Pair<MeterRole, Meter>> meters) {
         List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements();
         boolean hasUnsatisfiedReadingTypeRequirements = false;
-        UnsatisfiedReadingTypeRequirements ex = new UnsatisfiedReadingTypeRequirements(getMetrologyConfigurationService()
-                .getThesaurus(), this);
+        UnsatisfiedReadingTypeRequirements ex = new UnsatisfiedReadingTypeRequirements(getMetrologyConfigurationService().getThesaurus());
         for (Pair<MeterRole, Meter> pair : meters) {
             List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(this, mandatoryReadingTypeRequirements, pair);
             if (!unmatchedRequirements.isEmpty()) {

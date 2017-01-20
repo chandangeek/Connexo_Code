@@ -14,8 +14,13 @@ import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.SelfObjectValidator;
 import com.elster.jupiter.metering.impl.config.SelfValid;
@@ -60,6 +65,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     private UsagePointImpl usagePoint;
     private Map<Meter, TimeLine<Activation, Instant>> meterTimeLines;
     private boolean useThrowingValidator;
+    private FormValidation formValidation = FormValidation.SET_METERS;
 
     @Inject
     public UsagePointMeterActivatorImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
@@ -119,6 +125,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     @Override
     public UsagePointMeterActivator throwingValidation() {
         this.useThrowingValidator = true;
+        return this;
+    }
+
+    @Override
+    public UsagePointMeterActivator withFormValidation(FormValidation formValidation) {
+        this.formValidation = formValidation;
         return this;
     }
 
@@ -199,7 +211,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     @Override
     public boolean validate(ConstraintValidatorContext context) {
-        ValidationReport validationReport = new FormValidationReport(context, this.metrologyConfigurationService.getThesaurus());
+        ValidationReport validationReport = FormValidation.DEFINE_METROLOGY_CONFIGURATION.equals(formValidation)
+                ? new FormValidationReportWhenDefineMetrologyConfiguration(context, this.metrologyConfigurationService.getThesaurus())
+                : new FormValidationReport(context, this.metrologyConfigurationService.getThesaurus());
         validate(validationReport);
         return validationReport.isValid();
     }
@@ -241,7 +255,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                     continue;
                 }
                 UsagePointMetrologyConfiguration metrologyConfiguration = emc.getMetrologyConfiguration();
-                List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = metrologyConfiguration.getMandatoryReadingTypeRequirements();
+                List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = emc.getReadingTypeRequirements();
                 List<ReadingType> readingTypesOnMeter = new ArrayList<>();
                 activation.getMeter().getHeadEndInterface()
                         .map(headEndInterface -> headEndInterface.getCapabilities(activation.getMeter()))
@@ -848,6 +862,49 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             this.context.buildConstraintViolationWithTemplate(errorMessage)
                     .addPropertyNode("usagepoint")
                     .addConstraintViolation();
+        }
+    }
+
+    private static class FormValidationReportWhenDefineMetrologyConfiguration extends FormValidationReport {
+
+        public FormValidationReportWhenDefineMetrologyConfiguration(ConstraintValidatorContext context, Thesaurus thesaurus) {
+            super(context, thesaurus);
+        }
+
+        @Override
+        public void meterHasUnsatisfiedRequirements(Meter meter, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
+            super.valid = false;
+
+            for (Map.Entry<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirementEntry : unsatisfiedRequirements.entrySet()) {
+                Map<MetrologyPurpose, List<ReadingTypeRequirement>> requirements = unsatisfiedRequirementEntry.getKey().getContracts()
+                        .stream()
+                        .collect(Collectors.toMap(MetrologyContract::getMetrologyPurpose, this::getReadingTypeRequirements, (a, b) -> a));
+
+                requirements.entrySet()
+                        .stream()
+                        .filter(metrologyPurposeEntry -> metrologyPurposeEntry.getValue()
+                                .stream()
+                                .anyMatch(req -> unsatisfiedRequirementEntry.getValue().contains(req)))
+                        .forEach(metrologyPurposeEntry -> {
+                            String errorMessage =
+                                    super.thesaurus
+                                            .getFormat(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENT_FOR_METER)
+                                            .format(meter.getName(), metrologyPurposeEntry.getKey().getName());
+                            super.context.buildConstraintViolationWithTemplate(errorMessage)
+                                    .addPropertyNode("id")
+                                    .addConstraintViolation();
+                        });
+            }
+        }
+
+        public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
+            ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+            metrologyContract.getDeliverables()
+                    .stream()
+                    .map(ReadingTypeDeliverable::getFormula)
+                    .map(Formula::getExpressionNode)
+                    .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+            return requirementsCollector.getReadingTypeRequirements();
         }
     }
 
