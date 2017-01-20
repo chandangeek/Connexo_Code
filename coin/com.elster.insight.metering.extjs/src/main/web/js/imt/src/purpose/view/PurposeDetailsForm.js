@@ -4,7 +4,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     requires: [
         'Imt.purpose.view.PurposeActionsMenu',
         'Imt.purpose.view.ValidationStatusForm',
-        'Imt.purpose.view.ValidationTasksStatus',
+        'Imt.purpose.view.ScheduleField',
         'Cfg.model.ValidationTask'
     ],
     itemId: 'purpose-details-form',
@@ -23,6 +23,8 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                 labelWidth: 200
             };
 
+        Ext.getStore('Imt.purpose.store.ValidationTasks').getProxy().setUrl(me.usagePoint.get('name'));
+        Ext.getStore('Imt.purpose.store.EstimationTasks').getProxy().setUrl(me.usagePoint.get('name'));
         me.items = [
             {
                 defaults: defaults,
@@ -55,12 +57,35 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                 defaults: defaults,
                 items: [
                     {
-                        xtype: 'output-validation-tasks-status',
-                        purpose: me.record,
-                        router: me.router,
-                        usagePoint: me.usagePoint
+                        xtype: 'schedule-field',
+                        itemId: 'validation-schedule',
+                        fieldLabel: Uni.I18n.translate('general.validationSchedule', 'IMT', 'Validation schedule'),
+                        store: 'Imt.purpose.store.ValidationTasks',
+                        route: me.router.getRoute('administration/validationtasks/validationtask'),
+                        emptyText: Uni.I18n.translate('usagepoint.purpose.validation.task.noTasks.on.usagePoint', 'IMT', 'No validation tasks have been configured for this usage point yet ({0}manage validation tasks{1})',
+                            [
+                                '<a href="'
+                                + me.router.getRoute('administration/validationtasks').buildUrl()
+                                + '">',
+                                '</a>'
+                            ],
+                            false)
+                    },
+                    {
+                        xtype: 'schedule-field',
+                        itemId: 'estimation-schedule',
+                        fieldLabel: Uni.I18n.translate('general.estimationSchedule', 'IMT', 'Estimation schedule'),
+                        store: 'Imt.purpose.store.EstimationTasks',
+                        route: me.router.getRoute('administration/estimationtasks/estimationtask'),
+                        emptyText: Uni.I18n.translate('usagepoint.purpose.estimation.task.noTasks.on.usagePoint', 'IMT', 'No estimation tasks has been configured for this usage point yet ({0}manage estimation tasks{1})',
+                            [
+                                '<a href="'
+                                + me.router.getRoute('administration/validationtasks').buildUrl()
+                                + '">',
+                                '</a>'
+                            ],
+                            false)
                     }
-
                 ]
             }
         ];

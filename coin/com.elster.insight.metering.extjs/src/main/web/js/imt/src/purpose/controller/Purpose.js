@@ -16,6 +16,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.RegisterReadings',
         'Imt.usagepointmanagement.store.UsagePointTypes',
         'Imt.purpose.store.ValidationTasks',
+        'Imt.purpose.store.EstimationTasks',
         'Imt.usagepointmanagement.store.Periods'
     ],
 
