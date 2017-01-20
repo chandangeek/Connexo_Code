@@ -36,7 +36,7 @@ Ext.define('Apr.view.appservers.AddMessageServicesSetup', {
                         reasons: [
                             Uni.I18n.translate('validation.messageServices.empty.list.item1', 'APR', 'No message services have been added yet.'),
                             Uni.I18n.translate('validation.messageServices.empty.list.item2', 'APR', 'No message services comply with the filter.'),
-                            Uni.I18n.translate('dataExportTasks.messageServices.empty.list.item3', 'APR', 'All message services have already been added to the data export task.')
+                            Uni.I18n.translate('dataExportTasks.messageServices.empty.list.item3x', 'APR', 'All message services have already been added to the export task.')
                         ]
                     }
                 },
