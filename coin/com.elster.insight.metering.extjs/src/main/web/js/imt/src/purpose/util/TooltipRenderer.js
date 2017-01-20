@@ -3,7 +3,7 @@ Ext.define('Imt.purpose.util.TooltipRenderer', {
     prepareIcon: function (record) {
         var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),            
             tooltipContent = '',
-            group = [
+            groups = [
                 {
                     title: Uni.I18n.translate('general.deviceQuality', 'IMT', 'Device quality'),
                     items: []
@@ -30,25 +30,25 @@ Ext.define('Imt.purpose.util.TooltipRenderer', {
 
                 switch (cimCode.slice(0,2)) {
                     case '1.':
-                        group[0].items.push(indexName);
+                        groups[0].items.push(indexName);
                         break;
                     case '2.':
-                        group[1].items.push(indexName);
+                        groups[1].items.push(indexName);
                         break;
                     case '3.':
-                        group[2].items.push(indexName);
+                        groups[2].items.push(indexName);
                         break;
                     case '4.':
                     case '5.':
-                        group[3].items.push(indexName);
+                        groups[3].items.push(indexName);
                         break;
                 }
             });
 
-            Ext.Object.each(group, function(key, value) {
-                if (value.items.length) {
-                    tooltipContent += '<b>' + value.title + '</b><br>';
-                    tooltipContent += addCategoryAndNames(value.items) + '<br>';
+            Ext.Array.each(groups, function (group) {
+                if (group.items.length) {
+                    tooltipContent += '<b>' + group.title + '</b><br>';
+                    tooltipContent += addCategoryAndNames(group.items) + '<br>';
                 }
             });
 
