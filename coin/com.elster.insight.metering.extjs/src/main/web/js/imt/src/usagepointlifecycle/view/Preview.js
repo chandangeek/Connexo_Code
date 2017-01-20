@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointlifecycle.view.Preview', {
     frame: true,
     alias: 'widget.usagepoint-life-cycles-preview',
     xtype: 'usagepoint-life-cycles-preview',
-    
+
     requires: [
         'Imt.usagepointlifecycle.view.PreviewForm',
         'Imt.usagepointlifecycle.view.ActionMenu'

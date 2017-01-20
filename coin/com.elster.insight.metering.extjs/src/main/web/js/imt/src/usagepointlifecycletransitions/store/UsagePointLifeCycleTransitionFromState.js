@@ -1,6 +1,6 @@
 Ext.define('Imt.usagepointlifecycletransitions.store.UsagePointLifeCycleTransitionFromState', {
     extend: 'Ext.data.Store',
-    model: 'Imt.usagepointlifecycletransitions.model.UsagePointLifeCycleTransitionState',    
+    model: 'Imt.usagepointlifecycletransitions.model.UsagePointLifeCycleTransitionState',
     proxy: {
         type: 'rest',
         urlTpl: '/api/upl/lifecycle/{id}/states',

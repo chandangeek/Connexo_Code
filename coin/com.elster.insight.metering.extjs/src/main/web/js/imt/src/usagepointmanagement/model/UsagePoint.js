@@ -106,5 +106,18 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         reader: {
             type: 'json'
         }
+    },
+
+    unlinkMetrologyConfiguration: function (options) {
+        var me = this,
+            url = me.getProxy().url + me.get('name') + '/unlinkmetrologyconfiguration';
+
+        Ext.Ajax.request(Ext.Object.merge(
+            {
+                url: url,
+                method: 'PUT',
+                jsonData: me.getProxy().getWriter().getRecordData(me)
+            }
+            , options));
     }
 });

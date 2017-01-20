@@ -38,7 +38,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                             field.focus(false);
                         }
                     }
-                },                
+                },
                 {
                     xtype: 'fieldcontainer',
                     itemId: 'usagepoint-life-cycle-stage-container',
@@ -225,7 +225,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                     var createBtn = this.down('#createEditButton');
                     this.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", record.get('name')));
                     createBtn.setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
-                    createBtn.action = 'save';                   
+                    createBtn.action = 'save';
                 }
                 this.getForm().loadRecord(record);
                 var processOnEntryStore = this.down('#processesOnEntryGrid').getStore();

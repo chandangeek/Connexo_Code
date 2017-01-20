@@ -4,7 +4,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.AddProcessesToStateGrid', {
     xtype: 'add-process-to-state-selection-grid',
     requires: [
         'Imt.usagepointlifecyclestates.store.AvailableTransitionBusinessProcesses'
-    ],    
+    ],
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural('general.nrOfProcesses.selected', count, 'IMT',
             'No processes selected', '{0} process selected', '{0} processes selected'

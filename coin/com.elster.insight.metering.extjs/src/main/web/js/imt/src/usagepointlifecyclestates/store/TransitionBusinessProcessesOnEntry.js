@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointlifecyclestates.store.TransitionBusinessProcessesOnEnt
     requires: [
         'Imt.usagepointlifecyclestates.model.TransitionBusinessProcess'
     ],
-    model: 'Imt.usagepointlifecyclestates.model.TransitionBusinessProcess',    
+    model: 'Imt.usagepointlifecyclestates.model.TransitionBusinessProcess',
     modelId: -1,
     removeAll: function () {
         this.callParent(arguments);
