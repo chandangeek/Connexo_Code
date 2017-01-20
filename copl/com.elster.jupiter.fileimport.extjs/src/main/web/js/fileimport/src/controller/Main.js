@@ -41,7 +41,7 @@ Ext.define('Fim.controller.Main', {
 
             Uni.store.MenuItems.add(menuItem);
             var importItem = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.dataImport', 'FIM', 'Data import'),
+                title: Uni.I18n.translate('general.dataExchange', 'FIM', 'Data exchange'),
                 portal: 'administration',
                 items: [
                     {

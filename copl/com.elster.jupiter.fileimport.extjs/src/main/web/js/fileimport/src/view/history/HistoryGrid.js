@@ -30,7 +30,15 @@ Ext.define('Fim.view.history.HistoryGrid', {
                 header: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
                 dataIndex: 'importServiceName',
                 flex: 2,
-                hidden: !me.showImportService
+                hidden: !me.showImportService,
+                renderer: function (value, metaData, record) {
+                    //TODO: add privilege check
+                    var url = me.router.getRoute('administration/importservices/importservice').buildUrl({
+                            importServiceId: record.get('importServiceId')
+                        }),
+                        name = value ? value : '-';
+                    return '<a href="' + url + '">' + name + '</a>';
+                }
             },
             {
                 xtype: 'uni-grid-column-duration',
