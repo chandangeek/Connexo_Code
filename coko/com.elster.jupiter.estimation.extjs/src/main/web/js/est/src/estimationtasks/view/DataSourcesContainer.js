@@ -87,7 +87,7 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.purpose', 'EST', 'Purpose'),
-
+                        itemId: 'purpose-group-container',
                         layout: {
                             type: 'hbox',
                         },
@@ -171,6 +171,7 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
 
     showNoItemsField: function () {
         var me = this;
+        Ext.suspendLayouts();
         switch (me.appName) {
             case 'MultiSense':
                 me.down('#device-group-combo').hide();
@@ -180,10 +181,11 @@ Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
             case 'MdmApp' :
                 me.down('#usagePoint-group-id').hide();
                 me.down('#usagePoint-group-id').allowBlank = true;
-                me.down('#cbo-estimation-task-purpose').hide();
+                me.down('#purpose-group-container').hide();
                 me.down('#no-usagePoint').show();
                 break;
         }
+        Ext.resumeLayouts(true);
         // me.combineErrors = true;
     },
 
