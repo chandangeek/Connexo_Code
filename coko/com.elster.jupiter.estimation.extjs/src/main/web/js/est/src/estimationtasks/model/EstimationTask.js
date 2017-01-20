@@ -165,7 +165,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
 
         return Ext.isEmpty(me.get('schedule'))
             ? Uni.I18n.translate('estimation.schedule.manual', 'EST', 'On request')
-            : Uni.I18n.translate('estimation.schedule.scheduled', 'EST', '{1}. Next run {0}', [
+            : Uni.I18n.translate('estimation.schedule.scheduled', 'EST', '{0}. Next run {1}', [
             me.get('recurrence'),
             nextRun ? Uni.DateTime.formatDateTimeLong(Ext.isDate(nextRun) ? nextRun : new Date(nextRun)) : '-'
         ]);
