@@ -94,6 +94,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('validationTasks.general.purpose', 'CFG', 'Purpose'),
+                        itemId: 'purpose-group-container',
 
                         layout: {
                             type: 'hbox',
@@ -135,16 +136,18 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
 
     showNoItemsField: function () {
         var me = this;
+        Ext.suspendLayouts();
         switch (me.appName) {
             case 'MultiSense':
                 me.down('#cbo-validation-task-device-group').hide();
                 break;
             case 'MdmApp' :
                 me.down('#cbo-validation-task-usage-point-group').hide();
-                me.down('#cbo-validation-task-purpose').hide();
+                me.down('#purpose-group-container').hide();
                 break;
         }
         me.down('#no-items-defined').show();
+        Ext.resumeLayouts(true);
         me.combineErrors = true;
     },
 
