@@ -10,10 +10,6 @@ Ext.define('Isu.view.component.WorkgroupColumn', {
         if (!Ext.isEmpty(value)&& value.hasOwnProperty('id')) {
             result = '';
 
-            result += '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="';
-            result += Uni.I18n.translate('assignee.tooltip.workgroup', 'ISU', 'Workgroup');
-            result += '"></span>';
-
             if (value.name) {
                 result += Ext.String.htmlEncode(value.name);
             }
