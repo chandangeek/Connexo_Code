@@ -1,6 +1,7 @@
 package com.elster.jupiter.datavault;
 
-import java.io.OutputStream;
+import aQute.bnd.annotation.ProviderType;
+
 import java.io.Serializable;
 
 /**
@@ -8,8 +9,8 @@ import java.io.Serializable;
  *
  * @since 9/6/12 3:39 PM
  */
+@ProviderType
 public interface DataVault extends Serializable {
     String encrypt(byte[] decrypted);
     byte[] decrypt(String encrypted);
-    void createVault(OutputStream stream);
 }

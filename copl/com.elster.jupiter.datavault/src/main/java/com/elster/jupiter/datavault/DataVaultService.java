@@ -4,9 +4,9 @@ package com.elster.jupiter.datavault;
  * Created by bvn on 11/6/14.
  */
 public interface DataVaultService {
-    public static final String COMPONENT_NAME = "DVA";
+    String COMPONENT_NAME = "DVA";
 
-    public String encrypt(byte[] decrypted);
-    public byte[] decrypt(String encrypted);
+    String encrypt(byte[] decrypted);
+    byte[] decrypt(String encrypted);
 
 }

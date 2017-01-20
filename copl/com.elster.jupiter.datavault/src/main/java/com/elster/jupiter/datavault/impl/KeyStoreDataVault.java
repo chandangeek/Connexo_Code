@@ -1,6 +1,6 @@
 package com.elster.jupiter.datavault.impl;
 
-import com.elster.jupiter.datavault.DataVault;
+import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.util.Checks;
 
@@ -13,9 +13,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -39,7 +39,7 @@ import java.util.Random;
  * -appending that key's id to the cipherText
  * -base64 encoding the encrypted value for easy storage as varchar
  */
-class KeyStoreDataVault implements DataVault {
+class KeyStoreDataVault implements ServerDataVault {
 
     private static final int IV_SIZE = 16;
     private static final String AES_CBC_PKCS5_PADDING = "AES/CBC/PKCS5Padding";
@@ -48,20 +48,30 @@ class KeyStoreDataVault implements DataVault {
     private KeyStore keyStore;
     private final Random random;
     private final ExceptionFactory exceptionFactory;
+    private final ServerKeyStoreService keyStoreService;
 
     private final char[] chars = {'1','#','g','W','X','i','A','E','y','9','R','n','b','6','M','%','C','o','j','E'};
 
     @Inject
-    KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory)  {
+    KeyStoreDataVault(Random random, ExceptionFactory exceptionFactory, ServerKeyStoreService keyStoreService)  {
         this.random = random;
         this.exceptionFactory = exceptionFactory;
+        this.keyStoreService = keyStoreService;
+    }
+
+    void readKeyStore(DataVaultKeyStore dataVaultKeyStore) {
+        try (InputStream inputStream = new ByteArrayInputStream(dataVaultKeyStore.getKeyStoreBytes())) {
+            this.readKeyStore(inputStream);
+        } catch (IOException e) {
+            throw exceptionFactory.newException(MessageSeeds.KEYSTORE_LOAD_FILE);
+        }
     }
 
     void readKeyStore(InputStream keyStoreBytes) {
         try {
             this.keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
             keyStore.load(keyStoreBytes, getPassword());
-        } catch (Exception e) {
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
             throw exceptionFactory.newException(MessageSeeds.KEYSTORE_LOAD_FILE);
         }
     }
@@ -82,7 +92,7 @@ class KeyStoreDataVault implements DataVault {
             byte[] concatenated = concatenateFields(cipherText, iv, (byte) encryptionKeyId);
 
             return new String(java.util.Base64.getEncoder().encode(concatenated));
-        } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException | CertificateException | IOException e) {
+        } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             throw exceptionFactory.newException(MessageSeeds.ENCRYPTION_FAILED, e.getLocalizedMessage());
         }
     }
@@ -112,32 +122,27 @@ class KeyStoreDataVault implements DataVault {
 
             final Cipher cipher = getDecryptionCipherForKey(getKeyAlias(encryptionKeyId), iv);
             return cipher.doFinal(cipherText);
-        } catch (IllegalBlockSizeException | BadPaddingException | UnrecoverableKeyException | InvalidKeyException | NoSuchAlgorithmException | KeyStoreException | NoSuchPaddingException | InvalidAlgorithmParameterException | CertificateException | IOException e) {
+        } catch (IllegalBlockSizeException | BadPaddingException | UnrecoverableKeyException | InvalidKeyException | NoSuchAlgorithmException | KeyStoreException | NoSuchPaddingException | InvalidAlgorithmParameterException e) {
             throw  exceptionFactory.newException(MessageSeeds.DECRYPTION_FAILED);
         }
     }
 
     @Override
-    public void createVault(OutputStream stream) throws LocalizedException {
+    public void createVault() throws LocalizedException {
         try {
-            doCreateVault(stream);
-        } catch (Exception e) {
+            doCreateVault();
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
             throw exceptionFactory.newException(MessageSeeds.KEYSTORE_CREATION_FAILED, e.getLocalizedMessage());
         }
     }
 
-    private void doCreateVault(OutputStream stream) throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
-        final KeyStore jks = KeyStore.getInstance(KEYSTORE_TYPE);
-
-        jks.load(null); // This initializes the empty keystore
-
-        for (int keyCount=1; keyCount<=16; keyCount++) {
+    private void doCreateVault() throws IOException, NoSuchAlgorithmException, CertificateException, KeyStoreException {
+        KeyStoreService.Builder builder = this.keyStoreService.newDataVaultKeyStore(KEYSTORE_TYPE);
+        for (int keyCount = 1; keyCount <= 16; keyCount++) {
             final KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(createKey());
-            jks.setEntry("KEY-" + keyCount, secretKeyEntry, new KeyStore.PasswordProtection(getPassword()));
+            builder.setEntry("KEY-" + keyCount, secretKeyEntry, new KeyStore.PasswordProtection(getPassword()));
         }
-
-        jks.store(stream, getPassword());
-
+        builder.build(getPassword());
     }
 
     private static SecretKey createKey() throws NoSuchAlgorithmException {
@@ -147,13 +152,13 @@ class KeyStoreDataVault implements DataVault {
 
     }
 
-    private Cipher getEncryptionCipherForKey(String keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, IOException, CertificateException {
+    private Cipher getEncryptionCipherForKey(String keyAlias) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException {
         Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.encrypt.asInt(), createKeySpecForKey(keyAlias));
         return cipher;
     }
 
-    private Cipher getDecryptionCipherForKey(String keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException, IOException, CertificateException {
+    private Cipher getDecryptionCipherForKey(String keyAlias, byte[] iv) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
         Cipher cipher = Cipher.getInstance(AES_CBC_PKCS5_PADDING);
         cipher.init(CipherMode.decrypt.asInt(), createKeySpecForKey(keyAlias), new IvParameterSpec(iv));
         return cipher;

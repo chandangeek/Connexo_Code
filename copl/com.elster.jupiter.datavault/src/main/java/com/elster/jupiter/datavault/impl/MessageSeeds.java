@@ -13,6 +13,8 @@ public enum MessageSeeds implements MessageSeed {
     KEYSTORE_LOAD_FILE(5, "ReadKeystoreFailed", "Failed to load key store from user file"),
     AMBIGUOUS_KEYSTORE(6, "AmbiguousKeyStore", "More than one key store was initialized"),
     NO_KEYSTORE(7, "NoKeyStore", "Key store was not initialized"),
+    CAN_NOT_BE_EMPTY(8, Keys.IS_REQUIRED, "This field is required"),
+    FIELD_TOO_LONG(9, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
     ;
 
     private final int number;
@@ -48,5 +50,10 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public Level getLevel() {
         return Level.SEVERE;
+    }
+
+    public static final class Keys {
+        public static final String IS_REQUIRED = "IsRequired";
+        public static final String FIELD_TOO_LONG = "FieldTooLong";
     }
 }

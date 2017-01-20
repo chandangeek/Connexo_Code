@@ -1,11 +1,14 @@
 package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.datavault.DataVault;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import javax.inject.Provider;
 import javax.inject.Singleton;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,15 +34,14 @@ public class DataVaultServiceImplTest {
         assertThat(MyDataVaultProvider.count).isEqualTo(1);
     }
 
+    private static class MyDataVaultProvider implements Provider<DataVault> {
+        public static int count;
 
-
-}
-
-class MyDataVaultProvider implements Provider<DataVault> {
-    public static int count;
         @Override
         public DataVault get() {
             count++;
             return null;
         }
     }
+
+}
