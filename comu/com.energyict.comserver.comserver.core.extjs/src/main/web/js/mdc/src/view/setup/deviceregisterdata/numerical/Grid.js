@@ -31,7 +31,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         if (record.get('isConfirmed')) {
                             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>'
                         } else if (status === 'suspect') {
-                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
+                                + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
                         } else if (status === 'notValidated') {
                             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
                         }

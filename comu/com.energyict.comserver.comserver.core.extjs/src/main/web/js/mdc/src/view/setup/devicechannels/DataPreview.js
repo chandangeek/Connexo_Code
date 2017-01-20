@@ -137,22 +137,30 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
 
         if (validationInfo && validationInfo.validationResult) {
-            switch (validationInfo.validationResult.split('.')[1]) {
-                case 'notValidated':
-                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
-                        '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
-                    break;
-                case 'suspect':
-                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect') + ')' +
-                        '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
-                    break;
-                case 'ok':
-                    validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
-                    if (!me.channels && validationInfo.isConfirmed) {
-                        validationResultText += '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
-                    }
-                    break;
+            if(validationInfo.isConfirmed) {
+                validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
+                if (!me.channels) {
+                    validationResultText += '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
+                }
+            } else {
+                switch (validationInfo.validationResult.split('.')[1]) {
+                    case 'notValidated':
+                        validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
+                            '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
+                        break;
+                    case 'suspect':
+                        validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect') + ')' +
+                            '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
+                        break;
+                    case 'ok':
+                        validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
+                        if (!me.channels && validationInfo.isConfirmed) {
+                            validationResultText += '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
+                        }
+                        break;
+                }
             }
+
         }
 
         if (!Ext.isEmpty(value)) {

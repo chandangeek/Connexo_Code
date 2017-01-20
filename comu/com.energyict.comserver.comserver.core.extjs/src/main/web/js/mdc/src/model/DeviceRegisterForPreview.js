@@ -9,6 +9,7 @@ Ext.define('Mdc.model.DeviceRegisterForPreview', {
         {name: 'registerType', type:'number', useNull: true},
         {name: 'obisCode', type: 'string', useNull: true},
         {name: 'overruledObisCode', type: 'string', useNull: true},
+        {name: 'name', type: 'string', useNull: true},
         {name: 'type', type: 'string', useNull: true},
         {name: 'isCumulative', type: 'boolean'},
         {name: 'numberOfFractionDigits', type: 'number', useNull: true},
