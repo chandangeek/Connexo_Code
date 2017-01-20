@@ -3,6 +3,7 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
@@ -408,6 +409,12 @@ public class DataExportTaskResource {
         }
         if (filter.hasProperty("exportPeriodContains")) {
             occurrencesFinder.withExportPeriodContaining(filter.getInstant("exportPeriodContains"));
+        }
+        if(filter.hasProperty("status")) {
+            occurrencesFinder.withExportStatus(filter.getStringList("status")
+                    .stream()
+                    .map(DataExportStatus::valueOf)
+                    .collect(Collectors.toList()));
         }
 
         History<ExportTask> history = task.getHistory();
