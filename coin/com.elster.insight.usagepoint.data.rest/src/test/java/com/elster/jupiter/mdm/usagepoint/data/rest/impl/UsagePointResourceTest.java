@@ -111,8 +111,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Mock
     private MetrologyConfigurationCustomPropertySetUsage metrologyConfigurationCustomPropertySetUsage;
     @Mock
-    private ChannelsContainer channelsContainer;
-    @Mock
     private DataValidationTask validationTask;
     @Mock
     private UsagePointGroup usagePointGroup;
@@ -124,6 +122,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private UsagePointLifeCycle usagePointLifeCycle;
     @Mock
     private UsagePointStage usagePointStage;
+    @Mock
+    private ChannelsContainer channelsContainer;
     @Mock
     private PropertySpec propertySpec;
     @Mock
@@ -481,6 +481,20 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint).apply(usagePointMetrologyConfiguration, now);
+
+        //unlink usage point
+
+        when(effectiveMetrologyConfigurationOnUsagePoint.getStart()).thenReturn(now);
+
+        UsagePointInfo usagePointInfo = new UsagePointInfo();
+        usagePointInfo.id = usagePoint.getId();
+        usagePointInfo.version = usagePoint.getVersion();
+
+
+        response = target("usagepoints/" + USAGE_POINT_NAME + "/unlinkmetrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(usagePointInfo));
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(effectiveMetrologyConfigurationOnUsagePoint, times(1)).close(now);
     }
 
     @Test
