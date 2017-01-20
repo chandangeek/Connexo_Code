@@ -10,12 +10,7 @@ import java.util.stream.Collectors;
 public class DeviceGroupInfoFactory {
     
     public DeviceGroupInfo from(EndDeviceGroup endDeviceGroup) {
-        DeviceGroupInfo deviceGroupInfo = new DeviceGroupInfo();
-        deviceGroupInfo.id = endDeviceGroup.getId();
-        deviceGroupInfo.mRID = endDeviceGroup.getMRID();
-        deviceGroupInfo.name = endDeviceGroup.getName();
-        deviceGroupInfo.dynamic = endDeviceGroup.isDynamic();
-        deviceGroupInfo.version = endDeviceGroup.getVersion();
+        DeviceGroupInfo deviceGroupInfo = basicFrom(endDeviceGroup);
         if (endDeviceGroup.isDynamic()) {
             QueryEndDeviceGroup queryEndDeviceGroup = (QueryEndDeviceGroup) endDeviceGroup;
             deviceGroupInfo.filter = SearchablePropertyValueConverter.convert(queryEndDeviceGroup.getSearchablePropertyValues());
@@ -25,7 +20,17 @@ public class DeviceGroupInfoFactory {
 
     public List<DeviceGroupInfo> from(List<EndDeviceGroup> endDeviceGroups) {
         return endDeviceGroups.stream()
-                .map(this::from)
+                .map(this::basicFrom)
                 .collect(Collectors.toList());
+    }
+
+    private DeviceGroupInfo basicFrom(EndDeviceGroup endDeviceGroup) {
+        DeviceGroupInfo deviceGroupInfo = new DeviceGroupInfo();
+        deviceGroupInfo.id = endDeviceGroup.getId();
+        deviceGroupInfo.mRID = endDeviceGroup.getMRID();
+        deviceGroupInfo.name = endDeviceGroup.getName();
+        deviceGroupInfo.dynamic = endDeviceGroup.isDynamic();
+        deviceGroupInfo.version = endDeviceGroup.getVersion();
+        return deviceGroupInfo;
     }
 }
