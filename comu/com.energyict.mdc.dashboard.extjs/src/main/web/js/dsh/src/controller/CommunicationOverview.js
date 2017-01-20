@@ -61,8 +61,8 @@ Ext.define('Dsh.controller.CommunicationOverview', {
                     } else {
                         me.getKpi().setRecord(null); // when it is group without kpi defined
                     }
-                    me.getHeader().down('#last-updated-field').setValue(
-                        Uni.I18n.translate('general.lastUpdatedAt', 'DSH', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())])
+                    me.getHeader().down('#last-updated-field').update(
+                        Uni.I18n.translate('general.lastRefreshedAt', 'DSH', 'Last refreshed at {0}', Uni.DateTime.formatTimeShort(new Date()))
                     );
                 },
                 callback: function () {

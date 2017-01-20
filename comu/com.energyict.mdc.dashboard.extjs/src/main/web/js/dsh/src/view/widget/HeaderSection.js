@@ -19,17 +19,14 @@ Ext.define('Dsh.view.widget.HeaderSection', {
                     },
                     '->',
                     {
-                        xtype: 'displayfield',
+                        xtype: 'component',
                         itemId: 'last-updated-field',
-                        style: 'margin-right: 10px'
+                        margins: '0 15 0 0'
                     },
                     {
                         xtype: 'button',
                         itemId: 'refresh-btn',
-                        style: {
-                            'background-color': '#71adc7'
-                        },
-                        text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
+                        text: Uni.I18n.translate('general.refresh', 'DSH', 'Refresh'),
                         iconCls: 'icon-spinner11'
                     }
                 ]
