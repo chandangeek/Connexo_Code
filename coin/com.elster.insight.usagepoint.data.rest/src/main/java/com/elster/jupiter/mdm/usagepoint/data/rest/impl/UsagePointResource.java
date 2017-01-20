@@ -34,7 +34,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
@@ -133,7 +132,6 @@ public class UsagePointResource {
     private final RestQueryService queryService;
     private final TimeService timeService;
     private final MeteringService meteringService;
-    private final MeteringGroupsService meteringGroupsService;
     private final ValidationService validationService;
     private final Clock clock;
     private final CustomPropertySetService customPropertySetService;
@@ -160,14 +158,21 @@ public class UsagePointResource {
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
 
     @Inject
-    public UsagePointResource(RestQueryService queryService, MeteringService meteringService, TimeService timeService,
-                              Clock clock, MeteringGroupsService meteringGroupsService, ValidationService validationService,
-                              ServiceCallService serviceCallService, ServiceCallInfoFactory serviceCallInfoFactory,
+    public UsagePointResource(RestQueryService queryService,
+                              MeteringService meteringService,
+                              TimeService timeService,
+                              Clock clock,
+                              ValidationService validationService,
+                              ServiceCallService serviceCallService,
+                              ServiceCallInfoFactory serviceCallInfoFactory,
                               Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
                               CustomPropertySetService customPropertySetService,
-                              Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider, UsagePointInfoFactory usagePointInfoFactory,
+                              Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider,
+                              UsagePointInfoFactory usagePointInfoFactory,
                               CustomPropertySetInfoFactory customPropertySetInfoFactory,
-                              Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider, Provider<BulkScheduleResource> bulkScheduleResourceProvider, ExceptionFactory exceptionFactory,
+                              Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider,
+                              Provider<BulkScheduleResource> bulkScheduleResourceProvider,
+                              ExceptionFactory exceptionFactory,
                               LocationInfoFactory locationInfoFactory,
                               ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
                               Thesaurus thesaurus,
@@ -181,7 +186,6 @@ public class UsagePointResource {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
-        this.meteringGroupsService = meteringGroupsService;
         this.validationService = validationService;
         this.clock = clock;
         this.serviceCallService = serviceCallService;
@@ -259,8 +263,11 @@ public class UsagePointResource {
         info.customPropertySets
                 .forEach(customPropertySetInfo -> {
                     UsagePointPropertySet propertySet = extension.getPropertySet(customPropertySetInfo.id);
-                    propertySet.setValues(customPropertySetInfoFactory
-                            .getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet().getPropertySpecs()));
+                    CustomPropertySetValues newValues = customPropertySetInfoFactory
+                            .getCustomPropertySetValues(customPropertySetInfo, propertySet.getCustomPropertySet().getPropertySpecs());
+                    if (!propertySet.getValues().equals(newValues)) {
+                        propertySet.setValues(newValues);
+                    }
                 });
 
         return usagePointInfoFactory.fullInfoFrom(usagePoint);
@@ -286,7 +293,7 @@ public class UsagePointResource {
         List<MetrologyConfigurationInfo> configs = metrologyConfigurationService
                 .findLinkableMetrologyConfigurations(usagePoint)
                 .stream()
-                .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
+                .filter(mc -> mc.getCustomPropertySets().stream().allMatch(RegisteredCustomPropertySet::isEditableByCurrentUser))
                 .filter(mc -> usagePoint.getMeterActivations(clock.instant())
                         .stream()
                         .map(MeterActivation::getMeterRole)
@@ -462,7 +469,7 @@ public class UsagePointResource {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .filter(ServiceCategory::isActive)
-                .filter(sc -> !sc.getCustomPropertySets().stream().anyMatch(rcps -> !rcps.isEditableByCurrentUser()))
+                .filter(sc -> sc.getCustomPropertySets().stream().allMatch(RegisteredCustomPropertySet::isEditableByCurrentUser))
                 .sorted(Comparator.comparing(ServiceCategory::getName, String.CASE_INSENSITIVE_ORDER))
                 .map(sc -> new ServiceCategoryInfo(sc, sc.getCustomPropertySets()
                         .stream()
@@ -536,7 +543,7 @@ public class UsagePointResource {
     }
 
     private void validateServiceKind(String serviceKindString) {
-        if (Arrays.stream(ServiceKind.values()).allMatch(sk -> !sk.name().equals(serviceKindString))) {
+        if (Arrays.stream(ServiceKind.values()).noneMatch(sk -> sk.name().equals(serviceKindString))) {
             throw new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_SERVICE_CATEGORY, "serviceCategory");
         }
     }
@@ -837,7 +844,8 @@ public class UsagePointResource {
     public PagedInfoList getMetrologyConfigurationDeliverables(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
 
-        List<ReadingTypeDeliverablesInfo> deliverables = usagePoint.getCurrentEffectiveMetrologyConfiguration().get()
+        List<ReadingTypeDeliverablesInfo> deliverables = resourceHelper
+                .findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint)
                 .getMetrologyConfiguration()
                 .getContracts()
                 .stream()
