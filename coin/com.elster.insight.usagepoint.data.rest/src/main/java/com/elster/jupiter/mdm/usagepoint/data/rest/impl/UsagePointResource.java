@@ -8,6 +8,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
@@ -151,6 +153,7 @@ public class UsagePointResource {
     private final UsagePointDataCompletionService usagePointDataCompletionService;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
+    private final EstimationService estimationService;
 
     @Inject
     public UsagePointResource(RestQueryService queryService,
@@ -177,7 +180,8 @@ public class UsagePointResource {
                               Provider<GoingOnResource> goingOnResourceProvider,
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
                               ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
-                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
+                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                              EstimationService estimationService) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -203,6 +207,7 @@ public class UsagePointResource {
         this.usagePointOutputResourceProvider = usagePointOutputResourceProvider;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
+        this.estimationService = estimationService;
     }
 
     @GET
@@ -821,16 +826,16 @@ public class UsagePointResource {
     }
 
     @GET
-    @Path("/{name}/validationtasks")
+    @Path("/{name}/purposes/{purposeId}/validationtasks")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getValidationTasksOnUsagePoint(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getValidationTasksOnUsagePoint(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-
+        MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(contractId).get();
         List<DataValidationTask> validationTasks = validationService.findValidationTasks()
                 .stream()
-                .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
+                .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose().get().getId() == metrologyContract.getMetrologyPurpose().getId())
                 .collect(Collectors.toList());
 
         List<DataValidationTaskInfo> dataValidationTasks = validationTasks
@@ -848,6 +853,36 @@ public class UsagePointResource {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("dataValidationTasks", dataValidationTasks, queryParameters);
+    }
+
+    @GET
+    @Path("/{name}/purposes/{purposeId}/estimationtasks")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getEstimationTasksOnUsagePoint(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(contractId).get();
+        List<EstimationTask> estimationTasks = estimationService.findEstimationTasks(QualityCodeSystem.MDM)
+                .stream()
+                .filter(task -> task.getMetrologyPurpose().get().getId() == metrologyContract.getMetrologyPurpose().getId())
+                .collect(Collectors.toList());
+
+        List<EstimationTaskInfo> dataEstimationTasks = estimationTasks
+                .stream()
+                .map(EstimationTask::getUsagePointGroup)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .distinct()
+                .filter(usagePointGroup -> isMember(usagePoint, usagePointGroup))
+                .flatMap(usagePointGroup -> estimationTasks.stream()
+                        .filter(estimationTask -> estimationTask.getUsagePointGroup()
+                                .filter(usagePointGroup::equals)
+                                .isPresent()))
+                .map(estimationTask -> new EstimationTaskInfo(estimationTask, thesaurus, timeService))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("dataEstimationTasks", dataEstimationTasks, queryParameters);
     }
 
     private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {

@@ -281,11 +281,6 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         assertThat(jsonModel.<Boolean>get("$.purposes[0].validationInfo.allDataValidated")).isFalse();
         assertThat(jsonModel.<Boolean>get("$.purposes[0].validationInfo.hasSuspects")).isTrue();
         assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.lastChecked")).isEqualTo(DAY_BEFORE.toEpochMilli());
-        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].key.id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.purposes[0].validationInfo.suspectReason[0].key.displayName")).isEqualTo("Validation Rule");
-        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].key.ruleSetVersion.id")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].key.ruleSetVersion.ruleSet.id")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].value")).isEqualTo(1);
     }
 
     @Test
@@ -339,11 +334,6 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         assertThat(jsonModel.<Boolean>get("$.validationInfo.allDataValidated")).isFalse();
         assertThat(jsonModel.<Boolean>get("$.validationInfo.hasSuspects")).isTrue();
         assertThat(jsonModel.<Number>get("$.validationInfo.lastChecked")).isEqualTo(DAY_BEFORE.toEpochMilli());
-        assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].key.id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.validationInfo.suspectReason[0].key.displayName")).isEqualTo("Validation Rule");
-        assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].key.ruleSetVersion.id")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].key.ruleSetVersion.ruleSet.id")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].value")).isEqualTo(1);
     }
 
     private String buildFilter() throws UnsupportedEncodingException {

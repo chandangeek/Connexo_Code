@@ -66,11 +66,8 @@ public class ValidationStatusFactory {
             if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
                 info.validationActive = isValidationActive(metrologyContract, channels);
                 info.lastChecked = getLastCheckedForChannels(validationEvaluator, channelsContainer.get(), channels);
-                // it is not needed to set informativeReason and estimateReason fields of UsagePointValidationStatusInfo if interval is not defined
                 if (interval != null) {
                     setReasonInfo(validationStatuses, info);
-                } else {
-                    info.suspectReason = getSuspectReasonInfo(validationStatuses);
                 }
                 info.allDataValidated = allDataValidated(validationEvaluator, channels);
                 info.hasSuspects = hasSuspects(channels, interval != null ? interval : channelsContainer.get().getRange());
@@ -100,17 +97,6 @@ public class ValidationStatusFactory {
                 .flatMap(Functions.asStream())
                 .min(Ordering.natural())
                 .orElse(null);
-    }
-
-    private Set<ValidationRuleInfoWithNumber> getSuspectReasonInfo(List<DataValidationStatus> validationStatuses) {
-        Map<ValidationRule, Long> validationRulesCount = new HashMap<>();
-        validationStatuses
-                .stream()
-                .forEach(validationStatus -> {
-                    validationStatus.getOffendedRules().forEach(rule -> addValidationRule(validationRulesCount, rule));
-                    validationStatus.getBulkOffendedRules().forEach(rule -> addValidationRule(validationRulesCount, rule));
-                });
-        return createValidationRuleInfo(validationRulesCount);
     }
 
     private void setReasonInfo(List<DataValidationStatus> validationStatuses, UsagePointValidationStatusInfo info) {

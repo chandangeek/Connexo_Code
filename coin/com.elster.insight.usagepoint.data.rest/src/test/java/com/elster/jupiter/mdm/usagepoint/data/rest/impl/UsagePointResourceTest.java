@@ -11,6 +11,7 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -31,6 +32,7 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -45,6 +47,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationTask;
 
@@ -127,6 +130,12 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private PropertySpec propertySpec;
     @Mock
     private PropertyValueConverter propertyValueConverter;
+    @Mock
+    private MetrologyContract metrologyContract;
+    @Mock
+    private MetrologyPurpose metrologyPurpose;
+    @Mock
+    private EstimationTask estimationTask;
 
     @Before
     public void setUp1() {
@@ -202,6 +211,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
 
         when(validationService.findValidationTasks()).thenReturn(Collections.singletonList(validationTask));
+        doReturn(Collections.singletonList(estimationTask)).when(estimationService).findEstimationTasks(QualityCodeSystem.MDM);
+        when(estimationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
+        when(estimationTask.getId()).thenReturn(32L);
+        when(estimationTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(validationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
         when(validationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(validationTask.getScheduleExpression()).thenReturn(PeriodicalScheduleExpression
@@ -228,6 +241,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePointState.getId()).thenReturn(1L);
         when(usagePointState.getName()).thenReturn("State");
         when(usagePointState.getVersion()).thenReturn(1L);
+
+        when(metrologyPurpose.getId()).thenReturn(102L);
+        when(metrologyContract.getId()).thenReturn(1L);
+        when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
+        when(metrologyConfigurationService.findMetrologyContract(1)).thenReturn(Optional.of(metrologyContract));
     }
 
     @Test
@@ -656,13 +674,25 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     }
 
     @Test
-    public void testGetValidationTasksOnUsagePoint() throws Exception {
-        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationtasks").request().get();
+    public void testGetValidationTasksOnPurpose() throws Exception {
+        when(validationTask.getMetrologyPurpose()).thenReturn(Optional.of(metrologyPurpose));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + metrologyContract.getId() + "/validationtasks").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.dataValidationTasks")).hasSize(1);
         assertThat(model.<Integer>get("$.dataValidationTasks[0].id")).isEqualTo(31);
         assertThat(model.<Integer>get("$.dataValidationTasks[0].usagePointGroup.id")).isEqualTo(51);
+    }
+
+    @Test
+    public void testGetEstimationTasksOnPurpose() throws Exception {
+        when(estimationTask.getMetrologyPurpose()).thenReturn(Optional.of(metrologyPurpose));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + metrologyContract.getId() + "/estimationtasks").request().get();
+        assertThat(response.getStatus()).isEqualTo(200);
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.dataEstimationTasks")).hasSize(1);
+        assertThat(model.<Integer>get("$.dataEstimationTasks[0].id")).isEqualTo(32);
     }
 }
