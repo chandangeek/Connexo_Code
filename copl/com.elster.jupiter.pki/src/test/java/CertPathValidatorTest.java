@@ -24,7 +24,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
+
 /**
+ * reference https://blog.didierstevens.com/2013/05/08/howto-make-your-own-cert-and-revocation-list-with-openssl/
  * Created by bvn on 1/10/17.
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -57,7 +61,6 @@ public class CertPathValidatorTest {
 
         CertPathValidator validator = CertPathValidator.getInstance("PKIX");    //PKIX algorithm validates CertPath objects of type X.509
         CertPathValidatorResult validate = validator.validate(path, pkixParameters);
-        System.out.println(validate);
     }
 
     /**
@@ -82,7 +85,6 @@ public class CertPathValidatorTest {
 
         CertPathValidator validator = CertPathValidator.getInstance("PKIX");    //PKIX algorithm validates CertPath objects of type X.509
         CertPathValidatorResult validate = validator.validate(path, pkixParameters);
-        System.out.println(validate);
     }
 
     /**
@@ -112,8 +114,12 @@ public class CertPathValidatorTest {
         CertPath path = certFactory.generateCertPath(Arrays.asList(device));
 
         CertPathValidator validator = CertPathValidator.getInstance("PKIX");    //PKIX algorithm validates CertPath objects of type X.509
-        CertPathValidatorResult validate = validator.validate(path, pkixParameters);
-        System.out.println(validate);
+        try {
+            CertPathValidatorResult validate = validator.validate(path, pkixParameters);
+            fail("Certificate should have been revoked");
+        } catch (CertPathValidatorException e) {
+            assertThat(e.getMessage()).startsWith("Certificate has been revoked");
+        }
     }
 
     @Test(expected = CertPathValidatorException.class)
