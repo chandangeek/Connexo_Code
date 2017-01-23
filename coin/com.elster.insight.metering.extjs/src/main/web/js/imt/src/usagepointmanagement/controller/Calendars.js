@@ -122,6 +122,7 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 calendar: {
                     id: values.calendar
                 },
+                immediately: values.activateCalendar === 'immediate-activation',
                 fromTime: values.activateCalendar === 'immediate-activation' ? new Date().getTime() : this.getForm().down('#activation-date-values').down('#activation-on').getValue().getTime()
             },
             success: function () {

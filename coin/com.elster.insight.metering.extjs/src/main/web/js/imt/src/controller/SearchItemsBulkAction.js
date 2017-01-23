@@ -304,6 +304,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 request.deviceMRIDs = devicesMRID;
             }
             request.calendarIds = [me.addCalendarFormValues.calendar];
+            request.immediately =  me.addCalendarFormValues.activateCalendar === 'immediate-activation';
             request.startTime = me.addCalendarFormValues.activateCalendar === 'immediate-activation' ? new Date().getTime() : me.fromTime;
             jsonData = Ext.encode(request);
             Ext.Ajax.request({
