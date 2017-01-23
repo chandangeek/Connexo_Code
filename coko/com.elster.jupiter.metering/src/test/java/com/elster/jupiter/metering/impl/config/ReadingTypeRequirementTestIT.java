@@ -91,7 +91,7 @@ public class ReadingTypeRequirementTestIT {
                 .withReadingTypeTemplate(readingTypeTemplate);
         assertThat(partiallySpecified.getId()).isGreaterThan(0);
         assertThat(partiallySpecified.getName()).isEqualTo(name);
-        assertThat(partiallySpecified.getReadingTypeTemplate()).isEqualTo(readingTypeTemplate);
+        assertThat(partiallySpecified.getReadingTypeTemplate().toString()).isEqualTo(readingTypeTemplate.toString());
         assertThat(partiallySpecified.getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
         assertThat(metrologyConfiguration.getRequirements()).contains(partiallySpecified);
     }
@@ -174,7 +174,7 @@ public class ReadingTypeRequirementTestIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "readingTypeTemplate", strict = true)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.REQUIRED + "}", property = "readingTypeTemplateId", strict = true)
     public void validReadingTypeTemplateTemplateForPartiallySpecified() {
         metrologyConfiguration.newReadingTypeRequirement("Some name").withReadingTypeTemplate(null);
     }
