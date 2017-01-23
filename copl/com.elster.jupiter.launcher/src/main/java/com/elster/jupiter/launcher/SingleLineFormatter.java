@@ -33,13 +33,15 @@ public class SingleLineFormatter extends Formatter {
         sb.append(" ");
         String message = formatMessage(record);
         sb.append(record.getLevel().getLocalizedName());
-        Arrays.asList(record.getParameters()).stream().findFirst().ifPresent(param -> {
-            sb.append(" ").append(param.toString());
-            sb.append(" :");
-            for(int i=0; i < 8 - record.getLevel().getLocalizedName().length() + 15 - param.toString().length(); i++){
-                sb.append(" ");
-            }
-        });
+        if(record.getParameters() != null) {
+            Arrays.asList(record.getParameters()).stream().findFirst().ifPresent(param -> {
+                sb.append(" ").append(param.toString());
+                sb.append(" :");
+                for(int i=0; i < 8 - record.getLevel().getLocalizedName().length() + 15 - param.toString().length(); i++){
+                    sb.append(" ");
+                }
+            });
+        }
         sb.append(message);
         String lineSeparator = "\r\n";
         sb.append(lineSeparator);
