@@ -243,6 +243,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         addLocationInfo(info, usagePoint);
         info.state = this.stateInfoFactory.from(usagePoint.getState());
         info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getState().getLifeCycle());
+        info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
         return info;
     }
 
@@ -460,12 +461,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.openIssues = issueService.findIssues(issueFilter).find().size();
         info.ongoingServiceCalls = serviceCallService.findServiceCalls(meter, EnumSet.of(DefaultState.ONGOING)).size();
         info.ongoingProcesses = bpmService.getRunningProcesses(authorization, filterFor(meter)).total;
-        return info;
-    }
-
-    public UsagePointInfo fullInfoWithLastTransitionTime(UsagePoint usagePoint){
-        UsagePointInfo info = fullInfoFrom(usagePoint);
-        info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
         return info;
     }
 

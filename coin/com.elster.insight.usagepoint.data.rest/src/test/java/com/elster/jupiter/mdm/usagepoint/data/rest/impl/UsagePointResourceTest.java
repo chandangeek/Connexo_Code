@@ -245,6 +245,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.mRID).isEqualTo("MRID");
         assertThat(response.name).isEqualTo(USAGE_POINT_NAME);
+        assertThat(response.lastTransitionTime).isEqualTo(0L);
         assertThat(response.state).isNotNull();
         assertThat(response.state.id).isEqualTo(1L);
         assertThat(response.state.name).isEqualTo("State");
