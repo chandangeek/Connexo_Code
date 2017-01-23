@@ -241,6 +241,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.RESET_DESCRIPTOR_FOR_SINGLE_ALARM_REGISTER);
         SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.RESET_BITS_IN_ALARM_SINGLE_REGISTER);
         SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER);
+        SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_CIPHERING);
+        SUPPORTED_MESSAGES.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION);
     }
 
     private MasterDataSync masterDataSync;
@@ -663,7 +665,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER)) {
                         writeAlarmFilter(pendingMessage);
                         collectedMessage.setDeviceProtocolInformation("Alarm filter written in " + RegisterFactory.ALARM_FILTER);
-                    }  else{   //Unsupported message
+                    } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_CIPHERING)) {
+                        collectedMessage = configurePushSetupNotificationCiphering(pendingMessage, collectedMessage);
+                    }else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION)) {
+                        collectedMessage = configurePushSetupSendTestNotification(pendingMessage, collectedMessage);
+                    } else{   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
                         collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
@@ -2066,7 +2072,21 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         data.setValueAttr(new BitString(filter.longValue(), 45));
     }
 
+    private CollectedMessage configurePushSetupNotificationCiphering(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        int notificationCiphering = AlarmConfigurationMessage.NotificationCipheringType.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.notificationCiphering).getDeviceMessageAttributeValue()).getId();
+        ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
+        EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
+        eventPushNotificationConfig.writeNotificationCiphering(notificationCiphering);
 
+        return collectedMessage;
+    }
 
+    private CollectedMessage configurePushSetupSendTestNotification(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String echoTestNotification = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.echoTestNotification).getDeviceMessageAttributeValue();
+        ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
+        EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
+        eventPushNotificationConfig.setSendTestNotificationMethod(echoTestNotification);
+        return collectedMessage;
+    }
 }
