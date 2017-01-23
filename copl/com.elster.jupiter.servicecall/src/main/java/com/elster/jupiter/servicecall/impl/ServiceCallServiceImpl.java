@@ -367,10 +367,12 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 .map(DefaultState::getKey)
                 .collect(Collectors.toList());
 
-        return dataModel.stream(ServiceCall.class)
-                .join(State.class)
-                .filter(Where.where(ServiceCallImpl.Fields.state.fieldName() + ".name").in(stateKeys))
-                .filter(serviceCall -> serviceCall.getTargetObject().map(targetObject::equals).orElse(false))
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.targetObject = targetObject;
+
+        return getServiceCallFinder(filter)
+                .stream()
+                .filter(serviceCall -> stateKeys.contains(serviceCall.getState().getKey()))
                 .collect(Collectors.toSet());
     }
 
