@@ -22,7 +22,7 @@ import java.util.Objects;
 final class ServiceLocationImpl implements ServiceLocation {
 	private static final String GOOGLE_GEOCODED = "GG";
     private static final int GOOGLE_GEOCODE_FIELD_COUNT = 3;
-    // persistent fields
+    // persistent fieldsfind
 	@SuppressWarnings("unused") // Managed by ORM
 	private long id;
 	private String aliasName;

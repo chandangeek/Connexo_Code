@@ -42,7 +42,9 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -319,6 +321,23 @@ public class MeteringServiceImpl implements ServerMeteringService {
         Condition devicesWithSuspectChannels = ListOperator.IN.contains(meterQuery.asSubquery(channelsIn, "id"), "id");
         meterQuery.setRestriction(devicesWithSuspectChannels);
         return queryService.wrap(meterQuery);
+    }
+
+    @Override
+    public Query<ChannelsContainer> getChannelsContainerWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes) {
+        QueryExecutor<ChannelsContainer> query = dataModel.query(ChannelsContainer.class, Channel.class,
+                EffectiveMetrologyContractOnUsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class);
+
+        Condition suspectCondition = where("typeCode").in(Stream.of(readingQualityTypes).map(ReadingQualityType::getCode).collect(Collectors.toList()));
+        if (!Range.all().equals(readingQualityTimestamp)) {
+            suspectCondition = suspectCondition.and(where("readingTimestamp").in(readingQualityTimestamp));
+        }
+        Subquery rqrSubQuery = dataModel.query(ReadingQualityRecord.class).asSubquery(suspectCondition, "channelid");
+        Membership channelsIn = ListOperator.IN.contains(rqrSubQuery, "channels.id");
+        // we need this subquery condition because oracle cannot handle coordinates in a distinct
+        Condition withSuspectChannels = ListOperator.IN.contains(query.asSubquery(channelsIn, "id"), "id");
+        query.setRestriction(withSuspectChannels);
+        return queryService.wrap(query);
     }
 
     @Override
