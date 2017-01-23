@@ -11,7 +11,7 @@ import java.net.SocketException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-09 (11:12)
  */
-public interface SocketService {
+public interface UPLSocketService {
 
     /**
      * {@link ServerSocket#ServerSocket(int)}

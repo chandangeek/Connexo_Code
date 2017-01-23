@@ -24,16 +24,16 @@ public enum NrOfStopBits {
                 .toArray(BigDecimal[]::new);
     }
 
-    public BigDecimal getNrOfStopBits() {
-        return nrOfStopBits;
-    }
-
-    public static NrOfStopBits valueFor (BigDecimal numercialValue) {
+    public static NrOfStopBits valueFor(BigDecimal numercialValue) {
         return Stream
                 .of(values())
                 .filter(each -> each.getNrOfStopBits().compareTo(numercialValue) == 0)
                 .findAny()
                 .orElse(null);
+    }
+
+    public BigDecimal getNrOfStopBits() {
+        return nrOfStopBits;
     }
 
     @Override
