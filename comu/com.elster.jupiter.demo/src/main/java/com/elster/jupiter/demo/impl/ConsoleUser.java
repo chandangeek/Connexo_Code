@@ -154,7 +154,7 @@ public class ConsoleUser implements User {
 
     @Override
     public Set<Privilege> getPrivileges(String applicationName) {
-        return Collections.emptySet();
+        return getPrivileges();
     }
 
     @Override
