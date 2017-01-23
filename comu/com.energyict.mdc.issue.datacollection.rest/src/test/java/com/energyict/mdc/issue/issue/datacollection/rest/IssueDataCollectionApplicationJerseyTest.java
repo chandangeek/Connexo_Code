@@ -3,6 +3,7 @@ package com.energyict.mdc.issue.issue.datacollection.rest;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -178,6 +179,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
+        when(issue.getPriority()).thenReturn(Priority.DEFAULT);
         return issue;
     }
  }
