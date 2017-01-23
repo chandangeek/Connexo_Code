@@ -331,6 +331,9 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
 
     private Optional<Range<Instant>> getTimePeriod(Instant start, ZoneId zoneId) {
         IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
+        if (IntervalLength.NOT_SUPPORTED == intervalLength) {
+            return Optional.of(Range.singleton(getTimeStamp()));
+        }
         InstantTruncater truncater = truncaterFactory.truncaterFor(this.getReadingType());
         Instant truncatedTimestamp = truncater.truncate(this.getTimeStamp(), intervalLength, zoneId);
         Instant startCandidate;
