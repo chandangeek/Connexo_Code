@@ -76,7 +76,6 @@ public class UDPPortConnectorTest {
 
     @Before
     public void initializeMocksAndFactories() throws IOException {
-        when(this.socketService.newInboundUDPSocket(anyInt())).thenReturn(this.datagramSocket);
         ArgumentCaptor<DatagramPacket> datagramPacketArgumentCaptor = ArgumentCaptor.forClass(DatagramPacket.class);
         doAnswer(invocationOnMock -> {
             DatagramPacket datagramPacket = (DatagramPacket) invocationOnMock.getArguments()[0];

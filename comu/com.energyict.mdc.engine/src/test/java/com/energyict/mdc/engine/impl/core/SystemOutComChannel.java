@@ -16,53 +16,53 @@ public class SystemOutComChannel implements ComChannel {
     private TypedProperties connectionTaskProperties = TypedProperties.empty();
 
     @Override
-    public int available () {
+    public int available() {
         return 0;
     }
 
     @Override
-    public final void close () {
+    public final void close() {
         // nothing to do
     }
 
     @Override
-    public final void flush () {
+    public final void flush() {
         // nothing to do
     }
 
     @Override
-    public final boolean startReading () {
+    public final boolean startReading() {
         return true;
     }
 
     @Override
-    public final int read () {
+    public final int read() {
         return 0;
     }
 
     @Override
-    public final int read (byte[] buffer) {
+    public final int read(byte[] buffer) {
         return 0;
     }
 
     @Override
-    public final int read (byte[] buffer, int offset, int length) {
+    public final int read(byte[] buffer, int offset, int length) {
         return 0;
     }
 
     @Override
-    public final boolean startWriting () {
+    public final boolean startWriting() {
         return true;
     }
 
     @Override
-    public final int write (int b) {
+    public final int write(int b) {
         System.out.println(b);
         return 1;
     }
 
     @Override
-    public final int write (byte[] bytes) {
+    public final int write(byte[] bytes) {
         System.out.println(new String(bytes));
         return bytes.length;
     }
@@ -74,12 +74,26 @@ public class SystemOutComChannel implements ComChannel {
 
     @Override
     public ComChannelType getComChannelType() {
-        return ComChannelType.NOT_DEFINED;
+        return ComChannelType.Invalid;
     }
 
     @Override
-    public void addProperties(TypedProperties typedProperties) {
+    public void addProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
         this.connectionTaskProperties.setAllProperties(typedProperties);
     }
 
+    @Override
+    public void prepareForDisConnect() {
+        //Do nothing
+    }
+
+    @Override
+    public void setTimeout(long millis) {
+        //Do nothing
+    }
+
+    @Override
+    public boolean isVoid() {
+        return true;
+    }
 }

@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
@@ -12,10 +14,9 @@ import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
@@ -68,9 +69,24 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
     }
 
     @Override
+    public void updatePortConfiguration(SerialPortConfiguration serialPortConfiguration) {
+        if (getComChannelType() == ComChannelType.SerialComChannel || getComChannelType() == ComChannelType.OpticalComChannel) {
+            ((SerialPortComChannel) getActualComChannel()).updatePortConfiguration(serialPortConfiguration);
+        }
+    }
+
+    @Override
+    public SerialPortConfiguration getSerialPortConfiguration() {
+        if (getComChannelType() == ComChannelType.SerialComChannel || getComChannelType() == ComChannelType.OpticalComChannel) {
+            return ((SerialPortComChannel) getActualComChannel()).getSerialPortConfiguration();
+        }
+        return null;
+    }
+
+    @Override
     public ServerSerialPort getSerialPort() {
         if (getComChannelType() == ComChannelType.SerialComChannel || getComChannelType() == ComChannelType.OpticalComChannel) {
-            return ((SerialComChannel) getActualComChannel()).getSerialPort();
+            return ((SerialPortComChannel) getActualComChannel()).getSerialPort();
         }
         return null;
     }

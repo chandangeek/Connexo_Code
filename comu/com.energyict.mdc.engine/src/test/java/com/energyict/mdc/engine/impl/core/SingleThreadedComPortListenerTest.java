@@ -17,6 +17,11 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -26,12 +31,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -90,7 +89,7 @@ public class SingleThreadedComPortListenerTest {
     public void initializeMocks() throws IOException {
         when(this.inboundComPortExecutorServiceProvider.issueService()).thenReturn(this.issueService);
         when(this.inboundComPortExecutorServiceProvider.clock()).thenReturn(this.clock);
-        when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
+        when(this.socketService.newTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
         when(this.userService.findUser(EngineServiceImpl.COMSERVER_USER)).thenReturn(Optional.of(user));
         when(user.getLocale()).thenReturn(Optional.of(Locale.ENGLISH));

@@ -27,17 +27,16 @@ import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.time.Clock;
-import java.util.concurrent.ThreadFactory;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.time.Clock;
+import java.util.concurrent.ThreadFactory;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -87,7 +86,7 @@ public class ComPortListenerFactoryImplTest {
 
     @Before
     public void initializeMocks() throws IOException {
-        when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(this.serverSocket);
+        when(this.socketService.newTCPSocket(anyInt())).thenReturn(this.serverSocket);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
                         this.runningComServer,

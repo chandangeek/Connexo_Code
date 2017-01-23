@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -8,15 +11,13 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
-import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemException;
-import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.SerialPortException;
-import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ import java.time.Clock;
  * Implementation of an {@link InboundComPortConnector}
  * for a {@link com.energyict.mdc.engine.config.ComPort}
  * of the type {@link ComPortType#SERIAL}
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/10/12
  * Time: 13:49
@@ -56,7 +57,7 @@ public class SerialPortConnector implements InboundComPortConnector {
 
     @Override
     public ComPortRelatedComChannel accept() {
-        SerialComChannel comChannel = getNewComChannel();
+        SerialPortComChannel comChannel = getNewComChannel();
         ModemComponent modemComponent = initializeAtModemComponent(comChannel);
 
         waitForNumberOfRings(comChannel, modemComponent);
@@ -73,7 +74,7 @@ public class SerialPortConnector implements InboundComPortConnector {
         }
     }
 
-    private void waitForNumberOfRings(SerialComChannel comChannel, ModemComponent modemComponent) {
+    private void waitForNumberOfRings(SerialPortComChannel comChannel, ModemComponent modemComponent) {
         do {
             try {
                 if (modemComponent.readAndVerify(comChannel, "RING", comPort.getAtCommandTimeout().getMilliSeconds())) {
@@ -90,7 +91,7 @@ public class SerialPortConnector implements InboundComPortConnector {
         } while (currentRingCount < comPort.getRingCount());
     }
 
-    private void acceptCallAndConnect(SerialComChannel comChannel, ModemComponent modemComponent) {
+    private void acceptCallAndConnect(SerialPortComChannel comChannel, ModemComponent modemComponent) {
         modemComponent.write(comChannel, "ATA");
         if (!modemComponent.readAndVerify(comChannel, "CONNECT", comPort.getConnectTimeout().getMilliSeconds())) {
             throw new ModemException(MessageSeeds.MODEM_COULD_NOT_ESTABLISH_CONNECTION, comPort.getName(), comPort.getConnectTimeout().getMilliSeconds());
@@ -99,8 +100,9 @@ public class SerialPortConnector implements InboundComPortConnector {
         modemComponent.initializeAfterConnect(comChannel);
     }
 
-    private ModemComponent initializeAtModemComponent(SerialComChannel comChannel) {
-        ModemComponent atModemComponent = this.serialComponentService.newModemComponent("",
+    private ModemComponent initializeAtModemComponent(SerialPortComChannel comChannel) {
+        ModemComponent atModemComponent = this.serialComponentService.newModemComponent(
+                "",
                 "",
                 comPort.getConnectTimeout(),
                 comPort.getDelayAfterConnect(),
@@ -123,7 +125,7 @@ public class SerialPortConnector implements InboundComPortConnector {
      *
      * @return The ComChannel
      */
-    SerialComChannel getNewComChannel() {
+    SerialPortComChannel getNewComChannel() {
         SerialPortConfiguration serialPortConfiguration = comPort.getSerialPortConfiguration();
         serialPortConfiguration.setComPortName(comPort.getName());
         return newSioSerialConnection(serialPortConfiguration);
@@ -137,11 +139,11 @@ public class SerialPortConnector implements InboundComPortConnector {
      * @return the ComChannel
      * @throws CommunicationException if an exception occurred during the creation or initialization of the ComChannel
      */
-    private SerialComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) {
+    private SerialPortComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) {
         try {
             ServerSerialPort serialPort = this.serialComponentService.newSerialPort(serialPortConfiguration);
             serialPort.openAndInit();
-            return serialComponentService.newSerialComChannel(serialPort);
+            return serialComponentService.newSerialComChannel(serialPort, ComChannelType.SerialComChannel);
         } catch (SerialPortException e) {
             throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
         } catch (UnsatisfiedLinkError e) {

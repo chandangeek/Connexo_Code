@@ -17,7 +17,7 @@ import java.time.Clock;
 /**
  * Implementation of an {@link InboundComPortConnector} for an {@link UDPBasedInboundComPort},
  * i.e. a {@link com.energyict.mdc.engine.config.ComPort} of the type {@link ComPortType#UDP}.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 5/11/12
  * Time: 15:22
@@ -48,8 +48,7 @@ public class UDPPortConnector implements InboundComPortConnector {
     public void close() {
         try {
             this.inboundUdpSession.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
         }
     }
