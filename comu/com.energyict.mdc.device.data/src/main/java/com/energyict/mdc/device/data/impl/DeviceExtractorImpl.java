@@ -48,7 +48,9 @@ public class DeviceExtractorImpl implements DeviceExtractor {
     @Override
     public Optional<com.energyict.mdc.upl.meterdata.Register> register(com.energyict.mdc.upl.meterdata.Device uplDevice, ObisCode obisCode) {
         Device device = (Device) uplDevice;
-        return Optional.ofNullable(device.getRegisterWithDeviceObisCode(obisCode));
+        return device
+                    .getRegisterWithDeviceObisCode(obisCode)
+                    .flatMap(Optional::of);
     }
 
 }
