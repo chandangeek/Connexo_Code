@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -33,36 +32,13 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
     }
 
     @Override
-    public Register findRegister () {
-        if (this.register == null) {
-            Device device = deviceIdentifier.findDevice();
-            for (Register register : device.getRegisters()) {
-                // first need to check the DeviceObisCde
-                if (register.getDeviceObisCode() != null && register.getDeviceObisCode().equals(registerObisCode)){
-                    this.register = register;
-                    break;
-                } else if(register.getRegisterTypeObisCode().equals(registerObisCode)){
-                    this.register = register;
-                    break;
-                }
-            }
-        }
-        return this.register;
-    }
-
-    @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
     }
 
     @Override
-    public ObisCode getObisCode() {
-        return this.registerObisCode;
-    }
-
-    @Override
-    public ObisCode getDeviceRegisterObisCode() {
-        return this.deviceRegisterObisCode;
+    public ObisCode getRegisterObisCode() {
+        return registerObisCode;
     }
 
     @Override

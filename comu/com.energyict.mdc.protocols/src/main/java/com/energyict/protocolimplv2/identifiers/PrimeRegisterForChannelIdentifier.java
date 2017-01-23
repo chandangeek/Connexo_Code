@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.upl.meterdata.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
@@ -33,48 +31,18 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
     }
 
     @Override
-    public Register findRegister () {
-        com.energyict.mdc.device.data.Device device = (com.energyict.mdc.device.data.Device) deviceIdentifier.findDevice();  //Downcast to the Connexo Device
-        if (this.channelIndex <= device.getChannels().size()) {
-//            Register primeRegister = device.getChannel(this.channelIndex).getRegisterTypeObisCode();
-            // Linking Registers to Channels is not done in Jupiter
-            Register primeRegister = device.getRegisterWithDeviceObisCode(registerObisCode);
-            if (primeRegister == null) {
-                throw new NotFoundException("Prime register of channel " + this.channelIndex + " of device " + this.deviceIdentifier + " not found!");
-            }
-            else {
-                return primeRegister;
-            }
-        }
-        else {
-            // Not enough channels
-            throw new NotFoundException("Prime register of channel " + this.channelIndex + " of device " + this.deviceIdentifier + " not found because the channel does not exist!");
-        }
-    }
-
-    @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
     }
 
     @Override
-    public ObisCode getObisCode() {
+    public ObisCode getRegisterObisCode() {
         return this.registerObisCode;
-    }
-
-    @Override
-    public ObisCode getDeviceRegisterObisCode() {
-        return this.deviceRegisterObisCode;
     }
 
     @Override
     public String toString () {
         return MessageFormat.format("prime register for device ''{0}'' for channel index {1}", deviceIdentifier.toString(), channelIndex);
-    }
-
-    @Override
-    public DeviceIdentifier getDeviceIdentifier() {
-        return this.deviceIdentifier;
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
@@ -87,7 +55,7 @@ public class PrimeRegisterForChannelIdentifier implements RegisterIdentifier {
         public Object getValue(String role) {
             switch (role) {
                 case "device": {
-                    return getDeviceIdentifier();
+                    return PrimeRegisterForChannelIdentifier.this.deviceIdentifier;
                 }
                 case "channelIndex": {
                     return channelIndex;
