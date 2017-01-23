@@ -39,6 +39,9 @@ public class RegisterServiceImpl implements RegisterService {
 
     private Optional<Register> find(Introspector introspector) throws UnsupportedRegisterIdentifierTypeName {
         switch (introspector.getTypeName()) {
+            case "Actual": {
+                return Optional.of((Register) introspector.getValue("actual"));
+            }
             case "DatabaseId": {
                 return this.find((long) introspector.getValue("databaseValue"));
             }
