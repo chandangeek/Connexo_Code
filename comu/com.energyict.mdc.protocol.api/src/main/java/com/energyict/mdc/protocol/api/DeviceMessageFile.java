@@ -1,8 +1,9 @@
 package com.energyict.mdc.protocol.api;
 
-import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import java.io.InputStream;
 import java.util.function.Consumer;
@@ -19,7 +20,7 @@ import java.util.function.Consumer;
  * @since 2016-05-11 (12:58)
  */
 @ConsumerType
-public interface DeviceMessageFile extends HasId, HasName {
+public interface DeviceMessageFile extends HasId, HasName, com.energyict.mdc.upl.properties.DeviceMessageFile {
 
     /**
      * Supports reading the contents of this DeviceMessageFile.
