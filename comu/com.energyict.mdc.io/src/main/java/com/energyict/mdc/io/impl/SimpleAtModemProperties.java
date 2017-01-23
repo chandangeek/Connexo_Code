@@ -1,16 +1,17 @@
 package com.energyict.mdc.io.impl;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.time.temporal.TemporalAmount;
 import java.util.List;
 
 /**
  * @author sva
  * @since 23/11/12 (8:57)
  */
-public class SimpleAtModemProperties implements AtModemProperties {
+public class SimpleAtModemProperties extends AbstractAtModemProperties {
 
     private String phoneNumber;
     private String atCommandPrefix;
@@ -23,9 +24,9 @@ public class SimpleAtModemProperties implements AtModemProperties {
     private List<String> modemInitStrings;
     private String addressSelector;
     private TimeDuration lineToggleDelay;
-    private List<AtPostDialCommand> postDialCommands;
+    private String postDialCommands;
 
-    public SimpleAtModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, List<AtPostDialCommand> postDialCommands, List<String> globalModemInitStrings) {
+    public SimpleAtModemProperties(String phoneNumber, String atCommandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration atCommandTimeout, BigDecimal atCommandTry, List<String> modemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands, List<String> globalModemInitStrings) {
         this.phoneNumber = phoneNumber;
         this.atCommandPrefix = atCommandPrefix;
         this.connectTimeout = connectTimeout;
@@ -37,7 +38,7 @@ public class SimpleAtModemProperties implements AtModemProperties {
         this.modemInitStrings = modemInitStrings;
         this.addressSelector = addressSelector;
         this.lineToggleDelay = lineToggleDelay;
-        this.postDialCommands = new ArrayList<>(postDialCommands);
+        this.postDialCommands = postDialCommands;
     }
 
     @Override
@@ -51,23 +52,23 @@ public class SimpleAtModemProperties implements AtModemProperties {
     }
 
     @Override
-    public TimeDuration getConnectTimeout() {
-        return connectTimeout;
+    public TemporalAmount getConnectTimeout() {
+        return connectTimeout.asTemporalAmount();
     }
 
     @Override
-    public TimeDuration getDelayAfterConnect() {
-        return delayAfterConnect;
+    public TemporalAmount getDelayAfterConnect() {
+        return delayAfterConnect.asTemporalAmount();
     }
 
     @Override
-    public TimeDuration getDelayBeforeSend() {
-        return delayBeforeSend;
+    public TemporalAmount getDelayBeforeSend() {
+        return delayBeforeSend.asTemporalAmount();
     }
 
     @Override
-    public TimeDuration getCommandTimeOut() {
-        return atCommandTimeout;
+    public TemporalAmount getCommandTimeOut() {
+        return atCommandTimeout.asTemporalAmount();
     }
 
     @Override
@@ -91,13 +92,12 @@ public class SimpleAtModemProperties implements AtModemProperties {
     }
 
     @Override
-    public List<AtPostDialCommand> getPostDialCommands() {
+    public String getPostDialCommands() {
         return postDialCommands;
     }
 
     @Override
-    public TimeDuration getLineToggleDelay() {
-        return this.lineToggleDelay;
+    public TemporalAmount getLineToggleDelay() {
+        return this.lineToggleDelay.asTemporalAmount();
     }
-
 }

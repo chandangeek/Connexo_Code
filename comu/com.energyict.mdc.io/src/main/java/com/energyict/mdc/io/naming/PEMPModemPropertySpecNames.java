@@ -1,5 +1,7 @@
 package com.energyict.mdc.io.naming;
 
+import com.energyict.mdc.channels.serial.modem.PEMPModemConfiguration;
+
 /**
  * Contains the names of {@link com.elster.jupiter.properties.PropertySpec}s
  * that relate to PEMP modem technology.
@@ -11,7 +13,7 @@ public class PEMPModemPropertySpecNames {
 
     /**
      * The name of the property that determines the
-     * the {@link com.energyict.mdc.io.PEMPModemConfiguration} to use.
+     * the {@link PEMPModemConfiguration} to use.
      */
     public static final String CONFIGURATION_KEY = "pemp_configuration_key";
 

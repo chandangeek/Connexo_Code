@@ -1,7 +1,7 @@
 package com.energyict.mdc.io.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.io.ModemProperties;
+import com.energyict.mdc.channels.serial.modem.AbstractModemProperties;
 import com.energyict.mdc.io.naming.ModemPropertySpecNames;
 import com.energyict.mdc.io.naming.PEMPModemPropertySpecNames;
 import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
@@ -34,7 +34,7 @@ public enum TranslationKeys implements TranslationKey {
     ADDRESS_SELECTOR(ModemPropertySpecNames.ADDRESS_SELECTOR, "Address selector"),
     POST_DIAL_COMMANDS(ModemPropertySpecNames.POST_DIAL_COMMANDS, "Postdial command(s)"),
     DTR_TOGGLE_DELAY(ModemPropertySpecNames.DTR_TOGGLE_DELAY, "Disconnect line toggle delay"),
-    PHONE_NUMBER_PROPERTY("ModemProperties." + ModemProperties.PHONE_NUMBER_PROPERTY_NAME, "Phone number"),
+    PHONE_NUMBER_PROPERTY("ModemProperties." + AbstractModemProperties.PHONE_NUMBER_PROPERTY_NAME, "Phone number"),
     PEMP_CONFIGURATION_KEY("PEMP." + PEMPModemPropertySpecNames.CONFIGURATION_KEY, "Configuration key"),
         ;
 

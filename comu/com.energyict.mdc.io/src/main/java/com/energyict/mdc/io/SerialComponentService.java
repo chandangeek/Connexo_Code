@@ -1,14 +1,15 @@
 package com.energyict.mdc.io;
 
-import com.energyict.mdc.common.TypedProperties;
-
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
+import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Provides factory services for serial IO components.
@@ -31,21 +32,7 @@ public interface SerialComponentService {
 
     ServerSerialPort newSerialPort(SerialPortConfiguration configuration);
 
-    SerialComChannel newSerialComChannel(ServerSerialPort serialPort);
-
-    List<PropertySpec> getPropertySpecs();
-
-    default Optional<PropertySpec> getPropertySpec(String name) {
-        return this.getPropertySpecs()
-                .stream()
-                .filter(p -> name.equals(p.getName()))
-                .findAny();
-    }
-
-    ModemComponent newModemComponent(TypedProperties properties);
+    SerialPortComChannel newSerialComChannel(ServerSerialPort serialPort, ComChannelType comChannelType);
 
     ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands);
-
-    OpticalComChannel createOpticalFromSerialComChannel(SerialComChannel serialComChannel);
-
 }
