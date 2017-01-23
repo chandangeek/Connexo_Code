@@ -43,6 +43,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                     {
                         itemId: 'not-possible-add',
                         xtype: 'uni-form-empty-message',
+                        width: 'auto',
                         text: Uni.I18n.translate('metrologyConfiguration.wizard.notPossibleDefine', 'IMT', "You can't define metrology configuration for the usage point because of no available metrology configurations.")
                     },
                     me.isPossibleAdd ?
