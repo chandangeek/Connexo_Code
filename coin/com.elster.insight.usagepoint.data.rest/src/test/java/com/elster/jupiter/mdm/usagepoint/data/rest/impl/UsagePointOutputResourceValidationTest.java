@@ -49,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -199,9 +200,12 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(validationRule.getDisplayName()).thenReturn("Validation Rule");
         when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
         when(validationRule.getRuleSet()).thenReturn(validationRuleSet);
+        when(validationRule.isActive()).thenReturn(true);
+        when(validationRule.appliesTo(readingType)).thenReturn(true);
         when(validationRuleSetVersion.getId()).thenReturn(1L);
         when(validationRuleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
         when(validationRuleSet.getId()).thenReturn(1L);
+        doReturn(Collections.singletonList(validationRule)).when(validationRuleSet).getRules();
     }
 
     @Test

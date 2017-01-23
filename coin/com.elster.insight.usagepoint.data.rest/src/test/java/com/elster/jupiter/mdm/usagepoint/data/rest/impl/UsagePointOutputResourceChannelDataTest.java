@@ -58,6 +58,8 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,6 +97,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     private AggregatedChannel channel;
     @Mock
     private ValidationEvaluator evaluator;
+
+    @Captor
+    private ArgumentCaptor<List<IntervalReadingImpl>> intervalReadingsCaptor;
 
     @Before
     public void before() {
@@ -367,7 +372,10 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(channel).editReadings(eq(QualityCodeSystem.MDM), anyListOf(IntervalReadingImpl.class));
+        verify(channel).editReadings(eq(QualityCodeSystem.MDM), intervalReadingsCaptor.capture());
+        assertThat(intervalReadingsCaptor.getValue()).hasSize(1);
+        assertThat(intervalReadingsCaptor.getValue().get(0).getValue()).isEqualTo(info.value);
+        assertThat(intervalReadingsCaptor.getValue().get(0).getTimeStamp()).isEqualTo(interval_3.upperEndpoint());
     }
 
     @Test
@@ -388,7 +396,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM), anyListOf(IntervalReadingImpl.class));
+        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM), intervalReadingsCaptor.capture());
+        assertThat(intervalReadingsCaptor.getValue()).hasSize(1);
+        assertThat(intervalReadingsCaptor.getValue().get(0).getTimeStamp()).isEqualTo(interval_3.upperEndpoint());
     }
 
     @Test

@@ -8,5 +8,6 @@ public class CalendarOnUsagePointInfo {
     public CalendarInfo calendar;
     public long fromTime;
     public Long toTime;
+    public boolean immediately;
     public CalendarOnUsagePointInfo next;
 }

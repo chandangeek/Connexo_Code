@@ -173,7 +173,7 @@ public class UsagePointOutputResource {
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                         clock, channel,
-                        validationStatusFactory.isValidationActive(effectiveMetrologyConfiguration, metrologyContract),
+                        validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
 
                 Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(requestedInterval).stream()
@@ -372,7 +372,7 @@ public class UsagePointOutputResource {
 
                 ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                         clock, channel,
-                        validationStatusFactory.isValidationActive(effectiveMetrologyConfiguration, metrologyContract),
+                        validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
 
                 // add readings to pre filled register data map
@@ -440,7 +440,7 @@ public class UsagePointOutputResource {
         ReadingWithValidationStatusFactory readingWithValidationStatusFactory = new ReadingWithValidationStatusFactory(
                 clock,
                 channel,
-                validationStatusFactory.isValidationActive(effectiveMetrologyConfiguration, metrologyContract),
+                validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                 validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
         RegisterReadingWithValidationStatus readingWithValidationStatus = readingWithValidationStatusFactory.createRegisterReading(requestedTime);
 
@@ -505,7 +505,7 @@ public class UsagePointOutputResource {
     @Path("/{purposeId}/outputs/{outputId}/registerData/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public OutputRegisterDataInfo removeRegisterDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+    public Response removeRegisterDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                                              @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryFilter filter, OutputRegisterDataInfo registerDataInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
@@ -523,7 +523,7 @@ public class UsagePointOutputResource {
         if (currentLastChecked.filter(lastChecked::isBefore).isPresent()) {
             validationService.updateLastChecked(channel, lastChecked);
         }
-        return registerDataInfo;
+        return Response.status(Response.Status.OK).build();
     }
 
     @PUT

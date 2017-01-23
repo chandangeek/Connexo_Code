@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -40,11 +41,12 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -70,6 +72,9 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     private ReadingRecord readingRecord1, readingRecord2, readingRecord3;
     @Mock
     private ValidationEvaluator evaluator;
+
+    @Captor
+    private ArgumentCaptor<List<ReadingImpl>> readingsCaptor;
 
     @Before
     public void before() {
@@ -284,7 +289,10 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(channel).editReadings(eq(QualityCodeSystem.MDM), anyListOf(BaseReading.class));
+        verify(channel).editReadings(eq(QualityCodeSystem.MDM), readingsCaptor.capture());
+        assertThat(readingsCaptor.getValue()).hasSize(1);
+        assertThat(readingsCaptor.getValue().get(0).getValue()).isEqualTo(info.value);
+        assertThat(readingsCaptor.getValue().get(0).getTimeStamp()).isEqualTo(readingTimeStamp3);
     }
 
     @Test
@@ -307,7 +315,10 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM), anyListOf(BaseReading.class));
+        verify(channel).confirmReadings(eq(QualityCodeSystem.MDM), readingsCaptor.capture());
+        assertThat(readingsCaptor.getValue()).hasSize(1);
+        assertThat(readingsCaptor.getValue().get(0).getValue()).isEqualTo(info.value);
+        assertThat(readingsCaptor.getValue().get(0).getTimeStamp()).isEqualTo(readingTimeStamp3);
     }
 
     @Test
