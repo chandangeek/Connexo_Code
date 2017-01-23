@@ -116,6 +116,25 @@ public class DataExportTaskResource {
         return PagedInfoList.fromPagedList("dataExportTasks", infos, queryParameters);
     }
 
+
+    @GET
+    @Path("/history")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
+    public PagedInfoList getAllDataExportTaskHistory(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        String applicationName = getApplicationNameFromCode(appCode);
+        ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
+        queryParameters.getStart().ifPresent(finder::setStart);
+        queryParameters.getLimit().ifPresent(finder::setLimit);
+
+        List<DataExportTaskHistoryInfo> infos = finder.stream()
+                .flatMap(task -> task.getOccurrences().stream())
+                .map(dataExportTaskHistoryInfoFactory::asInfo)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromPagedList("exportTasksHistory", infos, queryParameters);
+    }
+
     private String getApplicationNameFromCode(String appCode) {
         String applicationName;
         if ("MDC".equals(appCode)) {
@@ -145,7 +164,9 @@ public class DataExportTaskResource {
         info.id = id;
         ExportTask exportTask = dataExportService.findAndLockExportTask(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> dataExportService.findExportTask(info.id).map(ExportTask::getVersion).orElse(null))
+                        .withActualVersion(() -> dataExportService.findExportTask(info.id)
+                                .map(ExportTask::getVersion)
+                                .orElse(null))
                         .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
                         .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
                         .supplier());
@@ -237,7 +258,9 @@ public class DataExportTaskResource {
 
         ExportTask dataExportTask = builder.create();
         info.destinations.forEach(destinationInfo -> destinationInfo.type.create(dataExportTask, destinationInfo));
-        return Response.status(Response.Status.CREATED).entity(dataExportTaskInfoFactory.asInfo(dataExportTask)).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(dataExportTaskInfoFactory.asInfo(dataExportTask))
+                .build();
     }
 
     @DELETE
@@ -354,13 +377,18 @@ public class DataExportTaskResource {
     private void updateReadingTypes(ReadingDataSelectorConfig selectorConfig, ReadingDataSelectorConfig.Updater updater, DataExportTaskInfo exportTaskInfo) {
         // process removed reading types
         selectorConfig.getReadingTypes().stream()
-                .filter(readingType -> exportTaskInfo.standardDataSelector.readingTypes.stream().map(info -> info.mRID).noneMatch(readingType::equals))
+                .filter(readingType -> exportTaskInfo.standardDataSelector.readingTypes.stream()
+                        .map(info -> info.mRID)
+                        .noneMatch(readingType::equals))
                 .forEach(updater::removeReadingType);
 
         // process added reading types
         exportTaskInfo.standardDataSelector.readingTypes.stream()
                 .map(info -> info.mRID)
-                .filter(mRID -> selectorConfig.getReadingTypes().stream().map(ReadingType::getMRID).noneMatch(mRID::equals))
+                .filter(mRID -> selectorConfig.getReadingTypes()
+                        .stream()
+                        .map(ReadingType::getMRID)
+                        .noneMatch(mRID::equals))
                 .map(meteringService::getReadingType)
                 .flatMap(Functions.asStream())
                 .forEach(updater::addReadingType);
@@ -369,7 +397,9 @@ public class DataExportTaskResource {
     private void updateEvents(EventSelectorConfig selectorConfig, EventSelectorConfig.Updater updater, DataExportTaskInfo info) {
         // process removed event types
         selectorConfig.getEventTypeFilters().stream()
-                .filter(t -> info.standardDataSelector.eventTypeCodes.stream().map(r -> r.eventFilterCode).noneMatch(m -> t.getCode().equals(m)))
+                .filter(t -> info.standardDataSelector.eventTypeCodes.stream()
+                        .map(r -> r.eventFilterCode)
+                        .noneMatch(m -> t.getCode().equals(m)))
                 .map(EndDeviceEventTypeFilter::getCode)
                 .forEach(updater::removeEventTypeFilter);
 
@@ -387,7 +417,7 @@ public class DataExportTaskResource {
     @Path("/{id}/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
     public PagedInfoList getDataExportTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                   @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         ExportTask task = findTaskOrThrowException(id, appCode);
@@ -410,7 +440,7 @@ public class DataExportTaskResource {
         if (filter.hasProperty("exportPeriodContains")) {
             occurrencesFinder.withExportPeriodContaining(filter.getInstant("exportPeriodContains"));
         }
-        if(filter.hasProperty("status")) {
+        if (filter.hasProperty("status")) {
             occurrencesFinder.withExportStatus(filter.getStringList("status")
                     .stream()
                     .map(DataExportStatus::valueOf)
@@ -497,7 +527,9 @@ public class DataExportTaskResource {
     private ExportTask findAndLockExportTask(DataExportTaskInfo info) {
         return dataExportService.findAndLockExportTask(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> dataExportService.findExportTask(info.id).map(ExportTask::getVersion).orElse(null))
+                        .withActualVersion(() -> dataExportService.findExportTask(info.id)
+                                .map(ExportTask::getVersion)
+                                .orElse(null))
                         .supplier());
     }
 
@@ -525,7 +557,8 @@ public class DataExportTaskResource {
     private void updateDestinations(DataExportTaskInfo info, ExportTask task) {
         // remove the ones no longer in the info
         task.getDestinations().stream()
-                .filter(destination -> info.destinations.stream().noneMatch(destinationInfo -> destinationInfo.id == destination.getId()))
+                .filter(destination -> info.destinations.stream()
+                        .noneMatch(destinationInfo -> destinationInfo.id == destination.getId()))
                 .collect(Collectors.toList())
                 .forEach(task::removeDestination);
         // create the new ones
