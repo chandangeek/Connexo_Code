@@ -5,7 +5,8 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum DefaultTranslationKey implements TranslationKey {
     INCOMPLETE("incomplete", "Incomplete"),
     COMPLETE("complete", "Complete"),
-    RELATIVE_PERIOD_CATEGORY_USAGE_POINT_VALIDATION_OVERVIEW("relativeperiod.category.usagepoint.validationOverview", "Usage point validation overview"),;
+    RELATIVE_PERIOD_CATEGORY_USAGE_POINT_VALIDATION_OVERVIEW("relativeperiod.category.usagepoint.validationOverview", "Usage point validation overview"),
+    NONE("none", "None");
 
     private String key;
     private String defaultFormat;

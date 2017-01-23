@@ -9,4 +9,6 @@ public class UsagePointValidationStatusInfo {
     public boolean hasSuspects;
     public Instant lastChecked;
     public Set<ValidationRuleInfoWithNumber> suspectReason;
+    public Set<ValidationRuleInfoWithNumber> informativeReason;
+    public Set<EstimationRuleInfoWithNumber> estimateReason;
 }
