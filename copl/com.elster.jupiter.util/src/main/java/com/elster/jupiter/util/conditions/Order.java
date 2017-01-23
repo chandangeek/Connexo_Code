@@ -3,48 +3,48 @@ package com.elster.jupiter.util.conditions;
 import java.util.Objects;
 
 public final class Order {
-	
-	public final static Order[] NOORDER = new Order[0];
-	
+
+	public static final Order[] NOORDER = new Order[0];
+
 	private final String name;
 	private final boolean ascending;
 	private String function;
 	private NullStrategy nullStrategy = NullStrategy.NONE;
-	
+
 	private Order(String name, boolean ascending) {
 		this.name = name;
 		this.ascending = ascending;
 	}
-	
+
 	public boolean ascending() {
 		return ascending;
 	}
-	
+
 	public String getName()  {
 		return name;
 	}
-	
+
 	public String ordering() {
 		return ascending ? "ASC" : "DESC";
 	}
-	
+
 	public Order apply(String name) {
 		this.function = name;
 		return this;
 	}
-	
+
 	public Order toUpperCase() {
 		return apply("upper");
 	}
-	
+
 	public Order toLowerCase() {
 		return apply("lower");
 	}
-	
+
 	public String getClause(String resolvedField) {
 		return getBaseClause(resolvedField) + nullStrategy.getClause();
 	}
-	
+
 	private String getBaseClause(String resolvedField) {
 		if (function == null) {
 			return resolvedField + " " + ordering();
@@ -52,25 +52,25 @@ public final class Order {
 			return function + "(" + resolvedField + ")" + " " + ordering();
  		}
 	}
-	
+
 	public Order nullsFirst() {
 		this.nullStrategy = NullStrategy.NULLSFIRST;
 		return this;
 	}
-	
+
 	public Order nullsLast() {
 		this.nullStrategy = NullStrategy.NULLSLAST;
 		return this;
 	}
-	
+
 	public  static Order ascending(String name) {
 		return new Order(Objects.requireNonNull(name),true);
 	}
-	
+
 	public static Order descending(String name) {
 		return new Order(Objects.requireNonNull(name),false);
 	}
-	
+
 	@Deprecated
 	public static Order[] from(String[] orderBy) {
 		if (orderBy == null) {
@@ -82,7 +82,7 @@ public final class Order {
 		}
 		return result;
 	}
-	
+
 	@Deprecated
 	public static Order[] from(String order , String[] orders) {
 		Order[] result = new Order[orders.length + 1];
@@ -92,21 +92,21 @@ public final class Order {
 		}
 		return result;
 	}
-	
+
 	private enum NullStrategy {
 		NONE (""),
 		NULLSFIRST ("NULLS FIRST"),
 		NULLSLAST ("NULLS LAST");
-		
+
 		private final String clause;
-		
-		private NullStrategy(String clause) {
+
+		NullStrategy(String clause) {
 			this.clause = clause;
 		}
-		
+
 		String getClause() {
 			return " " + clause + " ";
 		}
 	}
-	
+
 }
