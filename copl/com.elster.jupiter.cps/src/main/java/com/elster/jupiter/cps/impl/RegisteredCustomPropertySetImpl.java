@@ -210,7 +210,7 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
         if (!(principal instanceof User)) {
             return new ArrayList<>();
         }
-        return ((User) principal).getPrivileges().stream().map(Privilege::getName).collect(Collectors.toList());
+        return ((User) principal).getPrivileges(threadPrincipalService.getApplicationName()).stream().map(Privilege::getName).collect(Collectors.toList());
     }
 
     private boolean currentUserIsAllowedToViewCustomPropertySet() {
