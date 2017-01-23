@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -365,7 +366,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
-        DeviceMessage deviceMessage = (DeviceMessage) identifier.getDeviceMessage();    //Downcast to the Connexo DeviceMessage
+        DeviceMessage deviceMessage = this.findDeviceMessage(identifier);
         Device device = (Device) deviceMessage.getDevice(); //Downcast to the Connexo Device
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass.isPresent()) {
@@ -380,6 +381,13 @@ public class ComServerDAOImpl implements ComServerDAO {
         } else {
             return Optional.empty();
         }
+    }
+
+    private DeviceMessage findDeviceMessage(MessageIdentifier identifier) {
+        return this.serviceProvider
+                .deviceMessageService()
+                .findDeviceMessageByIdentifier(identifier)
+                .orElseThrow(() -> new IllegalArgumentException("DeviceMessage with identifier " + identifier.toString() + " does not exist"));
     }
 
     @Override
@@ -712,7 +720,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final Instant sentDate, final String protocolInformation) {
-        DeviceMessage deviceMessage = (DeviceMessage) messageIdentifier.getDeviceMessage();     //Downcast to Connexo DeviceMessage
+        DeviceMessage deviceMessage = this.findDeviceMessage(messageIdentifier);
         try {
             updateDeviceMessage(newDeviceMessageStatus, sentDate, protocolInformation, deviceMessage);
         } catch (OptimisticLockException e) { // if someone tried to update the message while the ComServer was executing it ...
@@ -910,20 +918,20 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     @SuppressWarnings("unchecked")
     public DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
-        com.energyict.mdc.device.data.LoadProfile loadProfile = (com.energyict.mdc.device.data.LoadProfile) loadProfileIdentifier.getLoadProfile();     //Downcast to Connexo LoadProfile
+        LoadProfile loadProfile = this.findLoadProfile(loadProfileIdentifier);
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice((loadProfile).getDevice());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
-        LogBook logBook = (LogBook) logBookIdentifier.getLogBook();     //Downcast to Connexo LogBook
+        LogBook logBook = this.findLogBook(logBookIdentifier);
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(logBook.getDevice());
     }
 
     @Override
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
-        LogBook logBook = (LogBook) logBookIdentifier.getLogBook(); //Downcast to Connexo LogBook
+        LogBook logBook = this.findLogBook(logBookIdentifier);
         // Refresh device and LogBook to avoid OptimisticLockException
         Device device = this.serviceProvider.deviceService().findDeviceById(logBook.getDevice().getId()).get();
         LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
@@ -1014,7 +1022,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
-        LoadProfile loadProfile = (LoadProfile) loadProfileIdentifier.getLoadProfile();        //Downcast to Connexo LoadProfile
+        LoadProfile loadProfile = this.findLoadProfile(loadProfileIdentifier);
         // Refresh the device and the LoadProfile to avoid OptimisticLockException
         Device device = this.serviceProvider.deviceService().findDeviceById(loadProfile.getDevice().getId()).get();
         LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
@@ -1219,6 +1227,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         LoadProfileService loadProfileService();
 
         LogBookService logBookService();
+
+        DeviceMessageService deviceMessageService();
 
         TopologyService topologyService();
 

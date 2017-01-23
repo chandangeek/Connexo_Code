@@ -19,6 +19,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
@@ -116,6 +117,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile LogBookService logBookService;
+    private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceService deviceService;
     private volatile RegisterService registerService;
     private volatile LoadProfileService loadProfileService;
@@ -149,7 +151,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineConfigurationService engineConfigurationService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
-            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService, RegisterService registerService, LoadProfileService loadProfileService,
+            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService, RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
@@ -175,6 +177,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
         setLogBookService(logBookService);
+        setDeviceMessageService(deviceMessageService);
         setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         setUserService(userService);
         setDeviceConfigurationService(deviceConfigurationService);
@@ -230,6 +233,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setLogBookService(LogBookService logBookService) {
         this.logBookService = logBookService;
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Reference
@@ -790,6 +798,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public LogBookService logBookService() {
             return logBookService;
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return deviceMessageService;
         }
 
         @Override
