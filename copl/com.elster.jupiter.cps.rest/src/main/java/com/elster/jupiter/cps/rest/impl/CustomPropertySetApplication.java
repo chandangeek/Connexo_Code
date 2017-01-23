@@ -29,7 +29,7 @@ import java.util.Set;
 @Component(name = "com.elster.jupiter.cps.rest",
         service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
-        property = {"alias=/cps", "app=MDC", "name=" + CustomPropertySetApplication.COMPONENT_NAME})
+        property = {"alias=/cps", "app=SYS", "name=" + CustomPropertySetApplication.COMPONENT_NAME})
 public class CustomPropertySetApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
 
     public static final String COMPONENT_NAME = "CPS";
