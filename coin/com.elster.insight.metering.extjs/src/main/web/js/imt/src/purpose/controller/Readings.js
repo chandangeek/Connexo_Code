@@ -193,7 +193,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
 
         if (menu.down('#reset-value')) {
-            menu.down('#reset-value').setVisible(menu.record.get('modificationFlag') == "EDITED" || menu.record.get('modificationFlag') == "ADDED");
+            menu.down('#reset-value').setVisible(menu.record.get('calculatedValue') || menu.record.get('modificationFlag') == "EDITED" || menu.record.get('modificationFlag') == "ADDED");
         }
         Ext.resumeLayouts();
     },
@@ -352,7 +352,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     canConfirm = true;
                 }
             }
-            if (!canReset && record.get('calculatedValue')) {
+            if (!canReset && (record.get('calculatedValue') || record.get('modificationFlag') == "EDITED" || record.get('modificationFlag') == "ADDED")) {
                 canReset = true;
             }
         });
