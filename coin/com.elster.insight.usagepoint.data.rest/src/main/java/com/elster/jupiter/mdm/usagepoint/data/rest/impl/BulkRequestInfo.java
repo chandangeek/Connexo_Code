@@ -10,5 +10,6 @@ public class BulkRequestInfo {
     public String filter;
     public List<String> usagePointMRIDs;
     public List<Long> calendarIds;
+    public boolean immediately;
     public Long startTime;
 }

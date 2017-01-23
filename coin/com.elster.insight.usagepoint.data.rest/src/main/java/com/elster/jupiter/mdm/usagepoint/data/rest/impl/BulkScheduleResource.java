@@ -74,6 +74,7 @@ public class BulkScheduleResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.BAD_ACTION, request.action)));
         message.setUsagePointMRIDs(request.usagePointMRIDs);
         message.setCalendarIds(request.calendarIds);
+        message.setImmediately(request.immediately);
         message.setStartTime(request.startTime == null ? clock.millis() : request.startTime);
         if (request.filter != null) {
             JsonQueryFilter filter = new JsonQueryFilter(request.filter);
