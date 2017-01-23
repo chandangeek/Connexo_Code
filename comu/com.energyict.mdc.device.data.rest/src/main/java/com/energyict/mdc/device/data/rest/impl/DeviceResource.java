@@ -837,12 +837,13 @@ public class DeviceResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        filter.targetObject = device;
         serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
                 .stream()
-                .filter(serviceCall -> serviceCall.getTargetObject().map(device::equals).orElse(false))
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
