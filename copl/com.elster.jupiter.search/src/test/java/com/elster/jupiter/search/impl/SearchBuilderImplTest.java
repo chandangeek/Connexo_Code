@@ -401,6 +401,46 @@ public class SearchBuilderImplTest {
     }
 
     @Test
+    public void whereNameNotNullCase() throws InvalidValueException {
+        SearchBuilderImpl<Example> builder = this.getTestInstance();
+        builder.where(NAME_PROPERTY_NAME).isDefined();
+
+        // Business method
+        builder.toFinder();
+
+        // Asserts
+        verify(this.searchDomain).finderFor(this.conditionsArgumentCaptor.capture());
+        List<SearchablePropertyCondition> capturedSearchablePropertyConditions = this.conditionsArgumentCaptor.getValue();
+        assertThat(capturedSearchablePropertyConditions).hasSize(1);
+        SearchablePropertyCondition searchablePropertyCondition = capturedSearchablePropertyConditions.get(0);
+        assertThat(searchablePropertyCondition.getProperty()).isEqualTo(this.nameSearchProperty);
+        assertThat(searchablePropertyCondition.getCondition()).isInstanceOf(Comparison.class);
+        Comparison comparison = (Comparison) searchablePropertyCondition.getCondition();
+        assertThat(comparison.getFieldName()).isEqualTo(NAME_PROPERTY_NAME);
+        assertThat(comparison.getOperator()).isEqualTo(Operator.ISNOTNULL);
+    }
+
+    @Test
+    public void whereNameNullCase() throws InvalidValueException {
+        SearchBuilderImpl<Example> builder = this.getTestInstance();
+        builder.where(NAME_PROPERTY_NAME).isNotDefined();
+
+        // Business method
+        builder.toFinder();
+
+        // Asserts
+        verify(this.searchDomain).finderFor(this.conditionsArgumentCaptor.capture());
+        List<SearchablePropertyCondition> capturedSearchablePropertyConditions = this.conditionsArgumentCaptor.getValue();
+        assertThat(capturedSearchablePropertyConditions).hasSize(1);
+        SearchablePropertyCondition searchablePropertyCondition = capturedSearchablePropertyConditions.get(0);
+        assertThat(searchablePropertyCondition.getProperty()).isEqualTo(this.nameSearchProperty);
+        assertThat(searchablePropertyCondition.getCondition()).isInstanceOf(Comparison.class);
+        Comparison comparison = (Comparison) searchablePropertyCondition.getCondition();
+        assertThat(comparison.getFieldName()).isEqualTo(NAME_PROPERTY_NAME);
+        assertThat(comparison.getOperator()).isEqualTo(Operator.ISNULL);
+    }
+
+    @Test
     public void whereIdEqualToAndNameLike() throws InvalidValueException {
         SearchBuilderImpl<Example> builder = this.getTestInstance();
         builder

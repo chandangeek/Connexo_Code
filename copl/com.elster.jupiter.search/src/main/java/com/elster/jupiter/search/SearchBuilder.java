@@ -17,7 +17,7 @@ import java.util.List;
 @ProviderType
 public interface SearchBuilder<T> {
 
-    public SearchDomain getDomain();
+    SearchDomain getDomain();
 
     /**
      * Starts the building process of a criterion
@@ -30,7 +30,7 @@ public interface SearchBuilder<T> {
      * @return The CriterionBuilder
      * @throws IllegalArgumentException
      */
-    public default CriterionBuilder<T> where(String propertyName) {
+    default CriterionBuilder<T> where(String propertyName) {
         return where(
                     getDomain()
                         .getProperties()
@@ -47,7 +47,7 @@ public interface SearchBuilder<T> {
      * @param property The SearchableProperty
      * @return The CriterionBuilder
      */
-    public CriterionBuilder<T> where(SearchableProperty property);
+    CriterionBuilder<T> where(SearchableProperty property);
 
     /**
      * Adds another criterion against the {@link SearchableProperty}
@@ -58,7 +58,7 @@ public interface SearchBuilder<T> {
      * @param propertyName The name of the SearchableProperty
      * @return The CriterionBuilder
      */
-    public default CriterionBuilder<T> and(String propertyName) {
+    default CriterionBuilder<T> and(String propertyName) {
         return where(propertyName);
     }
 
@@ -68,7 +68,7 @@ public interface SearchBuilder<T> {
      * @param property The SearchableProperty
      * @return The CriterionBuilder
      */
-    public default CriterionBuilder<T> and(SearchableProperty property) {
+    default CriterionBuilder<T> and(SearchableProperty property) {
         return where(property);
     }
 
@@ -79,7 +79,7 @@ public interface SearchBuilder<T> {
      *
      * @return The Finder
      */
-    public Finder<T> toFinder();
+    Finder<T> toFinder();
 
     /**
      * Gets the list of {@link SearchablePropertyCondition}s built by the builder
@@ -94,7 +94,7 @@ public interface SearchBuilder<T> {
      * All methods will return the same CriterionBuilder
      * to support method chaining.
      */
-    public interface CriterionBuilder<T> {
+    interface CriterionBuilder<T> {
 
         /**
          * Builds a criterion that checks that the target
@@ -110,7 +110,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public default SearchBuilder<T> in(Object... values) throws InvalidValueException {
+        default SearchBuilder<T> in(Object... values) throws InvalidValueException {
             return in(Arrays.asList(values));
         }
 
@@ -128,7 +128,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> in(List<Object> values) throws InvalidValueException;
+        SearchBuilder<T> in(List<Object> values) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target
@@ -177,7 +177,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> isEqualTo(Object value) throws InvalidValueException;
+        SearchBuilder<T> isEqualTo(Object value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
@@ -193,7 +193,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> isEqualToIgnoreCase(String value) throws InvalidValueException;
+        SearchBuilder<T> isEqualToIgnoreCase(String value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target
@@ -209,7 +209,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> isNotEqualTo(Object value) throws InvalidValueException;
+        SearchBuilder<T> isNotEqualTo(Object value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target
@@ -225,7 +225,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> isLessThan(Object value) throws InvalidValueException;
+        SearchBuilder<T> isLessThan(Object value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target
@@ -241,7 +241,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> isLessThanOrEqualTo(Object value) throws InvalidValueException;
+        SearchBuilder<T> isLessThanOrEqualTo(Object value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target
@@ -257,7 +257,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> isGreaterThan(Object value) throws InvalidValueException;
+        SearchBuilder<T> isGreaterThan(Object value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target
@@ -273,7 +273,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> isGreaterThanOrEqualTo(Object value) throws InvalidValueException;
+        SearchBuilder<T> isGreaterThanOrEqualTo(Object value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
@@ -289,7 +289,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> like(String wildCardPattern) throws InvalidValueException;
+        SearchBuilder<T> like(String wildCardPattern) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
@@ -305,7 +305,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> likeIgnoreCase(String wildCardPattern) throws InvalidValueException;
+        SearchBuilder<T> likeIgnoreCase(String wildCardPattern) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
@@ -321,7 +321,7 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> is(Boolean value) throws InvalidValueException;
+        SearchBuilder<T> is(Boolean value) throws InvalidValueException;
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
@@ -338,6 +338,23 @@ public interface SearchBuilder<T> {
          * @throws InvalidValueException Thrown on the first value that is not compatible
          *         with the property's specification
          */
-        public SearchBuilder<T> isBetween(Object min, Object max) throws InvalidValueException;
+        SearchBuilder<T> isBetween(Object min, Object max) throws InvalidValueException;
+
+        /**
+         * Builds a criterion that checks that the target {@link SearchableProperty}
+         * has any value
+         *
+         * @return The same SearchBuilder to support method chaining
+         */
+        SearchBuilder<T> isDefined() throws InvalidValueException;
+
+        /**
+         * Builds a criterion that checks that the target {@link SearchableProperty}
+         * has no value
+         *
+         * @return The same SearchBuilder to support method chaining
+         */
+        SearchBuilder<T> isNotDefined() throws InvalidValueException;
+
     }
 }

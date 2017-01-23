@@ -233,6 +233,20 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
                     new SearchablePropertyComparison(Operator.BETWEEN.compare(specification.getName(), min, max), this.property));
             return SearchBuilderImpl.this;
         }
+
+        @Override
+        public SearchBuilder<T> isDefined() throws InvalidValueException {
+            PropertySpec specification = this.property.getSpecification();
+            addCondition(this, new SearchablePropertyComparison(Operator.isNotNull(specification.getName()), this.property));
+            return SearchBuilderImpl.this;
+        }
+
+        @Override
+        public SearchBuilder<T> isNotDefined() throws InvalidValueException {
+            PropertySpec specification = this.property.getSpecification();
+            addCondition(this, new SearchablePropertyComparison(Operator.isNull(specification.getName()), this.property));
+            return SearchBuilderImpl.this;
+        }
     }
 
     /**
