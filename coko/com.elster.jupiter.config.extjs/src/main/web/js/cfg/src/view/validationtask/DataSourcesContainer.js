@@ -1,14 +1,11 @@
 Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
-    extend: 'Ext.form.FieldContainer',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.cfg-data-sources-container',
-    required: true,
     layout: 'vbox',
     appName: null,
     edit: false,
-    msgTarget: 'under',
-    defaults: {
-        width: 300
-    },
+    htmlEncode: true,
+
     initComponent: function () {
         var me = this,
             setValue = function (value) {
@@ -23,76 +20,134 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
 
         switch (me.appName) {
             case 'MultiSense':
-                me.fieldLabel = Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group');
                 me.items = [
                     {
-                        xtype: 'combobox',
-                        itemId: 'cbo-validation-task-device-group',
+                        xtype: 'fieldcontainer',
+                        layout: {
+                            type: 'vbox'
+                        },
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group'),
                         required: true,
-                        editable: false,
-                        queryMode: 'local',
-                        displayField: 'displayValue',
-                        valueField: 'id',
-                        name: 'deviceGroup',
-                        store: 'Cfg.store.DeviceGroups',
-                        emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
-                        disabled: !Cfg.privileges.Validation.canAdministrate(),
-                        setValue: setValue
-                    },
-                    {
-                        xtype: 'displayfield',
-                        itemId: 'no-items-defined',
-                        hidden: true,
-                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</div>',
-                        htmlEncode: false
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                width: 300,
+                                itemId: 'cbo-validation-task-device-group',
+                                required: true,
+                                editable: false,
+                                queryMode: 'local',
+                                displayField: 'displayValue',
+                                valueField: 'id',
+                                name: 'deviceGroup',
+                                store: 'Cfg.store.DeviceGroups',
+                                emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt', 'CFG', 'Select a device group...'),
+                                disabled: !Cfg.privileges.Validation.canAdministrate(),
+                                setValue: setValue
+                            },
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'no-items-defined',
+                                hidden: true,
+                                value: '<div style="color: #eb5642">' + Uni.I18n.translate('validationTasks.general.noDeviceGroup', 'CFG', 'No device group defined yet.') + '</div>',
+                                htmlEncode: false
+                            }
+                        ]
                     }
+
                 ];
                 break;
 
             case 'MdmApp':
-                me.fieldLabel = Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group');
                 me.items = [
                     {
-                        xtype: 'combobox',
-                        itemId: 'cbo-validation-task-usage-point-group',
+                        xtype: 'fieldcontainer',
+                        layout: {
+                            type: 'vbox'
+                        },
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', 'Usage point group'),
                         required: true,
-                        editable: false,
-                        queryMode: 'local',
-                        displayField: 'displayValue',
-                        valueField: 'id',
-                        name: 'usagePointGroup',
-                        store: 'Cfg.store.UsagePointGroups',
-                        emptyText: Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...'),
-                        disabled: !Cfg.privileges.Validation.canAdministrate(),
-                        setValue: setValue
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                width: 300,
+                                itemId: 'cbo-validation-task-usage-point-group',
+                                required: true,
+                                editable: false,
+                                queryMode: 'local',
+                                displayField: 'displayValue',
+                                valueField: 'id',
+                                name: 'usagePointGroup',
+                                store: 'Cfg.store.UsagePointGroups',
+                                emptyText: Uni.I18n.translate('validationTasks.addValidationTask.usagePointGroupPrompt', 'CFG', 'Select a usage point group...'),
+                                disabled: !Cfg.privileges.Validation.canAdministrate(),
+                                setValue: setValue
+                            },
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'no-items-defined',
+                                hidden: true,
+                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.') + '</div>',
+                                htmlEncode: false
+                            }
+                        ]
                     },
                     {
-                        xtype: 'displayfield',
-                        itemId: 'no-items-defined',
-                        hidden: true,
-                        value: '<div style="color: #FF0000">' + Uni.I18n.translate('validationTasks.general.noUsagePointGroup', 'CFG', 'No usage point group defined yet.') + '</div>',
-                        htmlEncode: false
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.purpose', 'CFG', 'Purpose'),
+                        itemId: 'purpose-group-container',
+
+                        layout: {
+                            type: 'hbox',
+                        },
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                width: 300,
+                                itemId: 'cbo-validation-task-purpose',
+                                editable: false,
+                                queryMode: 'local',
+                                displayField: 'displayValue',
+                                valueField: 'id',
+                                name: 'metrologyPurpose',
+                                store: 'Cfg.store.MetrologyPurposes',
+                                emptyText: Uni.I18n.translate('validationTasks.addValidationTask.purposePrompt', 'CFG', 'Select a purpose...'),
+                                disabled: !Cfg.privileges.Validation.canAdministrate(),
+                                setValue: setValue,
+                                listeners: {
+                                    change: function () {
+                                        me.down('#reset-purpose-btn').enable();
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'uni-default-button',
+                                itemId: 'reset-purpose-btn',
+                                disabled: true,
+                                tooltip: Uni.I18n.translate('validationTasks.addValidationTask.reset', 'CFG', 'Reset'),
+                                hidden: false
+                            }
+                        ]
                     }
                 ];
                 break;
-
-
         }
         me.callParent(arguments);
     },
 
     showNoItemsField: function () {
         var me = this;
+        Ext.suspendLayouts();
         switch (me.appName) {
             case 'MultiSense':
                 me.down('#cbo-validation-task-device-group').hide();
-
                 break;
             case 'MdmApp' :
                 me.down('#cbo-validation-task-usage-point-group').hide();
+                me.down('#purpose-group-container').hide();
                 break;
         }
         me.down('#no-items-defined').show();
+        Ext.resumeLayouts(true);
         me.combineErrors = true;
     },
 
@@ -110,6 +165,7 @@ Ext.define('Cfg.view.validationtask.DataSourcesContainer', {
                 break;
             case 'MdmApp' :
                 setToRecord(me.down('#cbo-validation-task-usage-point-group'));
+                setToRecord(me.down('#cbo-validation-task-purpose'));
                 break;
         }
     }

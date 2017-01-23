@@ -28,6 +28,13 @@ Ext.define('Cfg.model.ValidationTaskHistory', {
             }
         },
         {
+            name: 'metrologyPurpose',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.metrologyPurpose;
+            }
+        },
+        {
             name: 'name',
             persist:false,
             mapping:  function (data) {
