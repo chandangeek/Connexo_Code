@@ -63,6 +63,20 @@
 /* including package ext-theme-neutral */
 /* including package ext-theme-neptune */
 /* including package uni-theme-skyline */
+/* line 2, ../../sass/etc/all.scss */
+.trlegend td {
+  padding: 3px 5px 3px 0;
+}
+/* line 4, ../../sass/etc/all.scss */
+.trlegend td:first-child {
+  font-weight: bold;
+  text-align: right;
+}
+/* line 8, ../../sass/etc/all.scss */
+.trlegend td:last-child {
+  padding-right: 0;
+}
+
 /* including package uni-theme-skyline */
 /**
  * @class Ext.button.Button
@@ -24401,19 +24415,4 @@ a.x-color-picker-item:hover {
 /* line 659, ../../sass/src/fonts/Icomoon.scss */
 .icon-folder-download:before {
   content: "\e9d2";
-}
-
-/* line 662, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-upload:before {
-  content: "\e9d3";
-}
-
-/* line 665, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-plus:before {
-  content: "\e9d4";
-}
-
-/* line 668, ../../sass/src/fonts/Icomoon.scss */
-.icon-folder-plus2:before {
-  content: "\e9d5";
 }
