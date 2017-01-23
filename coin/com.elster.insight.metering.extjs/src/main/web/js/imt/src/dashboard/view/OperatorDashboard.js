@@ -84,6 +84,7 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                                         myWorkgroupsLink: me.router.getRoute('workspace/tasks').buildUrl({}, {param: 'myworkgroups'}),
                                         userProperty: 'actualOwner',
                                         workgroupProperty: 'workgroup',
+                                        titleProperty: 'name',
                                         tooltipProperties: [
                                             {
                                                 name: 'name',
