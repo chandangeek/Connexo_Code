@@ -646,13 +646,14 @@ public class UsagePointResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        filter.targetObject = usagePoint;
         serviceCallService.getServiceCallFinder(filter)
+                .from(queryParameters)
                 .stream()
-                .filter(serviceCall -> serviceCall.getTargetObject().map(usagePoint::equals).orElse(false))
                 .map(serviceCallInfoFactory::summarized)
                 .forEach(serviceCallInfos::add);
 
-        return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
+        return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
     @PUT
