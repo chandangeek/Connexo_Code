@@ -17,7 +17,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
  */
 public class MessageEntry {
 
-    public final static MessageEntry EMPTY = new MessageEntry("","");
+    public static final MessageEntry EMPTY = new MessageEntry("","");
 
     private final String content;
     private final String trackingId;
