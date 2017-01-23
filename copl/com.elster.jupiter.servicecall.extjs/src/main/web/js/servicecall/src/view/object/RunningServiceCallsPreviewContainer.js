@@ -26,7 +26,6 @@ Ext.define('Scs.view.object.RunningServiceCallsPreviewContainer', {
             menuItemId: 'object-service-calls-action-menu',
             itemId: 'running-service-calls-grid',
             cancelAllHidden: false,
-            usesExactCount: true
         };
 
 

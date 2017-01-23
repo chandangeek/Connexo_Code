@@ -25,7 +25,6 @@ Ext.define('Scs.view.object.HistoryServiceCallsPreviewContainer', {
             xtype: 'servicecalls-grid',
             store: me.store,
             actionMenuHidden: true,
-            usesExactCount: true
         };
 
 
