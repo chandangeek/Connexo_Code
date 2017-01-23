@@ -1,16 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.FlowControl;
-import com.energyict.mdc.io.NrOfDataBits;
-import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.io.ServerSerialPort;
-import org.junit.*;
-import org.junit.runner.*;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.protocol.SerialPortComChannel;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -45,7 +45,7 @@ public class SerialCommunicationChannelAdapterTest {
     @Mock
     private ServerSerialPort serverSerialPort;
     @Mock
-    private SerialComChannel serialComChannel;
+    private SerialPortComChannel serialPortComChannel;
     @Mock
     private InputStream inputStream;
 
@@ -53,9 +53,9 @@ public class SerialCommunicationChannelAdapterTest {
         when(serverSerialPort.getSerialPortConfiguration()).thenReturn(
                 new SerialPortConfiguration(
                         comPortName, standardBaudrate, standardNrOfDataBits, standardNrOfStopBits, standardParity, standardFlowControl));
-        when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
+        when(serialPortComChannel.getSerialPort()).thenReturn(serverSerialPort);
         when(serverSerialPort.getInputStream()).thenReturn(inputStream);
-        return new SerialCommunicationChannelAdapter(serialComChannel);
+        return new SerialCommunicationChannelAdapter(serialPortComChannel);
     }
 
     @Test
@@ -63,13 +63,13 @@ public class SerialCommunicationChannelAdapterTest {
         SerialCommunicationChannelAdapter serialCommunicationChannelAdapter = createSerialCommunicationChannelAdapter();
 
         // asserts
-        assertEquals(Parities.EVEN.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_EVEN));
-        assertEquals(Parities.ODD.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_ODD));
-        assertEquals(Parities.SPACE.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_SPACE));
-        assertEquals(Parities.MARK.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_MARK));
-        assertEquals(Parities.NONE.value(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_NONE));
+        assertEquals(Parities.EVEN.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_EVEN));
+        assertEquals(Parities.ODD.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_ODD));
+        assertEquals(Parities.SPACE.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_SPACE));
+        assertEquals(Parities.MARK.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_MARK));
+        assertEquals(Parities.NONE.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(SerialCommunicationChannel.PARITY_NONE));
 
-        assertEquals(Parities.NONE.value(), serialCommunicationChannelAdapter.parityToNewFormat(9999)); // any unknown format should return none
+        assertEquals(Parities.NONE.getParity(), serialCommunicationChannelAdapter.parityToNewFormat(9999)); // any unknown format should return none
     }
 
     @Test
@@ -77,11 +77,11 @@ public class SerialCommunicationChannelAdapterTest {
         SerialCommunicationChannelAdapter serialCommunicationChannelAdapter = createSerialCommunicationChannelAdapter();
 
         // asserts
-        assertEquals(NrOfStopBits.ONE.value(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_1));
-        assertEquals(NrOfStopBits.TWO.value(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_2));
-        assertEquals(NrOfStopBits.ONE_AND_HALF.value(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_1_5));
+        assertEquals(NrOfStopBits.ONE.getNrOfStopBits(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_1));
+        assertEquals(NrOfStopBits.TWO.getNrOfStopBits(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_2));
+        assertEquals(NrOfStopBits.ONE_AND_HALF.getNrOfStopBits(), serialCommunicationChannelAdapter.stopBitsToNewFormat(SerialCommunicationChannel.STOPBITS_1_5));
 
-        assertEquals(NrOfStopBits.ONE.value(), serialCommunicationChannelAdapter.stopBitsToNewFormat(654654));  // any unknown format should return one stopbit
+        assertEquals(NrOfStopBits.ONE.getNrOfStopBits(), serialCommunicationChannelAdapter.stopBitsToNewFormat(654654));  // any unknown format should return one stopbit
     }
 
     @Test
@@ -95,7 +95,7 @@ public class SerialCommunicationChannelAdapterTest {
 
         serialCommunicationChannelAdapter.setParams(baudrate, dataBits, parity, stopBits);
 
-        verify(serverSerialPort).updatePortConfiguration(Matchers.<SerialPortConfiguration>argThat(
+        verify(serverSerialPort).updatePortConfiguration(Matchers.argThat(
                 new SerialPortConfigurationMatcher(BaudrateValue.BAUDRATE_9600, NrOfDataBits.SIX, NrOfStopBits.TWO, Parities.MARK)));
     }
 
@@ -124,7 +124,7 @@ public class SerialCommunicationChannelAdapterTest {
 
         serialCommunicationChannelAdapter.setParity(dataBits, parity, stopBits);
 
-        verify(serverSerialPort).updatePortConfiguration(Matchers.<SerialPortConfiguration>argThat(
+        verify(serverSerialPort).updatePortConfiguration(Matchers.argThat(
                 new SerialPortConfigurationMatcher(standardBaudrate, NrOfDataBits.SIX, NrOfStopBits.TWO, Parities.MARK)));
 
     }
@@ -151,7 +151,7 @@ public class SerialCommunicationChannelAdapterTest {
 
         serialCommunicationChannelAdapter.setBaudrate(baudrate);
 
-        verify(serverSerialPort).updatePortConfiguration(Matchers.<SerialPortConfiguration>argThat(
+        verify(serverSerialPort).updatePortConfiguration(Matchers.argThat(
                 new SerialPortConfigurationMatcher(BaudrateValue.BAUDRATE_9600, standardNrOfDataBits, standardNrOfStopBits, standardParity)));
 
     }

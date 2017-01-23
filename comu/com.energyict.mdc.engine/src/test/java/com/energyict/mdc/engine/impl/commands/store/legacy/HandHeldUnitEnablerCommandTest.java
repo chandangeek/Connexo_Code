@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.legacy;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
@@ -18,10 +19,9 @@ import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.OpticalDriver;
@@ -64,7 +64,7 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
     @Mock
     private ServerSerialPort serverSerialPort;
     @Mock
-    private SerialComChannel serialComChannel;
+    private SerialPortComChannel serialPortComChannel;
     @Mock
     private ComPortRelatedComChannel comPortRelatedComChannel;
     @Mock
@@ -74,10 +74,10 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
 
     @Before
     public void initMocks() {
-        when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
+        when(serialPortComChannel.getSerialPort()).thenReturn(serverSerialPort);
         when(serverSerialPort.getInputStream()).thenReturn(inputStream);
         this.comChannelPlaceHolder = ComChannelPlaceHolder.forKnownComChannel(this.comPortRelatedComChannel);
-        when(this.comPortRelatedComChannel.getActualComChannel()).thenReturn(serialComChannel);
+        when(this.comPortRelatedComChannel.getActualComChannel()).thenReturn(serialPortComChannel);
         when(this.comPortRelatedComChannel.getSerialPort()).thenReturn(serverSerialPort);
     }
 

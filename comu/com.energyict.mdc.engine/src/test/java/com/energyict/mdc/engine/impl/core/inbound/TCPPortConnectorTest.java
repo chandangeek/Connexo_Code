@@ -56,7 +56,7 @@ public class TCPPortConnectorTest {
     @Before
     public void initializeMocksAndFactories() throws IOException {
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(this.comChannel);
-        when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(this.serverSocket);
+        when(this.socketService.newTCPSocket(anyInt())).thenReturn(this.serverSocket);
     }
 
     private TCPBasedInboundComPort createTCPBasedInboundComPort() {
@@ -88,7 +88,7 @@ public class TCPPortConnectorTest {
     public void testConstructorFailure() throws IOException, InboundCommunicationException {
         doThrow(new IOException("Something fishy happened for testing purposes")).
                 when(this.socketService).
-                newInboundTCPSocket(anyInt());
+                newTCPSocket(anyInt());
 
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 

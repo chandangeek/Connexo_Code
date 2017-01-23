@@ -40,7 +40,13 @@ import java.util.concurrent.ThreadFactory;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.mdc.engine.impl.core.MultiThreadedComPortListener} component.
@@ -118,7 +124,7 @@ public class MultiThreadedComPortListenerTest {
                         this.clock));
         when(this.comPortListenerServiceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
 
-        when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
+        when(this.socketService.newTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
         when(this.userService.findUser(EngineServiceImpl.COMSERVER_USER)).thenReturn(Optional.empty());
     }

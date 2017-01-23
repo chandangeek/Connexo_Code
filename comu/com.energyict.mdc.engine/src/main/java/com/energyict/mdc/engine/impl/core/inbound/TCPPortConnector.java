@@ -44,9 +44,8 @@ public class TCPPortConnector implements InboundComPortConnector {
         this.eventPublisher = eventPublisher;
         this.clock = clock;
         try {
-            this.serverSocket = socketService.newInboundTCPSocket(comPort.getPortNumber());
-        }
-        catch (IOException e) {
+            this.serverSocket = socketService.newTCPSocket(comPort.getPortNumber());
+        } catch (IOException e) {
             throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
         }
     }
@@ -56,8 +55,7 @@ public class TCPPortConnector implements InboundComPortConnector {
         try {
             final Socket socket = this.serverSocket.accept();
             return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.comPort, this.clock, this.hexService, eventPublisher);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
         }
     }
@@ -67,8 +65,7 @@ public class TCPPortConnector implements InboundComPortConnector {
         if (this.serverSocket != null) {
             try {
                 this.serverSocket.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
             }
         }

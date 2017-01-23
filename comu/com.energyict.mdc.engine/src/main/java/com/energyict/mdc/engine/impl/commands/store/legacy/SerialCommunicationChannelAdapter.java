@@ -1,16 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
-import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.serialserviceprovider.SerialPort;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
-import com.energyict.mdc.io.NrOfDataBits;
-import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,26 +31,26 @@ public class SerialCommunicationChannelAdapter implements SerialCommunicationCha
     private ComChannelInputStreamAdapter inputStream;
     private ComChannelOutputStreamAdapter outputStream;
 
-    public SerialCommunicationChannelAdapter(final SerialComChannel serialComChannel) {
-        this.serialPort = serialComChannel.getSerialPort();
-        this.inputStream = new ComChannelInputStreamAdapter(serialComChannel);
-        this.outputStream =  new ComChannelOutputStreamAdapter(serialComChannel);
+    public SerialCommunicationChannelAdapter(final SerialPortComChannel serialPortComChannel) {
+        this.serialPort = serialPortComChannel.getSerialPort();
+        this.inputStream = new ComChannelInputStreamAdapter(serialPortComChannel);
+        this.outputStream =  new ComChannelOutputStreamAdapter(serialPortComChannel);
     }
 
     protected String parityToNewFormat(int parity) {
         switch (parity) {
             case SerialCommunicationChannel.PARITY_NONE:
-                return Parities.NONE.value();
+                return Parities.NONE.getParity();
             case SerialCommunicationChannel.PARITY_EVEN:
-                return Parities.EVEN.value();
+                return Parities.EVEN.getParity();
             case SerialCommunicationChannel.PARITY_MARK:
-                return Parities.MARK.value();
+                return Parities.MARK.getParity();
             case SerialCommunicationChannel.PARITY_ODD:
-                return Parities.ODD.value();
+                return Parities.ODD.getParity();
             case SerialCommunicationChannel.PARITY_SPACE:
-                return Parities.SPACE.value();
+                return Parities.SPACE.getParity();
             default:
-                return Parities.NONE.value();
+                return Parities.NONE.getParity();
         }
     }
 
