@@ -20,13 +20,13 @@ import java.net.URL;
         targetNamespace = "http://www.webserviceX.NET/")
 public class CurrencyConvertor extends Service {
 
-    public final static URL WSDL_LOCATION;
+    public static final URL WSDL_LOCATION;
 
-    public final static QName SERVICE = new QName("http://www.webserviceX.NET/", "CurrencyConvertor");
-    public final static QName CurrencyConvertorHttpPost = new QName("http://www.webserviceX.NET/", "CurrencyConvertorHttpPost");
-    public final static QName CurrencyConvertorSoap = new QName("http://www.webserviceX.NET/", "CurrencyConvertorSoap");
-    public final static QName CurrencyConvertorSoap12 = new QName("http://www.webserviceX.NET/", "CurrencyConvertorSoap12");
-    public final static QName CurrencyConvertorHttpGet = new QName("http://www.webserviceX.NET/", "CurrencyConvertorHttpGet");
+    public static final QName SERVICE = new QName("http://www.webserviceX.NET/", "CurrencyConvertor");
+    public static final QName CurrencyConvertorHttpPost = new QName("http://www.webserviceX.NET/", "CurrencyConvertorHttpPost");
+    public static final QName CurrencyConvertorSoap = new QName("http://www.webserviceX.NET/", "CurrencyConvertorSoap");
+    public static final QName CurrencyConvertorSoap12 = new QName("http://www.webserviceX.NET/", "CurrencyConvertorSoap12");
+    public static final QName CurrencyConvertorHttpGet = new QName("http://www.webserviceX.NET/", "CurrencyConvertorHttpGet");
 
     static {
         URL url = null;
