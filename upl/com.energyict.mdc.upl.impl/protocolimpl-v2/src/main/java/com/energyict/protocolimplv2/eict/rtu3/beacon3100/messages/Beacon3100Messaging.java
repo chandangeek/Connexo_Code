@@ -180,7 +180,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetDeviceLocation);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SetNTPAddress);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SyncNTPServer);
-        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL);
+//        SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.SET_DEVICE_LOG_LEVEL);
         SUPPORTED_MESSAGES.add(ConfigurationChangeDeviceMessage.ConfigureAPNs);
         SUPPORTED_MESSAGES.add(DeviceActionMessage.RebootApplication);
         SUPPORTED_MESSAGES.add(FirewallConfigurationMessage.ActivateFirewall);
