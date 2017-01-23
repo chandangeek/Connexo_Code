@@ -202,19 +202,11 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     {
                         xtype: 'component',
                         itemId: 'last-updated-field',
-                        width: 150,
-                        style: {
-                            'font': 'normal 13px/17px Lato',
-                            'color': '#686868',
-                            'margin-right': '10px'
-                        }
+                        margins: '0 15 0 0'
                     },
                     {
                         xtype: 'button',
                         itemId: 'refresh-btn',
-                        style: {
-                            'background-color': '#71adc7'
-                        },
                         text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'MDC', 'Refresh'),
                         iconCls: 'icon-spinner11'
                     },
