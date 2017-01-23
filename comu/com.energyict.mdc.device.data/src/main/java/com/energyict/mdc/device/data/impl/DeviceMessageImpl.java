@@ -48,6 +48,7 @@ import java.util.stream.Stream;
 public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> implements ServerDeviceMessage {
 
     public enum Fields {
+        DEVICE("device"),
         DEVICEMESSAGEID("deviceMessageId"),
         DEVICEMESSAGESTATUS("deviceMessageStatus"),
         TRACKINGID("trackingId"),

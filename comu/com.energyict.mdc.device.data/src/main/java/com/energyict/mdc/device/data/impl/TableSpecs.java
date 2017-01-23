@@ -631,7 +631,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
             table.foreignKey("FK_DDC_DEVMESSAGE_DEV")
                     .on(device).references(DDC_DEVICE.name())
-                    .map("device").reverseMap("deviceMessages")
+                    .map(DeviceMessageImpl.Fields.DEVICE.fieldName()).reverseMap("deviceMessages")
                     .add();
         }
     },
