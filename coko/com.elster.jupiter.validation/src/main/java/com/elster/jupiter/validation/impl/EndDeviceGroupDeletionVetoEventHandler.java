@@ -20,7 +20,7 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
 
     private volatile ValidationService validationService;
     private volatile Thesaurus thesaurus;
-    public final static String COMPONENT_NAME = "VAL";
+    public static final String COMPONENT_NAME = "VAL";
 
     public EndDeviceGroupDeletionVetoEventHandler() {
     }
