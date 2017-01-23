@@ -74,7 +74,7 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
             result.setAllProperties(otherTypedProperties);
             return result;
         } else {
-            throw new IllegalArgumentException("Expected instance of " + this.getClass().getName());
+            throw new IllegalArgumentException("Expected instance of " + TypedProperties.class.getName());
         }
     }
 
