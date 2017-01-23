@@ -106,13 +106,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 import static com.elster.jupiter.util.streams.Currying.use;
 
@@ -1031,58 +1029,26 @@ public class ComServerDAOImpl implements ComServerDAO {
         loadProfileUpdater.update();
     }
 
+    @Override
     public void updateLastDataSourceReadingsFor(Map<LoadProfileIdentifier, Instant> loadProfileUpdate, Map<LogBookIdentifier, Instant> logBookUpdate) {
-        Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
-
-        // first do the loadprofiles
-        loadProfileUpdate.entrySet().stream().forEach(entrySet -> {
-            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
-            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-            if (functionList == null) {
-                functionList = new ArrayList<>();
-                updateMap.put(deviceIdentifier, functionList);
-            }
-            LoadProfile loadProfile = (LoadProfile) entrySet.getKey().getLoadProfile();     //Downcast to Connexo LoadProfile
-            functionList.add(updateLoadProfile(loadProfile, entrySet.getValue()));
-        });
-        // then do the logbooks
-        logBookUpdate.entrySet().stream().forEach(entrySet -> {
-            DeviceIdentifier deviceIdentifier = entrySet.getKey().getDeviceIdentifier();
-            List<Function<Device, Void>> functionList = updateMap.get(deviceIdentifier);
-            if (functionList == null) {
-                functionList = new ArrayList<>();
-                updateMap.put(deviceIdentifier, functionList);
-            }
-            LogBook logBook = (LogBook) entrySet.getKey().getLogBook();     //Downcast to the Connexo Device
-            functionList.add(updateLogBook(logBook, entrySet.getValue()));
-        });
-
-        // then do your thing
-        updateMap.entrySet().stream().forEach(entrySet -> {
-            Device oldDevice = (Device) entrySet.getKey().findDevice();      //Downcast to the Connexo Device
-            Device device = this.serviceProvider.deviceService().findDeviceById(oldDevice.getId()).get();
-            entrySet.getValue().stream().forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
-        });
+        loadProfileUpdate.entrySet().stream().forEach(entrySet -> this.updateLoadProfile(this.findLoadProfile(entrySet.getKey()), entrySet.getValue()));
+        logBookUpdate.entrySet().stream().forEach(entrySet -> this.updateLogBook(this.findLogBook(entrySet.getKey()), entrySet.getValue()));
     }
 
-    private Function<Device, Void> updateLoadProfile(LoadProfile loadProfile, Instant lastReading) {
-        return device -> {
-            LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
-            LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
-            loadProfileUpdater.setLastReadingIfLater(lastReading);
-            loadProfileUpdater.update();
-            return null;
-        };
+    private void updateLoadProfile(LoadProfile loadProfile, Instant lastReading) {
+        loadProfile
+            .getDevice()
+            .getLoadProfileUpdaterFor(loadProfile)
+            .setLastReadingIfLater(lastReading)
+            .update();
     }
 
-    private Function<Device, Void> updateLogBook(LogBook logBook, Instant lastLogBook) {
-        return device -> {
-            LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
-            LogBook.LogBookUpdater logBookUpdater = device.getLogBookUpdaterFor(refreshedLogBook);
-            logBookUpdater.setLastReadingIfLater(lastLogBook);
-            logBookUpdater.update();
-            return null;
-        };
+    private void updateLogBook(LogBook logBook, Instant lastLogBook) {
+        logBook
+            .getDevice()
+            .getLogBookUpdaterFor(logBook)
+            .setLastReadingIfLater(lastLogBook)
+            .update();
     }
 
     @Override
