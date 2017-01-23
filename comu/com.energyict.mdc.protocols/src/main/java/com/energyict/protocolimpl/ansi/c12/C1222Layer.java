@@ -1,10 +1,8 @@
 package com.energyict.protocolimpl.ansi.c12;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-
 import com.energyict.protocolimpl.ansi.c12.EAXPrime.EAXPrimeEncoder;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -27,19 +25,19 @@ public class C1222Layer extends C12Layer2 {
     public enum SecurityModeEnum {
         SecurityClearText,
         SecurityClearTextWithAuthentication,
-        SecurityCipherTextWithAuthentication;
+        SecurityCipherTextWithAuthentication
     }
 
     public enum ResponseControlEnum {
         ResponseControlAlways,
         ResponseControlOnException,
-        ResponseControlNever;
+        ResponseControlNever
     }
 
     public enum SecurityExtensionEnum {
         ExtensionNo,
         ExtensionSeed,
-        ExtensionPassword;
+        ExtensionPassword
     }
 
     public C1222Layer(InputStream inputStream,
@@ -141,10 +139,10 @@ public class C1222Layer extends C12Layer2 {
 
                 previousByte = currentByte;
             }
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error", TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error", TIMEOUT_ERROR);
             }
         }
@@ -210,7 +208,7 @@ public class C1222Layer extends C12Layer2 {
         return result;
     }
 
-    private int extractSize(int currentByte) throws NestedIOException, IOException {
+    private int extractSize(int currentByte) throws IOException {
         int result = currentByte;
         if ((currentByte & 0x80) != 0) // If high bit is set
         {

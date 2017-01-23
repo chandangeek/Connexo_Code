@@ -1,7 +1,7 @@
 package com.energyict.protocols.impl.channels.serial.modem.serialio;
 
 import com.energyict.mdc.io.PEMPModemConfiguration;
-import com.energyict.mdc.io.ServerSerialPort;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;

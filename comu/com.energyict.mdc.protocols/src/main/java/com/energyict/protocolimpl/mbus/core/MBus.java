@@ -10,15 +10,13 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.protocols.mdc.inbound.rtuplusserver.Discover;
-
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -26,6 +24,7 @@ import com.energyict.protocolimpl.mbus.core.connection.MBusConnection;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.mbus.core.discover.SecondaryAddressDiscover;
+import com.energyict.protocols.mdc.inbound.rtuplusserver.Discover;
 
 import java.io.IOException;
 import java.io.InputStream;

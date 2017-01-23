@@ -1,16 +1,14 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.SerialNumber;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 
@@ -32,14 +30,14 @@ public abstract class AbstractPPM extends PluggableMeterProtocol implements HHUE
 	/* (non-Javadoc)
          * @see com.energyict.protocol.MeterProtocol#setRegister(java.lang.String, java.lang.String)
          */
-	public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+	public void setRegister(String name, String value) throws IOException {
 		throw new UnsupportedException();
 	}
 
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#initializeDevice()
 	 */
-	public void initializeDevice() throws IOException, UnsupportedException {
+	public void initializeDevice() throws IOException {
 		throw new UnsupportedException();
 	}
 
@@ -85,7 +83,7 @@ public abstract class AbstractPPM extends PluggableMeterProtocol implements HHUE
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#getFirmwareVersion()
 	 */
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		return "unknown";
 	}
 
@@ -106,7 +104,7 @@ public abstract class AbstractPPM extends PluggableMeterProtocol implements HHUE
 	/* (non-Javadoc)
 	 * @see com.energyict.protocol.MeterProtocol#getRegister(java.lang.String)
 	 */
-	public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+	public String getRegister(String name) throws IOException {
 		throw new UnsupportedException();
 	}
 

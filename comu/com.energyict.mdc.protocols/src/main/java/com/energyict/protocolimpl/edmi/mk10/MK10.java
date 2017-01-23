@@ -1,18 +1,15 @@
 
 package com.energyict.protocolimpl.edmi.mk10;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.protocols.util.ProtocolUtils;
-
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -23,6 +20,7 @@ import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeFactory;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
 import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
 import com.energyict.protocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -125,12 +123,12 @@ public class MK10 extends AbstractProtocol {
         setFullDebugLogging(properties.getProperty("FullDebug", "0").equalsIgnoreCase("1"));
 	}
 
-	public int getProfileInterval() throws UnsupportedException, IOException {
+	public int getProfileInterval() throws IOException {
 		sendDebug("getProfileInterval()");
 		return mk10Profile.getProfileInterval();
 	}
 
-	public int getNumberOfChannels() throws UnsupportedException, IOException {
+	public int getNumberOfChannels() throws IOException {
 		sendDebug("getNumberOfChannels()");
 		return mk10Profile.getNumberOfChannels();
 	}
@@ -179,7 +177,7 @@ public class MK10 extends AbstractProtocol {
 		return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
 	}
 
-	public String getFirmwareVersion() throws IOException, UnsupportedException {
+	public String getFirmwareVersion() throws IOException {
 		sendDebug("getFirmwareVersion()");
 		return "Equipment model id:"+getCommandFactory().getReadCommand(MK10Register.SYSTEM_MODEL_ID).getRegister().getString()+"\n"+ // Equipment model id
 		"Software version:"+getCommandFactory().getReadCommand(MK10Register.SYSTEM_SOFTWARE_VERSION).getRegister().getString()+"\n"+ // Software version
@@ -192,7 +190,7 @@ public class MK10 extends AbstractProtocol {
 		return getCommandFactory().getReadCommand(MK10Register.SYSTEM_SERIALNUMBER).getRegister().getString(); // Serial number
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		sendDebug("getProfileData()");
 		return mk10Profile.getProfileData(from, to, includeEvents);
 	}

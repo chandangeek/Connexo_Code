@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -21,7 +22,6 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.Link;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;

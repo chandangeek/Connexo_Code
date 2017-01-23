@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.inbound.MeterType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,7 +43,7 @@ public class IskraHHUConnection extends IEC1107HHUConnection {
         this.maxRetries = maxRetries;
     }
 
-    public MeterType signOn(String strIdentConfig, String nodeId, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdentConfig, String nodeId, boolean wakeup, int baudrate) throws IOException {
         return doSignOn(strIdentConfig, nodeId, getProtocol(), getMode(), wakeup, baudrate);
     }
 
@@ -102,7 +102,7 @@ public class IskraHHUConnection extends IEC1107HHUConnection {
                     return strIdent;
                 }
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ConnectionException("receiveIdent() timeout error", TIMEOUT_ERROR);
             }
         }
@@ -133,7 +133,7 @@ public class IskraHHUConnection extends IEC1107HHUConnection {
     }
 
 
-    private MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    private MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) throws IOException {
         int retries = 0;
         while (true) {
             try {

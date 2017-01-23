@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
@@ -409,13 +409,8 @@ public class SiemensSCTM {
     }
 
     private boolean isChecksum(byte[] data) {
-        if ((calcHCC(data) == 0) &&
-        (calcBCC(data) == 0)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return (calcHCC(data) == 0) &&
+                (calcBCC(data) == 0);
     }
 
     private boolean isChecksumDump(byte[] data) {

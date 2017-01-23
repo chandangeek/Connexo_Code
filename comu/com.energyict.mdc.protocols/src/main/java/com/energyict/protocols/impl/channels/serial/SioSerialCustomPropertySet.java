@@ -6,14 +6,17 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.TranslationKeys;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link CustomPropertySet} interface
@@ -34,13 +37,11 @@ public class SioSerialCustomPropertySet implements CustomPropertySet<ConnectionP
 
     private final String id;
     private final Thesaurus thesaurus;
-    private final SerialComponentService serialComponentService;
 
-    public SioSerialCustomPropertySet(String id, Thesaurus thesaurus, SerialComponentService serialComponentService) {
+    public SioSerialCustomPropertySet(String id, Thesaurus thesaurus) {
         super();
         this.id = id;
         this.thesaurus = thesaurus;
-        this.serialComponentService = serialComponentService;
     }
 
     @Override
@@ -90,7 +91,6 @@ public class SioSerialCustomPropertySet implements CustomPropertySet<ConnectionP
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.serialComponentService.getPropertySpecs();
+        return new SioSerialConnectionType(propertySpecService).getUPLPropertySpecs().stream().map(UPLToConnexoPropertySpecAdapter::new).collect(Collectors.toList());
     }
-
 }

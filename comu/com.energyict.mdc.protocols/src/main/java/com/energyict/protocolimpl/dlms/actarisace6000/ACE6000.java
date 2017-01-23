@@ -1,33 +1,8 @@
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.protocols.util.ProtocolUtils;
-
 import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
@@ -49,10 +24,34 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -470,7 +469,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     } // void CheckAARE(byte[] responseData) throws IOException
 
-    private CapturedObjects getCapturedObjects() throws UnsupportedException, IOException {
+    private CapturedObjects getCapturedObjects() throws IOException {
         if (capturedObjects == null) {
             byte[] responseData;
             int i;
@@ -517,7 +516,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
                         (getCapturedObjects().getProfileDataChannel(index).toString().startsWith("1.1.96")));
     }
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (numberOfChannels == -1) {
             numberOfChannels = getCapturedObjects().getNROfChannels();
             boolean containsStatusAlarmChannel =
@@ -537,7 +536,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
      * @return Remote meter 'recorder interval' in min.
      * @throws IOException
      */
-    public int getProfileInterval() throws IOException, UnsupportedException {
+    public int getProfileInterval() throws IOException {
         if (iInterval == 0) {
             byte[] LN = {0, 0, (byte) 136, 0, 1, (byte) 255};
             DataContainer dataContainer = doRequestAttribute((short) 1, LN, (byte) 2);
@@ -559,7 +558,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(timeZone), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException("getProfileData(from,to) is not supported by this meter");
     }
 
@@ -700,24 +699,16 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     }
 
     private boolean isNewDate(byte[] array) {
-        if ((array[0] != -1) &&
+        return (array[0] != -1) &&
                 (array[1] != -1) &&
                 (array[2] != -1) &&
-                (array[3] != -1)) {
-            return true;
-        } else {
-            return false;
-        }
+                (array[3] != -1);
     }
 
     private boolean isNewTime(byte[] array) {
-        if ((array[5] != -1) &&
+        return (array[5] != -1) &&
                 (array[6] != -1) &&
-                (array[7] != -1)) {
-            return true;
-        } else {
-            return false;
-        }
+                (array[7] != -1);
     }
 
     private boolean parseStart(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
@@ -876,7 +867,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
             // Adjust calendar for interval with profile interval period
             if (currentAdd) {
-                calendar.add(calendar.MINUTE, (getProfileInterval() / 60));
+                calendar.add(Calendar.MINUTE, (getProfileInterval() / 60));
             }
 
             currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar);
@@ -920,7 +911,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return intervalData;
     }
 
-    private IntervalData getIntervalData(DataStructure dataStructure, Calendar calendar) throws UnsupportedException, IOException {
+    private IntervalData getIntervalData(DataStructure dataStructure, Calendar calendar) throws IOException {
         // Add interval data...
         int channelIndex = 0;
         int protocolStatus = 0;
@@ -970,11 +961,11 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         }
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -1024,15 +1015,15 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
         byteTimeBuffer[0] = AxdrType.OCTET_STRING.getTag();
         byteTimeBuffer[1] = 12; // length
-        byteTimeBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[3] = (byte) calendar.get(calendar.YEAR);
-        byteTimeBuffer[4] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteTimeBuffer[5] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) calendar.get(calendar.DAY_OF_WEEK);
+        byteTimeBuffer[2] = (byte) (calendar.get(Calendar.YEAR) >> 8);
+        byteTimeBuffer[3] = (byte) calendar.get(Calendar.YEAR);
+        byteTimeBuffer[4] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        byteTimeBuffer[5] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        byte bDOW = (byte) calendar.get(Calendar.DAY_OF_WEEK);
         byteTimeBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteTimeBuffer[7] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[8] = (byte) calendar.get(calendar.MINUTE);
-        byteTimeBuffer[9] = (byte) calendar.get(calendar.SECOND);
+        byteTimeBuffer[7] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        byteTimeBuffer[8] = (byte) calendar.get(Calendar.MINUTE);
+        byteTimeBuffer[9] = (byte) calendar.get(Calendar.SECOND);
         byteTimeBuffer[10] = (byte) 0xFF;
         byteTimeBuffer[11] = (byte) 0xFF; //0x80;
         byteTimeBuffer[12] = (byte) 0xFF; //0x00;
@@ -1054,20 +1045,12 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     }
 
     private boolean verifyMeterID() throws IOException {
-        if ((strID == null) || ("".compareTo(strID) == 0) || (strID.compareTo(getSerialNumber()) == 0)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (strID == null) || ("".compareTo(strID) == 0) || (strID.compareTo(getSerialNumber()) == 0);
     }
 
     // KV 19012004
     private boolean verifyMeterSerialNR() throws IOException {
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0) || (serialNumber.compareTo(getSerialNumber()) == 0)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (serialNumber == null) || ("".compareTo(serialNumber) == 0) || (serialNumber.compareTo(getSerialNumber()) == 0);
     }
 
     public int requestConfigurationProgramChanges() throws IOException {
@@ -1333,7 +1316,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
             return;
         }
-        String sn = (String) getSerialNumber();
+        String sn = getSerialNumber();
         if ((sn != null) && (sn.compareTo(serialNumber) == 0)) {
             return;
         }
@@ -1355,7 +1338,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return "$Date: 2014-10-30 17:01:03 +0100 (Thu, 30 Oct 2014) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         if (version == null) {
             StringBuffer strbuff = new StringBuffer();
             try {
@@ -1446,7 +1429,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         return doGetRegister(name);
     }
 
@@ -1477,7 +1460,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -1487,7 +1470,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -1573,7 +1556,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
+                new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -1625,7 +1608,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     }
 
     public StoredValues getStoredValues() {
-        return (StoredValues) storedValuesImpl;
+        return storedValuesImpl;
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {

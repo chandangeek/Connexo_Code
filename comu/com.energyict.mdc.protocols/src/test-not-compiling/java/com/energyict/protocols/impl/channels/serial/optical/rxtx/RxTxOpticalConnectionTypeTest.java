@@ -1,7 +1,7 @@
 package com.energyict.protocols.impl.channels.serial.optical.rxtx;
 
 import com.energyict.protocols.impl.channels.ConnectionTypePropertiesTest;
-import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 
 import java.util.Arrays;
 import java.util.HashSet;

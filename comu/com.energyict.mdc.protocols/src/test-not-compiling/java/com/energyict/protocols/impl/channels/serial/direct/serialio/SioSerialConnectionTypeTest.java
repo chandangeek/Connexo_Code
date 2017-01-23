@@ -2,7 +2,7 @@ package com.energyict.protocols.impl.channels.serial.direct.serialio;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.impl.channels.ConnectionTypePropertiesTest;
-import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import org.junit.*;
 
 import java.math.BigDecimal;

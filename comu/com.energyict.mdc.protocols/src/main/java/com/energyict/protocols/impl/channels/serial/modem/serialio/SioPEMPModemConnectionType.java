@@ -1,10 +1,10 @@
 package com.energyict.protocols.impl.channels.serial.modem.serialio;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.io.ModemComponent;
-import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
@@ -32,10 +32,10 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     }
 
     @Override
-    public SerialComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
+    public SerialPortComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
         this.initializeModemComponent(properties);
         // create the serial ComChannel and set all property values
-        SerialComChannel comChannel = super.connect(properties);
+        SerialPortComChannel comChannel = super.connect(properties);
         try {
             pempModemComponent.connect(this.getComPortNameValue(), comChannel);
         }
@@ -53,7 +53,7 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
         if (pempModemComponent != null) {
-            pempModemComponent.disconnect((SerialComChannel) comChannel);
+            pempModemComponent.disconnect((SerialPortComChannel) comChannel);
         }
     }
 

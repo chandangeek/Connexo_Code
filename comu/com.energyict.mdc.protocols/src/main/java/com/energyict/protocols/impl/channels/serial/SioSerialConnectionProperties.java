@@ -8,12 +8,12 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.FlowControl;
-import com.energyict.mdc.io.ModemProperties;
-import com.energyict.mdc.io.NrOfDataBits;
-import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.modem.AbstractModemProperties;
 import com.energyict.mdc.io.naming.ModemPropertySpecNames;
 import com.energyict.mdc.io.naming.PEMPModemPropertySpecNames;
 import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
@@ -280,7 +280,7 @@ public class SioSerialConnectionProperties extends AbstractVersionedPersistentDo
         this.postDialCommands = (String) propertyValues.getProperty(ModemPropertySpecNames.POST_DIAL_COMMANDS);
         this.dtrToggleDelay = (TimeDuration) propertyValues.getProperty(ModemPropertySpecNames.DTR_TOGGLE_DELAY);
         this.pempConfigurationKey = (String) propertyValues.getProperty(PEMPModemPropertySpecNames.CONFIGURATION_KEY);
-        this.phoneNumber = (String) propertyValues.getProperty(ModemProperties.PHONE_NUMBER_PROPERTY_NAME);
+        this.phoneNumber = (String) propertyValues.getProperty(AbstractModemProperties.PHONE_NUMBER_PROPERTY_NAME);
     }
 
     protected void copyParityFrom(CustomPropertySetValues propertyValues) {
@@ -342,20 +342,20 @@ public class SioSerialConnectionProperties extends AbstractVersionedPersistentDo
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         // The PropertySpec of the following properties are actually using StringFactory so generic clients will expect String values
         if (this.parity != null) {
-            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.PARITY, this.parity.value());
+            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.PARITY, this.parity.getParity());
         }
         if (this.flowControl != null) {
-            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.FLOW_CONTROL, this.flowControl.value());
+            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.FLOW_CONTROL, this.flowControl.getFlowControl());
         }
         // The PropertySpec of the following properties are actually using BigDecimalFactory so generic clients will expect BigDecimal values
         if (this.numberOfStopBits != null) {
-            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.NR_OF_STOP_BITS, this.numberOfStopBits.value());
+            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.NR_OF_STOP_BITS, this.numberOfStopBits.getNrOfStopBits());
         }
         if (this.numberOfDataBits != null) {
-            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS, this.numberOfDataBits.value());
+            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.NR_OF_DATA_BITS, this.numberOfDataBits.getNrOfDataBits());
         }
         if (this.baudRate != null) {
-            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.BAUDRATE, this.baudRate.value());
+            this.copyTo(propertySetValues, SerialPortConfigurationPropertySpecNames.BAUDRATE, this.baudRate.getBaudrate());
         }
         this.copyTo(propertySetValues, ModemPropertySpecNames.DELAY_BEFORE_SEND, this.delayBeforeSend);
         this.copyTo(propertySetValues, ModemPropertySpecNames.DELAY_AFTER_CONNECT, this.delayAfterConnect);
@@ -368,7 +368,7 @@ public class SioSerialConnectionProperties extends AbstractVersionedPersistentDo
         this.copyTo(propertySetValues, ModemPropertySpecNames.ADDRESS_SELECTOR, this.addressSelector);
         this.copyTo(propertySetValues, ModemPropertySpecNames.POST_DIAL_COMMANDS, this.postDialCommands);
         this.copyTo(propertySetValues, PEMPModemPropertySpecNames.CONFIGURATION_KEY, this.pempConfigurationKey);
-        this.copyTo(propertySetValues, ModemProperties.PHONE_NUMBER_PROPERTY_NAME, this.phoneNumber);
+        this.copyTo(propertySetValues, AbstractModemProperties.PHONE_NUMBER_PROPERTY_NAME, this.phoneNumber);
     }
 
     private void copyTo(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {

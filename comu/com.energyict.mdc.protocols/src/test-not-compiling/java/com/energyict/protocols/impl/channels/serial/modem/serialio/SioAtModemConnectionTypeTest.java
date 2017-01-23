@@ -10,7 +10,7 @@ import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.io.ServerSerialPort;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
 import com.energyict.mdc.channels.serial.modem.AtModemComponent;

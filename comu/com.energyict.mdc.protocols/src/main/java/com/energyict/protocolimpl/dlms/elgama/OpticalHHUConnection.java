@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.dlms.elgama;
 
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
@@ -45,15 +45,15 @@ public class OpticalHHUConnection implements HHUSignOn {
         }
     }
 
-    public MeterType signOn(String strIdent, String meterID) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID) throws IOException {
         return signOn(strIdent, meterID, 0);
     }
 
-    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException {
         return signOn(strIdent, meterID, false, baudrate);
     }
 
-    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException {
         set7E1(baudrate);
         writeRawData(SIGN_ON);
         ProtocolTools.delay(100);

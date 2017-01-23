@@ -1,9 +1,9 @@
 package com.energyict.dlms;
 
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 
@@ -61,7 +61,7 @@ public class IF2HHUSignon implements HHUSignOn {
      * @throws IOException         If there occurred an error while switching the baudrate
      * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID) throws IOException {
         return signOn(strIdent, meterID, DEFAULT_BAUDRATE);
     }
 
@@ -75,7 +75,7 @@ public class IF2HHUSignon implements HHUSignOn {
      * @throws IOException         If there occurred an error while switching the baudrate
      * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID, int baudrate) throws IOException {
         return signOn(strIdent, meterID, false, baudrate);
     }
 
@@ -90,7 +90,7 @@ public class IF2HHUSignon implements HHUSignOn {
      * @throws IOException         If there occurred an error while switching the baudrate
      * @throws ConnectionException If there occurred an error while switching the baudrate
      */
-    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdent, String meterID, boolean wakeup, int baudrate) throws IOException {
         this.logger.info("Switching serial channel to [" + baudrate + "] baud.");
         this.serialCommunicationChannel.setBaudrate(baudrate);
         try {

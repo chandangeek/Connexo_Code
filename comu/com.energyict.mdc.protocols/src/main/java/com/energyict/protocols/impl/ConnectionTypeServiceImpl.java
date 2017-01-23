@@ -21,7 +21,6 @@ import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.impl.channels.ServerConnectionType;
 import com.energyict.protocols.impl.channels.TranslationKeys;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -46,7 +45,7 @@ import java.util.Map;
 /**
  * Provides an implementation for the {@link ConnectionTypeService} interface
  * and registers as a OSGi component.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 28/11/13
  * Time: 16:27
@@ -54,13 +53,8 @@ import java.util.Map;
 @Component(name = "com.energyict.protocols.mdc.services.connectiontypeservice", service = {ConnectionTypeService.class, TranslationKeyProvider.class}, immediate = true)
 public class ConnectionTypeServiceImpl implements ConnectionTypeService, TranslationKeyProvider {
 
-    public static final String RXTX_PLAIN_GUICE_INJECTION_NAME = "rxtx-none";
     public static final String RXTX_AT_GUICE_INJECTION_NAME = "rxtx-at";
-    public static final String SERIAL_PLAIN_GUICE_INJECTION_NAME = "serialio-none";
     public static final String SERIAL_AT_GUICE_INJECTION_NAME = "serialio-at";
-    public static final String SERIAL_CASE_GUICE_INJECTION_NAME = "serialio-case";
-    public static final String SERIAL_PAKNET_GUICE_INJECTION_NAME = "serialio-paknet";
-    public static final String SERIAL_PEMP_GUICE_INJECTION_NAME = "serialio-pemp";
 
     private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
@@ -99,13 +93,8 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService, Transla
         service.setSocketService(socketService);
         service.setNlsService(nlsService);
         service.setTransactionService(transactionService);
-        service.setRxTxPlainComponentService(serialComponentService);
         service.setRxTxAtComponentService(serialComponentService);
-        service.setSioPlainComponentService(serialComponentService);
         service.setSioAtComponentService(serialComponentService);
-        service.setSioCaseComponentService(serialComponentService);
-        service.setSioPaknetComponentService(serialComponentService);
-        service.setSioPempComponentService(serialComponentService);
         service.activate();
         return service;
     }
@@ -121,10 +110,10 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService, Transla
                 this.bind(MessageInterpolator.class).toInstance(thesaurus);
                 this.bind(TransactionService.class).toInstance(transactionService);
                 serialComponentServices
-                    .forEach((k, v) -> this
-                            .bind(SerialComponentService.class)
-                            .annotatedWith(Names.named(k))
-                            .toInstance(v));
+                        .forEach((k, v) -> this
+                                .bind(SerialComponentService.class)
+                                .annotatedWith(Names.named(k))
+                                .toInstance(v));
             }
         };
     }
@@ -157,6 +146,11 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService, Transla
     }
 
     @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
     @SuppressWarnings("unused")
     public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
         // Just making sure that this bundle activates after the bundle that provides connections (see com.energyict.mdc.protocol.api.ConnectionProvider)
@@ -165,11 +159,6 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService, Transla
     @Reference
     public void setJupiterPropertySpecService(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
         this.jupiterPropertySpecService = jupiterPropertySpecService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
     }
 
     @Reference
@@ -187,22 +176,10 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService, Transla
         this.transactionService = transationService;
     }
 
-    @Reference(target = "(&(library=" + LibraryType.Target.RXTX + ")(modem-type=" + ModemType.Target.NONE + "))")
-    @SuppressWarnings("unused")
-    public void setRxTxPlainComponentService(SerialComponentService serialComponentService) {
-        this.serialComponentServices.put(RXTX_PLAIN_GUICE_INJECTION_NAME, serialComponentService);
-    }
-
     @Reference(target = "(&(library=" + LibraryType.Target.RXTX + ")(modem-type=" + ModemType.Target.AT + "))")
     @SuppressWarnings("unused")
     public void setRxTxAtComponentService(SerialComponentService serialComponentService) {
         this.serialComponentServices.put(RXTX_AT_GUICE_INJECTION_NAME, serialComponentService);
-    }
-
-    @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.NONE + "))")
-    @SuppressWarnings("unused")
-    public void setSioPlainComponentService(SerialComponentService serialComponentService) {
-        this.serialComponentServices.put(SERIAL_PLAIN_GUICE_INJECTION_NAME, serialComponentService);
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.AT + "))")
@@ -211,32 +188,14 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService, Transla
         this.serialComponentServices.put(SERIAL_AT_GUICE_INJECTION_NAME, serialComponentService);
     }
 
-    @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.CASE + "))")
-    @SuppressWarnings("unused")
-    public void setSioCaseComponentService(SerialComponentService serialComponentService) {
-        this.serialComponentServices.put(SERIAL_CASE_GUICE_INJECTION_NAME, serialComponentService);
-    }
-
-    @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.PAKNET + "))")
-    @SuppressWarnings("unused")
-    public void setSioPaknetComponentService(SerialComponentService serialComponentService) {
-        this.serialComponentServices.put(SERIAL_PAKNET_GUICE_INJECTION_NAME, serialComponentService);
-    }
-
-    @Reference(target = "(&(library=" + LibraryType.Target.SERIALIO + ")(modem-type=" + ModemType.Target.PEMP + "))")
-    @SuppressWarnings("unused")
-    public void setSioPempComponentService(SerialComponentService serialComponentService) {
-        this.serialComponentServices.put(SERIAL_PEMP_GUICE_INJECTION_NAME, serialComponentService);
-    }
-
     @Override
     public ConnectionType createConnectionType(String javaClassName) {
         try {
+            //TODO adjust this (?) so that it can also load the 9.1 connection type classes? huh?
             // Attempt to load the class to verify that this class is managed by this bundle
             Class<?> connectionTypeClass = getClass().getClassLoader().loadClass(javaClassName);
             return (ServerConnectionType) this.injector.getInstance(connectionTypeClass);
-        }
-        catch (ClassNotFoundException | ConfigurationException | ProvisionException e) {
+        } catch (ClassNotFoundException | ConfigurationException | ProvisionException e) {
             throw new UnableToCreateConnectionType(e, javaClassName);
         }
     }

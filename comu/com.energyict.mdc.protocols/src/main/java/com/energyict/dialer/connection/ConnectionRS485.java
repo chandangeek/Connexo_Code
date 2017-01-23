@@ -6,9 +6,9 @@
 
 package com.energyict.dialer.connection;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import serialio.xmodemapi.XGet;
 
 import java.io.ByteArrayInputStream;
@@ -175,7 +175,7 @@ public abstract class ConnectionRS485 {
                 }
             }
 
-            if (((long) (System.currentTimeMillis() - echoTimeout)) > 0) {
+            if (System.currentTimeMillis() - echoTimeout > 0) {
                 throw new ConnectionException("Connection, waitForEcho(), timeout waiting for character echo!", TIMEOUT_ERROR);
             }
         } // while(true)
@@ -196,7 +196,7 @@ public abstract class ConnectionRS485 {
             if (readIn() != -1) {
                 emptyBufferTimeout = System.currentTimeMillis() + delay;
             }
-            if (((long) (System.currentTimeMillis() - emptyBufferTimeout)) > 0) {
+            if (System.currentTimeMillis() - emptyBufferTimeout > 0) {
                 break;
             }
         } // while(true)

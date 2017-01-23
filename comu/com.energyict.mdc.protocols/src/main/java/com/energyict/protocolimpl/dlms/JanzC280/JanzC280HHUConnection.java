@@ -7,12 +7,11 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.device.data.MeterDataReadout;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.inbound.MeterId;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import com.energyict.protocols.util.ProtocolUtils;
@@ -122,7 +121,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
                 }
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ConnectionException("receiveIdent() timeout error", TIMEOUT_ERROR);
             }
 
@@ -239,10 +238,10 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ConnectionException("doReceiveData() response timeout error", TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeoutInterFrame > 0) {
                 throw new ConnectionException("doReceiveData() interframe timeout error", TIMEOUT_ERROR);
             }
 
@@ -410,16 +409,16 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
 //        } //  while(true)
 //    } // public String discover(String nodeId)
 
-    public MeterType signOn(String strIdentConfig, String nodeId) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdentConfig, String nodeId) throws IOException {
         return signOn(strIdentConfig, nodeId, 0);
     }
 
-    public MeterType signOn(String strIdentConfig, String nodeId, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdentConfig, String nodeId, int baudrate) throws IOException {
         return signOn(strIdentConfig, nodeId, false, baudrate);
     }
 
 
-    public MeterType signOn(String strIdentConfig, String nodeId, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    public MeterType signOn(String strIdentConfig, String nodeId, boolean wakeup, int baudrate) throws IOException {
         MeterType meterType;
         if (isDataReadoutEnabled()) {
             meterType = doSignOn(strIdentConfig, nodeId, 0, 0, wakeup, baudrate);
@@ -430,7 +429,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
         return meterType;
     }
 
-    private MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) throws IOException, ConnectionException {
+    private MeterType doSignOn(String strIdentConfig, String nodeId, int protocol, int mode, boolean wakeup, int baudrate) throws IOException {
         int retries = 0;
         while (true) {
             try {
@@ -606,7 +605,7 @@ public class JanzC280HHUConnection extends Connection implements HHUSignOn {
             long timeout = System.currentTimeMillis() + 2300;
             while (true) {
                 sendOut((byte) 0);
-                if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+                if (System.currentTimeMillis() - timeout > 0) {
                     break;
                 }
             }

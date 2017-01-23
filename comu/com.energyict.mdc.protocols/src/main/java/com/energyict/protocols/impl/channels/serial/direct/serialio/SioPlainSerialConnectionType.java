@@ -1,10 +1,10 @@
 package com.energyict.protocols.impl.channels.serial.direct.serialio;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
@@ -29,7 +29,7 @@ public class SioPlainSerialConnectionType extends SioSerialConnectionType {
     }
 
     @Override
-    public SerialComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
+    public SerialPortComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
         SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(properties);
         return newSioSerialConnection(this.getSerialComponentService(), serialPortConfiguration);
     }

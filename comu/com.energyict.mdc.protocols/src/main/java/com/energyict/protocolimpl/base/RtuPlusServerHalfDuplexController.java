@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.dialer.core.HalfDuplexController;
 
 import java.io.IOException;
 

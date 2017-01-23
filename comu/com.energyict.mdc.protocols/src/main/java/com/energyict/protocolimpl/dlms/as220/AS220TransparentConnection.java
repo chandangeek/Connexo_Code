@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -299,7 +299,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 	 */
 	public void enableHHUSignOn(SerialCommunicationChannel commChannel)
 			throws ConnectionException {
-		HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(
+		HHUSignOn hhuSignOn = new IEC1107HHUConnection(
 				this.commChannel, TIMEOUT, 1, 300, 0);
 		 hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
 		 hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
@@ -312,7 +312,7 @@ public class AS220TransparentConnection extends FlagIEC1107Connection implements
 	}
 
 	public void changeHHUSettings() throws ConnectionException{
-		HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(
+		HHUSignOn hhuSignOn = new IEC1107HHUConnection(
 				this.commChannel, TIMEOUT, 1, 300, 0);
 //		 hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
 //		 hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
