@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.issue.datavalidation.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -157,6 +158,7 @@ public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicati
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
+        when(issue.getPriority()).thenReturn(Priority.DEFAULT);
         return issue;
     }
 }
