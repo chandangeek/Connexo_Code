@@ -44,7 +44,6 @@ public class MetrologyConfigurationInfo {
                         }
                     });
             actualCustomPropertySets.values()
-                    .stream()
                     .forEach(metrologyConfiguration::removeCustomPropertySet);
         }
     }
