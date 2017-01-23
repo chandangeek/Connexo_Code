@@ -1,13 +1,13 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.NrOfDataBits;
-import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPortType;
 
 import java.math.BigDecimal;

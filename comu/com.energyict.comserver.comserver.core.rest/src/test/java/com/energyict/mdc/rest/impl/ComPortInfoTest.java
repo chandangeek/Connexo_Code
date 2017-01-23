@@ -1,22 +1,18 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.io.FlowControl;
+import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.rest.impl.comserver.ComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.FlowControlInfo;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.ModemInboundComPortInfo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonFactory.Feature;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-
 import org.junit.Before;
 import org.junit.Test;
 

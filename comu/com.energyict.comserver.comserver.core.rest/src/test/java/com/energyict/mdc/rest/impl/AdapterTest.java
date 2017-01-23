@@ -1,19 +1,20 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.FlowControl;
-import com.energyict.mdc.io.NrOfDataBits;
-import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
 import com.energyict.mdc.rest.impl.comserver.FlowControlAdapter;
 import com.energyict.mdc.rest.impl.comserver.LogLevelAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfDataBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.ParitiesAdapter;
-import com.energyict.mdc.engine.config.ComServer;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.junit.Test;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

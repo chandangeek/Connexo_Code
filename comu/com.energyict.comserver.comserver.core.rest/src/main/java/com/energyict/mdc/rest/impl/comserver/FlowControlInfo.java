@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.io.FlowControl;
+import com.energyict.mdc.channels.serial.FlowControl;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 

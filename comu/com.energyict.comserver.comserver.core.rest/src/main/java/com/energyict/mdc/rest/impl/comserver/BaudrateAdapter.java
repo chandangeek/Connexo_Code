@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 
 public class BaudrateAdapter extends MapBasedXmlAdapter<BaudrateValue> {
