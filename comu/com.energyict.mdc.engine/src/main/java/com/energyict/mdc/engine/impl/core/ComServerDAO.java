@@ -36,6 +36,7 @@ import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.CertificateAlias;
 
 import com.google.common.collect.Range;
 
@@ -394,6 +395,17 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * the proper CertificateWrapper and fill the property value with the ID of this certificateWrapper.
      */
     void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
+
+    /**
+     * Add/update the given sub-CA or root-CA certificate in the persisted DLMS trust store, for the given alias.
+     */
+    void addCACertificate(CertificateAlias certificateAlias);
+
+    /**
+     * Add the given server end-device certificate as a certificate wrapper.
+     * Returns the database ID of the created {@link CertificateWrapper}
+     */
+    int addEndDeviceCertificate(CertificateWrapperId certificateWrapperId);
 
     /**
      * Updates the gateway device of the Device device

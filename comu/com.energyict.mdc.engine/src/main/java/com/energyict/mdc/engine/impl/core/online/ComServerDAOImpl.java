@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -45,6 +47,8 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.DLMSKeyStoreUserFile;
+import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.DeviceOffline;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
@@ -59,6 +63,8 @@ import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -82,10 +88,14 @@ import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
+import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -99,6 +109,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+
+import static com.elster.jupiter.util.streams.Currying.use;
 
 
 /**
@@ -123,8 +135,12 @@ public class ComServerDAOImpl implements ComServerDAO {
         return this.serviceProvider.engineConfigurationService();
     }
 
-    private DeviceService getDeviceDataService() {
+    private DeviceService getDeviceService() {
         return this.serviceProvider.deviceService();
+    }
+
+    private KeyStoreService getKeyStoreService() {
+        return this.serviceProvider.keyStoreService();
     }
 
     private CommunicationTaskService getCommunicationTaskService() {
@@ -244,8 +260,32 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice offlineDevice, InboundComPort comPort) {
-        Device device = getDeviceDataService().findDeviceById(offlineDevice.getId()).get();
+        Device device = getDeviceService().findDeviceById(offlineDevice.getId()).get();
         return getCommunicationTaskService().getPlannedComTaskExecutionsFor(comPort, device);
+    }
+
+    @Override
+    public PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName) {
+        return getDeviceService()
+                    .findDeviceByIdentifier(deviceIdentifier)
+                    .flatMap(Device::getDeviceProtocolPluggableClass)
+                    .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                    .map(use(this::getPropertyValueType).with(propertyName))
+                    .orElse(PropertyValueType.UNSUPPORTED);
+    }
+
+    private PropertyValueType getPropertyValueType(DeviceProtocol deviceProtocol, String propertyName) {
+        List<PropertySpec> allPropertySpecs = new ArrayList<>();
+        allPropertySpecs.addAll(deviceProtocol.getPropertySpecs());
+        for (DeviceProtocolDialect deviceProtocolDialect : deviceProtocol.getDeviceProtocolDialects()) {
+            allPropertySpecs.addAll(deviceProtocolDialect.getPropertySpecs());
+        }
+        for (PropertySpec propertySpec : allPropertySpecs) {
+            if (propertySpec.getName().equals(propertyName)) {
+                return PropertyValueType.from(propertySpec);
+            }
+        }
+        return PropertyValueType.UNSUPPORTED;
     }
 
     @Override
@@ -273,7 +313,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext) {
-        Device device = (Device) identifier.findDevice(); //Downcast to the Connexo Device
+        Device device = this.findDevice(identifier);
         if (device != null) {
             return Optional.of(new OfflineDeviceImpl(device, offlineDeviceContext, new OfflineDeviceServiceProvider()));
         } else {
@@ -302,7 +342,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
         DeviceMessage deviceMessage = (DeviceMessage) identifier.getDeviceMessage();    //Downcast to the Connexo DeviceMessage
-        Device device = (Device) deviceMessage.getDevice();                             //Downcast to the Connexo Device
+        Device device = (Device) deviceMessage.getDevice(); //Downcast to the Connexo Device
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass.isPresent()) {
             return Optional.of(
@@ -334,18 +374,94 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
-        Device deviceById = getDeviceDataService().findDeviceById(device.getId()).get();
-        deviceById.setProtocolProperty(propertyName, propertyValue);
-        deviceById.save();
+        this.executeTransaction(() -> {
+            Device device = this.findDevice(deviceIdentifier);
+            device.setProtocolProperty(propertyName, propertyValue);
+            device.save();
+            return null;
+        });
+    }
+
+    @Override
+    public void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+        this.executeTransaction(() -> {
+            handleCertificatePropertyValue(propertyValue);
+
+            //Now update the general property
+            Device device = findDevice(deviceIdentifier);
+            device.setProtocolProperty(propertyName, propertyValue);
+            device.save();
+            return null;
+        });
+    }
+
+    /**
+     * If the provided property value holds a certificate, make sure to store it in the proper place.
+     */
+    private void handleCertificatePropertyValue(Object propertyValue) {
+        if (propertyValue instanceof CertificateAlias) {
+            // If the property value is of type CertificateAlias, add the given certificate in the DLMS key store, under the given alias.
+            this.doAddCACertificate((CertificateAlias) propertyValue);
+        } else if (propertyValue instanceof CertificateWrapperId) {
+            /* If the property value is of type CertificateWrapperId, add the given certificate in the trust store.
+             * The id of the created {@link CertificateWrapper} will be set as property value on the device. */
+            CertificateWrapperId certificateWrapperId = (CertificateWrapperId) propertyValue;
+            int id = this.doAddEndDeviceCertificate(certificateWrapperId);
+            certificateWrapperId.setId(id);
+        }
+    }
+
+    @Override
+    public void addCACertificate(final CertificateAlias certificateAlias) {
+        this.executeTransaction(() -> {
+            this.doAddCACertificate(certificateAlias);
+            return null;
+        });
+    }
+
+    private void doAddCACertificate(CertificateAlias certificateAlias) {
+        try {
+            new DLMSKeyStoreUserFile(this.getKeyStoreService())
+                    .importCertificate(
+                        certificateAlias.getCertificate(),
+                        certificateAlias.getAlias());
+        } catch (CertificateException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int addEndDeviceCertificate(final CertificateWrapperId certificateWrapperId) {
+        return this.executeTransaction(() -> this.doAddEndDeviceCertificate(certificateWrapperId));
+    }
+
+    private int doAddEndDeviceCertificate(CertificateWrapperId certificateWrapperId) {
+        CertificateWrapperShadow certificateWrapperShadow = certificateWrapperId.createCertificateWrapperShadow();
+        if (certificateWrapperShadow != null) {
+            CertificateWrapper certificateWrapper = MeteringWarehouse.getCurrent().getCertificateWrapperFactory().create(certificateWrapperShadow);
+            return certificateWrapper.getId();
+        }
+        return 0;
+    }
+
+    @Override
+    public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+        this.executeTransaction(() -> {
+            handleCertificatePropertyValue(propertyValue);
+
+            //Now update the given security property.
+            Device device = this.findDevice(deviceIdentifier);
+            device.setSecurityProperty(propertyName, propertyValue);
+            return null;
+        });
     }
 
     @Override
     public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
-        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
+        Device device = this.findDevice(deviceIdentifier);
         Device gatewayDevice;
         if (gatewayDeviceIdentifier != null) {
-            gatewayDevice = (Device) gatewayDeviceIdentifier.findDevice(); //Downcast to the Connexo Device
+            gatewayDevice = this.findDevice(gatewayDeviceIdentifier);
         } else {
             gatewayDevice = null;
         }
@@ -357,8 +473,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeConfigurationFile(DeviceIdentifier deviceIdentifier, final DateTimeFormatter timeStampFormat, final String fileExtension, final byte[] contents) {
-        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
+    public void storeConfigurationFile(DeviceIdentifier identifier, final DateTimeFormatter timeStampFormat, final String fileExtension, final byte[] contents) {
+        Device device = this.findDevice(identifier);
         this.doStoreConfigurationFile(device, timeStampFormat, fileExtension, contents);
     }
 
@@ -560,8 +676,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeMeterReadings(final DeviceIdentifier deviceIdentifier, final MeterReading meterReading) {
-        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
+    public void storeMeterReadings(final DeviceIdentifier identifier, final MeterReading meterReading) {
+        Device device = this.findDevice(identifier);
         device.store(meterReading);
     }
 
@@ -576,7 +692,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         try {
             updateDeviceMessage(newDeviceMessageStatus, sentDate, protocolInformation, deviceMessage);
         } catch (OptimisticLockException e) { // if someone tried to update the message while the ComServer was executing it ...
-            DeviceMessage reloadedDeviceMessage = getDeviceDataService().findDeviceById(((Device) deviceMessage.getDevice()).getId())   //Downcast to Connexo Device
+            DeviceMessage reloadedDeviceMessage = getDeviceService().findDeviceById(((Device) deviceMessage.getDevice()).getId())   //Downcast to Connexo Device
                     .get()
                     .getMessages()
                     .stream()
@@ -625,8 +741,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         return offlineDeviceMessages;
     }
 
-    private List<DeviceMessage> doConfirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount) {
-        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
+    private List<DeviceMessage> doConfirmSentMessagesAndGetPending(DeviceIdentifier identifier, int confirmationCount) {
+        Device device = this.findDevice(identifier);
         return this.doConfirmSentMessagesAndGetPending(device, confirmationCount);
     }
 
@@ -667,8 +783,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
-        Device device = (Device) deviceIdentifier.findDevice();  //Downcast to the Connexo Device
+    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier identifier, InboundComPort comPort) {
+        Device device = this.findDevice(identifier);
         InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
         if (connectionTask == null) {
             return null;
@@ -743,8 +859,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
-        Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
+    public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier identifier, InboundComPort inboundComPort) {
+        Device device = this.findDevice(identifier);
         ConnectionTask<?, ?> connectionTask = this.getInboundConnectionTask(inboundComPort, device);
         if (connectionTask == null) {
             return null;
@@ -754,9 +870,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
+    public TypedProperties getDeviceProtocolProperties(DeviceIdentifier identifier) {
         try {
-            Device device = (Device) deviceIdentifier.findDevice();  //Downcast to the Connexo Device
+            Device device = this.findDevice(identifier);
             if (device != null) {
                 return device.getDeviceProtocolProperties();
             } else {
@@ -796,7 +912,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments) {
         TopologyService.G3CommunicationPathSegmentBuilder g3CommunicationPathSegmentBuilder = serviceProvider.topologyService()
-                .addCommunicationSegments(((Device) sourceDeviceIdentifier.findDevice()));       //Downcast to the Connexo Device
+                .addCommunicationSegments(this.findDevice(sourceDeviceIdentifier));
         topologyPathSegments.forEach(topologyPathSegment -> {
             Optional<Device> target = getOptionalDeviceByIdentifier(topologyPathSegment.getTarget());
             Optional<Device> intermediateHop = getOptionalDeviceByIdentifier(topologyPathSegment.getIntermediateHop());
@@ -814,7 +930,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
-        TopologyService.G3NeighborhoodBuilder g3NeighborhoodBuilder = serviceProvider.topologyService().buildG3Neighborhood((Device) sourceDeviceIdentifier.findDevice());   //Downcast to the Connexo Device
+        TopologyService.G3NeighborhoodBuilder g3NeighborhoodBuilder = serviceProvider.topologyService().buildG3Neighborhood(this.findDevice(sourceDeviceIdentifier));
         topologyNeighbours.forEach(topologyNeighbour -> {
             Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyNeighbour.getNeighbour());
             if (optionalDevice.isPresent()) {
@@ -843,12 +959,14 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
+    private Device findDevice(DeviceIdentifier identifier) {
+        return this
+                .getOptionalDeviceByIdentifier(identifier)
+                .orElseThrow(() -> new IllegalArgumentException("Device with identifier " + identifier.toString() + " does not exist"));
+    }
+
     private Optional<Device> getOptionalDeviceByIdentifier(DeviceIdentifier deviceIdentifier) {
-        try {
-            return Optional.of((Device) deviceIdentifier.findDevice());  //Downcast to the Connexo Device
-        } catch (CanNotFindForIdentifier e) {
-            return Optional.empty();
-        }
+        return this.getDeviceService().findDeviceByIdentifier(deviceIdentifier);
     }
 
     @Override
@@ -865,7 +983,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedBreakerStatus.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> {
-            BreakerStatusStorage breakerStatusStorage = new BreakerStatusStorage(getDeviceDataService(), serviceProvider.clock());
+            BreakerStatusStorage breakerStatusStorage = new BreakerStatusStorage(getDeviceService(), serviceProvider.clock());
             breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device);
         });
     }
@@ -948,14 +1066,14 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void cleanupOutdatedComTaskExecutionTriggers() {
         this.executeTransaction(() -> {
-            getDeviceDataService().deleteOutdatedComTaskExecutionTriggers();
+            getDeviceService().deleteOutdatedComTaskExecutionTriggers();
             return null;
         });
     }
 
     @Override
     public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
-        final Device dataLogger = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();    //Downcast to the Connexo Device
+        final Device dataLogger = this.findDevice(offlineLoadProfile.getDeviceIdentifier());
         if (dataLogger != null) {
             if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
                 Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
@@ -1081,6 +1199,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         EventService eventService();
 
         IdentificationService identificationService();
+
+        KeyStoreService keyStoreService();
 
         FirmwareService firmwareService();
 

@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -124,6 +125,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
     private volatile FirmwareService firmwareService;
+    private volatile KeyStoreService keyStoreService;
     private volatile UpgradeService upgradeService;
     private volatile AppService appService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
@@ -150,6 +152,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             SerialComponentService serialATComponentService,
             IdentificationService identificationService,
             FirmwareService firmwareService,
+            KeyStoreService keyStoreService,
             UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
@@ -176,6 +179,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setManagementBeanFactory(managementBeanFactory);
         addIdentificationService(identificationService);
         setFirmwareService(firmwareService);
+        setKeyStoreService(keyStoreService);
         setUpgradeService(upgradeService);
         activate(bundleContext);
     }
@@ -371,6 +375,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+    }
+
+    @Reference
+    public void setKeyStoreService(KeyStoreService keyStoreService) {
+        this.keyStoreService = keyStoreService;
     }
 
     @SuppressWarnings("unused")
@@ -775,6 +784,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public FirmwareService firmwareService() {
             return firmwareService;
+        }
+
+        @Override
+        public KeyStoreService keyStoreService() {
+            return keyStoreService;
         }
     }
 

@@ -88,7 +88,7 @@ public enum PropertyValueType {
         }
     };
 
-    public static PropertyValueType getPropertyValueTypeFor(PropertySpec propertySpec) {
+    public static PropertyValueType from(PropertySpec propertySpec) {
         for (PropertyValueType propertyValueType : values()) {
             if (propertySpec.getValueFactory().getValueType().equals(propertyValueType.getValueTypeClass())) {
                 return propertyValueType;
