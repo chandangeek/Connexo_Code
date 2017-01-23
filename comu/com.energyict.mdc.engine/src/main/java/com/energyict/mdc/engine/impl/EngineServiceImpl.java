@@ -784,7 +784,12 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
 
         @Override
         public LoadProfileService loadProfileService() {
-            return this.loadProfileService();
+            return loadProfileService;
+        }
+
+        @Override
+        public LogBookService logBookService() {
+            return logBookService;
         }
 
         @Override

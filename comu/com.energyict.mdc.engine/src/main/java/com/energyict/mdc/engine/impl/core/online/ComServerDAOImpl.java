@@ -24,6 +24,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -351,8 +352,15 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-        LogBook logBook = (LogBook) logBookIdentifier.getLogBook(); //Downcast to Connexo logbook
+        LogBook logBook = this.findLogBook(logBookIdentifier);
         return Optional.of(new OfflineLogBookImpl(logBook, this.serviceProvider.identificationService()));
+    }
+
+    private LogBook findLogBook(LogBookIdentifier identifier) {
+        return this.serviceProvider
+                .logBookService()
+                .findByIdentifier(identifier)
+                .orElseThrow(() -> new IllegalArgumentException("LogBook with identifier " + identifier.toString() + " does not exist"));
     }
 
     @Override
@@ -1209,6 +1217,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         RegisterService registerService();
 
         LoadProfileService loadProfileService();
+
+        LogBookService logBookService();
 
         TopologyService topologyService();
 
