@@ -55,6 +55,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.Services;
 
 import org.joda.time.DateTimeConstants;
 
@@ -406,6 +407,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
             this.awaitNestedServerProcessesAreShutDown();
         }
         this.unregisterAsMBean();
+        Services.objectMapperService(null);
         this.getLogger().shutDownComplete(this.getComServer());
     }
 
