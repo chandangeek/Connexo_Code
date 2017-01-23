@@ -17,7 +17,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 
@@ -55,8 +54,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     @Test
     public void testIntervalsList() throws Exception {
         List<Object> intervals = target("/loadprofiles/intervals").request().get(List.class);
-        assertThat(intervals).hasSize(7);
-        assertThat(((Map) intervals.get(0)).get("name")).isEqualTo("5 minutes");
+        assertThat(intervals).hasSize(16);
     }
 
     @Test
