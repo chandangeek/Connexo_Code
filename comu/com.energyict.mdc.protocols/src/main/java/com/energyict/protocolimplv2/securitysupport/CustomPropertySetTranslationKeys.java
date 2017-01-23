@@ -13,6 +13,7 @@ public enum CustomPropertySetTranslationKeys implements TranslationKey {
     NO_OR_PASSWORD_CUSTOM_PROPERTY_SET_NAME("NoOrPasswordSecurity", "No security or password protected security"),
     BASIC_AUTHENTICATION_CUSTOM_PROPERTY_SET_NAME("BasicAuthentication", "Basic authentication"),
     DLMS_SECURITY_CUSTOM_PROPERTY_SET_NAME("DlmsSecurity", "DLMS security"),
+    GARNET_SECURITY_CUSTOM_PROPERTY_SET_NAME("GarnetSecurity", "Garnet security"),
     DLMS_SECURITY_SUITE_1AND2_CUSTOM_PROPERTY_SET_NAME("DlmsSuite1And2Security", "DLMS security suite 1 & 2"),
     DLMS_SECURITY_PER_CLIENT_CUSTOM_PROPERTY_SET_NAME("DlmsSecurityPerClient", "DLMS security per client"),
     ANSI_C12_CUSTOM_PROPERTY_SET_NAME("AnsiC12Security", "ANSI C12 security"),
