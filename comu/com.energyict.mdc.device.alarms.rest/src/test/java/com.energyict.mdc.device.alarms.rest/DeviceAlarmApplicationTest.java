@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.alarms.rest;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
@@ -10,6 +11,7 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -22,6 +24,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -80,6 +83,12 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     NlsService nlsService;
     @Mock
+    BpmService bpmService;
+    @Mock
+    PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    IssueActionService issueActionService;
+    @Mock
     static SecurityContext securityContext;
 
     @Provider
@@ -106,6 +115,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         when(nlsService.getThesaurus("DAR", Layer.REST)).thenReturn(thesaurus);
         when(nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         when(nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
+        when(issueService.getIssueActionService()).thenReturn(issueActionService);
 
         deviceAlarmApplication.setTransactionService(transactionService);
         deviceAlarmApplication.setDeviceService(deviceService);
@@ -115,6 +125,8 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         deviceAlarmApplication.setIssueService(issueService);
         deviceAlarmApplication.setUserService(userService);
         deviceAlarmApplication.setNlsService(nlsService);
+        deviceAlarmApplication.setBpmService(bpmService);
+        deviceAlarmApplication.setPropertyValueInfoService(propertyValueInfoService);
 
         return deviceAlarmApplication;
     }
@@ -179,6 +191,10 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         return meter;
     }
 
+    protected Thesaurus getThesaurus(){
+        return this.thesaurus;
+    }
+
     protected IssueReason getDefaultReason() {
         return mockReason("1", "Reason");
     }
@@ -232,6 +248,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         when(alarm.getModTime()).thenReturn(Instant.EPOCH);
         when(alarm.getVersion()).thenReturn(1L);
         when(alarm.getDeviceAlarmRelatedEvents()).thenReturn(events);
+        when(alarm.getPriority()).thenReturn(com.elster.jupiter.issue.share.Priority.DEFAULT);
         return alarm;
     }
 

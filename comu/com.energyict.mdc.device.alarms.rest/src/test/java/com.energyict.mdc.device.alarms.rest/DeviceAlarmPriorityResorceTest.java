@@ -3,7 +3,9 @@ package com.energyict.mdc.device.alarms.rest;
 
 import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
 import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.rest.request.SetPriorityRequest;
 import com.energyict.mdc.device.alarms.rest.response.PriorityInfo;
 
@@ -14,7 +16,9 @@ import java.util.Optional;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 public class DeviceAlarmPriorityResorceTest extends DeviceAlarmApplicationTest {
 
@@ -23,6 +27,8 @@ public class DeviceAlarmPriorityResorceTest extends DeviceAlarmApplicationTest {
         Optional<DeviceAlarm> deviceAlarm = Optional.of(getDefaultAlarm());
         doReturn(deviceAlarm).when(deviceAlarmService).findAlarm(1);
         doReturn(deviceAlarm).when(deviceAlarmService).findAndLockDeviceAlarmByIdAndVersion(1, 1);
+        NlsMessageFormat nlsMessageFormat = this.mockNlsMessageFormat(MessageSeeds.ACTION_ALARM_PRIORITY_WAS_CHANGED.getDefaultFormat());
+        when(getThesaurus().getFormat(MessageSeeds.ACTION_ALARM_PRIORITY_WAS_CHANGED)).thenReturn(nlsMessageFormat);
 
         SetPriorityRequest priorityRequest= new SetPriorityRequest();
         priorityRequest.id = 1L;
