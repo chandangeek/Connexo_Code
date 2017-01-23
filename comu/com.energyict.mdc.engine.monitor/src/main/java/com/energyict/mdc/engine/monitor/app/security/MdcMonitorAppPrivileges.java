@@ -6,6 +6,6 @@ package com.energyict.mdc.engine.monitor.app.security;
  */
 public final class MdcMonitorAppPrivileges {
 
-    public final static String MONITOR_COMMUNICATION_SERVER = "privilege.monitor.communication.server";
+    public static final String MONITOR_COMMUNICATION_SERVER = "privilege.monitor.communication.server";
 
 }
