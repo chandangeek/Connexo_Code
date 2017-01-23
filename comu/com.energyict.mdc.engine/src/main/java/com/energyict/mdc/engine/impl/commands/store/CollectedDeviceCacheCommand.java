@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDeviceCacheEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Collected device cache";
+    public static final String DESCRIPTION_TITLE = "Collected device cache";
 
     private final UpdatedDeviceCache deviceCache;
 

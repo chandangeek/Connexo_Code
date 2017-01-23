@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEven
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+
 import com.energyict.protocol.ChannelInfo;
 
 import java.sql.Date;
@@ -26,7 +27,7 @@ import java.util.Optional;
  */
 public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<CollectedLoadProfileEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Collected load profile data";
+    public static final String DESCRIPTION_TITLE = "Collected load profile data";
 
     private final CollectedLoadProfile collectedLoadProfile;
     private final MeterDataStoreCommand meterDataStoreCommand;
