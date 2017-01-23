@@ -97,7 +97,8 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
         }
 
         if (record.get('isConfirmed') && !record.isModified('value')) {
-            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
         }
         return value + icon;
     }
