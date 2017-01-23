@@ -26,7 +26,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging</artifactId>
@@ -183,14 +182,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle.rest</artifactId>
         </dependency>
-
-
-        <!-- test dependencies -->
-        <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-inmemory</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.calendar</artifactId>
@@ -205,10 +196,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>search.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver</artifactId>
         </dependency>
         <dependency>
@@ -216,6 +203,12 @@
             <artifactId>appserver.rest</artifactId>
         </dependency>
 
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-inmemory</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>

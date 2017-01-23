@@ -20,6 +20,7 @@ import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoritesResou
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -108,6 +109,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile JsonService jsonService;
     private volatile SearchService searchService;
     private volatile MessageService messageService;
+    private volatile MeteringTranslationService meteringTranslationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -332,6 +334,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -391,7 +398,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(UsagePointLifeCycleStateInfoFactory.class).to(UsagePointLifeCycleStateInfoFactory.class);
             bind(UsagePointLifeCycleTransitionInfoFactory.class).to(UsagePointLifeCycleTransitionInfoFactory.class);
             bind(BusinessProcessInfoFactory.class).to(BusinessProcessInfoFactory.class);
+            bind(meteringTranslationService).to(MeteringTranslationService.class);
+            bind(ReadingQualityInfoFactory.class).to(ReadingQualityInfoFactory.class);
         }
     }
-
 }

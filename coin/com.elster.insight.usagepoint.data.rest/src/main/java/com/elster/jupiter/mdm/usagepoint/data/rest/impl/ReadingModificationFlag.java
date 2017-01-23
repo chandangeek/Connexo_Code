@@ -33,10 +33,6 @@ public enum ReadingModificationFlag {
                 .findFirst();
     }
 
-    public static Pair<ReadingModificationFlag, ReadingQualityRecord> getModificationFlagWithQualityRecord(BaseReadingRecord reading, Optional<? extends BaseReadingRecord> calculatedReading) {
-        return getModificationFlagWithQualityRecord(reading, reading.getReadingQualities(), calculatedReading);
-    }
-
     public static Pair<ReadingModificationFlag, ReadingQualityRecord> getModificationFlagWithQualityRecord(BaseReadingRecord reading, Collection<? extends ReadingQualityRecord> readingQualities, Optional<? extends BaseReadingRecord> calculatedReading) {
         Map<ReadingModificationFlag, ReadingQualityRecord> flags = readingQualities.stream()
                 .filter(quality -> quality.getType().qualityIndex().flatMap(ReadingModificationFlag::forQualityCodeIndex).isPresent())

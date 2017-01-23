@@ -13,6 +13,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -45,6 +46,8 @@ public class OutputChannelDataInfo {
     public Instant modificationDate;
 
     public IdWithNameInfo editedInApp;
+
+    public List<ReadingQualityInfo> readingQualities;
 
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());

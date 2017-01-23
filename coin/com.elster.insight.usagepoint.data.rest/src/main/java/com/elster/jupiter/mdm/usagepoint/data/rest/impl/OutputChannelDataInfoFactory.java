@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
@@ -10,32 +11,34 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 public class OutputChannelDataInfoFactory {
 
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
+    private final ReadingQualityInfoFactory readingQualityInfoFactory;
 
     @Inject
-    public OutputChannelDataInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory) {
+    public OutputChannelDataInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, ReadingQualityInfoFactory readingQualityInfoFactory) {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
+        this.readingQualityInfoFactory = readingQualityInfoFactory;
     }
 
-    public OutputChannelDataInfo createChannelDataInfo(ReadingWithValidationStatus<IntervalReadingRecord> readingWithValidationStatus) {
+    public OutputChannelDataInfo createChannelDataInfo(ChannelReadingWithValidationStatus readingWithValidationStatus) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
         outputChannelDataInfo.reportedDateTime = readingWithValidationStatus.getTimeStamp();
-        outputChannelDataInfo.interval = readingWithValidationStatus.getTimePeriod()
-                .map(IntervalInfo::from)
-                .orElse(null);
+        outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
         outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
-        readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
-            outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
-            outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
-            outputChannelDataInfo.modificationDate = modificationFlag.getLast().getTimestamp();
-        });
+        setValidationFields(readingWithValidationStatus, outputChannelDataInfo);
+        setEditingFields(readingWithValidationStatus, outputChannelDataInfo);
+        setReadingQualities(readingWithValidationStatus, outputChannelDataInfo);
+        return outputChannelDataInfo;
+    }
 
+    private void setValidationFields(ChannelReadingWithValidationStatus readingWithValidationStatus, OutputChannelDataInfo outputChannelDataInfo) {
         Optional<DataValidationStatus> validationStatus = readingWithValidationStatus.getValidationStatus();
         if (validationStatus.isPresent()) {
             DataValidationStatus status = validationStatus.get();
@@ -66,15 +69,27 @@ public class OutputChannelDataInfoFactory {
                 outputChannelDataInfo.dataValidated = false;
             }
         }
-        return outputChannelDataInfo;
+    }
+
+    private void setEditingFields(ChannelReadingWithValidationStatus readingWithValidationStatus, OutputChannelDataInfo outputChannelDataInfo) {
+        readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
+            outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
+            outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
+            outputChannelDataInfo.modificationDate = modificationFlag.getLast().getTimestamp();
+        });
+    }
+
+    private void setReadingQualities(ChannelReadingWithValidationStatus readingWithValidationStatus, OutputChannelDataInfo outputChannelDataInfo) {
+        outputChannelDataInfo.readingQualities = readingWithValidationStatus.getReadingQualities().stream()
+                .map(ReadingQuality::getType)
+                .map(readingQualityInfoFactory::asInfo)
+                .collect(Collectors.toList());
     }
 
     public OutputChannelDataInfo createEstimatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal estimatedValue) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
         outputChannelDataInfo.reportedDateTime = readingRecord.getTimeStamp();
-        outputChannelDataInfo.interval = readingRecord.getTimePeriod()
-                .map(IntervalInfo::from)
-                .orElse(null);
+        outputChannelDataInfo.interval = readingRecord.getTimePeriod().map(IntervalInfo::from).orElse(null);
         outputChannelDataInfo.value = estimatedValue;
         return outputChannelDataInfo;
     }
