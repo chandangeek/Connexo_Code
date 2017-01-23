@@ -105,12 +105,14 @@ public class MdmAppInstaller {
                     //Export
                     com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
                     com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
+                    com.elster.jupiter.export.security.Privileges.Constants.VIEW_HISTORY,
 
                     //Relative periods
                     com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
 
                     //Import services
                     com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+                    com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
 
                     // Usage point life cycle
                     com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW,
