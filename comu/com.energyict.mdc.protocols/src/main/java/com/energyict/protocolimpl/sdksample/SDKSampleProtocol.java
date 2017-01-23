@@ -10,6 +10,7 @@
 
 package com.energyict.protocolimpl.sdksample;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
@@ -25,7 +26,6 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;

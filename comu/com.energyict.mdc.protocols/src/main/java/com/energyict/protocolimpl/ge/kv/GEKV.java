@@ -10,21 +10,19 @@
 
 package com.energyict.protocolimpl.ge.kv;
 
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.C12Layer2;
 import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
@@ -243,14 +241,14 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink {
     /*
      * Override this method if the subclass wants to set a specific register
      */
-    public void setRegister(String name, String value) throws IOException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
 
     }
 
     /*
      * Override this method if the subclass wants to get a specific register
      */
-    public String getRegister(String name) throws IOException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -334,7 +332,7 @@ if (skip<=28) { skip+=2;strBuff.append("----------------------------------------
     }
 
 
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         try {
             LoadProfileSet lps = getStandardTableFactory().getActualLoadProfileTable().getLoadProfileSet();
             if (lps!=null) {

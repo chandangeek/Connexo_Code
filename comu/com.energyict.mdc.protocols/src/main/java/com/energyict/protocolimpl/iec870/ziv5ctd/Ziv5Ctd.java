@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -14,13 +15,11 @@ import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.protocols.util.ProtocolUtils;
-
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;

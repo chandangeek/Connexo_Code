@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.transdata.markv;
 
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -19,12 +21,8 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.protocols.util.ProtocolUtils;
-
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -34,6 +32,7 @@ import com.energyict.protocolimpl.transdata.markv.core.commands.ObisCodeMapper;
 import com.energyict.protocolimpl.transdata.markv.core.commands.RegisterDataId;
 import com.energyict.protocolimpl.transdata.markv.core.commands.RegisterIdentification;
 import com.energyict.protocolimpl.transdata.markv.core.connection.MarkVConnection;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.BufferedReader;

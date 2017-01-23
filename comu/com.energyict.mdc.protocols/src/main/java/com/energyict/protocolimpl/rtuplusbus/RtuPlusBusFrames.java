@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.rtuplusbus;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.BufferedInputStream;
@@ -404,7 +404,7 @@ public class RtuPlusBusFrames {
                     Thread.sleep( 100 ); // KV 03062003
                 }
 
-                if( ((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                if( System.currentTimeMillis() - lMSTimeout > 0) {
                     // inputStream.close();
                     //System.out.println("timeout");
                     throw new RtuPlusBusException( "currentState=" + iCurrentState, RtuPlusBusException.TIME_OUT_ERROR );
@@ -535,7 +535,7 @@ public class RtuPlusBusFrames {
                     Thread.sleep( 100 ); // KV 03062003
                 }
 
-                if( ((long) (System.currentTimeMillis() - lMSTimeout)) > 0)
+                if( System.currentTimeMillis() - lMSTimeout > 0)
                 { inputStreamD.close();
                   return null;  // Timeout
                 }
@@ -621,7 +621,7 @@ public class RtuPlusBusFrames {
         lTimeOfRecord +=(liReceivedData[3] & 0xFF) << 16;
         lTimeOfRecord +=(liReceivedData[2] & 0xFF) << 8;
         lTimeOfRecord +=(liReceivedData[1] & 0xFF);
-        calendar.set( 1980, calendar.JANUARY, 1, 0, 0, 0);
+        calendar.set( 1980, Calendar.JANUARY, 1, 0, 0, 0);
         calendar.setTimeInMillis( calendar.getTimeInMillis() + ( lTimeOfRecord * 1000 ) );
 
         Date newDate = calendar.getTime();

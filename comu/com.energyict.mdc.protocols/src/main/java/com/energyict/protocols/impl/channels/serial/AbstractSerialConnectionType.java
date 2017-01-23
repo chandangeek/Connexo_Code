@@ -4,14 +4,15 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.FlowControl;
-import com.energyict.mdc.io.NrOfDataBits;
-import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
@@ -71,11 +72,11 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected Parities getParityValue() {
-        return Parities.valueFor((String) getProperty(SerialPortConfigurationPropertySpecNames.PARITY, Parities.NONE.value()));
+        return Parities.valueFor((String) getProperty(SerialPortConfigurationPropertySpecNames.PARITY, Parities.NONE.getParity()));
     }
 
     protected FlowControl getFlowControlValue() {
-        return FlowControl.valueFor((String) getProperty(SerialPortConfigurationPropertySpecNames.FLOW_CONTROL, FlowControl.NONE.value()));
+        return FlowControl.valueFor((String) getProperty(SerialPortConfigurationPropertySpecNames.FLOW_CONTROL, FlowControl.NONE.getFlowControl()));
     }
 
     protected NrOfStopBits getNrOfStopBitsValue() {
@@ -87,15 +88,15 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected BaudrateValue getBaudRateValue() {
-        return BaudrateValue.valueFor((BigDecimal)getProperty(SerialPortConfigurationPropertySpecNames.BAUDRATE, BaudrateValue.BAUDRATE_57600.value()));
+        return BaudrateValue.valueFor((BigDecimal)getProperty(SerialPortConfigurationPropertySpecNames.BAUDRATE, BaudrateValue.BAUDRATE_57600.getBaudrate()));
     }
 
     protected BigDecimal getPortOpenTimeOutValue() {
-        return this.nrOfMilliSecondsOfTimeDuration(SerialPortConfiguration.DEFAULT_SERIAL_PORT_OPEN_TIMEOUT);
+        return this.nrOfMilliSecondsOfTimeDuration(Temporals.toTimeDuration(SerialPortConfiguration.DEFAULT_SERIAL_PORT_OPEN_TIMEOUT));
     }
 
     protected BigDecimal getPortReadTimeOutValue() {
-        return this.nrOfMilliSecondsOfTimeDuration(SerialPortConfiguration.DEFAULT_SERIAL_PORT_READ_TIMEOUT);
+        return this.nrOfMilliSecondsOfTimeDuration(Temporals.toTimeDuration(SerialPortConfiguration.DEFAULT_SERIAL_PORT_READ_TIMEOUT));
     }
 
     protected BigDecimal nrOfMilliSecondsOfTimeDuration(TimeDuration value) {

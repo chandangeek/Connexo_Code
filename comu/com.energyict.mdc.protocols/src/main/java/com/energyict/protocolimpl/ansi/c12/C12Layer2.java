@@ -11,11 +11,10 @@
 package com.energyict.protocolimpl.ansi.c12;
 
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -131,7 +130,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     static private final int STATE_WAIT_FOR_DATA=5;
     static private final int STATE_WAIT_FOR_CRC=6;
 
-    protected ResponseData receiveResponseData() throws NestedIOException, IOException {
+    protected ResponseData receiveResponseData() throws IOException {
         long protocolTimeout,interFrameTimeout;
         int kar;
         int state=STATE_WAIT_FOR_START_OF_PACKET;
@@ -185,13 +184,13 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                     } break; // STATE_WAIT_FOR_START_OF_PACKET
 
                     case STATE_WAIT_FOR_IDENTITY: {
-                        receivedIdentity = (int)kar;
+                        receivedIdentity = kar;
                         state = STATE_WAIT_FOR_CONTROL;
                     } break; // STATE_WAIT_FOR_IDENTITY
 
                     case STATE_WAIT_FOR_CONTROL: {
                         previousReceivedControl = receivedControl;
-                        receivedControl = (int)kar;
+                        receivedControl = kar;
 
                         // KV_TO_DO check for duplicates...
 
@@ -200,7 +199,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
 
                     case STATE_WAIT_FOR_SEQUENCE_NUMBER: {
                         previousReceivedSequence = receivedSequence;
-                        receivedSequence = (int)kar;
+                        receivedSequence = kar;
 
                         // KV_TO_DO check for duplicates...
 
@@ -210,11 +209,11 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
 
                     case STATE_WAIT_FOR_LENGTH: {
                         if (count==2) {
-                           receivedLength = (int)(kar<<8);
+                           receivedLength = kar<<8;
                            count--;
                         }
                         else {
-                            receivedLength |= (int)(kar);
+                            receivedLength |= kar;
                             state = STATE_WAIT_FOR_DATA;
                         }
                     } break; // STATE_WAIT_FOR_LENGTH
@@ -234,11 +233,11 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                         byte[] data = allDataArrayOutputStream.toByteArray();
 
                         if (count==2) {
-                           receivedCrc = (int)(kar<<8);
+                           receivedCrc = kar<<8;
                            count--;
                         }
                         else {
-                            receivedCrc |= (int)(kar);
+                            receivedCrc |= kar;
                             if (receivedCrc == calculatedCrc) {
                                 // Bugfix CRM TKT-30314-S6563
                                 // In some cases, the device sends an invalid response missing the last (2th CRC) byte!
@@ -271,10 +270,10 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                 } // switch(iState)
 
             } // if ((iNewKar = readIn()) != -1)
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
         } // while(true)
@@ -295,7 +294,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
 
     }
-    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException {
         setIdentity(Integer.parseInt(nodeId));
         return null;
     }

@@ -1,17 +1,6 @@
 package com.energyict.protocolimpl.dlms.elgama;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
@@ -31,8 +20,18 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import javax.inject.Inject;
 import java.io.IOException;

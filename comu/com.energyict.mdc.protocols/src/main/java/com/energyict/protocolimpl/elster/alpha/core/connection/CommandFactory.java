@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 
 import java.io.IOException;
 

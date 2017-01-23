@@ -1,16 +1,16 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.edmi.mk10.core.ResponseData;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 		}
 	}
 
-	public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+	public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
 		sourceId = Long.parseLong(nodeId);
 		return null;
 	}
@@ -181,7 +181,7 @@ public class MK10Connection extends Connection  implements ProtocolConnection {
 	private final int STATE_WAIT_FOR_STX=0;
 	private final int STATE_WAIT_FOR_DATA=1;
 
-	public ResponseData receiveFrame() throws NestedIOException, IOException {
+	public ResponseData receiveFrame() throws IOException {
 
 		long protocolTimeout,interFrameTimeout;
 		int kar;

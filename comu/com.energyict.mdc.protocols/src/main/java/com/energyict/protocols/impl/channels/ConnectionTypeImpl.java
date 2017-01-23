@@ -1,12 +1,12 @@
 package com.energyict.protocols.impl.channels;
 
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
@@ -91,7 +91,7 @@ public abstract class ConnectionTypeImpl implements ServerConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected SerialComChannel newRxTxSerialConnection(SerialComponentService rxtxSerialComponentService, SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    protected SerialPortComChannel newRxTxSerialConnection(SerialComponentService rxtxSerialComponentService, SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         ServerSerialPort serialPort = rxtxSerialComponentService.newSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
         return rxtxSerialComponentService.newSerialComChannel(serialPort);
@@ -105,7 +105,7 @@ public abstract class ConnectionTypeImpl implements ServerConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected SerialComChannel newSioSerialConnection(SerialComponentService serialComponentService, final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    protected SerialPortComChannel newSioSerialConnection(SerialComponentService serialComponentService, final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         ServerSerialPort serialPort = serialComponentService.newSerialPort(serialPortConfiguration);
         serialPort.openAndInit();
         return serialComponentService.newSerialComChannel(serialPort);

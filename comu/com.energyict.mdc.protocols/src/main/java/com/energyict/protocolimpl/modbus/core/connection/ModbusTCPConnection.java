@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,7 +93,7 @@ public class ModbusTCPConnection extends ModbusConnection {
                 responseDataFrame = readInArray();
             }
 
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveDataModbus(): receiveDataLength() response timeout error", TIMEOUT_ERROR);
             }
         }

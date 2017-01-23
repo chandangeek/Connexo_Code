@@ -2,17 +2,16 @@ package com.energyict.protocolimplv2.hhusignon;
 
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.NrOfDataBits;
-import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
-import com.energyict.protocols.mdc.inbound.general.*;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolUtils;
@@ -33,7 +32,7 @@ import java.math.BigDecimal;
  */
 public class IEC1107HHUSignOn implements HHUSignOnV2 {
 
-    private final SerialComChannel comChannel;
+    private final SerialPortComChannel comChannel;
     private int protocol = 0;  //Defines the line control parameters. 0: 7E1, 2: 8N1
     private int mode = 0;
     private long timeout;
@@ -42,7 +41,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
 
     private final int[] baudrates = {300, 600, 1200, 2400, 4800, 9600, 19200};
 
-    public IEC1107HHUSignOn(SerialComChannel comChannel, CommunicationSessionProperties properties) {
+    public IEC1107HHUSignOn(SerialPortComChannel comChannel, CommunicationSessionProperties properties) {
         this.comChannel = comChannel;
         this.timeout = properties.getTimeout();
         this.retries = properties.getRetries();

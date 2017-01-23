@@ -10,18 +10,18 @@
 
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.ConnectionRS485;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -169,7 +169,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      * @throws NestedIOException
      * @throws IOException
      */
-    protected ResponseData receiveDataLength(RequestData requestData) throws NestedIOException, IOException {
+    protected ResponseData receiveDataLength(RequestData requestData) throws IOException {
         long protocolTimeout;
         int kar;
         int state = STATE_WAIT_FOR_ADDRESS;
@@ -286,7 +286,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
             } // if ((iNewKar = readIn()) != -1)
 
             // in case of a response timeout
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveDataLength() response timeout error", TIMEOUT_ERROR);
             }
 
@@ -304,7 +304,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      * @throws NestedIOException
      * @throws IOException
      */
-    protected ResponseData receiveDataModbus(RequestData requestData) throws NestedIOException, IOException {
+    protected ResponseData receiveDataModbus(RequestData requestData) throws IOException {
         long protocolTimeout, interframe;
         int kar;
         int state = STATE_WAIT_FOR_ADDRESS;
@@ -384,7 +384,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
 
             // frame received, check validity
             if (state != STATE_WAIT_FOR_ADDRESS) {
-                if (((long) (System.currentTimeMillis() - interframe)) > 0) {
+                if (System.currentTimeMillis() - interframe > 0) {
                     byte[] data = allDataArrayOutputStream.toByteArray();
                     if (data.length <= 2) {
                         throw new ProtocolConnectionException("receiveDataModbus() PROTOCOL Error", PROTOCOL_ERROR);
@@ -409,7 +409,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
             } // if (state != STATE_WAIT_FOR_ADDRESS)
 
             // in case of a response timeout
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveDataModbus() response timeout error", TIMEOUT_ERROR);
             }
 
@@ -448,7 +448,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      * @throws IOException
      * @throws ProtocolConnectionException
      */
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         if (strID != null) {
             setAddress(Integer.parseInt(strID));
         } else {

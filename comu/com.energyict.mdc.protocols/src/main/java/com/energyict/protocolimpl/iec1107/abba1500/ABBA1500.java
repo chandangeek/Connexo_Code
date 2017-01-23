@@ -2,6 +2,8 @@ package com.energyict.protocolimpl.iec1107.abba1500;
 
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
@@ -19,12 +21,8 @@ import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.protocols.util.ProtocolUtils;
-
-import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.protocolimpl.base.DataDumpParser;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
@@ -36,6 +34,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -141,16 +140,16 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         return getAbba1500Profile().getProfileData(lastReading, includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         profileDateRead = true;
         return getAbba1500Profile().getProfileData(from, to, includeEvents);
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -287,7 +286,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(name.getBytes());
         flagIEC1107Connection.sendRawCommandFrame(FlagIEC1107Connection.READ5, byteArrayOutputStream.toByteArray());
@@ -304,7 +303,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         getAbba1500Registry().setRegister(name, value);
     }
 
@@ -314,7 +313,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 

@@ -1,27 +1,8 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.protocols.util.ProtocolUtils;
-
 import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSCache;
@@ -49,9 +30,27 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -301,7 +300,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public int getProfileInterval() throws UnsupportedException, IOException {
+    public int getProfileInterval() throws IOException {
         if (iInterval == -1) {
             iInterval = getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCapturePeriod();
         }
@@ -315,7 +314,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         if (iNumberOfChannels == -1) {
             meterConfig.setCapturedObjectList(getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjectsAsUniversalObjects());
             iNumberOfChannels = meterConfig.getNumberOfChannels();
@@ -323,11 +322,11 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         return iNumberOfChannels;
     } // public int getNumberOfChannels()  throws IOException
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -505,15 +504,15 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
 
         byteTimeBuffer[0] = AxdrType.OCTET_STRING.getTag();
         byteTimeBuffer[1] = 12; // length
-        byteTimeBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[3] = (byte) calendar.get(calendar.YEAR);
-        byteTimeBuffer[4] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteTimeBuffer[5] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) calendar.get(calendar.DAY_OF_WEEK);
+        byteTimeBuffer[2] = (byte) (calendar.get(Calendar.YEAR) >> 8);
+        byteTimeBuffer[3] = (byte) calendar.get(Calendar.YEAR);
+        byteTimeBuffer[4] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        byteTimeBuffer[5] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        byte bDOW = (byte) calendar.get(Calendar.DAY_OF_WEEK);
         byteTimeBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteTimeBuffer[7] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[8] = (byte) calendar.get(calendar.MINUTE);
-        byteTimeBuffer[9] = (byte) calendar.get(calendar.SECOND);
+        byteTimeBuffer[7] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        byteTimeBuffer[8] = (byte) calendar.get(Calendar.MINUTE);
+        byteTimeBuffer[9] = (byte) calendar.get(Calendar.SECOND);
         byteTimeBuffer[10] = (byte) 0xFF;
         byteTimeBuffer[11] = (byte) 0x80;
         byteTimeBuffer[12] = 0x00;
@@ -570,7 +569,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         if ((configuredSerialNumber == null) || ("".compareTo(configuredSerialNumber) == 0)) {
             return;
         }
-        String sn = (String) getSerialNumber();
+        String sn = getSerialNumber();
         if ((sn != null) && (sn.compareTo(configuredSerialNumber) == 0)) {
             return;
         }
@@ -607,7 +606,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @return String representing the version.
      * @throws IOException
      */
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         UniversalObject uo = meterConfig.getVersionObject();
         return getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getString();
     } // public String getFirmwareVersion()
@@ -651,7 +650,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         return doGetProfileData(fromCalendar, ProtocolUtils.getCalendar(getTimeZone()), includeEvents);
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         Calendar fromCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
         fromCalendar.setTime(from);
         Calendar toCalendar = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -801,7 +800,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws UnsupportedException    <br>
      * @throws NoSuchRegisterException <br>
      */
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
 
         DLMSObis ln = new DLMSObis(name);
 
@@ -828,7 +827,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws NoSuchRegisterException <br>
      * @throws UnsupportedException    <br>
      */
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -838,7 +837,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -1001,7 +1000,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
         HHUSignOn hhuSignOn =
-                (HHUSignOn) new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
+                new IEC1107HHUConnection(commChannel, iHDLCTimeoutProperty, iProtocolRetriesProperty, 300, 0);
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
@@ -1047,7 +1046,7 @@ public abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnable
     }
 
     public StoredValues getStoredValues() {
-        return (StoredValues) storedValuesImpl;
+        return storedValuesImpl;
     }
 
     public void setDLMSConnection(DLMSConnection connection) {

@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.SerialNumber;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
@@ -15,11 +15,9 @@ import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -606,12 +604,12 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         return applicationLayer;
     }
 
-    public String getRegister(String name) throws IOException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         // TODO Auto-generated method stub
         return null;
     }
 
-    public void setRegister(String name, String value) throws IOException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         // TODO Auto-generated method stub
 
     }

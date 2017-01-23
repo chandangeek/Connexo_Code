@@ -1,14 +1,6 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.CosemPDUConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
@@ -30,6 +22,12 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.InvalidPropertyException;
+import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -38,6 +36,7 @@ import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -16,10 +16,10 @@ import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.SerialNumber;
 import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.legacy.BulkRegisterProtocol;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.MultipleLoadProfileSupport;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.protocol.HalfDuplexEnabler;
 
 import java.io.IOException;
 import java.util.List;

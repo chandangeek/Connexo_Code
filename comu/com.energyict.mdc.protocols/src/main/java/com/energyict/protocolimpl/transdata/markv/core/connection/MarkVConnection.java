@@ -11,17 +11,17 @@
 package com.energyict.protocolimpl.transdata.markv.core.connection;
 
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.transdata.markv.core.commands.CommandDescription;
 import com.energyict.protocolimpl.transdata.markv.core.commands.CommandIdentification;
+import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

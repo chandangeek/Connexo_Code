@@ -6,13 +6,13 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.io.ModemException;
-import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.io.impl.SioSerialPort;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 
 import com.energyict.protocols.impl.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.io.impl.CaseModemComponent;
-import com.energyict.mdc.io.SignalController;
+import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.io.impl.TypedCaseModemProperties;
 import com.energyict.mdc.io.impl.TypedPaknetModemProperties;
 

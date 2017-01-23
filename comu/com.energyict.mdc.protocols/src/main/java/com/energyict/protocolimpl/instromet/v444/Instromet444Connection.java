@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.instromet.v444;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.instromet.connection.Command;
 import com.energyict.protocolimpl.instromet.connection.InstrometConnection;
 import com.energyict.protocolimpl.instromet.connection.ResponseReceiver;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

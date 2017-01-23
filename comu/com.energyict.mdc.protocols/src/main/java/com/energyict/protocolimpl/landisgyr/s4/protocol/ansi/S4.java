@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -19,11 +21,8 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.C12Layer2;
 import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;

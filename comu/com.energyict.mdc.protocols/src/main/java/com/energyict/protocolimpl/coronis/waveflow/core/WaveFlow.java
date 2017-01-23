@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -7,7 +8,6 @@ import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;

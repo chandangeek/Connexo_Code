@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.rtuplusbus;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
@@ -8,16 +9,13 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-
+import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import javax.inject.Inject;
@@ -438,15 +436,15 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     // R  E  G  I  S  T  E  R  S
     //
 
-    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+    public String getRegister(String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+    public void setRegister(String name, String value) throws IOException {
         throw new UnsupportedException();
     }
 
-    public void initializeDevice() throws IOException, UnsupportedException {
+    public void initializeDevice() throws IOException {
         throw new UnsupportedException();
     }
 
@@ -455,11 +453,11 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     //  M E T E R R E A D I N G S
     //
 
-    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(int channelId) throws IOException {
         throw new UnsupportedException();
     }
 
-    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+    public Quantity getMeterReading(String name) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -469,7 +467,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
     //
 
 
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
+    public int getNumberOfChannels() throws IOException {
         int i, j;
         int liNbrOfChannels = 0;
         int liReceivedData[];
@@ -515,7 +513,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return liNbrOfChannels;
     }
 
-    public int getProfileInterval() throws UnsupportedException, IOException { // Read it from the RTU Structure!!
+    public int getProfileInterval() throws IOException { // Read it from the RTU Structure!!
 //        if (rtuPlusSettings.getProfileInterval() != -1)
 //           return rtuPlusSettings.getProfileInterval();
 //        else
@@ -527,7 +525,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return (getProfileData(new Date(0), includeEvents));
     }
 
-    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
         throw new UnsupportedException();
     }
 
@@ -646,7 +644,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
 
-    public String getFirmwareVersion() throws IOException, UnsupportedException {
+    public String getFirmwareVersion() throws IOException {
         throw new UnsupportedException();
     }
 

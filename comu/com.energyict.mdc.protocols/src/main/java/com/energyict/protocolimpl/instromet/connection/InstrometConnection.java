@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.instromet.connection;
 
 import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -131,7 +131,7 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 		sendOut(outputStream.toByteArray());
 	}
 
-	private void doSendCommand(Command command) throws ConnectionException, IOException {
+	private void doSendCommand(Command command) throws IOException {
 		outputStream.reset();
 		if (command.getCommand() == 0) {
 			return;
@@ -153,7 +153,7 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 		outputStream.write((crc >> 8) & 0xFF);
 	}
 
-	private void doWakeUp() throws ConnectionException, IOException {
+	private void doWakeUp() throws IOException {
 		outputStream.reset();
 		outputStream.write((byte) 0x20);
 	}
@@ -185,7 +185,7 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 		outputStream.write(commId & 0xFF);
 	}
 
-	public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+	public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
 		return null;
 	}
 

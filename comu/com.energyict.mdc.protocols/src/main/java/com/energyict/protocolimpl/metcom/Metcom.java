@@ -7,6 +7,7 @@
 package com.energyict.protocolimpl.metcom;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -15,12 +16,9 @@ import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.protocols.util.ProtocolUtils;
-
+import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.Software7E1InputStream;
 import com.energyict.protocolimpl.iec1107.Software7E1OutputStream;
@@ -29,6 +27,7 @@ import com.energyict.protocolimpl.siemens7ED62.SCTMRegister;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
 import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

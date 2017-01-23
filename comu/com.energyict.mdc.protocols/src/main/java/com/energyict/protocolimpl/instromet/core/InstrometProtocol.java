@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.instromet.core;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
-
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
