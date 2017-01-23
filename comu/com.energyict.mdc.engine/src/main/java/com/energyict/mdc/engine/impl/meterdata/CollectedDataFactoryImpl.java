@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -9,8 +10,10 @@ import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
@@ -20,6 +23,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.security.CertificateAlias;
+
+import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -36,15 +42,26 @@ import java.util.List;
 public class CollectedDataFactoryImpl implements CollectedDataFactory {
 
     private volatile Clock clock;
+    private volatile IdentificationService identificationService;
 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
     }
 
+    @Reference
+    public void setIdentificationService(IdentificationService identificationService) {
+        this.identificationService = identificationService;
+    }
+
     @Override
     public CollectedLoadProfile createCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         return new DeviceLoadProfile(loadProfileIdentifier);
+    }
+
+    @Override
+    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, String meterSerialNumber) {
+        return new DeviceLoadProfileConfiguration(profileObisCode, this.identificationService.createDeviceIdentifierBySerialNumber(meterSerialNumber));
     }
 
     @Override
@@ -90,10 +107,30 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
+    public CollectedMessage createCollectedMessageWithLogbookData(MessageIdentifier messageIdentifier, CollectedLogBook collectedLoadProfile) {
+        return new DeviceProtocolMessageWithCollectedLogbookData(messageIdentifier, collectedLoadProfile);
+    }
+
+    @Override
     public CollectedMessage createCollectedMessageWithRegisterData(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CollectedRegister> collectedRegisters) {
         DeviceProtocolMessageWithCollectedRegisterData collectedMessage = new DeviceProtocolMessageWithCollectedRegisterData(deviceIdentifier, messageIdentifier, collectedRegisters);
         collectedMessage.setSentDate(clock.instant());
         return collectedMessage;
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithUpdateSecurityProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue) {
+        return new DeviceProtocolMessageWithCollectedSecurityProperty(deviceIdentifier, messageIdentifier, propertyName, propertyValue);
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithUpdateGeneralProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue) {
+        return new DeviceProtocolMessageWithCollectedGeneralProperty(deviceIdentifier, messageIdentifier, propertyName, propertyValue);
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithCertificates(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CertificateAlias> certificateAliases) {
+        return null;
     }
 
     @Override
@@ -134,6 +171,21 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Override
     public CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
         return new DeviceProtocolProperty(deviceIdentifier, propertyName, propertyValue);
+    }
+
+    @Override
+    public CollectedDeviceInfo createCollectedDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+        return new DeviceDialectProperty(deviceIdentifier, propertyName, propertyValue);
+    }
+
+    @Override
+    public CollectedMessageAcknowledgement createDeviceProtocolMessageAcknowledgement(MessageIdentifier messageIdentifier) {
+        return new DeviceProtocolMessageAcknowledgement(messageIdentifier);
+    }
+
+    @Override
+    public CollectedMessageAcknowledgement createDeviceProtocolMessageAcknowledgementFromSms(MessageIdentifier messageIdentifier) {
+        return new CTRDeviceProtocolMessageAcknowledgement(messageIdentifier);
     }
 
     @Override

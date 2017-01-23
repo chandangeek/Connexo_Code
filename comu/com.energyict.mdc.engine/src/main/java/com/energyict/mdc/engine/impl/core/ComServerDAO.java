@@ -16,6 +16,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -35,6 +36,7 @@ import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -126,6 +128,16 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @return The List of ComTaskExecutions that are ready to be executed
      */
     List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort);
+
+    /**
+     * Gets the {@link PropertyValueType} of the protocol property of the {@link com.energyict.mdc.device.data.Device}
+     * that is uniquely identified by the specified {@link DeviceIdentifier}.
+     *
+     * @param deviceIdentifier The DeviceIdentifier
+     * @param propertyName The name of the protocol property
+     * @return The PropertyValueType
+     */
+    PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName);
 
     /**
      * Finds the {@link ConnectionTaskProperty connection properties}
@@ -360,6 +372,28 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param propertyValue The new property value
      */
     void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
+
+    /**
+     * Updates a dialect property of the Device
+     * that is uniquely identified by the specified identifier with the given value.
+     * <p/>
+     * Note that, if multiple dialects contain the given propertyName, both properties will be updated.
+     */
+    void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
+
+    /**
+     * Updates a security property of the Device
+     * that is uniquely identified by the specified identifier with the given value.
+     * <p/>
+     * Note that, if multiple security sets contain the given propertyName, both properties will be updated.
+     * <p/>
+     * Also note that, updating a security property of type CertificateAlias will
+     * also add the given certificate in the DLMS key store, under the given alias.
+     * <p/>
+     * Also note that, updating a security property of type CertificateWrapperId will create
+     * the proper CertificateWrapper and fill the property value with the ID of this certificateWrapper.
+     */
+    void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
     /**
      * Updates the gateway device of the Device device

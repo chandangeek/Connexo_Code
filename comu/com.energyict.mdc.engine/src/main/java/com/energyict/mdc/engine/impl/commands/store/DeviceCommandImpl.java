@@ -130,6 +130,20 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
     }
 
     /**
+     * Adds an additional issue to the log of a ComTaskExecution<br></br>
+     * In case the issue was a problem, this method also notifies this ComTaskExecution that the execution has failed.
+     *
+     * @param completionCode the additional completionCode
+     * @param issue          the issue that should be logged
+     */
+    protected void addIssueToExecutionLogger(com.energyict.mdc.upl.tasks.CompletionCode completionCode, Issue issue) {
+        if (logger == null) {
+            throw new IllegalArgumentException("logger instance should not be null");
+        }
+        this.logger.addIssue(CompletionCode.fromUPL(completionCode), issue, getComTaskExecution());
+    }
+
+    /**
      * Adds the specified {@link Issue} to the {@link ExecutionLogger}
      * against the related {@link ComTaskExecution}.
      *
