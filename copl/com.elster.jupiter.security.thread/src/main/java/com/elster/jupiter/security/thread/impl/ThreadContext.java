@@ -8,6 +8,7 @@ class ThreadContext {
 	private String module;
 	private String action;
     private Locale locale;
+	private String applicationName;
 	
 	ThreadContext(Principal principal, String module, String action, Locale locale) {
 		this.principal = principal;
@@ -40,4 +41,12 @@ class ThreadContext {
     public Locale getLocale() {
         return locale == null ? Locale.getDefault() : locale;
     }
+
+	public String getApplicationName() {
+		return applicationName;
+	}
+
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
+	}
 }

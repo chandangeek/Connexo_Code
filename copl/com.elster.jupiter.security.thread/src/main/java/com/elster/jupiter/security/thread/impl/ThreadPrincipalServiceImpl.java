@@ -38,6 +38,20 @@ public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
 	}
 
 	@Override
+	public String getApplicationName() {
+		ThreadContext context = threadContexts.get();
+		return context == null ? null : context.getApplicationName();
+	}
+
+	@Override
+	public void setApplicationName(String applicationName) {
+		ThreadContext context = threadContexts.get();
+		if(context != null) {
+			context.setApplicationName(applicationName);
+		}
+	}
+
+	@Override
 	public void clear() {
 		threadContexts.remove();
 	}
@@ -63,7 +77,6 @@ public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
     @Override
 	public void set(Principal principal, String module, String action, Locale locale) {
 		threadContexts.set(new ThreadContext(principal,module,action, locale));
-		
 	}
 
 	@Override

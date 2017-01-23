@@ -31,6 +31,18 @@ public interface ThreadPrincipalService {
     Locale getLocale();
 
     /**
+     * @return the application name
+     */
+    String getApplicationName();
+
+    /**
+     * Sets the given application name as the current one.
+     *
+     * @param applicationName
+     */
+    void setApplicationName(String applicationName);
+
+    /**
      * Sets the given principal module and action as the current ones.
      *
      * @param principal
