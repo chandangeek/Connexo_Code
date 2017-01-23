@@ -24,6 +24,7 @@ class SysAppPrivileges {
                 //import
                 com.elster.jupiter.fileimport.security.Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES,
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
                 //data lifecycle
                 com.elster.jupiter.data.lifecycle.security.Privileges.Constants.VIEW_DATA_PURGE,
                 com.elster.jupiter.data.lifecycle.security.Privileges.Constants.ADMINISTRATE_DATA_PURGE,
