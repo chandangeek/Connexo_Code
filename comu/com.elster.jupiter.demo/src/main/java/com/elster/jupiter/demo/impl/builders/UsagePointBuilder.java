@@ -1,9 +1,15 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Inject;
@@ -58,11 +64,19 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
 
     @Override
     public UsagePoint create() {
-        UsagePoint usagePoint = meteringService.getServiceCategory(serviceKind).get().newUsagePoint(getName(), installationTime)
-                .withLocation(location).withGeoCoordinates(geoCoordinates).create();
-        switch (usagePoint.getServiceCategory().getKind()){
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(serviceKind).get();
+        com.elster.jupiter.metering.UsagePointBuilder usagePointBuilder = serviceCategory.newUsagePoint(getName(), installationTime)
+                .withIsVirtual(false)
+                .withIsSdp(true)
+                .withLocation(location)
+                .withGeoCoordinates(geoCoordinates);
+        serviceCategory.getCustomPropertySets().stream()
+                .filter(rcps -> rcps.getCustomPropertySet().isRequired())
+                .forEach(rcps -> setRequiredProperties(usagePointBuilder, rcps));
+        UsagePoint usagePoint = usagePointBuilder.create();
+        switch (serviceCategory.getKind()) {
             case ELECTRICITY:
-                usagePoint.newElectricityDetailBuilder(installationTime).create();
+                usagePoint.newElectricityDetailBuilder(installationTime).withPhaseCode(PhaseCode.S1N).create();
                 break;
             case GAS:
                 usagePoint.newGasDetailBuilder(installationTime).create();
@@ -77,5 +91,25 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
                 usagePoint.newDefaultDetailBuilder(installationTime).create();
         }
         return usagePoint;
+    }
+
+    private void setRequiredProperties(com.elster.jupiter.metering.UsagePointBuilder builder, RegisteredCustomPropertySet registeredCustomPropertySet) {
+        CustomPropertySetValues values;
+        CustomPropertySet<?, ?> customPropertySet = registeredCustomPropertySet.getCustomPropertySet();
+        if (customPropertySet.isVersioned()) {
+            values = CustomPropertySetValues.emptyFrom(installationTime);
+        } else {
+            values = CustomPropertySetValues.empty();
+        }
+        customPropertySet.getPropertySpecs().stream()
+                .filter(PropertySpec::isRequired)
+                .forEach(propertySpec -> {
+                    if (propertySpec.getPossibleValues() != null && !propertySpec.getPossibleValues().getAllValues().isEmpty()) {
+                        values.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getAllValues().get(0));
+                    } else {
+                        values.setProperty(propertySpec.getName(), propertySpec.getValueFactory().fromStringValue(null));//works ok for 'prepay'
+                    }
+                });
+        builder.addCustomPropertySetValues(registeredCustomPropertySet, values);
     }
 }

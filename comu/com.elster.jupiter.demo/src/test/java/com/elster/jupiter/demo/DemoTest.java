@@ -880,6 +880,7 @@ public class DemoTest {
         MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
         mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
         new MdcAppInstaller.Installer(injector.getInstance(UserService.class)).createDefaultRoles();
+        new MdcAppInstaller.Installer(injector.getInstance(UserService.class)).assignPrivilegesToDefaultRoles();
     }
 
     private void tuneDeviceCountForSpeedTest() {

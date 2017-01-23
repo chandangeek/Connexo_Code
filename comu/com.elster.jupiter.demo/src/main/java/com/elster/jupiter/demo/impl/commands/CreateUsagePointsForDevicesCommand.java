@@ -79,6 +79,7 @@ public class CreateUsagePointsForDevicesCommand {
         } else {
             usagePoint.apply(Builders.from(MetrologyConfigurationTpl.PROSUMER).get());
         }
+        usagePoint.update();
         setUsagePoint(device, usagePoint);
     }
 
