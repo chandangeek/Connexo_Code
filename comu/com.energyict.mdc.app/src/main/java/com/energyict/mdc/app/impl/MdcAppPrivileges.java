@@ -25,6 +25,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
                 com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.Constants.VIEW_HISTORY,
 
                 //issue
                 com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,
@@ -130,7 +131,7 @@ class MdcAppPrivileges {
 
                 //import
                 com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
-
+                com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
                 //mdc.firmware
                 com.energyict.mdc.firmware.security.Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN,
                 com.energyict.mdc.firmware.security.Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN,

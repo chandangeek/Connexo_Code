@@ -29,7 +29,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -177,12 +176,14 @@ public class MdcAppInstaller {
                     //Export
                     com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
                     com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
+                    com.elster.jupiter.export.security.Privileges.Constants.VIEW_HISTORY,
 
                     //Firmware campaigns
                     com.energyict.mdc.firmware.security.Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN,
 
                     //Import
                     com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_IMPORT_SERVICES,
+                    com.elster.jupiter.fileimport.security.Privileges.Constants.VIEW_HISTORY,
 
                     //Issues
                     com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,
