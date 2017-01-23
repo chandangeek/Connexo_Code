@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.config;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -20,50 +21,50 @@ public interface ModemBasedInboundComPort extends InboundComPort {
      *
      * @return The number of rings to wait before pickup up the receiver
      */
-    public int getRingCount();
-    public void setRingCount(int ringCount);
+    int getRingCount();
+    void setRingCount(int ringCount);
 
-    public int getMaximumDialErrors();
-    public void setMaximumDialErrors(int max);
+    int getMaximumDialErrors();
+    void setMaximumDialErrors(int max);
 
-    public TimeDuration getConnectTimeout();
-    public void setConnectTimeout(TimeDuration connectTimeout);
+    TimeDuration getConnectTimeout();
+    void setConnectTimeout(TimeDuration connectTimeout);
 
-    public TimeDuration getDelayAfterConnect();
-    public void setDelayAfterConnect(TimeDuration connectTimeout);
+    TimeDuration getDelayAfterConnect();
+    void setDelayAfterConnect(TimeDuration connectTimeout);
 
-    public TimeDuration getDelayBeforeSend();
-    public void setDelayBeforeSend(TimeDuration connectTimeout);
+    TimeDuration getDelayBeforeSend();
+    void setDelayBeforeSend(TimeDuration connectTimeout);
 
-    public TimeDuration getAtCommandTimeout();
-    public void setAtCommandTimeout(TimeDuration connectTimeout);
+    TimeDuration getAtCommandTimeout();
+    void setAtCommandTimeout(TimeDuration connectTimeout);
 
-    public BigDecimal getAtCommandTry();
-    public void setAtCommandTry(BigDecimal atCommandTry);
+    BigDecimal getAtCommandTry();
+    void setAtCommandTry(BigDecimal atCommandTry);
 
-    public List<String> getModemInitStrings();
-    public void setModemInitStrings(List<String> initStrings);
+    List<String> getModemInitStrings();
+    void setModemInitStrings(List<String> initStrings);
 
-    public List<String> getGlobalModemInitStrings();
-    public void setGlobalModemInitStrings(List<String> globalModemInitStrings);
+    List<String> getGlobalModemInitStrings();
+    void setGlobalModemInitStrings(List<String> globalModemInitStrings);
 
-    public String getAddressSelector();
-    public void setAddressSelector(String addressSelector);
+    String getAddressSelector();
+    void setAddressSelector(String addressSelector);
 
-    public String getPostDialCommands();
-    public void setPostDialCommands(String postDialCommands);
+    String getPostDialCommands();
+    void setPostDialCommands(String postDialCommands);
 
-    public SerialPortConfiguration getSerialPortConfiguration();
-    public void setSerialPortConfiguration(SerialPortConfiguration serialPortConfiguration);
+    SerialPortConfiguration getSerialPortConfiguration();
+    void setSerialPortConfiguration(SerialPortConfiguration serialPortConfiguration);
 
     interface ModemBasedInboundComPortBuilder extends InboundComPortBuilder<ModemBasedInboundComPortBuilder, ModemBasedInboundComPort>{
-        public ModemBasedInboundComPortBuilder delayAfterConnect(TimeDuration delayAfterConnect);
-        public ModemBasedInboundComPortBuilder delayBeforeSend(TimeDuration delayBeforeSend);
-        public ModemBasedInboundComPortBuilder atCommandTry(BigDecimal atCommandTry);
-        public ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings);
-        public ModemBasedInboundComPortBuilder globalAtModemInitStrings(List<String> globalAtModemInitStrings);
-        public ModemBasedInboundComPortBuilder addressSelector(String addressSelector);
-        public ModemBasedInboundComPortBuilder postDialCommands(String postDialCommands);
+        ModemBasedInboundComPortBuilder delayAfterConnect(TimeDuration delayAfterConnect);
+        ModemBasedInboundComPortBuilder delayBeforeSend(TimeDuration delayBeforeSend);
+        ModemBasedInboundComPortBuilder atCommandTry(BigDecimal atCommandTry);
+        ModemBasedInboundComPortBuilder atModemInitStrings(List<String> initStrings);
+        ModemBasedInboundComPortBuilder globalAtModemInitStrings(List<String> globalAtModemInitStrings);
+        ModemBasedInboundComPortBuilder addressSelector(String addressSelector);
+        ModemBasedInboundComPortBuilder postDialCommands(String postDialCommands);
     }
 
 }

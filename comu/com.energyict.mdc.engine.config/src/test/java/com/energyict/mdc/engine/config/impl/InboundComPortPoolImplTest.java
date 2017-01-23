@@ -4,6 +4,12 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.Expected;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -12,12 +18,6 @@ import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.FlowControl;
-import com.energyict.mdc.io.NrOfDataBits;
-import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
-import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPortType;
 import org.junit.Test;
 

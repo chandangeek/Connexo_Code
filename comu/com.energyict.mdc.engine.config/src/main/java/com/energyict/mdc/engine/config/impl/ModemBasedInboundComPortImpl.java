@@ -7,16 +7,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.FlowControl;
-import com.energyict.mdc.io.NrOfDataBits;
-import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.io.Parities;
-import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPortType;
 import com.google.common.collect.Range;
 
@@ -314,11 +314,11 @@ public class ModemBasedInboundComPortImpl extends InboundComPortImpl implements 
         }
 
         public LegacySerialPortConfiguration(SerialPortConfiguration serialPortConfiguration) {
-            baudrate= serialPortConfiguration.getBaudrate().value();
-            nrOfDataBits=serialPortConfiguration.getNrOfDataBits().value();
-            nrOfStopBits=serialPortConfiguration.getNrOfStopBits().value();
-            parity=serialPortConfiguration.getParity().value();
-            flowControl=serialPortConfiguration.getFlowControl().value();
+            baudrate= serialPortConfiguration.getBaudrate().getBaudrate();
+            nrOfDataBits=serialPortConfiguration.getNrOfDataBits().getNrOfDataBits();
+            nrOfStopBits=serialPortConfiguration.getNrOfStopBits().getNrOfStopBits();
+            parity=serialPortConfiguration.getParity().getParity();
+            flowControl=serialPortConfiguration.getFlowControl().getFlowControl();
         }
 
         private BigDecimal getBaudrate() {
