@@ -6,6 +6,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     stores: [
         'Est.estimationtasks.store.DeviceGroups',
         'Est.estimationtasks.store.UsagePointGroups',
+        'Est.estimationtasks.store.MetrologyPurposes',
         'Est.estimationtasks.store.DaysWeeksMonths'
     ],
 
@@ -33,6 +34,9 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             },
             'estimationtasks-addedit #recurrence-trigger': {
                 change: this.recurrenceChange
+            },
+            'estimationtasks-addedit #reset-purpose-btn': {
+                click: this.resetPurpose
             }
         });
     },
@@ -87,6 +91,10 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                     newEstimationTask.set('usagePointGroup', {
                         id: me.getAddEditEstimationtaskForm().down('#usagePoint-group-id').getValue(),
                         displayValue: me.getAddEditEstimationtaskForm().down('#usagePoint-group-id').getRawValue()
+                    });
+                    newEstimationTask.set('metrologyPurpose', {
+                        id: me.getAddEditEstimationtaskForm().down('#cbo-estimation-task-purpose').getValue() || 0,
+                        displayValue: me.getAddEditEstimationtaskForm().down('#cbo-estimation-task-purpose').getRawValue()
                     });
                 } break;
             }
@@ -262,16 +270,13 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         taskModel.load(currentTaskId, {
             success: function (record) {
                 var schedule = record.get('schedule'),
-                    deviceGroup = record.get('deviceGroup'),
-                    usagePointGroup = record.get('usagePointGroup'),
-                    period = record.get('period'),
-                    groupId = deviceGroup ? deviceGroup.id : usagePointGroup ? usagePointGroup.id : null;
+                    period = record.get('period');
                 me.taskModel = record;
                 taskForm.loadRecord(record);
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
                 taskForm.setTitle(Uni.I18n.translate('general.editx', 'EST', "Edit '{0}'",[record.get('name')]));
                 dataSourcesContainer.loadGroupStore(function(){
-                    dataSourcesContainer.setComboValue(groupId);
+                    dataSourcesContainer.setComboValue(record);
                     me.getEstimationPeriodCombo().store.load(function () {
                         if (period && (period.id !== 0)) {
                             widget.down('#estimation-period-trigger').setValue({estimationPeriod: true});
@@ -314,6 +319,13 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         } else {
             page.down('#recurrence-values').enable();
         }
+    },
+
+    resetPurpose: function (btn) {
+        var me = this,
+            page = me.getAddEditEstimationtaskPage();
+        page.down('#cbo-estimation-task-purpose').clearValue();
+        btn.disable();
     }
 
 });

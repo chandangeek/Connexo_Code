@@ -38,6 +38,19 @@ Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
             }
         },
         {
+            name: 'metrologyPurpose',
+            persist: false,
+            mapping: function (data) {
+
+                if (data.task.metrologyPurpose && data.task.metrologyPurpose.displayValue) {
+                    return data.task.metrologyPurpose.displayValue;
+                } else {
+                    return '-';
+                }
+
+            }
+        },
+        {
             name: 'name',
             persist: false,
             mapping: function (data) {
