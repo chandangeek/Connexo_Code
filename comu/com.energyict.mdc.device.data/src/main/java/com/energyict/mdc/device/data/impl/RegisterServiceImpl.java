@@ -21,11 +21,9 @@ import static com.elster.jupiter.util.streams.Currying.use;
  */
 public class RegisterServiceImpl implements RegisterService {
     private final DeviceDataModelService deviceDataModelService;
-    private final ServerDeviceService deviceService;
 
-    public RegisterServiceImpl(DeviceDataModelService deviceDataModelService, ServerDeviceService deviceService) {
+    public RegisterServiceImpl(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
-        this.deviceService = deviceService;
     }
 
     @Override
@@ -48,14 +46,14 @@ public class RegisterServiceImpl implements RegisterService {
             case "PrimeRegisterForChannel": {
                 DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
                 int channelIndex = (int) introspector.getValue("channelIndex");
-                return this.deviceService
+                return this.deviceDataModelService.deviceService()
                             .findDeviceByIdentifier(deviceIdentifier)
                             .flatMap(use(this::findByDeviceAndChannelIndex).with(channelIndex));
             }
             case "DeviceIdentifierAndObisCode": {
                 DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
                 ObisCode registerObisCode = (ObisCode) introspector.getValue("obisCode");
-                return this.deviceService
+                return this.deviceDataModelService.deviceService()
                         .findDeviceByIdentifier(deviceIdentifier)
                         .flatMap(use(this::findByDeviceAndObisCode).with(registerObisCode));
             }

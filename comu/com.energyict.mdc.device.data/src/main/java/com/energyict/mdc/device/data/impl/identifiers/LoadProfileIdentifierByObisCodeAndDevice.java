@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
@@ -29,8 +25,6 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
     private final ObisCode loadProfileObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
-    private LoadProfile loadProfile;
-
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
@@ -44,19 +38,6 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
         super();
         this.loadProfileObisCode = loadProfileObisCode;
         this.deviceIdentifier = deviceIdentifier;
-    }
-
-    @Override
-    public LoadProfile getLoadProfile() {
-        if (loadProfile == null) {
-            Device device = (Device) deviceIdentifier.findDevice(); //Downcast to the Connexo Device
-            this.loadProfile = device.getLoadProfiles()
-                                    .stream()
-                                    .filter(loadProfile -> loadProfile.getDeviceObisCode().equals(loadProfileObisCode))
-                                    .findFirst()
-                                    .orElseThrow(() -> CanNotFindForIdentifier.loadProfile(this, MessageSeeds.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER));
-        }
-        return loadProfile;
     }
 
     @Override

@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
@@ -12,7 +8,6 @@ import com.energyict.obis.ObisCode;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
-import java.util.List;
 
 /**
  * Provides an implementation for the {@link LoadProfileIdentifier}
@@ -44,17 +39,6 @@ public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier
     @Override
     public ObisCode getProfileObisCode() {
         return profileObisCode;
-    }
-
-    @Override
-    public LoadProfile getLoadProfile() {
-        Device device = (Device) this.deviceIdentifier.findDevice(); //Downcast to the Connexo Device
-        List<LoadProfile> loadProfiles = device.getLoadProfiles();
-        if (loadProfiles.isEmpty()) {
-            throw CanNotFindForIdentifier.loadProfile(this, MessageSeeds.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER);
-        } else {
-            return loadProfiles.get(0);
-        }
     }
 
     @XmlAttribute

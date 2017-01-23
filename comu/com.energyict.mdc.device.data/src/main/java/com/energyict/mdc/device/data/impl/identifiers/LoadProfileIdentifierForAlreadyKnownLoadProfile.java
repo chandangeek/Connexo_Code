@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
 import com.energyict.obis.ObisCode;
@@ -39,18 +38,8 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
     }
 
     @Override
-    public LoadProfile getLoadProfile() {
-        return this.loadProfile;
-    }
-
-    @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.loadProfile.getDevice());
     }
 
     @Override

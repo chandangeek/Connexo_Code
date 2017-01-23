@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.upl.meterdata.Device;
-import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
@@ -24,12 +22,6 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier {
 
     public DeviceIdentifierByLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         this.loadProfileIdentifier = loadProfileIdentifier;
-    }
-
-    @Override
-    public Device findDevice() {
-        com.energyict.mdc.device.data.LoadProfile loadProfile = (com.energyict.mdc.device.data.LoadProfile) this.loadProfileIdentifier.getLoadProfile();    //Downcast to Connexo LoadProfile
-        return loadProfile.getDevice();
     }
 
     @Override
@@ -76,17 +68,7 @@ public class DeviceIdentifierByLoadProfile implements DeviceIdentifier {
 
     private static class NullLoadProfileIdentifier implements LoadProfileIdentifier {
         @Override
-        public LoadProfile getLoadProfile() {
-            throw new UnsupportedOperationException("NullLoadProfileIdentifier is not capable of finding a load profile there is not identifier");
-        }
-
-        @Override
         public ObisCode getProfileObisCode() {
-            return null;
-        }
-
-        @Override
-        public DeviceIdentifier getDeviceIdentifier() {
             return null;
         }
 
