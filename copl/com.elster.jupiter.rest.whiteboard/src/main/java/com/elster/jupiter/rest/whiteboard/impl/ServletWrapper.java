@@ -14,6 +14,7 @@ public class ServletWrapper extends HttpServlet  {
 	private static final long serialVersionUID = 1L;
 	private final HttpServlet servlet;
 	private final ThreadPrincipalService threadPrincipalService;
+	private final String X_CONNEXO_APPLICATION_NAME = "X-CONNEXO-APPLICATION-NAME";
 	
 	public ServletWrapper(HttpServlet servlet,ThreadPrincipalService threadPrincipalService) {
 		this.servlet = servlet;
@@ -37,6 +38,7 @@ public class ServletWrapper extends HttpServlet  {
 
     private void doService(RequestWrapper request, HttpServletResponse response) throws ServletException, IOException {
         threadPrincipalService.set(request.getUserPrincipal(), getModule(request), request.getMethod(), determineLocale(request));
+		threadPrincipalService.setApplicationName(request.getHeader(X_CONNEXO_APPLICATION_NAME));
         try {
             servlet.service(request,response);
         } finally {
