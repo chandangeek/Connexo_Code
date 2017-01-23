@@ -14,9 +14,11 @@ import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MessageSeeds;
 import com.energyict.mdc.io.impl.SerialIOAtModemComponentServiceImpl;
+import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import org.joda.time.DateTimeConstants;
 import org.junit.Before;
 import org.junit.Test;
@@ -447,7 +449,7 @@ public class SerialPortConnectorTest {
         return (int) (expectedTime / 1000);
     }
 
-    protected class TestableSerialComChannel implements SerialPortComChannel{
+    protected class TestableSerialComChannel implements SerialPortComChannel {
 
         private int counter = 0;
         private int index = 0;
@@ -456,6 +458,7 @@ public class SerialPortConnectorTest {
          * The list of responses
          */
         private List<String> responses = new ArrayList<>();
+        private ServerSerialPort serverSerialPort;
 
         /**
          * The timing to respect - this is the timing BETWEEN responses.
@@ -466,7 +469,7 @@ public class SerialPortConnectorTest {
         private boolean requestToFlushInputStream;
 
         public TestableSerialComChannel(ServerSerialPort serialPort) {
-            super(serialPort);
+            this.serverSerialPort = serialPort;
         }
 
         public void setResponses(List<String> responses) {
@@ -510,7 +513,17 @@ public class SerialPortConnectorTest {
         }
 
         @Override
-        public int doWrite(byte[] bytes) {
+        public boolean startWriting() {
+            return true;
+        }
+
+        @Override
+        public int write(int b) {
+            return 0;
+        }
+
+        @Override
+        public int write(byte[] bytes) {
             if (new String(bytes).equals("+++")) {
                 // Writing the disconnect sequence is always followed by a flush of the inputStream.
                 requestToFlushInputStream = true;
@@ -519,13 +532,82 @@ public class SerialPortConnectorTest {
             return bytes.length;
         }
 
+        @Override
+        public void close() {
+            //Do nothing
+        }
 
         @Override
-        public int doRead() {
+        public void addProperties(TypedProperties typedProperties) {
+
+        }
+
+        @Override
+        public TypedProperties getProperties() {
+            return com.energyict.mdc.common.TypedProperties.empty();
+        }
+
+        @Override
+        public void prepareForDisConnect() {
+            //Do nothing
+        }
+
+        @Override
+        public void setTimeout(long millis) {
+            //Do nothing
+        }
+
+        @Override
+        public boolean isVoid() {
+            return false;
+        }
+
+        @Override
+        public ComChannelType getComChannelType() {
+            return ComChannelType.SerialComChannel;
+        }
+
+        @Override
+        public boolean startReading() {
+            return true;
+        }
+
+        @Override
+        public int read() {
             if (responses.size() > counter) {
                 return (int) responses.get(counter).charAt(index++);
             }
             return -1;
+        }
+
+        @Override
+        public int read(byte[] buffer) {
+            return 0;
+        }
+
+        @Override
+        public int read(byte[] buffer, int offset, int length) {
+            return 0;
+        }
+
+        @Override
+        public void updatePortConfiguration(SerialPortConfiguration serialPortConfiguration) {
+            //Do nothing
+        }
+
+        @Override
+        public SerialPortConfiguration getSerialPortConfiguration() {
+            return serverSerialPort.getSerialPortConfiguration();
+        }
+
+        @Override
+        public ServerSerialPort getSerialPort() {
+            return serverSerialPort;
+        }
+
+        @Override
+        public void flush() throws IOException {
+            //Do nothing
         }
     }
 }
