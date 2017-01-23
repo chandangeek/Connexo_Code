@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -52,6 +51,8 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
+
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
@@ -272,6 +273,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      * This is done in the save method of this device.
      */
     void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
+
+    void setSecurityProperty(String propertyName, Object propertyValue);
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 

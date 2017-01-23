@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -21,7 +22,6 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
@@ -55,14 +55,17 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 
 import org.osgi.service.event.EventConstants;
 
@@ -137,20 +140,20 @@ class DeviceServiceImpl implements ServerDeviceService {
         if(allowedCalendar.isGhost()) {
             return false;
         }
-        Condition condition = where(ActiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar)
-                .and(Where.where(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName()).isEffective(this.clock.instant()));
+        Condition activeCondition = where(ActiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar)
+                .and(where(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName()).isEffective(this.clock.instant()));
         Finder<ActiveEffectiveCalendar> page =
                 DefaultFinder.
-                        of(ActiveEffectiveCalendar.class, condition, this.deviceDataModelService.dataModel()).
+                        of(ActiveEffectiveCalendar.class, activeCondition, this.deviceDataModelService.dataModel()).
                         paged(0, 1);
         List<ActiveEffectiveCalendar> allActiveCalendars = page.find();
-        if(!allActiveCalendars.isEmpty()) {
+        if (!allActiveCalendars.isEmpty()) {
             return true;
         }
 
-        condition = where(PassiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar);
+        Condition passiveCondition = where(PassiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar);
         Finder<PassiveCalendar> pagedPassive =
-                DefaultFinder.of(PassiveCalendar.class, condition, this.deviceDataModelService.dataModel())
+                DefaultFinder.of(PassiveCalendar.class, passiveCondition, this.deviceDataModelService.dataModel())
                 .paged(0,1);
         List<PassiveCalendar> allPassiveCalendars = pagedPassive.find();
         return !allPassiveCalendars.isEmpty();
@@ -185,10 +188,11 @@ class DeviceServiceImpl implements ServerDeviceService {
                 .getDeviceType()
                 .getDeviceProtocolPluggableClass();
         Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> customPropertySet =
-                this.getCustomPropertySet(configurationProperties.getDeviceProtocolDialectName(),
-                        deviceProtocolPluggableClass.map(deviceProtocolPluggableClass1 -> deviceProtocolPluggableClass1.getDeviceProtocol()
-                                .getDeviceProtocolDialects())
-                                .orElse(Collections.emptyList()));
+                this.getCustomPropertySet(
+                        configurationProperties.getDeviceProtocolDialectName(),
+                        deviceProtocolPluggableClass
+                                .map(this::getDeviceProtocolDialects)
+                                .orElseGet(Collections::emptyList));
         if (customPropertySet.isPresent()) {
             String propertiesTable = customPropertySet.get().getPersistenceSupport().tableName();
             sqlBuilder.append(" from ");
@@ -209,7 +213,11 @@ class DeviceServiceImpl implements ServerDeviceService {
         }
     }
 
-    private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(String name, List<DeviceProtocolDialect> deviceProtocolDialects) {
+    private List<? extends DeviceProtocolDialect> getDeviceProtocolDialects(DeviceProtocolPluggableClass pluggableClass) {
+        return pluggableClass.getDeviceProtocol().getDeviceProtocolDialects();
+    }
+
+    private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(String name, List<? extends DeviceProtocolDialect> deviceProtocolDialects) {
         return deviceProtocolDialects
                 .stream()
                 .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(name))
@@ -274,6 +282,74 @@ class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public List<Device> findDevicesBySerialNumber(String serialNumber) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).find("serialNumber", serialNumber);
+    }
+
+    private List<Device> findDevicesBySerialNumberPattern(String serialNumberPattern) {
+        return this.deviceDataModelService.dataModel().query(Device.class).select(where("serialNumberPattern").like(serialNumberPattern));
+    }
+
+    @Override
+    public Optional<Device> findDeviceByIdentifier(DeviceIdentifier identifier) {
+        try {
+            return this.exactlyOne(this.find(identifier.forIntrospection()), identifier);
+        } catch (UnsupportedDeviceIdentifierTypeName | IllegalArgumentException e) {
+            return Optional.empty();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Device> find(Introspector introspector) throws UnsupportedDeviceIdentifierTypeName {
+        switch (introspector.getTypeName()) {
+            case "SerialNumber": {
+                return this.findDevicesBySerialNumber((String) introspector.getValue("serialNumber"));
+            }
+            case "LikeSerialNumber": {
+                return this.findDevicesBySerialNumberPattern((String) introspector.getValue("serialNumberGrepPattern"));
+            }
+            case "DatabaseId": {
+                return this
+                        .findDeviceById((long) introspector.getValue("protocolInfo"))
+                        .map(Collections::singletonList)
+                        .orElseGet(Collections::emptyList);
+            }
+            case "CallHomeId": {
+                String callHomeID = (String) introspector.getValue("callHomeId");
+                return this.findDevicesByPropertySpecValue(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeID);
+            }
+            case "PhoneNumber": {
+                Class<ConnectionType> connectionTypeClass = (Class) introspector.getValue("connectionTypeClass");
+                return this.findDevicesByConnectionTypeAndProperty(
+                        connectionTypeClass,
+                        (String) introspector.getValue("propertyName"),
+                        (String) introspector.getValue("phoneNumber"));
+            }
+            case "mRID": {
+                return this
+                        .findByUniqueMrid((String) introspector.getValue("databaseValue"))
+                        .map(Collections::singletonList)
+                        .orElseGet(Collections::emptyList);
+            }
+            case "Actual": {
+                return Collections.singletonList((Device) introspector.getValue("actual"));
+            }
+            default: {
+                throw new UnsupportedDeviceIdentifierTypeName();
+            }
+        }
+    }
+
+    private Optional<Device> exactlyOne(List<Device> allDevices, DeviceIdentifier identifier) {
+        if (allDevices.isEmpty()) {
+            return Optional.empty();
+        }
+        else {
+            if (allDevices.size() > 1) {
+                throw new NotUniqueException(identifier.toString());
+            }
+            else {
+                return Optional.of(allDevices.get(0));
+            }
+        }
     }
 
     @Override
@@ -382,7 +458,7 @@ class DeviceServiceImpl implements ServerDeviceService {
     public Optional<ActivatedBreakerStatus> getActiveBreakerStatus(Device device) {
         QueryExecutor<ActivatedBreakerStatus> activeBreakerStatusQuery = deviceDataModelService.dataModel().query(ActivatedBreakerStatus.class);
         return activeBreakerStatusQuery
-                .select(where("device").isEqualTo(device).and(Where.where("interval").isEffective()))
+                .select(where("device").isEqualTo(device).and(where("interval").isEffective()))
                 .stream()
                 .findFirst();
     }
@@ -490,4 +566,8 @@ class DeviceServiceImpl implements ServerDeviceService {
     public Device lockDevice(long deviceId) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).lock(deviceId);
     }
+
+    private static class UnsupportedDeviceIdentifierTypeName extends RuntimeException {
+    }
+
 }
