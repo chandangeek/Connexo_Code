@@ -5,7 +5,10 @@ import com.energyict.mdc.channels.ip.socket.SocketComChannel;
 import com.energyict.mdc.io.InboundUdpSession;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.Services;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -21,6 +24,16 @@ import java.net.SocketException;
  */
 @Component(name = "com.energyict.mdc.io.socketservice", service = SocketService.class)
 public class SocketServiceImpl implements SocketService {
+
+    @Activate
+    public void activate() {
+        Services.socketService(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.socketService(null);
+    }
 
     @Override
     public ServerSocket newTCPSocket(int portNumber) throws IOException {
