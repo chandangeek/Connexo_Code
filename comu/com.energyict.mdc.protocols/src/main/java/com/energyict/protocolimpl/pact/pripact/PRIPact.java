@@ -7,8 +7,6 @@
 package com.energyict.protocolimpl.pact.pripact;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -23,6 +21,8 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
 import com.energyict.protocolimpl.pact.core.common.DateTime;

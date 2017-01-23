@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 import java.io.IOException;
 import java.math.BigDecimal;

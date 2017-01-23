@@ -10,9 +10,6 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -23,6 +20,11 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
 import com.energyict.protocolimpl.ansi.c12.C1222Buffer;
 import com.energyict.protocolimpl.ansi.c12.C1222Layer;
@@ -42,7 +44,6 @@ import com.energyict.protocolimpl.elster.a3.procedures.ManufacturerProcedureFact
 import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.A3;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;

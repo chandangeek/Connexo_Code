@@ -7,9 +7,10 @@
 
 package com.energyict.protocolimpl.actarissevc;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.Calculate;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
 

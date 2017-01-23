@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.itron.quantum1000;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.DemandRegisterReadings;
 import com.energyict.protocolimpl.itron.quantum1000.minidlms.DemandRegisterReadingsType;

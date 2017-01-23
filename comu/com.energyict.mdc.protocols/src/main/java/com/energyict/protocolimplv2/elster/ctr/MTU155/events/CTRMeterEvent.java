@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.events;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.utils.MeterEventUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;

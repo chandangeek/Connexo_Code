@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.registermappping;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.S4s;
 import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command.CurrentSeasonCumDemandAndLastResetRXCommand;
 import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command.CurrentSeasonTOUDemandDataRXCommand;

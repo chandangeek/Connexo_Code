@@ -3,9 +3,9 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.edf.trimaran2p.core.VariableNameFactory;
 import com.energyict.protocolimpl.edf.trimarandlms.common.Register;
 import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;

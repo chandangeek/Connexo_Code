@@ -3,7 +3,7 @@
  */
 package com.energyict.protocolimpl.dlms.Z3;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * @author gna

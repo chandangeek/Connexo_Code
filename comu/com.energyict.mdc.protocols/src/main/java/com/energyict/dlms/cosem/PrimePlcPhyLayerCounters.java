@@ -4,7 +4,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.PrimePlcPhyLayerCountersAttributes;
 import com.energyict.dlms.cosem.methods.PrimePlcPhyLayerCountersMethods;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

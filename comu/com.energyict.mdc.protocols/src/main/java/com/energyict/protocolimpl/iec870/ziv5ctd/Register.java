@@ -7,7 +7,7 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 
 /** @author fbo */
 

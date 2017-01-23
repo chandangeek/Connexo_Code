@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.sentinel.tables;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
 import com.energyict.protocolimpl.itron.sentinel.Sentinel;
 

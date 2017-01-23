@@ -1,11 +1,14 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.UplinkPingConfigurationAttributes;
 import com.energyict.dlms.cosem.methods.UplinkPingConfigurationMethods;
-import com.energyict.mdc.common.ObisCode;
-
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

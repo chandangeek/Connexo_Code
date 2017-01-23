@@ -1,10 +1,11 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom;
 
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 /**

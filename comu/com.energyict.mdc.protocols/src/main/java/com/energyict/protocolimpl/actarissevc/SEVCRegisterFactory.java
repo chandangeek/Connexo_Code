@@ -6,9 +6,10 @@
 
 package com.energyict.protocolimpl.actarissevc;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.ProtocolException;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 import java.io.IOException;
 import java.util.HashMap;

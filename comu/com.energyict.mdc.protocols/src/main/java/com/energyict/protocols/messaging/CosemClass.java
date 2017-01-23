@@ -1,6 +1,6 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles;
 
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -14,6 +12,9 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;

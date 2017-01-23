@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.S4;
 
 import java.io.IOException;

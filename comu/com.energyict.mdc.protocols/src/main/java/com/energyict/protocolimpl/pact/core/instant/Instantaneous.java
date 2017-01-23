@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.pact.core.instant;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 /**
  *
  * @author  Koen

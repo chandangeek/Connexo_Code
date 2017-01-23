@@ -3,8 +3,9 @@
  */
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+
+import com.energyict.obis.ObisCode;
 
 import java.util.HashMap;
 import java.util.Map;

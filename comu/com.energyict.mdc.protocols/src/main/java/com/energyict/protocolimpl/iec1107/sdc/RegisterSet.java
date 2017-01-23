@@ -6,9 +6,10 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.base.DataParser;
 
 import java.io.IOException;

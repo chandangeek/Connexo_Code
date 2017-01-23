@@ -1,9 +1,9 @@
 package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueCollector;
 import com.energyict.mdc.issues.IssueService;

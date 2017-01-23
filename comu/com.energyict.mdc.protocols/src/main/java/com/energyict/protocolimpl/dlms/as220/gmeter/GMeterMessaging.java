@@ -1,10 +1,5 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.Message;
@@ -18,6 +13,12 @@ import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;

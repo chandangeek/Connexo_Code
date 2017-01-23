@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.coronis.amco.rtm;
 
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -15,6 +13,11 @@ import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.protocols.util.EventMapper;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -25,8 +28,6 @@ import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
-import com.energyict.protocols.util.EventMapper;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;

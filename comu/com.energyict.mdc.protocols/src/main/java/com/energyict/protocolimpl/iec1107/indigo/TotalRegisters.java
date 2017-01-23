@@ -6,10 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 
 import java.io.IOException;
 import java.math.BigDecimal;

@@ -3,8 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.attributes.LoggerSettingsAttributes;
-import com.energyict.mdc.common.ObisCode;
-
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.coronis.core;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;
 
 /**

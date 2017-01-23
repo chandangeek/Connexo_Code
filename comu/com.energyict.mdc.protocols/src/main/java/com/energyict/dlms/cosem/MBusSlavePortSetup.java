@@ -1,12 +1,13 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

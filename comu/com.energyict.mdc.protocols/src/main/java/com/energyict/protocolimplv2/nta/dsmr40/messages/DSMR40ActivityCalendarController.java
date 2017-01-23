@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr40.messages;
 
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 
 import java.io.IOException;

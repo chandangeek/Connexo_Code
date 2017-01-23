@@ -1,13 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.dlms.OctetString;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.LogicalName;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300LoadProfileBuilder;

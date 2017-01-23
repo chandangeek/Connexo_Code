@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 class LineSelect {
 

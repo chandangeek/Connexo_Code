@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
-import com.energyict.dlms.DlmsSession;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
+import com.energyict.dlms.DlmsSession;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

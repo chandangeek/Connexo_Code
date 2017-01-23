@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.dlms.eictz3;
 
-import com.energyict.mdc.common.ObisCode;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CapturedObject;
@@ -17,6 +15,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.Date;

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

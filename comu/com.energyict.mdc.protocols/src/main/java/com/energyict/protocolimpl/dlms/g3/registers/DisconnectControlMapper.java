@@ -1,15 +1,16 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.math.BigDecimal;

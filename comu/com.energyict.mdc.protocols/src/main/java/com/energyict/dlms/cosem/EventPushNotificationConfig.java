@@ -4,8 +4,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.mdc.common.ObisCode;
-
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

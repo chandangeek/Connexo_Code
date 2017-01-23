@@ -1,7 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.obis.ObisCode;
 
 import java.util.ArrayList;
 import java.util.Date;

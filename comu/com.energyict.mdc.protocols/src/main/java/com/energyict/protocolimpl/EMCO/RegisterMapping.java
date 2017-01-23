@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.EMCO;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 /**
  * RegisterMapping

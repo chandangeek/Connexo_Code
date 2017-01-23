@@ -5,8 +5,9 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.obis.ObisCode;
 
 import java.util.HashMap;
 import java.util.Iterator;

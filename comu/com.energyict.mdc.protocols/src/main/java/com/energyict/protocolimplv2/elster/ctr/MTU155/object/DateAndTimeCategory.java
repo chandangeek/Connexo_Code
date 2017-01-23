@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 import java.math.BigDecimal;
@@ -211,7 +211,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             return cal.getTime();
-            
+
         } else if (getId().is("8.0.0")) {
             Calendar cal = Calendar.getInstance(timeZone);
             int ptr = 0;
@@ -245,6 +245,6 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
             return super.toString();
         }
         Date date = getDate();
-        return date != null ? date.toString() : "null";        
+        return date != null ? date.toString() : "null";
     }
 }

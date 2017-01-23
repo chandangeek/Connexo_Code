@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  *

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ge.kv.tables;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
 
 import java.io.IOException;

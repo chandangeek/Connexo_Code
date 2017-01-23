@@ -1,14 +1,15 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
+
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;

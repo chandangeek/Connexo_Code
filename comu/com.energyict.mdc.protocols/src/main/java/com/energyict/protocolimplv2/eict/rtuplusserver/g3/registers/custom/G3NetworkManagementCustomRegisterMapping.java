@@ -1,13 +1,13 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom;
 
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
 import com.energyict.dlms.cosem.attributes.G3NetworkManagementAttributes;
 import com.energyict.dlms.cosem.attributes.PLCOFDMType2MACSetupAttribute;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.elster.alpha.alphabasic.AlphaBasic;
 import com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes.Class14LoadProfileConfiguration;

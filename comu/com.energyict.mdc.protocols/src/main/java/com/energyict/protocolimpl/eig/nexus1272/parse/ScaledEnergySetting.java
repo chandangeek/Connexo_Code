@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.eig.nexus1272.parse;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.eig.nexus1272.NexusProtocolConnection;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;

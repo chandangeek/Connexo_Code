@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.coronis.waveflow.waveflowV1;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -8,6 +7,7 @@ import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.ApplicationStatusParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;

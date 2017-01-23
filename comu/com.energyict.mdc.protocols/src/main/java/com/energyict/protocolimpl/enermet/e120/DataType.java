@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.enermet.e120;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
 import java.util.Calendar;

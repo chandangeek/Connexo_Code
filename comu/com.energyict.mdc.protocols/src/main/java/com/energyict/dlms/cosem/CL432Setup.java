@@ -5,7 +5,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.CL432SetupAttributes;
 import com.energyict.dlms.cosem.methods.CL432SetupMethods;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

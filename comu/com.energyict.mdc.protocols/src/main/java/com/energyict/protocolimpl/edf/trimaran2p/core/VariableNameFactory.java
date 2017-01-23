@@ -3,8 +3,7 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.mdc.common.Unit;
-
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edf.trimarandlms.common.VariableName;
 
 import java.io.IOException;

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 /** @author fbo */
 

@@ -13,7 +13,7 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Change;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Contract;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Day;

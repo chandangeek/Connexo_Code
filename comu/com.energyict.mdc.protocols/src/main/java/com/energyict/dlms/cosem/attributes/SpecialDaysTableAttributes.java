@@ -2,7 +2,7 @@ package com.energyict.dlms.cosem.attributes;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * Contains functionality to access attributes of the SpecialDay table (independent whether or not shortName or logicalNames are used)

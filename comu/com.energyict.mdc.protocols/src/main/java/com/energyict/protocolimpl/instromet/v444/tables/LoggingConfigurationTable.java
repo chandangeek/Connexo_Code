@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.instromet.v444.tables;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+
+import com.energyict.cbo.Unit;
 
 import java.io.IOException;
 import java.math.BigDecimal;

@@ -1,9 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.registers;
 
-import com.energyict.dlms.DlmsSession;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.dlms.DlmsSession;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 

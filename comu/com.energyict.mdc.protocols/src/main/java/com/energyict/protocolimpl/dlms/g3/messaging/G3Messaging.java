@@ -1,6 +1,14 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
 import com.elster.jupiter.calendar.CalendarService;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.protocol.api.messaging.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.protocols.util.TempFileLoader;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
@@ -17,13 +25,7 @@ import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.mdc.protocol.api.messaging.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.g3.G3Clock;
@@ -51,7 +53,6 @@ import com.energyict.protocolimpl.messaging.AnnotatedMessaging;
 import com.energyict.protocolimpl.messaging.RtuMessageHandler;
 import com.energyict.protocolimpl.messaging.messages.FirmwareUpdateMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.util.TempFileLoader;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;

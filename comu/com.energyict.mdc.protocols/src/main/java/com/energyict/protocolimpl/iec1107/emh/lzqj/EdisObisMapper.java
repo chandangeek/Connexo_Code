@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.obis.ObisCode;
 
 import java.util.ArrayList;
 import java.util.List;

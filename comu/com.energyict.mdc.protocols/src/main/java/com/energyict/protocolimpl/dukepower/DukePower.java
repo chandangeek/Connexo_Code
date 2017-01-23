@@ -15,11 +15,7 @@ KV|23032005|Changed header to be compatible with protocol version tool
 package com.energyict.protocolimpl.dukepower;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -34,8 +30,13 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.inbound.DiscoverInfo;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;

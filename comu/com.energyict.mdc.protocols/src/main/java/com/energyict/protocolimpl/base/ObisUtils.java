@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  *

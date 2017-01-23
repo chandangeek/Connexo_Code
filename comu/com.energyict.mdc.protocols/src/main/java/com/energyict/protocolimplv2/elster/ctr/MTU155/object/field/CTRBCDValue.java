@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object.field;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
 

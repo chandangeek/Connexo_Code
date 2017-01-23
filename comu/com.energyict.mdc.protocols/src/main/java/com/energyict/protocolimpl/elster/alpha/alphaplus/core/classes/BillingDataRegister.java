@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.obis.ObisCode;
 
 
 /**

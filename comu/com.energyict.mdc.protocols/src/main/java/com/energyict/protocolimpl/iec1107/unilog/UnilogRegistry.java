@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWRegister;

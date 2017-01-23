@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 /**
  *

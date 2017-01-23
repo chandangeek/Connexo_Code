@@ -6,8 +6,7 @@ import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.NPTServerAddressAttributes;
 import com.energyict.dlms.cosem.methods.NTPServerAddressMethods;
-import com.energyict.mdc.common.ObisCode;
-
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

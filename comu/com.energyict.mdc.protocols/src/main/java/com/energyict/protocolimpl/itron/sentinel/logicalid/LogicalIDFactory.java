@@ -10,9 +10,8 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 
 import java.io.IOException;

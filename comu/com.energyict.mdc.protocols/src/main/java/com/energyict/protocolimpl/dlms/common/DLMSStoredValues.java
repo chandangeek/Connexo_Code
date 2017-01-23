@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.OctetString;
@@ -12,8 +14,7 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

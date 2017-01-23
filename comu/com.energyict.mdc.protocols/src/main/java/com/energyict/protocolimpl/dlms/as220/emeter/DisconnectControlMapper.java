@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.AbstractDLMSAttributeMapper;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 

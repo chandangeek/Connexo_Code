@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;

@@ -1,5 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
+import com.energyict.mdc.protocol.api.ProtocolException;
+
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.ActivityCalendar;
@@ -15,8 +17,7 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.obis.ObisCode;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.common;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.io.Serializable;

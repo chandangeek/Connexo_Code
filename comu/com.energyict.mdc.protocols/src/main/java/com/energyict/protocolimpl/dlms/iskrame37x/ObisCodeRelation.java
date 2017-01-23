@@ -6,8 +6,9 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.ArrayList;

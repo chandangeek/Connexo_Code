@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
-import com.energyict.mdc.common.ObisCode;
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
-import com.elster.jupiter.metering.MeteringService;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.util.HashMap;

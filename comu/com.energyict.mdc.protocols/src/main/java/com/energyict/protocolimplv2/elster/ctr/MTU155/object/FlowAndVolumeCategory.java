@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 import java.math.BigDecimal;
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
  * Time: 14:29:16
  */
 public class FlowAndVolumeCategory extends AbstractUnsignedBINObject {
-     
+
     public FlowAndVolumeCategory(CTRObjectID id) {
         this.setId(id);
     }

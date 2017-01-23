@@ -1,9 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
+import com.energyict.mdc.protocol.api.device.data.Register;
+
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.Register;
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT

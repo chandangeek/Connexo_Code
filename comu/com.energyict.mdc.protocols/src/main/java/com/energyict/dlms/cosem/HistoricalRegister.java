@@ -1,8 +1,8 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 
 import java.io.IOException;
 import java.math.BigDecimal;

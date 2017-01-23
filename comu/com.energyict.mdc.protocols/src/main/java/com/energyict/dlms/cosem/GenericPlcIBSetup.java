@@ -6,7 +6,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.GenericPlcIBSetupAttributes;
 import com.energyict.dlms.cosem.methods.GenericPlcIBSetupMethods;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

@@ -6,11 +6,12 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.sctm.base.SCTMProfileFlags;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 

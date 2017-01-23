@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.dlms.g3.registers;
 
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 
 import java.io.IOException;

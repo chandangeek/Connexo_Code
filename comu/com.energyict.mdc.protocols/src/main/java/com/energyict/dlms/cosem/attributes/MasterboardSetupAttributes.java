@@ -2,7 +2,7 @@ package com.energyict.dlms.cosem.attributes;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 
 /**
@@ -44,7 +44,7 @@ public enum MasterboardSetupAttributes implements DLMSClassAttributes {
     public int getShortName() {
         return this.shortName;
     }
-    
+
     public static MasterboardSetupAttributes findByAttributeNumber(int attribute){
         for(MasterboardSetupAttributes limiterAttribute : MasterboardSetupAttributes.values()){
             if(limiterAttribute.getAttributeNumber() == attribute){

@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes.BillingDataRegister;
 import com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes.BillingDataRegisterFactoryImpl;
 import com.energyict.protocolimpl.elster.alpha.core.Alpha;

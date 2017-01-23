@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 
 import java.io.IOException;
 import java.util.Date;

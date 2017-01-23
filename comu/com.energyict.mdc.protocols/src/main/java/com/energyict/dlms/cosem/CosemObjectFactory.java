@@ -6,7 +6,6 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.DLMSAttribute;
@@ -14,6 +13,7 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.List;

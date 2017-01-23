@@ -15,7 +15,7 @@ import org.junit.Test;
 import com.energyict.dlms.mocks.MockBrokenDLMSConnection;
 import com.energyict.dlms.mocks.MockDLMSConnection;
 import com.energyict.dlms.mocks.MockProtocolLink;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * @author jme

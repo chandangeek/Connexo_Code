@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 import java.io.IOException;
 import java.math.BigDecimal;

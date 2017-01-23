@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ppmi1.parser.HistoricalDataParser;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;

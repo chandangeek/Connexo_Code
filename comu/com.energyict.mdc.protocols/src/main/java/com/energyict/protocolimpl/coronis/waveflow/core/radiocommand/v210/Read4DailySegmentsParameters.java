@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.AbstractRadioCommand;
 

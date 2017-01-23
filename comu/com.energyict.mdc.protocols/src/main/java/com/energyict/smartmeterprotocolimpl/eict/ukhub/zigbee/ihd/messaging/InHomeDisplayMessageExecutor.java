@@ -1,12 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging;
 
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;

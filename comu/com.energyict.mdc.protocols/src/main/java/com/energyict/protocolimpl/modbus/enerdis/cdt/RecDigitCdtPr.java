@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -10,6 +8,8 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverResult;
 import com.energyict.protocols.mdc.inbound.rtuplusserver.DiscoverTools;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
 import javax.inject.Inject;

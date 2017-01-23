@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.registermapping;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.edf.trimarancje.Trimaran;
 import com.energyict.protocolimpl.edf.trimarancje.core.CurrentPeriodTable;
 import com.energyict.protocolimpl.edf.trimarancje.core.PreviousPeriodTable;

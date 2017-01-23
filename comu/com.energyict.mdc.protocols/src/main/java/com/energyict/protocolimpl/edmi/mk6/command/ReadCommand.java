@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.edmi.mk6.command;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edmi.mk6.core.AbstractRegisterType;
 import com.energyict.protocolimpl.edmi.mk6.core.RegisterTypeParser;
 import com.energyict.protocolimpl.edmi.mk6.core.RegisterUnitParser;

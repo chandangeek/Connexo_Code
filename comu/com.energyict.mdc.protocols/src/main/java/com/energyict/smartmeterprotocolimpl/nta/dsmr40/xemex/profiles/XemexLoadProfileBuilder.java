@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.profiles;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals;

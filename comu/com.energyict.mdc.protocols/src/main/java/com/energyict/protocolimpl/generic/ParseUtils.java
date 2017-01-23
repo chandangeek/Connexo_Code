@@ -1,15 +1,16 @@
 package com.energyict.protocolimpl.generic;
 
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.Register;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.Register;
 
 import java.io.IOException;
 import java.math.BigDecimal;

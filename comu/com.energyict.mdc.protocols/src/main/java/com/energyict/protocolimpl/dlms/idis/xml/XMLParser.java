@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.dlms.idis.xml;
 
-import com.energyict.mdc.common.ObisCode;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BooleanObject;
@@ -17,6 +15,7 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;

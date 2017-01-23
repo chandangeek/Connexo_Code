@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.util.Date;

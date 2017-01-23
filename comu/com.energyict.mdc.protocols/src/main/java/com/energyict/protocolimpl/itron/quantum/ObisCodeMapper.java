@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.itron.quantum;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.itron.quantum.basepages.BasePagesFactory;
 import com.energyict.protocolimpl.itron.quantum.basepages.Register;
 import com.energyict.protocolimpl.itron.quantum.basepages.RegisterBasePage;

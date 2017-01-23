@@ -6,10 +6,11 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 
 import java.io.File;
 import java.io.FileInputStream;

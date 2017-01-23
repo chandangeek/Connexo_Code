@@ -6,11 +6,12 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.math.BigDecimal;

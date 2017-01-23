@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 import java.util.ArrayList;
 import java.util.Iterator;

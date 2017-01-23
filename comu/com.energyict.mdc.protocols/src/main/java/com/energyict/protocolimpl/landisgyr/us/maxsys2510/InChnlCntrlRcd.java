@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 class InChnlCntrlRcd {
 

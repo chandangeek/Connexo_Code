@@ -1,11 +1,12 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.protocol.api.ProtocolException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.methods.G3PlcSetPSKMethods;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -7,8 +9,7 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.ArrayList;

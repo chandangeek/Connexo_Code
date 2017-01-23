@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
@@ -13,6 +11,9 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import org.joda.time.DateTimeConstants;
 
 import java.io.ByteArrayInputStream;

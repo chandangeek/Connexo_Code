@@ -2,7 +2,7 @@ package com.energyict.dlms.cosem.attributes;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * Straightforward summation of the {@link com.energyict.dlms.cosem.IPv4Setup} attributes

@@ -1,9 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
@@ -25,10 +22,14 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
-import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier;
+import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;

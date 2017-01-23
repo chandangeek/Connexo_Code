@@ -3,8 +3,9 @@ package com.energyict.protocolimpl.iec1107.cewe.prometer;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 
 import java.io.IOException;
 import java.math.BigDecimal;

@@ -4,7 +4,6 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.ProtocolLink;
@@ -19,6 +18,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.LimiterAttributes;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.logging.Level;

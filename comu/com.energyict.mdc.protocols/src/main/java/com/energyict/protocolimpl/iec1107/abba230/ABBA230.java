@@ -18,11 +18,7 @@ entries occur twice or more they need an SL flag.
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -52,6 +48,15 @@ import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.protocols.util.CacheMechanism;
+import com.energyict.protocols.util.EventMapper;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.protocols.util.TempFileLoader;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
@@ -60,10 +65,6 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.protocols.util.EventMapper;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.protocols.util.TempFileLoader;
 
 import javax.inject.Inject;
 import java.io.File;

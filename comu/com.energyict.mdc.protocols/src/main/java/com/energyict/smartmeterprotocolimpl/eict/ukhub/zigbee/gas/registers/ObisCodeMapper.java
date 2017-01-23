@@ -1,12 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 
-import com.energyict.mdc.common.ObisCode;
-
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.obis.ObisCode;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 
 import java.util.HashMap;

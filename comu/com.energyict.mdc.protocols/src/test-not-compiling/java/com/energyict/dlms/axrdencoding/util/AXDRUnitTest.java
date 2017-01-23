@@ -1,6 +1,6 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
 import org.junit.Test;

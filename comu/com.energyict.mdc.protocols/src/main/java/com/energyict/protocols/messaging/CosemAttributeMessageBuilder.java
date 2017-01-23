@@ -1,7 +1,6 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.ObisCode;
-
+import com.energyict.obis.ObisCode;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 

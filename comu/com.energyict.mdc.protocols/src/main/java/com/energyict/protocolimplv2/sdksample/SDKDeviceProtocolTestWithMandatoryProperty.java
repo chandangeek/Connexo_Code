@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.sdksample;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.ComChannel;
@@ -30,8 +29,10 @@ import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.protocolimplv2.securitysupport.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
+
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.securitysupport.DlmsSecuritySupport;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

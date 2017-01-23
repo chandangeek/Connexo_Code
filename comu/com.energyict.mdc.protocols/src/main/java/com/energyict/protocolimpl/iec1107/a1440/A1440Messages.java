@@ -5,7 +5,6 @@
  */
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.messaging.Message;
@@ -19,10 +18,12 @@ import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.utils.MessagingTools;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

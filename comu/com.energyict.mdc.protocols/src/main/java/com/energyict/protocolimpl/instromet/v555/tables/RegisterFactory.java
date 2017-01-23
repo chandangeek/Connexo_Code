@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.instromet.v555.tables;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.instromet.v555.Instromet555;
 
 import java.util.ArrayList;

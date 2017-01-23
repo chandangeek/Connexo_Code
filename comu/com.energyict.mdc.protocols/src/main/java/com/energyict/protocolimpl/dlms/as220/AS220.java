@@ -1,8 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.elster.jupiter.calendar.CalendarService;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
@@ -17,6 +15,11 @@ import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.protocols.mdc.services.impl.OrmClient;
+import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.base.ObiscodeMapper;
 import com.energyict.protocolimpl.base.RetryHandler;
@@ -28,8 +31,6 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.plc.PLC;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.dlms.as220.powerquality.PowerQuality;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;

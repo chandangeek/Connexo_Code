@@ -3,9 +3,10 @@
  */
 package com.energyict.protocolimpl.dlms.as220.plc;
 
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.plc.statistics.PLCStatistics;
 

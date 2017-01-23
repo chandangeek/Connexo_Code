@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
 
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.DSMR40ActivityCalendarController;
 import org.w3c.dom.Node;

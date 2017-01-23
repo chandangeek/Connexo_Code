@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.Register;

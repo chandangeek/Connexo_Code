@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.as220.AS220;

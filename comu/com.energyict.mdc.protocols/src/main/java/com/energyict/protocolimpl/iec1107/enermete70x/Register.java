@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 
 import java.util.Date;
 

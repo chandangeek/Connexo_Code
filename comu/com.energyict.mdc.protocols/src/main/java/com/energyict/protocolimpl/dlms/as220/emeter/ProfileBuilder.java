@@ -1,13 +1,14 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.dlms.as220.DLMSSNAS220;

@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.dlms.as220.powerquality;
 
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 
 import java.io.IOException;

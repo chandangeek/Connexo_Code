@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  *

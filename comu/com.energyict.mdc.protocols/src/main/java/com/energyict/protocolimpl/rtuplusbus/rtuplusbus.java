@@ -1,11 +1,7 @@
 package com.energyict.protocolimpl.rtuplusbus;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -15,6 +11,11 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 

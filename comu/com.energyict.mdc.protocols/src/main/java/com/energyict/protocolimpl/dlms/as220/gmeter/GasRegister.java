@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.dlms.as220.gmeter;
 
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.as220.GasDevice;
 
 import java.io.IOException;

@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.ge.kv;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 /**
  *

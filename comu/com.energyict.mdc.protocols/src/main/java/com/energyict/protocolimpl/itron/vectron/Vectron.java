@@ -10,7 +10,6 @@
 
 package com.energyict.protocolimpl.itron.vectron;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -18,6 +17,7 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
 import com.energyict.protocolimpl.itron.vectron.basepages.BasePagesFactory;
 import com.energyict.protocolimpl.itron.vectron.basepages.RegisterFactory;

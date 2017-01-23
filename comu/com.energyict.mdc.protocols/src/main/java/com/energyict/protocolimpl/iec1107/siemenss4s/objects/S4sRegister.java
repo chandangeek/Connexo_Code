@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 
 public class S4sRegister {
 

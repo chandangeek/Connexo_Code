@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.dlms.elgama;
 
+import com.energyict.mdc.protocol.api.UnsupportedException;
+
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -14,9 +17,7 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.RetryHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

@@ -8,7 +8,7 @@ import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.dlms.cosem.attributes.ZigbeeSETCControlAttributes;
 import com.energyict.dlms.cosem.methods.ZigbeeSETCControlMethods;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

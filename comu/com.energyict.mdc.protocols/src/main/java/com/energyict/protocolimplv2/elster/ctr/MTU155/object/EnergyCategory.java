@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 import java.math.BigDecimal;
@@ -28,7 +28,7 @@ public class EnergyCategory extends AbstractUnsignedBINObject {
         }
         return symbol;
     }
-    
+
     public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
         int overflow = 999999999;
         if (Unit.get(BaseUnit.JOULEPERHOUR, 6).equals(unit)) {overflow = 9999999;}
@@ -40,7 +40,7 @@ public class EnergyCategory extends AbstractUnsignedBINObject {
         int[] valueLength;
             switch(y) {
                 case 0: valueLength = new int[]{3}; break;
-                default: {valueLength = new int[]{4};} 
+                default: {valueLength = new int[]{4};}
             }
         return valueLength;
     }

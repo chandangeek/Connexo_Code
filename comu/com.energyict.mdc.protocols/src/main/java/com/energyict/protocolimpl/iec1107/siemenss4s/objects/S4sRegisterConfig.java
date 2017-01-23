@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 /**
  * Contains the configuration of a Register, or a ChannelInfo object configuration!

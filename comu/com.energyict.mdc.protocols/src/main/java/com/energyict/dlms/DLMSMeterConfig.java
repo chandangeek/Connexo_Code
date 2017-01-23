@@ -1,11 +1,10 @@
 package com.energyict.dlms;
 
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 
-import java.io.IOException;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.obis.ObisCode;
 /**
  *
  * @author  Koen

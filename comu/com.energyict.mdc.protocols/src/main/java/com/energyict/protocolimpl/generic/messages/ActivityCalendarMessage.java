@@ -3,7 +3,6 @@ package com.energyict.protocolimpl.generic.messages;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.EventOccurrence;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.DLMSMeterConfig;
@@ -15,6 +14,7 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;

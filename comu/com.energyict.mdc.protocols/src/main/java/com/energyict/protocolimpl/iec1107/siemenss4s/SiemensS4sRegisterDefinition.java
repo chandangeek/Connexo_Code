@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

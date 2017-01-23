@@ -1,15 +1,16 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.DlmsUnit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.common.DLMSProfileHelper;
 import com.energyict.protocolimpl.dlms.common.ProfileCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;

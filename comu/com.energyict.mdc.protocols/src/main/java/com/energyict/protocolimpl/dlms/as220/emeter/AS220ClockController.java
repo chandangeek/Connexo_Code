@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.Clock;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ClockController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
 import com.energyict.protocolimpl.dlms.as220.DLMSSNAS220;

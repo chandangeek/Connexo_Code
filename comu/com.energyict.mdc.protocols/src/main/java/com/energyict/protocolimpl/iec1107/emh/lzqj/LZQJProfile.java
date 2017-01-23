@@ -6,12 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.MeterExceptionInfo;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;

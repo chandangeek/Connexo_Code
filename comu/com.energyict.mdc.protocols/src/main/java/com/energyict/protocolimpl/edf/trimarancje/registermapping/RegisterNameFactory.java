@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.registermapping;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.util.HashMap;
 import java.util.Map;

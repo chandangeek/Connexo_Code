@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.util.ArrayList;
 import java.util.List;

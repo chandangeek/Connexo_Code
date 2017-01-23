@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.customerconfig;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.util.HashMap;
 import java.util.Iterator;

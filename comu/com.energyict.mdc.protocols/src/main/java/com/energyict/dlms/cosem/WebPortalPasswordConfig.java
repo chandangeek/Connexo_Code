@@ -5,8 +5,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.WebPortalPasswordAttributes;
 import com.energyict.dlms.cosem.methods.WebPortalPasswordMethods;
-import com.energyict.mdc.common.ObisCode;
-
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

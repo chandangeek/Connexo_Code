@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk6.registermapping;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  *

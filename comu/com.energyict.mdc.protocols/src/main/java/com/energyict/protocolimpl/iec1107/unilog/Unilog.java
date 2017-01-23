@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
@@ -20,6 +18,8 @@ import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;

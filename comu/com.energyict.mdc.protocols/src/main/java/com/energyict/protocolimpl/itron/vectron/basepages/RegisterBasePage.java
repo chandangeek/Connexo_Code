@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.itron.vectron.basepages;
 
-import com.energyict.mdc.common.Quantity;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;

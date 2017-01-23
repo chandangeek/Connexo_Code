@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.enermet.e120;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
+import com.energyict.cbo.Quantity;
 
 import java.io.IOException;
 import java.text.MessageFormat;

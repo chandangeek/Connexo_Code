@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300ObisCodeProvider;
 
 /**

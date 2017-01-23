@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 /**
  *

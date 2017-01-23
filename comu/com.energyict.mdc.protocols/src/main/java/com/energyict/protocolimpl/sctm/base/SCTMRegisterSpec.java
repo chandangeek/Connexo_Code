@@ -6,8 +6,9 @@
 
 package com.energyict.protocolimpl.sctm.base;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.obis.ObisCode;
 /**
  *
  * @author  Koen

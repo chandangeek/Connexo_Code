@@ -8,11 +8,12 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.math.BigDecimal;

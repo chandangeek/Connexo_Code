@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
@@ -16,7 +17,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.math.BigDecimal;
 import java.util.Calendar;

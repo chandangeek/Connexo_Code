@@ -5,6 +5,10 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.ProtocolException;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.AdaptorConnection;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -27,10 +31,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.obis.ObisCode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

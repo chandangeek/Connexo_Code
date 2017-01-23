@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.common;
 
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 import java.io.Serializable;
 

@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
 
 import java.util.Date;
 import java.util.Iterator;

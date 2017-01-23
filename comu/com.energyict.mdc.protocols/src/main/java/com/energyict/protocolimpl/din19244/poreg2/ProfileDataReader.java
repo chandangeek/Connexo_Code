@@ -1,13 +1,14 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.IntervalValue;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.din19244.poreg2.core.ExtendedValue;
 import com.energyict.protocolimpl.din19244.poreg2.request.ProfileDataEntry;
 import com.energyict.protocolimpl.din19244.poreg2.request.register.ProfileDescription;

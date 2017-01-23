@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT

@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 
 import java.io.IOException;

@@ -1,15 +1,15 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.Ipv6SetupAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

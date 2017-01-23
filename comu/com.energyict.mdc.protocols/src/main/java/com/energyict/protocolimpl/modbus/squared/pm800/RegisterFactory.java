@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.modbus.squared.pm800;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;

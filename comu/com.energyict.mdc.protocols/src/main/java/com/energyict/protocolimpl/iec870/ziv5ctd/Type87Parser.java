@@ -7,8 +7,8 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;

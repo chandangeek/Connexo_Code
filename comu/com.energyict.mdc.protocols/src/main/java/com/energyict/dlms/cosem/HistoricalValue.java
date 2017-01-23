@@ -6,8 +6,8 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.mdc.common.Quantity;
 
 import java.io.IOException;
 import java.util.Date;

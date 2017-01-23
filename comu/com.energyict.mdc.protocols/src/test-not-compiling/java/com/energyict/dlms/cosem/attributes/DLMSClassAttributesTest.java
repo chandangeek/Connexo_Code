@@ -1,6 +1,6 @@
 package com.energyict.dlms.cosem.attributes;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;

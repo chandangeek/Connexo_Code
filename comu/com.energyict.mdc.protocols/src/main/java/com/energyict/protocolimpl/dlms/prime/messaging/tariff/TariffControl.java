@@ -1,16 +1,17 @@
 package com.energyict.protocolimpl.dlms.prime.messaging.tariff;
 
+import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.prime.messaging.PrimeMessageExecutor;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.B04;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Contract;

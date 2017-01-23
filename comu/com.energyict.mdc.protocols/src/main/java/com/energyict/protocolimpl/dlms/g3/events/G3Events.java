@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.dlms.g3.events;
 
-import com.energyict.dlms.DlmsSession;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.DlmsSession;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.ArrayList;

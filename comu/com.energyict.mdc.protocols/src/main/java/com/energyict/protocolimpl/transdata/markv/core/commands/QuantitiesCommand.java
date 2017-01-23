@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.BufferedReader;
 import java.io.IOException;

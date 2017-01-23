@@ -1,8 +1,8 @@
 package com.energyict.dlms.axrdencoding.util;
 
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.mdc.common.Unit;
 
 public final class AXDRUnit {
 

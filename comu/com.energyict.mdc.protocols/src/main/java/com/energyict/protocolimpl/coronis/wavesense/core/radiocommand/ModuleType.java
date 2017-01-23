@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.wavesense.core.radiocommand;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.coronis.wavesense.WaveSense;
 
 import java.io.IOException;

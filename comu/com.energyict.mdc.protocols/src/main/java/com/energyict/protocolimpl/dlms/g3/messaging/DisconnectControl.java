@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.dlms.g3.messaging;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

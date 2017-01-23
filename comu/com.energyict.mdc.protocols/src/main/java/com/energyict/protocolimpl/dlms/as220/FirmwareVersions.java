@@ -4,7 +4,7 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.dlms.cosem.Data;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 

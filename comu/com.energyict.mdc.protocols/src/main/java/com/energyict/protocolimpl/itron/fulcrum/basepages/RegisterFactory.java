@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 import com.energyict.protocolimpl.itron.fulcrum.Fulcrum;
 

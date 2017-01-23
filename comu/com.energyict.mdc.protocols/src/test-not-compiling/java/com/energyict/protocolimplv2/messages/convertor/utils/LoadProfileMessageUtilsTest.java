@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.LoadProfile;

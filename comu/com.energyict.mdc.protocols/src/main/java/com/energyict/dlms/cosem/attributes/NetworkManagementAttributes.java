@@ -2,7 +2,7 @@ package com.energyict.dlms.cosem.attributes;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT
@@ -43,7 +43,7 @@ public enum NetworkManagementAttributes implements DLMSClassAttributes {
     public int getShortName() {
         return this.shortName;
     }
-    
+
     public static NetworkManagementAttributes findByAttributeNumber(int attribute){
         for(NetworkManagementAttributes limiterAttribute : NetworkManagementAttributes.values()){
             if(limiterAttribute.getAttributeNumber() == attribute){

@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.valuefactory;
 
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
 

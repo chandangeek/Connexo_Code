@@ -7,8 +7,9 @@
 
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+
+import com.energyict.cbo.Unit;
 
 import java.io.IOException;
 import java.util.ArrayList;

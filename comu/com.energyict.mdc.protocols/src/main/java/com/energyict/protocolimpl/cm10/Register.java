@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 public class Register {
 

@@ -3,7 +3,6 @@
  */
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import com.energyict.dlms.DataContainer;
@@ -15,6 +14,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.rmi.NoSuchObjectException;

@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

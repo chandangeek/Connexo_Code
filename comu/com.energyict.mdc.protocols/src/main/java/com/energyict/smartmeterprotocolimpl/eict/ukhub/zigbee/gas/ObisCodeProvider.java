@@ -1,9 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
-import com.energyict.mdc.common.ObisCode;
-
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT

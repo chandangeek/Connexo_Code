@@ -7,9 +7,10 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
+import com.energyict.cbo.Unit;
 
 import java.io.IOException;
 import java.util.ArrayList;

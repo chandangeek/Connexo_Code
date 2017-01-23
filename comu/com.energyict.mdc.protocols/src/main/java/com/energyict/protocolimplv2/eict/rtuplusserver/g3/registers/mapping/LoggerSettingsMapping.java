@@ -1,20 +1,19 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping;
 
-import com.energyict.dlms.DlmsSession;
+import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.LoggerSettings;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.NoSuchRegisterException;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT

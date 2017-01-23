@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  *

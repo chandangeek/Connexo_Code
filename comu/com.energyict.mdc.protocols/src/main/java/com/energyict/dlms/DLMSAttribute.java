@@ -2,7 +2,7 @@ package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.util.ArrayList;
 import java.util.Collections;

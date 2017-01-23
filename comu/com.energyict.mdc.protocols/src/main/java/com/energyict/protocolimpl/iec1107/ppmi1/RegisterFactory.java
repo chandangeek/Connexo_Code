@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.HistoricalDataSet;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MainRegister;

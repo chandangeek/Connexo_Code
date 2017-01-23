@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTMFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.RSSILevel;

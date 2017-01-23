@@ -10,13 +10,14 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocols.util.LittleEndianOutputStream;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,8 +26,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-
-import static com.elster.jupiter.util.Checks.is;
 
 /**
  *

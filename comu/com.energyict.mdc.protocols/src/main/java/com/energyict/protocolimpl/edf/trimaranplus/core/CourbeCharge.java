@@ -10,7 +10,6 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
@@ -19,6 +18,7 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.base.MagicNumberConstants;
 
 import java.io.DataInputStream;

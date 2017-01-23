@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
 
 import java.io.IOException;

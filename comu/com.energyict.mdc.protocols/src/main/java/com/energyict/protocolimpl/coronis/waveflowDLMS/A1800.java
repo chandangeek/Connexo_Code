@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.a1800.ProfileDataReader;
 
 import javax.inject.Inject;

@@ -1,7 +1,7 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

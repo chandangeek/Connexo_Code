@@ -1,9 +1,10 @@
 package com.energyict.dlms;
 
 
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.ProtocolException;
+
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

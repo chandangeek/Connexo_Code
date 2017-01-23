@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.generic;
 
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * Common getters for ObisCodes

@@ -6,12 +6,12 @@
 
 package com.energyict.dlms;
 
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.Integer64;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.obis.ObisCode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

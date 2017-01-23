@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.util.HashMap;
 import java.util.Map;

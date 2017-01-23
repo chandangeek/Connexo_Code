@@ -3,7 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  * Copyrights EnergyICT

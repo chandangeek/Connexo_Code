@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -12,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
 import java.io.ByteArrayInputStream;

@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
-import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
 
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk10.core.SurveyChannelTypeParser;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;

@@ -7,10 +7,11 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import com.energyict.mdc.common.Quantity;
+import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
+
+import com.energyict.cbo.Quantity;
 
 import java.util.Date;
 

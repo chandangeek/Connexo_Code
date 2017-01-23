@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.dlms.flex;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -19,6 +18,7 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 import java.util.ArrayList;

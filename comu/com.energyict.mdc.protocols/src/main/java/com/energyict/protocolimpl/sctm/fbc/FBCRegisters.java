@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.sctm.fbc;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.metcom.Metcom;
 import com.energyict.protocolimpl.sctm.base.AbstractSCTMRegisterReader;
 import com.energyict.protocolimpl.sctm.base.SCTMRegisterSpec;

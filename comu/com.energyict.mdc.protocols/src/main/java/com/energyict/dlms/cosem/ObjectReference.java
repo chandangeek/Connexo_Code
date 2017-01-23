@@ -1,6 +1,6 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 /**
  *

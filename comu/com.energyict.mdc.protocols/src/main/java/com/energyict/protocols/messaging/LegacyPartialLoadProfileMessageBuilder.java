@@ -1,7 +1,5 @@
 package com.energyict.protocols.messaging;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
@@ -13,6 +11,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifierType;
 
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 

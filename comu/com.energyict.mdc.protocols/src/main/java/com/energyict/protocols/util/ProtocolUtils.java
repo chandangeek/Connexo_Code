@@ -6,9 +6,10 @@
 
 package com.energyict.protocols.util;
 
-import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.cbo.Quantity;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
