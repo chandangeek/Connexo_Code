@@ -21,6 +21,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -115,6 +116,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile CommunicationTaskService communicationTaskService;
     private volatile LogBookService logBookService;
     private volatile DeviceService deviceService;
+    private volatile RegisterService registerService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile StatusService statusService;
@@ -145,7 +147,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineConfigurationService engineConfigurationService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
-            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
+            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService, RegisterService registerService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
@@ -166,6 +168,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setIssueService(issueService);
         setDeviceService(deviceService);
         setTopologyService(topologyService);
+        setRegisterService(registerService);
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
         setLogBookService(logBookService);
@@ -229,6 +232,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setAppService(AppService appService) {
         this.appService = appService;
+    }
+
+    @Reference
+    public void setRegisterService(RegisterService registerService) {
+        this.registerService = registerService;
     }
 
     @Reference
@@ -759,6 +767,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public TopologyService topologyService() {
             return topologyService;
+        }
+
+        @Override
+        public RegisterService registerService() {
+            return registerService;
         }
 
         @Override

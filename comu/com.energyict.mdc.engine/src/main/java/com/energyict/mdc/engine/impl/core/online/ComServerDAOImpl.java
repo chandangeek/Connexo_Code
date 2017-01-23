@@ -24,6 +24,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -321,9 +322,16 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
+    private Register findRegister(RegisterIdentifier identifier) {
+        return this.serviceProvider
+                .registerService()
+                .find(identifier)
+                .orElseThrow(() -> new IllegalArgumentException("Register with identifier " + identifier.toString() + " does not exist"));
+    }
+
     @Override
     public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
-        Register register = (Register) identifier.findRegister();   //Downcast to the Connexo Register
+        Register register = this.findRegister(identifier);
         return Optional.of(new OfflineRegisterImpl(this.getStorageRegister(register, when), this.serviceProvider.identificationService()));
     }
 
@@ -1189,6 +1197,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         CommunicationTaskService communicationTaskService();
 
         DeviceService deviceService();
+
+        RegisterService registerService();
 
         TopologyService topologyService();
 
