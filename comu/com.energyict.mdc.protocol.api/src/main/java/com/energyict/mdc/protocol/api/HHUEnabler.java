@@ -6,8 +6,8 @@
 
 package com.energyict.mdc.protocol.api;
 
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 
 /**
  * @author Koen

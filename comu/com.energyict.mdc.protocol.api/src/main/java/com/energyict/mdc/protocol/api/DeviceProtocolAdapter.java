@@ -2,12 +2,12 @@ package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.UsesLegacyMessageConverter;
 import com.energyict.mdc.upl.DeviceCachingSupport;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.protocol.HalfDuplexEnabler;
 
 import java.util.logging.Logger;
 

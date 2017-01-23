@@ -10,7 +10,8 @@ package com.energyict.mdc.protocol.api.dialer.core;
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexController;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 
 import java.io.InputStream;
 import java.io.OutputStream;
