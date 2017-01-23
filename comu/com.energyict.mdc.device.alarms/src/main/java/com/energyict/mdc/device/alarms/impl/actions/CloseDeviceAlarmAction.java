@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.alarms.impl.actions;
 
-import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
@@ -19,6 +18,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
+import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.google.common.collect.ImmutableList;
@@ -106,7 +106,7 @@ public class CloseDeviceAlarmAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicableForUser(User user) {
-        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.Constants.CLOSE_ISSUE.equals(p.getName())).findAny().isPresent();
+        return user.getPrivileges().stream().filter(p -> Privileges.Constants.CLOSE_ALARM.equals(p.getName())).findAny().isPresent();
     }
 
     private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
