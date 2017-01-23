@@ -7,12 +7,13 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
-* @author sva
-* @since 18/03/13 - 16:26
-*/
+ * @author sva
+ * @since 18/03/13 - 16:26
+ */
 public class PaknetModemComponent implements ModemComponent {
 
     public static final String COMMAND_PROMPT_REQUEST = "\r";  // The carriage return character
@@ -39,7 +40,7 @@ public class PaknetModemComponent implements ModemComponent {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(this.comPortName, modemProperties.getConnectTimeout().toMillis());
+            throw ModemException.connectTimeOutException(this.comPortName, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
         }
 
         initializeAfterConnect(comChannel);
@@ -66,8 +67,8 @@ public class PaknetModemComponent implements ModemComponent {
      * @param comChannel the serialComChannel
      * @return true if all commands succeeded, false otherwise
      */
-    public void disconnectModemBeforeNewSession(ComChannel comChannel) {
-        disconnectModem(comChannel);
+    public void disconnectModemBeforeNewSession(SerialPortComChannel comChannel) {
+        disconnect(comChannel);
         flushInputStream(comChannel);
     }
 
@@ -77,9 +78,9 @@ public class PaknetModemComponent implements ModemComponent {
      * @param comChannel the serialComChannel
      * @return true if all commands succeeded, false otherwise
      */
-    public void disconnectModem(ComChannel comChannel) {
+    public void disconnect(SerialPortComChannel comChannel) {
         comChannel.startWriting();
-        toggleDTR((SerialPortComChannel) comChannel, modemProperties.getLineToggleDelay().toMillis());
+        toggleDTR(comChannel, modemProperties.getLineToggleDelay().get(ChronoUnit.MILLIS));
     }
 
     /**
@@ -92,7 +93,7 @@ public class PaknetModemComponent implements ModemComponent {
     public boolean initializeCommandState(ComChannel comChannel) {
         setLastCommandSend(PaknetModemComponent.COMMAND_PROMPT_REQUEST);
         write(comChannel, "");
-        return readAndVerifyWithRetries(comChannel, PaknetModemComponent.COMMAND_PROMPT_OK, modemProperties.getCommandTimeOut().toMillis());
+        return readAndVerifyWithRetries(comChannel, PaknetModemComponent.COMMAND_PROMPT_OK, modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS));
     }
 
     /**
@@ -108,7 +109,7 @@ public class PaknetModemComponent implements ModemComponent {
             String modemParameters = PARAMETER_SET_REQUEST + modemInitString;
 
             write(comChannel, modemParameters);
-            return readAndVerifyWithRetries(comChannel, PaknetModemComponent.COMMAND_PROMPT_OK, modemProperties.getCommandTimeOut().toMillis());
+            return readAndVerifyWithRetries(comChannel, PaknetModemComponent.COMMAND_PROMPT_OK, modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS));
         }
         return true;
     }
@@ -121,19 +122,19 @@ public class PaknetModemComponent implements ModemComponent {
      */
     public boolean dialModem(ComChannel comChannel) {
         write(comChannel, modemProperties.getCommandPrefix() + modemProperties.getPhoneNumber());
-        return readAndVerify(comChannel, PaknetModemComponent.CONNECTION_PROMPT_OK, modemProperties.getConnectTimeout().toMillis());
+        return readAndVerify(comChannel, PaknetModemComponent.CONNECTION_PROMPT_OK, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
     }
 
     @Override
     public void initializeAfterConnect(ComChannel comChannel) {
-        this.delay(modemProperties.getDelayAfterConnect().toMillis());
+        this.delay(modemProperties.getDelayAfterConnect().get(ChronoUnit.MILLIS));
         flushInputStream(comChannel);
     }
 
     /**
      * Toggle the DTR signal line, to ensure the current session is terminated
      *
-     * @param comChannel the serialComChannel
+     * @param comChannel          the serialComChannel
      * @param delayInMilliSeconds the delay to wait after each DTR signal switch
      */
     protected void toggleDTR(SerialPortComChannel comChannel, long delayInMilliSeconds) {
@@ -156,21 +157,20 @@ public class PaknetModemComponent implements ModemComponent {
     }
 
     @Override
-    public void write(ComChannel comChannel, String dataToWrite) {
+    public void write(ComChannel comChannel, String dataToWrite, boolean confirm) {
         delayBeforeSend();
         comChannel.startWriting();
         setLastCommandSend(dataToWrite);
-        comChannel.write((dataToWrite + COMMAND_PROMPT_REQUEST).getBytes());
+        comChannel.write((dataToWrite + (confirm ? COMMAND_PROMPT_REQUEST : "")).getBytes());
     }
 
     /**
      * Read bytes from the comChannel and verifies against the given expected value.
      * If the value doesn't match, then we retry until the maximum number of tries is reached.
      *
-     * @param comChannel     the comChannel to read
-     * @param expectedAnswer the expected response
+     * @param comChannel      the comChannel to read
+     * @param expectedAnswer  the expected response
      * @param timeOutInMillis the timeOut in milliseconds to wait before throwing a TimeOutException
-     *
      */
     protected boolean readAndVerifyWithRetries(ComChannel comChannel, String expectedAnswer, long timeOutInMillis) {
         int currentTry = 0;
@@ -284,7 +284,7 @@ public class PaknetModemComponent implements ModemComponent {
      * so we can wait a little while until the catch up.
      */
     protected void delayBeforeSend() {
-        this.delay(modemProperties.getDelayBeforeSend().toMillis());
+        this.delay(modemProperties.getDelayBeforeSend().get(ChronoUnit.MILLIS));
     }
 
     public void delay(long milliSecondsToSleep) {

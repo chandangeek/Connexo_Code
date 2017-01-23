@@ -6,6 +6,7 @@ import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +49,7 @@ public class CaseModemComponent implements ModemComponent {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(this.comPortName, modemProperties.getConnectTimeout().toMillis());
+            throw ModemException.connectTimeOutException(this.comPortName, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
         }
 
         initializeAfterConnect(comChannel);
@@ -73,12 +74,12 @@ public class CaseModemComponent implements ModemComponent {
      */
     public boolean dialModem(ComChannel comChannel) {
         write(comChannel, CaseModemComponent.DIAL_SEQUENCE + modemProperties.getCommandPrefix() + modemProperties.getPhoneNumber());
-        return readAndVerify(comChannel, CaseModemComponent.LINK_ESTABLISHED, modemProperties.getConnectTimeout().toMillis());
+        return readAndVerify(comChannel, CaseModemComponent.LINK_ESTABLISHED, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
     }
 
     @Override
     public void initializeAfterConnect(ComChannel comChannel) {
-        this.delay(modemProperties.getDelayAfterConnect().toMillis());
+        this.delay(modemProperties.getDelayAfterConnect().get(ChronoUnit.MILLIS));
         flushInputStream(comChannel);
         if (!modemProperties.getAddressSelector().isEmpty()) {
             sendAddressSelector(comChannel);
@@ -122,8 +123,8 @@ public class CaseModemComponent implements ModemComponent {
      * @param comChannel the serialComChannel
      * @return true if all commands succeeded, false otherwise
      */
-    public void disconnectModemBeforeNewSession(ComChannel comChannel) {
-        disconnectModem(comChannel);
+    public void disconnectModemBeforeNewSession(SerialPortComChannel comChannel) {
+        disconnect(comChannel);
         flushInputStream(comChannel);
     }
 
@@ -133,9 +134,9 @@ public class CaseModemComponent implements ModemComponent {
      * @param comChannel the serialComChannel
      * @return true if all commands succeeded, false otherwise
      */
-    public void disconnectModem(ComChannel comChannel) {
+    public void disconnect(SerialPortComChannel comChannel) {
         comChannel.startWriting();
-        toggleDTR((SerialPortComChannel) comChannel, modemProperties.getLineToggleDelay().toMillis());
+        toggleDTR(comChannel, modemProperties.getLineToggleDelay().get(ChronoUnit.MILLIS));
     }
 
     /**
@@ -149,7 +150,7 @@ public class CaseModemComponent implements ModemComponent {
         comChannel.startWriting();
         this.lastCommandSend = modemProperties.getAddressSelector();
         comChannel.write((modemProperties.getAddressSelector()).getBytes());
-        this.delay(modemProperties.getCommandTimeOut().toMillis());
+        this.delay(modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS));
     }
 
     /**
@@ -180,11 +181,11 @@ public class CaseModemComponent implements ModemComponent {
     }
 
     @Override
-    public void write(ComChannel comChannel, String dataToWrite) {
+    public void write(ComChannel comChannel, String dataToWrite, boolean confirm) {
         delayBeforeSend();
         comChannel.startWriting();
         this.lastCommandSend = dataToWrite;
-        comChannel.write((dataToWrite + CaseModemComponent.CONFIRM).getBytes());
+        comChannel.write((dataToWrite + (confirm ? CaseModemComponent.CONFIRM : "")).getBytes());
     }
 
     /**
@@ -199,7 +200,7 @@ public class CaseModemComponent implements ModemComponent {
         int currentTry = 0;
         while (currentTry++ < modemProperties.getCommandTry().intValue()) {
             try {
-                if (readAndVerify(comChannel, expectedAnswer, modemProperties.getCommandTimeOut().toMillis())) {
+                if (readAndVerify(comChannel, expectedAnswer, modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS))) {
                     return true;
                 }
             } catch (ModemException e) {
@@ -268,7 +269,7 @@ public class CaseModemComponent implements ModemComponent {
      * so we can wait a little while until the catch up.
      */
     private void delayBeforeSend() {
-        this.delay(modemProperties.getDelayBeforeSend().toMillis());
+        this.delay(modemProperties.getDelayBeforeSend().get(ChronoUnit.MILLIS));
     }
 
     /**
@@ -280,7 +281,7 @@ public class CaseModemComponent implements ModemComponent {
     public void flush(ComChannel comChannel, long milliSecondsOfSilence) {
         try {
             long flushTimeOut = System.currentTimeMillis() + milliSecondsOfSilence;
-            long globalTimeOut = System.currentTimeMillis() + modemProperties.getCommandTimeOut().toMillis() + flushTimeOut;
+            long globalTimeOut = System.currentTimeMillis() + modemProperties.getCommandTimeOut().get(ChronoUnit.MILLIS) + flushTimeOut;
 
             while ((System.currentTimeMillis() < flushTimeOut) && (System.currentTimeMillis() < globalTimeOut)) {
                 Thread.sleep(10);

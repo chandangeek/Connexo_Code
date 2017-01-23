@@ -5,6 +5,8 @@ import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 
+import java.time.temporal.ChronoUnit;
+
 /**
  * Modem component for PEMP communication, which is based on the {@link PaknetModemComponent}.
  *
@@ -24,7 +26,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
         this.initializeModem(name, comChannel);
 
         if (!dialModem(comChannel)) {
-            throw ModemException.connectTimeOutException(getComPortName(), modemProperties.getConnectTimeout().toMillis());
+            throw ModemException.connectTimeOutException(getComPortName(), modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS));
         }
 
         initializeAfterConnect(comChannel);
@@ -33,7 +35,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
     /**
      * Initialize the modem so it is ready for dialing/receival of a call.
      * During this initialization, several steps are performed:<br></br>
-     * <p/>
+     * <p>
      * <ul>
      * <li>If present, the current connection of the modem is hung up</li>
      * <li>The Paknet command state is initialized.</li>
@@ -41,7 +43,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
      * <li>All initialization parameters are send out to the modem</li>
      * </ul>
      *
-     * @param name The port name
+     * @param name       The port name
      * @param comChannel The ComChannel
      */
     public void initializeModem(String name, SerialComChannelImpl comChannel) {
@@ -78,7 +80,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
             delay(200);
             toggleDTR((SerialPortComChannel) comChannel);
             delay(1000);
-            if (!readAndVerify(comChannel, promptResponse, modemProperties.getConnectTimeout().toMillis())) {
+            if (!readAndVerify(comChannel, promptResponse, modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS))) {
                 return false;
             }
         }
@@ -94,7 +96,7 @@ public class PEMPModemComponent extends PaknetModemComponent {
     public boolean dialModem(ComChannel comChannel) {
         write(comChannel, modemProperties.getCommandPrefix() + modemProperties.getPhoneNumber());
         String expectedConnectionResponse = modemProperties.getPEMPModemConfiguration().getConnectionResponse();
-        long timeOutInMillis = modemProperties.getConnectTimeout().toMillis();
+        long timeOutInMillis = modemProperties.getConnectTimeout().get(ChronoUnit.MILLIS);
         return readAndVerifyWithRetries(comChannel, expectedConnectionResponse, timeOutInMillis);
     }
 }

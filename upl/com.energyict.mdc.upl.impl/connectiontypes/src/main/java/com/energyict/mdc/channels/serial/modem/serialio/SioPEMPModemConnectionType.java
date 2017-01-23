@@ -10,7 +10,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -52,7 +51,7 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
     public void disconnect(ComChannel comChannel) throws ConnectionException {
         super.disconnect(comChannel);
         if (pempModemComponent != null) {
-            pempModemComponent.disconnectModem(comChannel);
+            pempModemComponent.disconnect((SerialPortComChannel) comChannel);
         }
     }
 

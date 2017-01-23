@@ -1,12 +1,11 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.channels.serial.modem.postdialcommand.AbstractAtPostDialCommand;
-
 import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.AbstractAtPostDialCommand;
+import com.energyict.mdc.channels.serial.modem.postdialcommand.PostDialCommandParser;
+import org.junit.Test;
 
 import java.util.List;
-
-import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -22,7 +21,7 @@ public class TypedAtModemPropertiesTest {
         String postDialCommands = "(D)(D:50)(F)(F:100)(W:\\(data\\))(S:7E1)";
 
         // Business method
-        List<AbstractAtPostDialCommand> postDialCommandList = modemProperties.parseAndValidatePostDialCommands(postDialCommands);
+        List<AbstractAtPostDialCommand> postDialCommandList = PostDialCommandParser.parseAndValidatePostDialCommands(postDialCommands);
 
         // Asserts
         assertEquals("Expecting 6 dial commands.", 6, postDialCommandList.size());
@@ -34,7 +33,7 @@ public class TypedAtModemPropertiesTest {
         String postDialCommands = "(D(D:50)(F)(F:100)(W:\\(data\\))(S:7E1)";
 
         // Business method - Expecting an ApplicationException, cause the postDialCommands string is missing a ')'.
-        modemProperties.parseAndValidatePostDialCommands(postDialCommands);
+        PostDialCommandParser.parseAndValidatePostDialCommands(postDialCommands);
     }
 
     @Test(expected = ApplicationException.class)
@@ -43,7 +42,7 @@ public class TypedAtModemPropertiesTest {
         String postDialCommands = "(D)(D:50)(F)(F:100)(W:data)(S:0E1)";
 
         // Business method - Expecting an ApplicationException, cause the serialCommunicationSettingsCommand contains invalid nr of data bits.
-        modemProperties.parseAndValidatePostDialCommands(postDialCommands);
+        PostDialCommandParser.parseAndValidatePostDialCommands(postDialCommands);
     }
 
 }

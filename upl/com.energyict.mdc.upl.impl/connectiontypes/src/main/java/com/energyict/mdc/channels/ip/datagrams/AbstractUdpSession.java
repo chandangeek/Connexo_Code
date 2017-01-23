@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 
 /**
  * The abstract UDP session handles the Input- and OutputStream as well as the common components.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/11/12
  * Time: 10:57
@@ -33,16 +33,16 @@ public abstract class AbstractUdpSession implements VirtualUdpSession {
         this.bufferSize = bufferSize;
     }
 
-    public void setDatagramSocket(DatagramSocket datagramSocket) {
-        this.datagramSocket = datagramSocket;
-    }
-
     public void setSocketAddress(SocketAddress socketAddress) {
         this.socketAddress = socketAddress;
     }
 
     public DatagramSocket getDatagramSocket() {
         return this.datagramSocket;
+    }
+
+    public void setDatagramSocket(DatagramSocket datagramSocket) {
+        this.datagramSocket = datagramSocket;
     }
 
     protected int getBufferSize() {
@@ -61,17 +61,17 @@ public abstract class AbstractUdpSession implements VirtualUdpSession {
         return outputStream;
     }
 
-    public void close() throws IOException{
-        try (InputStream is = this.inputStream; OutputStream os = this.outputStream)
-        {
-            if (this.datagramSocket != null){
+    protected void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
+
+    @Override
+    public void close() throws IOException {
+        try (InputStream is = this.inputStream; OutputStream os = this.outputStream) {
+            if (this.datagramSocket != null) {
                 this.datagramSocket.close();
             }
         }
-    }
-
-    protected void setOutputStream(OutputStream outputStream) {
-        this.outputStream = outputStream;
     }
 
     /**
@@ -82,12 +82,12 @@ public abstract class AbstractUdpSession implements VirtualUdpSession {
      * from a {@link java.net.DatagramPacket}, we write it to the pipe, so readers of this inputStream
      * get {@link #available()} bytes when they try to read.
      */
-    protected class DatagramInputStream extends PipedInputStream {
+    public class DatagramInputStream extends PipedInputStream {
 
         private final PipedOutputStream pipedOutputStream;
         private byte[] receiveData = new byte[0];
 
-        protected DatagramInputStream(PipedOutputStream src, int pipeSize) throws IOException {
+        public DatagramInputStream(PipedOutputStream src, int pipeSize) throws IOException {
             super(src, pipeSize); // need to give the pipeSize in the constructor, otherwise it is not worth it
             pipedOutputStream = src;
         }
@@ -143,7 +143,7 @@ public abstract class AbstractUdpSession implements VirtualUdpSession {
             return super.read(b);
         }
 
-        protected void write(byte[] data, int off, int len) throws IOException {
+        public void write(byte[] data, int off, int len) throws IOException {
             this.pipedOutputStream.write(data, off, len);
         }
 
@@ -175,7 +175,7 @@ public abstract class AbstractUdpSession implements VirtualUdpSession {
          * This is the most inefficient write operation for an <i>UDP session</i>.
          * We advise you to use the far more usable {@link #write(byte[])} or
          * {@link #write(byte[], int, int)}.
-         * <p/>
+         * <p>
          * This write method will buffer all given bytes (or ints in this case) into a ByteBuffer.
          * <b>NO DATA WILL BE TRANSFERRED</b> until you call the {@link #flush()} method.
          *
