@@ -61,15 +61,21 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
      * @param other The other TypedProperties
      * @return The copy of the TypedProperties
      */
-    public static TypedProperties copyOf(TypedProperties other) {
-        TypedProperties typedProperties;
-        if (other.getInheritedProperties() == null) {
-            typedProperties = empty();
+    public static TypedProperties copyOf(com.energyict.mdc.upl.properties.TypedProperties other) {
+        if (other instanceof TypedProperties) {
+            TypedProperties otherTypedProperties = (TypedProperties) other;
+
+            TypedProperties result;
+            if (otherTypedProperties.getInheritedProperties() == null) {
+                result = empty();
+            } else {
+                result = inheritingFrom(otherTypedProperties.getInheritedProperties());
+            }
+            result.setAllProperties(otherTypedProperties);
+            return result;
         } else {
-            typedProperties = inheritingFrom(other.getInheritedProperties());
+            throw new IllegalArgumentException("Expected instance of " + this.getClass().getName());
         }
-        typedProperties.setAllProperties(other);
-        return typedProperties;
     }
 
     /**
