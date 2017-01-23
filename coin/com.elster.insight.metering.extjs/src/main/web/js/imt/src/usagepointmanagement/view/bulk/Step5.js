@@ -24,7 +24,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step5', {
         var widget = {
             xtype: 'uni-notification-panel',
             margin: '0 0 0 -13',
-            message: Uni.I18n.translate('usagepoints.bulk.devicesAddedToQueueTitle', 'IMT', 'This task has been put on the queue successfully'),
+            message: Uni.I18n.translate('usagepoints.bulk.devicesAddedToQueueTitle', 'IMT', 'This task has been queued'),
             type: 'success',
             additionalItems: [
                 {
