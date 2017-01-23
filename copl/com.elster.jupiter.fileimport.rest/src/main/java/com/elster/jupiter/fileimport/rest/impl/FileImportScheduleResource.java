@@ -218,7 +218,7 @@ public class FileImportScheduleResource {
     @GET
     @Path("/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES, Privileges.Constants.VIEW_HISTORY})
     public PagedInfoList geAllImportOccurrencesOccurrences(@BeanParam JsonQueryParameters queryParameters,
                                                            @BeanParam JsonQueryFilter filter,
                                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
