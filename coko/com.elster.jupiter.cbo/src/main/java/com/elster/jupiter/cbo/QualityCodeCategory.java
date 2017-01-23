@@ -25,7 +25,13 @@ public enum QualityCodeCategory {
     },
     OBSOLETE_OSCILLATORY(TranslationKeys.CATEGORY_OBSOLETE_OSCILLATORY),
     QUESTIONABLE(TranslationKeys.CATEGORY_QUESTIONABLE),
-    DERIVED(TranslationKeys.CATEGORY_DERIVED),
+    DERIVED(TranslationKeys.CATEGORY_DERIVED) {
+        @Override
+        public Optional<QualityCodeIndex> qualityCodeIndex(int index) {
+            Optional<QualityCodeIndex> qualityCodeIndex = super.qualityCodeIndex(index);
+            return qualityCodeIndex.isPresent() ? qualityCodeIndex : Optional.of(QualityCodeIndex.INFERRED);
+        }
+    },
     PROJECTED(TranslationKeys.CATEGORY_PROJECTED),;
 
     private final TranslationKeys translationKey;
