@@ -887,7 +887,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getDataLoggerSlaves(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        return PagedInfoList.fromPagedList("dataLoggerSlaveDevices", getDataLoggerSlavesForDevice(device), queryParameters);
+        return PagedInfoList.fromCompleteList("dataLoggerSlaveDevices",  getDataLoggerSlavesForDevice(device), queryParameters);
     }
 
     private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
