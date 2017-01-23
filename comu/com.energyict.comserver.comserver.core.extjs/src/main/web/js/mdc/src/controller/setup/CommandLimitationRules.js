@@ -284,7 +284,6 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
 
     onAddEdit: function(button) {
         var me = this,
-            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             page = me.getRuleEdit(),
             form = page.down('#mdc-command-rule-addEdit-rule-form'),
             formValues = form.getValues(),
@@ -327,7 +326,7 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
             if (!Ext.isEmpty(me.commandRuleBeingEdited)) {
                 record.commands().removeAll();
             }
-            record.commands().loadRecords(me.getCommandsForRuleStore().data.items);
+            record.commands().add(me.getCommandsForRuleStore().data.items);
             record.endEdit();
             record.save({
                 success: function () {
