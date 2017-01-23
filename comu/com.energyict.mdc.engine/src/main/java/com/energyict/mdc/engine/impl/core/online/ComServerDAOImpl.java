@@ -22,6 +22,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
@@ -322,6 +323,12 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
+    @Override
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
+        Register register = this.findRegister(identifier);
+        return Optional.of(new OfflineRegisterImpl(this.getStorageRegister(register, when), this.serviceProvider.identificationService()));
+    }
+
     private Register findRegister(RegisterIdentifier identifier) {
         return this.serviceProvider
                 .registerService()
@@ -330,15 +337,16 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
-        Register register = this.findRegister(identifier);
-        return Optional.of(new OfflineRegisterImpl(this.getStorageRegister(register, when), this.serviceProvider.identificationService()));
+    public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
+        LoadProfile loadProfile = this.findLoadProfile(loadProfileIdentifier);
+        return Optional.of(new OfflineLoadProfileImpl(loadProfile, this.serviceProvider.topologyService(), this.serviceProvider.identificationService()));
     }
 
-    @Override
-    public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        LoadProfile loadProfile = (LoadProfile) loadProfileIdentifier.getLoadProfile(); //Downcast to Connexo LoadProfile
-        return Optional.of(new OfflineLoadProfileImpl(loadProfile, this.serviceProvider.topologyService(), this.serviceProvider.identificationService()));
+    private LoadProfile findLoadProfile(LoadProfileIdentifier identifier) {
+        return this.serviceProvider
+                .loadProfileService()
+                .findByIdentifier(identifier)
+                .orElseThrow(() -> new IllegalArgumentException("LoadProfile with identifier " + identifier.toString() + " does not exist"));
     }
 
     @Override
@@ -1199,6 +1207,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         DeviceService deviceService();
 
         RegisterService registerService();
+
+        LoadProfileService loadProfileService();
 
         TopologyService topologyService();
 
