@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
@@ -43,6 +44,11 @@ public class UPLNlsServiceImpl implements NlsService {
     @Activate
     public void activate() {
         Services.nlsService(this);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Services.nlsService(null);
     }
 
     @Override
