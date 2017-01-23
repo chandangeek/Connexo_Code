@@ -123,7 +123,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode) {
-        return new LogBookIdentifierById(id, logBookService, obisCode);
+        return new LogBookIdentifierById(id, obisCode);
     }
 
     @Override

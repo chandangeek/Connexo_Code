@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
@@ -21,6 +23,14 @@ public interface LogBookService {
      * @return the requested LogBook or null if none exists with that ID
      */
     Optional<LogBook> findById(long id);
+
+    /**
+     * Finds the LogBook with the given unique {@link LogBookIdentifier}.
+     *
+     * @param identifier The LogBookIdentifier
+     * @return the requested LogBook or null if none exists with that ID
+     */
+    Optional<LogBook> findByIdentifier(LogBookIdentifier identifier);
 
     /**
      * Finds all the LogBooks for the given Device

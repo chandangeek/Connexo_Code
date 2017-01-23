@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 import com.energyict.obis.ObisCode;
@@ -27,18 +26,8 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
     }
 
     @Override
-    public LogBook getLogBook() {
-        return this.logBook;
-    }
-
-    @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(getLogBook().getDevice());
     }
 
     @Override

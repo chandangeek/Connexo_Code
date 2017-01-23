@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
@@ -27,11 +25,6 @@ public class DeviceIdentifierByLogBook implements DeviceIdentifier {
     public DeviceIdentifierByLogBook(LogBookIdentifier logBookIdentifier) {
         super();
         this.logBookIdentifier = logBookIdentifier;
-    }
-
-    @Override
-    public Device findDevice() {
-        return ((LogBook) this.logBookIdentifier.getLogBook()).getDevice();
     }
 
     @Override
@@ -78,17 +71,7 @@ public class DeviceIdentifierByLogBook implements DeviceIdentifier {
 
     private static class NullLogBookIdentifier implements LogBookIdentifier {
         @Override
-        public com.energyict.mdc.upl.meterdata.LogBook getLogBook() {
-            throw new UnsupportedOperationException("NullLogBookIdentifier is not capable of finding a log book because there is not identifier");
-        }
-
-        @Override
         public ObisCode getLogBookObisCode() {
-            return null;
-        }
-
-        @Override
-        public DeviceIdentifier getDeviceIdentifier() {
             return null;
         }
 
