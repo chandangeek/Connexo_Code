@@ -15,27 +15,27 @@ public enum NrOfDataBits {
 
     private final BigDecimal nrOfDataBits;
 
-    NrOfDataBits(Integer nrOfDataBits){
+    NrOfDataBits(Integer nrOfDataBits) {
         this.nrOfDataBits = new BigDecimal(nrOfDataBits);
     }
 
-    public static BigDecimal[] getTypedValues(){
+    public static BigDecimal[] getTypedValues() {
         return Stream
                 .of(values())
                 .map(NrOfDataBits::getNrOfDataBits)
                 .toArray(BigDecimal[]::new);
     }
 
-    public BigDecimal getNrOfDataBits() {
-        return nrOfDataBits;
-    }
-
-    public static NrOfDataBits valueFor (BigDecimal numercialValue) {
+    public static NrOfDataBits valueFor(BigDecimal numercialValue) {
         return Stream
                 .of(values())
                 .filter(each -> each.getNrOfDataBits().compareTo(numercialValue) == 0)
                 .findAny()
                 .orElse(null);
+    }
+
+    public BigDecimal getNrOfDataBits() {
+        return nrOfDataBits;
     }
 
     @Override

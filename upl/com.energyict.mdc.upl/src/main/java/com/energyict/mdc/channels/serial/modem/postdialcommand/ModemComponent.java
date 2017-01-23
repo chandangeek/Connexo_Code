@@ -14,6 +14,10 @@ public interface ModemComponent {
 
     void delay(long delay);
 
+    void connect(String name, SerialPortComChannel comChannel);
+
+    void disconnect(SerialPortComChannel comChannel);
+
     /**
      * Initialize the modem so it is ready for dialing/receival of a call.
      * During this initialization, several steps are performed:<br>
@@ -22,9 +26,6 @@ public interface ModemComponent {
      * <li>The default profile of the modem is restored.</li>
      * <li>All initialization strings are send out to the modem</li>
      * </ul>
-     *
-     * @param name
-     * @param comChannel
      */
     void initializeModem(String name, SerialPortComChannel comChannel);
 
@@ -52,6 +53,9 @@ public interface ModemComponent {
      * @param comChannel  the comChannel to write to
      * @param dataToWrite the data to write
      */
-    void write(ComChannel comChannel, String dataToWrite);
+    void write(ComChannel comChannel, String dataToWrite, boolean confirm);
 
+    default void write(ComChannel comChannel, String dataToWrite) {
+        this.write(comChannel, dataToWrite, true);
+    }
 }

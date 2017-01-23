@@ -27,15 +27,7 @@ public enum Parities {
                 .toArray(String[]::new);
     }
 
-    public String getParity() {
-        return parity;
-    }
-
-    public char getAbbreviation() {
-        return abbreviation;
-    }
-
-    public static Parities valueFor (String strValue) {
+    public static Parities valueFor(String strValue) {
         return Stream
                 .of(values())
                 .filter(each -> each.getParity().equals(strValue))
@@ -51,6 +43,14 @@ public enum Parities {
             }
         }
         return null;
+    }
+
+    public String getParity() {
+        return parity;
+    }
+
+    public char getAbbreviation() {
+        return abbreviation;
     }
 
     @Override

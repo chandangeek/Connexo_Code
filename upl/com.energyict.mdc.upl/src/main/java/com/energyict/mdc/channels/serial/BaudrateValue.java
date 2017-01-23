@@ -102,17 +102,17 @@ public enum BaudrateValue {
 
     public static BigDecimal[] getTypedValues() {
         return Stream
-                    .of(values())
-                    .map(BaudrateValue::getBaudrate)
-                    .toArray(BigDecimal[]::new);
+                .of(values())
+                .map(BaudrateValue::getBaudrate)
+                .toArray(BigDecimal[]::new);
     }
 
-    public static BaudrateValue valueFor (BigDecimal numercialValue) {
+    public static BaudrateValue valueFor(BigDecimal numercialValue) {
         return Stream
-                    .of(values())
-                    .filter(each -> each.getBaudrate().compareTo(numercialValue) == 0)
-                    .findAny()
-                    .orElse(null);
+                .of(values())
+                .filter(each -> each.getBaudrate().compareTo(numercialValue) == 0)
+                .findAny()
+                .orElse(null);
     }
 
     public static int getSioBaudrateFor(BigDecimal baudrate) {

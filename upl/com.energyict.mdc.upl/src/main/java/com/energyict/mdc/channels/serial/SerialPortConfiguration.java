@@ -9,7 +9,7 @@ import java.time.temporal.TemporalAmount;
 
 /**
  * Groups relevant serial port configuration options
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 14/08/12
  * Time: 13:23
@@ -36,8 +36,7 @@ public class SerialPortConfiguration {
     private BigDecimal serialPortOpenTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_OPEN_TIMEOUT.get(ChronoUnit.MILLIS));
     private BigDecimal serialPortReadTimeOut = new BigDecimal(DEFAULT_SERIAL_PORT_READ_TIMEOUT.get(ChronoUnit.MILLIS));
 
-    // For XML serialization only
-    private SerialPortConfiguration() {
+    public SerialPortConfiguration() {
     }
 
     public SerialPortConfiguration(String comPortName, BaudrateValue baudrate, NrOfDataBits nrOfDataBits, NrOfStopBits nrOfStopBits, Parities parity, FlowControl flowControl) {
@@ -48,6 +47,7 @@ public class SerialPortConfiguration {
         this.flowControl = flowControl;
         this.parity = parity;
     }
+
     @XmlAttribute
     public String getComPortName() {
         return comPortName;
@@ -56,26 +56,52 @@ public class SerialPortConfiguration {
     public void setComPortName(String comPortName) {
         this.comPortName = comPortName;
     }
+
     @XmlAttribute
     public BaudrateValue getBaudrate() {
         return baudrate;
     }
+
+    public void setBaudrate(BaudrateValue baudrate) {
+        this.baudrate = baudrate;
+    }
+
     @XmlAttribute
     public FlowControl getFlowControl() {
         return flowControl;
     }
+
+    public void setFlowControl(FlowControl flowControl) {
+        this.flowControl = flowControl;
+    }
+
     @XmlAttribute
     public NrOfDataBits getNrOfDataBits() {
         return nrOfDataBits;
     }
+
+    public void setNrOfDataBits(NrOfDataBits nrOfDataBits) {
+        this.nrOfDataBits = nrOfDataBits;
+    }
+
     @XmlAttribute
     public NrOfStopBits getNrOfStopBits() {
         return nrOfStopBits;
     }
+
+    public void setNrOfStopBits(NrOfStopBits nrOfStopBits) {
+        this.nrOfStopBits = nrOfStopBits;
+    }
+
     @XmlAttribute
     public Parities getParity() {
         return parity;
     }
+
+    public void setParity(Parities parity) {
+        this.parity = parity;
+    }
+
     @XmlAttribute
     public BigDecimal getSerialPortOpenTimeOut() {
         return serialPortOpenTimeOut;
@@ -92,25 +118,5 @@ public class SerialPortConfiguration {
 
     public void setSerialPortReadTimeOut(BigDecimal serialPortReadTimeOut) {
         this.serialPortReadTimeOut = serialPortReadTimeOut;
-    }
-
-    public void setBaudrate(BaudrateValue baudrate) {
-        this.baudrate = baudrate;
-    }
-
-    public void setFlowControl(FlowControl flowControl) {
-        this.flowControl = flowControl;
-    }
-
-    public void setNrOfDataBits(NrOfDataBits nrOfDataBits) {
-        this.nrOfDataBits = nrOfDataBits;
-    }
-
-    public void setNrOfStopBits(NrOfStopBits nrOfStopBits) {
-        this.nrOfStopBits = nrOfStopBits;
-    }
-
-    public void setParity(Parities parity) {
-        this.parity = parity;
     }
 }

@@ -21,7 +21,7 @@ public class AtFlushCommand extends AbstractAtPostDialCommand {
     @Override
     public void initAndVerifyCommand() {
         try {
-            setMilliSecondsOfSilence(getCommand().trim().equalsIgnoreCase("") ? DEFAULT_MILLISECONDS_OF_SILENCE : Long.valueOf(getCommand()));
+            setMilliSecondsOfSilence(getCommand().trim().isEmpty() ? DEFAULT_MILLISECONDS_OF_SILENCE : Long.valueOf(getCommand()));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("The provided post dial commands string is not valid.");
         }

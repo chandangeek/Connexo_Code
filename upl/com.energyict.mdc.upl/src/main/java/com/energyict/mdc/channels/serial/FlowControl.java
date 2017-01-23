@@ -1,6 +1,5 @@
 package com.energyict.mdc.channels.serial;
 
-import java.math.BigDecimal;
 import java.util.stream.Stream;
 
 /**
@@ -11,8 +10,7 @@ public enum FlowControl {
     NONE("flowcontrol_none"),
     RTSCTS("flowcontrol_rts_cts"),
     DTRDSR("flowcontrol_dtr_dsr"),
-    XONXOFF("flowcontrol_xon_xoff")
-    ;
+    XONXOFF("flowcontrol_xon_xoff");
 
     private final String flowControl;
 
@@ -27,16 +25,16 @@ public enum FlowControl {
                 .toArray(String[]::new);
     }
 
-    public String getFlowControl() {
-        return flowControl;
-    }
-
-    public static FlowControl valueFor (String strValue) {
+    public static FlowControl valueFor(String strValue) {
         return Stream
                 .of(values())
                 .filter(each -> each.getFlowControl().equals(strValue))
                 .findAny()
                 .orElse(null);
+    }
+
+    public String getFlowControl() {
+        return flowControl;
     }
 
     @Override
