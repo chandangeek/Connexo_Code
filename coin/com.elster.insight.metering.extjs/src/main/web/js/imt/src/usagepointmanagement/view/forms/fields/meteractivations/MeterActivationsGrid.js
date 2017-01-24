@@ -1,4 +1,4 @@
-Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterActivationsGrid', {
+Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterActivationsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.meter-activations-grid',
     requires: [

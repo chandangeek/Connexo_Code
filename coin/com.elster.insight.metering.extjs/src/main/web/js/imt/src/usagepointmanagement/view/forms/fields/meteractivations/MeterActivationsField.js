@@ -1,8 +1,8 @@
-Ext.define('Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterActivationsField', {
+Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterActivationsField', {
     extend: 'Uni.view.container.EmptyGridContainer',
     requires: [
         'Uni.util.FormInfoMessage',
-        'Imt.usagepointmanagement.view.forms.fields.miteractivations.MeterActivationsGrid'
+        'Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterActivationsGrid'
     ],
     alias: 'widget.meter-activations-field',
 
