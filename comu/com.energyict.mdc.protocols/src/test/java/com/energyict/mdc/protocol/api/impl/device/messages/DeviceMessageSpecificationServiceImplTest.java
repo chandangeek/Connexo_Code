@@ -2,33 +2,32 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.LegacyDataVaultProvider;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.impl.ServerProtocolPluggableService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import com.energyict.mdc.upl.nls.NlsMessageFormat;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.Thesaurus;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -79,10 +78,9 @@ public class DeviceMessageSpecificationServiceImplTest {
 
     @Before
     public void setupNslService() {
-        when(this.nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(this.thesaurus);
+        when(this.nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME)).thenReturn(this.thesaurus);
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
-        doReturn(messageFormat).when(this.thesaurus).getFormat(any(MessageSeed.class));
         doReturn(messageFormat).when(this.thesaurus).getFormat(any(TranslationKey.class));
     }
 
@@ -126,7 +124,7 @@ public class DeviceMessageSpecificationServiceImplTest {
                 forEach(DeviceMessageCategory::getName);
 
         // Asserts
-        verify(this.thesaurus, atLeastOnce()).getString(anyString(), anyString());
+        verify(this.thesaurus, atLeastOnce()).getFormat(any(TranslationKey.class));
     }
 
     @Test
@@ -177,6 +175,6 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     private DeviceMessageSpecificationService newService() {
-        return new DeviceMessageSpecificationServiceImpl(propertySpecService, nlsService, dataVaultService, serverProtocolPluggableService);
+        return new DeviceMessageSpecificationServiceImpl(this.nlsService, this.propertySpecService);
     }
 }
