@@ -8,8 +8,8 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.protocols.mdc.services.impl.ConnectionTypeServiceImpl;
 
 import javax.inject.Inject;
 import javax.inject.Named;

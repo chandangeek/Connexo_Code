@@ -13,17 +13,6 @@ import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import javax.inject.Inject;
 
 /**
- * Provides an implementation for the {@link CustomPropertySet} interface
- * that can be used for all the "serial" connection types
- * that use one of the underlying serial libraries that
- * are supported by the mdc.io bundle.
- * Ideally, this class should be in the mdc.io bundle so that a
- * {@link com.energyict.mdc.io.SerialComponentService}
- * could actually return the CustomPropertySet for the properties
- * that it defines. However, that would have introduced a cyclic dependency
- * between the protocol.api bundle and the mdc.io bundle that we were
- * not happy resolving due to time constraints.
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-04 (13:09)
  */

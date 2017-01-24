@@ -1,4 +1,4 @@
-package com.energyict.protocols.impl;
+package com.energyict.protocols.mdc.services.impl;
 
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 

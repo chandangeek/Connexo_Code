@@ -14,7 +14,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -37,17 +36,21 @@ import com.energyict.protocols.impl.channels.serial.modem.serialio.SioAtModemCon
 import com.energyict.protocols.impl.channels.serial.modem.serialio.SioCaseModemConnectionType;
 import com.energyict.protocols.impl.channels.serial.modem.serialio.SioPEMPModemConnectionType;
 import com.energyict.protocols.impl.channels.serial.modem.serialio.SioPaknetModemConnectionType;
-import com.energyict.protocols.impl.channels.serial.optical.dlms.LegacyOpticalDlmsConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.protocols.impl.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.protocols.mdc.services.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -56,13 +59,6 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -102,8 +98,6 @@ public class AllConnectionTypesTest {
     @Mock
     private PropertySpecService propertySpecService;
     @Mock
-    private TopologyService topologyService;
-    @Mock
     private IssueService issueService;
     @Mock
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
@@ -119,8 +113,6 @@ public class AllConnectionTypesTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private DeviceMessageFileService deviceMessageFileService;
-    @Mock
-    private LoadProfileFactory loadProfileFactory;
 
     private InMemoryBootstrapModule bootstrapModule;
     private ConnectionTypeService connectionTypeService;
@@ -139,10 +131,8 @@ public class AllConnectionTypesTest {
 
     private ConnectionTypeService getConnectionTypeService(Injector injector) {
         return ConnectionTypeServiceImpl.withAllSerialComponentServices(
-                injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
-                injector.getInstance(PropertySpecService.class),
-                injector.getInstance(NlsService.class),
-                injector.getInstance(TransactionService.class));
+                injector.getInstance(com.energyict.mdc.upl.properties.PropertySpecService.class),
+                injector.getInstance(NlsService.class));
     }
 
     protected void initializeMocks() {
@@ -157,11 +147,6 @@ public class AllConnectionTypesTest {
     @After
     public void cleanUpDatabase() throws SQLException {
         this.bootstrapModule.deactivate();
-    }
-
-    @Test
-    public void createLegacyOpticalDlmsConnectionType() {
-        this.testCreateInstance(LegacyOpticalDlmsConnectionType.class);
     }
 
     @Test
@@ -276,7 +261,6 @@ public class AllConnectionTypesTest {
             bind(TransactionService.class).toInstance(transactionService);
             bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
-            bind(TopologyService.class).toInstance(topologyService);
             bind(IssueService.class).toInstance(issueService);
             bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
             bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
@@ -285,9 +269,7 @@ public class AllConnectionTypesTest {
             bind(IdentificationService.class).toInstance(identificationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
-            bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
-
 }
