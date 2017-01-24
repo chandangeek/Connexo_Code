@@ -5,9 +5,9 @@ import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
-import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
@@ -27,22 +27,16 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class DeviceTransitionImportProcessor<T extends DeviceTransitionRecord> implements FileImportProcessor<T> {
-
-    private final DeviceDataImporterContext context;
+public abstract class DeviceTransitionImportProcessor<T extends DeviceTransitionRecord> extends AbstractDeviceDataFileImportProcessor<T> {
 
     public DeviceTransitionImportProcessor(DeviceDataImporterContext context) {
-        this.context = context;
-    }
-
-    protected DeviceDataImporterContext getContext() {
-        return context;
+        super(context);
     }
 
     @Override
     public void process(T data, FileImportLogger logger) throws ProcessorException {
-        Device device = getContext().getDeviceService().findByUniqueMrid(data.getDeviceMRID())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
+        Device device = findDeviceByIdentifier(data.getDeviceIdentifier())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         beforeTransition(device, data);
         performDeviceTransition(data, device, logger);
         processMasterMrid(device, data, logger);
@@ -80,7 +74,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
                     this.getStateName(device.getState()),
                     sourceStates
                             .stream()
-                            .map(context.getDeviceLifeCycleConfigurationService()::getDisplayName)
+                            .map(getContext().getDeviceLifeCycleConfigurationService()::getDisplayName)
                             .collect(Collectors.joining(", ")));
         }
 
@@ -92,7 +86,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
             throw new ProcessorException(MessageSeeds.PRE_TRANSITION_CHECKS_FAILED, data.getLineNumber(),
                     ex.getViolations()
                             .stream()
-                            .map(violation -> context.getDeviceLifeCycleService().getName(violation.getCheck()))
+                            .map(violation -> getContext().getDeviceLifeCycleService().getName(violation.getCheck()))
                             .distinct()
                             .collect(Collectors.joining(", ")));
         }
@@ -107,7 +101,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     private ExecutableAction getExecutableAction(Device device, T data) {
         DefaultCustomStateTransitionEventType eventType = getTransitionEventType(data);
         return getContext().getDeviceLifeCycleService().getExecutableActions(device,
-                eventType.findOrCreate(this.context.getFiniteStateMachineService()))
+                eventType.findOrCreate(getContext().getFiniteStateMachineService()))
                 .orElseThrow(() -> new ProcessorException(
                         MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE,
                         data.getLineNumber(),
@@ -116,13 +110,13 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     private String getStateName(T data) {
-        return this.context.getDeviceLifeCycleConfigurationService().getDisplayName(getTargetState(data));
+        return this.getContext().getDeviceLifeCycleConfigurationService().getDisplayName(getTargetState(data));
     }
 
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(context.getDeviceLifeCycleConfigurationService()::getDisplayName)
+                .map(getContext().getDeviceLifeCycleConfigurationService()::getDisplayName)
                 .orElseGet(state::getName);
     }
 
@@ -152,21 +146,20 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     private void processMasterMrid(Device device, T data, FileImportLogger logger) {
-        if (data.getMasterDeviceMrid() != null) {
-            Device masterDevice = getContext().getDeviceService().findByUniqueMrid(data.getMasterDeviceMrid())
-                    .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_MASTER_DEVICE, data.getLineNumber(), data.getMasterDeviceMrid()));
-            if (GatewayType.NONE.equals(masterDevice.getConfigurationGatewayType())) {
-                throw new ProcessorException(MessageSeeds.DEVICE_CAN_NOT_BE_MASTER, data.getLineNumber(), masterDevice.getmRID());
+        if (data.getMasterDeviceIdentifier() != null) {
+            Device newMasterDevice = findDeviceByIdentifier(data.getMasterDeviceIdentifier())
+                    .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_MASTER_DEVICE, data.getLineNumber(), data.getMasterDeviceIdentifier()));
+            if (GatewayType.NONE.equals(newMasterDevice.getConfigurationGatewayType())) {
+                throw new ProcessorException(MessageSeeds.DEVICE_CAN_NOT_BE_MASTER, data.getLineNumber(), newMasterDevice.getName());
             }
-            Optional<Device> oldMasterDeviceRef = this.context.getTopologyService().getPhysicalGateway(device);
-            if (oldMasterDeviceRef.isPresent()) {
-                if (!oldMasterDeviceRef.get().getmRID().equals(masterDevice.getmRID())) {
-                    logger.warning(TranslationKeys.MASTER_WILL_BE_OVERRIDDEN, data.getLineNumber(),
-                            oldMasterDeviceRef.get().getmRID(), masterDevice.getmRID());
-                    setNewMasterDevice(device, masterDevice);
+            Optional<Device> currentMasterDevice = getContext().getTopologyService().getPhysicalGateway(device);
+            if (currentMasterDevice.isPresent()) {
+                if (!currentMasterDevice.get().equals(newMasterDevice)) {
+                    logger.warning(TranslationKeys.MASTER_WILL_BE_OVERRIDDEN, data.getLineNumber(), currentMasterDevice.get().getName(), newMasterDevice.getName());
+                    setNewMasterDevice(device, newMasterDevice);
                 }
             } else {
-                setNewMasterDevice(device, masterDevice);
+                setNewMasterDevice(device, newMasterDevice);
             }
         }
     }

@@ -26,28 +26,35 @@ public class DeviceShipmentImportDescription implements FileImportDescription<De
     public List<FileImportField<?>> getFields(DeviceShipmentImportRecord record) {
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
+        // Device name
         fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setDeviceMRID)
+                .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
+        // Device type
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setDeviceType)
                 .markMandatory()
                 .build());
+        // Device configuration
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setDeviceConfiguration)
                 .markMandatory()
                 .build());
+        // Shipment date
         fields.add(CommonField.withParser(dateParser)
                 .withSetter(record::setShipmentDate)
                 .markMandatory()
                 .build());
+        // Serial number
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setSerialNumber)
                 .build());
+        // Year or certification
         fields.add(CommonField.withParser(new NumberParser())
                 .withSetter(number -> record.setYearOfCertification(number != null ? number.intValue() : null))
                 .build());
+        // Batch
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setBatch)
                 .build());

@@ -20,8 +20,9 @@ public class DeviceRemoveImportDescription implements FileImportDescription<Devi
 
     public List<FileImportField<?>> getFields(DeviceTransitionRecord record) {
         List<FileImportField<?>> fields = new ArrayList<>();
+        //Device mRID or name
         fields.add(CommonField.withParser(new LiteralStringParser())
-                .withSetter(record::setDeviceMRID)
+                .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
         return fields;

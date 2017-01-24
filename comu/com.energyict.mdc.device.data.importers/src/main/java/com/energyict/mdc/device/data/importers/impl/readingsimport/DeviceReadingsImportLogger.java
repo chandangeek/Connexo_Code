@@ -22,13 +22,13 @@ public class DeviceReadingsImportLogger extends FileImportLoggerImpl<DeviceReadi
     @Override
     public void importLineFailed(DeviceReadingsImportRecord data, Exception exception) {
         super.importLineFailed(data, exception);
-        addReadingsFailed(data.getDeviceMRID(), data.getReadingTypes().size());
+        addReadingsFailed(data.getDeviceIdentifier(), data.getReadingTypes().size());
     }
 
     @Override
     public void importLineFinished(DeviceReadingsImportRecord data) {
         super.importLineFinished(data);
-        addReadingsSuccess(data.getDeviceMRID(), data.getReadingTypes().size());
+        addReadingsSuccess(data.getDeviceIdentifier(), data.getReadingTypes().size());
     }
 
     @Override

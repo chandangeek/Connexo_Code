@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -19,9 +18,9 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
-import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -35,12 +34,15 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DeviceReadingsImportProcessor implements FileImportProcessor<DeviceReadingsImportRecord> {
-
-    private final DeviceDataImporterContext context;
+public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportProcessor<DeviceReadingsImportRecord> {
 
     private Device device;
     private Multimap<ReadingType, IntervalReading> channelReadingsToStore = HashMultimap.create();
@@ -48,7 +50,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
     private List<Reading> registerReadingsToStore = new ArrayList<>();
 
     DeviceReadingsImportProcessor(DeviceDataImporterContext context) {
-        this.context = context;
+        super(context);
     }
 
     @Override
@@ -57,7 +59,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
         validateReadingDate(device, data.getReadingDateTime(), data.getLineNumber());
         for (int i = 0; i < data.getReadingTypes().size(); i++) {
             String readingTypeMRID = data.getReadingTypes().get(i);
-            ReadingType readingType = this.context.getMeteringService().getReadingType(readingTypeMRID)
+            ReadingType readingType = getContext().getMeteringService().getReadingType(readingTypeMRID)
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeMRID));
             ZoneId deviceZoneId = getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
                     .map(MeterActivation::getChannelsContainer)
@@ -99,21 +101,22 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
     }
 
     private void setDevice(DeviceReadingsImportRecord data, FileImportLogger logger) {
-        if (device == null || !device.getmRID().equals(data.getDeviceMRID())) {
-            complete(logger);//when new mrid comes we store all previous data read
-            device = this.context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
-                    .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
+        if (device == null ||
+                (!device.getmRID().equals(data.getDeviceIdentifier()) && !device.getName().equals(data.getDeviceIdentifier()))) {
+            complete(logger);//when new identifier comes we store all previous data read
+            device = findDeviceByIdentifier(data.getDeviceIdentifier())
+                    .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         }
         validateDeviceState(data, device);
     }
 
     private void validateDeviceState(DeviceReadingsImportRecord data, Device device) {
         if (device.getState().getName().equals(DefaultState.IN_STOCK.getKey())) {
-            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE, data.getLineNumber(), device.getmRID());
+            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE, data.getLineNumber(), device.getName());
         }
         if (device.getState().getName().equals(DefaultState.DECOMMISSIONED.getKey())
-                && !((User) context.getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
-            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE, data.getLineNumber(), device.getmRID());
+                && !((User) getContext().getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
+            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE, data.getLineNumber(), device.getName());
         }
     }
 
@@ -177,7 +180,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
             return value -> {
                 if (registerSpec.getOverflowValue().isPresent()) {
                     if (value.compareTo(registerSpec.getOverflowValue().get()) > 0) {
-                        throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getmRID());
+                        throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getName());
                     }
                 }
                 if (value.scale() > registerSpec.getNumberOfFractionDigits()) {
@@ -193,7 +196,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
             return value -> {
                 if (channelSpec.getOverflow().isPresent()) {
                     if (value.compareTo(channelSpec.getOverflow().get()) > 0) {
-                        throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getmRID());
+                        throw new ProcessorException(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW, lineNumber, readingType.getMRID(), device.getName());
                     }
                 }
                 if (value.scale() > channelSpec.getNbrOfFractionDigits()) {
@@ -203,12 +206,12 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
                 return value;
             };
         }
-        throw new ProcessorException(MessageSeeds.DEVICE_DOES_NOT_SUPPORT_READING_TYPE, lineNumber, readingType.getMRID(), device.getmRID());
+        throw new ProcessorException(MessageSeeds.DEVICE_DOES_NOT_SUPPORT_READING_TYPE, lineNumber, readingType.getMRID(), device.getName());
     }
 
     private void addReading(ReadingType readingType, BigDecimal value, Instant timeStamp) {
         if (readingType.isRegular()) {
-            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value, Collections.<ReadingQuality>emptyList()));
+            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value, Collections.emptyList()));
             if (!lastReadingPerChannel.containsKey(readingType) || timeStamp.isAfter(lastReadingPerChannel.get(readingType))) {
                 lastReadingPerChannel.put(readingType, timeStamp);
             }

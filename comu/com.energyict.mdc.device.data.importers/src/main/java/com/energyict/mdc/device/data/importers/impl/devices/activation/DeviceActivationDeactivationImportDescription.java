@@ -26,14 +26,17 @@ public class DeviceActivationDeactivationImportDescription implements FileImport
     public List<FileImportField<?>> getFields(DeviceActivationDeactivationRecord record) {
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
+        // Device mRID or name
         fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setDeviceMRID)
+                .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
+        // Transition date
         fields.add(CommonField.withParser(dateParser)
                 .withSetter(record::setTransitionDate)
                 .markMandatory()
                 .build());
+        // Activation flag
         fields.add(CommonField.withParser(new BooleanParser())
                 .withSetter(record::setActivate)
                 .markMandatory()

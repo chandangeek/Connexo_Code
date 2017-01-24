@@ -5,9 +5,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.NoLifeCycleActiveAt;
+import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
-import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 
@@ -18,33 +18,31 @@ import java.time.Instant;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public class DeviceShipmentImportProcessor implements FileImportProcessor<DeviceShipmentImportRecord> {
-
-    private final DeviceDataImporterContext context;
+public class DeviceShipmentImportProcessor extends AbstractDeviceDataFileImportProcessor<DeviceShipmentImportRecord> {
 
     public DeviceShipmentImportProcessor(DeviceDataImporterContext context) {
-        this.context = context;
+        super(context);
     }
 
     @Override
     public void process(DeviceShipmentImportRecord data, FileImportLogger logger) throws
             ProcessorException {
-        if (this.context.getDeviceService().findByUniqueMrid(data.getDeviceMRID()).isPresent()) {
-            throw new ProcessorException(MessageSeeds.DEVICE_ALREADY_EXISTS, data.getLineNumber(), data.getDeviceMRID());
+        if (getContext().getDeviceService().findDeviceByName(data.getDeviceIdentifier()).isPresent()) {
+            throw new ProcessorException(MessageSeeds.DEVICE_ALREADY_EXISTS, data.getLineNumber(), data.getDeviceIdentifier());
         }
         DeviceType deviceType = getDeviceTypeOrThrowException(data);
         DeviceConfiguration deviceConfiguration = getDeviceConfigurationOrThrowException(deviceType, data);
         Device device;
         try {
-            Connection connection = context.getConnection();
+            Connection connection = getContext().getConnection();
             Savepoint savepoint = connection.setSavepoint();
             try {
                 if (!is(data.getBatch()).emptyOrOnlyWhiteSpace()) {
-                    device = this.context.getDeviceService()
-                            .newDevice(deviceConfiguration, data.getDeviceMRID(), data.getDeviceMRID(), data.getBatch(), Instant.from(data.getShipmentDate()));
+                    device = getContext().getDeviceService()
+                            .newDevice(deviceConfiguration, data.getDeviceIdentifier(), data.getBatch(), Instant.from(data.getShipmentDate()));
                 } else {
-                    device = this.context.getDeviceService()
-                            .newDevice(deviceConfiguration, data.getDeviceMRID(), data.getDeviceMRID(), Instant.from(data.getShipmentDate()));
+                    device = getContext().getDeviceService()
+                            .newDevice(deviceConfiguration, data.getDeviceIdentifier(), Instant.from(data.getShipmentDate()));
                 }
             } catch (NoLifeCycleActiveAt e) {
                 connection.rollback(savepoint);
@@ -66,7 +64,7 @@ public class DeviceShipmentImportProcessor implements FileImportProcessor<Device
     }
 
     private DeviceType getDeviceTypeOrThrowException(DeviceShipmentImportRecord data) {
-        return this.context.getDeviceConfigurationService().findDeviceTypeByName(data.getDeviceType())
+        return getContext().getDeviceConfigurationService().findDeviceTypeByName(data.getDeviceType())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE_TYPE, data.getLineNumber(), data.getDeviceType()));
     }
 

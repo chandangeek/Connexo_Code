@@ -19,17 +19,17 @@ public class ConnectionAttributesImportDescription implements FileImportDescript
     public List<FileImportField<?>> getFields(ConnectionAttributesImportRecord record) {
         List<FileImportField<?>> fields = new ArrayList<>();
         LiteralStringParser stringParser = new LiteralStringParser();
-        //Device MRID
+        // Device mRID or name
         fields.add(CommonField.withParser(stringParser)
-                .withSetter(record::setDeviceMRID)
+                .withSetter(record::setDeviceIdentifier)
                 .markMandatory()
                 .build());
-        //Connection method name
+        // Connection method name
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setConnectionMethodName)
                 .markMandatory()
                 .build());
-        //Connection attributes
+        // Connection attributes
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(new FieldSetter<String>() {
                     @Override

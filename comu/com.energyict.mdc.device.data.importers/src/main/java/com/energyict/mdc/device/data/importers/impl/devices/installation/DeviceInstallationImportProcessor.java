@@ -48,10 +48,10 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
     protected void beforeTransition(Device device, DeviceInstallationImportRecord data) throws ProcessorException {
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
-        EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
-        if(isLocationPresent(locationData)){
-            LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
+        EndDevice endDevice = findEndDeviceByIdentifier(data.getDeviceIdentifier())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
+        if (isLocationPresent(locationData)) {
+            LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId(), "Fake").newLocationBuilder();
             Map<String, Integer> ranking = super.getContext()
                     .getMeteringService()
                     .getLocationTemplate()
@@ -121,14 +121,13 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
     }
 
     private void processUsagePoint(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) {
-        if (data.getUsagePointMrid() != null) {
-            Optional<UsagePoint> usagePointRef = getContext().getMeteringService()
-                    .findUsagePoint(data.getUsagePointMrid());
+        if (data.getUsagePointIdentifier() != null) {
+            Optional<UsagePoint> usagePointRef = findUsagePointByIdentifier(data.getUsagePointIdentifier());
             if (usagePointRef.isPresent()) {
                 setUsagePoint(device, usagePointRef.get(), data);
             } else {
-                // If not found, than create the light version of the usage point using usage point MRID + Service category
-                logger.warning(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED, data.getLineNumber(), data.getUsagePointMrid());
+                // If not found, than create the light version of the usage point using usage point name + Service category
+                logger.warning(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED, data.getLineNumber(), data.getUsagePointIdentifier());
                 setUsagePoint(device, createNewUsagePoint(data), data);
             }
         }
@@ -141,11 +140,11 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                 .findFirst()
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_USAGE_POINT, data.getLineNumber(),
-                        data.getUsagePointMrid(), Arrays.stream(ServiceKind.values())
-                        .map(ServiceKind::getDisplayName)
-                        .collect(Collectors.joining(", "))))
-                .newUsagePoint(data.getUsagePointMrid(), getContext().getClock().instant())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_USAGE_POINT,
+                        data.getLineNumber(),
+                        data.getUsagePointIdentifier(),
+                        Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))))
+                .newUsagePoint(data.getUsagePointIdentifier(), getContext().getClock().instant())
                 .create();
     }
 
@@ -165,15 +164,15 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
         Instant end = cause.getMeterActivation().getEnd();
         if (end == null) {
             throw new ProcessorException(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE,
-                    data.getLineNumber(), usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start));
+                    data.getLineNumber(), usagePoint.getName(), cause.getMeterActivation().getMeter().get().getName(), getFormattedInstant(start));
         } else {
             throw new ProcessorException(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL,
-                    data.getLineNumber(), usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start), getFormattedInstant(end));
+                    data.getLineNumber(), usagePoint.getName(), cause.getMeterActivation().getMeter().get().getName(), getFormattedInstant(start), getFormattedInstant(end));
         }
     }
 
     private void rethrowAsProcessorException(UnsatisfiedReadingTypeRequirementsOfUsagePointException ex, DeviceInstallationImportRecord data, Device device, UsagePoint usagePoint) {
-        throw new ProcessorException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, data.getLineNumber(), device.getmRID(), usagePoint.getMRID(),
+        throw new ProcessorException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, data.getLineNumber(), device.getName(), usagePoint.getName(),
                 UnsatisfiedReadingTypeRequirementsOfUsagePointException.buildRequirementsString(ex.getUnsatisfiedRequirements()));
     }
 
@@ -224,6 +223,6 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
     }
 
     private boolean isLocationPresent(List<String> locationData){
-        return locationData!=null && !locationData.isEmpty() && !locationData.stream().allMatch(location -> location == null);
+        return locationData != null && !locationData.isEmpty() && !locationData.stream().allMatch(location -> location == null);
     }
 }

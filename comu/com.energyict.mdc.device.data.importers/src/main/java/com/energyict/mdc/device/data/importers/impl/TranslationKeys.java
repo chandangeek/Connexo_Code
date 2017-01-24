@@ -24,7 +24,7 @@ public enum TranslationKeys implements TranslationKey {
     IMPORT_RESULT_SUCCESS_WITH_ERRORS("ImportResultSuccessWithErrors", "Finished successfully with (some) failures. {0} devices processed successfully, {1} devices skipped due to errors. "),
     IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS("ImportResultSuccessWithWarnAndErrors", "Finished successfully with (some) failures and notes. {0} devices processed successfully of which {1} devices contain a note, {2} devices skipped due to errors."),
     IMPORT_RESULT_SUCCESS_WITH_WARN("ImportResultSuccessWithWarn", "Finished successfully with (some) note. {0} devices processed successfully of which {1} devices contain a note."),
-    IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE("ImportDefaultProcessorErrorPrefix", "Can''t process line {0}: The device with MRID {1} can''t be processed: {2}"),
+    IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE("ImportDefaultProcessorErrorPrefix", "Can''t process line {0}: The device {1} can''t be processed: {2}"),
     IMPORT_MISSING_MANDATORY_PROCESSOR_ERROR_TEMPLATE("ImportMissingMandatoryProcessorErrorPrefix", "Can''t process line {0}: The device can''t be processed: {1}"),
 
     READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED("ReadingsImportResultNoReadingsWereProcessed", "Failed to complete, no readings have been processed."),
@@ -47,8 +47,8 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_DATA_IMPORTER_NUMBER_FORMAT("numberFormat", "Number format"),
     DEVICE_DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION("numberFormat.description", "The format that is used for numerical properties"),
 
-    MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (MRID: {1}) was overridden by new one (MRID: {2})"),
-    NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Note for line {0}: Usage point with MRID: {1} is not found. New usage point was created based on Service Category value"),
+    MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (name: {1}) was overridden by new one (name: {2})"),
+    NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Note for line {0}: Usage point {1} is not found. New usage point was created based on Service Category value"),
 
     //Translations for importer names
     DEVICE_READINGS_IMPORTER(DeviceReadingsImporterFactory.NAME, "Device readings importer"),

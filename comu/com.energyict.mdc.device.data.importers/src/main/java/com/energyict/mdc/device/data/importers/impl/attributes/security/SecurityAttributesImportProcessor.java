@@ -6,35 +6,34 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
-import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter.PropertiesConverterConfig;
+import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class SecurityAttributesImportProcessor implements FileImportProcessor<SecurityAttributesImportRecord> {
+public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> {
 
-    private final DeviceDataImporterContext context;
     private final PropertiesConverterConfig propertiesConverterConfig;
 
     private String securitySettingsName;
 
     SecurityAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat) {
-        this.context = context;
+        super(context);
         this.propertiesConverterConfig = PropertiesConverterConfig.newConfig().withNumberFormat(numberFormat);
     }
 
     @Override
     public void process(SecurityAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
-        Device device = context.getDeviceService().findByUniqueMrid(data.getDeviceMRID())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
+        Device device = findDeviceByIdentifier(data.getDeviceIdentifier())
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         validateSecuritySettingsNameUniquenessInFile(data);
         SecurityPropertySet deviceConfigSecurityPropertySet = device.getDeviceConfiguration().getSecurityPropertySets().stream()
                 .filter(securityPropertySet -> securityPropertySet.getName().equals(data.getSecuritySettingsName())).findFirst()
@@ -44,7 +43,7 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
             device.setSecurityProperties(deviceConfigSecurityPropertySet, typedProperties);
             device.save();
         } catch (Exception e) {
-            throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTES_NOT_SET, data.getLineNumber(), data.getDeviceMRID());
+            throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTES_NOT_SET, data.getLineNumber(), data.getDeviceIdentifier());
         }
         logMissingPropertiesIfIncomplete(data, logger, device, deviceConfigSecurityPropertySet, typedProperties);
     }
@@ -98,7 +97,7 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
             }
             parsedValue = valueFactory.fromStringValue(value);
         } catch (Exception e) {
-            String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(context.getThesaurus()) : valueFactory.getValueType().getName();
+            String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(getContext().getThesaurus()) : valueFactory.getValueType().getName();
             throw new ProcessorException(MessageSeeds.LINE_FORMAT_ERROR, data.getLineNumber(), propertySpec.getName(), expectedFormat);
         }
         try {

@@ -78,6 +78,7 @@ public class SecurityAttributesImporterFactoryTest {
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         when(context.getThesaurus()).thenReturn(thesaurus);
+        when(deviceService.findDeviceByMrid(anyString())).thenReturn(Optional.empty());
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -97,7 +98,7 @@ public class SecurityAttributesImporterFactoryTest {
 
     @Test
     public void testMandatoryColumnsMissed() {
-        String csv = "Device MRID;Security settings name\n" +
+        String csv = "Device name;Security settings name\n" +
                 ";";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createSecurityAttributesImporter();
@@ -110,10 +111,10 @@ public class SecurityAttributesImporterFactoryTest {
 
     @Test
     public void testNoSuchDevice() {
-        String csv = "Device MRID;Security settings name\n" +
+        String csv = "Device name;Security settings name\n" +
                 "VPB0001;MD5";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
-        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("VPB0001")).thenReturn(Optional.empty());
 
         createSecurityAttributesImporter().process(importOccurrence);
 
@@ -125,7 +126,7 @@ public class SecurityAttributesImporterFactoryTest {
 
     @Test
     public void testNoSuchSecuritySettings() {
-        String csv = "Device MRID;Security settings name\n" +
+        String csv = "Device name;Security settings name\n" +
                 "VPB0001;MD5";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -143,7 +144,7 @@ public class SecurityAttributesImporterFactoryTest {
 
     @Test
     public void testSecuritySettingsNameUniquenessThroughFile() {
-        String csv = "Device MRID;Security settings name\n" +
+        String csv = "Device name;Security settings name\n" +
                 "VPB0001;set1\n" +
                 "VPB0002;set2\n" +
                 "VPB0003;set3\n";
@@ -166,7 +167,7 @@ public class SecurityAttributesImporterFactoryTest {
 
     @Test
     public void testSetAttributesButMandatoryOnesMissed() {
-        String csv = "Device MRID;Security settings name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Security settings name;attr1;attr2;attr3\n" +
                 "VPB0001;MD5;;;";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -192,7 +193,7 @@ public class SecurityAttributesImporterFactoryTest {
 
     @Test
     public void testSetAttributesSuccessfully() {
-        String csv = "Device MRID;Security settings name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Security settings name;attr1;attr2;attr3\n" +
                 "VPB0001;MD5;string;100.25;true";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -230,8 +231,48 @@ public class SecurityAttributesImporterFactoryTest {
     }
 
     @Test
-    public void testUnableToParseAttributes() {
+    public void testSetAttributesForDeviceIdentifiedByMrid() {
         String csv = "Device MRID;Security settings name;attr1;attr2;attr3\n" +
+                "6a2632a4-6b73-4a13-bbcc-09c8bdd02308;MD5;string;100.25;true";
+
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mock(Device.class);
+        when(deviceService.findDeviceByMrid("6a2632a4-6b73-4a13-bbcc-09c8bdd02308")).thenReturn(Optional.of(device));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        Set<PropertySpec> propertySpecs = new LinkedHashSet<>(Arrays.asList(
+                mockPropertySpec("attr1", new StringFactory(), true),
+                mockPropertySpec("attr2", new BigDecimalFactory(), true),
+                mockPropertySpec("attr3", new BooleanFactory(), false)));
+        SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
+        List<SecurityProperty> properties = Arrays.asList(
+                mockSecurityProperty("attr1", "value"),
+                mockSecurityProperty("attr2", BigDecimal.valueOf(100.25)),
+                mockSecurityProperty("attr3", true));
+        when(device.getSecurityProperties(securityPropertySet)).thenReturn(properties);
+        doAnswer(invocationOnMock -> {
+            assertThat((SecurityPropertySet) invocationOnMock.getArguments()[0]).isEqualTo(securityPropertySet);
+            TypedProperties typedProperties = (TypedProperties) invocationOnMock.getArguments()[1];
+            assertThat(typedProperties.getProperty("attr1")).isEqualTo("string");
+            assertThat(typedProperties.getProperty("attr2")).isEqualTo(BigDecimal.valueOf(100.25));
+            assertThat(typedProperties.getProperty("attr3")).isEqualTo(true);
+            return null;
+        }).when(device).setSecurityProperties(any(), any());
+
+        createSecurityAttributesImporter().process(importOccurrence);
+
+        verify(logger, never()).info(anyString());
+        verify(logger, never()).warning(anyString());
+        verify(logger, never()).severe(anyString());
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
+
+        verify(device).setSecurityProperties(any(), any());
+    }
+
+    @Test
+    public void testUnableToParseAttributes() {
+        String csv = "Device name;Security settings name;attr1;attr2;attr3\n" +
                 "VPB0001;MD5;string;string;string";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -255,7 +296,7 @@ public class SecurityAttributesImporterFactoryTest {
 
     @Test
     public void testSecurityAttributeInvalidValue() throws Exception {
-        String csv = "Device MRID;Security settings name;attr1;attr2;attr3\n" +
+        String csv = "Device name;Security settings name;attr1;attr2;attr3\n" +
                 "VPB0001;MD5;string;string;string";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -279,10 +320,10 @@ public class SecurityAttributesImporterFactoryTest {
         verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getDefaultFormat());
     }
 
-    private Device mockDevice(String mRID) {
+    private Device mockDevice(String deviceName) {
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn(mRID);
-        when(deviceService.findByUniqueMrid(mRID)).thenReturn(Optional.of(device));
+        when(device.getName()).thenReturn(deviceName);
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
         return device;
     }
 

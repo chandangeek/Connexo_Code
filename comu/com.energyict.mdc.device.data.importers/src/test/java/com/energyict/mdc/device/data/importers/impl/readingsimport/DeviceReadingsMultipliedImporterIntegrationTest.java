@@ -80,7 +80,7 @@ public class DeviceReadingsMultipliedImporterIntegrationTest extends Persistence
         properties.put(NUMBER_FORMAT.getPropertyKey(), new SupportedNumberFormat.SupportedNumberFormatInfo(FORMAT3));
         FileImporter importer = deviceReadingsImporterFactory.createImporter(properties);
 
-        String csv = "Device MRID;Reading date;Reading type MRID;Reading Value;;\n" +
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;;\n" +
                 "TestDevice;01/08/2015 01:00;11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;100.527\n" +
                 "TestDevice;02/08/2015 00:00;11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;800.455\n" +
                 "TestDevice;03/08/2015 00:00;11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;810.81\n" +
