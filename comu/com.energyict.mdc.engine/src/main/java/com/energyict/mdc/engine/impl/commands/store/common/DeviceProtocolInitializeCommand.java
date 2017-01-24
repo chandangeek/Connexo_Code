@@ -10,9 +10,9 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.mdc.upl.issue.Problem;
 
 /**
@@ -38,13 +38,11 @@ public class DeviceProtocolInitializeCommand extends SimpleComCommand {
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         try {
             deviceProtocol.init(device, getComChannel());
+        } catch (ConnectionCommunicationException e) {
+            throw e;
         } catch (Throwable e) {
-            if (e instanceof ConnectionCommunicationException) {
-                throw e;
-            } else {
-                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getCause(), e);
-                addIssue(problem, CompletionCode.InitError);
-            }
+            Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getCause(), e);
+            addIssue(problem, CompletionCode.InitError);
         }
     }
 

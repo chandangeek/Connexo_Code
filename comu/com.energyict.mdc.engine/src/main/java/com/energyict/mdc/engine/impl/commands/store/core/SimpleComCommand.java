@@ -25,12 +25,12 @@ import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
@@ -89,40 +89,46 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                 try {
                     doExecute(deviceProtocol, executionContext);
                     success = true;
-                } catch (CommunicationException e) {
-                    if (e instanceof ConnectionCommunicationException) {
-
-                        if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT) {
-                            //A special case applicable for physical slaves that have the same gateway (and thus connection task)
-                            //It is a common timeout (we did not receive the response of the slave device in time), but the connection is still intact. Other physical slaves can still use it.
-                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.TimeoutError);
-                            getGroupedDeviceCommand().skipOtherComTaskExecutions();
-                        } else if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.UNEXPECTED_PROTOCOL_ERROR
-                                || e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.CIPHERING_EXCEPTION) {
-                            //Problem in the application layer of the protocol, specific for the current physical slave. The next physical slaves can still be read out.
-                            //For example: invalid frame counter, decryption failure, empty object list, etc.
-                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.UnexpectedError);
-                            getGroupedDeviceCommand().skipOtherComTaskExecutions();
-                        } else {
-                            //Any other ConnectionCommunicationException means that the connection is broken/closed and can no longer be used.
-                            //The next comtasks for this connection will be set to 'not executed'.
-                            connectionErrorOccurred(deviceProtocol, e);
-                        }
-
-                    } else if (e instanceof ConnectionSetupException || e instanceof ModemException) {
-                        connectionErrorOccurred(deviceProtocol, e);
+                } catch (com.energyict.mdc.upl.io.ConnectionCommunicationException e) {
+                    if (com.energyict.mdc.upl.io.ConnectionCommunicationException.Type.INTERRUPTED_BY_EXCEEDED_ALLOWED_NUMBER_OF_ATTEMPTS.equals(e.getType())) {
+                        /* A special case applicable for physical slaves that have the same gateway (and thus connection task)
+                         * It is a common timeout (we did not receive the response of the slave device in time), but the connection is still intact. Other physical slaves can still use it. */
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.TimeoutError);
+                        getGroupedDeviceCommand().skipOtherComTaskExecutions();
                     } else {
-                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ProtocolError);
+                        /* Any other upl ConnectionCommunicationException means that the connection is broken/closed and can no longer be used.
+                         * The next comtasks for this connection will be set to 'not executed'. */
+                        connectionErrorOccurred(deviceProtocol, e);
                     }
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
-
-                } catch (DataParseException e) {
+                } catch (ConnectionCommunicationException e) {
+                    if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT) {
+                        /* A special case applicable for physical slaves that have the same gateway (and thus connection task)
+                         * It is a common timeout (we did not receive the response of the slave device in time), but the connection is still intact. Other physical slaves can still use it. */
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.TimeoutError);
+                        getGroupedDeviceCommand().skipOtherComTaskExecutions();
+                    } else if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.UNEXPECTED_PROTOCOL_ERROR
+                            || e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.CIPHERING_EXCEPTION) {
+                        /* Problem in the application layer of the protocol, specific for the current physical slave.
+                         * The next physical slaves can still be read out.
+                         * For example: invalid frame counter, decryption failure, empty object list, etc. */
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.UnexpectedError);
+                        getGroupedDeviceCommand().skipOtherComTaskExecutions();
+                    } else {
+                        /* Any other ConnectionCommunicationException means that the connection is broken/closed and can no longer be used.
+                         * The next comtasks for this connection will be set to 'not executed'. */
+                        connectionErrorOccurred(deviceProtocol, e);
+                    }
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                } catch (ConnectionSetupException | ModemException e) {
+                    connectionErrorOccurred(deviceProtocol, e);
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                } catch (CommunicationException | DataParseException e) {
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ProtocolError);
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
                 } catch (DeviceConfigurationException | CanNotFindForIdentifier | DuplicateException e) {
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ConfigurationError);
                     executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
-
                 } catch (LegacyProtocolException e) {
                     if (isExceptionCausedByALegacyTimeout(e)) {
                         connectionErrorOccurred(deviceProtocol, e);

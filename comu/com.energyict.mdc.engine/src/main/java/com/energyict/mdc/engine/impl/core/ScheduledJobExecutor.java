@@ -113,7 +113,7 @@ abstract class ScheduledJobExecutor {
 
     private void logIfDebuggingIsEnabled(Throwable t) {
         if (REQUIRED_DEBUG_LEVEL.compareTo(logLevel) <= 0) {
-            if (!(t instanceof ConnectionSetupException || t instanceof ConnectionCommunicationException)) {
+            if (!(t instanceof ConnectionSetupException || t instanceof ConnectionCommunicationException || t instanceof com.energyict.mdc.upl.io.ConnectionCommunicationException)) {
                 t.printStackTrace(System.err);
             }
         }

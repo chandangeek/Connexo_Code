@@ -7,10 +7,11 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.mdc.upl.issue.Problem;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import static com.energyict.mdc.engine.impl.commands.MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE;
@@ -34,13 +35,11 @@ public class LogOnCommand extends SimpleComCommand {
             deviceProtocol.logOn();
         } catch (IllegalArgumentException e) {
             throw new ConnectionSetupException(MessageSeeds.LOG_ON_FAILED, new ConnectionException(e));
+        } catch (ConnectionCommunicationException e) {
+            throw e;
         } catch (Throwable e) {
-            if (e instanceof ConnectionCommunicationException) {
-                throw e;
-            } else {
-                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage(), e);
-                addIssue(problem, CompletionCode.InitError);
-            }
+            Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage(), e);
+            addIssue(problem, CompletionCode.InitError);
         }
     }
 
