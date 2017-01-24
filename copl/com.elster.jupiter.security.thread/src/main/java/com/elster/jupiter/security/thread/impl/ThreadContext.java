@@ -42,11 +42,11 @@ class ThreadContext {
         return locale == null ? Locale.getDefault() : locale;
     }
 
-	protected String getApplicationName() {
+	String getApplicationName() {
 		return applicationName;
 	}
 
-	protected void setApplicationName(String applicationName) {
+	void setApplicationName(String applicationName) {
 		this.applicationName = applicationName;
 	}
 }
