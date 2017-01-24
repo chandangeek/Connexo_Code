@@ -1,14 +1,5 @@
 package com.energyict.mdc.gogo;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
@@ -21,11 +12,24 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -111,29 +115,29 @@ public class DeviceLifeCycleCommands {
     }
 
     @SuppressWarnings("unused")
-    public void triggerEvent(String symbolicEventName, String mRID) {
+    public void triggerEvent(String symbolicEventName, String deviceName) {
         Optional<StateTransitionEventType> eventType = this.finiteStateMachineService.findStateTransitionEventTypeBySymbol(symbolicEventName);
         if (eventType.isPresent()) {
-            this.triggerEvent(eventType.get(), mRID);
+            this.triggerEvent(eventType.get(), deviceName);
         } else {
             System.out.println("State transition event type " + symbolicEventName + " does not exist");
         }
     }
 
-    private void triggerEvent(StateTransitionEventType eventType, String mRID) {
+    private void triggerEvent(StateTransitionEventType eventType, String deviceName) {
         if (eventType instanceof CustomStateTransitionEventType) {
-            this.triggerEvent((CustomStateTransitionEventType) eventType, mRID);
+            this.triggerEvent((CustomStateTransitionEventType) eventType, deviceName);
         } else {
             System.out.println("Only custom state transition event types are supported as I don't know how to publish standard ones");
         }
     }
 
-    private void triggerEvent(CustomStateTransitionEventType eventType, String mRID) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(mRID);
+    private void triggerEvent(CustomStateTransitionEventType eventType, String deviceName) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             this.triggerEvent(eventType, device.get());
         } else {
-            System.out.println("Device with mRID " + mRID + " does not exist");
+            System.out.println("Device with name " + deviceName + " does not exist");
         }
     }
 
@@ -145,15 +149,15 @@ public class DeviceLifeCycleCommands {
     }
 
     @SuppressWarnings("unused")
-    public void triggerAction(String symbolicEventName, String mRID) {
-        this.triggerAction(symbolicEventName, mRID, null);
+    public void triggerAction(String symbolicEventName, String deviceName) {
+        this.triggerAction(symbolicEventName, deviceName, null);
     }
 
     @SuppressWarnings("unused")
-    public void triggerAction(String symbolicEventName, String mRID, String effectiveTimestamp) {
+    public void triggerAction(String symbolicEventName, String deviceName, String effectiveTimestamp) {
         Optional<StateTransitionEventType> eventType = this.finiteStateMachineService.findStateTransitionEventTypeBySymbol(symbolicEventName);
         if (eventType.isPresent()) {
-            this.triggerAction(eventType.get(), mRID, this.parseEffectiveTimestamp(effectiveTimestamp));
+            this.triggerAction(eventType.get(), deviceName, this.parseEffectiveTimestamp(effectiveTimestamp));
         } else {
             System.out.println("State transition event type " + symbolicEventName + " does not exist");
         }
@@ -172,12 +176,12 @@ public class DeviceLifeCycleCommands {
         }
     }
 
-    private void triggerAction(StateTransitionEventType eventType, String mRID, Instant effectiveTimestamp) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(mRID);
+    private void triggerAction(StateTransitionEventType eventType, String deviceName, Instant effectiveTimestamp) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             this.triggerAction(eventType, device.get(), effectiveTimestamp);
         } else {
-            System.out.println("Device with mRID " + mRID + " does not exist");
+            System.out.println("Device with name " + deviceName + " does not exist");
         }
     }
 
@@ -187,7 +191,7 @@ public class DeviceLifeCycleCommands {
             if (executableAction.isPresent()) {
                 this.execute(executableAction.get(), device, effectiveTimestamp);
             } else {
-                System.out.println("Current state of device with mRID " + device.getmRID() + " does not support the event type");
+                System.out.println("Current state of device with name " + device.getName() + " does not support the event type");
             }
             return null;
         });
@@ -219,12 +223,12 @@ public class DeviceLifeCycleCommands {
     }
 
     @SuppressWarnings("unused")
-    public void currentState(String mRID) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(mRID);
+    public void currentState(String deviceName) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             this.currentState(device.get());
         } else {
-            System.out.println("Device with mRID " + mRID + " does not exist");
+            System.out.println("Device with name " + deviceName + " does not exist");
         }
     }
 
@@ -234,12 +238,12 @@ public class DeviceLifeCycleCommands {
     }
 
     @SuppressWarnings("unused")
-    public void historicalState(String mRID, String when) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(mRID);
+    public void historicalState(String deviceName, String when) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             this.historicalState(device.get(), when);
         } else {
-            System.out.println("Device with mRID " + mRID + " does not exist");
+            System.out.println("Device with name " + deviceName + " does not exist");
         }
     }
 
@@ -324,8 +328,8 @@ public class DeviceLifeCycleCommands {
 
     @SuppressWarnings("unused")
     public void help() {
-        System.out.println("triggerEvent <event type> <device mRID>");
-        System.out.println("triggerAction <event type> <device mRID>");
+        System.out.println("triggerEvent <event type> <device name>");
+        System.out.println("triggerAction <event type> <device name>");
         System.out.println("     where <event type> is one of:");
         System.out.println("       #commissioning");
         System.out.println("       #activated");
@@ -334,8 +338,8 @@ public class DeviceLifeCycleCommands {
         System.out.println("       #deleted");
         System.out.println("       #recycled");
         System.out.println("       #revoked");
-        System.out.println("currentState <device mRID>");
-        System.out.println("historicalState <device mRID> <yyyy-MM-dd HH:mm:ss>");
+        System.out.println("currentState <device name>");
+        System.out.println("historicalState <device name> <yyyy-MM-dd HH:mm:ss>");
         System.out.println("printMicroActionBitsFor [<microAction1>, <microAction2>, ...]");
         System.out.println("printMicroActionsForBits <any number>");
         System.out.println("printMicroCheckBitsFor [<microCheck1>, <microCheck2>, ...]");

@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
+
 import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -86,8 +87,8 @@ public class RegisterReadings {
     }
 
     @SuppressWarnings("unused")
-    public void addReading(String deviceMRID, String readingTypeMRID, String... formattedDates) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(deviceMRID);
+    public void addReading(String deviceName, String readingTypeMRID, String... formattedDates) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             Optional<Register<Reading, RegisterSpec>> register = this.findRegister(device.get(), readingTypeMRID);
             if (register.isPresent()) {
@@ -98,25 +99,27 @@ public class RegisterReadings {
                     ex.printStackTrace();
                 }
             } else {
-                System.out.println("No register found with mRID " + readingTypeMRID + " on device with mRID " + deviceMRID);
+                System.out.println("No register found with mRID " + readingTypeMRID + " on device with name " + deviceName);
             }
         } else {
-            System.out.println("No device with mRID " + deviceMRID);
+            System.out.println("No device with name " + deviceName);
         }
     }
 
     public void addDeviceEvent(String... mistakenArgs) {
         System.out.println("Usage : \n" +
-                "\taddDeviceEvent deviceMRID eventCode dateTime mrid name alias description reason severity status type issuerId issuerTrackingId logBookId logBookPosition data" +
+                "\taddDeviceEvent deviceName eventCode dateTime mrid name alias description reason severity status type issuerId issuerTrackingId logBookId logBookPosition data" +
                 "\n" +
                 "\tdateTime : format yyyy-MM-dd@HH:mm:ss\n" +
                 "\tdata     : comma-separated properties formatted as field=value\n");
     }
 
-    public void addDeviceEvent(String deviceMRID, String eventCode, String dateTime, String mrid, String name, String alias, String description, String reason, String severity, String status, String type, String issuerId, String issuerTrackingId, long logBookId, int logBookPosition, String data) {
+    public void addDeviceEvent(String deviceName, String eventCode, String dateTime, String mrid, String name, String alias,
+                               String description, String reason, String severity, String status, String type, String issuerId,
+                               String issuerTrackingId, long logBookId, int logBookPosition, String data) {
         try {
             Instant eventTime = Instant.from(parseDateFormat.parse(dateTime));
-            Optional<Device> found = this.deviceService.findByUniqueMrid(deviceMRID);
+            Optional<Device> found = this.deviceService.findDeviceByName(deviceName);
             found.ifPresent(device -> {
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                 EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(eventCode, eventTime);
@@ -204,18 +207,18 @@ public class RegisterReadings {
     }
 
     @SuppressWarnings("unused")
-    public void printReadings(String deviceMRID) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(deviceMRID);
+    public void printReadings(String deviceName) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             Interval sinceEpoch = Interval.sinceEpoch();
-            System.out.print("Readings of registers for device with mRID ");
-            System.out.print(deviceMRID);
+            System.out.print("Readings of registers for device with name ");
+            System.out.print(deviceName);
             this.printInterval(sinceEpoch);
             for (Register register : device.get().getRegisters()) {
                 this.printReadings(register, sinceEpoch);
             }
         } else {
-            System.out.println("No device with mRID " + deviceMRID);
+            System.out.println("No device with name " + deviceName);
         }
     }
 
@@ -248,5 +251,4 @@ public class RegisterReadings {
             }
         }
     }
-
 }

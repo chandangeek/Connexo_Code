@@ -13,7 +13,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -179,8 +178,8 @@ public class FirmwareUtils {
         }
     }
 
-    public void createFirmwareMessageFor(String mridOfDevice, String firwareVersion) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(mridOfDevice);
+    public void createFirmwareMessageFor(String deviceName, String firwareVersion) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             Optional<FirmwareVersion> firmwareVersionByVersion = this.firmwareService.getFirmwareVersionByVersionAndType(firwareVersion, FirmwareType.METER, device.get().getDeviceType());
             firmwareVersionByVersion.ifPresent(firmwareVersion -> executeTransaction(() -> {
@@ -189,21 +188,22 @@ public class FirmwareUtils {
                         .addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, firmwareVersion)
                         .setReleaseDate(clock.instant())
                         .add();
-                System.out.println("Create message for " + mridOfDevice + " with id " + deviceMessage.getId());
+                System.out.println("Create message for " + deviceName + " with id " + deviceMessage.getId());
                 return null;
             }));
         } else {
-            System.out.println("No Device found with the mrid '" + mridOfDevice + "'");
+            System.out.println("No Device found with the name '" + deviceName + "'");
         }
     }
 
-    public void triggerFirmwareTaskFor(String mridOfDevice) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(mridOfDevice);
+    public void triggerFirmwareTaskFor(String deviceName) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             Optional<ComTask> firmwareComTask = this.taskService.findFirmwareComTask();
             if (firmwareComTask.isPresent()) {
                 Optional<ComTaskExecution> existingFirmwareComTaskExecution = device.get().getComTaskExecutions().stream()
-                        .filter(comTaskExecution -> comTaskExecution.getComTasks().stream().filter(comTask -> comTask.getId() == firmwareComTask.get().getId()).count() > 0).findFirst();
+                        .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == firmwareComTask.get().getId())
+                        .findFirst();
 
                 executeTransaction(() -> {
                     if (existingFirmwareComTaskExecution.isPresent()) {
@@ -215,13 +215,13 @@ public class FirmwareUtils {
                         System.out.println("Creating a new FirmwareComTaskExecution based on the enablement of the config");
                         Optional<ComTaskEnablement> firmwareComTaskEnablement = device.get().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask.get());
                         if (firmwareComTaskEnablement.isPresent()) {
-                            ComTaskExecutionBuilder<FirmwareComTaskExecution> firmwareComTaskExecutionBuilder = device.get().newFirmwareComTaskExecution(firmwareComTaskEnablement.get());
-                            FirmwareComTaskExecution firmwareComTaskExecution = firmwareComTaskExecutionBuilder.add();
+                            ComTaskExecutionBuilder firmwareComTaskExecutionBuilder = device.get().newFirmwareComTaskExecution(firmwareComTaskEnablement.get());
+                            ComTaskExecution firmwareComTaskExecution = firmwareComTaskExecutionBuilder.add();
                             device.get().save();
                             firmwareComTaskExecution.runNow();
                             System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
                         } else {
-                            System.out.println("There is no 'Firmware management' ComTaskEnablement defined for device " + mridOfDevice);
+                            System.out.println("There is no 'Firmware management' ComTaskEnablement defined for device " + deviceName);
                         }
                     }
                     return null;
@@ -230,7 +230,7 @@ public class FirmwareUtils {
                 System.out.println("There is no 'Firmware management' ComTask defined, run the 'init FWC' command first.");
             }
         } else {
-            System.out.println("No Device found with the mrid '" + mridOfDevice + "'");
+            System.out.println("No Device found with the name '" + deviceName + "'");
         }
     }
 
