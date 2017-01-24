@@ -28,11 +28,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
@@ -121,13 +119,13 @@ public class DeviceLifeCycleChangeEventsTest {
     @Mock
     private Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     @Mock
-    private Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
     @Mock
-    private Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     @Mock
-    private Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
@@ -169,10 +167,9 @@ public class DeviceLifeCycleChangeEventsTest {
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
-        when(mdcAmrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(mdcAmrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
-        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
@@ -351,15 +348,13 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.inboundConnectionTaskProvider,
                 this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider,
-                this.manuallyScheduledComTaskExecutionProvider,
-                this.firmwareComTaskExecutionProvider,
                 this.meteringGroupsService,
                 customPropertySetService,
                 this.readingTypeUtilService,
                 this.threadPrincipalService,
                 this.userPreferencesService,
                 this.deviceConfigurationService, deviceService, lockService)
-                .initialize(this.deviceConfiguration, "Hello world", "mRID", Instant.now());
+                .initialize(this.deviceConfiguration, "Hello world", Instant.now());
         device.save();
         return device;
     }

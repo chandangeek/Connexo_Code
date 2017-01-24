@@ -16,8 +16,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -111,25 +109,14 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         return builder.add();
     }
 
-    protected ScheduledComTaskExecution reloadScheduledComTaskExecution(Device device, ScheduledComTaskExecution comTaskExecution) {
+    protected ComTaskExecution reloadComTaskExecution(Device device, ComTaskExecution comTaskExecution) {
         Device reloadedDevice = getReloadedDevice(device);
         for (ComTaskExecution taskExecution : reloadedDevice.getComTaskExecutions()) {
             if (comTaskExecution.getId() == taskExecution.getId()) {
-                return (ScheduledComTaskExecution) taskExecution;
+                return taskExecution;
             }
         }
-        fail("ScheduledComTaskExecution with id " + comTaskExecution.getId() + " not found after reloading device " + device.getName());
-        return null;
-    }
-
-    protected ManuallyScheduledComTaskExecution reloadManuallyScheduledComTaskExecution(Device device, ManuallyScheduledComTaskExecution comTaskExecution) {
-        Device reloadedDevice = getReloadedDevice(device);
-        for (ComTaskExecution taskExecution : reloadedDevice.getComTaskExecutions()) {
-            if (comTaskExecution.getId() == taskExecution.getId()) {
-                return (ManuallyScheduledComTaskExecution) taskExecution;
-            }
-        }
-        fail("ManuallyScheduledComTaskExecution with id " + comTaskExecution.getId() + " not found after reloading device " + device.getName());
+        fail("ComTaskExecution with id " + comTaskExecution.getId() + " not found after reloading device " + device.getName());
         return null;
     }
 

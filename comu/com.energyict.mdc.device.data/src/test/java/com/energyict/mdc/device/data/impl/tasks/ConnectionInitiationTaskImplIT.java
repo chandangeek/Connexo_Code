@@ -11,16 +11,16 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import java.time.Instant;
 import java.util.Calendar;
 
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -293,8 +293,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 //        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
 //        long id = connectionInitiationTask.getId();
 //
-//        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
-//        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+//        ComTaskExecution comTaskExecution = createComTaskExecution();
+//        ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
 //        comTaskExecutionUpdater.connectionTask(connectionInitiationTask);
 //        comTaskExecutionUpdater.update();
 //
@@ -317,8 +317,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 //        connectionTask.save();
 //        long id = connectionTask.getId();
 //
-//        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
-//        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+//        ComTaskExecution comTaskExecution = createComTaskExecution();
+//        ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
 //        comTaskExecutionUpdater.connectionTask(connectionTask);
 //        ComTaskExecution update = comTaskExecutionUpdater.update();
 //        device.removeComTaskExecution(update);
@@ -378,8 +378,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     public void testMakeObsoleteWithActiveComTasks() {
         ConnectionInitiationTaskImpl connectionTask = createSimpleConnectionInitiationTask();
 
-        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
-        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+        ComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.connectionTask(connectionTask);
         comTaskExecutionUpdater.update();
 

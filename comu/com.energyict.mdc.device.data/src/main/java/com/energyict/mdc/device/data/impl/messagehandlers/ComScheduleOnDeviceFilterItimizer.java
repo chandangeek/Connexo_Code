@@ -26,6 +26,8 @@ import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -33,6 +35,8 @@ import java.util.stream.Stream;
  * This message handler will add/remove comschedules on devices, either listed exhaustively or defined by a filter.
  */
 public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
+
+    private static final Logger LOGGER = Logger.getLogger(ComScheduleOnDeviceFilterItimizer.class.getName());
 
     private DeviceService deviceService;
     private MessageService messageService;
@@ -56,18 +60,18 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
                         try {
                             propertyValue.addAsCondition(searchBuilder);
                         } catch (InvalidValueException e) {
-                            // LOG failure
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         }
                     }
                     deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
                 } else {
-                    deviceStream = queueMessage.deviceMRIDs.stream().map(deviceService::findByUniqueMrid).filter(Optional::isPresent).map(Optional::get);
+                    deviceStream = queueMessage.deviceIds.stream().map(deviceService::findDeviceById).filter(Optional::isPresent).map(Optional::get);
                 }
                 deviceStream.forEach(
-                        device -> processMessagePost(new ComScheduleOnDeviceQueueMessage(scheduleId, device.getmRID(), queueMessage.action), destinationSpec.get()));
+                        device -> processMessagePost(new ComScheduleOnDeviceQueueMessage(scheduleId, device.getId(), queueMessage.action, queueMessage.strategy), destinationSpec.get()));
             }
         } else {
-            // LOG failure
+            LOGGER.log(Level.SEVERE, "Destination '" + SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION + "' is not available");
         }
     }
 

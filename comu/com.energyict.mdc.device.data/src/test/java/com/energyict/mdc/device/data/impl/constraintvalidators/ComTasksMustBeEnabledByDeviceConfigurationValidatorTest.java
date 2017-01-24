@@ -73,19 +73,7 @@ public class ComTasksMustBeEnabledByDeviceConfigurationValidatorTest {
     @Test
     public void testSingleComTaskThatIsAlsoEnabled() {
         this.enableAllMockedComTasksOnMockedConfiguration();
-        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask1));
-
-        // Business method
-        boolean valid = this.validator.isValid(this.comTaskExecution, this.context);
-
-        // Asserts
-        assertThat(valid).isTrue();
-    }
-
-    @Test
-    public void testMultipleComTasksThatAreAlsoEnabled() {
-        this.enableAllMockedComTasksOnMockedConfiguration();
-        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask1, this.comTask2));
+        when(this.comTaskExecution.getComTask()).thenReturn(this.comTask1);
 
         // Business method
         boolean valid = this.validator.isValid(this.comTaskExecution, this.context);
@@ -97,20 +85,7 @@ public class ComTasksMustBeEnabledByDeviceConfigurationValidatorTest {
     @Test
     public void testSingleComTaskWhenNoneAreEnabled() {
         // No ComTasks are enabled on the configuration
-        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask1));
-
-        // Business method
-        boolean valid = this.validator.isValid(this.comTaskExecution, this.context);
-
-        // Asserts
-        assertThat(valid).isFalse();
-    }
-
-    @Test
-    public void testMultipleComTasksWhenNoneAreEnabled() {
-        // No ComTasks are enabled on the configuration
-        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask1, this.comTask2));
-
+        when(this.comTaskExecution.getComTask()).thenReturn(this.comTask1);
         // Business method
         boolean valid = this.validator.isValid(this.comTaskExecution, this.context);
 
@@ -124,25 +99,7 @@ public class ComTasksMustBeEnabledByDeviceConfigurationValidatorTest {
         ComTask other = mock(ComTask.class);
         when(other.getId()).thenReturn(COMTASK_2_ID + 1);
         when(other.getName()).thenReturn("Not enabled");
-        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(other));
-
-        // Business method
-        boolean valid = this.validator.isValid(this.comTaskExecution, this.context);
-
-        // Asserts
-        assertThat(valid).isFalse();
-    }
-
-    @Test
-    public void testMultipleComTaskThatAreNotEnabled() {
-        this.enableAllMockedComTasksOnMockedConfiguration();
-        ComTask other1 = mock(ComTask.class);
-        when(other1.getId()).thenReturn(COMTASK_2_ID + 1);
-        when(other1.getName()).thenReturn("Not enabled-1");
-        ComTask other2 = mock(ComTask.class);
-        when(other2.getId()).thenReturn(COMTASK_2_ID + 2);
-        when(other2.getName()).thenReturn("Not enabled-2");
-        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(other1, other2));
+        when(this.comTaskExecution.getComTask()).thenReturn(other);
 
         // Business method
         boolean valid = this.validator.isValid(this.comTaskExecution, this.context);

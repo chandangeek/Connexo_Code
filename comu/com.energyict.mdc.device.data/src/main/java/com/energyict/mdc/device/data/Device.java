@@ -31,15 +31,10 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
@@ -347,8 +342,6 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      */
     String getmRID();
 
-    void setmRID(String mrid);
-
     /**
      * Provides a builder that allows the creation of a ScheduledConnectionTask for the Device.
      *
@@ -391,17 +384,13 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      */
     List<ComTaskExecution> getComTaskExecutions();
 
-    ManuallyScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ManuallyScheduledComTaskExecution comTaskExecution);
-
-    ScheduledComTaskExecutionUpdater getComTaskExecutionUpdater(ScheduledComTaskExecution comTaskExecution);
-
-    FirmwareComTaskExecutionUpdater getComTaskExecutionUpdater(FirmwareComTaskExecution comTaskExecution);
+    ComTaskExecutionUpdater getComTaskExecutionUpdater(ComTaskExecution comTaskExecution);
 
     void removeComTaskExecution(ComTaskExecution comTaskExecution);
 
     /**
      * Returns a {@link ComTaskExecutionBuilder} that will build a
-     * {@link ScheduledComTaskExecution} for the {@link ComSchedule} on this Device.
+     * ComTaskExecution for a {@link ComSchedule} on this Device.
      * This will enable all the current and future {@link com.energyict.mdc.tasks.ComTask}s
      * that are contained in the ComSchedule, for execution on this Device.
      * Note that a ComSchedule can only be added once to a Device.
@@ -409,15 +398,14 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      * cannot be manually scheduled on that Device.
      *
      * @param comSchedule The ComSchedule
-     * @see ManuallyScheduledComTaskExecution
      */
-    ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComSchedule comSchedule);
+    ComTaskExecutionBuilder newScheduledComTaskExecution(ComSchedule comSchedule);
 
-    ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression);
+    ComTaskExecutionBuilder newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression);
 
-    ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement);
+    ComTaskExecutionBuilder newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement);
 
-    ComTaskExecutionBuilder<FirmwareComTaskExecution> newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement);
+    ComTaskExecutionBuilder newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement);
 
     List<ProtocolDialectConfigurationProperties> getProtocolDialects();
 
@@ -536,6 +524,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     void removeFromBatch(Batch batch);
 
     Optional<Batch> getBatch();
+
+    void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

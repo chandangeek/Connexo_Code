@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -55,7 +56,7 @@ public class ComScheduleObsoleteValidator implements TopicHandler {
      * Vetos the obsoletion of the {@link ComSchedule}
      * by throwing an exception when the ComSchedule
      * is used by at least on Device, i.e. at least one
-     * {@link com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution}
+     * ComTaskExecutions
      * for that ComSchedule was created on that Device.
      *
      * @param comSchedule The ComTaskEnablement that is about to be deleted

@@ -70,7 +70,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_SECURITY_PROPERTY_SET_DELETION(2045, Keys.VETO_SECURITY_PROPERTY_SET_DELETION, "The security property set {0} of device configuration {1} cannot be removed because at least one device of that configuration still has security property values for it"),
     UNIQUE_ADDHOC_COMTASKS_PER_DEVICE(2046, Keys.UNIQUE_ADDHOC_COMTASKS_PER_DEVICE, "The communication task is not unique for device"),
     DUPLICATE_COMTASK_SCHEDULING(2047, Keys.DUPLICATE_COMTASK_SCHEDULING, "One or more communication tasks in the communication schedule are already scheduled on the device with a master communication schedule"),
-    COMTASK_CONFIGURATION_INCONSISTENT(2048, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The communication tasks in the communication schedule doesn't have the same connection method, security set, protocol dialect and/or urgency"),
+    COMTASK_CONFIGURATION_INCONSISTENT(2048, Keys.COMTASK_CONFIGURATION_INCONSISTENT, "The communication tasks in the communication schedule doesn''t have the same connection method, security set, protocol dialect and/or urgency"),
     COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION(2049, Keys.COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION, "A mismatch between device configuration and the communication schedule (one or more communication tasks defined in the communication schedule is not available on the device configuration of the device)"),
     COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2050, Keys.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove communication schedule {0} because it is not owned by device"),
     DEVICE_GROUP_IS_REQUIRED(2051, Keys.DEVICE_GROUP_IS_REQUIRED, "You must specify the devices that are part of the data collection KPI"),
@@ -99,7 +99,7 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_CHANGE_FREQUENCY(2074, Keys.CAN_NOT_CHANGE_FREQUENCY, "The frequency can not be changed"),
     USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES(2075, Keys.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES, "You are not allowed to edit the security properties"),
     NO_SUCH_COM_SCHEDULE(2076, "NoSuchComSchedule", "No communication schedule with id {0}"),
-    NO_SUCH_DEVICE(2077, "NoSuchDevice", "No device with MRID {0}"),
+    NO_SUCH_DEVICE(2077, "NoSuchDevice", "No device with id {0}"),
     NO_METER_ACTIVATION_AT(2078, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}"),
     LAST_CHECKED_CANNOT_BE_NULL(2079, Keys.LAST_CHECKED_CANNOT_BE_NULL, "The new last checked timestamp cannot be null"),
     LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
@@ -112,14 +112,13 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_SEARCH_DOMAIN(2087, Keys.INVALID_SEARCH_DOMAIN, "You are trying to look for an invalid search domain : {0}"),
     NO_DESTINATION_SPEC_FOUND(2088, Keys.NO_DESTINATION_SPEC_FOUND, "No destination spec found for : {0}"),
     NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND(2089, Keys.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, "No device config change business lock found for id {0}"),
-    NO_DEVICE_FOUND_FOR_MRID(2090, Keys.NO_DEVICE_FOUND_FOR_MRID, "No device found for MRID {0}"),
     INCORRECT_DEVICE_VERSION(2091, Keys.INCORRECT_DEVICE_VERSION, "No device found for id {0} and version {1}"),
     NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND(2092, Keys.NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND, "No device config change business lock for single device found for id {0}"),
     BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG(2093, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG, "You need to search a specific device configuration in order to use the bulk action for change device configuration"),
     BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG(2094, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_UNIQUE_CONFIG, "You need to search on a unique device configuration in order to use the bulk action for change device configuration"),
     BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE(2095, Keys.BULK_CHANGE_CONFIG_INVALID_SEARCH_VALUE, "You provided an invalid search value for the property {0}"),
     PRIORITY_NOT_IN_RANGE(2096, Keys.PRIORITY_NOT_IN_RANGE, "Value must be between {min} and {max}"),
-    CHANGE_CONFIG_WRONG_DEVICE_STATE(2097, Keys.CHANGE_CONFIG_WRONG_DEVICE_STATE, "Device configuration cannot be changed on device with MRID: {0} as this device has the {1} state."),
+    CHANGE_CONFIG_WRONG_DEVICE_STATE(2097, Keys.CHANGE_CONFIG_WRONG_DEVICE_STATE, "Device configuration cannot be changed on device with name: {0} as this device has the {1} state."),
     MULTIPLIER_SHOULD_BE_LARGER_THAN_ZERO(2098, Keys.MULTIPLIER_OF_ZERO_IS_NOT_ALLOWED, "The multiplier should be larger than zero"),
     MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE(2099, Keys.MULTIPLIER_VALUE_EXCEEDS_MAX_VALUE, "The multiplier exceeds the max value " + Integer.MAX_VALUE),
     READING_OVERFLOW_DETECTED(2100, Keys.READING_OVERFLOW_DETECTED, "Reading of device {0} and reading type {1} overflowed at {2}, corrected value from {3} to {4}.", Level.WARNING),
@@ -132,7 +131,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_USAGE_POINT(2106, Keys.NO_SUCH_USAGE_POINT, "No such usage point"),
     NO_CURRENT_METER_ACTIVATION(2107, Keys.NO_CURRENT_METER_ACTIVATION, "The requested meter does not seem to be active at the moment (no current meter activation)"),
     NO_METER_IN_ACTIVATION(2108, Keys.NO_METER_IN_ACTIVATION, "The meter activation does not seem to contain a meter"),
-    NO_DEVICE_FOR_METER(2109, Keys.NO_DEVICE_FOR_METER, "The meter activation of the usage point contains a meter, but the device counterpoint with MRID {0} could not be found"),
     NO_COMTASK_FOR_COMMAND(2110, Keys.NO_COMTASK_FOR_COMMAND, "A comtask to execute the device messages could not be located"),
     UNKNOWN_STATUS(2111, Keys.UNKNOWN_STATUS, "The requested contactor status is not supported at this time"),
     UNKNOWN_UNIT_CODE(2112, Keys.UNKNOWN_UNIT_CODE, "The requested load limit unit is not supported at this time"),
@@ -143,7 +141,7 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_CHANNEL_OBISCODE(2119, Keys.DUPLICATE_CHANNEL_OBISCODE, "The OBIS code must be unique for all the channels of your load profile"),
     OVERFLOW_INCREASED(2120, Keys.OVERFLOW_INCREASED, "The overflow value should not exceed the value of the configuration"),
     VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE(2121, Keys.VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE, "You can not change the OBIS code, you already have devices with an overridden value for this OBIS code: {0}"),
-    UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(2122, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, "This device doesn’t have the following reading types that are specified in the metrology configurations of the selected usage point: {0}"),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(2122, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, "This device doesn''t have the following reading types that are specified in the metrology configurations of the selected usage point: {0}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(2123, "usagePointAlreadyLinkedToAnotherDeviceX", "The usage point is already linked to device {0} starting from {1}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(2124, "usagePointAlreadyLinkedToAnotherDeviceXUntil", "The usage point is already linked to device {0} starting from {1} until {2}"),
     METER_ACTIVATION_TIMESTAMP_NOT_AFTER_LAST_ACTIVATION(2125, "meterActivationTimestampNotAfterLastActivation", "The activation date {0} should be after the last meter activation date {1}"),
@@ -161,7 +159,10 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED(2137, Keys.CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED, "You cannot change the configuration to a datalogger enabled device"),
     CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED(2138, Keys.CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED, "You cannot change the configuration of a datalogger enabled device"),
     INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS(2139, Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS, "Invalid number of simultaneous connections, should be between 1 and 16"),
-    INVALID_SHIPMENT_DATE(2140, Keys.INVALID_SHIPMENT_DATE, "The shipment date ({0}) should be between {1} and {2}")
+    INVALID_SHIPMENT_DATE(2140, Keys.INVALID_SHIPMENT_DATE, "The shipment date ({0}) should be between {1} and {2}"),
+    DUPLICATE_DEVICE_NAME(2141, Keys.DUPLICATE_DEVICE_NAME, "Name must be unique"),
+    MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK(2142, Keys.MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK, "You can not set a ComSchedule on the device because it already contains a ComTask which is linked to another ComSchedule"),
+    GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group")
     ;
     private final int number;
     private final String key;
@@ -231,6 +232,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW = "outboundConnectionTask.nextExecutionSpecs.longOffsetNotWithinWindow";
         public static final String VALUE_IS_REQUIRED = "X.value.required";
         public static final String DUPLICATE_DEVICE_MRID = "deviceDuplicateMrid";
+        public static final String DUPLICATE_DEVICE_NAME = "deviceDuplicateName";
         public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "device.delete.linked.physical.gateway";
         public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "device.delete.linked.communication.gateway";
         public static final String PROPERTY_SPEC_DOESNT_EXIST = "device.property.infotype.required";
@@ -303,7 +305,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_SEARCH_DOMAIN = "device.invalidSearchDomain";
         public static final String NO_DESTINATION_SPEC_FOUND = "device.noDestinationSpecFound";
         public static final String NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND = "device.configchange.noBusinessLock";
-        public static final String NO_DEVICE_FOUND_FOR_MRID = "no.device.found.mrid";
         public static final String INCORRECT_DEVICE_VERSION = "incorrect.device.version";
         public static final String NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND = "device.configchange.single.device.noBusinessLock";
         public static final String BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG = "bulk.device.configchange.needto.search.on.config";
@@ -323,7 +324,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_USAGE_POINT = "No.such.usage.point";
         public static final String NO_CURRENT_METER_ACTIVATION = "The.requested.meter.does.not.seem.to.be.active.at.the.moment.(no.current.meter.activation)";
         public static final String NO_METER_IN_ACTIVATION = "The.meter.activation.does.not.seem.to.contain.a.meter";
-        public static final String NO_DEVICE_FOR_METER = "The.meter.activation.of.the.usage.point.contains.a.meter,.but.the.device.counterpoint.with.respective.MRID.could.not.be.found";
         public static final String NO_COMTASK_FOR_COMMAND = "A.comtask.to.execute.the.device.messages.could.not.be.located";
         public static final String UNKNOWN_STATUS = "The.requested.contactor.status.is.not.supported.at.this.time";
         public static final String UNKNOWN_UNIT_CODE = "The.requested.load.limit.unit.is.not.supported.at.this.time";
@@ -346,5 +346,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED = "device.config.change.not.from.datalogger";
         public static final String INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS = "InvalidNumberOfSimultaneousConnections";
         public static final String INVALID_SHIPMENT_DATE = "InvalidShipmentDate";
+        public static final String MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK = "multiple.comschedules.with.same.comtask";
+        public static final String GROUP_IS_USED_BY_ANOTHER_GROUP = "group.is.used.by.another.group";
+
     }
 }

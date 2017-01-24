@@ -76,7 +76,11 @@ public class EndDeviceCommandImplTest {
             return "Activation date";
         }
     };
-    private static final String END_DEVICE_MRID = "endDeviceMRID";
+
+    @Rule
+    public TestRule expectedRule = new ExpectedExceptionRule();
+
+    private static final long DEVICE_ID = 13L;
     private static final long SERVICE_CALL_ID = 1;
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
@@ -134,8 +138,8 @@ public class EndDeviceCommandImplTest {
                 }
             };
         });
-        when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
-        when(deviceService.findByUniqueMrid(END_DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(endDevice.getAmrId()).thenReturn(String.valueOf(DEVICE_ID));
+        when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
 
         List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();

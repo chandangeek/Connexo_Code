@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
@@ -30,13 +31,15 @@ class UpgraderV10_2 implements Upgrader {
     private final InstallerV10_2Impl installerV10_2;
     private final DeviceService deviceService;
     private final UserService userService;
+    private final EventService eventService;
 
     @Inject
-    UpgraderV10_2(DataModel dataModel, InstallerV10_2Impl installerV10_2, DeviceService deviceService, UserService userService) {
+    UpgraderV10_2(DataModel dataModel, InstallerV10_2Impl installerV10_2, DeviceService deviceService, UserService userService, EventService eventService) {
         this.dataModel = dataModel;
         this.installerV10_2 = installerV10_2;
         this.deviceService = deviceService;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     @Override
@@ -66,6 +69,7 @@ class UpgraderV10_2 implements Upgrader {
         installerV10_2.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_2.class.getName()));
         this.ensureChannelAreCreated();
         userService.addModulePrivileges(installerV10_2);
+        EventType.RESTARTED_METERACTIVATION.createIfNotExists(eventService);
     }
 
     private void ensureChannelAreCreated() {
@@ -79,14 +83,6 @@ class UpgraderV10_2 implements Upgrader {
                     device.getChannels().forEach(channel -> device.findOrCreateKoreChannel(start, channel));
                     device.getRegisters().forEach(register -> device.findOrCreateKoreChannel(start, register));
                 });
-    }
-
-    private void execute(Statement statement, String sql) {
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
     }
 
     private void upgradeSubscriberSpecs() {

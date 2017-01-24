@@ -329,7 +329,7 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
             QueryEndDeviceGroup queryEndDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().createQueryEndDeviceGroup()
                     .setMRID("dynamic")
                     .setSearchDomain(oracleIntegrationPersistence.getDeviceSearchDomain())
-                    .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
+                    .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_END_DEVICE_QUERY_PROVIDER)
                     .withConditions(buildSearchablePropertyCondition("deviceType", SearchablePropertyOperator.EQUAL, Collections.singletonList("1")))
                     .create();
             return queryEndDeviceGroup;

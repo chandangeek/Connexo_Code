@@ -34,8 +34,8 @@ public class DeviceLifeCycleEventSupportTest {
 
     private static final long FINITE_STATE_MACHINE_ID = 11L;
     private static final long STATE_ID = 121L;
-    private static final String DEVICE_MRID = "MRID";
     private static final long DEVICE_ID = 700L;
+    private static final String DEVICE_NAME = "Name";
     private static final String STATE_NAME = "TheOneAndOnly";
 
     @Mock
@@ -75,9 +75,9 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.otherFiniteStateMachine.getStates()).thenReturn(Arrays.asList(this.otherState));
         when(this.otherFiniteStateMachine.getState(anyString())).thenReturn(Optional.empty());
         when(this.otherFiniteStateMachine.getState(STATE_NAME)).thenReturn(Optional.of(this.otherState));
-        when(this.device.getmRID()).thenReturn(DEVICE_MRID);
-        when(this.device.getState()).thenReturn(this.state);
+        when(this.device.getName()).thenReturn(DEVICE_NAME);
         when(this.device.getId()).thenReturn(DEVICE_ID);
+        when(this.device.getState()).thenReturn(this.state);
         when(this.comTaskExecution.getDevice()).thenReturn(this.device);
         when(this.protocolDialectProperties.getDevice()).thenReturn(this.device);
         when(this.deviceMessage.getDevice()).thenReturn(this.device);

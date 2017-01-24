@@ -13,6 +13,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
 
     DEVICE_DOMAIN("device.search.domain", "Device"),
     DEVICE_MRID("device.mRID", "MRID"),
+    DEVICE_NAME("device.name", "Name"),
     DEVICE_SERIAL_NUMBER("device.serial.number", "Serial number"),
     DEVICE_TYPE("device.type", "Device type"),
     DEVICE_CONFIGURATION("device.configuration", "Device configuration"),
@@ -25,8 +26,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGE_POINT("device.usage.point", "Usage point"),
     SERVICE_CATEGORY("device.service.category", "Service category"),
     TOPOLOGY("device.topology", "Topology"),
-    DEVICE_MASTER_MRID("device.master.mrid", "Master device"),
-    DEVICE_SLAVE_MRID("device.slave.mrid", "Slave device"),
+    DEVICE_MASTER_NAME("device.master.name", "Master device"),
+    DEVICE_SLAVE_NAME("device.slave.name", "Slave device"),
     VALIDATION("device.validation", "Validation"),
     VALIDATION_STATUS("device.validation.status", "Data validation"),
     ESTIMATION("device.estimation", "Estimation"),

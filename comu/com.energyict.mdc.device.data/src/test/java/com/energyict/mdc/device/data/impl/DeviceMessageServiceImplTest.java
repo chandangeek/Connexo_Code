@@ -11,8 +11,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -35,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -71,6 +70,9 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     com.energyict.mdc.upl.properties.PropertySpecService uplPropertySpecService;
     @Mock
     ThreadPrincipalService threadPrincipalService;
+    @Mock
+    Clock clock;
+
     DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService);
     DeviceMessage command1;
     private Device device;
@@ -85,7 +87,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
 
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
         device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
         List<DeviceMessageCategory> allCategories = EnumSet.allOf(DeviceMessageCategories.class).stream()
                 .map(deviceMessageCategory -> deviceMessageCategory.get(uplPropertySpecService, uplNlsService, converter))
@@ -654,7 +656,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
 
     private ComTaskExecution mockComTaskExecution(ComTask comTask, Progress progress, RunMode runMode, List<ComTaskExecution> comTaskExecutions) {
         ComTaskExecution mock = mock(runMode.clazz());
-        when(mock.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(mock.getComTask()).thenReturn(comTask);
         when(mock.isOnHold()).thenReturn(progress.onHold());
         when(mock.isAdHoc()).thenReturn(runMode.adHoc());
         when(mock.isScheduledManually()).thenReturn(runMode.scheduledManually());
@@ -718,9 +720,9 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     }
 
     enum RunMode {
-        SharedScheduled(false, false, ScheduledComTaskExecution.class),
-        ManuallyScheduled(false, true, ManuallyScheduledComTaskExecution.class),
-        AdHoc(true, true, ManuallyScheduledComTaskExecution.class);
+        SharedScheduled(false, false, ComTaskExecution.class),
+        ManuallyScheduled(false, true, ComTaskExecution.class),
+        AdHoc(true, true, ComTaskExecution.class);
         private final boolean adHoc;
         private final boolean scheduledManually;
         private final Class<? extends ComTaskExecution> comTaskExecutionClass;

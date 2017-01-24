@@ -34,7 +34,7 @@ public class UsagePointAlreadyLinkedToAnotherDeviceException extends LocalizedEx
 
     private static String[] getMessageArgs(MeterActivation meterActivation, DateTimeFormatter formatter) {
         List<String> args = new ArrayList<>(3);
-        args.add(meterActivation.getMeter().map(EndDevice::getMRID).orElse(null));
+        args.add(meterActivation.getMeter().map(EndDevice::getName).orElse(null));
         args.add(getFormattedInstant(formatter, meterActivation.getStart()));
         if (meterActivation.getEnd() != null) {
             args.add(getFormattedInstant(formatter, meterActivation.getEnd()));

@@ -41,6 +41,7 @@ import org.junit.Test;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -1509,7 +1510,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(comTaskExecution);
-        assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isEqualTo(triggerDate);
+        assertThat(reloadedComTaskExecution.getNextExecutionTimestamp()).isEqualTo(triggerDate.plusSeconds(3600));
     }
 
     @Test

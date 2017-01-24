@@ -8,6 +8,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Batch;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link Finder} interface
@@ -45,7 +45,7 @@ public class DeviceFinder implements Finder<Device> {
         this.sqlBuilder = sqlBuilder;
         this.dataModel = dataModel;
         this.orders = new ArrayList<>();
-        this.orders.add(Order.ascending("mRID"));
+        this.orders.add(Order.ascending("name"));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class DeviceFinder implements Finder<Device> {
         sqlBuilder.append(" ORDER BY " + this.orders.stream()
                 .map(order -> order.getClause(order.getName()))
                 .collect(Collectors.joining(", ")));
-        final SqlBuilder finalBuilder = this.pager.addPaging(sqlBuilder, "id");
+        final SqlBuilder finalBuilder = this.pager.finalize(sqlBuilder, "id");
         QueryExecutor<Device> query = this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class, Batch.class);
         return query.select(ListOperator.IN.contains(() -> finalBuilder, "id"), this.orders.toArray(new Order[orders.size()]));
     }
@@ -77,18 +77,18 @@ public class DeviceFinder implements Finder<Device> {
     }
 
     @Override
-    public SqlBuilder asFragment(String... strings) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select " + Stream.of(strings).collect(Collectors.joining(", ")) + " from ");
-        sqlBuilder.openBracket();
-        sqlBuilder.add(this.sqlBuilder.toSqlBuilder());
-        sqlBuilder.closeBracket();
-        return sqlBuilder;
+    public SqlFragment asFragment(String... strings) {
+        Subquery subquery = () -> new NoPaging().finalize(sqlBuilder.toSqlBuilder(), "id");
+        return dataModel.query(Device.class)
+                .asFragment(ListOperator.IN.contains(subquery, "id"), strings);
     }
 
     @Override
     public int count() {
         try (Connection conn = dataModel.getConnection(false)) {
-            try (PreparedStatement statement = asFragment("count(*)").prepare(conn)) {
+            try (PreparedStatement statement = new NoPaging()
+                    .finalize(sqlBuilder.toSqlBuilder(), "count(*)")
+                    .prepare(conn)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     resultSet.next();
                     return resultSet.getInt(1);
@@ -107,12 +107,12 @@ public class DeviceFinder implements Finder<Device> {
          * @param sqlBuilder The SqlBuilder
          * @return A new SqlBuilder with the paging settings
          */
-        SqlBuilder addPaging(SqlBuilder sqlBuilder, String field);
+        SqlBuilder finalize(SqlBuilder sqlBuilder, String field);
     }
 
     private class NoPaging implements Pager {
         @Override
-        public SqlBuilder addPaging(SqlBuilder sqlBuilder, String field) {
+        public SqlBuilder finalize(SqlBuilder sqlBuilder, String field) {
             SqlBuilder builder = new SqlBuilder("select " + field + " from (");
             builder.add(sqlBuilder);
             builder.append(")");
@@ -131,7 +131,7 @@ public class DeviceFinder implements Finder<Device> {
         }
 
         @Override
-        public SqlBuilder addPaging(SqlBuilder sqlBuilder, String field) {
+        public SqlBuilder finalize(SqlBuilder sqlBuilder, String field) {
             return sqlBuilder.asPageBuilder(field, this.from + 1, this.to + 1);
         }
     }

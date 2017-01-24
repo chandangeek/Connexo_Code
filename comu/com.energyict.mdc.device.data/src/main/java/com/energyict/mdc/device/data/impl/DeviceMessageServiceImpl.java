@@ -19,6 +19,12 @@ import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,8 +61,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     public boolean willDeviceMessageBePickedUpByPlannedComTask(Device device, DeviceMessage deviceMessage) {
         return device.getComTaskExecutions().stream().
                 filter(not(ComTaskExecution::isOnHold)).
-                map(ComTaskExecution::getComTasks).
-                flatMap(Collection::stream).
+                map(ComTaskExecution::getComTask).
                 map(ComTask::getProtocolTasks).
                 flatMap(Collection::stream).
                 filter(task -> task instanceof MessagesTask).
@@ -79,7 +84,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     public ComTask getPreferredComTask(Device device, DeviceMessage deviceMessage) {
         return device.getComTaskExecutions().stream().
                 filter(cte -> cte.isAdHoc() && cte.isOnHold()).
-                flatMap(cte -> cte.getComTasks().stream()).
+                map(ComTaskExecution::getComTask).
                 filter(comTask -> comTask.getProtocolTasks().stream().
                         filter(task -> task instanceof MessagesTask).
                         flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
@@ -90,7 +95,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
                 getComTaskEnablements().stream().
                 map(ComTaskEnablement::getComTask).
                 filter(ct -> device.getComTaskExecutions().stream().
-                        flatMap(cte -> cte.getComTasks().stream()).
+                        map(ComTaskExecution::getComTask).
                         noneMatch(comTask -> comTask.getId() == ct.getId())).
                 filter(comTask -> comTask.getProtocolTasks().stream().
                         filter(task -> task instanceof MessagesTask).
@@ -100,7 +105,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
                 orElse(device.
                 getComTaskExecutions().stream().
                 sorted(Comparator.comparing(ComTaskExecution::isAdHoc).thenComparing(ComTaskExecution::isScheduledManually).thenComparing(ComTaskExecution::isOnHold).reversed()).
-                flatMap(cte -> cte.getComTasks().stream()).
+                map(ComTaskExecution::getComTask).
                 filter(comTask -> comTask.getProtocolTasks().stream().
                         filter(task -> task instanceof MessagesTask).
                         flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
@@ -114,13 +119,16 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
         if (threadPrincipalService.getPrincipal() instanceof User) {
             User currentUser = (User) threadPrincipalService.getPrincipal();
             if (currentUser != null) {
-                Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId)).findFirst();
+                Optional<DeviceMessageEnablement> deviceMessageEnablementOptional = deviceConfiguration.getDeviceMessageEnablements()
+                        .stream()
+                        .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
+                        .findFirst();
                 if (deviceMessageEnablementOptional.isPresent()) {
                     DeviceMessageEnablement deviceMessageEnablement = deviceMessageEnablementOptional.get();
                     return deviceMessageEnablement
-                                .getUserActions()
-                                .stream()
-                                .anyMatch(deviceMessageUserAction -> currentUser.hasPrivilege("MDC", deviceMessageUserAction.getPrivilege()));
+                            .getUserActions()
+                            .stream()
+                            .anyMatch(deviceMessageUserAction -> currentUser.hasPrivilege("MDC", deviceMessageUserAction.getPrivilege()));
                 }
             }
         }

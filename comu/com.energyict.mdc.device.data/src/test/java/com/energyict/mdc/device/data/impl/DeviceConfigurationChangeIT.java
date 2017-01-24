@@ -34,9 +34,8 @@ import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnr
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.impl.security.BasicAuthenticationSecurityProperties;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -1093,7 +1092,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
             device = inMemoryPersistence.getDeviceService()
                     .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
-            final ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement1).add();
+            final ComTaskExecution manuallyScheduledComTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement1).add();
             device.save();
             context.commit();
         }
@@ -1133,7 +1132,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device = inMemoryPersistence.getDeviceService()
                     .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
             device.save();
-            final ScheduledComTaskExecution scheduledComTaskExecution = device.newScheduledComTaskExecution(comSchedule).add();
+            final ComTaskExecution scheduledComTaskExecution = device.newScheduledComTaskExecution(comSchedule).add();
             device.save();
             context.commit();
         }

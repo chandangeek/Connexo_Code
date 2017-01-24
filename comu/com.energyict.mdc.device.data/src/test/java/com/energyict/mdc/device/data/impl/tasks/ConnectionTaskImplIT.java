@@ -23,8 +23,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -79,6 +77,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static final BigDecimal PORT_PROPERTY_VALUE = new BigDecimal(1521);
     protected static final BigDecimal UPDATED_PORT_PROPERTY_VALUE = new BigDecimal(4049);
     private static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
+
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK1_ID;
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK2_ID;
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK3_ID;
@@ -382,8 +381,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDevice(String mRID) {
-        Device simpleDevice = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "SimpleDevice", mRID, Instant.now());
+        Device simpleDevice = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, mRID, Instant.now());
         simpleDevice.save();
         return simpleDevice;
     }
@@ -478,23 +476,23 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ComTaskExecution createComTaskExecWithConnectionTaskNextDateAndComTaskEnablement(ConnectionTask<?, ?> connectionTask, Instant nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         comTaskExecutionBuilder.connectionTask(connectionTask);
-        ManuallyScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
         return comTaskExecutionUpdater.update();
     }
 
-    protected ScheduledComTaskExecution createComTaskExecution() {
+    protected ComTaskExecution createComTaskExecution() {
         return createComTaskExecution(comTaskEnablement1);
     }
 
-    protected ScheduledComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
+    protected ComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
-        ScheduledComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newScheduledComTaskExecution(comSchedule);
+        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         return comTaskExecution;
     }

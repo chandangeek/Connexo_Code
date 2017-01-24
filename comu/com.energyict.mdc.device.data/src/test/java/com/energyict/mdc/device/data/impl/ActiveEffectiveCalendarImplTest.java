@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.EventSet;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
@@ -15,7 +19,6 @@ import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
 import java.util.Optional;
-import java.util.TimeZone;
 
 import org.junit.Test;
 
@@ -131,14 +134,20 @@ public class ActiveEffectiveCalendarImplTest extends PersistenceIntegrationTest 
     }
 
     private Calendar createCalendar() {
-        return inMemoryPersistence.
-                getCalendarService().newCalendar("Calendar", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+        CalendarService calendarService = inMemoryPersistence.
+                getCalendarService();
+        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get();
+        EventSet eventSet = calendarService.newEventSet("eventset")
+                .addEvent("On peak").withCode(3)
+                .addEvent("Off peak").withCode(5)
+                .addEvent("Demand response").withCode(97)
+                .add();
+        return calendarService
+                .newCalendar("Calendar", Year.of(2010), eventSet)
+                .category(category)
                 .endYear(Year.of(2020))
                 .description("Description remains to be completed :-)")
                 .mRID("Calendar")
-                .addEvent("On peak", 3)
-                .addEvent("Off peak", 5)
-                .addEvent("Demand response", 97)
                 .newDayType("Summer weekday")
                 .event("Off peak").startsFrom(LocalTime.of(0, 0, 0))
                 .eventWithCode(3).startsFrom(LocalTime.of(13, 0, 0))
