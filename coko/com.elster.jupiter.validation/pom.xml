@@ -9,7 +9,7 @@
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>validation</artifactId>
-    <version>4.1.0${revision}</version>
+    <version>5.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.validation</name>
 
@@ -100,7 +100,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
@@ -143,11 +146,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>search</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
@@ -159,6 +157,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

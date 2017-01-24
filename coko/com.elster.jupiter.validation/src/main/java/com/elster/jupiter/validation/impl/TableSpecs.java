@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -197,7 +198,8 @@ public enum TableSpecs {
             table.setJournalTableName("VAL_DATAVALIDATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column metrologyContractId = table.column("METROLOGYCONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column metrologyContractId = table.column("METROLOGYCONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).upTo(version(10, 3)).add();
+            Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.column("QUALITY_SYSTEM").number().conversion(ColumnConversion.NUMBER2ENUM).map("qualityCodeSystem").add();
@@ -212,8 +214,14 @@ public enum TableSpecs {
                     .on(metrologyContractId)
                     .references(MetrologyContract.class)
                     .map("metrologyContract")
+                    .upTo(version(10,3))
                     .add();
-
+            table.foreignKey("VAL_FK_USAGEPOUNTGROUP")
+                    .on(usagePointGroupId)
+                    .references(UsagePointGroup.class)
+                    .map("usagePointGroup")
+                    .since(version(10, 3))
+                    .add();
             table.primaryKey("VAL_PK_DATAVALIDATIONTASK")
                     .on(idColumn)
                     .add();

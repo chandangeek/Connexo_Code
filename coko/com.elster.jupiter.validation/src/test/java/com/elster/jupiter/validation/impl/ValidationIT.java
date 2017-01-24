@@ -38,6 +38,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
@@ -138,6 +139,7 @@ public class ValidationIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                     new BasicPropertiesModule(),
                     new TimeModule(),
@@ -187,7 +189,7 @@ public class ValidationIT {
                 ReadingType readingType2 = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
                 ReadingType readingType3 = meteringService.getReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                Meter meter = amrSystem.newMeter("2331").create();
+                Meter meter = amrSystem.newMeter("2331", "myName").create();
                 meter.update();
                 meterActivation = meter.activate(date1);
                 meterActivation.getChannelsContainer().createChannel(readingType1, readingType2);

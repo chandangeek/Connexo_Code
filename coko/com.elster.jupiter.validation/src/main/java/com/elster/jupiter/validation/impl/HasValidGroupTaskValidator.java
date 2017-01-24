@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.validation.DataValidationTask;
 
 import javax.validation.ConstraintValidator;
@@ -20,7 +21,7 @@ public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidG
     @Override
     public boolean isValid(DataValidationTask validationTask, ConstraintValidatorContext context) {
         Optional<EndDeviceGroup> deviceGroup = validationTask.getEndDeviceGroup();
-        Optional<MetrologyContract> metrologyContract = validationTask.getMetrologyContract();
+        Optional<UsagePointGroup> usagePointGroup = validationTask.getUsagePointGroup();
 
 
         context.disableDefaultConstraintViolation();
@@ -33,9 +34,9 @@ public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidG
                 } break;
             }
             case MDM: {
-                if (!metrologyContract.isPresent()) {
+                if (!usagePointGroup.isPresent()) {
                     context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-                            .addPropertyNode("metrologyContract").addConstraintViolation();
+                            .addPropertyNode("usagePointGroup").addConstraintViolation();
                     return false;
                 } break;
             }

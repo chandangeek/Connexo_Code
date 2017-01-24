@@ -5,9 +5,11 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -16,6 +18,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
@@ -23,6 +26,8 @@ import com.elster.jupiter.validation.ValidationContextImpl;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -127,23 +132,38 @@ class DataValidationTaskExecutor implements TaskExecutor {
                         transactionContext.commit();
                     }
                 }
-                transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate()
+                transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getName(), occurrence.getStartDate()
                         .get())));
             }
         }
     }
 
     private void executeMdmTask(DataValidationOccurrence occurrence, Logger logger, DataValidationTask task) {
-        MetrologyContract metrologyContract = task.getMetrologyContract().get();
-        metrologyConfigurationService.getEffectiveMetrologyConfigurationFinderFor(metrologyContract).stream()
-                .forEach(effectiveMetrologyConfiguration -> {
-                    // Validate inputs provided by linked meters
-                    validateUsagePointInputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, effectiveMetrologyConfiguration);
-                    // Validate outputs provided by metrology configuration
-                    validateUsagePointOutputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, effectiveMetrologyConfiguration);
-                    transactionService.execute(VoidTransaction.of(() -> MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, effectiveMetrologyConfiguration.getUsagePoint()
-                            .getMRID(), occurrence.getStartDate().get())));
-                });
+        UsagePointGroup usagePointGroup = task.getUsagePointGroup().get();
+        usagePointGroup.getMembers(clock.instant()).stream().map(UsagePoint::getCurrentEffectiveMetrologyConfiguration)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .distinct()
+                .forEach(metrologyConfigurationOnUsagePoint ->
+                        metrologyConfigurationOnUsagePoint
+                                .getMetrologyConfiguration()
+                                .getContracts()
+                                .forEach(metrologyContract -> {
+                                    // Validate inputs provided by linked meters
+                                    validateUsagePointInputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, metrologyConfigurationOnUsagePoint);
+                                    // Validate outputs provided by metrology configuration
+                                    validateUsagePointOutputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, metrologyConfigurationOnUsagePoint);
+                                    transactionService
+                                            .execute(VoidTransaction.of(() ->
+                                                    MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY
+                                                            .log(logger, thesaurus, metrologyConfigurationOnUsagePoint.getUsagePoint()
+                                                                    .getName(), getTimeFormatter().format(occurrence.getStartDate().get()))));
+                                }));
+    }
+
+    private DateTimeFormatter getTimeFormatter() {
+        Locale locale = threadPrincipalService.getLocale();
+        return DefaultDateTimeFormatters.longDate(locale).withLongTime().build().withZone(ZoneId.systemDefault()).withLocale(locale);
     }
 
     private void validateUsagePointInputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {

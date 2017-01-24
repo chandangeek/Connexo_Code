@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -33,6 +34,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -221,6 +223,10 @@ public class ValidationServiceImplTest {
     private BundleContext bundleContext;
     @Mock
     private UpgradeService upgradeService;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    private SearchService searchService;
 
     @Before
     public void setUp() {
@@ -252,7 +258,7 @@ public class ValidationServiceImplTest {
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         doReturn(fetcher).when(cimChannel1).findReadingQualities();
 
-        validationService = new ValidationServiceImpl(bundleContext, clock, messageService, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService, kpiService);
+        validationService = new ValidationServiceImpl(bundleContext, clock, messageService, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService, kpiService, metrologyConfigurationService, searchService);
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel, taskService, thesaurus, () -> destinationSpec);

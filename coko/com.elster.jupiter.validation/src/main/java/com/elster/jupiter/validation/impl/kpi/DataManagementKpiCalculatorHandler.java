@@ -85,7 +85,7 @@ class DataManagementKpiCalculatorHandler implements TaskExecutor {
         try {
             transactionService.run(() -> dataManagementKpiCalculator.store(endDevice));
         } catch (Exception ex) {
-            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to store Validation KPI data for device with MRID " + endDevice.getMRID()
+            transactionService.run(() -> taskLogger.log(Level.WARNING, "Failed to store Validation KPI data for device " + endDevice.getName()
                     + ". Error: " + ex.getLocalizedMessage(), ex));
         }
     }

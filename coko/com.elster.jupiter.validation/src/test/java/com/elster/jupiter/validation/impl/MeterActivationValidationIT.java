@@ -42,6 +42,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
@@ -90,7 +91,7 @@ public class MeterActivationValidationIT {
     private Injector injector;
 
     @Rule
-    public TestRule timeZone = Using.timZone("GMT");
+    public TestRule timeZone = Using.timeZone("GMT");
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private IValidationRuleSet validationRuleSet;
@@ -142,6 +143,7 @@ public class MeterActivationValidationIT {
                 new IdsModule(),
                 new TimeModule(),
                 new BasicPropertiesModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new PartyModule(),
                 new EventsModule(),
@@ -185,7 +187,7 @@ public class MeterActivationValidationIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
-            Meter meter = system.newMeter("1").create();
+            Meter meter = system.newMeter("1", "myName").create();
             MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
             ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
@@ -203,7 +205,7 @@ public class MeterActivationValidationIT {
         createRuleSet(readingType);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
-            Meter meter = system.newMeter("1").create();
+            Meter meter = system.newMeter("1", "myName").create();
             ZonedDateTime startTime = ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault());
             ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
             ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
