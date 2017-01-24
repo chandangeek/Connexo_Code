@@ -7,7 +7,7 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
 
     views: ['logging.communication.Text', 'logging.communication.BytesViewer'],
     config: {
-        deviceMRIDs: '',
+        deviceNames: '',
         portNames: ''
     },
 
@@ -72,8 +72,8 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
         var criteriaInfo = '',
             addDelimiter = false;
 
-        if (this.getDeviceMRIDs()) {
-            criteriaInfo += ('Device MRID = ' + this.getDeviceMRIDs());
+        if (this.getDeviceNames()) {
+            criteriaInfo += ('Device name = ' + this.getDeviceNames());
             addDelimiter = true;
         }
         if (this.getPortNames().length > 0) {
@@ -92,8 +92,8 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
     },
 
     registerForLogging: function() {
-        if (this.getDeviceMRIDs().length > 0) {
-            this.getWebSocket().send('register request for device: ' + this.getDeviceMRIDs());
+        if (this.getDeviceNames().length > 0) {
+            this.getWebSocket().send('register request for device: ' + this.getDeviceNames());
         }
 
         if (this.getPortNames().length > 0) {
@@ -118,7 +118,7 @@ Ext.define('CSMonitor.controller.logging.communication.Text', {
             for (index = 0; index < criteria.length; index += 1) {
                 nameValuePair = criteria[index].split('=');
                 if (nameValuePair[0] === 'devid') {
-                    this.setDeviceMRIDs(nameValuePair[1]);
+                    this.setDeviceNames(nameValuePair[1]);
                 } else if (nameValuePair[0] === 'portid') {
                     this.setPortNames(nameValuePair[1]);
                 }
