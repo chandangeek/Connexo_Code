@@ -7,9 +7,9 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
 
 import javax.inject.Inject;
 import java.util.List;
@@ -24,6 +24,7 @@ public class CalendarCreationHandler implements TopicHandler {
 
     @Inject
     CalendarCreationHandler(DeviceConfigurationService deviceConfigurationService) {
+        this();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
@@ -42,14 +43,10 @@ public class CalendarCreationHandler implements TopicHandler {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-
-
     @Override
     public String getTopicMatcher() {
         return EventType.CALENDAR_CREATE.topic();
     }
-
-
 }
 
 

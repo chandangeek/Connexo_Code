@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.QueryStream;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -23,6 +25,8 @@ import java.util.Optional;
  * @since 2014-02-18 (16:36)
  */
 public interface ServerDeviceConfigurationService extends DeviceConfigurationService, LockService {
+
+    QueryStream<AllowedCalendar> getAllowedCalendarsQuery();
 
     Thesaurus getThesaurus();
 

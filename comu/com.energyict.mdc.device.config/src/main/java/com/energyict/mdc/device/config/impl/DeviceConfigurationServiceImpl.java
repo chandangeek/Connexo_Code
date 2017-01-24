@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -105,6 +106,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -161,7 +163,27 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, PluggableService pluggableService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, CalendarService calendarService, CustomPropertySetService customPropertySetService, UpgradeService upgradeService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService,
+                                          Clock clock,
+                                          ThreadPrincipalService threadPrincipalService,
+                                          EventService eventService, NlsService nlsService,
+                                          PropertySpecService propertySpecService,
+                                          MeteringService meteringService,
+                                          MdcReadingTypeUtilService mdcReadingTypeUtilService,
+                                          UserService userService,
+                                          PluggableService pluggableService,
+                                          ProtocolPluggableService protocolPluggableService,
+                                          EngineConfigurationService engineConfigurationService,
+                                          SchedulingService schedulingService,
+                                          ValidationService validationService,
+                                          EstimationService estimationService,
+                                          MasterDataService masterDataService,
+                                          FiniteStateMachineService finiteStateMachineService,
+                                          DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                          CalendarService calendarService,
+                                          CustomPropertySetService customPropertySetService,
+                                          UpgradeService upgradeService,
+                                          DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -489,6 +511,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<AllowedCalendar> findAllowedCalendars(String name) {
         return dataModel.query(AllowedCalendar.class).select(where("name").isEqualTo(name));
+    }
+
+    @Override
+    public QueryStream<AllowedCalendar> getAllowedCalendarsQuery() {
+        return dataModel.stream(AllowedCalendar.class);
     }
 
     @Override
@@ -861,8 +888,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 if (found.isPresent()) {
                     privileges.add(privilege);
                 }
-                Optional<DeviceMessageUserAction> deviceMessageUserAction = DeviceMessageUserAction.forPrivilege(privilege
-                        .getName());
+                Optional<DeviceMessageUserAction> deviceMessageUserAction = DeviceMessageUserAction.forPrivilege(privilege.getName());
                 if (deviceMessageUserAction.isPresent()) {
                     privileges.add(privilege);
                 }
@@ -878,10 +904,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .filter(s -> s.getId() ==
                         securityPropertySets.stream()
                                 .filter(s2 -> s2.getName().equals(s.getName()))
-                                .sorted((s3, s4) -> s4.getAuthenticationDeviceAccessLevel()
-                                        .getId() - s3.getAuthenticationDeviceAccessLevel().getId())
-                                .sorted((s3, s4) -> s4.getEncryptionDeviceAccessLevel()
-                                        .getId() - s3.getEncryptionDeviceAccessLevel().getId())
+                                .sorted(Comparator.comparing((SecurityPropertySet sps) -> sps.getEncryptionDeviceAccessLevel().getId())
+                                        .thenComparing(sps -> sps.getAuthenticationDeviceAccessLevel().getId()))
                                 .findFirst().get().getId())
                 .collect(toList());
     }

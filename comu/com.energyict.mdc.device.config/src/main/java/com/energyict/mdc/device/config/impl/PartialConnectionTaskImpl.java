@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -150,6 +151,23 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     @Override
     public List<PartialConnectionTaskProperty> getProperties () {
         return Collections.unmodifiableList(properties);
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PartialConnectionTaskImpl partialConnectionTask = (PartialConnectionTaskImpl) o;
+        return id == partialConnectionTask.id;
     }
 
     public void setProperty(String key, Object value) {
