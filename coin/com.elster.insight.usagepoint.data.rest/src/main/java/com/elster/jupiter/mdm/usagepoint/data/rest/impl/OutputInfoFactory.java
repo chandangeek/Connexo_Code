@@ -69,7 +69,7 @@ public class OutputInfoFactory {
         if (readingTypeDeliverable.getReadingType().isRegular()) {
             return asFullChannelOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
         } else {
-            return asRegisterOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract, null);
+            return asFullRegisterOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract, null);
         }
     }
 
@@ -116,6 +116,18 @@ public class OutputInfoFactory {
                         outputInfo.validationInfo.hasSuspects = validationStatusFactory.hasSuspects(Collections.singletonList(outputChannel), container.getRange());
                     }
                 });
+    }
+
+    private RegisterOutputInfo asFullRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+        RegisterOutputInfo outputInfo = new RegisterOutputInfo();
+        setCommonFields(outputInfo, readingTypeDeliverable);
+        outputInfo.deliverableType = readingTypeDeliverable.getType().getName();
+        effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
+                .flatMap(container -> container.getChannel(readingTypeDeliverable.getReadingType()))
+                .ifPresent(outputChannel ->
+                        outputInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, Collections.singletonList(outputChannel))
+                );
+        return outputInfo;
     }
 
     private ChannelOutputInfo asChannelCommonOutputInfo(ReadingTypeDeliverable readingTypeDeliverable) {

@@ -183,6 +183,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle.rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle</artifactId>
+        </dependency>
 
 
         <!-- test dependencies -->

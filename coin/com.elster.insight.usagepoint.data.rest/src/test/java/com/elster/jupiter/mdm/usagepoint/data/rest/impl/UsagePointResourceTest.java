@@ -36,6 +36,8 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
@@ -77,6 +79,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -109,6 +112,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Mock
     private ChannelsContainer channelsContainer;
     @Mock
+    private DataValidationTask validationTask;
+    @Mock
     private UsagePointGroup usagePointGroup;
     @Mock
     private Query<UsagePoint> usagePointQuery;
@@ -119,9 +124,13 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Mock
     private UsagePointStage usagePointStage;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private PropertySpec propertySpec;
     @Mock
     private PropertyValueConverter propertyValueConverter;
+    @Mock
+    private UsagePointStateChangeRequest usagePointStateChangeRequest;
 
     @Before
     public void setUp1() {
@@ -211,6 +220,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePointState.getId()).thenReturn(1L);
         when(usagePointState.getName()).thenReturn("State");
         when(usagePointState.getVersion()).thenReturn(1L);
+
+        when(usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint)).thenReturn(Optional.of(usagePointStateChangeRequest));
+        when(usagePointStateChangeRequest.getTransitionTime()).thenReturn(Instant.EPOCH);
     }
 
     @Test
@@ -221,6 +233,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.mRID).isEqualTo("MRID");
         assertThat(response.name).isEqualTo(USAGE_POINT_NAME);
+        assertThat(response.lastTransitionTime).isEqualTo(0L);
         assertThat(response.state).isNotNull();
         assertThat(response.state.id).isEqualTo(1L);
         assertThat(response.state.name).isEqualTo("State");
@@ -458,6 +471,20 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.getStatus()).isEqualTo(200);
         verify(usagePoint).apply(usagePointMetrologyConfiguration, now);
+
+        //unlink usage point
+
+        when(effectiveMetrologyConfigurationOnUsagePoint.getStart()).thenReturn(now);
+
+        UsagePointInfo usagePointInfo = new UsagePointInfo();
+        usagePointInfo.id = usagePoint.getId();
+        usagePointInfo.version = usagePoint.getVersion();
+
+
+        response = target("usagepoints/" + USAGE_POINT_NAME + "/unlinkmetrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(usagePointInfo));
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        verify(effectiveMetrologyConfigurationOnUsagePoint, times(1)).close(now);
     }
 
     @Test

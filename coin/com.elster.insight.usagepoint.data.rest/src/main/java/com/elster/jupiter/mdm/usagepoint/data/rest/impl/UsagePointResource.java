@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -21,13 +22,17 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
@@ -93,6 +98,7 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -276,6 +282,12 @@ public class UsagePointResource {
                 .findLinkableMetrologyConfigurations(usagePoint)
                 .stream()
                 .filter(mc -> mc.getCustomPropertySets().stream().allMatch(RegisteredCustomPropertySet::isEditableByCurrentUser))
+                .filter(mc -> usagePoint.getMeterActivations(clock.instant())
+                        .stream()
+                        .map(MeterActivation::getMeterRole)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .noneMatch(role -> !mc.getMeterRoles().contains(role)))
                 .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
                         .stream()
                         .sorted(Comparator.comparing(rcps -> rcps.getCustomPropertySet().getName(), String.CASE_INSENSITIVE_ORDER))
@@ -312,11 +324,10 @@ public class UsagePointResource {
                     .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id).emptyOrOnlyWhiteSpace())
                     .forEach(meterActivation -> {
                         MeterRole meterRole = resourceHelper.findMeterRoleOrThrowException(meterActivation.meterRole.id);
+                        linker.clear(meterRole);
                         if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name).emptyOrOnlyWhiteSpace()) {
                             Meter meter = resourceHelper.findMeterByNameOrThrowException(meterActivation.meter.name);
                             linker.activate(meter, meterRole);
-                        } else {
-                            linker.clear(meterRole);
                         }
                     });
             linker.complete();
@@ -335,11 +346,11 @@ public class UsagePointResource {
                                                 @QueryParam("customPropertySetId") long customPropertySetId,
                                                 @QueryParam("upVersion") long upVersion,
                                                 MetrologyConfigurationInfo info) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
+
         if (usagePoint.getEffectiveMetrologyConfiguration(usagePoint.getInstallationTime()).isPresent()) {
             throw resourceHelper.usagePointAlreadyLinkedException(name);
         }
-        usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
 
         new RestValidationBuilder()
                 .notEmpty(info.id, "id")
@@ -364,7 +375,18 @@ public class UsagePointResource {
         }
 
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
-        usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime());
+            if (info.purposes != null) {
+                usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime(), usagePointMetrologyConfiguration.getContracts()
+                        .stream()
+                        .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                        .filter(metrologyContract -> info.purposes.stream()
+                                .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
+                        .filter(metrologyContract -> !metrologyContract.isMandatory())
+                        .distinct()
+                        .collect(Collectors.toSet()));
+            } else {
+                usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime());
+            }
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
                     .getPropertySet(customPropertySetInfo.id);
@@ -373,19 +395,35 @@ public class UsagePointResource {
         }
         usagePoint.update();
 
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-
-        if (info.purposes != null) {
-            effectiveMC.getMetrologyConfiguration().getContracts()
-                    .stream()
-                    .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                    .filter(metrologyContract -> info.purposes.stream()
-                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
-                    .filter(metrologyContract -> !metrologyContract.isMandatory())
-                    .forEach(metrologyContract -> effectiveMC.activateOptionalMetrologyContract(metrologyContract, effectiveMC.getStart()));
-        }
-
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/unlinkmetrologyconfiguration")
+    public Response unlinkMetrologyConfigurations(@PathParam("name") String name,
+                                                UsagePointInfo info) {
+        UsagePoint usagePoint =  resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
+
+        usagePoint.getCurrentEffectiveMetrologyConfiguration().ifPresent(emc -> emc.close(emc.getStart()));
+
+        return Response.ok().build();
+    }
+
+    private Set<MetrologyPurpose> getPurposesOfReadingTypeRequirements(List<ReadingTypeRequirement> requirements, UsagePointMetrologyConfiguration metrologyConfiguration) {
+        Map<MetrologyPurpose, Set<ReadingTypeRequirement>> requirementsPerMetrologyPurpose = metrologyConfiguration.getContracts().stream()
+                .collect(Collectors.toMap(MetrologyContract::getMetrologyPurpose, MetrologyContract::getRequirements));
+        return requirements.stream()
+                .map(requirement -> requirementsPerMetrologyPurpose.entrySet().stream()
+                        .filter(entry -> entry.getValue().contains(requirement))
+                        .map(Map.Entry::getKey)
+                        .findAny()
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     @GET
