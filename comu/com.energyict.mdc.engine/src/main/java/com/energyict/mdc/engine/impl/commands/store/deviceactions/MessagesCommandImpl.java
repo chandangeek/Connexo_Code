@@ -58,7 +58,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "comTaskExecution", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
 
-        if(getOfflineDevice().getMacException().isPresent()) {
+        if (getOfflineDevice().getMacException().isPresent()) {
             throw getOfflineDevice().getMacException().get();
         }
 
