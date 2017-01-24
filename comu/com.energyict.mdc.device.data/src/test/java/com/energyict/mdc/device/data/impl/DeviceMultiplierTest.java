@@ -31,11 +31,9 @@ import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
@@ -121,11 +119,11 @@ public class DeviceMultiplierTest {
     @Mock
     private Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
     @Mock
-    private Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     @Mock
-    private Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     @Mock
-    private Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
+    private Provider<ComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
     @Mock
@@ -166,7 +164,6 @@ public class DeviceMultiplierTest {
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
 
-
     @Before
     public void setup() {
         when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocationOnMock -> {
@@ -200,11 +197,10 @@ public class DeviceMultiplierTest {
         when(clock.instant()).thenReturn(now);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(String.valueOf(ID))).thenReturn(Optional.of(meter));
-        when(amrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
 
         when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
-        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
@@ -234,10 +230,10 @@ public class DeviceMultiplierTest {
 
     private Device createMockedDevice(Instant startOfMeterActivation) {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
-                scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
-                firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
+                scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
+                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
 //        setId(device, ID);
-        device.initialize(deviceConfiguration, "Name", "Mrid", startOfMeterActivation);
+        device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();
         return device;
     }

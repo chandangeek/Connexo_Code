@@ -33,9 +33,8 @@ public class ComTaskExecutionConfigChangeItem extends AbstractConfigChangeItem {
 
         final List<DeviceConfigChangeAction<ComTaskEnablement>> actionsToRemove = comTaskActions.stream().filter(actionTypeIs(DeviceConfigChangeActionType.REMOVE)).collect(Collectors.toList());
         final List<ComTaskExecution> comTaskExecutionsToRemove = device.getComTaskExecutions().stream().filter(comTaskExecution ->
-                comTaskExecution.getComTasks().stream().anyMatch(comTask ->
                         actionsToRemove.stream().anyMatch(actionToRemove ->
-                                actionToRemove.getOrigin().getComTask().getId() == comTask.getId()))).collect(Collectors.toList());
+                                actionToRemove.getOrigin().getComTask().getId() == comTaskExecution.getComTask().getId())).collect(Collectors.toList());
 
         comTaskExecutionsToRemove.stream().forEach(device::removeComTaskExecution);
     }

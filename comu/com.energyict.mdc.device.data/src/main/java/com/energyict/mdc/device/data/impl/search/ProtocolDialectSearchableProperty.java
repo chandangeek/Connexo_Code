@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -150,7 +151,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
         this.protocolDialects = deviceTypes.stream()
                 .map(DeviceType.class::cast)
                 .flatMap(this::getProtocolDialectsOnDeviceType)
-                .sorted((pd1, pd2) -> pd1.getName().compareToIgnoreCase(pd2.getName()))
+                .sorted(Comparator.comparing(ProtocolDialect::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
 

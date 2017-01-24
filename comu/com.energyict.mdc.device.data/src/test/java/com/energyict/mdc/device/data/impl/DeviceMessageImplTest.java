@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.TypedProperties;
@@ -67,6 +68,7 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -80,6 +82,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     private User testUser;
     private DeviceType deviceType;
     private DeviceConfiguration deviceConfiguration;
+    private static User principal;
 
     @Before
     public void initBefore() {
@@ -89,12 +92,21 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
                         .newDeviceProtocolPluggableClass("Pluggable", MessageTestDeviceProtocol.class.getName());
         deviceProtocolPluggableClass.save();
 
+        if (principal == null) {
+            this.principal = (User) inMemoryPersistence.getThreadPrincipalService().getPrincipal();
+        }
+        inMemoryPersistence.getThreadPrincipalService().set(principal);
         Group group = inMemoryPersistence.getUserService().createGroup("MyDefaultGroup", "just for testing");
+
+        GrantPrivilege superGrant = mock(GrantPrivilege.class);
+        when(superGrant.canGrant(any())).thenReturn(true);
+        group.getPrivileges().put("", Arrays.asList(superGrant));
         group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1);
         group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2);
         group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3);
         group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4);
         group.update();
+
         testUser = inMemoryPersistence.getUserService().createUser(TEST_USER_NAME, "This user is just to satisfy the foreign key ...");
         testUser.join(group);
         testUser.update();
@@ -738,6 +750,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     }
 
     private void createAndSetPrincipleForUserWithLimitedPrivileges() {
+        inMemoryPersistence.getThreadPrincipalService().set(principal);
         Group group = inMemoryPersistence.getUserService().createGroup("MyPrimitiveGroup", "Useless group");
         group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4);
         group.update();

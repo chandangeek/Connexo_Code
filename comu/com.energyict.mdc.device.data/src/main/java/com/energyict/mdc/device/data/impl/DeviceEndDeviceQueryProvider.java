@@ -3,8 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.spi.EndDeviceQueryProvider;
+import com.elster.jupiter.metering.groups.spi.QueryProvider;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyCondition;
@@ -21,16 +20,20 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider", service = {EndDeviceQueryProvider.class}, property = "name=" + DeviceDataServices.COMPONENT_NAME, immediate = true)
-public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
+@Component(name = "com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider",
+        service = {QueryProvider.class},
+        property = "name=" + DeviceDataServices.COMPONENT_NAME,
+        immediate = true)
+public class DeviceEndDeviceQueryProvider implements QueryProvider<EndDevice> {
 
-    public static final String DEVICE_ENDDEVICE_QUERYPROVIDER = DeviceEndDeviceQueryProvider.class.getName();
+    public static final String DEVICE_END_DEVICE_QUERY_PROVIDER = DeviceEndDeviceQueryProvider.class.getName();
 
-    private volatile MeteringService meteringService;
     private volatile SearchService searchService;
+    private Supplier<Query<EndDevice>> basicQuerySupplier;
 
     // For OSGi purposes
     public DeviceEndDeviceQueryProvider() {
@@ -38,20 +41,20 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
 
     // For testing purposes
     @Inject
-    public DeviceEndDeviceQueryProvider(MeteringService meteringService, SearchService searchService) {
+    public DeviceEndDeviceQueryProvider(SearchService searchService) {
         this();
-        setMeteringService(meteringService);
         setSearchService(searchService);
     }
 
     @Override
-    public String getName() {
-        return DEVICE_ENDDEVICE_QUERYPROVIDER;
+    public DeviceEndDeviceQueryProvider init(Supplier<Query<EndDevice>> basicQuerySupplier) {
+        this.basicQuerySupplier = basicQuerySupplier;
+        return this;
     }
 
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
+    @Override
+    public String getName() {
+        return DEVICE_END_DEVICE_QUERY_PROVIDER;
     }
 
     @Reference
@@ -60,29 +63,29 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     }
 
     @Override
-    public List<EndDevice> findEndDevices(Instant instant, List<SearchablePropertyCondition> conditions) {
-        return this.findEndDevices(instant, conditions, -1, 0);//no pagination
+    public List<EndDevice> executeQuery(Instant instant, List<SearchablePropertyCondition> conditions) {
+        return this.executeQuery(instant, conditions, -1, 0);//no pagination
     }
 
     @Override
-    public List<EndDevice> findEndDevices(Instant instant, List<SearchablePropertyCondition> conditions, int start, int limit) {
+    public List<EndDevice> executeQuery(Instant instant, List<SearchablePropertyCondition> conditions, int start, int limit) {
         SearchDomain deviceSearchDomain = searchService.findDomain(Device.class.getName()).get();
         Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("id");
         Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(subQuery, "amrId"));
-        Order order = Order.ascending("mRID");
+        Order order = Order.ascending("name");
         if (start > -1) {
-            return meteringService.getEndDeviceQuery().select(amrCondition, start + 1, start + limit + 1, order);
+            return basicQuerySupplier.get().select(amrCondition, start + 1, start + limit + 1, order);
         } else {
-            return meteringService.getEndDeviceQuery().select(amrCondition, order);
+            return basicQuerySupplier.get().select(amrCondition, order);
         }
     }
 
     @Override
-    public Query<EndDevice> getEndDeviceQuery(List<SearchablePropertyCondition> conditions) {
+    public Query<EndDevice> getQuery(List<SearchablePropertyCondition> conditions) {
         SearchDomain deviceSearchDomain = searchService.findDomain(Device.class.getName()).get();
-        Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("id");
+        Subquery subQuery = deviceSearchDomain.finderFor(conditions).asSubQuery("id");
         Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(subQuery, "amrId"));
-        Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
+        Query<EndDevice> endDeviceQuery = basicQuerySupplier.get();
         endDeviceQuery.setRestriction(amrCondition);
         return endDeviceQuery;
     }

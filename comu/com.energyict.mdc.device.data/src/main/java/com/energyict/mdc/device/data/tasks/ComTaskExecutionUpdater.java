@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.tasks;
 
+import com.elster.jupiter.time.TemporalExpression;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
@@ -8,31 +12,31 @@ import java.time.Instant;
  * Updater that supports basic value setters for a {@link ComTaskExecution}.
  */
 @ProviderType
-public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>, C extends ComTaskExecution> {
+public interface ComTaskExecutionUpdater {
 
-    U useDefaultConnectionTask(boolean useDefaultConnectionTask);
+    ComTaskExecutionUpdater useDefaultConnectionTask(boolean useDefaultConnectionTask);
 
     /**
      * Internal call, should not be in API
      */
-    U useDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask);
+    ComTaskExecutionUpdater useDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask);
 
     /**
      * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
      * This may be the default connectionTask, but if the default flag changes, then this ComTaskExecution
      * will still be marked to use the ConnectionTask from this setter.<br/>
      * Setting an Empty value will result in using the default ConnectionTask
-     * <p/>
+     * <p>
      * <i>If you want to use the default ConnectionTask, just set {@link #useDefaultConnectionTask(boolean)} to true</i>
      *
      * @param connectionTask the ConnectionTask to set
      * @return the current updater
      */
-    U connectionTask(ConnectionTask<?, ?> connectionTask);
+    ComTaskExecutionUpdater connectionTask(ConnectionTask<?, ?> connectionTask);
 
-    U priority(int plannedPriority);
+    ComTaskExecutionUpdater priority(int plannedPriority);
 
-    U ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
+    ComTaskExecutionUpdater ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
     /**
      * Sets the given nextExecutionTimeStamp and execution priority.
@@ -41,22 +45,59 @@ public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>
      * @param executionPriority the changed execution priority
      * @return the current updater
      */
-    U forceNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int executionPriority);
+    ComTaskExecutionUpdater forceNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int executionPriority);
 
-    U forceLastExecutionStartTimestamp(Instant lastExecutionStartTimestamp);
+    ComTaskExecutionUpdater forceLastExecutionStartTimestamp(Instant lastExecutionStartTimestamp);
+
+    ComTaskExecutionUpdater calledByComTaskExecution();
 
     /**
      * Updates the actual ComTaskExecution with the objects set in this builder
      *
      * @return the updated created ComTaskExecution
      */
-    C update();
+    ComTaskExecution update();
 
     /**
      * Updates the given fields in the actual ComTaskExecution with the values set in this builder
      *
      * @return the updated created ComTaskExecution
      */
-    C updateFields(String... fieldNames);
+    ComTaskExecution updateFields(String... fieldNames);
 
+    ComTaskExecutionUpdater protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties);
+
+    /**
+     * Sets the specifications for the calculation of the next
+     * execution timestamp from the {@link TemporalExpression}.
+     *
+     * @param temporalExpression The TemporalExpression
+     * @return The ManuallyScheduledComTaskExecutionUpdater
+     */
+    ComTaskExecutionUpdater createNextExecutionSpecs(TemporalExpression temporalExpression);
+
+    /**
+     * Removes the schedule and transforms the ComTaskExecution
+     * into an adhoc scheduled ComTaskExecution.
+     *
+     * @return The ManuallyScheduledComTaskExecutionUpdater
+     */
+    ComTaskExecutionUpdater removeSchedule();
+
+    /**
+     * Remove the nextExecutionSpec from the ComTaskExecution
+     *
+     * @return the updater
+     */
+    ComTaskExecutionUpdater removeNextExecutionSpec();
+
+    /**
+     * Set the ComSchedule on the ComTaskExecution
+     *
+     * @param comSchedule the comSchedule
+     * @return the updater
+     */
+    ComTaskExecutionUpdater addSchedule(ComSchedule comSchedule);
+
+    ComTaskExecution getComTaskExecution();
 }

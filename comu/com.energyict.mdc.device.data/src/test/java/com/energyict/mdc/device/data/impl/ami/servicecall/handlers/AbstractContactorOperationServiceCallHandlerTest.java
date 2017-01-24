@@ -145,7 +145,7 @@ public class AbstractContactorOperationServiceCallHandlerTest {
             }
         }));
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
-        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);

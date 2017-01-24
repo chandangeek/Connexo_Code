@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>mdc.device.data</artifactId>
-    <version>4.1.0${revision}</version>
+    <version>5.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.data [init DDC]</name>
     <description>
@@ -149,6 +149,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>dualcontrol</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>security.thread</artifactId>
         </dependency>
         <dependency>
@@ -193,6 +197,10 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>datavault</artifactId>
         </dependency>
 
         <!-- Testing -->
@@ -247,11 +255,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>datavault</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>protocolcommon</artifactId>
             <version>9.1-FEAT04.0-SNAPSHOT</version>
@@ -280,6 +283,16 @@
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
             <version>1.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

@@ -30,11 +30,10 @@ public interface DeviceService {
      *
      * @param deviceConfiguration the deviceConfiguration which models the device
      * @param name                the name which should be used for the device
-     * @param mRID                the new Device's master resource identifier
      * @param startDate           the meter activation's start date
      * @return the newly created Device
      */
-    Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, Instant startDate);
+    Device newDevice(DeviceConfiguration deviceConfiguration, String name, Instant startDate);
 
     /**
      * Creates a new Device based on the given name, DeviceConfiguration and batch.
@@ -43,12 +42,11 @@ public interface DeviceService {
      *
      * @param deviceConfiguration the deviceConfiguration which models the device
      * @param name                the name which should be used for the device
-     * @param mRID                the new Device's master resource identifier
      * @param batch               the name of batch
      * @param startDate           the start date of the {@link com.elster.jupiter.metering.MeterActivation}
      * @return the newly created Device
      */
-    Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch, Instant startDate);
+    Device newDevice(DeviceConfiguration deviceConfiguration, String name, String batch, Instant startDate);
 
     /**
      * Finds the Device based on his unique ID.
@@ -69,15 +67,25 @@ public interface DeviceService {
      */
     Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
 
-    Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version);
+    Optional<Device> findAndLockDeviceByNameAndVersion(String name, long version);
+
+    Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version);
 
     /**
-     * Finds the Device based on his unique External name.
+     * Finds the Device based on his unique internal name
      *
-     * @param mrId the unique Identifier of the device
-     * @return the requested Device or null if none was found
+     * @param name the unique identifier of the device
+     * @return the requested Device
      */
-    Optional<Device> findByUniqueMrid(String mrId);
+    Optional<Device> findDeviceByName(String name);
+
+    /**
+     * Finds the Device based on his mRID which is semantically a (Java-formatted) UUID as specified in RFC 4122.
+     *
+     * @param mrId String containing a (Java-formatted) UUID as specified in RFC 4122.
+     * @return {@link Optional} of the requested Device or empty if none was found.
+     */
+    Optional<Device> findDeviceByMrid(String mrId);
 
     /**
      * Finds the Devices (multiple are possible) based on the given serialNumber.
@@ -140,9 +148,9 @@ public interface DeviceService {
      *
      * @param destinationDeviceConfiguration the configuration which should be applied
      * @param devicesForConfigChangeSearch
-     * @param deviceMRIDs                    a list of device MRIDs
+     * @param deviceIds                    a list of device IDs
      */
-    void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs);
+    void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, Long... deviceIds);
 
     Optional<ActivatedBreakerStatus> getActiveBreakerStatus(Device device);
 

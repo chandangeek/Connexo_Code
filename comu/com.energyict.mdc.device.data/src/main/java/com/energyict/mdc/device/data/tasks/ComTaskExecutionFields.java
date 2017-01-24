@@ -34,6 +34,7 @@ public enum ComTaskExecutionFields implements ImplField {
     LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE("lastSessionHighestPriorityCompletionCode"),
     LAST_SESSION_SUCCESSINDICATOR("lastSessionSuccessIndicator"),
     ONHOLD("onHold"),
+    COMTASKEXECTYPE("comTaskExecType"),
     ;
 
     private final String javaFieldName;

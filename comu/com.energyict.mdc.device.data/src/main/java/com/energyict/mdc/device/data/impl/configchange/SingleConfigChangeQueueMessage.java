@@ -8,7 +8,7 @@ import com.energyict.mdc.device.data.QueueMessage;
  * Time: 09:59
  */
 public class SingleConfigChangeQueueMessage implements QueueMessage {
-    public String deviceMrid;
+    public long deviceId;
     public long destinationDeviceConfigurationId;
     public long deviceConfigChangeInActionId;
     public long deviceConfigChangeRequestId;
@@ -16,8 +16,8 @@ public class SingleConfigChangeQueueMessage implements QueueMessage {
     public SingleConfigChangeQueueMessage() {
     }
 
-    public SingleConfigChangeQueueMessage(String deviceMrid, long destinationDeviceConfigurationId, long deviceConfigChangeInActionId, long deviceConfigChangeRequestId) {
-        this.deviceMrid = deviceMrid;
+    public SingleConfigChangeQueueMessage(long deviceId, long destinationDeviceConfigurationId, long deviceConfigChangeInActionId, long deviceConfigChangeRequestId) {
+        this.deviceId = deviceId;
         this.destinationDeviceConfigurationId = destinationDeviceConfigurationId;
         this.deviceConfigChangeInActionId = deviceConfigChangeInActionId;
         this.deviceConfigChangeRequestId = deviceConfigChangeRequestId;

@@ -98,6 +98,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private TrackingCategory trackingCategory;
     private String protocolInfo;
     private Optional<DeviceMessageSpec> messageSpec;
+    private long oldReleaseDate;
     @Valid
     private List<DeviceMessageAttribute> deviceMessageAttributes = new ArrayList<>();
 
@@ -187,6 +188,10 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         return oldDeviceMessageStatus;
     }
 
+    public long getOldReleaseDate() {
+        return oldReleaseDate;
+    }
+
     @Override
     public String getProtocolInfo() {
         return this.protocolInfo;
@@ -247,6 +252,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     @Override
     public void revoke() {
         this.revokeChecker = new RevokeChecker(deviceMessageStatus);
+        this.oldReleaseDate = releaseDate.toEpochMilli();
         this.oldDeviceMessageStatus = getStatus().dbValue();
         this.deviceMessageStatus = DeviceMessageStatus.CANCELED;
         Save.UPDATE.validate(this.getDataModel(), this, Revoke.class);
@@ -318,6 +324,9 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         private ReleaseDateUpdater(DeviceMessageStatus status, Instant initialReleaseDate) {
             this.status = status;
             this.initialReleaseDate = initialReleaseDate;
+            if(initialReleaseDate != null) {
+                DeviceMessageImpl.this.oldReleaseDate = initialReleaseDate.toEpochMilli();
+            }
         }
 
         public boolean canUpdate() {

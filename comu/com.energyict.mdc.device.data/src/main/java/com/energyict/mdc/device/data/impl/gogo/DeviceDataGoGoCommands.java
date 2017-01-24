@@ -79,7 +79,7 @@ public class DeviceDataGoGoCommands {
 
         NONE {
             @Override
-            public void enableOutboundCommunication(TransactionService transactionService, DeviceService deviceService, String scheduleOption, List<Device> deviceMRIDs) {
+            public void enableOutboundCommunication(TransactionService transactionService, DeviceService deviceService, String scheduleOption, List<Device> devices) {
                 // This enum value represents no scheduling frequency so we will not enable anything on the devices
             }
         };
@@ -110,13 +110,13 @@ public class DeviceDataGoGoCommands {
 
     @SuppressWarnings("unused")
     public void enableOutboundCommunication() {
-        System.out.println("enableOutboundCommunication [DAILY | NONE] <schedule options> <device id>+ (i.e. at least one device id)");
+        System.out.println("enableOutboundCommunication [DAILY | NONE] <schedule options> <device names>+ (i.e. at least one device name)");
     }
 
     @SuppressWarnings("unused")
-    public void enableOutboundCommunication(String scheduleFrequency, String scheduleOption, String... deviceMRIDs) {
+    public void enableOutboundCommunication(String scheduleFrequency, String scheduleOption, String... deviceNames) {
         try {
-            ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(this.transactionService, this.deviceService, scheduleOption, this.findDevices(deviceMRIDs));
+            ScheduleFrequency.fromString(scheduleFrequency).enableOutboundCommunication(this.transactionService, this.deviceService, scheduleOption, this.findDevices(deviceNames));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -136,20 +136,20 @@ public class DeviceDataGoGoCommands {
         return device.getId() + " " + device.getName();
     }
 
-    private List<Device> findDevices(String... deviceMRIDs) {
-        List<Device> devices = new ArrayList<>(deviceMRIDs.length);
-        for (String deviceMRID : deviceMRIDs) {
-            this.addDeviceIfExists(deviceMRID, devices);
+    private List<Device> findDevices(String... deviceNames) {
+        List<Device> devices = new ArrayList<>(deviceNames.length);
+        for (String deviceName : deviceNames) {
+            this.addDeviceIfExists(deviceName, devices);
         }
         return devices;
     }
 
-    private void addDeviceIfExists(String deviceMRID, List<Device> devices) {
-        Optional<Device> device = this.deviceService.findByUniqueMrid(deviceMRID);
+    private void addDeviceIfExists(String deviceName, List<Device> devices) {
+        Optional<Device> device = this.deviceService.findDeviceByName(deviceName);
         if (device.isPresent()) {
             devices.add(device.get());
         } else {
-            System.out.println("Device with MRID " + deviceMRID + " does not exist and has been ignored");
+            System.out.println("Device with name '" + deviceName + "' does not exist and has been ignored");
         }
     }
 
@@ -259,7 +259,9 @@ public class DeviceDataGoGoCommands {
                 List<ComTaskExecution> comTaskExecutions = addComTaskExecutions(device);
                 device.save();
                 if (comTaskExecutions.isEmpty()) {
-                    System.out.printf("No communication tasks were scheduled for device " + device.getmRID() + " because not tasks were enabled on the device configuration: " + device.getDeviceConfiguration().getName());
+                    System.out.printf("No communication tasks were scheduled for device " + device.getName() + " because not tasks were enabled on the device configuration: " + device
+                            .getDeviceConfiguration()
+                            .getName());
                 }
                 return null;
             });
@@ -281,7 +283,9 @@ public class DeviceDataGoGoCommands {
         private List<ComTaskExecution> addComTaskExecutions(Device device) {
             DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
             if (deviceConfiguration.getProtocolDialectConfigurationPropertiesList().isEmpty()) {
-                System.out.println("No communication task scheduled for device " + device.getmRID() + "because no protocol dialect was configured in the device configuration: " + device.getDeviceConfiguration().getName());
+                System.out.println("No communication task scheduled for device " + device.getName() + "because no protocol dialect was configured in the device configuration: " + device
+                        .getDeviceConfiguration()
+                        .getName());
                 return Collections.emptyList();
             } else {
                 ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);

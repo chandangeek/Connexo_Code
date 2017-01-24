@@ -12,7 +12,7 @@ import javax.validation.ConstraintValidatorContext;
  * Date: 3/16/15
  * Time: 4:54 PM
  */
-public class ComTaskMustBeFirmwareManagementValidation implements ConstraintValidator<ComTaskMustBeFirmwareManagement, FirmwareComTaskExecutionImpl> {
+public class ComTaskMustBeFirmwareManagementValidation implements ConstraintValidator<ComTaskMustBeFirmwareManagement, ComTaskExecutionImpl> {
 
     @Override
     public void initialize(ComTaskMustBeFirmwareManagement comTaskMustBeFirmwareManagement) {
@@ -20,15 +20,17 @@ public class ComTaskMustBeFirmwareManagementValidation implements ConstraintVali
     }
 
     @Override
-    public boolean isValid(FirmwareComTaskExecutionImpl firmwareComTaskExecution, ConstraintValidatorContext constraintValidatorContext) {
-        ComTask firmwareComTask = firmwareComTaskExecution.getComTask();
-        if(firmwareComTask.isUserComTask() || !containsFirmwareProtocolTask(firmwareComTask)){
-            constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext.
-                    buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT+ "}").
-                    addPropertyNode("comTask").
-                    addConstraintViolation();
-            return false;
+    public boolean isValid(ComTaskExecutionImpl firmwareComTaskExecution, ConstraintValidatorContext constraintValidatorContext) {
+        if (firmwareComTaskExecution.isFirmware()) {
+            ComTask firmwareComTask = firmwareComTaskExecution.getComTask();
+            if(firmwareComTask.isUserComTask() || !containsFirmwareProtocolTask(firmwareComTask)){
+                constraintValidatorContext.disableDefaultConstraintViolation();
+                constraintValidatorContext.
+                        buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT+ "}").
+                        addPropertyNode("comTask").
+                        addConstraintViolation();
+                return false;
+            }
         }
         return true;
     }

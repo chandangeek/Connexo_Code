@@ -80,7 +80,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     public EndDeviceCommand createCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType) {
         EndDeviceControlTypeMapping endDeviceControlTypeMapping = EndDeviceControlTypeMapping.getMappingFor(endDeviceControlType);
         if (!multiSenseDeviceHasSupportForEndDeviceControlType(endDevice, endDeviceControlTypeMapping)) {
-            throw new UnsupportedCommandException(thesaurus, endDeviceControlType.getName(), endDevice.getMRID());
+            throw new UnsupportedCommandException(thesaurus, endDeviceControlType.getName(), endDevice.getName());
         }
         return endDeviceControlTypeMapping.getNewEndDeviceCommand(
                 endDevice,
@@ -88,7 +88,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
                 endDeviceControlTypeMapping.getPossibleDeviceMessageIds(),
                 deviceService,
                 deviceMessageSpecificationService,
-                thesaurus).orElseThrow(() -> new UnsupportedCommandException(thesaurus, endDeviceControlType.getName(), endDevice.getMRID()));
+                thesaurus).orElseThrow(() -> new UnsupportedCommandException(thesaurus, endDeviceControlType.getName(), endDevice.getName()));
     }
 
     /**
@@ -162,7 +162,8 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {
-        return deviceService.findByUniqueMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
+        long deviceId = Long.parseLong(endDevice.getAmrId());
+        return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
     private PropertySpec getCommandArgumentSpec(EndDeviceCommand endDeviceCommand, String commandArgumentName) {

@@ -22,14 +22,9 @@ import com.energyict.mdc.device.data.impl.configchange.SingleComTaskEnablementQu
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.EventConstants;
 
 import java.util.Collections;
@@ -38,8 +33,19 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -56,8 +62,8 @@ public class ComTaskEnablementChangeMessageHandlerTest {
 
     private static final long DEVICE_CONFIG_ID = 44465L;
     private static final long OTHER_DEVICE_CONFIG_ID = DEVICE_CONFIG_ID + 10;
-    private static final String DEVICE_1_MRID = "MRID_Device_1";
-    private static final String DEVICE_2_MRID = "MRID_DEvice_2";
+    private static final long DEVICE_1_ID = 13L;
+    private static final long DEVICE_2_ID = 14L;
 
     @Mock
     private JsonService jsonService;
@@ -124,10 +130,10 @@ public class ComTaskEnablementChangeMessageHandlerTest {
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(otherComTaskEnablement.getComTask()).thenReturn(otherComTask);
 
-        when(device_1.getmRID()).thenReturn(DEVICE_1_MRID);
-        when(device_2.getmRID()).thenReturn(DEVICE_2_MRID);
-        when(deviceService.findByUniqueMrid(DEVICE_1_MRID)).thenReturn(Optional.of(device_1));
-        when(deviceService.findByUniqueMrid(DEVICE_2_MRID)).thenReturn(Optional.of(device_2));
+        when(device_1.getId()).thenReturn(DEVICE_1_ID);
+        when(device_2.getId()).thenReturn(DEVICE_2_ID);
+        when(deviceService.findDeviceById(DEVICE_1_ID)).thenReturn(Optional.of(device_1));
+        when(deviceService.findDeviceById(DEVICE_2_ID)).thenReturn(Optional.of(device_2));
         when(device_1.newManuallyScheduledComTaskExecution(comTaskEnablement, null)).thenReturn(mock(ComTaskExecutionBuilder.class));
     }
 
@@ -178,10 +184,10 @@ public class ComTaskEnablementChangeMessageHandlerTest {
     public void enablementMarkedAsAlwaysExecuteHavingDeviceWhichHasAlreadyComTaskExecutions() throws JsonProcessingException {
         MessageBuilder messageBuilder = createTestMessageBuilder();
 
-        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device_1.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution)); // The device has a matching ComTaskExecution
 
-        when(otherComTaskExecution.getComTasks()).thenReturn(Collections.singletonList(otherComTask));
+        when(otherComTaskExecution.getComTask()).thenReturn(otherComTask);
         when(device_2.getComTaskExecutions()).thenReturn(Collections.singletonList(otherComTaskExecution)); // The device doesn't have a matching ComTaskExecution, so new one should be created
 
         when(finder.stream()).thenReturn(Stream.of(device_1, device_2));
@@ -200,7 +206,7 @@ public class ComTaskEnablementChangeMessageHandlerTest {
     public void executeSingleAction() throws JsonProcessingException {
         when(device_1.getComTaskExecutions()).thenReturn(Collections.emptyList()); // The device doesn't have any ComTaskExecutions, so a new one should be created
 
-        SingleComTaskEnablementQueueMessage singleComTaskEnablementQueueMessage = new SingleComTaskEnablementQueueMessage(DEVICE_1_MRID, COMTASK_ENABLEMENT_ID);
+        SingleComTaskEnablementQueueMessage singleComTaskEnablementQueueMessage = new SingleComTaskEnablementQueueMessage(DEVICE_1_ID, COMTASK_ENABLEMENT_ID);
         mockMessageHandlerInternals(singleComTaskEnablementQueueMessage, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_SINGLE_ACTION);
         ComTaskEnablementChangeMessageHandler msgHandler = getTestInstance();
 
@@ -212,10 +218,10 @@ public class ComTaskEnablementChangeMessageHandlerTest {
 
     @Test
     public void executeSingleActionWithMachingComTaskExecution() throws JsonProcessingException {
-        when(comTaskExecution.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device_1.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution)); // The device has a matching ComTaskExecution
 
-        SingleComTaskEnablementQueueMessage singleComTaskEnablementQueueMessage = new SingleComTaskEnablementQueueMessage(DEVICE_1_MRID, COMTASK_ENABLEMENT_ID);
+        SingleComTaskEnablementQueueMessage singleComTaskEnablementQueueMessage = new SingleComTaskEnablementQueueMessage(DEVICE_1_ID, COMTASK_ENABLEMENT_ID);
         mockMessageHandlerInternals(singleComTaskEnablementQueueMessage, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_SINGLE_ACTION);
         ComTaskEnablementChangeMessageHandler msgHandler = getTestInstance();
 

@@ -58,7 +58,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
     public List<PropertySpec> getCommandArgumentSpecs() {
         if (this.commandArgumentSpecs == null) {
             Map<String, PropertySpec> uniquePropertySpecs = new HashMap<>();
-            getDeviceMessageSpecs().stream().forEach(messageSpec -> messageSpec.getPropertySpecs().stream().forEach(spec -> uniquePropertySpecs.put(spec.getName(), spec)));
+            getDeviceMessageSpecs().forEach(messageSpec -> messageSpec.getPropertySpecs().forEach(spec -> uniquePropertySpecs.put(spec.getName(), spec)));
             this.commandArgumentSpecs = new ArrayList<>(uniquePropertySpecs.values());
         }
         return this.commandArgumentSpecs;
@@ -66,7 +66,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
 
     private List<DeviceMessageSpec> getDeviceMessageSpecs() {
         List<DeviceMessageSpec> deviceMessageSpecs = new ArrayList<>();
-        possibleDeviceMessageIds.stream().forEach(msgId -> this.deviceMessageSpecificationService.findMessageSpecById(msgId.dbValue()).ifPresent(deviceMessageSpecs::add));
+        possibleDeviceMessageIds.forEach(msgId -> this.deviceMessageSpecificationService.findMessageSpecById(msgId.dbValue()).ifPresent(deviceMessageSpecs::add));
         return deviceMessageSpecs;
     }
 
@@ -120,12 +120,9 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
         return propertyValueMap;
     }
 
-    private List<DeviceMessageId> getPossibleDeviceMessageIds() {
-        return possibleDeviceMessageIds;
-    }
-
     private Device findDeviceForEndDevice(EndDevice endDevice) {
-        return deviceService.findByUniqueMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
+        long deviceId = Long.parseLong(endDevice.getAmrId());
+        return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
     private DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {

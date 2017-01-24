@@ -8,15 +8,15 @@ import com.energyict.mdc.device.data.QueueMessage;
  */
 public class SingleComTaskEnablementQueueMessage implements QueueMessage {
 
-    public String deviceMrid;
+    public long deviceId;
     public long comTaskEnablementId;
 
     @SuppressWarnings("unused")
     public SingleComTaskEnablementQueueMessage() {
     }
 
-    public SingleComTaskEnablementQueueMessage(String deviceMrid, long comTaskEnablementId) {
-        this.deviceMrid = deviceMrid;
+    public SingleComTaskEnablementQueueMessage(long deviceId, long comTaskEnablementId) {
+        this.deviceId = deviceId;
         this.comTaskEnablementId = comTaskEnablementId;
     }
 }

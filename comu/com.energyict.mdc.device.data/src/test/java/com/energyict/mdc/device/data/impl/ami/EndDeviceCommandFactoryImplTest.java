@@ -125,7 +125,8 @@ public class EndDeviceCommandFactoryImplTest {
         when(meteringService.getEndDeviceControlType(anyString())).thenReturn(Optional.of(endDeviceControlType));
         commandFactory = new EndDeviceCommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService);
         propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(endDevice.getAmrId()).thenReturn("13");
+        when(deviceService.findDeviceById(13L)).thenReturn(Optional.of(device));
         DeviceProtocolPluggableClass protocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(protocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(protocolPluggableClass));

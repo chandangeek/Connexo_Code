@@ -33,7 +33,8 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
     public static DeviceConfigurationChangeException unsatisfiedRequirements(Thesaurus thesaurus, Device device, DeviceConfiguration destinationDeviceConfig, Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
         HashSet<String> uniqReadingTypes = new HashSet<>();
         unsatisfiedRequirements.forEach((mc, rtList) -> rtList.stream().forEach(rtr -> uniqReadingTypes.add(rtr.getName())));
-        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS, device.getmRID(), destinationDeviceConfig.getName(), uniqReadingTypes.stream()
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS, device.getName(), destinationDeviceConfig.getName(), uniqReadingTypes
+                .stream()
                 .collect(Collectors.joining(", ")));
     }
 
@@ -60,9 +61,9 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
         return deviceConfigurationChangeException;
     }
 
-    public static DeviceConfigurationChangeException noDeviceFoundForConfigChange(Thesaurus thesaurus, String deviceMrid) {
-        DeviceConfigurationChangeException deviceConfigurationChangeException = new DeviceConfigurationChangeException(thesaurus, MessageSeeds.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, deviceMrid);
-        deviceConfigurationChangeException.set("deviceMrid", deviceMrid);
+    public static DeviceConfigurationChangeException noDeviceFoundForConfigChange(Thesaurus thesaurus, long deviceId) {
+        DeviceConfigurationChangeException deviceConfigurationChangeException = new DeviceConfigurationChangeException(thesaurus, MessageSeeds.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, deviceId);
+        deviceConfigurationChangeException.set("deviceId", deviceId);
         return deviceConfigurationChangeException;
     }
 

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
@@ -143,6 +144,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile LockService lockService;
+    private volatile DataVaultService dataVaultService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -176,7 +178,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService, LockService lockService) {
+            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService, LockService lockService, DataVaultService dataVaultService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -213,15 +215,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setServiceCallService(serviceCallService);
         setThreadPrincipalService(threadPrincipalService);
         setLockService(lockService);
+        setDataVaultService(dataVaultService);
         activate(bundleContext);
     }
 
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(DeviceDataServices.COMPONENT_NAME, "Device data");
-        for (TableSpecs tableSpecs : TableSpecs.values()) {
-            tableSpecs.addTo(dataModel);
-        }
         this.dataModel = dataModel;
     }
 
@@ -515,6 +515,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.lockService = lockService;
     }
 
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -577,13 +582,18 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Activate
     public void activate(BundleContext bundleContext) {
         this.createRealServices();
+        for (TableSpecs tableSpecs : TableSpecs.values()) {
+            tableSpecs.addTo(dataModel, dataVaultService);
+        }
         this.dataModel.register(this.getModule());
         upgradeService.register(
                 InstallIdentifier.identifier("MultiSense", DeviceDataServices.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class)
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 2, 1), UpgraderV10_2_1.class,
+                        version(10, 3), UpgraderV10_3.class)
         );
         this.registerRealServices(bundleContext);
     }
@@ -776,5 +786,4 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
         }
     }
-
 }
