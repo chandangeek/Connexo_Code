@@ -1,12 +1,11 @@
 package com.energyict.dlms.aso;
 
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
-import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 
 import com.energyict.dlms.DLMSConnectionException;
 
@@ -44,7 +43,7 @@ public class SecurityContextV2EncryptionHandler {
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
         } catch (ProtocolException e) {
-            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 
@@ -57,7 +56,7 @@ public class SecurityContextV2EncryptionHandler {
         } catch (UnsupportedException e) {  //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
         } catch (IOException e) {           // Error while writing to the stream
-            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 
@@ -72,7 +71,7 @@ public class SecurityContextV2EncryptionHandler {
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
         } catch (ProtocolException e) {
-            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 
@@ -85,7 +84,7 @@ public class SecurityContextV2EncryptionHandler {
         } catch (UnsupportedException e) {  //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
         } catch (IOException e) {           // Error while writing to the stream
-            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 
@@ -100,7 +99,7 @@ public class SecurityContextV2EncryptionHandler {
         } catch (UnsupportedException e) {             //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
         } catch (ProtocolException e) {
-            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 
@@ -118,7 +117,7 @@ public class SecurityContextV2EncryptionHandler {
         } catch (UnsupportedException e) {  //Unsupported security policy
             throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy().getDataTransportSecurityLevel()));
         } catch (IOException e) {           // Error while writing to the stream
-            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
     }
 }

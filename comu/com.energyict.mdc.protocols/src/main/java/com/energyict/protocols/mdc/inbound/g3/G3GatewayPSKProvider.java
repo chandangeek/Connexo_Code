@@ -8,7 +8,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionException;
@@ -25,6 +24,7 @@ import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 
 import com.energyict.dlms.DLMSCache;

@@ -9,7 +9,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
@@ -37,6 +36,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceBasicSupport;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import com.energyict.dlms.DLMSCache;
