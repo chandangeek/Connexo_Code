@@ -26,7 +26,7 @@ Ext.define('Imt.purpose.view.OutputsList', {
 
                     if (validationInfo && validationInfo.hasSuspects) {
                         result += '<span class="icon-warning" style="color: #eb5642; margin-left: 10px" data-qtip="'
-                            + Uni.I18n.translate('usagepoint.purpose.output.validation.hasSuspects.qtip', 'IMT', 'Output contains suspect values')
+                            + Uni.I18n.translate('usagepoint.purpose.output.validation.hasSuspects.qtip', 'IMT', 'Output contains suspect values for specified period')
                             + '"></span>';
                     }
 

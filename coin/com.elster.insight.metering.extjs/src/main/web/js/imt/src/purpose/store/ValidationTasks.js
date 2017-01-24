@@ -5,14 +5,11 @@ Ext.define('Imt.purpose.store.ValidationTasks', {
 
     proxy: {
         type: 'rest',
-        tplUrl: '/api/udr/usagepoints/{mRID}/validationtasks',
+        url: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/validationtasks',
         timeout: 240000,
         reader: {
             type: 'json',
             root: 'dataValidationTasks'
-        },
-        setUrl: function (mRID) {
-            this.url = this.tplUrl.replace('{mRID}', encodeURIComponent(mRID))
         }
     }
 });
