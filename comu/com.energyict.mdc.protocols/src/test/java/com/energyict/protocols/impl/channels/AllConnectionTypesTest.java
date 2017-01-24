@@ -27,7 +27,6 @@ import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.inbound.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.impl.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.protocols.impl.channels.ip.InboundIpConnectionType;
@@ -46,16 +45,12 @@ import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConn
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.protocols.impl.channels.sms.OutboundProximusSmsConnectionType;
+import com.energyict.protocols.mdc.services.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -64,6 +59,13 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

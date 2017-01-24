@@ -25,7 +25,7 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 

@@ -5,7 +5,7 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
+import com.energyict.protocols.mdc.services.impl.ConnectionTypeServiceImpl;
 
 import javax.inject.Inject;
 import javax.inject.Named;
