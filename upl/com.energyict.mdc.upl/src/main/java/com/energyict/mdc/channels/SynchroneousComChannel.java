@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels;
 
 import com.energyict.mdc.protocol.ComChannel;
+
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 

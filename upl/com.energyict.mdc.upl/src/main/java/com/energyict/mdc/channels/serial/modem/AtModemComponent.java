@@ -7,6 +7,7 @@ import com.energyict.mdc.channels.serial.modem.postdialcommand.PostDialCommandPa
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import javax.xml.bind.annotation.XmlElement;

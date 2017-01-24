@@ -1,10 +1,5 @@
 package com.energyict.mdc.channels.serial.direct.serialio;
 
-import Serialio.SerInputStream;
-import Serialio.SerOutputStream;
-import Serialio.SerialConfig;
-import Serialio.SerialPort;
-import Serialio.SerialPortLocal;
 import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.Parities;
@@ -12,6 +7,12 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.io.SerialPortException;
+
+import Serialio.SerInputStream;
+import Serialio.SerOutputStream;
+import Serialio.SerialConfig;
+import Serialio.SerialPort;
+import Serialio.SerialPortLocal;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;

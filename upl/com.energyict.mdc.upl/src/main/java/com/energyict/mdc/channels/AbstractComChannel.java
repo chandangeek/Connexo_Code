@@ -2,6 +2,7 @@ package com.energyict.mdc.channels;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;

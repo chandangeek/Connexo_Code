@@ -15,9 +15,9 @@ public interface ServerSerialPort {
     /**
      * Opens a new SerialPort and initialize based on the configuration
      *
-     * @throws com.energyict.mdc.exceptions.SerialPortException
+     * @throws com.energyict.mdc.io.SerialPortException
      *          [serialPortDoesNotExist] - when the port does not exist on the ComServer
-     * @throws com.energyict.mdc.exceptions.SerialPortException
+     * @throws com.energyict.mdc.io.SerialPortException
      *          [serialPortIsInUse] - when the port is used by another process
      */
     public void openAndInit();
