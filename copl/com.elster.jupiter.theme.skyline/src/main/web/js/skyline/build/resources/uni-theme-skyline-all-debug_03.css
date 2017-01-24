@@ -14303,13 +14303,11 @@
   clear: both;
   display: block;
 }
-
 /* line 120, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-medium {
   font-size: 20px;
   line-height: 20px;
 }
-
 /* line 124, ../../sass/src/panel/Panel.scss */
 .x-panel-header .x-panel-header-sub-text-large {
   font-size: 30px;
@@ -14325,7 +14323,6 @@
   -o-border-radius: 10px;
   border-radius: 10px;
 }
-
 /* line 134, ../../sass/src/panel/Panel.scss */
 .x-panel-filter .x-panel-body {
   background: transparent;
@@ -14335,24 +14332,20 @@
 .x-panel-filter-toolbar {
   padding: 8px 0;
 }
-
 /* line 141, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-header-text-container {
   width: 64px;
   color: #686868;
   font-weight: bold;
 }
-
 /* line 146, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-box-item {
   margin-right: 8px;
 }
-
 /* line 149, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-panel-body {
   background: transparent;
 }
-
 /* line 152, ../../sass/src/panel/Panel.scss */
 .x-panel-filter-toolbar .x-form-item-label {
   background: transparent;
