@@ -31,7 +31,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
@@ -70,6 +69,7 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -265,7 +265,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                 .or(where(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName()).isEqualTo(true));
         return dataModel.query(FirmwareManagementOptionsImpl.class, DeviceType.class).select(condition).stream()
                 .map(FirmwareManagementOptionsImpl::getDeviceType)
-                .sorted((dt1, dt2) -> dt1.getName().compareTo(dt2.getName()))
+                .sorted(Comparator.comparing(DeviceType::getName))
                 .collect(Collectors.toList());
     }
 
@@ -366,7 +366,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<FirmwareCampaign> getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution) {
+    public Optional<FirmwareCampaign> getFirmwareCampaign(ComTaskExecution comTaskExecution) {
         Optional<FirmwareCampaignImpl> firmwareCampaign = getDeviceInFirmwareCampaignsFor(comTaskExecution.getDevice())
                 .stream()
                 .filter(DeviceInFirmwareCampaignImpl::hasNonFinalStatus)
@@ -404,10 +404,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         if (fwComTask.isPresent()) {
             ComTask firmwareComTask = fwComTask.get();
             return device.getComTaskExecutions().stream()
-                    .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
-                            .filter(comTask -> comTask.getId() == firmwareComTask.getId())
-                            .findAny()
-                            .isPresent())
+                    .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == firmwareComTask.getId())
                     .findAny();
         } else {
             return Optional.empty();

@@ -74,7 +74,7 @@ public interface FirmwareService {
      * @param comTaskExecution as a result of the firmware campaing
      * @return
      */
-    Optional<FirmwareCampaign> getFirmwareCampaign(FirmwareComTaskExecution comTaskExecution);
+    Optional<FirmwareCampaign> getFirmwareCampaign(ComTaskExecution comTaskExecution);
 
     void cancelFirmwareCampaign(FirmwareCampaign firmwareCampaign);
 
