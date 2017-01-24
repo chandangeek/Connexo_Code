@@ -6,17 +6,19 @@ import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocolEvent;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -63,7 +65,7 @@ public class CollectedLogBookEventTest {
 
         LogBookService logBookService = mock(LogBookService.class);
 
-        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, logBookService, ObisCode.fromString("1.1.1.1.1.1"));
+        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, ObisCode.fromString("1.1.1.1.1.1"));
 
         CollectedLogBook logBook = mock(CollectedLogBook.class);
         when(logBook.getLogBookIdentifier()).thenReturn(logBookId);
@@ -86,7 +88,7 @@ public class CollectedLogBookEventTest {
 
         LogBookService logBookService = mock(LogBookService.class);
 
-        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, logBookService, ObisCode.fromString("1.1.1.1.1.1"));
+        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, ObisCode.fromString("1.1.1.1.1.1"));
 
         CollectedLogBook logBook = mock(CollectedLogBook.class);
         when(logBook.getLogBookIdentifier()).thenReturn(logBookId);

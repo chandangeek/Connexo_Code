@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  */
 public class CollectedBreakerStatusDeviceCommand extends DeviceCommandImpl<CollectedBreakerStatusEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Collected breaker status";
+    public static final String DESCRIPTION_TITLE = "Collected breaker status";
 
     private final CollectedBreakerStatus collectedBreakerStatus;
     private final ComTaskExecution comTaskExecution;

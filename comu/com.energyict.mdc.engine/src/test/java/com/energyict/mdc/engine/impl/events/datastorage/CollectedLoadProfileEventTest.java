@@ -6,17 +6,19 @@ import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -63,7 +65,7 @@ public class CollectedLoadProfileEventTest {
 
         LoadProfileService loadProfileService = mock(LoadProfileService.class);
 
-        LoadProfileIdentifierById loadProfileId = new LoadProfileIdentifierById(123L, loadProfileService, ObisCode.fromString("1.1.1.1.1.1"));
+        LoadProfileIdentifierById loadProfileId = new LoadProfileIdentifierById(123L, ObisCode.fromString("1.1.1.1.1.1"));
 
         CollectedLoadProfile loadProfile = mock(CollectedLoadProfile.class);
         when(loadProfile.getLoadProfileIdentifier()).thenReturn(loadProfileId);

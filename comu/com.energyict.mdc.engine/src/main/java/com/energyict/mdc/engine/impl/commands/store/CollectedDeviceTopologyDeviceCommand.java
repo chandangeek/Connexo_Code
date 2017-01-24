@@ -33,7 +33,7 @@ import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLA
 
 public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<CollectedDeviceTopologyEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Collected device topology";
+    public static final String DESCRIPTION_TITLE = "Collected device topology";
 
     private final CollectedTopology deviceTopology;
     private final MeterDataStoreCommand meterDataStoreCommand;

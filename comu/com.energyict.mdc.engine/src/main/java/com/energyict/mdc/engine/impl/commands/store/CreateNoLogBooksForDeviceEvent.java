@@ -23,7 +23,7 @@ import java.util.Optional;
 
 public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl<CollectedNoLogBooksForDeviceEvent> {
 
-    public final static String DESCRIPTION_TITLE = "No logbooks for device event";
+    public static final String DESCRIPTION_TITLE = "No logbooks for device event";
 
     private final NoLogBooksForDevice collectedDeviceData;
 

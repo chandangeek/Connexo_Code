@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Update device message";
+    public static final String DESCRIPTION_TITLE = "Update device message";
 
     private MessageIdentifier messageIdentifier;
     private DeviceMessageStatus deviceMessageStatus;
@@ -36,6 +36,14 @@ public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEv
         this.deviceMessageStatus = messageAcknowledgement.getDeviceMessageStatus();
         this.sentDate = messageAcknowledgement.getSentDate();
         this.protocolInfo = messageAcknowledgement.getProtocolInfo();
+    }
+
+    protected DeviceMessageStatus getDeviceMessageStatus() {
+        return deviceMessageStatus;
+    }
+
+    protected String getProtocolInfo() {
+        return protocolInfo;
     }
 
     @Override

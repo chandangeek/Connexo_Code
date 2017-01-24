@@ -26,7 +26,7 @@ import java.util.Optional;
 
 public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl<CollectedRegisterListEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Collected register data";
+    public static final String DESCRIPTION_TITLE = "Collected register data";
 
     private final CollectedRegisterList collectedRegisterList;
     private final MeterDataStoreCommand meterDataStoreCommand;

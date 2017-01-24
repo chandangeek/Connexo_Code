@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -18,8 +19,11 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -113,7 +117,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile LogBookService logBookService;
+    private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceService deviceService;
+    private volatile RegisterService registerService;
+    private volatile LoadProfileService loadProfileService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile StatusService statusService;
@@ -124,6 +131,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
     private volatile FirmwareService firmwareService;
+    private volatile KeyStoreService keyStoreService;
     private volatile UpgradeService upgradeService;
     private volatile AppService appService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
@@ -143,13 +151,14 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineConfigurationService engineConfigurationService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
-            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
+            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService, RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
             SerialComponentService serialATComponentService,
             IdentificationService identificationService,
             FirmwareService firmwareService,
+            KeyStoreService keyStoreService,
             UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
@@ -163,9 +172,12 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setIssueService(issueService);
         setDeviceService(deviceService);
         setTopologyService(topologyService);
+        setRegisterService(registerService);
+        setLoadProfileService(loadProfileService);
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
         setLogBookService(logBookService);
+        setDeviceMessageService(deviceMessageService);
         setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         setUserService(userService);
         setDeviceConfigurationService(deviceConfigurationService);
@@ -176,6 +188,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setManagementBeanFactory(managementBeanFactory);
         addIdentificationService(identificationService);
         setFirmwareService(firmwareService);
+        setKeyStoreService(keyStoreService);
         setUpgradeService(upgradeService);
         activate(bundleContext);
     }
@@ -223,8 +236,23 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
+    }
+
+    @Reference
     public void setAppService(AppService appService) {
         this.appService = appService;
+    }
+
+    @Reference
+    public void setRegisterService(RegisterService registerService) {
+        this.registerService = registerService;
+    }
+
+    @Reference
+    public void setLoadProfileService(LoadProfileService loadProfileService) {
+        this.loadProfileService = loadProfileService;
     }
 
     @Reference
@@ -371,6 +399,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+    }
+
+    @Reference
+    public void setKeyStoreService(KeyStoreService keyStoreService) {
+        this.keyStoreService = keyStoreService;
     }
 
     @SuppressWarnings("unused")
@@ -753,6 +786,26 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
+        public RegisterService registerService() {
+            return registerService;
+        }
+
+        @Override
+        public LoadProfileService loadProfileService() {
+            return loadProfileService;
+        }
+
+        @Override
+        public LogBookService logBookService() {
+            return logBookService;
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return deviceMessageService;
+        }
+
+        @Override
         public EngineService engineService() {
             return EngineServiceImpl.this;
         }
@@ -775,6 +828,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public FirmwareService firmwareService() {
             return firmwareService;
+        }
+
+        @Override
+        public KeyStoreService keyStoreService() {
+            return keyStoreService;
         }
     }
 

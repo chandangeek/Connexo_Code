@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -1072,6 +1073,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         MeteringService meteringService();
 
         FirmwareService firmwareService();
+
+        KeyStoreService keyStoreService();
 
     }
 
