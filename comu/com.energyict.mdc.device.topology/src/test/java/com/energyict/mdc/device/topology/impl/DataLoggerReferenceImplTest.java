@@ -17,8 +17,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -30,6 +28,8 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -720,9 +721,9 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
-        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
-        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
-        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
+        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255")).get();
+        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255")).get();
+        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255")).get();
 
 
         MeterReadingImpl meterReading = addRegisterDataToDevice(dataLogger, start, firstOfJune);
@@ -823,9 +824,9 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
-        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
-        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
-        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
+        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255")).get();
+        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255")).get();
+        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255")).get();
 
 
         MeterReadingImpl meterReading = addRegisterDataToDevice(dataLogger, start, firstOfJune);
@@ -850,12 +851,12 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerR2.getReadings(Interval.of(Range.openClosed(start, firstOfJune)))).hasSize(readingsDataLoggerR2.size());
         assertThat(dataLoggerR3.getReadings(Interval.of(Range.openClosed(start, firstOfJune)))).hasSize(readingsDataLoggerR3.size());
 
-        HashMap<Channel, Channel> channelMapping = new HashMap<>();
-        HashMap<Register, Register> registerMapping = new HashMap<>();
-        Register slaveRegister1 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
-        Register slaveRegister2 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
+        Map<Channel, Channel> channelMapping = new HashMap<>();
+        Map<Register, Register> registerMapping = new HashMap<>();
+        Register slaveRegister1 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255")).get();
+        Register slaveRegister2 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255")).get();
         registerMapping.put(slaveRegister1, dataLoggerR1);
-        Register slaveRegister3 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
+        Register slaveRegister3 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255")).get();
         registerMapping.put(slaveRegister2, dataLoggerR2);
         registerMapping.put(slaveRegister3, dataLoggerR3);
 
@@ -1043,9 +1044,9 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
-        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
-        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
-        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
+        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255")).get();
+        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255")).get();
+        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255")).get();
 
         MeterReadingImpl meterReading = addRegisterDataToDevice(dataLogger, start, firstOfJune);
         //Making sure the data is available
