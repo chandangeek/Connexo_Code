@@ -53,13 +53,11 @@ public class UPLConnectionTypeAdapter implements ConnectionType {
 
     @Override
     public ComChannel connect() throws ConnectionException {
-        //TODO should we have both connect methods? or can I somehow merge them?
         return uplConnectionType.connect();
     }
 
     @Override
     public ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
-        //TODO is this the best way to deal with the given properties?
         com.energyict.mdc.common.TypedProperties typedProperties = com.energyict.mdc.common.TypedProperties.empty();
         properties.stream().forEach(property -> typedProperties.setProperty(property.getName(), property.getValue()));
         copyProperties(typedProperties);
