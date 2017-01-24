@@ -85,8 +85,8 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
 
         if (search.service.changedFiltersNotYetApplied) {
             var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-                confirmText: Uni.I18n.translate('general.apply', 'MDC', 'Apply'),
-                secondConfirmText: Uni.I18n.translate('general.dontApply', 'MDC', "Don't apply"),
+                confirmText: Uni.I18n.translate('general.apply', 'IMT', 'Apply'),
+                secondConfirmText: Uni.I18n.translate('general.dontApply', 'IMT', "Don't apply"),
                 green: true,
                 confirmation: function (button) {
                     confirmationWindow.close();
@@ -102,8 +102,8 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
                 }
             });
             confirmationWindow.show({
-                title: Uni.I18n.translate('general.performBulkAction', 'MDC', 'Perform bulk action?'),
-                msg: Uni.I18n.translate('general.unconfirmedSearchCriteria', 'MDC',
+                title: Uni.I18n.translate('general.performBulkAction', 'IMT', 'Perform bulk action?'),
+                msg: Uni.I18n.translate('general.unconfirmedSearchCriteria', 'IMT',
                     "Some search criteria haven't been applied. Do you want to apply them?")
             });
         } else {
