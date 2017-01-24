@@ -3,9 +3,11 @@ package com.energyict.mdc.protocol.api.inbound;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -76,7 +78,7 @@ public interface InboundDiscoveryContext {
      *
      * @param deviceIdentifier the identifier that should uniquely identify the device
      */
-    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier);
+    TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier);
 
     /**
      * Gets the {@link TypedProperties} of the Device that relate
@@ -93,4 +95,5 @@ public interface InboundDiscoveryContext {
     void logOnAllLoggerHandlers(String loggingMessage, Level info);
 
     Optional<OfflineDevice> getOfflineDevice(DeviceIdentifier deviceIdentifier, DeviceOfflineFlags deviceOfflineFlags);
+
 }
