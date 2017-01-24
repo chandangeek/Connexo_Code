@@ -1,10 +1,20 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.io.ConnectionCommunicationException;
+import com.energyict.mdc.protocol.api.ProtocolException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -32,6 +42,9 @@ public class ImageTransfer extends AbstractCosemObject {
 
     public static final int REPORT_STATUS_EVERY_X_BLOCKS = 1;
     public static final String DEFAULT_IMAGE_NAME = "NewImage";
+    public static final int ATTRIBUTE_PREVIOUS_UPGRADE_STATE = -1;
+    public static final int ATTRIBUTE_PROTOCOL_CONFIGURATION = -2;
+    public static final int ATTRIBUTE_UPGRADE_PROGRESS = -3;
     static final byte[] LN = new byte[]{0, 0, 44, 0, 0, (byte) 255};
     private static final String TIMEOUT_MESSAGE = "timeout";
     /* Attribute numbers */
@@ -161,7 +174,7 @@ public class ImageTransfer extends AbstractCosemObject {
     /**
      * Check the number of the block that was last transferred (in the previous session that timed out)
      * Call this method if you want to RESUME a block transfer in this session
-     * <p>
+     * <p/>
      * Returns -1 if all blocks were already sent in the previous session
      */
     public int getLastTransferredBlockNumber() throws IOException {
@@ -175,6 +188,30 @@ public class ImageTransfer extends AbstractCosemObject {
         return -1;
     }
 
+    public void enableImageTransfer() throws IOException {
+        if (!isResume()) {
+            writeImageTransferEnabledState(true);
+        }
+    }
+
+    public void enableImageTransfer(ImageBlockSupplier dataSupplier, String imageIdentifier) throws IOException {
+        // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
+        updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, dataSupplier.getSize(), 0);
+        if (!isResume()) {
+            writeImageTransferEnabledState(true);
+        }
+    }
+
+    public void initiateImageTransfer(String imageIdentifier) throws IOException {
+        updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
+        Structure imageInitiateStructure = new Structure();
+        imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
+        imageInitiateStructure.addDataType(this.size);
+        if (!isResume()) {
+            imageTransferInitiate(imageInitiateStructure);
+        }
+    }
+
     /**
      * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
      *
@@ -186,11 +223,7 @@ public class ImageTransfer extends AbstractCosemObject {
      */
     public final void upgrade(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier, final boolean checkForMissingBlocks) throws IOException {
 
-        // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
-        updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, dataSupplier.getSize(), 0);
-        if (!isResume()) {
-            writeImageTransferEnabledState(true);
-        }
+        enableImageTransfer(dataSupplier, imageIdentifier);
 
         if (getImageTransferEnabledState().getState()) {
             initializeAndTransferBlocks(dataSupplier, additionalZeros, imageIdentifier);
@@ -244,6 +277,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * @param dataSupplier    Provides the image data.
      * @param additionalZeros Indicates whether or not to pad the last block with zeroes up to block size.
      * @param imageIdentifier The image identifier.
+     *
      * @throws IOException If an IO error occurs whilst transferring blocks.
      */
     public final void initializeAndTransferBlocks(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier) throws IOException {
@@ -271,17 +305,10 @@ public class ImageTransfer extends AbstractCosemObject {
         }
 
         // Step2: Initiate the image transfer
-        updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
-        Structure imageInitiateStructure = new Structure();
-        imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
-        imageInitiateStructure.addDataType(this.size);
-        if (!isResume()) {
-            imageTransferInitiate(imageInitiateStructure);
-        }
+        initiateImageTransfer(imageIdentifier);
 
-        if (delayBeforeSendingBlocks > 0) {
-            DLMSUtils.delay(delayBeforeSendingBlocks);  //Wait a bit before sending the blocks
-        }
+        //add delay
+        initializationBeforeSendingOfBlocks();
 
         // Step3: Transfer image blocks
         transferImageBlocks(additionalZeros);
@@ -294,6 +321,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * @param data            The image data already loaded in memory.
      * @param additionalZeros Indicates whether or not to pad the last block with zeroes up to block size.
      * @param imageIdentifier The image identifier.
+     *
      * @throws IOException If an IO error occurs whilst transferring blocks.
      */
     public final void initializeAndTransferBlocks(final byte[] data, final boolean additionalZeros, final String imageIdentifier) throws IOException {
@@ -533,6 +561,7 @@ public class ImageTransfer extends AbstractCosemObject {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                throw new ConnectionCommunicationException(e);
             }
         }
         throw new ProtocolException("Image verification failed, even after a few polls!");
@@ -567,6 +596,7 @@ public class ImageTransfer extends AbstractCosemObject {
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                throw new ConnectionCommunicationException(e);
             }
         }
         throw new ProtocolException("Image activation failed, even after a few polls!");
@@ -595,6 +625,26 @@ public class ImageTransfer extends AbstractCosemObject {
      */
     public void writeImageBlockSize(Unsigned32 blockSize) throws IOException {
         write(ATTRB_IMAGE_BLOCK_SIZE, blockSize.getBEREncodedByteArray());
+    }
+
+    /**
+     * Set the protocol configuration:
+     * Writes the upgrade details needed to perform the upgrade.
+     * Note that this is a custom attribute, currently only implemented on the Beacon3100 firmware.
+     * See https://confluence.eict.vpdc/display/G3IntBeacon3100/Meter+multicast+upgrade
+     */
+    public void writeMulticastProtocolConfiguration(Structure protocolConfiguration) throws IOException {
+        write(ATTRIBUTE_PROTOCOL_CONFIGURATION, protocolConfiguration.getBEREncodedByteArray());
+    }
+
+    /**
+     * Read out the detailed progress of the multicast upgrade.
+     * This contains a list of information for all connected AM540 slave devices that are currently being upgraded.
+     * See https://confluence.eict.vpdc/display/G3IntBeacon3100/Meter+multicast+upgrade
+     */
+    public Structure readMulticastUpgradeProgress() throws IOException {
+        final byte[] berEncodedData = getLNResponseData(ATTRIBUTE_UPGRADE_PROGRESS);
+        return AXDRDecoder.decode(berEncodedData, Structure.class);
     }
 
     /**
@@ -781,7 +831,7 @@ public class ImageTransfer extends AbstractCosemObject {
 
     /**
      * Verifies the integrity of the Image before activation.
-     * <p>
+     * <p/>
      * The result of the invocation of this method may be success,
      * temporary_failure or other_reason. If it is not success, then the
      * result of the verification can be learned by retrieving the value of
@@ -801,7 +851,7 @@ public class ImageTransfer extends AbstractCosemObject {
 
     /**
      * Activates the Image(s).
-     * <p>
+     * <p/>
      * If the Image transferred has not been verified before, then this is
      * done as part of the Image activation. The result of the invocation
      * of this method may be success, temporary-failure or other-reason.
@@ -884,7 +934,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * The verify method can sometimes result in a temporary failure message from the meter, meaning that the image verification
      * is still in progress. The blue book defines that we have to poll the image transfer status to see the result of the
      * verification instead of retrying the verification itself.
-     * <p>
+     * <p/>
      * The old implementation just retried the actual activation, and some meters fail in this case.
      *
      * @return True if we use verify the image as described in the dlms bluebook
@@ -913,7 +963,9 @@ public class ImageTransfer extends AbstractCosemObject {
          * @param blockNumber    The block number.
          * @param blockSize      The size of the blocks.
          * @param padToBlockSize Indicates whether or not the data should be padded with zeroes up to block size.
+		 *
          * @return The given block, <code>null</code> if we are past the end of the data.
+		 *
          * @throws IOException If an IO error occurs when fetching the given block.
          */
         byte[] getBlock(final int blockNumber, final int blockSize, final boolean padToBlockSize) throws IOException;
@@ -933,8 +985,6 @@ public class ImageTransfer extends AbstractCosemObject {
     public interface ImageTransferCallBack {
 
         void updateState(ImageTransferState state, String imageName, int blockCount, int imageSize, int currentBlock) throws IOException;
-
-        ;
 
         /**
          * The different states the image transfer uses

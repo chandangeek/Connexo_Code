@@ -7,19 +7,21 @@ package com.energyict.dlms.cosem.attributeobjects;
  */
 public enum ImageTransferStatus {
 
-    TRANSFER_NOT_INITIATED(0),
-    TRANSFER_INITIATED(1),
-    VERIFICATION_INITIATED(2),
-    VERIFICATION_SUCCESSFUL(3),
-    VERIFICATION_FAILED(4),
-    ACTIVATION_INITIATED(5),
-    ACTIVATION_SUCCESSFUL(6),
-    ACTIVATION_FAILED(7);
+    TRANSFER_NOT_INITIATED(0, "Image transfer not initiated"),
+    TRANSFER_INITIATED(1, "Image transfer initiated"),
+    VERIFICATION_INITIATED(2, "Image verification initiated"),
+    VERIFICATION_SUCCESSFUL(3, "Image verification successful"),
+    VERIFICATION_FAILED(4, "Image verification failed"),
+    ACTIVATION_INITIATED(5, "Image activation initiated"),
+    ACTIVATION_SUCCESSFUL(6, "Image activation successful"),
+    ACTIVATION_FAILED(7, "Image activation failed");
 
     private final int value;
+    private final String info;
 
-    ImageTransferStatus(final int value) {
+    ImageTransferStatus(final int value, final String info) {
         this.value = value;
+        this.info = info;
     }
 
     /**
@@ -27,6 +29,10 @@ public enum ImageTransferStatus {
      */
     public final int getValue() {
         return value;
+    }
+
+    public String getInfo() {
+        return info;
     }
 
     /**

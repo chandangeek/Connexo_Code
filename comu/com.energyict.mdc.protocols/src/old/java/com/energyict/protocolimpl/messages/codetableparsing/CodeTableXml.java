@@ -8,6 +8,9 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.time.ZoneId;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 /**
  * Parser object to convert the structure of a CodeTable to an XML format
@@ -48,8 +51,9 @@ public class CodeTableXml extends CodeTableXmlParsing {
              This way we can track the calendars in the devices
               */
             root.appendChild(createSingleElement(document, rootActCalendarName, calendar.getName()));
-            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, calendar.getTimeZone().getDisplayName()));
-            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, calendar.getTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, ZoneId.systemDefault().getDisplayName(TextStyle.FULL, Locale
+                    .getDefault())));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, ZoneId.systemDefault().getDisplayName(TextStyle.FULL, Locale.getDefault())));
             /* Todo: Extract the hard code 15 min to a parameter for this method.
                      Calling context, i.e. the protocol or a protocol adapater
                      may need to access the available reading types,

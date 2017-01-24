@@ -3,13 +3,15 @@ package com.energyict.dlms.aso;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
-import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,6 +24,13 @@ import java.util.Arrays;
  */
 public class AssociationControlServiceElement {
 
+    public static final int LOGICAL_NAME_REFERENCING_NO_CIPHERING = 1;
+    public static final int LOGICAL_NAME_REFERENCING_WITH_CIPHERING = 3;
+    public static final int SHORT_NAME_REFERENCING_NO_CIPHERING = 2;
+    public static final int SHORT_NAME_REFERENCING_WITH_CIPHERING = 4;
+    public static final String REFUSED_BY_THE_VDE_HANDLER = ", refused by the VDE handler";
+    public static final String ACSE_SERVICE_USER_NO_REASON_GIVEN = ", ACSE_SERVICE_USER, no reason given";
+    public static final String ACSE_SERVICE_PROVIDER_NO_REASON_GIVEN = ", ACSE_SERVICE_PROVIDER, No Reason Given!";
     /**
      * <pre>
      * This default object identifier means:
@@ -32,22 +41,18 @@ public class AssociationControlServiceElement {
      */
     private static final byte[] DEFAULT_OBJECT_IDENTIFIER = new byte[]{(byte) 0x60,
             (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08};
-
-    public static final int LOGICAL_NAME_REFERENCING_NO_CIPHERING = 1;
-    public static final int LOGICAL_NAME_REFERENCING_WITH_CIPHERING = 3;
-    public static final int SHORT_NAME_REFERENCING_NO_CIPHERING = 2;
-    public static final int SHORT_NAME_REFERENCING_WITH_CIPHERING = 4;
-
+    protected byte[] respondingAPTitle;
+    protected byte[] respondingApplicationEntityQualifier;
+    protected XdlmsAse xdlmsAse;
     private int ACSE_protocolVersion = 0; // default version1
     private int contextId = 1;
     private int mechanismId = 0;
     private byte[] userInformationData;
     private byte[] respondingAuthenticationValue;
-    private byte[] respondingAPTitle;
-    private XdlmsAse xdlmsAse;
     private byte[] callingApplicationProcessTitle;
     private byte[] calledApplicationProcessTitle;
     private byte[] calledApplicationEntityQualifier;
+    private byte[] callingApplicationEntityQualifier;
     private SecurityContext sc;
 
     /**
@@ -113,19 +118,27 @@ public class AssociationControlServiceElement {
     private void updateUserInformation() {
         byte[] userInformation = this.xdlmsAse.getInitiatRequestByteArray();
 
-        if (getSecurityContext().getSecurityPolicy() != SecurityContext.SECURITYPOLICY_NONE) {
-            XDlmsEncryption xdlmsEncryption = new XDlmsEncryption();
-            xdlmsEncryption.setPlainText(userInformation);
-            xdlmsEncryption.setSystemTitle(getSecurityContext().getSystemTitle());
-            xdlmsEncryption.setFrameCounter(getSecurityContext().getFrameCounterInBytes());
-            xdlmsEncryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
-            xdlmsEncryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
-            xdlmsEncryption.setSecurityControlByte((byte) 0x30);
-            userInformation = xdlmsEncryption.generateCipheredAPDU();
+        if (!getSecurityContext().getSecurityPolicy().isRequestPlain()) {
+            userInformation = encryptAndAuthenticateUserInformation(userInformation);
             getSecurityContext().incFrameCounter();
         }
 
         setUserInformation(userInformation);
+    }
+
+    protected byte[] encryptAndAuthenticateUserInformation(byte[] userInformation) {
+        XDlmsEncryption xdlmsEncryption = new XDlmsEncryption(getSecurityContext().getSecuritySuite());
+            xdlmsEncryption.setPlainText(userInformation);
+        byte[] paddedSystemTitle = Arrays.copyOf(getSecurityContext().getSystemTitle(), SecurityContext.SYSTEM_TITLE_LENGTH);
+        xdlmsEncryption.setSystemTitle(paddedSystemTitle);
+            xdlmsEncryption.setFrameCounter(getSecurityContext().getFrameCounterInBytes());
+            xdlmsEncryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
+            xdlmsEncryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
+        byte securityControlByte = (byte) 0x30;
+        securityControlByte |= (this.sc.getSecuritySuite() & 0x0F); // add the securitySuite to bits 0 to 3
+        xdlmsEncryption.setSecurityControlByte(securityControlByte);
+            userInformation = xdlmsEncryption.generateCipheredAPDU();
+        return userInformation;
     }
 
     /**
@@ -135,24 +148,6 @@ public class AssociationControlServiceElement {
      */
     public byte[] getCallingApplicationProcessTitle() {
         return callingApplicationProcessTitle;
-    }
-
-    /**
-     * Getter for the {@link #calledApplicationProcessTitle}
-     *
-     * @return the calledApplicationProcessTitle
-     */
-    public byte[] getCalledApplicationProcessTitle() {
-        return this.calledApplicationProcessTitle;
-    }
-
-    /**
-     * Getter for the {@link #calledApplicationEntityQualifier}
-     *
-     * @return the calledApplicationEntityQualifier
-     */
-    public byte[] getCalledApplicationEntityQualifier() {
-        return this.calledApplicationEntityQualifier;
     }
 
     /**
@@ -167,6 +162,15 @@ public class AssociationControlServiceElement {
     }
 
     /**
+     * Getter for the {@link #calledApplicationProcessTitle}
+     *
+     * @return the calledApplicationProcessTitle
+     */
+    public byte[] getCalledApplicationProcessTitle() {
+        return this.calledApplicationProcessTitle;
+    }
+
+    /**
      * Setter for the {@link #calledApplicationProcessTitle}
      *
      * @param calledApplicationProcessTitle the APTitle to set
@@ -178,14 +182,50 @@ public class AssociationControlServiceElement {
     }
 
     /**
+     * Getter for the {@link #calledApplicationEntityQualifier}
+     *
+     * @return the calledApplicationEntityQualifier
+     */
+    public byte[] getCalledApplicationEntityQualifier() {
+        return this.calledApplicationEntityQualifier;
+    }
+
+    /**
      * Setter for the {@link #calledApplicationEntityQualifier}
      *
-     * @param calledApplicationEntityQualifier the AEQualifier to set
+     * @param calledApplicationEntityQualifier the called AEQualifier to set
      */
     public void setCalledApplicationEntityQualifier(byte[] calledApplicationEntityQualifier) {
         if (calledApplicationEntityQualifier != null) {
             this.calledApplicationEntityQualifier = calledApplicationEntityQualifier.clone();
         }
+    }
+
+    /**
+     * Getter for the {@link #calledApplicationEntityQualifier}
+     * In DLMS suite 1/2 this field contains our (client) certificate for digital signature.
+     */
+    public byte[] getCallingApplicationEntityQualifier() {
+        return this.callingApplicationEntityQualifier;
+    }
+
+    /**
+     * Setter for the {@link #calledApplicationEntityQualifier}
+     *
+     * @param callingApplicationEntityQualifier the calling AEQualifier to set
+     */
+    public void setCallingApplicationEntityQualifier(byte[] callingApplicationEntityQualifier) {
+        if (callingApplicationEntityQualifier != null) {
+            this.callingApplicationEntityQualifier = callingApplicationEntityQualifier.clone();
+        }
+    }
+
+    /**
+     * Getter for the responding-AE-qualifier. We received this (optionally) in the AARE of the meter.
+     * In DLMS suite 1/2 this field contains the certificate of the server for digital signature.
+     */
+    public byte[] getRespondingApplicationEntityQualifier() {
+        return respondingApplicationEntityQualifier;
     }
 
     /**
@@ -217,7 +257,9 @@ public class AssociationControlServiceElement {
      */
     protected byte[] buildAARQApdu() throws UnsupportedException {
         int t = 0;
-        byte[] aarq = new byte[1024];
+
+        //Take the size of the calling-AE-qualifier into account, since it can be big (contains a fully signed certificate)
+        byte[] aarq = new byte[1024 + (getCallingApplicationEntityQualifier() == null ? 0 : getCallingApplicationEntityQualifier().length)];
 
         if (getACSEProtocolVersion() != null) { // Optional parameter
             System.arraycopy(getACSEProtocolVersion(), 0, aarq, t,
@@ -229,22 +271,23 @@ public class AssociationControlServiceElement {
                 getApplicationContextName().length);
         t += getApplicationContextName().length;
 
-        if (generateCalledApplicationProcessTitleField() != null) {
-            System.arraycopy(generateCalledApplicationProcessTitleField(), 0, aarq, t, generateCalledApplicationProcessTitleField().length);
-            t += generateCalledApplicationProcessTitleField().length;
+        if (getCalledApplicationProcessTitle() != null) {
+            byte[] calledAPTitle = generateCalledApplicationProcessTitleField();
+            System.arraycopy(calledAPTitle, 0, aarq, t, calledAPTitle.length);
+            t += calledAPTitle.length;
         }
 
-        if (generateCalledApplicationEntityQualifier() != null) {
-            System.arraycopy(generateCalledApplicationEntityQualifier(), 0, aarq, t, generateCalledApplicationEntityQualifier().length);
-            t += generateCalledApplicationEntityQualifier().length;
+        if (getCalledApplicationEntityQualifier() != null) {
+            byte[] calledAEQualifier = generateCalledApplicationEntityQualifier();
+            System.arraycopy(calledAEQualifier, 0, aarq, t, calledAEQualifier.length);
+            t += calledAEQualifier.length;
         }
+
         /**
-         * called-AE-qualifier [3]
          * AE-qualifier OPTIONAL, called-AP-invocation-id [4]
          * AP-invocation-identifier OPTIONAL, called-AE-invocation-id [5]
          * AE-invocation-identifier OPTIONAL,
          *
-         * OPTIONAL, calling-AE-qualifier [7] AE-qualifier OPTIONAL,
          * calling-AP-invocation-id [8] AP-invocation-identifier OPTIONAL,
          * calling-AE-invocation-id [9] AE-invocation-identifier OPTIONAL,
          *
@@ -253,9 +296,16 @@ public class AssociationControlServiceElement {
          * printableStrings. TODO encode the above attributes
          */
 
-        if (generateCallingApplicationProcessTitleField() != null) {
-            System.arraycopy(generateCallingApplicationProcessTitleField(), 0, aarq, t, generateCallingApplicationProcessTitleField().length);
-            t += generateCallingApplicationProcessTitleField().length;
+        if (getCallingApplicationProcessTitle() != null) {
+            byte[] callingAPTitle = generateCallingApplicationProcessTitleField();
+            System.arraycopy(callingAPTitle, 0, aarq, t, callingAPTitle.length);
+            t += callingAPTitle.length;
+        }
+
+        if (getCallingApplicationEntityQualifier() != null) {
+            byte[] callingAEQualifier = generateCallingApplicationEntityQualifier();
+            System.arraycopy(callingAEQualifier, 0, aarq, t, callingAEQualifier.length);
+            t += callingAEQualifier.length;
         }
 
         if (this.mechanismId != 0) {
@@ -298,6 +348,7 @@ public class AssociationControlServiceElement {
 
     public void analyzeAARE(byte[] responseData) throws IOException, DLMSConnectionException {
         int i = 0;
+        boolean resultOk = true;
         String strResultSourceDiagnostics = "";
         try {
             while (true) {
@@ -319,9 +370,11 @@ public class AssociationControlServiceElement {
                                 // Result OK
 //							return;	 //Don't return otherwise you don't get all info
                                 i += responseData[i]; // skip length + data
+                                resultOk = true;
                             } else {
                                 // the result wasn't OK, but we keep going so we get the proper info
                                 i += responseData[i]; // skip length + data
+                                resultOk = false;
                             }
                         } // else if (responseData[i] == AARE_RESULT)
 
@@ -335,6 +388,19 @@ public class AssociationControlServiceElement {
                                 }
                             }
                             i += responseData[i];
+                        } else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESPONDING_AE_QUALIFIER) {
+                            i++; // skip tag
+                            int respondingAEQualifierLength = DLMSUtils.getAXDRLength(responseData, i);
+                            i += DLMSUtils.getAXDRLengthOffset(respondingAEQualifierLength);
+                            if (respondingAEQualifierLength > 0) { // length of octet string
+                                i += 1;  //Skip octet string tag
+                                respondingAEQualifierLength = DLMSUtils.getAXDRLength(responseData, i);
+                                i += DLMSUtils.getAXDRLengthOffset(respondingAEQualifierLength);
+                                if (respondingAEQualifierLength > 0) {
+                                    this.respondingApplicationEntityQualifier = ProtocolTools.getSubArray(responseData, i, i + respondingAEQualifierLength);
+                                }
+                            }
+                            i += respondingAEQualifierLength - 1;
                         } else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESULT_SOURCE_DIAGNOSTIC) {
                             i++; // skip tag
                             if (responseData[i] == 5) // check length
@@ -346,7 +412,7 @@ public class AssociationControlServiceElement {
                                         if (responseData[i + 5] == 0x00) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
                                         } else if (responseData[i + 5] == 0x01) {
-                                            strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
+                                            strResultSourceDiagnostics += ACSE_SERVICE_USER_NO_REASON_GIVEN;
                                             throw new ProtocolException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x02) {
@@ -367,9 +433,13 @@ public class AssociationControlServiceElement {
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x0E) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
+                                            if (!resultOk) {  //0x0E only represents an error code if the association result was not ok.
+                                                throw new ProtocolException("Application Association Establishment Failed"
+                                                        + strResultSourceDiagnostics);
+                                            }
                                         } else {
                                             throw new ProtocolException(
-                                                    "Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
+                                                    "Application Association Establishment failed, ACSE_SERVICE_USER, unknown result code: " + responseData[i + 5]);
                                         }
                                     } else {
                                         throw new ProtocolException(
@@ -383,7 +453,7 @@ public class AssociationControlServiceElement {
                                         if (responseData[i + 5] == 0x00) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER!";
                                         } else if (responseData[i + 5] == 0x01) {
-                                            strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Reason Given!";
+                                            strResultSourceDiagnostics += ACSE_SERVICE_PROVIDER_NO_REASON_GIVEN;
                                         } else if (responseData[i + 5] == 0x02) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
                                         } else {
@@ -490,7 +560,7 @@ public class AssociationControlServiceElement {
                                     } else if (0x03 == responseData[i + 6]) {
                                         strResultSourceDiagnostics += ", pdu size too short";
                                     } else if (0x04 == responseData[i + 6]) {
-                                        strResultSourceDiagnostics += ", refused by the VDE handler";
+                                        strResultSourceDiagnostics += REFUSED_BY_THE_VDE_HANDLER;
                                     } else {
                                         throw new ProtocolException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
                                     }
@@ -566,15 +636,22 @@ public class AssociationControlServiceElement {
             throw new ACSEParsingException("Unexpected end of encryptedUserInformation", e, encryptedUserInformation);
         }
 
-        XDlmsDecryption decryption = new XDlmsDecryption();
+        getSecurityContext().setResponseFrameCounter(ProtocolUtils.getInt(fc));
+        return decrypt(at, ct, fc, scb);
+    }
+
+    /**
+     * Subclasses can override the decryption implementation
+     */
+    protected byte[] decrypt(byte[] authenticationTag, byte[] cipheredText, byte[] frameCounter, byte securityControl) throws ConnectionException {
+        XDlmsDecryption decryption = new XDlmsDecryption(getSecurityContext().getSecuritySuite());
         decryption.setAuthenticationKey(getSecurityContext().getSecurityProvider().getAuthenticationKey());
         decryption.setGlobalKey(getSecurityContext().getSecurityProvider().getGlobalKey());
-        decryption.setAuthenticationTag(at);
-        decryption.setCipheredText(ct);
-        decryption.setFrameCounter(fc);
-        decryption.setSecurityControlByte(scb);
+        decryption.setAuthenticationTag(authenticationTag);
+        decryption.setCipheredText(cipheredText);
+        decryption.setFrameCounter(frameCounter);
+        decryption.setSecurityControlByte(securityControl);
         decryption.setSystemTitle(respondingAPTitle);
-        getSecurityContext().setResponseFrameCounter(ProtocolUtils.getInt(fc));
         return decryption.generatePlainText();
     }
 
@@ -588,19 +665,16 @@ public class AssociationControlServiceElement {
         rlrq[t++] = DLMSCOSEMGlobals.RLRQ_TAG;
 
         if (userInformationData != null) {
-            switch (getSecurityContext().getSecurityPolicy()) {
-                case SecurityContext.SECURITYPOLICY_BOTH:
-                case SecurityContext.SECURITYPOLICY_ENCRYPTION:
+            if (getSecurityContext().getSecurityPolicy().isRequestEncryptedOnly() || getSecurityContext().getSecurityPolicy().isRequestAuthenticatedAndEncrypted()) {
                     rlrq[t++] = (byte) (userInformationData.length + 4); // total length
                     rlrq[t++] = DLMSCOSEMGlobals.RLRQ_USER_INFORMATION;
                     rlrq[t++] = (byte) (userInformationData.length + 2); // Total length of the userInformation (including the following 2 bytes)
                     rlrq[t++] = 0x04; // OctetString
                     rlrq[t++] = (byte) userInformationData.length; // Length of the userInformation
-                    for (int i = 0; i < userInformationData.length; i++) {
-                        rlrq[t++] = userInformationData[i];
+                for (byte aByte : userInformationData) {
+                    rlrq[t++] = aByte;
                     }
-                    break;
-                default:
+            } else {
                     rlrq[t++] = 0x00;
             }
         } else {
@@ -696,12 +770,22 @@ public class AssociationControlServiceElement {
             byte[] uiData = new byte[this.userInformationData.length + 4];
             uiData[0] = DLMSCOSEMGlobals.AARQ_USER_INFORMATION;
             uiData[1] = (byte) (this.userInformationData.length + 2);
-            uiData[2] = (byte) 0x04;// choice for user information
+            uiData[2] = (byte) 0x04;// choice for user information: [4], Universal, Octetstring type
             uiData[3] = (byte) this.userInformationData.length;
             System.arraycopy(this.userInformationData, 0, uiData, 4, this.userInformationData.length);
             return uiData;
         }
         return null;
+    }
+
+    /**
+     * Setter for the userInformation field. If you plan on initiating an
+     * association, then normally this is a xDLMS.initiateRequest()
+     *
+     * @param userInformation
+     */
+    public void setUserInformation(byte[] userInformation) {
+        this.userInformationData = userInformation.clone();
     }
 
     /**
@@ -714,7 +798,7 @@ public class AssociationControlServiceElement {
         byte[] appContextName = new byte[DEFAULT_OBJECT_IDENTIFIER.length + 6];
         appContextName[0] = DLMSCOSEMGlobals.AARQ_APPLICATION_CONTEXT_NAME;
         appContextName[1] = (byte) 0x09; // length
-        appContextName[2] = (byte) 0x06; // choice for application context name ...
+        appContextName[2] = (byte) 0x06; // choice for application context name: OBJECT IDENTIFIER, Universal
         appContextName[3] = (byte) 0x07; // length
         System.arraycopy(DEFAULT_OBJECT_IDENTIFIER, 0, appContextName, 4, DEFAULT_OBJECT_IDENTIFIER.length);
         appContextName[DEFAULT_OBJECT_IDENTIFIER.length + 4] = 1; // 1 meaning application context
@@ -732,7 +816,7 @@ public class AssociationControlServiceElement {
             byte[] callingAppTitleField = new byte[getCallingApplicationProcessTitle().length + 4];
             callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLING_AP_TITLE;
             callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
-            callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
+            callingAppTitleField[2] = (byte) 0x04; // choice for calling app title: [4], Universal, Octetstring type
             callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
             System.arraycopy(getCallingApplicationProcessTitle(), 0, callingAppTitleField, 4, getCallingApplicationProcessTitle().length);
             return callingAppTitleField;
@@ -767,19 +851,39 @@ public class AssociationControlServiceElement {
      */
     private byte[] generateCalledApplicationEntityQualifier() {
         if (getCalledApplicationEntityQualifier() != null) {
-            byte[] callingAppTitleField = new byte[getCalledApplicationEntityQualifier().length + 4];
+            byte[] result = new byte[getCalledApplicationEntityQualifier().length + 4];
             //TODO change
-            callingAppTitleField[0] = DLMSCOSEMGlobals.AARQ_CALLED_AE_QUALIFIER;
-            callingAppTitleField[1] = (byte) (callingAppTitleField.length - 2); // length
-            callingAppTitleField[2] = (byte) 0x04; // choice for calling app title
-            callingAppTitleField[3] = (byte) (callingAppTitleField.length - 4); // length
-            System.arraycopy(getCalledApplicationEntityQualifier(), 0, callingAppTitleField, 4, getCalledApplicationEntityQualifier().length);
-            return callingAppTitleField;
+            result[0] = DLMSCOSEMGlobals.AARQ_CALLED_AE_QUALIFIER;
+            result[1] = (byte) (result.length - 2); // length
+            result[2] = (byte) 0x04;                // [4], Universal, Octetstring type
+            result[3] = (byte) (result.length - 4); // length
+            System.arraycopy(getCalledApplicationEntityQualifier(), 0, result, 4, getCalledApplicationEntityQualifier().length);
+            return result;
         } else {
             return null;
         }
     }
 
+    /**
+     * Generate the calling ApplicationEntity qualifier byteArray
+     *
+     * @return the byteArray containing the calling ApplicationEntity qualifier
+     */
+    private byte[] generateCallingApplicationEntityQualifier() {
+        if (getCallingApplicationEntityQualifier() != null) {
+            byte[] callingAEQualifierLength = DLMSUtils.getAXDRLengthEncoding(getCallingApplicationEntityQualifier().length);
+
+            return ProtocolTools.concatByteArrays(
+                    new byte[]{DLMSCOSEMGlobals.AARQ_CALLING_AE_QUALIFIER},
+                    DLMSUtils.getAXDRLengthEncoding(getCallingApplicationEntityQualifier().length + 1 + callingAEQualifierLength.length),
+                    new byte[]{0x04},   // [4], Universal, Octetstring type
+                    callingAEQualifierLength,
+                    getCallingApplicationEntityQualifier()
+            );
+        } else {
+            return null;
+        }
+    }
 
     /**
      * The mechanism name is generated from a default objectIdentifier and to
@@ -828,17 +932,6 @@ public class AssociationControlServiceElement {
     }
 
     /**
-     * <p/>
-     * Setter for the application context name - context id
-     * <p/>
-     *
-     * @param contextId
-     */
-    public void setContextId(int contextId) {
-        this.contextId = contextId;
-    }
-
-    /**
      * <p>
      * Setter for the authentication mechanism - mechanism id
      * </p>
@@ -847,16 +940,6 @@ public class AssociationControlServiceElement {
      */
     public void setAuthMechanismId(int mechanismId) {
         this.mechanismId = mechanismId;
-    }
-
-    /**
-     * Setter for the userInformation field. If you plan on initiating an
-     * association, then normally this is a xDLMS.initiateRequest()
-     *
-     * @param userInformation
-     */
-    public void setUserInformation(byte[] userInformation) {
-        this.userInformationData = userInformation.clone();
     }
 
     /**
@@ -894,6 +977,17 @@ public class AssociationControlServiceElement {
         return this.contextId;
     }
 
+    /**
+     * <p/>
+     * Setter for the application context name - context id
+     * <p/>
+     *
+     * @param contextId
+     */
+    public void setContextId(int contextId) {
+        this.contextId = contextId;
+    }
+
     protected void setRespondingAPTitle(byte[] respondingAPTitle) {
         if (respondingAPTitle != null) {
             this.respondingAPTitle = respondingAPTitle.clone();
@@ -910,7 +1004,7 @@ public class AssociationControlServiceElement {
     }
 
     /**
-     * Checks if the calling- and responding authenticationValue are identical, if so then it is possible a fake meter is on the oter side ...
+     * Checks if the calling- and responding authenticationValue are identical, if so then it is possible a fake meter is on the other side ...
      *
      * @return true if both challenges are the same, false otherwise.
      */

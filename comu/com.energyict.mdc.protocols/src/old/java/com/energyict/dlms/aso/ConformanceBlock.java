@@ -46,8 +46,8 @@ public class ConformanceBlock {
 	 */
 
 //    public static final int BIT_RESERVED_ZERO = 0;
-//    public static final int BIT_RESERVED_ONE = 1;
-//    public static final int BIT_RESERVED_TWO = 2;
+    public static final int BIT_GENERAL_PROTECTION = 1;
+    public static final int BIT_GENERAL_BLOCK_TRANSFER = 2;
 	public static final int BIT_READ = 3;
 	public static final int BIT_WRITE = 4;
 	public static final int BIT_UNCONFIRMED_WRITE = 5;
@@ -61,8 +61,8 @@ public class ConformanceBlock {
 	public static final int BIT_BLOCK_TRANSF_ACTION = 13;
 	public static final int BIT_MULTIPLE_REFS = 14;
 	public static final int BIT_INFORMATION_REPORT = 15;
-//    public static final int BIT_RESERVED_SIXTEEN = 16;
-//    public static final int BIT_RESERVED_SEVENTEEN = 17;
+    public static final int BIT_DATA_NOTIFICATION = 16;
+    public static final int BIT_ACCESS = 17;
 	public static final int BIT_PARAMETERIZED_ACCESS = 18;
 	public static final int BIT_GET = 19;
 	public static final int BIT_SET = 20;
@@ -76,8 +76,8 @@ public class ConformanceBlock {
 
     private static final String[] NAMES = {
             "RESERVED_ZERO",
-            "RESERVED_ONE",
-            "RESERVED_TWO",
+            "GENERAL_PROTECTION",
+            "GENERAL_BLOCK_TRANSFER",
             "READ",
             "WRITE",
             "UNCONFIRMED_WRITE",
@@ -240,6 +240,15 @@ public class ConformanceBlock {
         return block[BIT_UNCONFIRMED_WRITE];
     }
 
+    public boolean isDataNotification() {
+        return block[BIT_DATA_NOTIFICATION];
+    }
+
+    public boolean isAccess() {
+        return block[BIT_ACCESS];
+    }
+
+
     public boolean isWrite() {
         return block[BIT_WRITE];
     }
@@ -248,13 +257,28 @@ public class ConformanceBlock {
         return block[BIT_READ];
     }
 
-
     public void setRead(boolean value) {
         setBit(BIT_READ, value);
     }
 
     public void setWrite(boolean value) {
         setBit(BIT_WRITE, value);
+    }
+
+    public boolean isGeneralProtection() {
+        return block[BIT_GENERAL_PROTECTION];
+    }
+
+    public void setGeneralProtection(boolean value) {
+        setBit(BIT_GENERAL_PROTECTION, value);
+    }
+
+    public boolean isGeneralBlockTransfer(){
+        return block[BIT_GENERAL_BLOCK_TRANSFER];
+    }
+
+    public void setGeneralBlockTransfer(boolean value) {
+        setBit(BIT_GENERAL_BLOCK_TRANSFER, value);
     }
 
     public void setUnconfirmedWrite(boolean value) {
@@ -315,6 +339,14 @@ public class ConformanceBlock {
 
     public void setAction(boolean value) {
         setBit(BIT_ACTION, value);
+    }
+
+    public void setAccess(boolean value) {
+        setBit(BIT_ACCESS, value);
+    }
+
+    public void setDataNotification(boolean value) {
+        setBit(BIT_DATA_NOTIFICATION, value);
     }
 
     @Override

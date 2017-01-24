@@ -32,7 +32,8 @@ public enum DeviceProtocolDialectName implements TranslationKey {
     ABNT_OPTICAL("AbntOpticalDialect", "Optical"),
     NO_PARAMETERS_PROTOCOL("NoParamsDialect", "Default with no properties"),
     TCP("TcpDialect", "TCP Dlms"),
-    SERIAL("SerialDialect", "Serial Dlms");
+    SERIAL("SerialDialect", "Serial Dlms"),
+    ;
 
     private final String uniqueName;
     private final String defaultFormat;

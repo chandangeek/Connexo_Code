@@ -49,6 +49,7 @@ public enum MessageSeeds implements MessageSeed {
     FAILED_SIX_LOW_PAN_ADAPTATION_LAYER_SETUP(258, "SixLowPanAdaptationLayerSetup", "Failed to collect the SixLowPan adaptation layer setup, see error: {0}", Level.SEVERE),
     FAILED_G3_NETWORK_MANAGEMENT(259, "G3NetworkManagement", "Failed to collec the G3 network management, see error: {0}", Level.SEVERE),
     NOT_ALLOWED_TO_DO_SET_TIME(260, "notAllowed.timeSet", "It is not allowed to do a set time on the device", Level.SEVERE),
+    GENERAL_CIPHERING_NOT_SUPPORTED(261, "general.ciphering.not.supported", "General ciphering is not yet supported in the protocol you are using", Level.SEVERE),
     ;
 
     private final int number;

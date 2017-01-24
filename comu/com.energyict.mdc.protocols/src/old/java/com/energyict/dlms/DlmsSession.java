@@ -1,7 +1,9 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
+
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.ConformanceBlock;
@@ -9,7 +11,6 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.common.NestedIOException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -294,7 +295,7 @@ public class DlmsSession implements ProtocolLink {
      */
     protected ApplicationServiceObject buildAso() {
         if (getProperties().isNtaSimulationTool()) {
-            return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null);
+            return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null, null);
         } else {
             return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
         }

@@ -4,7 +4,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -48,6 +51,10 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     private volatile PropertySpecService propertySpecService;
     private volatile MeteringService meteringService;
+    private volatile TopologyService topologyService;
+    private volatile SerialComponentService serialComponentService;
+    private volatile SocketService socketService;
+    private volatile LoadProfileFactory loadProfileFactory;
 
     private volatile Clock clock;
     private Injector injector;
@@ -57,7 +64,7 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     }
 
     @Inject
-    public InboundDeviceProtocolServiceImpl(MdcReadingTypeUtilService readingTypeUtilService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, Clock clock, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueService issueService, IdentificationService identificationService, MeteringService meteringService) {
+    public InboundDeviceProtocolServiceImpl(MdcReadingTypeUtilService readingTypeUtilService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService, PropertySpecService propertySpecService, Clock clock, NlsService nlsService, CollectedDataFactory collectedDataFactory, IssueService issueService, IdentificationService identificationService, MeteringService meteringService, TopologyService topologyService, SerialComponentService serialComponentService, SocketService socketService, LoadProfileFactory loadProfileFactory) {
         this();
         setReadingTypeUtilService(readingTypeUtilService);
         setJupiterPropertySpecService(jupiterPropertySpecService);
@@ -68,6 +75,10 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
         setIssueService(issueService);
         setIdentificationService(identificationService);
         setMeteringService(meteringService);
+        setTopologyService(topologyService);
+        setSerialComponentService(serialComponentService);
+        setSocketService(socketService);
+        setLoadProfileFactory(loadProfileFactory);
 
         activate();
     }
@@ -95,6 +106,11 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(Clock.class).toInstance(clock);
+                bind(TopologyService.class).toInstance(topologyService);
+                bind(SerialComponentService.class).toInstance(serialComponentService);
+                bind(SocketService.class).toInstance(socketService);
+                bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
+
                 bind(InboundDeviceProtocolService.class).toInstance(InboundDeviceProtocolServiceImpl.this);
             }
         };
@@ -143,6 +159,26 @@ public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolSe
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService){
+        this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setSocketService(SocketService socketService){
+        this.socketService = socketService;
+    }
+
+    @Reference
+    public void setSerialComponentService(SerialComponentService serialComponentService){
+        this.serialComponentService = serialComponentService;
+    }
+
+    @Reference
+    public void setLoadProfileFactory(LoadProfileFactory loadProfileFactory){
+        this.loadProfileFactory = loadProfileFactory;
     }
 
     @Override

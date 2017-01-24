@@ -6,6 +6,7 @@ import com.elster.jupiter.calendar.PeriodTransition;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 /**
  * Copyrights EnergyICT
@@ -26,7 +27,7 @@ public class SeasonTransitionObject implements Serializable {
         SeasonTransitionObject sto = new SeasonTransitionObject();
         sto.setSeasonId(transition.getPeriod().getId());
         sto.setSeasonName(transition.getPeriod().getName());
-        sto.setStartDate(transition.getOccurrence().atStartOfDay(calendar.getTimeZone().toZoneId()).toInstant());
+        sto.setStartDate(transition.getOccurrence().atStartOfDay(ZoneId.systemDefault()).toInstant());
         return sto;
     }
 

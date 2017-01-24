@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.ansi.c12.EAXPrime;
 
-import com.energyict.encryption.AesGcm128;
+import com.energyict.encryption.AesGcm;
 import com.energyict.encryption.BitVector;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -53,7 +53,7 @@ public class EAXPrimeEncoder {
     private byte[] mac = new byte[4];
 
     private byte[] encryptionKey;
-    private AesGcm128 aesEngine;
+    private AesGcm aesEngine;
 
     public EAXPrimeEncoder(byte[] encryptionKey) {
         this.encryptionKey = encryptionKey;
@@ -66,7 +66,7 @@ public class EAXPrimeEncoder {
      */
     private void init() {
         // A. Initialize the AES encryption engine
-        aesEngine = new AesGcm128(new BitVector(encryptionKey));
+        aesEngine = new AesGcm(new BitVector(encryptionKey));
 
         // B. Derive key dependent constants
         d_value = new byte[16];
@@ -294,7 +294,7 @@ public class EAXPrimeEncoder {
         return out;
     }
 
-    private AesGcm128 getAESEngine() {
+    private AesGcm getAESEngine() {
         return aesEngine;
     }
 

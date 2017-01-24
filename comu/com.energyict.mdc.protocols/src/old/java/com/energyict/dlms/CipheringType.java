@@ -9,6 +9,9 @@ public enum CipheringType {
 
     GLOBAL(0, "Global ciphering"),
     DEDICATED(1, "Dedicated ciphering"),
+    GENERAL_GLOBAL(2, "General-global ciphering"),
+    GENERAL_DEDICATED(3, "General-dedicated ciphering"),
+    GENERAL_CIPHERING(4, "General ciphering"),
     INVALID(-1, "Invalid");
 
     private int type;
