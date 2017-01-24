@@ -2,12 +2,16 @@ package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Serves as a implementation to summarize <b>all</b> the supported standard
@@ -353,7 +357,7 @@ public enum DeviceMessageCategories implements TranslationKey {
             return this.wrapAll(propertySpecService, thesaurus, category, PublicLightingDeviceMessage.values());
         }
     },
-    UPLINK_CONFIGURATIOn("Uplink configuration"){
+    UPLINK_CONFIGURATION("Uplink configuration"){
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications(DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             return this.wrapAll(propertySpecService, thesaurus, category, UplinkConfigurationDeviceMessage.values());
@@ -367,7 +371,12 @@ public enum DeviceMessageCategories implements TranslationKey {
         this.defaultTranslation = defaultTranslation;
     }
 
-
+    protected List<DeviceMessageSpec> wrapAll(PropertySpecService propertySpecService, Thesaurus thesaurus, DeviceMessageCategory category, DeviceMessageSpecEnum... values) {
+        return Stream
+                .of(values)
+                .map(each -> new DeviceMessageSpecAdapter(each, category, propertySpecService, thesaurus))
+                .collect(Collectors.toList());
+    }
 
     /**
      * Gets the resource key that determines the name
@@ -401,4 +410,37 @@ public enum DeviceMessageCategories implements TranslationKey {
         return defaultTranslation;
     }
 
+    private static class DeviceMessageSpecAdapter implements DeviceMessageSpec {
+        private final DeviceMessageSpecEnum enumValue;
+        private final DeviceMessageCategory category;
+        private final PropertySpecService propertySpecService;
+        private final Thesaurus thesaurus;
+
+        private DeviceMessageSpecAdapter(DeviceMessageSpecEnum enumValue, DeviceMessageCategory category, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            this.enumValue = enumValue;
+            this.category = category;
+            this.propertySpecService = propertySpecService;
+            this.thesaurus = thesaurus;
+        }
+
+        @Override
+        public DeviceMessageCategory getCategory() {
+            return this.category;
+        }
+
+        @Override
+        public String getName() {
+            return this.thesaurus.getFormat(this.enumValue).format();
+        }
+
+        @Override
+        public DeviceMessageId getId() {
+            return this.enumValue.getId();
+        }
+
+        @Override
+        public List<PropertySpec> getPropertySpecs() {
+            return this.enumValue.getPropertySpecs(this.propertySpecService, this.thesaurus);
+        }
+    }
 }
