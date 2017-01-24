@@ -7,6 +7,7 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -152,8 +153,8 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public void assignTo(String type, long id) {
-        getBaseIssue().assignTo(type, id);
+    public void assignTo(Long userId, Long workGroupId) {
+        getBaseIssue().assignTo(userId, workGroupId);
     }
 
     @Override
@@ -162,8 +163,23 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
+    public void assignTo(String type, long id) {
+        getBaseIssue().assignTo(type, id);
+    }
+
+    @Override
     public void autoAssign() {
         getBaseIssue().autoAssign();
+    }
+
+    @Override
+    public Priority getPriority() {
+        return getBaseIssue().getPriority();
+    }
+
+    @Override
+    public void setPriority(Priority priority) {
+        getBaseIssue().setPriority(priority);
     }
 
     @Override

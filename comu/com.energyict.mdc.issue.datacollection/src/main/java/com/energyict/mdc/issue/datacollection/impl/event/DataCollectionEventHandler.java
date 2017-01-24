@@ -15,10 +15,12 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.google.inject.Injector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class DataCollectionEventHandler implements MessageHandler {
     private static final Logger LOG = Logger.getLogger(DataCollectionEventHandler.class.getName());
@@ -58,16 +60,10 @@ public class DataCollectionEventHandler implements MessageHandler {
         Device device = getDeviceFromEventMap(map);
 
         List<IssueEvent> events = new ArrayList<>();
-        for (EventDescription description : DataCollectionEventDescription.values()) {
-            if (description.validateEvent(map)) {
-                createEventsBasedOnDescription(events, map, description, device);
-            }
-        }
-        for (EventDescription description : DataCollectionResolveEventDescription.values()) {
-            if (description.validateEvent(map)) {
-                createEventsBasedOnDescription(events, map, description, device);
-            }
-        }
+        Stream.concat(Arrays.stream(DataCollectionEventDescription.values()),
+                Arrays.stream(DataCollectionResolveEventDescription.values()))
+                .filter(description -> description.validateEvent(map))
+                .forEach(description -> createEventsBasedOnDescription(events, map, description, device));
         return events;
     }
 

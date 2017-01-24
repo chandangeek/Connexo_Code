@@ -32,7 +32,7 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_REASON_DESCRIPTION_CONNECTION_SETUP_FAILED("IssueReasonConnectionSetupFailedDescription", "Connection setup failed to {0}"),
     ISSUE_REASON_DESCRIPTION_CONNECTION_FAILED("IssueReasonConnectionFailedDescription", "Connection failed to {0}"),
     ISSUE_REASON_DESCRIPTION_POWER_OUTAGE("IssueReasonPowerOutageDescription", "Power outage on {0}"),
-    ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED("IssueReasonSyncFailedDescription", "Time sync failed {0}"),
+    ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED("IssueReasonSyncFailedDescription", "Time sync failed with {0}"),
 
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
     ACTION_RETRY("ActionRetry", "Retry"),
@@ -49,7 +49,7 @@ public enum TranslationKeys implements TranslationKey {
     EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE("EventTitleUnknownOutboundDevice", "Unknown outbound device"),
     EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE("EventTitleDeviceCommunicationFailure", "Device communication failure"),
     EVENT_TITLE_UNABLE_TO_CONNECT("EventTitleUnableToConnect", "Unable to connect"),
-    EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost"),
+    EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost")
     ;
 
     private final String key;

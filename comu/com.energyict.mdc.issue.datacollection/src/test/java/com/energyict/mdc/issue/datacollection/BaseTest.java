@@ -17,6 +17,7 @@ import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -48,6 +49,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -145,6 +147,7 @@ public abstract class BaseTest {
                 new IdsModule(),
                 new MeteringGroupsModule(),
                 new SearchModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
                 new PartyModule(),
                 new EventsModule(),
@@ -268,7 +271,7 @@ public abstract class BaseTest {
         CreationRuleTemplate template = mock(CreationRuleTemplate.class);
         when(template.getName()).thenReturn("template");
         when(template.getContent()).thenReturn("Content");
-        ((IssueServiceImpl)getIssueService()).addCreationRuleTemplate(template);
+        ((IssueServiceImpl) getIssueService()).addCreationRuleTemplate(template);
         return template;
     }
 
@@ -280,6 +283,7 @@ public abstract class BaseTest {
         builder.setIssueType(getIssueService().findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).get());
         builder.setReason(getIssueService().findReason(reasonKey).orElse(null));
         builder.setDueInTime(DueInType.DAY, 15L);
+        builder.setPriority(Priority.DEFAULT);
         CreationRuleTemplate template = getMockCreationRuleTemplate();
         builder.setTemplate(template.getName());
         return builder.complete();
@@ -290,7 +294,7 @@ public abstract class BaseTest {
     }
 
     protected DataModel getIssueDataModel() {
-        return ((IssueServiceImpl)getIssueService()).getDataModel();
+        return ((IssueServiceImpl) getIssueService()).getDataModel();
     }
 
     protected DataCollectionActionsFactory getDefaultActionsFactory() {
