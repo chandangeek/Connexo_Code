@@ -6,6 +6,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -13,7 +14,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 
-@Component(name = "com.energyict.mdc.device.config.calendar.updateHandler", service = TopicHandler.class,immediate = true)
+@Component(name = "com.energyict.mdc.device.config.calendar.updateHandler", service = TopicHandler.class, immediate = true)
 public class CalendarUpdateHandler implements TopicHandler {
 
     private volatile DeviceConfigurationService deviceConfigurationService;
@@ -23,6 +24,7 @@ public class CalendarUpdateHandler implements TopicHandler {
 
     @Inject
     CalendarUpdateHandler(DeviceConfigurationService deviceConfigurationService) {
+        this();
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
@@ -41,15 +43,8 @@ public class CalendarUpdateHandler implements TopicHandler {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-
-
     @Override
     public String getTopicMatcher() {
         return EventType.CALENDAR_UPDATE.topic();
     }
-
-
 }
-
-
-

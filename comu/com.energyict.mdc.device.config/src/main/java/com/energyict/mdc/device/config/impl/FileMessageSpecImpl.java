@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,7 +70,9 @@ class FileMessageSpecImpl implements DeviceMessageSpec {
                         .specForValuesOf(new DeviceMessageFileValueFactory(this.deviceType))
                         .named(propertySpec.getName(), propertySpec.getDisplayName())
                         .describedAs(propertySpec.getDescription())
-                        .addValues(this.deviceType.getDeviceMessageFiles().stream().sorted((f1,f2) -> f1.getName().compareTo(f2.getName())).collect(Collectors.toList()));
+                        .addValues(this.deviceType.getDeviceMessageFiles().stream()
+                                .sorted(Comparator.comparing(DeviceMessageFile::getName))
+                                .collect(Collectors.toList()));
             if (propertySpec.isRequired()) {
                 builder.markRequired();
             }

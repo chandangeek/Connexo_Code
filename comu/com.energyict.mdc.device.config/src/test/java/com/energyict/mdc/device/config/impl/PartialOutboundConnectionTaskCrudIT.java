@@ -45,6 +45,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -81,6 +82,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -196,6 +198,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                     new UserModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new OrmModule(),
@@ -269,7 +272,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
                     injector.getInstance(CalendarService.class),
                     injector.getInstance(CustomPropertySetService.class),
-                    UpgradeModule.FakeUpgradeService.getInstance());
+                    UpgradeModule.FakeUpgradeService.getInstance(),
+                    injector.getInstance(DeviceMessageSpecificationService.class));
             ctx.commit();
         }
         setupMasterData();

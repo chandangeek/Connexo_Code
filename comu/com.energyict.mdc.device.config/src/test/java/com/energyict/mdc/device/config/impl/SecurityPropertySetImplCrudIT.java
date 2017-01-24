@@ -42,6 +42,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.GrantPrivilege;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -69,12 +72,15 @@ import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -106,6 +112,7 @@ import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVIC
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -151,6 +158,11 @@ public class SecurityPropertySetImplCrudIT {
         User principal = mock(User.class);
         when(principal.getName()).thenReturn(SecurityPropertySetImplCrudIT.class.getSimpleName());
         when(principal.hasPrivilege(anyString(), anyString())).thenReturn(true);
+        GrantPrivilege superGrant = mock(GrantPrivilege.class);
+        when(superGrant.canGrant(any())).thenReturn(true);
+        Group superUser = mock(Group.class);
+        when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", asList(superGrant)));
+        when(principal.getGroups()).thenReturn(asList(superUser));
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -165,6 +177,7 @@ public class SecurityPropertySetImplCrudIT {
                     new PartyModule(),
                     new UserModule(),
                     new IdsModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),
@@ -231,7 +244,8 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(DeviceLifeCycleConfigurationService.class),
                     injector.getInstance(CalendarService.class),
                     injector.getInstance(CustomPropertySetService.class),
-                    UpgradeModule.FakeUpgradeService.getInstance());
+                    UpgradeModule.FakeUpgradeService.getInstance(),
+                    injector.getInstance(DeviceMessageSpecificationService.class));
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();
