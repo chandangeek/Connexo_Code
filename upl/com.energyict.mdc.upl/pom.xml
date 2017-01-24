@@ -65,6 +65,11 @@
             <version>${guava.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.rxtx</groupId>
+            <artifactId>rxtx</artifactId>
+            <version>2.2pre2</version>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${javax-servlet-api.version}</version>
