@@ -83,18 +83,10 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.tasks.TopologyAction;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
-import org.assertj.core.api.Condition;
 import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -111,6 +103,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -473,7 +475,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void getRegisterWithDeviceObisCodeForConfigWithoutRegistersTest() {
         Device simpleDevice = createSimpleDeviceWithName(DEVICENAME);
 
-        assertThat(simpleDevice.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"))).isNull();
+        assertThat(simpleDevice.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"))).isEmpty();
     }
 
     @Test
@@ -494,7 +496,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID, Instant.now());
 
         Device reloadedDevice = getReloadedDevice(device);
-        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode).getReadings(Interval.sinceEpoch())).isEmpty();
+        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode).get().getReadings(Interval.sinceEpoch())).isEmpty();
     }
 
     @Test
@@ -510,7 +512,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<Reading> readings = reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode).getReadings(Interval.sinceEpoch());
+        List<Reading> readings = reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode).get().getReadings(Interval.sinceEpoch());
         assertThat(readings).isNotEmpty();
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0)).isInstanceOf(NumericalReading.class);
@@ -540,7 +542,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.store(meterReading);
 
         Device reloadedDevice = getReloadedDevice(device);
-        List<Reading> readings = reloadedDevice.getRegisterWithDeviceObisCode(this.averageForwardEnergyObisCode).getReadings(Interval.sinceEpoch());
+        List<Reading> readings = reloadedDevice.getRegisterWithDeviceObisCode(this.averageForwardEnergyObisCode).get().getReadings(Interval.sinceEpoch());
         assertThat(readings).isNotEmpty();
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0)).isInstanceOf(BillingReading.class);
@@ -560,8 +562,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
 
-        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode)).isNotNull();
-        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(reverseEnergyObisCode)).isNotNull();
+        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(forwardEnergyObisCode)).isPresent();
+        assertThat(reloadedDevice.getRegisterWithDeviceObisCode(reverseEnergyObisCode)).isPresent();
     }
 
     @Test
@@ -571,7 +573,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         assertThat(simpleDevice.getChannels()).isEmpty();
     }
-
 
     @Test
     @Transactional
@@ -584,7 +585,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getChannels()).isNotEmpty();
         assertThat(reloadedDevice.getChannels()).hasSize(2);
     }
-
 
     @Test(expected = CannotDeleteComScheduleFromDevice.class)
     @Transactional

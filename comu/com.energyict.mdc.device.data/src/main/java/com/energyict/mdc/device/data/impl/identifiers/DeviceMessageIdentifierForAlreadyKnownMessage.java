@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 /**
@@ -21,18 +20,8 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
     }
 
     @Override
-    public DeviceMessage getDeviceMessage() {
-        return deviceMessage;
-    }
-
-    @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.deviceMessage.getDevice());
     }
 
     @Override
@@ -49,7 +38,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
             return false;
         }
         DeviceMessageIdentifierForAlreadyKnownMessage that = (DeviceMessageIdentifierForAlreadyKnownMessage) obj;
-        return this.deviceMessage.getId() == that.getDeviceMessage().getId();
+        return this.deviceMessage.getId() == that.deviceMessage.getId();
     }
 
     @Override

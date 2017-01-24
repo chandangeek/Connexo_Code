@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
@@ -38,23 +34,8 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
     }
 
     @Override
-    public LogBook getLogBook() {
-        Device device = (Device) this.deviceIdentifier.findDevice(); //Downcast to the Connexo Device
-        return device.getLogBooks()
-                .stream()
-                .filter(lb -> lb.getDeviceObisCode().equals(this.logBookObisCode))
-                .findFirst()
-                .orElseThrow(() -> CanNotFindForIdentifier.logBook(this, MessageSeeds.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER));
-    }
-
-    @Override
     public ObisCode getLogBookObisCode() {
         return logBookObisCode;
-    }
-
-    @Override
-    public DeviceIdentifier getDeviceIdentifier() {
-        return deviceIdentifier;
     }
 
     public boolean equals(Object o) {
@@ -91,7 +72,7 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
         public Object getValue(String role) {
             switch (role) {
                 case "device": {
-                    return getDeviceIdentifier();
+                    return deviceIdentifier;
                 }
                 case "obisCode": {
                     return getLogBookObisCode();

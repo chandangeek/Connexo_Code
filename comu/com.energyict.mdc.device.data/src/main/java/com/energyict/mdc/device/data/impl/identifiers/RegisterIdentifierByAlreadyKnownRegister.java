@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.obis.ObisCode;
@@ -21,11 +20,6 @@ public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentif
     }
 
     @Override
-    public Register findRegister() {
-        return register;
-    }
-
-    @Override
     public ObisCode getRegisterObisCode() {
         return register.getDeviceObisCode();
     }
@@ -33,11 +27,6 @@ public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentif
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(register.getDevice());
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {

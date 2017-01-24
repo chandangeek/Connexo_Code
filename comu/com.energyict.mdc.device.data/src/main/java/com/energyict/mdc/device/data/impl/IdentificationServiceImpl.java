@@ -30,6 +30,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -102,7 +103,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode) {
-        return new LoadProfileIdentifierById(id, loadProfileService, obisCode);
+        return new LoadProfileIdentifierById(id, obisCode);
     }
 
     @Override
@@ -122,7 +123,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode) {
-        return new LogBookIdentifierById(id, logBookService, obisCode);
+        return new LogBookIdentifierById(id, obisCode);
     }
 
     @Override

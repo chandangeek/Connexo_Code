@@ -179,6 +179,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -877,12 +878,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (getMultiplier() == null || multiplier.compareTo(getMultiplier()) != 0) {
             validateMultiplierValue(multiplier);
             Instant now = clock.instant();
-            Optional<Instant> startDateMultiplier = from == null ? Optional.of(now) : Optional.of(from);
+            Instant startDateMultiplier;
+            if (from == null) {
+                startDateMultiplier = now;
+            } else {
+                startDateMultiplier = from;
+            }
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
             SyncDeviceWithKoreForMultiplierChange multiplierChange =
                     new SyncDeviceWithKoreForMultiplierChange(
                             this,
-                            startDateMultiplier.get(),
+                            startDateMultiplier,
                             multiplier,
                             deviceService, readingTypeUtilService, eventService);
             //All actions to take to sync with Kore once a Device is created
@@ -908,16 +914,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private void validateStartDateOfNewMultiplier(Instant now, Optional<Instant> startDateMultiplier) {
-        if (startDateMultiplier.isPresent()) {
-            if (this.meter.get().hasData() && startDateMultiplier.get().isBefore(now)) {
-                throw MultiplierConfigurationException.canNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
-            }
+    private void validateStartDateOfNewMultiplier(Instant now, Instant startDateMultiplier) {
+        if (this.meter.get().hasData() && startDateMultiplier.isBefore(now)) {
+            throw MultiplierConfigurationException.canNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
+        }
 
-            Optional<? extends MeterActivation> meterActivationAt = this.meter.get().getMeterActivation(startDateMultiplier.get());
-            if(!meterActivationAt.isPresent()){
-                throw MultiplierConfigurationException.multiplierMustHaveMeterActivation(thesaurus);
-            }
+        Optional<? extends MeterActivation> meterActivationAt = this.meter.get().getMeterActivation(startDateMultiplier);
+        if(!meterActivationAt.isPresent()){
+            throw MultiplierConfigurationException.multiplierMustHaveMeterActivation(thesaurus);
         }
     }
 
@@ -944,13 +948,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public Register getRegisterWithDeviceObisCode(ObisCode code) {
+    public Optional<Register> getRegisterWithDeviceObisCode(ObisCode code) {
         for (RegisterSpec registerSpec : getDeviceConfiguration().getRegisterSpecs()) {
             if (registerSpec.getDeviceObisCode().equals(code)) {
-                return this.newRegisterFor(registerSpec);
+                return Optional.of(this.newRegisterFor(registerSpec));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private RegisterImpl newRegisterFor(RegisterSpec registerSpec) {
@@ -1227,6 +1231,24 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public void setSecurityProperty(String propertyName, Object propertyValue) {
+        this.getDeviceConfiguration()
+                .getSecurityPropertySets()
+                .stream()
+                .filter(securityPropertySet -> securityPropertySet.getPropertySpecs().stream().anyMatch(propertySpec -> propertyName.equals(propertySpec.getName())))
+                .forEach(securityPropertySet -> this.updateSecurityProperty(securityPropertySet, propertyName, propertyValue));
+    }
+
+    private void updateSecurityProperty(SecurityPropertySet securityPropertySet, String propertyName, Object propertyValue) {
+        TypedProperties typedProperties = TypedProperties.empty();
+        for (SecurityProperty securityProperty : this.getSecurityProperties(securityPropertySet)) {
+            typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
+        }
+        typedProperties.setProperty(propertyName, propertyValue);
+        this.setSecurityProperties(securityPropertySet, typedProperties);
+    }
+
+    @Override
     public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
         List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties
                 .size());
@@ -1336,13 +1358,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
            koreHelper.getInitialMeterActivationStartDate().get().isAfter(maximumFutureEffectiveTimestamp)){
             throw new NoLifeCycleActiveAt(thesaurus, MessageSeeds.INVALID_SHIPMENT_DATE, koreHelper.getInitialMeterActivationStartDate().get(), maximumPastEffectiveTimestamp,  maximumFutureEffectiveTimestamp);
         }
-        Meter newMeter = amrSystem.newMeter(String.valueOf(getId()))
+        return amrSystem.newMeter(String.valueOf(getId()))
                 .setMRID(getmRID())
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
                 .setReceivedDate(koreHelper.getInitialMeterActivationStartDate().get()) // date should be present
                 .create();
-        return newMeter;
     }
 
     private Optional<AmrSystem> findMdcAmrSystem() {
@@ -1467,7 +1488,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ReadingType> getChannelReadingTypes(Channel channel, Instant instant) {
         ArrayList<ReadingType> readingTypes = new ArrayList<>();
         readingTypes.add(channel.getReadingType());
-        channel.getCalculatedReadingType(instant).ifPresent(calculatedReadingType -> readingTypes.add(calculatedReadingType));
+        channel.getCalculatedReadingType(instant).ifPresent(readingTypes::add);
         return readingTypes;
     }
 
@@ -2083,8 +2104,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public void removeComSchedule(ComSchedule comSchedule) {
         ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule))
                 .findFirst()
-                .
-                        orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
+                .orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
         removeComTaskExecution(toRemove);
     }
 

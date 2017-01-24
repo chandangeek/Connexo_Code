@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -12,12 +14,19 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 class DeviceMessageServiceImpl implements DeviceMessageService {
@@ -116,6 +125,69 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
             }
         }
         return true;
+    }
+
+    @Override
+    public Optional<DeviceMessage> findDeviceMessageByIdentifier(MessageIdentifier identifier) {
+        try {
+            return this.exactlyOne(this.find(identifier.forIntrospection()), identifier);
+        } catch (UnsupportedDeviceMessageIdentifierTypeName | IllegalArgumentException e) {
+            return Optional.empty();
+        }
+    }
+
+    private List<DeviceMessage> find(Introspector introspector) throws UnsupportedDeviceMessageIdentifierTypeName {
+        switch (introspector.getTypeName()) {
+            case "DatabaseId": {
+                return this
+                        .findDeviceMessageById((long) introspector.getValue("databaseValue"))
+                        .map(Collections::singletonList)
+                        .orElseGet(Collections::emptyList);
+            }
+            case "DeviceIdentifierAndProtocolInfoParts": {
+                DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
+                String[] messageProtocolInfoParts = (String[]) introspector.getValue("protocolInfo");
+                this.deviceDataModelService.deviceService()
+                        .findDeviceByIdentifier(deviceIdentifier)
+                        .map(device -> this.findByDeviceAndProtocolInfoParts(device, messageProtocolInfoParts))
+                        .orElseGet(Collections::emptyList);
+            }
+            default: {
+                throw new UnsupportedDeviceMessageIdentifierTypeName();
+            }
+        }
+    }
+
+    private Optional<DeviceMessage> exactlyOne(List<DeviceMessage> allMessages, MessageIdentifier identifier) {
+        if (allMessages.isEmpty()) {
+            return Optional.empty();
+        }
+        else {
+            if (allMessages.size() > 1) {
+                throw new NotUniqueException(identifier.toString());
+            }
+            else {
+                return Optional.of(allMessages.get(0));
+            }
+        }
+    }
+
+    public List<DeviceMessage> findByDeviceAndProtocolInfoParts(Device device, String... protocolInfoParts) {
+        Condition protocolInfoPartsCondition =
+                Stream
+                    .of(protocolInfoParts)
+                    .reduce(
+                        Condition.TRUE,
+                        (condition, protocolInfoPart) -> condition.and(where(DeviceMessageImpl.Fields.PROTOCOLINFO.fieldName()).like(protocolInfoPart)),
+                        Condition::and);
+        Condition deviceCondition = where(DeviceMessageImpl.Fields.DEVICE.fieldName()).isEqualTo(device);
+        return this.deviceDataModelService
+                    .dataModel()
+                    .query(DeviceMessage.class)
+                    .select(deviceCondition.and(protocolInfoPartsCondition));
+    }
+
+    private static class UnsupportedDeviceMessageIdentifierTypeName extends RuntimeException {
     }
 
 }

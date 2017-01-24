@@ -50,6 +50,10 @@ public enum CompletionCode {
                 .orElseThrow(() -> new ApplicationException("No matching CompletionCode for DB value: " + dbValue));
     }
 
+    public static CompletionCode fromUPL(com.energyict.mdc.upl.tasks.CompletionCode upl) {
+        return CompletionCode.valueOf(upl.name());
+    }
+
     /**
      * Finds the CompletionCode for the specified {@link ResultType}.
      *

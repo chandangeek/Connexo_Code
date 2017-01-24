@@ -1,10 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 import com.energyict.obis.ObisCode;
@@ -22,19 +17,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 public final class LogBookIdentifierById implements LogBookIdentifier {
 
     private final long logBookId;
-    private final LogBookService logBookService;
     private final ObisCode obisCode;
 
-    public LogBookIdentifierById(long logBookId, LogBookService logBookService, ObisCode obisCode) {
+    public LogBookIdentifierById(long logBookId, ObisCode obisCode) {
         super();
         this.logBookId = logBookId;
-        this.logBookService = logBookService;
         this.obisCode = obisCode;
-    }
-
-    @Override
-    public LogBook getLogBook() {
-        return this.logBookService.findById(this.logBookId).orElseThrow(() -> CanNotFindForIdentifier.logBook(this, MessageSeeds.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER));
     }
 
     @Override
@@ -45,11 +33,6 @@ public final class LogBookIdentifierById implements LogBookIdentifier {
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierByLogBook(this);
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Optional;
@@ -21,5 +23,14 @@ public interface LoadProfileService {
      */
     Optional<LoadProfile> findById(long id);
 
+    /**
+     * Finds the LoadProfile with the given {@link LoadProfileIdentifier}.
+     *
+     * @param identifier The LoadProfileIdentifier
+     * @return the LoadProfile
+     */
+    Optional<LoadProfile> findByIdentifier(LoadProfileIdentifier identifier);
+
     Optional<LoadProfile> findAndLockLoadProfileByIdAndVersion(long id, long version);
+
 }
