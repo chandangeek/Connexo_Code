@@ -169,11 +169,11 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
                 if (dataLoggerCollectedReadingType.isRegular()) {
                     readings = meterReading.getIntervalBlocks()
                             .stream()
-                            .filter(ib -> dataLoggerCollectedReadingType.getmRID().equals(ib.getReadingTypeCode()))
+                            .filter(ib -> dataLoggerCollectedReadingType.getMRID().equals(ib.getReadingTypeCode()))
                             .flatMap(ib -> ib.getIntervals().stream())
                             .collect(Collectors.toList());
                 } else {
-                    readings = meterReading.getReadings().stream().filter(reading -> dataLoggerCollectedReadingType.getmRID().equals(reading.getReadingTypeCode())).collect(Collectors.toList());
+                    readings = meterReading.getReadings().stream().filter(reading -> dataLoggerCollectedReadingType.getMRID().equals(reading.getReadingTypeCode())).collect(Collectors.toList());
                 }
                 dataloggerChannel.getCimChannel(dataLoggerCollectedReadingType).orElseThrow(IllegalArgumentException::new).editReadings(QualityCodeSystem.MDC, readings);
             }

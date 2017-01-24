@@ -16,7 +16,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
@@ -166,14 +165,14 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
         return scheduledConnectionTask;
     }
 
-    protected ManuallyScheduledComTaskExecution reloadManuallyScheduledComTaskExecution(Device device, ManuallyScheduledComTaskExecution comTaskExecution) {
+    protected ComTaskExecution reloadManuallyScheduledComTaskExecution(Device device, ComTaskExecution comTaskExecution) {
         Device reloadedDevice = getReloadedDevice(device);
         for (ComTaskExecution taskExecution : reloadedDevice.getComTaskExecutions()) {
             if (comTaskExecution.getId() == taskExecution.getId()) {
-                return (ManuallyScheduledComTaskExecution) taskExecution;
+                return taskExecution;
             }
         }
-        fail("ManuallyScheduledComTaskExecution with id " + comTaskExecution.getId() + " not found after reloading device " + device.getName());
+        fail("ComTaskExecution with id " + comTaskExecution.getId() + " not found after reloading device " + device.getName());
         return null;
     }
 

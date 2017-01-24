@@ -44,6 +44,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.GrantPrivilege;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -87,6 +90,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -104,6 +108,8 @@ import java.time.Clock;
 import java.util.Optional;
 import java.util.Properties;
 
+import static java.util.Arrays.asList;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -119,7 +125,7 @@ import static org.mockito.Mockito.withSettings;
  */
 public class InMemoryIntegrationPersistence {
     private BundleContext bundleContext;
-    private Principal principal;
+    private User principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
     private OrmService ormService;
@@ -185,6 +191,7 @@ public class InMemoryIntegrationPersistence {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(
                          "0.0.0.0.0.41.92.0.0.0.0.0.0.0.0.0.114.0"
                         ,"0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"
@@ -301,7 +308,12 @@ public class InMemoryIntegrationPersistence {
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(User.class);
+        GrantPrivilege superGrant = mock(GrantPrivilege.class);
+        when(superGrant.canGrant(any())).thenReturn(true);
+        Group superUser = mock(Group.class);
+        when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", asList(superGrant)));
+        when(this.principal.getGroups()).thenReturn(asList(superUser));
         when(this.principal.getName()).thenReturn(testName);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
