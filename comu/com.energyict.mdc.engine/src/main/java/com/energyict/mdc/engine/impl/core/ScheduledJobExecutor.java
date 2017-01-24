@@ -113,10 +113,18 @@ abstract class ScheduledJobExecutor {
 
     private void logIfDebuggingIsEnabled(Throwable t) {
         if (REQUIRED_DEBUG_LEVEL.compareTo(logLevel) <= 0) {
-            if (!(t instanceof ConnectionSetupException || t instanceof ConnectionCommunicationException || t instanceof com.energyict.mdc.upl.io.ConnectionCommunicationException)) {
+            if (!(isConnectionSetupException(t) || isConnectionCommunicationException(t))) {
                 t.printStackTrace(System.err);
             }
         }
+    }
+
+    private boolean isConnectionSetupException(Throwable t) {
+        return t instanceof ConnectionSetupException || t instanceof com.energyict.mdc.upl.io.ConnectionSetupException;
+    }
+
+    private boolean isConnectionCommunicationException(Throwable t) {
+        return t instanceof ConnectionCommunicationException || t instanceof com.energyict.mdc.upl.io.ConnectionCommunicationException;
     }
 
     public enum ValidationReturnStatus {
