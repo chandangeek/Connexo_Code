@@ -5,9 +5,6 @@ import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativeOperator;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -18,7 +15,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.elster.jupiter.time.RelativeField.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.elster.jupiter.time.RelativeField.DAY;
+import static com.elster.jupiter.time.RelativeField.DAY_OF_WEEK;
+import static com.elster.jupiter.time.RelativeField.HOUR;
+import static com.elster.jupiter.time.RelativeField.MINUTES;
+import static com.elster.jupiter.time.RelativeField.MONTH;
+import static com.elster.jupiter.time.RelativeField.SECONDS;
+import static com.elster.jupiter.time.RelativeField.WEEK;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -98,14 +105,14 @@ public class RelativeDateTest extends EqualsContractTest {
     public void testWithOverlappingOperations() {
         RelativeDate relativeDate = new RelativeDate(WEEK.minus(7), DAY_OF_WEEK.equalTo(4));
 
-        assertThat(relativeDate.with(DAY_OF_WEEK.equalTo(3), MINUTES.equalTo(14))).isEqualTo(new RelativeDate(WEEK.minus(7), DAY_OF_WEEK.equalTo(3), MINUTES.equalTo(14)));
+        assertThat(relativeDate.with(DAY_OF_WEEK.equalTo(3), MINUTES.equalTo(14))).isEqualTo(new RelativeDate(WEEK.minus(7), DAY_OF_WEEK.equalTo(4), DAY_OF_WEEK.equalTo(3), MINUTES.equalTo(14)));
     }
 
     @Test
     public void testWithOverlappingOperationsNotLast() {
         RelativeDate relativeDate = new RelativeDate(WEEK.minus(7), DAY_OF_WEEK.equalTo(4));
 
-        assertThat(relativeDate.with(WEEK.equalTo(3), MINUTES.equalTo(14))).isEqualTo(new RelativeDate(WEEK.equalTo(3), DAY_OF_WEEK.equalTo(4), MINUTES.equalTo(14)));
+        assertThat(relativeDate.with(WEEK.equalTo(3), MINUTES.equalTo(14))).isEqualTo(new RelativeDate(WEEK.minus(7), DAY_OF_WEEK.equalTo(4), WEEK.equalTo(3), MINUTES.equalTo(14)));
     }
 
     @Override

@@ -64,24 +64,23 @@ public final class RelativeDate {
     }
 
     public RelativeDate with(RelativeOperation... operations) {
-        List<RelativeOperation> toAdd = new ArrayList<>(Arrays.asList(operations));
-        List<RelativeOperation> toBuild = this.operations.stream()
-                .map(op -> toAdd.stream().filter(add -> add.getField().equals(op.getField())).findFirst().orElse(op))
-                .collect(Collectors.toCollection(ArrayList::new));
-        toAdd.removeIf(add -> toBuild.stream().map(RelativeOperation::getField).anyMatch(field -> field.equals(add.getField())));
-        toBuild.addAll(toAdd);
-        return new RelativeDate(toBuild);
+        return new RelativeDate(
+                    Stream
+                        .concat(
+                            this.operations.stream(),
+                            Stream.of(operations))
+                        .collect(Collectors.toList()));
     }
 
     private Stream<RelativeOperation> operationsToApply() {
-        boolean autoMillisToZero = getOperations().stream().noneMatch(op -> RelativeField.MILLIS.equals(op.getField()));
-
-        Stream<RelativeOperation> operationStream = getOperations().stream();
-
-        if (autoMillisToZero) {
-            operationStream = Stream.concat(operationStream, Collections.singleton(RelativeField.MILLIS.equalTo(0L)).stream());
-        }
-        return operationStream;
+        return Stream.concat(
+                    this.getOperations().stream(),
+                    Stream.of(
+                            this.getOperations()
+                                .stream()
+                                .filter(operation -> RelativeField.MILLIS.equals(operation.getField()))
+                                .findAny()
+                                .orElseGet(() -> RelativeField.MILLIS.equalTo(0L))));
     }
 
     public String getRelativeDate() {
@@ -92,7 +91,6 @@ public final class RelativeDate {
         if (this.operations.isEmpty() && !this.relativeDate.isEmpty()) {
             setOperations();
         }
-        Collections.sort(this.operations);
         return this.operations;
     }
 
@@ -140,7 +138,7 @@ public final class RelativeDate {
 
             @Override
             public BiConsumer<ArrayList<RelativeOperation>, RelativeOperation> accumulator() {
-                return (list, op) -> list.add(op);
+                return ArrayList::add;
             }
 
             @Override

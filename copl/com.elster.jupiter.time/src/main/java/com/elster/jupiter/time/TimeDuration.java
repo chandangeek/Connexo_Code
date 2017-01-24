@@ -262,6 +262,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     public TimeDuration(int seconds) {
         if (seconds == 0) {
             this.timeUnit = SECONDS;
+            this.timeUnitCode = this.timeUnit.code;
             return;
         }
         timeUnit = Arrays.stream(TimeUnit.values())

@@ -87,8 +87,6 @@ public class TimeServiceIT {
 
     public static final String NAME = "NAME";
 
-    public static final String FORMATTER = "formatter";
-
     private static final ZonedDateTime NOW = ZonedDateTime.of(2012, 10, 12, 9, 46, 12, 241615214, TimeZoneNeutral.getMcMurdo());
 
     @Rule
