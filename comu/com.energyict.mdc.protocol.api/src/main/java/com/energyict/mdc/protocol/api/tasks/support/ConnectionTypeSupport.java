@@ -11,13 +11,13 @@ import java.util.List;
  * @author sva
  * @since 4/03/13 - 12:17
  */
-public interface ConnectionTypeSupport {
+public interface ConnectionTypeSupport extends com.energyict.mdc.upl.ConnectionTypeSupport {
 
     /**
      * Get a list of all supported {@link ConnectionType}s for this {@link DeviceProtocol}.
      *
      * @return the list of supported ConnectionTypes
      */
-    public List<ConnectionType> getSupportedConnectionTypes();
+    List<? extends ConnectionType> getSupportedConnectionTypes();
 
 }

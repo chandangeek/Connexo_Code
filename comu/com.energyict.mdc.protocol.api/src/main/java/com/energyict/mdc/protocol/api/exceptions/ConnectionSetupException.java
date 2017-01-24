@@ -2,7 +2,7 @@ package com.energyict.mdc.protocol.api.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 /**
  * Wraps a connectionException into a ConnectionSetupException.
