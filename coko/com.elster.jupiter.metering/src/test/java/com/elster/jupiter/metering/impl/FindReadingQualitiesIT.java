@@ -60,7 +60,7 @@ public class FindReadingQualitiesIT {
         ReadingType deltaReadingType, bulkReadingType;
         try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
-            meter = system.newMeter("FindReadingQualitiesIT").create();
+            meter = system.newMeter("FindReadingQualitiesIT", "myName").create();
             meterActivation = meter.activate(START_TIME);
             deltaReadingType = meteringService.getReadingType(READING_TYPE_DELTA).get();
             bulkReadingType = meteringService.getReadingType(READING_TYPE_BULK).get();
@@ -102,8 +102,7 @@ public class FindReadingQualitiesIT {
     @Test
     public void testSorted() {
         assertThat(channel1.findReadingQualities().sorted().collect()).containsExactly(watchdog, batteryLow);
-//        // connection.prepareStatement(builder.toString()) fails: h2database bug?
-//        assertThat(channel1.findReadingQualities().sorted().findFirst()).contains(watchdog);
+        assertThat(channel1.findReadingQualities().sorted().findFirst()).contains(watchdog);
         List<ReadingQualityRecord> list = channel2.findReadingQualities().sorted().collect();
         assertThat(list).hasSize(5);
         assertThat(list.get(0)).isEqualTo(added);

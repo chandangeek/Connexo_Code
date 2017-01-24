@@ -66,8 +66,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.event.getNewState()).thenReturn(this.state);
         when(this.state.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(this.finiteStateMachine.getId()).thenReturn(1L);
-        when(this.meteringService.findEndDevice(MISSING_END_DEVICE_MRID)).thenReturn(Optional.<EndDevice>empty());
-        when(this.meteringService.findEndDevice(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
+        when(this.meteringService.findEndDeviceByMRID(MISSING_END_DEVICE_MRID)).thenReturn(Optional.empty());
+        when(this.meteringService.findEndDeviceByMRID(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
         when(this.endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(this.endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(this.endDevice.getFiniteStateMachine()).thenReturn(Optional.of(finiteStateMachine));

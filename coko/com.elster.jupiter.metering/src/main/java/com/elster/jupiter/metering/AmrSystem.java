@@ -2,35 +2,28 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.util.HasName;
+
 import java.util.Optional;
 
 public interface AmrSystem extends HasName {
-	int getId();
+    int getId();
 
     /**
-     * Creates a new Meter whose state is not managed at all.
+     * Initializes {@link MeterBuilder} that is able to create new {@link Meter}.
      *
-     * @param amrId The identifier in the AmrSystem that is creating this Meter
-     * @return The newly created Meter
+     * @param amrId Meter identifier in the AmrSystem that is creating this Meter.
+     * @param name A unique name for new Meter.
+     * @return {@link MeterBuilder} initialized with this AmrSystem and provided arguments.
      */
-	MeterBuilder newMeter(String amrId);
+    MeterBuilder newMeter(String amrId, String name);
 
-    EndDevice createEndDevice(String amrId);
-    /**
-     * @since 1.1
-     */
-    EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId);
+    EndDevice createEndDevice(String amrId, String name);
 
-	EndDevice createEndDevice(String amrId, String mRID);
-    /**
-     * @since 1.1
-     */
-	EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId, String mRID);
+    EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId, String name);
 
-	Optional<Meter> findMeter(String amrId);
-	boolean is(KnownAmrSystem knownAmrSystem);
-    /**
-	* @since 1.1
-	*/
-	Optional<Meter> lockMeter(String amrId);
+    Optional<Meter> findMeter(String amrId);
+
+    boolean is(KnownAmrSystem knownAmrSystem);
+
+    Optional<Meter> lockMeter(String amrId);
 }

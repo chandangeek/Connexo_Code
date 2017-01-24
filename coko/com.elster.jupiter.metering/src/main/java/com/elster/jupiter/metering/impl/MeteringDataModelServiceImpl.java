@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.BypassStatus;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -38,6 +39,8 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2;
+import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_2_1;
+import com.elster.jupiter.metering.impl.upgraders.UpgraderV10_3;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -50,8 +53,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -108,6 +114,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private volatile PropertySpecService propertySpecService;
     private volatile LicenseService licenseService;
     private volatile UpgradeService upgradeService;
+    private volatile TimeService timeService;
+    private volatile Publisher publisher;
+    private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
     private List<CustomUsagePointMeterActivationValidator> customValidators = new CopyOnWriteArrayList<>();
@@ -137,7 +146,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                         PartyService partyService, Clock clock, UserService userService, EventService eventService, NlsService nlsService,
                                         MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
-                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService) {
+                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService, TimeService timeService, Publisher publisher,
+                                        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         setIdsService(idsService);
         setQueryService(queryService);
         setPartyService(partyService);
@@ -153,7 +163,10 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         setPropertySpecService(propertySpecService);
         setLicenseService(licenseService);
         setUpgradeService(upgradeService);
+        setTimeService(timeService);
         setOrmService(ormService);
+        setPublisher(publisher);
+        setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
 
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -229,6 +242,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
                 bind(ServerDataAggregationService.class).toInstance((ServerDataAggregationService) dataAggregationService);
+                bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
+                bind(TimeService.class).toInstance(timeService);
+                bind(Publisher.class).toInstance(publisher);
             }
         });
     }
@@ -239,7 +255,9 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 dataModel,
                 InstallerImpl.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 2, 1), UpgraderV10_2_1.class,
+                        version(10, 3), UpgraderV10_3.class
                 ));
         this.meteringService.readLocationTemplatesFromDatabase();
     }
@@ -307,7 +325,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
             this.serviceRegistrations.add(
                     bundleContext.registerService(
                             new String[]{
-                            MetrologyConfigurationService.class.getName(),
+                                    MetrologyConfigurationService.class.getName(),
                                     ServerMetrologyConfigurationService.class.getName()},
                             this.metrologyConfigurationService,
                             noServiceProperties()));
@@ -337,6 +355,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
         Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
+        Arrays.stream(GasDayOptions.RelativePeriodTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(YesNoAnswer.values()).map(YesNoAnswerTranslationKey::new).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
@@ -387,6 +406,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Reference
     public final void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Reference
@@ -465,6 +489,16 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Thesaurus myThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus cboThesaurus = nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN);
         this.thesaurus = myThesaurus.join(cboThesaurus);
+    }
+
+    @Reference(name = "thePublisher")
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
+    @Reference
+    public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     @Override

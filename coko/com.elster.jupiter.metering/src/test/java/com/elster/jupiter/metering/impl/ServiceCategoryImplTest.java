@@ -16,6 +16,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.google.common.collect.Sets;
 
@@ -30,9 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -69,6 +70,8 @@ public class ServiceCategoryImplTest {
     private javax.validation.Validator validator;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Before
     public void setUp() {
@@ -112,15 +115,20 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, meteringService, metrologyConfigurationService, dataAggregationService));
-        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointConnectionStateImpl();
-            }
-        });
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService));
+        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl());
+        UsagePointState usagePointState = mock(UsagePointState.class);
+        when(usagePointState.isInitial()).thenReturn(true);
+        UsagePointLifeCycle usagePointLifeCycle = mock(UsagePointLifeCycle.class);
+        when(usagePointLifeCycle.getStates()).thenReturn(Collections.singletonList(usagePointState));
+        UsagePointLifeCycleConfigurationService lifeCycleConfigurationService = mock(UsagePointLifeCycleConfigurationService.class);
+        when(lifeCycleConfigurationService.getDefaultLifeCycle()).thenReturn(usagePointLifeCycle);
+        when(dataModel.getInstance(UsagePointLifeCycleConfigurationService.class)).thenReturn(lifeCycleConfigurationService);
+        when(dataModel.getInstance(UsagePointStateTemporalImpl.class)).thenReturn(new UsagePointStateTemporalImpl(dataModel));
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId", Instant.EPOCH).create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
+        assertThat(usagePoint.getName()).isEqualTo("mrId");
+        assertThat(usagePoint.getInstallationTime()).isEqualTo(Instant.EPOCH);
     }
 
     @Test

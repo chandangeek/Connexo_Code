@@ -91,7 +91,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
 
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-        EndDevice endDevice = amrSystem.createEndDevice("amrID", "mRID");
+        EndDevice endDevice = amrSystem.createEndDevice("amrID", "DeviceName");
         EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date).create();
 
         assertThat(dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date).get()).isEqualTo(endDeviceEventRecord);
@@ -120,7 +120,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
 
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-        EndDevice endDevice = amrSystem.createEndDevice("amrID", "mRID");
+        EndDevice endDevice = amrSystem.createEndDevice("amrID", "DeviceName");
         EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date)
                 .addProperty("A", "C")
                 .addProperty("D", "C")

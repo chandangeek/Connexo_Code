@@ -12,9 +12,9 @@ import java.util.stream.Stream;
 /**
  * Generates DataLogger specific reading type<br/>
  */
-class ReadingTypeGeneratorForDataLogger extends AbstractReadingTypeGenerator {
+public class ReadingTypeGeneratorForDataLogger extends AbstractReadingTypeGenerator {
 
-    ReadingTypeGeneratorForDataLogger() {
+    public ReadingTypeGeneratorForDataLogger() {
         super();
     }
 

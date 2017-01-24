@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -30,6 +31,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 import com.google.common.collect.Range;
 
@@ -85,7 +87,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
             ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
             AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-            meter = system.newMeter("Meter").create();
+            meter = system.newMeter("Meter", "myName").create();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             usagePoint = serviceCategory.newUsagePoint("UsagePoint", INSTALLATION_TIME).create();
             meterRole = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
@@ -94,8 +96,8 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     }
 
     private static void reloadObjects() {
-        meter = inMemoryBootstrapModule.getMeteringService().findMeter(meter.getId()).get();
-        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePoint(usagePoint.getId()).get();
+        meter = inMemoryBootstrapModule.getMeteringService().findMeterById(meter.getId()).get();
+        usagePoint = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint.getId()).get();
     }
 
     @AfterClass
@@ -350,7 +352,7 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         UsagePoint usagePoint2 = serviceCategory.newUsagePoint("UsagePoint2", ONE_DAY_BEFORE).create();
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter2 = system.newMeter("Meter2").create();
+        Meter meter2 = system.newMeter("Meter2", "myName2").create();
         MeterRole meterRole2 = inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN);
 
         usagePoint2.linkMeters().activate(meter, meterRole).complete();
@@ -362,8 +364,8 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         activator.clear(Range.closedOpen(INSTALLATION_TIME, THREE_DAYS_AFTER), meterRole);
         activator.clear(Range.closedOpen(INSTALLATION_TIME, THREE_DAYS_AFTER), meterRole2).complete();
         reloadObjects();
-        usagePoint2 = inMemoryBootstrapModule.getMeteringService().findUsagePoint(usagePoint2.getId()).get();
-        meter2 = inMemoryBootstrapModule.getMeteringService().findMeter(meter2.getId()).get();
+        usagePoint2 = inMemoryBootstrapModule.getMeteringService().findUsagePointById(usagePoint2.getId()).get();
+        meter2 = inMemoryBootstrapModule.getMeteringService().findMeterById(meter2.getId()).get();
 
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         assertThat(meterActivations).hasSize(3);
@@ -393,13 +395,25 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
     @Transactional
     public void testCanNotLinkTwoMetersOnTheSameMeterRole() {
         AmrSystem system = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter2 = system.newMeter("Meter2").create();
+        Meter meter2 = system.newMeter("Meter2", "myName2").create();
 
         usagePoint.linkMeters()
                 .activate(meter, meterRole)
                 .activate(meter2, meterRole)
                 .throwingValidation()
                 .complete();
+    }
+
+    @Test(expected = VerboseConstraintViolationException.class)
+    @Transactional
+    public void linkMetrologyConfigurationToUsagePointWithIncorrectStage() {
+        Instant now = inMemoryBootstrapModule.getClock().instant();
+        ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory
+                .newUsagePoint("testUP", now)
+                .create();
+        usagePoint.getState().startUpdate().setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        usagePoint.linkMeters().activate(meter, meterRole).complete();
     }
 
     private static class TestHeadEndInterface implements HeadEndInterface {

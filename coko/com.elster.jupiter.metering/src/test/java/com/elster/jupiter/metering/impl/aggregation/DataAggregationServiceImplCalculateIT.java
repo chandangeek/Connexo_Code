@@ -55,6 +55,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -158,7 +160,7 @@ public class DataAggregationServiceImplCalculateIT {
         setupServices();
         setupReadingTypes();
         setupMetrologyPurposeAndRole();
-
+        setupDefaultUsagePointLifeCycle();
     }
 
     private static void setupServices() {
@@ -190,7 +192,8 @@ public class DataAggregationServiceImplCalculateIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new UsagePointLifeCycleConfigurationModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -257,6 +260,14 @@ public class DataAggregationServiceImplCalculateIT {
             DEFAULT_METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
             ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
             ELECTRICITY.addMeterRole(DEFAULT_METER_ROLE);
+            ctx.commit();
+        }
+    }
+
+    private static void setupDefaultUsagePointLifeCycle() {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+            usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
             ctx.commit();
         }
     }
@@ -874,18 +885,18 @@ public class DataAggregationServiceImplCalculateIT {
 
     private void setupMeter(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter1 = mdc.newMeter(amrIdBase).create();
+        this.meter1 = mdc.newMeter(amrIdBase, amrIdBase).create();
     }
 
     private void setupMeters(String amrIdBase) {
         AmrSystem mdc = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        this.meter1 = mdc.newMeter(amrIdBase + "-1").create();
-        this.meter2 = mdc.newMeter(amrIdBase + "-2").create();
+        this.meter1 = mdc.newMeter(amrIdBase + "-1", amrIdBase + "-1").create();
+        this.meter2 = mdc.newMeter(amrIdBase + "-2", amrIdBase + "-2").create();
     }
 
-    private void setupUsagePoint(String mRID) {
+    private void setupUsagePoint(String name) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016).withName(DataAggregationServiceImplCalculateIT.class.getSimpleName()).create();
+        this.usagePoint = electricity.newUsagePoint(name, jan1st2016).create();
     }
 
     private void activateMeterWithAll15MinChannels(MeterRole meterRole) {

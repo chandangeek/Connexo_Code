@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 class DataAggregationAnalysisLogger {
 
     String calculationStarted(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
-        return "Start: calculate aggregated data for usagePoint(mRID" + usagePoint.getMRID() + "), contract(id=" + contract.getId() + ") and period " + period;
+        return "Start: calculate aggregated data for usagePoint(name=" + usagePoint.getName() + "), contract(id=" + contract.getId() + ") and period " + period;
     }
 
     String verboseEffectiveMetrologyConfigurations(List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities) {

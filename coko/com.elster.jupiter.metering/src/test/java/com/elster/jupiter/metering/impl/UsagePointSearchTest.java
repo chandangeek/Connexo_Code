@@ -27,7 +27,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.impl.search.MasterResourceIdentifierSearchableProperty;
+import com.elster.jupiter.metering.impl.search.NameSearchableProperty;
 import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -51,6 +51,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -88,7 +90,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -103,7 +104,7 @@ public class UsagePointSearchTest {
     private static MeteringService meteringService;
     private static UsagePointSearchDomain usagePointSearchDomain;
     private static PropertySpecService propertySpecService;
-    private static Thesaurus thesaurus;
+    private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private static SearchMonitor dummyMonitor;
 
     private static class MockModule extends AbstractModule {
@@ -141,7 +142,8 @@ public class UsagePointSearchTest {
                 new DataVaultModule(),
                 new NlsModule(),
                 new CustomPropertySetsModule(),
-                new BasicPropertiesModule()
+                new BasicPropertiesModule(),
+                new UsagePointLifeCycleConfigurationModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext context = transactionService.getContext()) {
@@ -155,16 +157,19 @@ public class UsagePointSearchTest {
             injector.getInstance(MeteringTranslationService.class);
             usagePointSearchDomain = injector.getInstance(UsagePointSearchDomain.class);
             propertySpecService = injector.getInstance(PropertySpecService.class);
+            createDefaultUsagePointLifeCycle();
             context.commit();
         }
-        thesaurus = mock(Thesaurus.class, RETURNS_DEEP_STUBS);
         ArgumentCaptor<TranslationKey> translationKeyCaptor = ArgumentCaptor.forClass(TranslationKey.class);
-        when(thesaurus.getFormat(translationKeyCaptor.capture()).format())
-                .thenAnswer(invocation -> translationKeyCaptor.getValue().getDefaultFormat());
         dummyMonitor = mock(SearchMonitor.class);
         ExecutionTimer timer = mock(ExecutionTimer.class);
         doAnswer(invocation -> ((Callable)invocation.getArguments()[0]).call()).when(timer).time(any(Callable.class));
         when(dummyMonitor.searchTimer(usagePointSearchDomain)).thenReturn(timer);
+    }
+
+    private static void createDefaultUsagePointLifeCycle() {
+        UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+        usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
     }
 
     @AfterClass
@@ -183,8 +188,7 @@ public class UsagePointSearchTest {
                 .setMainAddress(new StreetAddress(new StreetDetail("Spinnerijstraat", "101"), new TownDetail("8500", "Kortrijk", "BE")))
                 .setName("EnergyICT")
                 .create();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID0", Instant.EPOCH).withServiceLocation(location).create();
-        usagePoint.setServiceLocation(location);
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UP_0", Instant.EPOCH).withServiceLocation(location).create();
         ElectricityDetailImpl detail = (ElectricityDetailImpl) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
         detail.setRatedPower(Unit.WATT.amount(BigDecimal.valueOf(1000), 3));
         usagePoint.addDetail(detail);
@@ -197,7 +201,7 @@ public class UsagePointSearchTest {
         query.setEager();
         assertThat(query.select(condition)).hasSize(1);
         for (int i = 0; i < 10; i++) {
-            usagePoint = serviceCategory.newUsagePoint("mrID" + (10 - i), Instant.EPOCH).create();
+            usagePoint = serviceCategory.newUsagePoint("UP_" + (10 - i), Instant.EPOCH).create();
         }
         assertThat(query.select(Condition.TRUE)).hasSize(11);
         assertThat(query.select(Condition.TRUE, 1, 5)).hasSize(5);
@@ -213,34 +217,34 @@ public class UsagePointSearchTest {
         usagePoint.addAccountability(role, party, Instant.now());
         assertThat(query.select(meteringService.hasAccountability())).isNotEmpty();
 
-        List<String> sortedResult = Arrays.asList("mrID0", "mrID1", "mrID10", "mrID2", "mrID3", "mrID4", "mrID5", "mrID6", "mrID7", "mrID8", "mrID9");
-        assertThat(query.select(Condition.TRUE, Order.descending("mRID").toUpperCase(), Order.ascending("id"))
+        List<String> sortedResult = Arrays.asList("UP_0", "UP_1", "UP_10", "UP_2", "UP_3", "UP_4", "UP_5", "UP_6", "UP_7", "UP_8", "UP_9");
+        assertThat(query.select(Condition.TRUE, Order.descending("name").toUpperCase(), Order.ascending("id"))
                 .stream()
-                .map(UsagePoint::getMRID)
+                .map(UsagePoint::getName)
                 .collect(Collectors.toList()))
                 .containsOnlyElementsOf(sortedResult)
                 .isSortedAccordingTo(Comparator.<String>naturalOrder().reversed());
         assertThat(usagePoint.getCustomer(Instant.now()).get().getMRID()).isEqualTo("Electrabel");
 
         Finder<UsagePoint> finder = (Finder<UsagePoint>)usagePointSearchDomain.finderFor(Collections.emptyList());
-        assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
+        assertThat(finder.stream().map(UsagePoint::getName).collect(Collectors.toList()))
                 .isEqualTo(sortedResult);
         finder.paged(0, 4);
-        assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
+        assertThat(finder.stream().map(UsagePoint::getName).collect(Collectors.toList()))
                 .isEqualTo(sortedResult.subList(0, 5));
         finder.paged(4, 4);
-        assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
+        assertThat(finder.stream().map(UsagePoint::getName).collect(Collectors.toList()))
                 .isEqualTo(sortedResult.subList(4, 9));
         finder.paged(8, 4);
-        assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
+        assertThat(finder.stream().map(UsagePoint::getName).collect(Collectors.toList()))
                 .isEqualTo(sortedResult.subList(8, 11));
         finder = new SearchBuilderImpl(usagePointSearchDomain, dummyMonitor)
-                .where(new MasterResourceIdentifierSearchableProperty(usagePointSearchDomain, propertySpecService, thesaurus))
+                .where(new NameSearchableProperty(usagePointSearchDomain, propertySpecService, thesaurus))
                 .in(sortedResult.subList(1, 11)).toFinder();
-        assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
+        assertThat(finder.stream().map(UsagePoint::getName).collect(Collectors.toList()))
                 .isEqualTo(sortedResult.subList(1, 11));
         finder.paged(4, 4);
-        assertThat(finder.stream().map(UsagePoint::getMRID).collect(Collectors.toList()))
+        assertThat(finder.stream().map(UsagePoint::getName).collect(Collectors.toList()))
                 .isEqualTo(sortedResult.subList(5, 10));
     }
 }

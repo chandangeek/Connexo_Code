@@ -25,6 +25,7 @@ public class ReadingTypeTemplateInstaller {
         installElectricityTemplates();
         installGasTemplates();
         installWaterTemplates();
+        installTemplatesFor10_3();
     }
 
     private void installElectricityTemplates() {
@@ -283,6 +284,39 @@ public class ReadingTypeTemplateInstaller {
                 .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
                 .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
                 .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.POTABLEWATER)
+                .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
+                .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETERPERHOUR)
+                .done();
+    }
+
+    public void installTemplatesFor10_3(){
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.BULK_A_PLUS)
+                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.BULKQUANTITY)
+                .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD)
+                .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.ELECTRICITY_SECONDARY_METERED, Commodity.ELECTRICITY_PRIMARY_METERED)
+                .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGY)
+                .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.WATTHOUR)
+                .done();
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.BATTERY_STATUS)
+                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INSTANTANEOUS)
+                .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.DEVICE)
+                .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.ENERGIZATION)
+                .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.NOTAPPLICABLE)
+                .done();
+        new Template(metrologyConfigurationService, DefaultReadingTypeTemplate.GAS_FLOW_BILLING)
+                .withValues(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.AVERAGE)
+                .withValues(ReadingTypeTemplateAttributeName.MACRO_PERIOD, MacroPeriod.BILLINGPERIOD)
+                .withValues(ReadingTypeTemplateAttributeName.TIME, TimeAttribute.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.ACCUMULATION, Accumulation.INDICATING)
+                .withValues(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.NOTAPPLICABLE)
+                .withValues(ReadingTypeTemplateAttributeName.COMMODITY, Commodity.NATURALGAS)
                 .withValues(ReadingTypeTemplateAttributeName.MEASUREMENT_KIND, MeasurementKind.VOLUME)
                 .withValues(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, ReadingTypeUnit.CUBICMETERPERHOUR)
                 .done();

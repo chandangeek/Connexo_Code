@@ -114,10 +114,10 @@ public class ReadingQualityImplIT {
     private ReadingQualityRecord doTest(Instant date) {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("name", Instant.EPOCH).create();
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         AmrSystem system = meteringService.findAmrSystem(1).get();
-        Meter meter = system.newMeter("meter" + date.toEpochMilli()).create();
+        Meter meter = system.newMeter("meter" + date.toEpochMilli(), "myName" + date.toEpochMilli()).create();
         MeterActivation meterActivation = usagePoint.activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT), date);
         Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
         ReadingStorer regularStorer = meteringService.createNonOverrulingStorer();

@@ -10,13 +10,14 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Provider;
 import java.time.Instant;
+import java.util.UUID;
 
 class MeterBuilderImpl implements MeterBuilder {
 
     private final AmrSystem amrSystem;
     private final Provider<MeterImpl> meterFactory;
     private String amrId;
-    private String mRID;
+    private UUID mRID;
     private String name;
     private FiniteStateMachine finiteStateMachine;
     private String serialNumber;
@@ -24,16 +25,16 @@ class MeterBuilderImpl implements MeterBuilder {
     private SpatialCoordinates spatialCoordinates;
     private Instant receivedDate;
 
-    MeterBuilderImpl(AmrSystem amrSystem, Provider<MeterImpl> meterFactory, String amrId) {
+    MeterBuilderImpl(AmrSystem amrSystem, Provider<MeterImpl> meterFactory, String amrId, String name) {
         this.amrSystem = amrSystem;
         this.meterFactory = meterFactory;
         this.amrId = amrId;
+        this.name = name;
     }
 
     @Override
     public Meter create() {
-        MeterImpl meter = meterFactory.get().init(amrSystem, amrId, mRID);
-        meter.setName(name);
+        MeterImpl meter = meterFactory.get().init(amrSystem, amrId, name, mRID);
         if (finiteStateMachine != null) {
             meter.setFiniteStateMachine(finiteStateMachine);
         }
@@ -47,7 +48,7 @@ class MeterBuilderImpl implements MeterBuilder {
 
     @Override
     public MeterBuilder setMRID(String mRID) {
-        this.mRID = mRID;
+        this.mRID = UUID.fromString(mRID);
         return this;
     }
 
@@ -60,12 +61,6 @@ class MeterBuilderImpl implements MeterBuilder {
     @Override
     public MeterBuilder setStateMachine(FiniteStateMachine finiteStateMachine) {
         this.finiteStateMachine = finiteStateMachine;
-        return this;
-    }
-
-    @Override
-    public MeterBuilder setName(String name) {
-        this.name = name;
         return this;
     }
 
@@ -97,5 +92,4 @@ class MeterBuilderImpl implements MeterBuilder {
     public LocationBuilder newLocationBuilder() {
         return new LocationBuilderImpl(meterFactory.get().getDataModel());
     }
-
 }

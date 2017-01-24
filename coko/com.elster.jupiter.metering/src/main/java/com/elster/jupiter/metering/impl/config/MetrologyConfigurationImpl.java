@@ -7,8 +7,10 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -19,12 +21,15 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
+import com.elster.jupiter.metering.impl.TableSpecs;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -32,6 +37,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,7 +71,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         METER_ROLES("meterRoles"),
         DELIVERABLES("deliverables"),
         REQUIREMENT_TO_ROLE_REFERENCES("requirementToRoleUsages"),
-        USAGE_POINT_REQUIREMENTS("usagePointRequirements"),;
+        USAGE_POINT_REQUIREMENTS("usagePointRequirements"),
+        OBSOLETETIME("obsoleteTime"),;
 
         private final String javaFieldName;
 
@@ -78,9 +85,12 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         }
     }
 
+    private final DataModel dataModel;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final EventService eventService;
     private final CustomPropertySetService customPropertySetService;
+    private final Clock clock;
+    private final Publisher publisher;
 
     @SuppressWarnings("unused")
     private long id;
@@ -99,6 +109,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private List<MetrologyContract> metrologyContracts = new ArrayList<>();
     private List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
 
+    private Instant obsoleteTime;
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -109,10 +120,13 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private String userName;
 
     @Inject
-    MetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService) {
+    MetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, Clock clock, Publisher publisher) {
+        this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.eventService = eventService;
         this.customPropertySetService = customPropertySetService;
+        this.clock = clock;
+        this.publisher = publisher;
     }
 
     protected ServerMetrologyConfigurationService getMetrologyConfigurationService() {
@@ -175,7 +189,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private void checkLinkedUsagePoints() {
         if (!metrologyConfigurationService.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
-                .select(Where.where("metrologyConfiguration").isEqualTo(this), Order.NOORDER, false, null, 1, 1)
+                .select(where("metrologyConfiguration").isEqualTo(this).and(where("interval").isEffective()), Order.NOORDER, false, null, 1, 1)
                 .isEmpty()) {
             throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
@@ -293,6 +307,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @Override
     public void removeMetrologyContract(MetrologyContract metrologyContract) {
         ((MetrologyContractImpl) metrologyContract).prepareDelete();
+        this.eventService.postEvent(EventType.METROLOGY_CONTRACT_DELETED.topic(), metrologyContract);
         if (this.metrologyContracts.remove(metrologyContract)) {
             touch();
         }
@@ -320,6 +335,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         return new ReadingTypeDeliverableBuilderImpl(
                 this,
                 name,
+                DeliverableType.NUMERICAL,
                 readingType,
                 mode,
                 this.customPropertySetService,
@@ -328,11 +344,24 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula) {
+    public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode) {
+        return new ReadingTypeDeliverableBuilderImpl(
+                this,
+                name,
+                deliverableType,
+                readingType,
+                mode,
+                this.customPropertySetService,
+                this.metrologyConfigurationService.getDataModel(),
+                this.metrologyConfigurationService.getThesaurus());
+    }
+
+    @Override
+    public ReadingTypeDeliverable addReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
         ReadingTypeDeliverableImpl deliverable =
                 this.metrologyConfigurationService.getDataModel()
                         .getInstance(ReadingTypeDeliverableImpl.class)
-                        .init(this, name, readingType, (ServerFormula) formula);
+                        .init(this, name, deliverableType, readingType, (ServerFormula) formula);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverable);
         this.deliverables.add(deliverable);
         touch();
@@ -440,5 +469,24 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
                 .map(Formula::getExpressionNode)
                 .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
         return requirementsCollector.getReadingTypeRequirements();
+    }
+
+    @Override
+    public void makeObsolete() {
+        if (isActive()) {
+            deactivate();
+        }
+        this.obsoleteTime = this.clock.instant();
+        this.dataModel.update(this, "obsoleteTime");
+        invalidateCache();
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteTime() {
+        return Optional.ofNullable(this.obsoleteTime);
+    }
+
+    private void invalidateCache() {
+        this.publisher.publish(new InvalidateCacheRequest(MeteringService.COMPONENTNAME, TableSpecs.MTR_METROLOGYCONFIG.name()));
     }
 }

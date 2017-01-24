@@ -1,63 +1,32 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.UtilModule;
 
 import com.google.common.collect.Range;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
 
-import java.sql.SQLException;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * Integration test for the {@link MeterImpl} component.
@@ -68,277 +37,208 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class MeterImplIT {
 
-    private Injector injector;
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+    @Rule
+    public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
 
-    @Mock
-    private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
-    @Mock
-    private EventAdmin eventAdmin;
-
-
-    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
-
-    private class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(UserService.class).toInstance(userService);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
+    @BeforeClass
+    public static void setUp() {
+        inMemoryBootstrapModule.activate();
     }
 
-    @Before
-    public void setUp() throws SQLException {
-        try {
-            injector = Guice.createInjector(
-                    new MockModule(),
-                    inMemoryBootstrapModule,
-                    new InMemoryMessagingModule(),
-                    new IdsModule(),
-                    new MeteringModule(),
-                    new PartyModule(),
-                    new BasicPropertiesModule(),
-                    new TimeModule(),
-                    new EventsModule(),
-                    new DomainUtilModule(),
-                    new OrmModule(),
-                    new UtilModule(),
-                    new ThreadSecurityModule(),
-                    new PubSubModule(),
-                    new TransactionModule(),
-                    new BpmModule(),
-                    new FiniteStateMachineModule(),
-                    new NlsModule(),
-                    new CustomPropertySetsModule(),
-                    new BasicPropertiesModule()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        injector.getInstance(TransactionService.class).execute(() -> {
-            injector.getInstance(CustomPropertySetService.class);
-            injector.getInstance(FiniteStateMachineService.class);
-            injector.getInstance(MeteringService.class);
-            return null;
-        });
-    }
-
-    @After
-    public void tearDown() throws SQLException {
+    @AfterClass
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
+    @Transactional
     public void createEndDeviceWithManagedState() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-        try (TransactionContext context = transactionService.getContext()) {
-            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
 
-            // Business method
-            Meter meter = meteringService.findAmrSystem(1).get()
-                    .newMeter("amrID")
-                    .setMRID("mRID")
-                    .setStateMachine(stateMachine)
-                    .create();
+        // Business method
+        Meter meter = meteringService.findAmrSystem(1).get()
+                .newMeter("amrID", "myName")
+                .setStateMachine(stateMachine)
+                .create();
 
-            // Asserts
-            assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
-            assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
-            assertThat(meter.getState().isPresent()).isTrue();
-            assertThat(meter.getState().get().getId()).isEqualTo(stateMachine.getInitialState().getId());
-        }
+        // Asserts
+        assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
+        assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
+        assertThat(meter.getState().isPresent()).isTrue();
+        assertThat(meter.getState().get().getId()).isEqualTo(stateMachine.getInitialState().getId());
     }
 
     @Test
+    @Transactional
     public void deviceCreatedInPastHasInitialStateInPast() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
 
-        try (TransactionContext context = transactionService.getContext()) {
-            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            Instant twoHoursAgo = injector.getInstance(Clock.class).instant().minus(2, ChronoUnit.HOURS);
+        FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
+        Instant twoHoursAgo = inMemoryBootstrapModule.getClock().instant().minus(2, ChronoUnit.HOURS);
 
-            // Business method
-            Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get()
-                    .newMeter("amrID")
-                    .setMRID("mRID")
-                    .setReceivedDate(twoHoursAgo)
-                    .setStateMachine(stateMachine)
-                    .create();
-            meter = meteringService.findMeter(meter.getId()).get();
+        // Business method
+        Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get()
+                .newMeter("amrID", "name")
+                .setReceivedDate(twoHoursAgo)
+                .setStateMachine(stateMachine)
+                .create();
+        meter = meteringService.findMeterById(meter.getId()).get();
 
-            // Asserts
-            assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
-            assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
-            assertThat(meter.getState(twoHoursAgo).isPresent()).isTrue();
-            assertThat(meter.getState(twoHoursAgo).get().getId()).isEqualTo(stateMachine.getInitialState().getId());
-        }
+        // Asserts
+        assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
+        assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
+        assertThat(meter.getState(twoHoursAgo).isPresent()).isTrue();
+        assertThat(meter.getState(twoHoursAgo).get().getId()).isEqualTo(stateMachine.getInitialState().getId());
     }
 
     @Test
     @Transactional
     public void deviceCreatedInFutureHasInitialStateNow() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
 
-        try (TransactionContext context = transactionService.getContext()) {
-            FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            Instant now = injector.getInstance(Clock.class).instant().plus(10, ChronoUnit.MINUTES);
-            Instant twoHoursAfter = now.plus(2, ChronoUnit.HOURS);
+        FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
+        Instant now = inMemoryBootstrapModule.getClock().instant().plus(10, ChronoUnit.MINUTES);
+        Instant twoHoursAfter = now.plus(2, ChronoUnit.HOURS);
 
-            // Business method
-            Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get()
-                    .newMeter("amrID")
-                    .setMRID("mRID")
-                    .setReceivedDate(twoHoursAfter)
-                    .setStateMachine(stateMachine)
-                    .create();
-            meter = meteringService.findMeter(meter.getId()).get();
+        // Business method
+        Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get()
+                .newMeter("amrID", "name")
+                .setReceivedDate(twoHoursAfter)
+                .setStateMachine(stateMachine)
+                .create();
+        meter = meteringService.findMeterById(meter.getId()).get();
 
-            // Asserts
-            assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
-            assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
-            assertThat(meter.getState(now).isPresent()).isTrue();
-            assertThat(meter.getState(now).get().getId()).isEqualTo(stateMachine.getInitialState().getId());
-        }
+        // Asserts
+        assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
+        assertThat(meter.getFiniteStateMachine().get().getId()).isEqualTo(stateMachine.getId());
+        assertThat(meter.getState(now).isPresent()).isTrue();
+        assertThat(meter.getState(now).get().getId()).isEqualTo(stateMachine.getInitialState().getId());
     }
 
     @Test
+    @Transactional
     public void deactivateAndReinstallNonAdjacent() {
         ZonedDateTime activation = ZonedDateTime.of(2015, 4, 10, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
         ZonedDateTime deactivation = ZonedDateTime.of(2015, 4, 11, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
         ZonedDateTime reinstall = ZonedDateTime.of(2015, 4, 12, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
 
         // activation
-
-        Meter meter;
-        try (TransactionContext context = transactionService.getContext()) {
-            meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
-                    .setMRID("mRID")
-                    .create();
-            meter.update();
-            meter.activate(activation.toInstant());
-            context.commit();
-        }
-        meter = meteringService.findMeter(meter.getId()).get();
+        Meter meter = meteringService.findAmrSystem(1).get()
+                .newMeter("amrID", "myName")
+                .create();
+        meter.update();
+        meter.activate(activation.toInstant());
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         MeterActivation meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(activation.toInstant()));
 
         // deactivation
-
-        try (TransactionContext context = transactionService.getContext()) {
-            meterActivation.endAt(deactivation.toInstant());
-            context.commit();
-        }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meterActivation.endAt(deactivation.toInstant());
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(activation.toInstant(), deactivation.toInstant()));
 
         // reinstall
-
-        try (TransactionContext context = transactionService.getContext()) {
-            meter.activate(reinstall.toInstant());
-            context.commit();
-        }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter.activate(reinstall.toInstant());
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(2);
         meterActivation = meter.getMeterActivations().get(1);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(reinstall.toInstant()));
-
     }
 
     @Test
+    @Transactional
     public void deactivateAndReinstallAdjacent() {
         ZonedDateTime activation = ZonedDateTime.of(2015, 4, 10, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
         ZonedDateTime deactivation = ZonedDateTime.of(2015, 4, 11, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
         ZonedDateTime reinstall = deactivation;
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
-
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         // activation
-
-        Meter meter;
-        try (TransactionContext context = transactionService.getContext()) {
-            meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
-                    .setMRID("mRID")
-                    .create();
-            meter.update();
-            meter.activate(activation.toInstant());
-            context.commit();
-        }
-        meter = meteringService.findMeter(meter.getId()).get();
+        Meter meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "myName")
+                .create();
+        meter.update();
+        meter.activate(activation.toInstant());
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         MeterActivation meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(activation.toInstant()));
 
         // deactivation
-
-        try (TransactionContext context = transactionService.getContext()) {
-            meterActivation.endAt(deactivation.toInstant());
-            context.commit();
-        }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meterActivation.endAt(deactivation.toInstant());
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(1);
         meterActivation = meter.getMeterActivations().get(0);
         assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(activation.toInstant(), deactivation.toInstant()));
 
         // reinstall
-
-        try (TransactionContext context = transactionService.getContext()) {
-            meter.activate(reinstall.toInstant());
-            context.commit();
-        }
-        meter = meteringService.findMeter(meter.getId()).get();
+        meter.activate(reinstall.toInstant());
+        meter = meteringService.findMeterById(meter.getId()).get();
         assertThat(meter.getMeterActivations()).hasSize(2);
         meterActivation = meter.getMeterActivations().get(1);
         assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(reinstall.toInstant()));
-
     }
 
     @Test
-    public void testUpdateMRID() {
-        TransactionService transactionService = injector.getInstance(TransactionService.class);
-        MeteringService meteringService = injector.getInstance(MeteringService.class);
+    @Transactional
+    public void testCreateAndUpdateName() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
 
         // activation
 
-        Meter meter;
-        try (TransactionContext context = transactionService.getContext()) {
-            meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
-                    .setMRID("mRID")
+        Meter meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "myName")
+                .create();
+        meter = meteringService.findMeterById(meter.getId()).get();
+
+        String mRID = meter.getMRID();
+        assertThat(mRID).isNotNull().isNotEmpty();
+        assertThat(UUID.fromString(mRID).toString()).isEqualTo(mRID);
+        assertThat(meter.getName()).isEqualTo("myName");
+
+        meter.setName("newName");
+        meter.update();
+
+        meter = meteringService.findMeterById(meter.getId()).get();
+
+        assertThat(meter.getMRID()).isEqualTo(mRID);
+        assertThat(meter.getName()).isEqualTo("newName");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateWithPrescribedMRID() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+
+        // activation
+        Meter meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "myName")
+                    .setMRID("00F000-0f7-0f00-f000-00ABCDE02ff")
                     .create();
-            context.commit();
-        }
-        meter = meteringService.findMeter(meter.getId()).get();
 
-        try (TransactionContext context = transactionService.getContext()) {
-            meter.setMRID("newMRID");
-            meter.update();
-            context.commit();
-        }
+        meter = meteringService.findMeterById(meter.getId()).get();
+        assertThat(meter.getMRID()).isEqualTo("0000f000-00f7-0f00-f000-000abcde02ff");
+    }
 
-        meter = meteringService.findMeter(meter.getId()).get();
+    @Test(expected = IllegalArgumentException.class)
+    @Transactional
+    public void testCreateWithWrongMRID() {
+        MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
 
-        assertThat(meter.getMRID()).isEqualTo("newMRID");
+        // activation
+        meteringService.findAmrSystem(1).get().newMeter("amrID", "myName")
+                .setMRID("00000000-0000-00000000-0000000000ff")
+                .create();
     }
 
     private FiniteStateMachine createTinyFiniteStateMachine() {
-        FiniteStateMachineServiceImpl finiteStateMachineService = (FiniteStateMachineServiceImpl) this.injector.getInstance(FiniteStateMachineService.class);
+        FiniteStateMachineServiceImpl finiteStateMachineService = (FiniteStateMachineServiceImpl) inMemoryBootstrapModule.getFiniteStateMachineService();
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");
         FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("TheOneAndOnly").complete());
         return stateMachine;
     }
-
 }

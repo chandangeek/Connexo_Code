@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -74,6 +75,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 
 import com.google.common.collect.Range;
 
@@ -267,11 +269,13 @@ public enum TableSpecs {
             table.map(UsagePointImpl.class);
             table.setJournalTableName("MTR_USAGEPOINTJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
+            Column mRIDColumn_10_2 = table.column("MRID").varChar(NAME_LENGTH).upTo(version(10, 2, 1)).add();
+            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").since(version(10, 2, 1)).previously(mRIDColumn_10_2).add();
             Column serviceKindColumn = table.column("SERVICEKIND").number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             Column serviceLocationIdColumn = table.column("SERVICELOCATIONID").number().conversion(NUMBER2LONGNULLZERO).add();
+            Column nameColumn_10_2 = table.column("NAME").varChar(NAME_LENGTH).upTo(version(10, 2, 1)).add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").since(version(10, 2, 1)).previously(nameColumn_10_2).add();
             table.column("SERVICELOCATIONSTRING").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceLocationString").since(version(10, 2)).add();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("ISSDP").bool().map("isSdp").add();
@@ -296,9 +300,13 @@ public enum TableSpecs {
                     .since(version(10, 2))
                     .add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
+            Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).since(version(10, 3)).add();
             table.addAuditColumns();
+
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).during(Range.closedOpen(version(10, 2, 1), version(10, 3))).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn, obsoleteTime).since(version(10, 3)).add();
             table.foreignKey("FK_MTR_USAGEPOINTSERVICECAT")
                     .on(serviceKindColumn)
                     .references(ServiceCategory.class)
@@ -344,18 +352,15 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDevice> table = dataModel.addTable(name(), EndDevice.class);
             table.map(EndDeviceImpl.IMPLEMENTERS);
-            table.setJournalTableName("MTR_ENDDEVICEJRNL");
+            table.setJournalTableName("MTR_ENDDEVICEJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
-            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
-            Column amrSystemIdColumn = table.column("AMRSYSTEMID")
-                    .number()
-                    .notNull()
-                    .conversion(NUMBER2INT)
-                    .map("amrSystemId")
-                    .add();
+            Column mRIDColumn_10_2 = table.column("MRID").varChar(NAME_LENGTH).upTo(version(10, 2, 1)).add();
+            Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").since(version(10, 2, 1)).previously(mRIDColumn_10_2).add();
+            Column amrSystemIdColumn = table.column("AMRSYSTEMID").number().notNull().conversion(NUMBER2INT).map("amrSystemId").add();
             Column amrIdColumn = table.column("AMRID").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("amrId").add();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            Column nameColumn_10_2 = table.column("NAME").varChar(NAME_LENGTH).upTo(version(10, 2, 1)).add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").since(version(10, 2, 1)).previously(nameColumn_10_2).add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("SERIALNUMBER").varChar(NAME_LENGTH).map("serialNumber").add();
@@ -380,8 +385,6 @@ public enum TableSpecs {
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_METER").on(idColumn).add();
-            table.unique("MTR_U_METER").on(mRIDColumn, obsoleteTime).add();
-            table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
             table.foreignKey("FK_MTR_METERAMRSYSTEM")
                     .references(MTR_AMRSYSTEM.name())
                     .onDelete(RESTRICT)
@@ -400,7 +403,11 @@ public enum TableSpecs {
                     .map("location", LocationMember.class)
                     .since(version(10, 2))
                     .add();
+            table.unique("MTR_U_METER").on(mRIDColumn_10_2, obsoleteTime).upTo(version(10, 2, 1)).add();
+            table.unique("MTR_U_METER").on(mRIDColumn).since(version(10, 2, 1)).add();
+            table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
+            table.unique("UK_MTR_ENDDEVICE_NAME").on(nameColumn, obsoleteTime).since(version(10, 2, 1)).add();
         }
     },
     MTR_ENDDEVICESTATUS {
@@ -726,7 +733,17 @@ public enum TableSpecs {
                     .map(MetrologyConfigurationImpl.Fields.STATUS.fieldName())
                     .notNull()
                     .add();
-            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2ENUMPLUSONE)
+                    .add();
+            Column obsoleteTime = table.column(MetrologyConfigurationImpl.Fields.OBSOLETETIME.name())
+                    .number()
+                    .map(MetrologyConfigurationImpl.Fields.OBSOLETETIME.fieldName())
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .since(version(10, 3))
+                    .add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_METROLOGYCONFIG").on(id).add();
             table.foreignKey("FK_MTR_METROLOGYCONFIG2SERVCAT")
@@ -734,7 +751,8 @@ public enum TableSpecs {
                     .on(serviceCategoryColumn)
                     .map(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.fieldName())
                     .add();
-            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name).add();
+            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name).upTo(version(10, 3)).add();
+            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name, obsoleteTime).since(version(10, 3)).add();
         }
     },
     MTR_M_CONFIG_CPS_USAGES {
@@ -1478,6 +1496,13 @@ public enum TableSpecs {
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
+            table.column(ReadingTypeDeliverableImpl.Fields.DELIVERABLE_TYPE.name())
+                    .map(ReadingTypeDeliverableImpl.Fields.DELIVERABLE_TYPE.fieldName())
+                    .number()
+                    .since(version(10, 3))
+                    .installValue("2")
+                    .notNull()
+                    .conversion(NUMBER2ENUMPLUSONE).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_DELIVERABLE").on(idColumn).add();
@@ -1653,7 +1678,11 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar2(80 char)");
             Column meterActivationColumn = table.column("METER_ACTIVATION").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .upTo(version(10, 3))
+                    .add();
 
             table.addAuditColumns();
 
@@ -1664,15 +1693,33 @@ public enum TableSpecs {
                     .references(MeterActivation.class)
                     .map("meterActivation")
                     .reverseMap("channelsContainer")
-                    .composition()
                     .add();
-            table.unique("MTR_CH_CONTAINER_EF_CONTR_UK").on(effectiveMetrologyContractColumn).add();
+            table.unique("MTR_CH_CONTAINER_EF_CONTR_UK")
+                    .on(effectiveMetrologyContractColumn)
+                    .upTo(version(10, 3))
+                    .add();
             table.foreignKey("MTR_CH_CONTAINER_2_EF_CONTR")
+                    .upTo(version(10, 3))
                     .on(effectiveMetrologyContractColumn)
                     .references(EffectiveMetrologyContractOnUsagePoint.class)
                     .map(MetrologyContractChannelsContainerImpl.Fields.EFFECTIVE_CONTRACT.fieldName())
                     .reverseMap(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER.fieldName())
                     .composition()
+                    .add();
+        }
+    },
+    ADD_MTR_EFFECTIVE_CONTRACT_CHANNEL_CONTAINER {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<?> table = dataModel.getTable(MTR_EFFECTIVE_CONTRACT.name());
+            Column channelContainerColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER
+                    .name()).number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
+            table.foreignKey("MTR_EF_CONTR_2_CH_CONTAINER")
+                    .since(version(10, 3))
+                    .on(channelContainerColumn)
+                    .references(MTR_CHANNEL_CONTAINER.name())
+                    .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER.fieldName())
+                    .reverseMap(MetrologyContractChannelsContainerImpl.Fields.EFFECTIVE_CONTRACT.fieldName())
                     .add();
         }
     },
@@ -1847,7 +1894,34 @@ public enum TableSpecs {
                     .map(fieldName)
                     .add();
         }
-    };
+    },
+    MTR_UPL_STATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointStateTemporalImpl> table = dataModel.addTable(name(), UsagePointStateTemporalImpl.class);
+            table.map(UsagePointStateTemporalImpl.class);
+            table.since(version(10, 3));
+            Column usagePoint = table.column("USAGE_POINT").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            Column state = table.column("UPL_STATE").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.addAuditColumns();
+            table.primaryKey("MTR_UPL_STATE_PK").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("MTR_UPL_STATE_2_UP_FK")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .onDelete(CASCADE)
+                    .map("usagePoint")
+                    .reverseMap("state")
+                    .composition()
+                    .add();
+            table.foreignKey("FK_UPL_STATE_2_STATE")
+                    .on(state)
+                    .references(UsagePointState.class)
+                    .onDelete(RESTRICT)
+                    .map("state")
+                    .add();
+        }
+    },;
 
     abstract void addTo(DataModel dataModel);
 

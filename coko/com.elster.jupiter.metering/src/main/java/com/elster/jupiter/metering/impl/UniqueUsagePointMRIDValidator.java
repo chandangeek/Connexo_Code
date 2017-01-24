@@ -1,16 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.List;
-import java.util.Optional;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
+import java.util.Optional;
 
 public class UniqueUsagePointMRIDValidator implements ConstraintValidator<UniqueMRID, UsagePoint> {
 
@@ -29,29 +25,19 @@ public class UniqueUsagePointMRIDValidator implements ConstraintValidator<Unique
 
     @Override
     public boolean isValid(UsagePoint usagePoint, ConstraintValidatorContext context) {
-        return usagePoint == null || !checkExisting(usagePoint, context);
+        return Optional.ofNullable(usagePoint)
+                .map(UsagePoint::getMRID)
+                .flatMap(meteringService::findUsagePointByMRID)
+                .filter(alreadyPresentUP -> usagePoint.getId() != alreadyPresentUP.getId())
+                .map(conflictingUP -> fail(context))
+                .orElse(true);
     }
 
-    private boolean checkExisting(UsagePoint usagePoint, ConstraintValidatorContext context) {
-    	Condition condition = Operator.EQUAL.compare("mRID", usagePoint.getMRID());
-        List<UsagePoint> candidates = meteringService.getUsagePointQuery().select(condition);
-        Optional<UsagePoint> found = Optional.empty();
-        if (candidates.size()==1) {
-        	found = Optional.of(candidates.get(0));
-        } else if (candidates.size()>1) {
-        	throw new IllegalStateException();
-        }
-        
-        if (found.isPresent() && areDifferentWithSameMRID(usagePoint, found.get())) {
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(message).addPropertyNode("mRID").addConstraintViolation();
-            return true;
-        }
-        return false;
+    private boolean fail(ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(message)
+                .addPropertyNode("mRID")
+                .addConstraintViolation();
+        return false; // something is not valid
     }
-
-    private boolean areDifferentWithSameMRID(UsagePoint usagePoint, UsagePoint existingUsagePoint) {
-        return existingUsagePoint.getMRID().equals(usagePoint.getMRID()) && (existingUsagePoint.getId() != usagePoint.getId());
-    }
-
 }

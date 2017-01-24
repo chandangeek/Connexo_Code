@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -17,7 +18,6 @@ import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -28,6 +28,7 @@ import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
+import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.ami.CompletionOptions;
@@ -63,6 +64,9 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
@@ -91,6 +95,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -98,7 +103,9 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.test;
 
-@UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
+@UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_MRID + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_NAME + "}")
+@AllRequiredCustomPropertySetsHaveValues(groups = {Save.Update.class})
 public class UsagePointImpl implements UsagePoint {
     // persistent fields
     @SuppressWarnings("unused")
@@ -109,9 +116,10 @@ public class UsagePointImpl implements UsagePoint {
     private String description;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceLocationString;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String mRID;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -129,6 +137,8 @@ public class UsagePointImpl implements UsagePoint {
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
     private TemporalReference<UsagePointConnectionState> connectionState = Temporals.absent();
+    private TemporalReference<UsagePointStateTemporalImpl> state = Temporals.absent();
+
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -137,6 +147,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    private Instant obsoleteTime;
     private long location;
     private SpatialCoordinates spatialCoordinates;
 
@@ -160,6 +171,7 @@ public class UsagePointImpl implements UsagePoint {
     private final CustomPropertySetService customPropertySetService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final ServerDataAggregationService dataAggregationService;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private transient UsagePointCustomPropertySetExtensionImpl customPropertySetExtension;
 
     @Inject
@@ -168,9 +180,9 @@ public class UsagePointImpl implements UsagePoint {
             Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
             CustomPropertySetService customPropertySetService,
-            MeteringService meteringService,
             ServerMetrologyConfigurationService metrologyConfigurationService,
-            ServerDataAggregationService dataAggregationService) {
+            ServerDataAggregationService dataAggregationService,
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -180,10 +192,12 @@ public class UsagePointImpl implements UsagePoint {
         this.customPropertySetService = customPropertySetService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.dataAggregationService = dataAggregationService;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
-    UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
-        this.mRID = mRID;
+    UsagePointImpl init(String name, ServiceCategory serviceCategory) {
+        this.name = name;
+        this.mRID = UUID.randomUUID().toString();
         this.serviceCategory.set(serviceCategory);
         this.isSdp = true;
         return this;
@@ -296,7 +310,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setInstallationTime(Instant installationTime) {
-        this.installationTime = installationTime !=null ? installationTime.truncatedTo(ChronoUnit.MINUTES) : null;
+        this.installationTime = installationTime != null ? installationTime.truncatedTo(ChronoUnit.MINUTES) : null;
     }
 
     @Override
@@ -307,11 +321,6 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    @Override
-    public void setMRID(String mRID) {
-        this.mRID = mRID;
     }
 
     @Override
@@ -366,7 +375,6 @@ public class UsagePointImpl implements UsagePoint {
 
     void doSave() {
         if (id == 0) {
-            this.setConnectionState(ConnectionState.UNDER_CONSTRUCTION, installationTime);
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
@@ -376,6 +384,11 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
+    /**
+     * This method will not work if there are meter activations, channel containers and channels linked
+     * We keep this method for physical deletion in the future.
+     *
+     **/
     @Override
     public void delete() {
         this.removeMetrologyConfigurationCustomPropertySetValues();
@@ -383,7 +396,6 @@ public class UsagePointImpl implements UsagePoint {
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
         dataModel.remove(this);
-        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
     private void removeMetrologyConfigurations() {
@@ -518,6 +530,10 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
         Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
+        UsagePointStage.Key usagePointStage = this.getState().getStage().getKey();
+        if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
+            throw UsagePointManagementException.incorrectStage(thesaurus);
+        }
         Long startDate = start.toEpochMilli();
         Long endDate = end != null ? end.toEpochMilli() : null;
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.getEffectiveMetrologyConfigurations()
@@ -546,7 +562,6 @@ public class UsagePointImpl implements UsagePoint {
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate)));
         effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
         this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
-        this.update();
     }
 
     @Override
@@ -650,13 +665,27 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    @Deprecated
     public ConnectionState getConnectionState() {
-        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState).orElse(ConnectionState.UNDER_CONSTRUCTION);
+        UsagePointStage.Key stage = getState().getStage().getKey();
+        switch (stage) {
+            case PRE_OPERATIONAL:
+                return ConnectionState.UNDER_CONSTRUCTION;
+            case POST_OPERATIONAL:
+                return ConnectionState.DEMOLISHED;
+            default:
+                return getCurrentConnectionState().orElse(null);
+        }
+    }
+
+    @Override
+    public Optional<ConnectionState> getCurrentConnectionState() {
+        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState);
     }
 
     @Override
     public String getConnectionStateDisplayName() {
-        return this.thesaurus.getFormat(this.getConnectionState()).format();
+        return this.thesaurus.getFormat(getConnectionState()).format();
     }
 
     @Override
@@ -667,7 +696,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void setConnectionState(ConnectionState connectionState, Instant effective) {
         if (!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
-            if (!this.connectionState.effective(Range.all()).isEmpty()) {
+            if (!this.connectionState.all().isEmpty()) {
                 this.closeCurrentConnectionState(effective);
             }
             this.createNewState(effective, connectionState);
@@ -1069,6 +1098,50 @@ public class UsagePointImpl implements UsagePoint {
         return this.dataModel.getInstance(UsagePointMeterActivatorImpl.class).init(this);
     }
 
+    @Override
+    public UsagePointState getState() {
+        return this.state.effective(this.clock.instant())
+                .map(UsagePointStateTemporalImpl::getState)
+                .orElseThrow(() -> new IllegalArgumentException("Usage point has no state at the moment."));
+    }
+
+    @Override
+    public UsagePointState getState(Instant instant) {
+        Objects.requireNonNull(instant);
+        return this.state.effective(instant)
+                .map(UsagePointStateTemporalImpl::getState)
+                .orElseThrow(() -> new IllegalArgumentException("Usage point has no state at " + instant));
+    }
+
+    @Override
+    public void setInitialState() {
+        if (!state.all().isEmpty()) {
+            throw new IllegalStateException("Usage point already has life cycle state");
+        }
+        setState(getInitialStateOfDefaultLifeCycle(), getInstallationTime());
+    }
+
+    private UsagePointState getInitialStateOfDefaultLifeCycle() {
+        return usagePointLifeCycleConfigurationService.getDefaultLifeCycle().getStates().stream()
+                .filter(UsagePointState::isInitial)
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException("Default usage point life cycle has no initial state"));
+    }
+
+    public void setState(UsagePointState state, Instant startTime) {
+        Objects.requireNonNull(state);
+        Objects.requireNonNull(startTime);
+        this.state.all().stream()
+                .filter(candidate -> !candidate.getRange().lowerEndpoint().isBefore(startTime))
+                .findFirst()
+                .ifPresent(nextState -> {
+                    throw new IllegalArgumentException("Can't change state for usage point because it has state changes after that time: " + startTime);
+                });
+        this.state.effective(startTime).ifPresent(activeState -> activeState.close(startTime));
+        this.state.add(this.dataModel.getInstance(UsagePointStateTemporalImpl.class).init(this, state, startTime));
+        touch();
+    }
+
     public void adopt(MeterActivationImpl meterActivation) {
         meterActivations.stream()
                 .filter(activation -> activation.getId() != meterActivation.getId())
@@ -1166,5 +1239,19 @@ public class UsagePointImpl implements UsagePoint {
 
     private Optional<Location> findLocation(long id) {
         return dataModel.mapper(Location.class).getOptional(id);
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.obsoleteTime = this.clock.instant();
+        this.dataModel.update(this, "obsoleteTime");
+        this.getEffectiveMetrologyConfiguration(this.obsoleteTime)
+                .ifPresent(efmc -> efmc.close(this.obsoleteTime));
+        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteTime() {
+        return Optional.ofNullable(this.obsoleteTime);
     }
 }

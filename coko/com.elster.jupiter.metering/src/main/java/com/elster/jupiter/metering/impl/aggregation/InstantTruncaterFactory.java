@@ -5,7 +5,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.impl.GasDayOptions;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 
 /**
@@ -23,12 +22,10 @@ public class InstantTruncaterFactory {
 
     InstantTruncater truncaterFor(ReadingType readingType) {
         if (VirtualReadingType.isGas(readingType.getCommodity())) {
-            GasDayOptions gasDayOptions = this.meteringService.getGasDayOptions();
-            if (gasDayOptions != null) {
-                return new GasDayTruncater(gasDayOptions);
-            } else {
-                return new SimpleTruncater();
-            }
+            return this.meteringService
+                    .getGasDayOptions()
+                    .<InstantTruncater>map(GasDayTruncater::new)
+                    .orElseGet(SimpleTruncater::new);
         } else {
             return new SimpleTruncater();
         }

@@ -123,7 +123,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
         }
 
         protected Optional<CurrentState> currentStateFor(MeterReadingStorer.EventSource eventSource, FiniteStateMachine finiteStateMachine, MeteringService meteringService) {
-            return this.currentStateFor(meteringService.findMeter(eventSource.getMeterId()), finiteStateMachine);
+            return this.currentStateFor(meteringService.findMeterById(eventSource.getMeterId()), finiteStateMachine);
         }
 
         protected Optional<CurrentState> currentStateFor(Optional<Meter> meter, FiniteStateMachine finiteStateMachine) {

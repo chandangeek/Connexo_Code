@@ -9,7 +9,7 @@
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>metering</artifactId>
-    <version>4.1.0${revision}</version>
+    <version>5.1.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.metering</name>
 
@@ -98,6 +98,18 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pubsub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -110,13 +122,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.easytesting</groupId>
-            <artifactId>fest-reflect</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bootstrap.h2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>time</artifactId>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-reflect</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -137,16 +149,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bootstrap.h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>pubsub</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

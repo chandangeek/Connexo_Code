@@ -10,6 +10,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @ProviderType
 public interface MetrologyConfiguration extends HasId, HasName {
@@ -60,6 +61,8 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode);
 
+    ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, DeliverableType type, ReadingType readingType, Formula.Mode mode);
+
     void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable);
 
     List<ReadingTypeDeliverable> getDeliverables();
@@ -67,6 +70,10 @@ public interface MetrologyConfiguration extends HasId, HasName {
     void delete();
 
     List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements();
+
+    void makeObsolete();
+
+    Optional<Instant> getObsoleteTime();
 
     @ProviderType
     interface MetrologyConfigurationReadingTypeRequirementBuilder {

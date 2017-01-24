@@ -193,9 +193,8 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     @Override
     public void delete() {
         if (meterActivations.size() > 0) {
-            throw new CannotDeleteMeter(thesaurus, MessageSeeds.CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST, getMRID());
+            throw new CannotDeleteMeter(thesaurus, MessageSeeds.CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST, getName());
         }
-
         super.delete();
     }
 

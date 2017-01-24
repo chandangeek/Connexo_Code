@@ -25,7 +25,7 @@ public interface SwitchStateMachineFailureEvent {
      * failed.
      *
      * @return The unique identifier
-     * @see com.elster.jupiter.metering.MeteringService#findEndDevice(long)
+     * @see com.elster.jupiter.metering.MeteringService#findEndDeviceById(long)
      */
     public long getEndDeviceId();
 

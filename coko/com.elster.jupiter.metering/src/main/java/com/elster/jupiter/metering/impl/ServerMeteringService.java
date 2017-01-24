@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
@@ -51,12 +52,5 @@ public interface ServerMeteringService extends MeteringService {
      * @throws IllegalStateException Thrown when GasDayOptions have already been created before
      */
     GasDayOptions createGasDayOptions(DayMonthTime yearStart);
-
-    /**
-     * Gets the GasDayOptions that were created at system installation time.
-     *
-     * @return The GasDayOptions
-     */
-    GasDayOptions getGasDayOptions();
 
 }

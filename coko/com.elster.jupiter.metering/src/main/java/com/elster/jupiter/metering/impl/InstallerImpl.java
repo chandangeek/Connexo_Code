@@ -18,12 +18,14 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
+import com.elster.jupiter.metering.impl.upgraders.GasDayRelativePeriodCreator;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
@@ -57,6 +59,7 @@ public class InstallerImpl implements FullInstaller {
     private static final String NOT_APPLICABLE = "n/a";
 
     private final ServerMeteringService meteringService;
+    private final TimeService timeService;
     private final IdsService idsService;
     private final PartyService partyService;
     private final UserService userService;
@@ -68,18 +71,33 @@ public class InstallerImpl implements FullInstaller {
     private final DataModel dataModel;
     private final BundleContext bundleContext;
     private final InstallerV10_2Impl installerV10_2;
+    private final PrivilegesProviderV10_3 installerV10_3;
 
     @Inject
-    public InstallerImpl(BundleContext bundleContext, DataModel dataModel, ServerMeteringService meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, MessageService messageService, Clock clock, MeteringDataModelServiceImpl meteringDataModelService, InstallerV10_2Impl installerV10_2) {
+    public InstallerImpl(BundleContext bundleContext,
+                         DataModel dataModel,
+                         ServerMeteringService meteringService,
+                         TimeService timeService,
+                         IdsService idsService,
+                         PartyService partyService,
+                         UserService userService,
+                         EventService eventService,
+                         MessageService messageService,
+                         Clock clock,
+                         MeteringDataModelServiceImpl meteringDataModelService,
+                         InstallerV10_2Impl installerV10_2,
+                         PrivilegesProviderV10_3 installerV10_3) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
+        this.timeService = timeService;
         this.idsService = idsService;
         this.partyService = partyService;
         this.userService = userService;
         this.eventService = eventService;
         this.messageService = messageService;
         this.installerV10_2 = installerV10_2;
+        this.installerV10_3 = installerV10_3;
         this.createAllReadingTypes = meteringDataModelService.isCreateAllReadingTypes();
         this.requiredReadingTypes = meteringDataModelService.getRequiredReadingTypes();
         this.clock = clock;
@@ -162,7 +180,13 @@ public class InstallerImpl implements FullInstaller {
                 () -> new GasDayOptionsCreator(this.meteringService).createIfMissing(this.bundleContext),
                 logger
         );
+        doTry(
+                "Create Gas Day Relative periods",
+                () -> GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService),
+                logger
+        );
         userService.addModulePrivileges(installerV10_2);
+        userService.addModulePrivileges(installerV10_3);
     }
 
     private void createEventTypes() {

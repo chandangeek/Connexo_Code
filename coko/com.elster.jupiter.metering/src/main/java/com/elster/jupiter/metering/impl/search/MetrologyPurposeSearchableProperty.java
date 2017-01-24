@@ -1,6 +1,10 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -9,9 +13,12 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -20,21 +27,33 @@ public class MetrologyPurposeSearchableProperty implements SearchableUsagePointP
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
+    private final ServerMeteringService meteringService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final Clock clock;
     static final String FIELD_NAME  = "metrologyConfigurations.metrologyConfiguration.metrologyContracts.metrologyPurpose";
 
-    public MetrologyPurposeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock){
+    public MetrologyPurposeSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService, ServerMeteringService meteringService, Clock clock) {
         this.domain = domain;
         this.propertySpecService = propertySpecService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.meteringService = meteringService;
         this.clock = clock;
     }
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("metrologyConfigurations.interval")
-                .isEffective(this.clock.instant()));
+
+        return ListOperator.IN.contains(meteringService.getDataModel()
+                        .query(EffectiveMetrologyConfigurationOnUsagePoint.class, EffectiveMetrologyContractOnUsagePoint.class)
+                        .asSubquery(ListOperator.IN.contains(meteringService.getDataModel()
+                                        .query(EffectiveMetrologyContractOnUsagePoint.class, MetrologyContract.class, MetrologyPurpose.class)
+                                        .asSubquery(Where.where("interval")
+                                                        .isEffective()
+                                                        .and(Where.where("metrologyContract.metrologyPurpose")
+                                                                .in(new ArrayList<>(((Contains) specification).getCollection())))
+                                                , "metrologyConfiguration"),
+                                "id"), "usagePoint"),
+                "id");
     }
 
     @Override

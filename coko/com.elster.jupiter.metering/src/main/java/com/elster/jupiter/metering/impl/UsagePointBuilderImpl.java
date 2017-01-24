@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
@@ -8,9 +10,13 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UsagePointBuilderImpl implements UsagePointBuilder {
 
@@ -18,7 +24,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
 
     private String aliasName;
     private String description;
-    private String mRID;
     private String name;
     private boolean isSdp;
     private boolean isVirtual;
@@ -33,10 +38,11 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
 
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
+    private Map<RegisteredCustomPropertySet, CustomPropertySetValues> customPropertySetsValues = new HashMap<>();
 
-    public UsagePointBuilderImpl(DataModel dataModel, String mRID, Instant installationTime, ServiceCategory serviceCategory) {
+    public UsagePointBuilderImpl(DataModel dataModel, String name, Instant installationTime, ServiceCategory serviceCategory) {
         this.serviceCategory = serviceCategory;
-        this.mRID = mRID;
+        this.name = name;
         this.installationTime = installationTime;
         this.dataModel = dataModel;
     }
@@ -54,13 +60,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withMRID(String mRID) {
-        this.mRID = mRID;
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder withLocation(Location location){
+    public UsagePointBuilder withLocation(Location location) {
         this.locationId = location.getId();
         return this;
     }
@@ -68,12 +68,6 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     @Override
     public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordinates) {
         this.spatialCoordinates = geoCoordinates;
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder withName(String name) {
-        this.name = name;
         return this;
     }
 
@@ -131,22 +125,37 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
+    public UsagePointBuilder addCustomPropertySetValues(RegisteredCustomPropertySet propertySet, CustomPropertySetValues values) {
+        this.customPropertySetsValues.put(propertySet, values);
+        return this;
+    }
+
+    @Override
     public UsagePoint create() {
         UsagePointImpl usagePoint = this.build();
         usagePoint.doSave();
+        if (!customPropertySetsValues.isEmpty()) {
+            customPropertySetsValues.forEach((propertySet, values) -> {
+                if (propertySet.getCustomPropertySet().isVersioned()) {
+                    usagePoint.forCustomProperties().getVersionedPropertySet(propertySet.getId()).setVersionValues(null, values);
+                } else {
+                    usagePoint.forCustomProperties().getPropertySet(propertySet.getId()).setValues(values);
+                }
+            });
+            usagePoint.update(); // force missing CAS validation
+        }
         return usagePoint;
     }
 
     @Override
     public UsagePoint validate() {
         UsagePointImpl usagePoint = this.build();
-        Save.CREATE.validate(dataModel,usagePoint);
+        Save.CREATE.validate(dataModel, usagePoint);
         return usagePoint;
     }
 
-    private UsagePointImpl build(){
-        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
-        usagePoint.setName(name);
+    private UsagePointImpl build() {
+        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(name, serviceCategory);
         usagePoint.setSdp(isSdp);
         usagePoint.setVirtual(isVirtual);
         usagePoint.setOutageRegion(outageRegion);
@@ -158,6 +167,12 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setServiceLocationString(serviceLocationString);
         usagePoint.setSpatialCoordinates(spatialCoordinates);
         usagePoint.setLocation(locationId);
+        UsagePointState initialState = dataModel.getInstance(UsagePointLifeCycleConfigurationService.class).getDefaultLifeCycle().getStates()
+                .stream()
+                .filter(UsagePointState::isInitial)
+                .findFirst()
+                .get();
+        usagePoint.setState(initialState, usagePoint.getInstallationTime());
         return usagePoint;
     }
 }

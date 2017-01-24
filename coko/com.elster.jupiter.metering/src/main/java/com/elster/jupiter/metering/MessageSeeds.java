@@ -29,12 +29,13 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_MULTIPLIER(2015, Constants.INVALID_MULTIPLIER, "Multiplier must be between {min} and {max}", Level.SEVERE),
     INVALID_UNIT(2016, Constants.INVALID_UNIT, "Invalid unit", Level.SEVERE),
 
-    DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE),
-    NO_USAGE_POINT_FOR_MRID(3002, Constants.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"),
+    DUPLICATE_USAGE_POINT_MRID(3001, Constants.DUPLICATE_USAGE_POINT_MRID, "MRID must be unique", Level.SEVERE),
+    NO_USAGE_POINT_WITH_NAME(3002, Constants.NO_USAGE_POINT_WITH_NAME, "No usage point with name {0}"),
     NO_CHANNEL_WITH_ID(3003, Constants.NO_CHANNEL_WITH_ID, "No channel with id {0}"),
     NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT(3004, Constants.NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT, "No effective metrology configuration on usage point {0}"),
     NO_READING_FOUND(3005, Constants.NO_READING_FOUND, "No reading found"),
     METER_ROLE_NOT_IN_CONFIGURATION(3006, Constants.METER_ROLE_NOT_IN_CONFIGURATION, "Meter role {0} is not part of the metrology configuration that applies to the meter activation period"),
+    DUPLICATE_USAGE_POINT_NAME(3007, Constants.DUPLICATE_USAGE_POINT_NAME, "Usage point name must be unique", Level.SEVERE),
 
     REQUIRED(4001, Constants.REQUIRED, "This field is required"),
     FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION(4002, Constants.FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION, "You cannot manage custom attribute sets because metrology configuration is active."),
@@ -92,25 +93,31 @@ public enum MessageSeeds implements MessageSeed {
     CONTRACT_NOT_ACTIVE(6000, Constants.CONTRACT_NOT_ACTIVE, "The metrology contract with purpose {0} is not active on usage point ''{1}'' during the requested data aggregation period ({2})"),
     VIRTUAL_USAGE_POINT_ONLY_SUPPORT_CONSTANT_LIKE_EXPRESSIONS(6001, Constants.VIRTUAL_USAGE_POINT_ONLY_SUPPORT_CONSTANT_LIKE_EXPRESSIONS, "Unmeasured usage points only support constants and custom attributes or operations and functions that operate on those"),
 
+    @Deprecated
     USAGE_POINT_INCORRECT_STATE(7001, Constants.USAGE_POINT_INCORRECT_STATE, "Usage point ''{0}'' should be in ''Under construction'' state to activate meters"),
     THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT(7002, Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT, "The same meter can''t be specified for different meter roles."),
     UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching a {0}."),
-    UNSATISFIED_READING_TYPE_REQUIREMENTS(7004, Constants.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don't provide reading types specified in the metrology configuration."),
-    UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE(7005, Constants.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE, "Devices activated on this usage point in specified period of time don't provide reading types specified in selected metrology configuration."),
-    START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE(7006, Constants.START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE, "Start date should be more than Start date of the latest metrology configuration version."),
-    START_DATE_SHOULD_BE_GREATER_THAN_LATEST_END_DATE(7007, Constants.START_DATE_SHOULD_BE_GREATER_THAN_LATEST_END_DATE, "Start date should be more than or equal to End date of the latest metrology configuration version."),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS(7004, Constants.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don''t provide reading types specified in the metrology configuration."),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE(7005, Constants.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE, "Devices activated on this usage point in specified period of time don''t provide reading types specified in selected metrology configuration."),
+    START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE(7006, Constants.START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE, "Start date should be greater than Start date of the latest metrology configuration version."),
+    START_DATE_SHOULD_BE_GREATER_THAN_LATEST_END_DATE(7007, Constants.START_DATE_SHOULD_BE_GREATER_THAN_LATEST_END_DATE, "Start date should be greater than or equal to End date of the latest metrology configuration version."),
     END_DATE_MUST_BE_GREATER_THAN_START_DATE(7008, Constants.END_DATE_MUST_BE_GREATER_THAN_START_DATE, "End date must be greater than Start date."),
     THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION(7009, Constants.THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION, "This date is overlapped by other metrology configuration version."),
-    END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION(7010, Constants.END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION, "End date can't be in the past for current metrology configuration version"),
+    END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION(7010, Constants.END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION, "End date can''t be in the past for current metrology configuration version"),
     CHANNEL_DATA_PRESENT(7011, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
-    UNSUPPORTED_COMMAND(7012, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device with MRID {1}"),
-    CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED(7013, Constants.CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED, "Current metrology configuration version can't be removed"),
-    START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(7014, Constants.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "Start date must be greater or equal to Created date of usage point"),
+    UNSUPPORTED_COMMAND(7012, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device {1}"),
+    CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED(7013, Constants.CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED, "Current metrology configuration version can''t be removed"),
+    START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE(7014, Constants.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE, "Start date must be greater than or equal to Created date of usage point"),
     USAGE_POINT_DETAILS_NOT_UNIQUE(7015, Constants.UNIQUE_DETAILS, "The usage point already has details for this interval"),
     ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS(7016, Constants.ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS, "Usage point activation failed by custom validator: {0}"),
     USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE(7017, Constants.USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE, "Usage point already has linked meter {0} for role {1}"),
+    USAGE_POINT_INCORRECT_STAGE(7018, Constants.USAGE_POINT_INCORRECT_STAGE, "Incorrect usage point stage, should be preoperational"),
 
-    DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0");
+    DENOMINATOR_CANNOT_BE_ZERO(8001, Constants.DENOMINATOR_CANNOT_BE_ZERO, "Denominator cannot be 0"),
+    REQUIRED_CAS_MISSING(8002, Constants.REQUIRED_CAS_MISSING, "Required custom property sets are missing"),
+
+    CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(9001, Constants.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "Can''t remove usage point life cycle because it''s in use by at least one of the usage point."),
+    CAN_NOT_DELETE_ACTIVE_STATE(9002, Constants.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more usage points use this state.");
 
     private final int number;
     private final String key;
@@ -165,7 +172,8 @@ public enum MessageSeeds implements MessageSeed {
 
     public enum Constants {
         ;
-        public static final String DUPLICATE_USAGEPOINT = "usagepoint.mridalreadyexists";
+        public static final String DUPLICATE_USAGE_POINT_NAME = "usagepoint.name.already.exists";
+        public static final String DUPLICATE_USAGE_POINT_MRID = "usagepoint.mrid.already.exists";
         public static final String FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION = "fail.manage.cps.on.active.metrology.configuration";
         public static final String OBJECT_MUST_HAVE_UNIQUE_NAME = "name.must.be.unique";
         public static final String REQUIRED = "isRequired";
@@ -177,7 +185,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_VALUE = "invalidValue";
         public static final String INVALID_MULTIPLIER = "invalidMultiplier";
         public static final String INVALID_UNIT = "invalidUnit";
-        public static final String NO_USAGE_POINT_FOR_MRID = "NoUsagePointForMRID";
+        public static final String NO_USAGE_POINT_WITH_NAME = "NoUsagePointWithName";
         public static final String NO_CHANNEL_WITH_ID = "no.channel.for.id";
         public static final String NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT = "no.effective.metrology.configuration.on.usage.point";
         public static final String NO_READING_FOUND = "no.reading.found";
@@ -229,6 +237,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CUSTOM_PROPERTY_SET_NOT_VERSIONED = "cps.not.versioned";
         public static final String CUSTOM_PROPERTY_MUST_BE_NUMERICAL = "cps.property.not.numerical";
         public static final String USAGE_POINT_INCORRECT_STATE = "usage.point.incorrect.state";
+        public static final String USAGE_POINT_INCORRECT_STAGE = "usage.point.incorrect.stage";
         public static final String THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT = "the.same.meter.activated.twice.on.usage.point";
         public static final String USAGE_POINT_ALREADY_ACTIVE_WITH_GIVEN_ROLE = "usage.point.already.active.with.given.role";
         public static final String UNSATISFIED_METROLOGY_REQUIREMENT = "unsatisfied.metrology.requirement";
@@ -247,6 +256,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNIQUE_DETAILS = "usage.point.details.not.unique.for.interval";
         public static final String DENOMINATOR_CANNOT_BE_ZERO = "denominator.cannot.be.zero";
         public static final String ACTIVATION_FAILED_BY_CUSTOM_VALIDATORS = "activation.failed.by.custom.validators";
+        public static final String CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE = "can.not.delete.active.life.cycle";
+        public static final String CAN_NOT_DELETE_ACTIVE_STATE = "can.not.delete.active.state";
+        public static final String REQUIRED_CAS_MISSING = "required.cas.missing";
     }
 
 }

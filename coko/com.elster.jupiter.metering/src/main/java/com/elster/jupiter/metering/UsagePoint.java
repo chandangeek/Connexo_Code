@@ -9,6 +9,9 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -26,8 +29,6 @@ import java.util.Optional;
 public interface UsagePoint extends HasId, IdentifiedObject {
 
     long getVersion();
-
-    void setMRID(String mRID);
 
     boolean isSdp();
 
@@ -173,7 +174,26 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     UsagePointCustomPropertySetExtension forCustomProperties();
 
+    /**
+     * Returns current connection state of the usage point.
+     *
+     * @return the ConnectionState
+     * @deprecated As connection states {@link ConnectionState#UNDER_CONSTRUCTION} and {@link ConnectionState#DEMOLISHED} were semantically
+     * replaced by {@link UsagePointStage.Key#PRE_OPERATIONAL} and {@link UsagePointStage.Key#POST_OPERATIONAL} stages of {@link UsagePointLifeCycle}
+     * this method should not be used anymore.
+     * <p>
+     * Use {@link UsagePoint#getCurrentConnectionState()} instead
+     */
+    @Deprecated
     ConnectionState getConnectionState();
+
+    /**
+     * Returns current connection state of the usage point or Optional.empty() if there is no effective connection state
+     * (that make sense if usage point is in {@link UsagePointStage.Key#PRE_OPERATIONAL} or {@link UsagePointStage.Key#POST_OPERATIONAL} stage)
+     *
+     * @return the ConnectionState
+     */
+    Optional<ConnectionState> getCurrentConnectionState();
 
     String getConnectionStateDisplayName();
 
@@ -232,6 +252,16 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     UsagePointMeterActivator linkMeters();
 
+    UsagePointState getState();
+
+    UsagePointState getState(Instant instant);
+
+    /**
+     * Sets initial state of default usage point life cycle if and only if the usage point
+     * has no current state yet, which is a possible situation during upgrade from 10.2 to 10.x
+     */
+    void setInitialState();
+
     interface UsagePointConfigurationBuilder {
 
         UsagePointConfigurationBuilder endingAt(Instant endTime);
@@ -255,4 +285,18 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     }
 
     ZoneId getZoneId();
+
+    /**
+     * Makes this UsagePoint obsolete.
+     * This UsagePoint will no longer show up in queries
+     * except the one that is looking for a UsagePoint by its database id or mrid.
+     */
+    void makeObsolete();
+
+    /**
+     * The Instant in time when this UsagePoint was made obsolete.
+     *
+     * @return The instant in time or {@code Optional.empty()} if this UsagePoint is not obsolete
+     */
+    Optional<Instant> getObsoleteTime();
 }

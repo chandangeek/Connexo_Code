@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import aQute.bnd.annotation.ProviderType;
@@ -19,10 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 @ProviderType
-public interface EndDevice extends IdentifiedObject {
+public interface EndDevice extends HasId, IdentifiedObject {
     String TYPE_IDENTIFIER = "E";
-
-    long getId();
 
     String getSerialNumber();
 
@@ -57,8 +56,6 @@ public interface EndDevice extends IdentifiedObject {
     List<EndDeviceEventRecord> getDeviceEventsByReadTime(Range<Instant> range);
 
     void setSerialNumber(String serialNumber);
-
-    void setMRID(String mrid);
 
     void setLocation(Location location);
 
@@ -120,8 +117,7 @@ public interface EndDevice extends IdentifiedObject {
     /**
      * The Instant in time when this EndDevice was made obsolete.
      *
-     * @return The instant in time or <code>Optional.empty()</code> if this EndDevice is not obsolete
+     * @return The instant in time or {@code Optional.empty()} if this EndDevice is not obsolete
      */
     Optional<Instant> getObsoleteTime();
-
 }

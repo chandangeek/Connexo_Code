@@ -93,15 +93,14 @@ public class EndDeviceSearchDomain implements SearchDomain {
     @Override
     public List<SearchableProperty> getProperties() {
         return new ArrayList<>(Arrays.asList(
-                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
-                new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
-        ));
+                new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())));
     }
 
     @Override
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         if (!constrictions.isEmpty()) {
-            throw new IllegalArgumentException("Expecting no constrictionsrtie");
+            throw new IllegalArgumentException("Expecting no constrictions");
         } else {
             return this.getProperties();
         }
@@ -111,7 +110,7 @@ public class EndDeviceSearchDomain implements SearchDomain {
     public List<SearchablePropertyValue> getPropertiesValues(Function<SearchableProperty, SearchablePropertyValue> mapper) {
         return getProperties()
                 .stream()
-                .map(mapper::apply)
+                .map(mapper)
                 .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
                 .collect(Collectors.toList());
     }
@@ -158,7 +157,7 @@ public class EndDeviceSearchDomain implements SearchDomain {
         private EndDeviceFinder(Condition condition) {
             this.finder = DefaultFinder
                     .of(EndDevice.class, condition, meteringService.getDataModel())
-                    .defaultSortColumn("mRID");
+                    .defaultSortColumn("name");
         }
 
         @Override

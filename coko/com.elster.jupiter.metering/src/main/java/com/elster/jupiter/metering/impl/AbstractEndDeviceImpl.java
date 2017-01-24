@@ -38,12 +38,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> implements ServerEndDevice {
-    static final Map<String, Class<? extends EndDevice>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends EndDevice>>of(EndDevice.TYPE_IDENTIFIER, EndDeviceImpl.class, Meter.TYPE_IDENTIFIER, MeterImpl.class);
+    static final Map<String, Class<? extends EndDevice>> IMPLEMENTERS = ImmutableMap.of(EndDevice.TYPE_IDENTIFIER, EndDeviceImpl.class, Meter.TYPE_IDENTIFIER, MeterImpl.class);
     // persistent fields
     private long id;
     private int amrSystemId;
@@ -92,11 +93,12 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
         self = selfType.cast(this);
     }
 
-    S init(AmrSystem system, String amrId, String mRID) {
+    S init(AmrSystem system, String amrId, String name, UUID mRID) {
         this.amrSystemId = system.getId();
         this.amrSystem = system;
         this.amrId = amrId;
-        this.mRID = mRID;
+        this.name = name;
+        this.mRID = (mRID == null ? UUID.randomUUID() : mRID).toString();
         return self;
     }
 
@@ -122,7 +124,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     @Override
     public String getName() {
-        return name == null ? "" : name;
+        return name;
     }
 
     @Override
@@ -329,13 +331,12 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
             return Collections.emptyList();
         }
         final String anyNumberPattern = "[0-9]{1,3}";
-        StringBuilder regExp = new StringBuilder();
-        regExp.append("^").append(anyNumberPattern).append("\\.");
-        regExp.append(filter.domain != null ? filter.domain.getValue() : anyNumberPattern).append("\\.");
-        regExp.append(filter.subDomain != null ? filter.subDomain.getValue() : anyNumberPattern).append("\\.");
-        regExp.append(filter.eventOrAction != null ? filter.eventOrAction.getValue() : anyNumberPattern).append("$");
+        String regExp = "^" + anyNumberPattern + "\\." +
+                (filter.domain != null ? filter.domain.getValue() : anyNumberPattern) + "\\." +
+                (filter.subDomain != null ? filter.subDomain.getValue() : anyNumberPattern) + "\\." +
+                (filter.eventOrAction != null ? filter.eventOrAction.getValue() : anyNumberPattern) + "$";
 
-        Condition condition = inRange(filter.range).and(where("eventType.mRID").matches(regExp.toString(), "i"));
+        Condition condition = inRange(filter.range).and(where("eventType.mRID").matches(regExp, "i"));
         if (filter.logBookId > 0) {
             condition = condition.and(where("logBookId").isEqualTo(filter.logBookId));
         }
@@ -345,11 +346,6 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     @Override
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
-    }
-
-    @Override
-    public void setMRID(String mrid) {
-        this.mRID = mrid;
     }
 
     @Override
@@ -398,6 +394,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     public void makeObsolete() {
         this.obsoleteTime = this.clock.instant();
         this.dataModel.update(this, "obsoleteTime");
+        eventService.postEvent(EventType.METER_DELETED.topic(), this);
     }
 
     @Override

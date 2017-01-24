@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.GasDayOptions;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -41,7 +42,9 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -53,7 +56,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Effective;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Operator;
@@ -83,6 +85,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.LocationTemplateElements;
 import static com.elster.jupiter.metering.impl.LocationTemplateImpl.TemplateFieldImpl;
+import static com.elster.jupiter.metering.impl.ReadingTypeImpl.Fields.mRID;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -183,7 +186,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public Optional<UsagePoint> findUsagePoint(long id) {
+    public Optional<UsagePoint> findUsagePointById(long id) {
         return dataModel.mapper(UsagePoint.class).getOptional(id);
     }
 
@@ -193,33 +196,55 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public Optional<UsagePoint> findUsagePoint(String mRID) {
-        List<UsagePoint> usagePoints = dataModel.mapper(UsagePoint.class).select(Operator.EQUAL.compare("mRID", mRID));
-        return usagePoints.isEmpty() ? Optional.empty() : Optional.of(usagePoints.get(0));
+    public Optional<UsagePoint> findAndLockUsagePointByMRIDAndVersion(String mRID, long version) {
+        return findUsagePointByMRID(mRID).flatMap(usagePoint ->
+                dataModel.mapper(UsagePoint.class).lockObjectIfVersion(version, usagePoint.getId()));
     }
 
     @Override
-    public Optional<Meter> findMeter(long id) {
+    public Optional<UsagePoint> findAndLockUsagePointByNameAndVersion(String name, long version) {
+        return findUsagePointByName(name).flatMap(usagePoint ->
+                dataModel.mapper(UsagePoint.class).lockObjectIfVersion(version, usagePoint.getId()));
+    }
+
+    @Override
+    public Optional<UsagePoint> findUsagePointByMRID(String mRID) {
+        return dataModel.mapper(UsagePoint.class).getUnique("mRID", mRID);
+    }
+
+    @Override
+    public Optional<UsagePoint> findUsagePointByName(String name) {
+        return dataModel.mapper(UsagePoint.class).getUnique("name", name, "obsoleteTime", null);
+    }
+
+    @Override
+    public Optional<Meter> findMeterById(long id) {
         return dataModel.mapper(Meter.class).getOptional(id);
     }
 
     @Override
-    public Optional<EndDevice> findEndDevice(long id) {
+    public Optional<EndDevice> findEndDeviceById(long id) {
         return dataModel.mapper(EndDevice.class).getOptional(id);
     }
 
     @Override
-    public Optional<Meter> findMeter(String mRid) {
-        List<Meter> meters = dataModel.mapper(Meter.class).select(Operator.EQUAL.compare("mRID", mRid));
-        return meters.isEmpty() ? Optional.empty() : Optional.of(meters.get(0));
+    public Optional<Meter> findMeterByMRID(String mRID) {
+        return dataModel.mapper(Meter.class).getUnique("mRID", mRID);
     }
 
     @Override
-    public Optional<EndDevice> findEndDevice(String mRid) {
-        return dataModel.stream(EndDevice.class)
-                .filter(Operator.EQUAL.compare("mRID", mRid))
-                .filter(Operator.ISNULL.compare("obsoleteTime"))
-                .findFirst();
+    public Optional<EndDevice> findEndDeviceByMRID(String mRID) {
+        return dataModel.mapper(EndDevice.class).getUnique("mRID", mRID);
+    }
+
+    @Override
+    public Optional<Meter> findMeterByName(String name) {
+        return dataModel.mapper(Meter.class).getUnique("name", name, "obsoleteTime", null);
+    }
+
+    @Override
+    public Optional<EndDevice> findEndDeviceByName(String name) {
+        return dataModel.mapper(EndDevice.class).getUnique("name", name, "obsoleteTime", null);
     }
 
     @Override
@@ -260,7 +285,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
                         EndDevice.class,
                         UsagePointAccountability.class,
                         Party.class,
-                        PartyRepresentation.class));
+                        PartyRepresentation.class,
+                        UsagePointStateTemporalImpl.class));
     }
 
     @Override
@@ -295,6 +321,23 @@ public class MeteringServiceImpl implements ServerMeteringService {
         Condition devicesWithSuspectChannels = ListOperator.IN.contains(meterQuery.asSubquery(channelsIn, "id"), "id");
         meterQuery.setRestriction(devicesWithSuspectChannels);
         return queryService.wrap(meterQuery);
+    }
+
+    @Override
+    public Query<ChannelsContainer> getChannelsContainerWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes) {
+        QueryExecutor<ChannelsContainer> query = dataModel.query(ChannelsContainer.class, Channel.class,
+                EffectiveMetrologyContractOnUsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class);
+
+        Condition suspectCondition = where("typeCode").in(Stream.of(readingQualityTypes).map(ReadingQualityType::getCode).collect(Collectors.toList()));
+        if (!Range.all().equals(readingQualityTimestamp)) {
+            suspectCondition = suspectCondition.and(where("readingTimestamp").in(readingQualityTimestamp));
+        }
+        Subquery rqrSubQuery = dataModel.query(ReadingQualityRecord.class).asSubquery(suspectCondition, "channelid");
+        Membership channelsIn = ListOperator.IN.contains(rqrSubQuery, "channels.id");
+        // we need this subquery condition because oracle cannot handle coordinates in a distinct
+        Condition withSuspectChannels = ListOperator.IN.contains(query.asSubquery(channelsIn, "id"), "id");
+        query.setRestriction(withSuspectChannels);
+        return queryService.wrap(query);
     }
 
     @Override
@@ -385,14 +428,15 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Finder<Meter> findMeters(MeterFilter filter) {
         Condition condition = Condition.TRUE;
-        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()) {
-            condition = condition.and(where("mRID").likeIgnoreCase(filter.getMrid()));
+        if (!Checks.is(filter.getName()).emptyOrOnlyWhiteSpace()) {
+            condition = condition.and(where("name").likeIgnoreCase(filter.getName()));
         }
-
-        condition = condition.and(ListOperator.NOT_IN.contains(DefaultFinder.of(EndDeviceLifeCycleStatus.class, where("state.name")
-                .in(filter.getStates()).and(where("interval").isEffective()), dataModel, State.class).asSubQuery("enddevice"), "id"));
-
-        return DefaultFinder.of(Meter.class, condition, dataModel).defaultSortColumn("mRID");
+        if (!filter.getExcludedStates().isEmpty()) {
+            condition = condition.and(ListOperator.NOT_IN.contains(DefaultFinder.of(EndDeviceLifeCycleStatus.class,
+                    where("state.name").in(filter.getExcludedStates())
+                            .and(where("interval").isEffective()), dataModel, State.class).asSubQuery("enddevice"), "id"));
+        }
+        return DefaultFinder.of(Meter.class, where("obsoleteTime").isNull().and(condition), dataModel).defaultSortColumn("name");
     }
 
     @Override
@@ -422,13 +466,13 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public Finder<UsagePoint> getUsagePoints(UsagePointFilter filter) {
         Condition condition = Condition.TRUE;
-        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()) {
-            condition = condition.and(where("mRID").likeIgnoreCase(filter.getMrid()));
+        if (!Checks.is(filter.getName()).emptyOrOnlyWhiteSpace()) {
+            condition = condition.and(where("name").likeIgnoreCase(filter.getName()));
         }
         if (filter.isAccountabilityOnly()) {
             condition = condition.and(hasAccountability());
         }
-        return DefaultFinder.of(UsagePoint.class, condition, dataModel);
+        return DefaultFinder.of(UsagePoint.class, where("obsoleteTime").isNull().and(condition), dataModel);
     }
 
     @Override
@@ -443,7 +487,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
 
     @Override
     public List<ReadingType> getAllReadingTypesWithoutInterval() {
-        Condition withoutIntervals = where(ReadingTypeImpl.Fields.mRID.name()).matches("^0\\.\\d+\\.0", "");
+        Condition withoutIntervals = where(mRID.name()).matches("^0\\.\\d+\\.0", "");
         return dataModel.mapper(ReadingType.class).select(withoutIntervals);
     }
 
@@ -683,8 +727,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public GasDayOptions getGasDayOptions() {
-        return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID).orElse(null);
+    public Optional<GasDayOptions> getGasDayOptions() {
+        return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID);
     }
 
 }

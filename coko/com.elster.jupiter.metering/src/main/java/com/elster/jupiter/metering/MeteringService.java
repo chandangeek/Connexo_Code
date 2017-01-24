@@ -46,17 +46,31 @@ public interface MeteringService {
 
     Optional<ServiceCategory> getServiceCategory(ServiceKind kind);
 
-    Optional<UsagePoint> findUsagePoint(long id);
+    Optional<UsagePoint> findUsagePointById(long id);
 
     Optional<UsagePoint> findAndLockUsagePointByIdAndVersion(long id, long version);
 
-    Optional<Meter> findMeter(long id);
+    Optional<UsagePoint> findAndLockUsagePointByMRIDAndVersion(String mRID, long version);
 
-    Optional<Meter> findMeter(String mRid);
+    Optional<UsagePoint> findAndLockUsagePointByNameAndVersion(String name, long version);
 
-    Finder<Meter> findMeters (@NotNull  MeterFilter filter);
+    Optional<UsagePoint> findUsagePointByMRID(String mRID);
 
-    Optional<EndDevice> findEndDevice(String mRid);
+    Optional<UsagePoint> findUsagePointByName(String name);
+
+    Optional<Meter> findMeterById(long id);
+
+    Optional<Meter> findMeterByMRID(String mRID);
+
+    Optional<Meter> findMeterByName(String name);
+
+    Optional<EndDevice> findEndDeviceById(long id);
+
+    Optional<EndDevice> findEndDeviceByMRID(String mRID);
+
+    Optional<EndDevice> findEndDeviceByName(String name);
+
+    Finder<Meter> findMeters(MeterFilter filter);
 
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
 
@@ -98,11 +112,9 @@ public interface MeteringService {
      */
     Query<Meter> getMeterWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes);
 
-    Optional<UsagePoint> findUsagePoint(String mRID);
+    Query<ChannelsContainer> getChannelsContainerWithReadingQualitiesQuery(Range<Instant> readingQualityTimestamp, ReadingQualityType... readingQualityTypes);
 
     Query<EndDevice> getEndDeviceQuery();
-
-    Optional<EndDevice> findEndDevice(long id);
 
     List<EndDeviceEventType> getAvailableEndDeviceEventTypes();
 
@@ -191,5 +203,12 @@ public interface MeteringService {
     List<HeadEndInterface> getHeadEndInterfaces();
 
     Optional<HeadEndInterface> getHeadEndInterface(String amrSystem);
+
+    /**
+     * Gets the GasDayOptions that were created at system installation time.
+     *
+     * @return The GasDayOptions
+     */
+    Optional<GasDayOptions> getGasDayOptions();
 
 }

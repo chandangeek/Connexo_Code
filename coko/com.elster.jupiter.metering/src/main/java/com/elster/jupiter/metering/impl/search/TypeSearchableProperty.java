@@ -77,7 +77,8 @@ public class TypeSearchableProperty implements SearchableUsagePointProperty {
                 .specForValuesOf(new TypeValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_TYPE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(UsagePointTypeInfo.UsagePointType.values())
+                .addValues(UsagePointTypeInfo.UsagePointType.MEASURED_NON_SDP,
+                        UsagePointTypeInfo.UsagePointType.MEASURED_SDP) //Virtual usage points are not available in search
                 .markExhaustive()
                 .finish();
     }

@@ -4,11 +4,21 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.GasDayOptions;
+import com.elster.jupiter.metering.impl.upgraders.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.DayMonthTime;
+
+import com.google.inject.Inject;
 
 import java.time.LocalTime;
 import java.time.MonthDay;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link GasDayOptions} interface.
@@ -25,6 +35,7 @@ class GasDayOptionsImpl implements GasDayOptions {
     private int day;
     private int hour;
 
+    private final TimeService timeService;
     @Override
     public DayMonthTime getYearStart() {
         return DayMonthTime.from(MonthDay.of(this.month, this.day), LocalTime.of(this.hour, 0));
@@ -39,8 +50,10 @@ class GasDayOptionsImpl implements GasDayOptions {
         return gasDayOptions;
     }
 
-    GasDayOptionsImpl() {
+    @Inject
+    GasDayOptionsImpl(TimeService timeService) {
         super();
+        this.timeService = timeService;
     }
 
     GasDayOptionsImpl init(int id, DayMonthTime yearStart) {
@@ -49,6 +62,15 @@ class GasDayOptionsImpl implements GasDayOptions {
         this.day = yearStart.getDayOfMonth();
         this.hour = yearStart.getHour();
         return this;
+    }
+
+    @Override
+    public List<RelativePeriod> getRelativePeriods() {
+        return Stream
+                .of(DefaultRelativePeriodDefinition.values())
+                .map(def -> this.timeService.findRelativePeriodByName(def.getPeriodName()))
+                .flatMap(Functions.asStream())
+                .collect(Collectors.toList());
     }
 
 }

@@ -53,7 +53,7 @@ public class CumulativeChannelTest {
     public void test() {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter("myMeter").create();
+        Meter meter = amrSystem.newMeter("myMeter", "myName").create();
         MeterActivation activation = meter.activate(ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant());
         String readingTypeCode = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                 .period(TimeAttribute.MINUTE15)

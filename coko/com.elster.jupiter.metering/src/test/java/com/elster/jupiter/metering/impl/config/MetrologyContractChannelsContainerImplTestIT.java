@@ -1,14 +1,18 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -27,7 +31,17 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 
+import com.google.common.collect.Range;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -135,7 +149,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         usagePoint.apply(metrologyConfiguration);
 
         AmrSystem amrSystem = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter meter = amrSystem.newMeter("").setMRID("meter1").create();
+        Meter meter = amrSystem.newMeter("", "meter1").create();
         usagePoint.linkMeters().activate(meter, meterRole);
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
@@ -180,11 +194,100 @@ public class MetrologyContractChannelsContainerImplTestIT {
         BaseReadingRecord baseReading = mock(BaseReadingRecord.class);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
         doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
+        when(baseReading.getTimeStamp()).thenReturn(Instant.EPOCH.plus(1, ChronoUnit.DAYS));
+        when(baseReading.getValue()).thenReturn(BigDecimal.valueOf(123L));
         when(dataAggregationService.calculate(usagePoint, metrologyContract, effectiveMetrologyConfiguration.getRange())).thenReturn(calculatedMetrologyContractData);
 
         Channel channel = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get().getChannel(readingType).get();
 
         List<BaseReadingRecord> readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
+        assertThat(readings).hasSize(1);
+
+        //test AggreagatedChannel
+        assertThat(channel).isInstanceOf(AggregatedChannel.class);
+
+        AggregatedChannel aggregatedChannel = (AggregatedChannel) channel;
+        List<IntervalReadingRecord> calculatedIntervalReadings = aggregatedChannel.getCalculatedIntervalReadings(effectiveMetrologyConfiguration.getRange());
+        assertThat(calculatedIntervalReadings).hasSize(1);
+        assertThat(calculatedIntervalReadings.get(0).getValue()).isEqualTo(readings.get(0).getValue());
+        assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(123L));
+
+        //add or edit reading
+        BaseReading editedReading = IntervalReadingImpl.of(calculatedIntervalReadings.get(0).getTimeStamp(), BigDecimal.valueOf(345L), Collections.emptyList());
+        channel.editReadings(QualityCodeSystem.OTHER, Collections.singletonList(editedReading));
+        List<IntervalReadingRecord> persistedReadings = aggregatedChannel.getPersistedIntervalReadings(Range.all());
+        assertThat(persistedReadings).hasSize(1);
+        readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
+        assertThat(readings).hasSize(1);
+        assertThat(persistedReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(345L));
+
+        //remove reading
+        channel.removeReadings(QualityCodeSystem.OTHER, Collections.singletonList(persistedReadings.get(0)));
+        persistedReadings = aggregatedChannel.getPersistedIntervalReadings(Range.all());
+        assertThat(persistedReadings).hasSize(0);
+        readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
+        assertThat(readings).hasSize(1);
+        assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(123L));
+    }
+
+    @Test
+    @Transactional
+    public void testGetRegisterReadingsFromMetrologyConfigurationChannelsContainer() {
+        UsagePointMetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
+        metrologyConfiguration.addMeterRole(meterRole);
+        ReadingType readingType2 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", ""));
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR", meterRole).withReadingType(readingType2);
+        ReadingType readingType3 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", ""));
+        ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("RTD", readingType3, Formula.Mode.AUTO);
+        ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
+        MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);
+        metrologyContract.addDeliverable(readingTypeDeliverable);
+
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", inMemoryBootstrapModule.getClock().instant()).create();
+        usagePoint.apply(metrologyConfiguration);
+
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .getDataModel()
+                .query(EffectiveMetrologyConfigurationOnUsagePoint.class)
+                .select(where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("usagePoint").isEqualTo(usagePoint)))
+                .get(0);
+
+        BaseReadingRecord baseReading = mock(BaseReadingRecord.class);
+        CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
+        doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
+        when(baseReading.getTimeStamp()).thenReturn(Instant.EPOCH.plus(1, ChronoUnit.DAYS));
+        when(dataAggregationService.calculate(usagePoint, metrologyContract, effectiveMetrologyConfiguration.getRange())).thenReturn(calculatedMetrologyContractData);
+
+        Channel channel = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get().getChannel(readingType3).get();
+
+        List<BaseReadingRecord> readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
+        assertThat(readings).hasSize(1);
+
+        //test AggreagatedChannel
+        assertThat(channel).isInstanceOf(AggregatedChannel.class);
+
+        AggregatedChannel aggregatedChannel = (AggregatedChannel) channel;
+        List<ReadingRecord> calculatedReadings = aggregatedChannel.getCalculatedRegisterReadings(effectiveMetrologyConfiguration.getRange());
+        assertThat(calculatedReadings).hasSize(1);
+        assertThat(calculatedReadings.get(0).getValue()).isEqualTo(readings.get(0).getValue());
+
+        //add or edit reading
+        BaseReading editedReading = ReadingImpl.of(readingType2.getMRID(), BigDecimal.TEN, calculatedReadings.get(0).getTimeStamp());
+        channel.editReadings(QualityCodeSystem.OTHER, Collections.singletonList(editedReading));
+        List<ReadingRecord> persistedReadings = aggregatedChannel.getPersistedRegisterReadings(Range.all());
+        assertThat(persistedReadings).hasSize(1);
+        readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
+        assertThat(readings).hasSize(1);
+        assertThat(persistedReadings.get(0).getValue()).isEqualTo(BigDecimal.TEN);
+
+        //remove reading
+        channel.removeReadings(QualityCodeSystem.OTHER, Collections.singletonList(persistedReadings.get(0)));
+        persistedReadings = aggregatedChannel.getPersistedRegisterReadings(Range.all());
+        assertThat(persistedReadings).hasSize(0);
+        readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
         assertThat(readings).hasSize(1);
     }
 
