@@ -40,11 +40,13 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Channel;
@@ -75,7 +77,14 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.SystemComTask;
 
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.ext.Provider;
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -193,14 +202,29 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CalendarService calendarService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    DeviceAlarmService deviceAlarmService;
+    @Mock
+    UserService userService;
 
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
     @Mock
     LocationService locationService;
+    @Mock
+    static SecurityContext securityContext;
 
     protected ChannelInfoFactory channelInfoFactory;
     ReadingTypeInfoFactory readingTypeInfoFactory;
+
+    @Provider
+    @Priority(Priorities.AUTHORIZATION)
+    private static class SecurityRequestFilter implements ContainerRequestFilter {
+        @Override
+        public void filter(ContainerRequestContext requestContext) throws IOException {
+            requestContext.setSecurityContext(securityContext);
+        }
+    }
 
     @Before
     public void setup() {
@@ -237,6 +261,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
                 if (disableDeviceConstraintsBasedOnDeviceState()) {
                     classes.remove(DeviceStateAccessFeature.class);
                 }
+                classes.add(SecurityRequestFilter.class);
                 return classes;
             }
         };
@@ -286,6 +311,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setMeteringTranslationService(meteringTranslationService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setDeviceAlarmService(deviceAlarmService);
+        application.setUserService(userService);
         return application;
     }
 
@@ -319,6 +346,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
             SubscriberExecutionSpec subscriberExecutionSpec = mock(SubscriberExecutionSpec.class);
             SubscriberSpec spec = mock(SubscriberSpec.class);
             when(subscriberExecutionSpec.getSubscriberSpec()).thenReturn(spec);
+            when(subscriberExecutionSpec.isActive()).thenReturn(true);
             DestinationSpec destinationSpec = mock(DestinationSpec.class);
             when(spec.getDestination()).thenReturn(destinationSpec);
             when(destinationSpec.getName()).thenReturn(specName);

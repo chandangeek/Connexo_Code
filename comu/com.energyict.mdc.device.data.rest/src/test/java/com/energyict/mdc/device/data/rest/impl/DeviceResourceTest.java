@@ -53,7 +53,10 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.conditions.And;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.cbo.Unit;
@@ -120,6 +123,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.sql.Date;
@@ -152,6 +156,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
@@ -206,11 +211,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testGetConnectionMethodsJsonBindings() throws Exception {
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("ZABF0000000");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        String name = "ZABF0000000";
+        when(device.getName()).thenReturn(name);
+        when(deviceService.findAndLockDeviceByNameAndVersion(name, device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(name)).thenReturn(Optional.of(device));
 
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
@@ -237,8 +242,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
-        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?, ?>>asList(connectionTask));
-        Map<String, Object> response = target("/devices/1/connectionmethods").request().get(Map.class);
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+
+        Map<String, Object> response = target("/devices/" + name + "/connectionmethods").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("connectionMethods");
         List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("connectionMethods");
         assertThat(connectionMethods).hasSize(1);
@@ -269,11 +275,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.comPortPool = "cpp";
 
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("ZABF0000000");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        String deviceName = "ZABF0000000";
+        when(device.getName()).thenReturn(deviceName);
+        when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
+
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
@@ -297,7 +304,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
 
-        Response response = target("/devices/1/connectionmethods").request().post(Entity.json(info));
+        Response response = target("/devices/" + deviceName + "/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(connectionTask, never()).activate();
         verify(connectionTask, never()).deactivate();
@@ -321,13 +328,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
 
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("ZABF0000000");
         when(device.getVersion()).thenReturn(1L);
+        String deviceName = "ZABF0000000";
+        when(device.getName()).thenReturn(deviceName);
+        when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
 
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
@@ -349,9 +356,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.isDefault = false;
         info.comPortPool = "cpp";
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
-        Response response = target("/devices/1/connectionmethods").request().post(Entity.json(info));
+        Response response = target("/devices/" + deviceName + "/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(connectionTask, never()).activate();
         verify(connectionTask, never()).deactivate();
@@ -369,17 +376,16 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.comPortPool = "cpp";
 
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("1");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        String deviceName = "ZABF0000000";
+        when(device.getName()).thenReturn(deviceName);
+        when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
@@ -398,7 +404,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
 
-        Response response = target("/devices/1/connectionmethods").request().post(Entity.json(info));
+        Response response = target("/devices/" + deviceName + "/connectionmethods").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(connectionTaskService).setDefaultConnectionTask(connectionTask);
     }
@@ -406,17 +412,16 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testUpdateAndUndefaultInboundConnectionMethod() throws Exception {
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("1");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        String deviceName = "ZABF0000000";
+        when(device.getName()).thenReturn(deviceName);
+        when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
@@ -444,9 +449,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.isDefault = false;
         info.comPortPool = "cpp";
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
-        Response response = target("/devices/1/connectionmethods/5").request().put(Entity.json(info));
+        Response response = target("/devices/" + deviceName + "/connectionmethods/5").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(connectionTaskService, times(1)).clearDefaultConnectionTask(device);
     }
@@ -454,11 +459,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testUpdateOnlyClearsDefaultIfConnectionMethodWasDefaultBeforeUpdate() throws Exception {
         Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("1");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        String deviceName = "ZABF0000000";
+        when(device.getName()).thenReturn(deviceName);
+        when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
         when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
@@ -491,9 +496,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.isDefault = false;
         info.comPortPool = "cpp";
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
-        Response response = target("/devices/1/connectionmethods/5").request().put(Entity.json(info));
+        Response response = target("/devices/" + deviceName + "/connectionmethods/5").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(connectionTaskService, never()).clearDefaultConnectionTask(device);
     }
@@ -502,7 +507,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testComSchedulesBulkAddOnDevice() {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "add";
-        request.deviceMRIDs = Arrays.asList("mrid1", "mrid2");
+        request.strategy = "keep";
+        request.deviceIds = Arrays.asList(13L, 24L);
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
@@ -513,21 +519,57 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
         mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(comSchedule));
 
         Response response = target("/devices/schedules").request().put(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
         assertThat(jsonModel.<String>get("$.action")).isEqualTo("Add");
-        assertThat(jsonModel.<List>get("$.deviceMRIDs")).containsOnly("mrid1", "mrid2");
+        assertThat(jsonModel.<List>get("$.deviceIds")).containsOnly(13, 24);
         assertThat(jsonModel.<List>get("$.scheduleIds")).containsOnly(1);
+    }
+
+    @Test
+    public void testComSchedulesBulkAddOnDeviceOverlappingTasks() throws Exception {
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = "add";
+        request.strategy = "keep";
+        request.deviceIds = Arrays.asList(13L, 24L);
+        request.scheduleIds = Arrays.asList(1L, 2L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        MessageBuilder builder = mock(MessageBuilder.class);
+        when(destinationSpec.get().message(anyString())).thenReturn(builder);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        ComSchedule comSchedule2 = mock(ComSchedule.class);
+        ComTask comTask = mock(ComTask.class);
+        when(comSchedule.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(comSchedule2.getComTasks()).thenReturn(Collections.singletonList(comTask));
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(comSchedule));
+        when(schedulingService.findSchedule(2L)).thenReturn(Optional.of(comSchedule2));
+
+        Response response = target("/devices/schedules").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("There are overlapping communication tasks in the schedules");
+        assertThat(jsonModel.<String>get("$.error")).isEqualTo("OverlappingComTasks");
     }
 
     @Test
     public void testComSchedulesBulkAddOnDeviceWithFilter() throws Exception {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "add";
-        request.filter = "[{'property':'mRID','value':[{'operator':'==','criteria':'DAO*'}]},{'property':'deviceType','value':[{'operator':'==','criteria':['1','2','3']}]}]".replace('\'', '"');
+        request.strategy = "keep";
+        request.filter = "[{'property':'name','value':[{'operator':'==','criteria':'DAO*'}]},{'property':'deviceType','value':[{'operator':'==','criteria':['1','2','3']}]}]".replace('\'', '"');
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
@@ -542,7 +584,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceTypeProperty.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(searchDomain.getProperties()).thenReturn(Arrays.asList(mridProperty, deviceTypeProperty));
         SearchablePropertyValue.ValueBean mridBean = new SearchablePropertyValue.ValueBean();
-        mridBean.propertyName = "mrid";
+        mridBean.propertyName = "name";
         mridBean.operator = SearchablePropertyOperator.EQUAL;
         mridBean.values = Collections.singletonList("DAO*");
         SearchablePropertyValue.ValueBean deviceTypeBean = new SearchablePropertyValue.ValueBean();
@@ -559,13 +601,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
         mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
-
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(comSchedule));
         Response response = target("/devices/schedules").request().put(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
         assertThat(jsonModel.<String>get("$.action")).isEqualTo("Add");
-        assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
+        assertThat(jsonModel.<List>get("$.deviceIds")).isNull();
         assertThat(jsonModel.<Map>get("$.filter.properties")).hasSize(2);
         assertThat(jsonModel.<List<String>>get("$.filter.properties.deviceType.values[*]")).containsExactly("1", "2", "3");
         assertThat(jsonModel.<List<Integer>>get("$.scheduleIds")).containsOnly(1);
@@ -596,6 +639,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
         mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(comSchedule));
 
         Response response = target("/devices/schedules").request().put(json);
 
@@ -603,7 +648,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
         System.out.println(stringArgumentCaptor.getValue());
         assertThat(jsonModel.<String>get("$.action")).isEqualTo("Remove");
-        assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
+        assertThat(jsonModel.<List>get("$.deviceIds")).isNull();
         assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.propertyName")).isEqualTo(serialNumberBean.propertyName);
         assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.operator")).isEqualTo(serialNumberBean.operator.name());
         assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.values[0]")).isEqualTo("*001");
@@ -637,11 +682,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile1.getDevice()).thenReturn(device1);
         when(loadProfile2.getDevice()).thenReturn(device1);
         when(loadProfile3.getDevice()).thenReturn(device1);
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device1));
         doReturn("translated").when(thesaurus).getString(anyString(), anyString());
         when(channel1.getReadingType()).thenReturn(readingType);
 
-        Map response = target("/devices/mrid1/loadprofiles").request().get(Map.class);
+        Map response = target("/devices/name/loadprofiles").request().get(Map.class);
         assertThat(response).containsKey("total").containsKey("loadProfiles");
         assertThat((List) response.get("loadProfiles")).isSortedAccordingTo(new Comparator<Map<String, Object>>() {
             @Override
@@ -659,7 +704,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile2 = mockLoadProfile("Lp2", 2, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp1", 1, new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), channel1);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device1));
         doReturn("translated").when(thesaurus).getString(anyString(), anyString());
     }
 
@@ -679,7 +724,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile1.getDevice()).thenReturn(device1);
         when(loadProfile2.getDevice()).thenReturn(device1);
         when(loadProfile3.getDevice()).thenReturn(device1);
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device1));
         doReturn("translated").when(thesaurus).getString(anyString(), anyString());
         when(clock.instant()).thenReturn(NOW);
         when(channel1.getDevice()).thenReturn(device1);
@@ -699,7 +744,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel2.getReadingType()).thenReturn(readingType);
         when(channel2.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
 
-        Map<String, Object> response = target("/devices/mrid1/loadprofiles/1").request().get(Map.class);
+        Map<String, Object> response = target("/devices/name/loadprofiles/1").request().get(Map.class);
         assertThat(response)
                 .hasSize(9)
                 .contains(MapEntry.entry("id", 1))
@@ -729,10 +774,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile loadProfile2 = mockLoadProfile("lp2", 2, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES));
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2, loadProfile3));
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device1));
         doReturn("translated").when(thesaurus).getString(anyString(), anyString());
 
-        Response response = target("/devices/mrid1/loadprofiles/7").request().get();
+        Response response = target("/devices/name/loadprofiles/7").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -743,7 +788,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Channel channel2 = mockChannel("channel2", "1.2", 1);
         LoadProfile loadProfile3 = mockLoadProfile("lp3", 3, new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), channel1, channel2);
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
-        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device1));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device1));
         when(channel1.getDevice()).thenReturn(device1);
         when(channel2.getDevice()).thenReturn(device1);
         DeviceValidation deviceValidation = mock(DeviceValidation.class);
@@ -760,7 +805,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile3.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
 
         String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":" + startTime + "},{\"property\":\"intervalEnd\",\"value\":1391212800000}]");
-        Map response = target("/devices/mrid2/loadprofiles/3/data")
+        Map response = target("/devices/name/loadprofiles/3/data")
                 .queryParam("filter", filter)
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
@@ -810,7 +855,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile3));
         when(device1.getChannels()).thenReturn(Arrays.asList(channel1));
-        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device1));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device1));
         List<LoadProfileReading> loadProfileReadings = new ArrayList<>();
         final long startTime = 1388534400000L;
         long start = startTime;
@@ -823,7 +868,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel1, range)));
 
         String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
-        Map response = target("/devices/mrid2/channels/7/data")
+        Map response = target("/devices/name/channels/7/data")
                 .queryParam("filter", filter)
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
@@ -845,8 +890,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testGetAllLogBooksReturnsEmptyList() {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
-        Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
+        Map response = target("/devices/name/logbooks").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(response)
                 .contains(MapEntry.entry("total", 0))
@@ -864,10 +909,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         logBooks.add(mockLogBook("B_LogBook", 2L, "0.0.0.0.0.3", "0.0.0.0.0.4", lastLogBook, lastReading));
         logBooks.add(mockLogBook("A_LogBook", 3L, "0.0.0.0.0.5", "0.0.0.0.0.6", lastLogBook, lastReading));
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(logBooks);
 
-        Map response = target("/devices/mrid/logbooks").queryParam("start", 0).queryParam("limit", 2).request().get(Map.class);
+        Map response = target("/devices/name/logbooks").queryParam("start", 0).queryParam("limit", 2).request().get(Map.class);
 
         assertThat(response)
                 .contains(MapEntry.entry("total", 3))
@@ -904,7 +949,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         EndDeviceEventRecord endDeviceEvent = mock(EndDeviceEventRecord.class);
         EndDeviceEventType endDeviceEventType = mock(EndDeviceEventType.class);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         when(logBook.getEndDeviceEvents(Matchers.any(Range.class))).thenReturn(Arrays.asList(endDeviceEvent));
         when(endDeviceEvent.getEventType()).thenReturn(endDeviceEventType);
@@ -915,7 +960,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventOrAction.DECREASED);
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
 
-        LogBookInfo info = target("/devices/mrid/logbooks/1").request().get(LogBookInfo.class);
+        LogBookInfo info = target("/devices/name/logbooks/1").request().get(LogBookInfo.class);
 
         assertThat(info.id).isEqualTo(1);
         assertThat(info.name).isEqualTo("LogBook");
@@ -941,10 +986,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/134").request().get();
+        Response response = target("/devices/name/logbooks/134").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -954,10 +999,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]")
+        Response response = target("/devices/name/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]")
                 .request()
                 .get();
 
@@ -969,10 +1014,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22domain%22,%22value%22:%22100500%22%7D]").request().get();
+        Response response = target("/devices/name/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22domain%22,%22value%22:%22100500%22%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -982,10 +1027,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22subDomain%22,%22value%22:%22100500%22%7D]").request().get();
+        Response response = target("/devices/name/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22subDomain%22,%22value%22:%22100500%22%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -995,10 +1040,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mock(Device.class);
         LogBook logBook = mockLogBook("LogBook", 1L, "0.0.0.0.0.1", "0.0.0.0.0.2", null, null);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22eventOrAction%22,%22value%22:%22100500%22%7D]").request().get();
+        Response response = target("/devices/name/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22eventOrAction%22,%22value%22:%22100500%22%7D]").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -1021,7 +1066,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         EndDeviceEventRecord endDeviceEventRecord = mock(EndDeviceEventRecord.class);
         EndDeviceEventType endDeviceType = mock(EndDeviceEventType.class);
 
-        when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("name")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         List<EndDeviceEventRecord> records = new ArrayList<>();
         records.add(endDeviceEventRecord);
@@ -1040,7 +1085,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
 
-        Map<?, ?> response = target("/devices/mrid/logbooks/1/data")
+        Map<?, ?> response = target("/devices/name/logbooks/1/data")
                 .queryParam("filter", ("[{\"property\":\"intervalStart\",\"value\":1},"
                         + "{\"property\":\"intervalEnd\",\"value\":2},"
                         + "{\"property\":\"domain\",\"value\":\"BATTERY\"},"
@@ -1085,8 +1130,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(7);
         assertThat(model.<List>get("$.slaveDevices")).hasSize(7);
-        assertThat(model.<String>get("$.slaveDevices[0].mRID")).isEqualTo("slave1");
-        assertThat(model.<String>get("$.slaveDevices[6].mRID")).isEqualTo("slave7");
+        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave1");
+        assertThat(model.<String>get("$.slaveDevices[6].name")).isEqualTo("slave7");
     }
 
     @Test
@@ -1100,8 +1145,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(6); // 3 (start) + 2 (limit) + 1 (for FE)
         assertThat(model.<List>get("$.slaveDevices")).hasSize(limit);
-        assertThat(model.<String>get("$.slaveDevices[0].mRID")).isEqualTo("slave4");
-        assertThat(model.<String>get("$.slaveDevices[1].mRID")).isEqualTo("slave5");
+        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave4");
+        assertThat(model.<String>get("$.slaveDevices[1].name")).isEqualTo("slave5");
     }
 
     @Test
@@ -1162,7 +1207,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave7)).thenReturn(Optional.of(Instant.ofEpochMilli(70L)));
 
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
-        when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
+        when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
@@ -1173,7 +1218,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testGetCommunicationTopologyFilter() throws Exception {
         when(clock.instant()).thenReturn(NOW);
         Device gateway = mockDeviceForTopologyTest("gateway");
-        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid", gateway);
+        Device slave1 = mockDeviceForTopologyTest("SimpleStringName", gateway);
         Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
@@ -1187,7 +1232,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
 
-        when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
+        when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
         when(topologyService.getPhysicalTopologyTimelineAdditions(gateway, limit)).thenReturn(topologyTimeline);
@@ -1195,53 +1240,52 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         Map<?, ?> response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"*\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"%\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"%\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"Simple%Mrid\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"Simple%Name\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"Simple?Mrid\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"Simple?Name\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(0);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"1234*\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"1234*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"*789\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"*789\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
-                .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"%34*7?9\"}]", "UTF-8"))
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"%34*7?9\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
     }
-
 
     @Test
     public void testGetCommunicationTopologyFilterOnSerialNumber() throws Exception {
         when(clock.instant()).thenReturn(NOW);
         Device gateway = mockDeviceForTopologyTest("gateway");
-        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid", gateway);
+        Device slave1 = mockDeviceForTopologyTest("SimpleStringName", gateway);
         Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
@@ -1255,7 +1299,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
 
-        when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
+        when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
         when(topologyService.getPhysicalTopologyTimelineAdditions(gateway, limit)).thenReturn(topologyTimeline);
@@ -1317,7 +1361,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave7 = mockDeviceForTopologyTest("slave7", gateway);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave3, slave4, slave5, slave6, slave7));
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
-        when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
+        when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
@@ -1335,11 +1379,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, deviceLifeCycleConfigurationService);
 
         assertThat(infos.size()).isEqualTo(5);
-        assertThat(infos.get(0).mRID).isEqualTo("slave7");
-        assertThat(infos.get(1).mRID).isEqualTo("slave6");
-        assertThat(infos.get(2).mRID).isEqualTo("slave5");
-        assertThat(infos.get(3).mRID).isEqualTo("slave4");
-        assertThat(infos.get(4).mRID).isEqualTo("slave3");
+        assertThat(infos.get(0).name).isEqualTo("slave7");
+        assertThat(infos.get(1).name).isEqualTo("slave6");
+        assertThat(infos.get(2).name).isEqualTo("slave5");
+        assertThat(infos.get(3).name).isEqualTo("slave4");
+        assertThat(infos.get(4).name).isEqualTo("slave3");
 
         slaves = new HashSet<>(Arrays.<Device>asList(slave1));
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
@@ -1353,7 +1397,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         Device gateway = mockDeviceForTopologyTest("gateway");
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
@@ -1367,8 +1411,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.id = 1L;
         info.version = 13L;
         info.masterDeviceId = gateway.getId();
-        info.masterDevicemRID = gateway.getmRID();
-        info.mRID = "device";
+        info.masterDeviceName = gateway.getName();
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
@@ -1390,8 +1434,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.version = 13l;
         info.masterDeviceId = 2L;
-        info.masterDevicemRID = "2";
-        info.mRID = "device";
+        info.masterDeviceName = "2";
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
 
         Response response = target("/devices/1").request().put(Entity.json(info));
@@ -1404,7 +1448,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device device = mockDeviceForTopologyTest("device");
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
@@ -1419,8 +1463,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13l;
-        info.masterDevicemRID = null;
-        info.mRID = "device";
+        info.masterDeviceName = null;
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
@@ -1449,12 +1493,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
         channelMappingForSlave1.slaveChannel = newChannelInfo(1L, "firstSlave", 1L);
@@ -1462,7 +1506,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         slaveInfo1.id = 100L;
-        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.name = "firstSlave";
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
@@ -1475,7 +1519,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1491,7 +1535,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testLinkSlaveToDataLoggerWhileDataLoggerNotFound() throws IOException {
-        when(deviceService.findByUniqueMrid("dataLogger")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("dataLogger")).thenReturn(Optional.empty());
 
         Device slave1 = mockDeviceForTopologyTest("slave1");
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
@@ -1505,7 +1549,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         slaveInfo1.id = 100L;
-        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.name = "firstSlave";
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
@@ -1517,7 +1561,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1545,7 +1589,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty()); // Slave device will not be found
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.empty()); // Slave device will not be found
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
         channelMappingForSlave1.slaveChannel = newChannelInfo(1L, "firstSlave", 1L);
@@ -1553,7 +1597,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         slaveInfo1.id = 100L;
-        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.name = "firstSlave";
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
@@ -1565,7 +1609,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1601,7 +1645,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
         channelMappingForSlave1.slaveChannel = newChannelInfo(1L, "firstSlave", 1L);
@@ -1609,7 +1653,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         slaveInfo1.id = 100L;
-        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.name = "firstSlave";
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
@@ -1622,7 +1666,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1729,8 +1773,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(2);
         assertThat(model.<List>get("$.devices")).hasSize(2);
-        assertThat(model.<String>get("$.devices[0].mRID")).isEqualTo("slave1");
-        assertThat(model.<String>get("$.devices[1].mRID")).isEqualTo("slave2");
+        assertThat(model.<String>get("$.devices[0].name")).isEqualTo("slave1");
+        assertThat(model.<String>get("$.devices[1].name")).isEqualTo("slave2");
     }
 
     @Test
@@ -1743,8 +1787,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
 
         Device slave1 = mockDeviceForTopologyTest("slave1");
-        when(deviceService.newDevice(any(DeviceConfiguration.class), eq("firstSlave"), eq("firstSlave"), any(Instant.class))).thenReturn(slave1);
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        when(deviceService.newDevice(any(DeviceConfiguration.class), eq("firstSlave"), any(Instant.class))).thenReturn(slave1);
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
         when(slaveChannel1.getId()).thenReturn(1L);
@@ -1754,13 +1798,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.empty());
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
         channelMappingForSlave1.slaveChannel = newChannelInfo(1L, "firstSlave", 1L);
@@ -1768,7 +1812,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         slaveInfo1.id = 0;
-        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.name = "firstSlave";
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
@@ -1781,7 +1825,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -1793,7 +1837,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         // A slave device need to be created
-        verify(deviceService).newDevice(eq(slaveDeviceConfig), eq("firstSlave"), eq("firstSlave"), any(Instant.class));
+        verify(deviceService).newDevice(eq(slaveDeviceConfig), eq("firstSlave"), any(Instant.class));
     }
 
     @Test
@@ -1807,7 +1851,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         Device slave1 = mockDeviceForTopologyTest("slave1");
         when(deviceService.newDevice(any(DeviceConfiguration.class), eq("firstSlave"), eq("firstSlave"), any(Instant.class))).thenReturn(slave1);
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
         when(slaveChannel1.getId()).thenReturn(1L);
@@ -1817,13 +1861,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.empty());
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
         channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
@@ -1836,7 +1880,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);   //no linked channels
 
@@ -1865,13 +1909,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.empty());
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
         channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
@@ -1884,7 +1928,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);   //no linked channels
 
@@ -1939,12 +1983,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveRegisterInfo registerMappingForSlave1 = new DataLoggerSlaveRegisterInfo();
         registerMappingForSlave1.slaveRegister = newRegisterInfo(1L, "firstSlave", 1L);
@@ -1952,7 +1996,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         slaveInfo1.id = 100L;
-        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.name = "firstSlave";
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
@@ -1965,7 +2009,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -2035,12 +2079,12 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
         channelMappingForSlave1.slaveChannel = newChannelInfo(1L, "firstSlave", 1L);
@@ -2052,7 +2096,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         slaveInfo1.id = 100L;
-        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.name = "firstSlave";
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
@@ -2066,7 +2110,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -2080,7 +2124,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
     }
-
 
     @Test
     public void testLinkSlaveToDataLoggerThroughRegistersThrowsError() throws IOException {
@@ -2132,7 +2175,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
 
         DataLoggerSlaveRegisterInfo registerMappingForSlave1 = new DataLoggerSlaveRegisterInfo();
         registerMappingForSlave1.slaveRegister = newRegisterInfo(1L, "firstSlave", 1L);
@@ -2140,7 +2183,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DataLoggerSlaveDeviceInfo slaveInfo1 = new DataLoggerSlaveDeviceInfo();
         slaveInfo1.id = 100L;
-        slaveInfo1.mRID = "firstSlave";
+        slaveInfo1.name = "firstSlave";
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
@@ -2153,7 +2196,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);
 
@@ -2187,7 +2230,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave1 = mockDeviceForTopologyTest("slave1");
         when(slave1.getId()).thenReturn(111L);
         when(deviceService.newDevice(any(DeviceConfiguration.class), eq("firstSlave"), eq("firstSlave"), any(Instant.class))).thenReturn(slave1);
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.of(slave1));
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.of(slave1));
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
         when(slaveChannel1.getId()).thenReturn(1L);
@@ -2197,13 +2240,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration slaveDeviceConfig = mock(DeviceConfiguration.class);
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
-        when(dataLogger.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
         when(deviceConfigurationService.findDeviceConfiguration(2L)).thenReturn(Optional.of(slaveDeviceConfig));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfig));
         when(dataLogger.getBatch()).thenReturn(Optional.empty());
-        when(deviceService.findByUniqueMrid("firstSlave")).thenReturn(Optional.empty());
+        when(deviceService.findDeviceByName("firstSlave")).thenReturn(Optional.empty());
 
         DataLoggerSlaveChannelInfo channelMappingForSlave1 = new DataLoggerSlaveChannelInfo();
         channelMappingForSlave1.dataLoggerChannel = newChannelInfo(2L, "dataLogger", 13L);
@@ -2217,7 +2260,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
         info.version = 13L;
-        info.mRID = "dataLogger";
+        info.name = "dataLogger";
         info.parent = new VersionInfo<>(1L, 1L);
         info.dataLoggerSlaveDevices = Collections.singletonList(slaveInfo1);   //no linked channels
 
@@ -2247,10 +2290,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return mockedRegister;
     }
 
-    private RegisterInfo newRegisterInfo(long id, String deviceMRID, long version) {
+    private RegisterInfo newRegisterInfo(long id, String deviceName, long version) {
         RegisterInfo mock = new NumericalRegisterInfo();
         mock.id = id;
-        mock.mRID = deviceMRID;
+        mock.deviceName = deviceName;
         mock.parent = new VersionInfo<>(id, version);
         return mock;
     }
@@ -2270,7 +2313,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.version = 13l;
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = true;
-        info.mRID = "device";
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
 
         Response response = target("/devices/device/estimationrulesets/esimationstatus").request().put(Entity.json(info));
@@ -2291,10 +2334,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DeviceInfo info = new DeviceInfo();
         info.id = 1L;
-        info.version = 13l;
+        info.version = 13L;
         info.estimationStatus = new DeviceEstimationStatusInfo();
         info.estimationStatus.active = false;
-        info.mRID = "device";
+        info.name = "device";
         info.parent = new VersionInfo<>(1L, 1L);
 
         Response response = target("/devices/device/estimationrulesets/esimationstatus").request().put(Entity.json(info));
@@ -2306,7 +2349,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     private Device mockDeviceForTopologyTest(String name, Device gateway) {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
-        when(device.getmRID()).thenReturn(name);
+        when(device.getName()).thenReturn(name);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn(name + "DeviceType");
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -2338,13 +2381,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getStart()).thenReturn(shipmentDate);
         doReturn(Optional.of(meterActivation)).when(device).getCurrentMeterActivation();
-        when(deviceService.findByUniqueMrid(name)).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(name), anyLong())).thenReturn(Optional.of(device));
-        if (gateway != null) {
-            when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(gateway));
-        } else {
-            when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        }
+        when(deviceService.findDeviceByName(name)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(eq(name), anyLong())).thenReturn(Optional.of(device));
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.ofNullable(gateway));
         return device;
     }
 
@@ -2454,10 +2493,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(state.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
         Device device = mock(Device.class);
         when(device.getState()).thenReturn(state);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
 
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
-        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.EMPTY_SET);
+        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.emptySet());
         when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.empty());
         when(device.getDeviceConfiguration()).thenReturn(configuration);
         when(device.getDeviceConfiguration().getDeviceType()).thenReturn(null);
@@ -2493,10 +2532,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(state.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
         Device device = mock(Device.class);
         when(device.getState()).thenReturn(state);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
 
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
-        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.EMPTY_SET);
+        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.emptySet());
         when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.empty());
         when(device.getDeviceConfiguration()).thenReturn(configuration);
         when(device.getDeviceConfiguration().getDeviceType()).thenReturn(null);
@@ -2514,9 +2553,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(state.getName()).thenReturn("Custom state");
         Device device = mock(Device.class);
         when(device.getState()).thenReturn(state);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
-        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.EMPTY_SET);
+        when(deviceConfigurationService.getSupportedTimeOfUseOptionsFor(any(), eq(true))).thenReturn(Collections.emptySet());
         when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.empty());
         when(device.getDeviceConfiguration()).thenReturn(configuration);
         when(device.getDeviceConfiguration().getDeviceType()).thenReturn(null);
@@ -2552,19 +2591,37 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testFindAllSerialNumbers() throws Exception {
-        Finder<Device> finder = mockFinder(Collections.emptyList());
+        Device device = mockDeviceForTopologyTest("COP_TestDevice");
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
+        Finder<Device> finder = mockFinder(Collections.singletonList(device));
         when(deviceService.findAllDevices(any())).thenReturn(finder);
-        Response response = target("/devices").queryParam("mRID", "COP*").queryParam("serialNumber", "*").request().get();
+        String response = target("/devices").queryParam("name", "COP*").queryParam("serialNumber", "*").request().get(String.class);
         ArgumentCaptor<Condition> conditionArgumentCaptor = ArgumentCaptor.forClass(Condition.class);
         verify(deviceService).findAllDevices(conditionArgumentCaptor.capture());
-        System.out.println(conditionArgumentCaptor.getValue());
-
+        verifyNoMoreInteractions(deviceService);
+        Condition andCondition = conditionArgumentCaptor.getValue();
+        assertThat(andCondition).isInstanceOf(And.class);
+        List<Condition> conditions = ((And)andCondition).getConditions();
+        assertThat(conditions).hasSize(2);
+        Condition nameCondition = conditions.get(0);
+        assertThat(nameCondition).isInstanceOf(Comparison.class);
+        assertThat(((Comparison)nameCondition).getFieldName()).isEqualTo("name");
+        assertThat(((Comparison)nameCondition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
+        assertThat(((Comparison)nameCondition).getValues()).containsExactly("COP%");
+        Condition serialCondition = conditions.get(1);
+        assertThat(serialCondition).isInstanceOf(Comparison.class);
+        assertThat(((Comparison)serialCondition).getFieldName()).isEqualTo("serialNumber");
+        assertThat(((Comparison)serialCondition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
+        assertThat(((Comparison)serialCondition).getValues()).containsExactly("%");
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.devices[0].name")).isEqualTo("COP_TestDevice");
     }
 
-    public CustomPropertySet mockCustomPropertySet() {
+    private CustomPropertySet mockCustomPropertySet() {
         when(clock.instant()).thenReturn(Instant.ofEpochMilli(1448191220000L));
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(device));
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceConfigurationService.findDeviceType(anyLong())).thenReturn(Optional.of(deviceType));
@@ -2784,16 +2841,17 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getStart()).thenReturn(shipmentDate);
         doReturn(Optional.of(meterActivation)).when(device).getCurrentMeterActivation();
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(device.getCreateTime()).thenReturn(Instant.EPOCH);
-        String mrid = "mrid";
-        when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
+        String deviceName = "name";
+        when(deviceService.newDevice(deviceConfiguration, deviceName, shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.mRID = mrid;
+        deviceInfo.name = deviceName;
         deviceInfo.deviceConfigurationId = deviceConfigId;
         deviceInfo.serialNumber = "MySerialNumber";
         deviceInfo.yearOfCertification = 1970;
@@ -2817,23 +2875,23 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfiguration.getValidationRuleSets()).thenReturn(Collections.emptyList());
         when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
         Device device = mock(Device.class, RETURNS_DEEP_STUBS);
-        when(deviceService.findByUniqueMrid("theDevice")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("theDevice")).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getBatch()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
-        String mrid = "mrid";
-        when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
+        String name = "Great name";
+        when(deviceService.newDevice(deviceConfiguration, name, "batch", shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.mRID = mrid;
+        deviceInfo.name = name;
         deviceInfo.deviceConfigurationId = deviceConfigId;
         deviceInfo.serialNumber = "MySerialNumber";
         deviceInfo.yearOfCertification = 1970;
@@ -2857,23 +2915,23 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceConfiguration.getValidationRuleSets()).thenReturn(Collections.singletonList(mockedValidationRuleSet));
         when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
         Device device = mock(Device.class, RETURNS_DEEP_STUBS);
-        when(deviceService.findByUniqueMrid("theDevice")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("theDevice")).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getBatch()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
         CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
-        String mrid = "mrid";
-        when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
+        String name = "Great name";
+        when(deviceService.newDevice(deviceConfiguration, name, "batch", shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.mRID = mrid;
+        deviceInfo.name = name;
         deviceInfo.deviceConfigurationId = deviceConfigId;
         deviceInfo.serialNumber = "MySerialNumber";
         deviceInfo.yearOfCertification = 1970;

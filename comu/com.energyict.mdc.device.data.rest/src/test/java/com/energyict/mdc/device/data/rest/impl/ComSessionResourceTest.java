@@ -67,7 +67,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
     public void testGetComTaskExecutions() throws Exception {
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
         Device device = mockDevice(connectionTask);
-        when(deviceService.findByUniqueMrid("XAW1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("XAW1")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
@@ -127,7 +127,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
         Device device = mockDevice(connectionTask);
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
-        when(deviceService.findByUniqueMrid("XAW1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("XAW1")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
@@ -171,7 +171,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
         Device device = mockDevice(connectionTask);
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
-        when(deviceService.findByUniqueMrid("XAW1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("XAW1")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
@@ -225,7 +225,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
         Device device = mockDevice(connectionTask);
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
-        when(deviceService.findByUniqueMrid("XAW1")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("XAW1")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");

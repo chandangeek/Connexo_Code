@@ -30,16 +30,15 @@ public class IssueRetriever {
     public IssueRetriever(IssueService issueService, List<Device> devices) {
         this.issueService = issueService;
         if (devices != null) {
-            deviceIssueCache = issueService.findOpenIssuesForDevices(devices.stream().map(Device::getmRID).collect(Collectors.toList()))
+            deviceIssueCache = issueService.findOpenIssuesForDevices(devices.stream().map(Device::getName).collect(Collectors.toList()))
                     .stream()
-                    .collect(Collectors.groupingBy(openIssue -> openIssue.getDevice().getMRID()));
+                    .collect(Collectors.groupingBy(openIssue -> openIssue.getDevice().getName()));
         } else {
             deviceIssueCache = null;
         }
         dataCollectionIssueType = issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).get();
         dataValidationIssueType = issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get();
     }
-
 
     public boolean hasOpenDataCollectionIssues(Device device) {
         List<OpenIssue> openIssues = getOpenIssuesForDevice(device);
@@ -48,9 +47,9 @@ public class IssueRetriever {
 
     private List<OpenIssue> getOpenIssuesForDevice(Device device) {
         if (deviceIssueCache != null) {
-            return deviceIssueCache.containsKey(device.getmRID()) ? deviceIssueCache.get(device.getmRID()) : Collections.emptyList();
+            return deviceIssueCache.containsKey(device.getName()) ? deviceIssueCache.get(device.getName()) : Collections.emptyList();
         } else {
-            return issueService.findOpenIssuesForDevice(device.getmRID()).find();
+            return issueService.findOpenIssuesForDevice(device.getName()).find();
         }
     }
 

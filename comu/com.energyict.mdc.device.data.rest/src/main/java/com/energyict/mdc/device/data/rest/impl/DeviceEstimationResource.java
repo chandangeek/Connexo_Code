@@ -35,8 +35,8 @@ public class DeviceEstimationResource {
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE})
-    public PagedInfoList getEstimationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getEstimationRuleSetsForDevice(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<DeviceEstimationRuleSetRefInfo> infos = device.forEstimation().getEstimationRuleSetActivations()
                 .stream()
                 .map(rs -> new DeviceEstimationRuleSetRefInfo(rs, device))
@@ -50,10 +50,10 @@ public class DeviceEstimationResource {
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE)
     @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
-    public Response toggleEstimationRuleSetActivation(@PathParam("mRID") String mRID, @PathParam("ruleSetId") long ruleSetId, DeviceEstimationRuleSetRefInfo info) {
+    public Response toggleEstimationRuleSetActivation(@PathParam("name") String name, @PathParam("ruleSetId") long ruleSetId, DeviceEstimationRuleSetRefInfo info) {
         info.id = ruleSetId;
         EstimationRuleSet estimationRuleSet = resourceHelper.lockEstimationRuleSetOrThrowException(info);
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         if (info.active) {
             device.forEstimation().activateEstimationRuleSet(estimationRuleSet);
         } else {
@@ -68,7 +68,7 @@ public class DeviceEstimationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
-    public Response toggleEstimationActivationForDevice(@PathParam("mRID") String mrid, DeviceInfo info) {
+    public Response toggleEstimationActivationForDevice(@PathParam("name") String name, DeviceInfo info) {
         Device device = resourceHelper.lockDeviceOrThrowException(info);
         if (info.estimationStatus != null) {
             updateEstimationStatus(info.estimationStatus, device);

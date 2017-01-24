@@ -23,11 +23,8 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionType.ConnectionTypeDirection;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.internal.verification.VerificationModeFactory;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -40,6 +37,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.internal.verification.VerificationModeFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyVararg;
@@ -78,10 +80,10 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        when(device.getmRID()).thenReturn("ZABF0000000");
+        when(device.getName()).thenReturn("ZABF0000000");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(device.getName(), device.getVersion())).thenReturn(Optional.of(device));
     }
 
     @Test
@@ -137,7 +139,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.ACTIVE;
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         Entity<?> payload = Entity.entity(info, MediaType.APPLICATION_JSON);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
 
@@ -154,7 +156,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.INACTIVE;
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         Entity<?> payload = Entity.entity(info, MediaType.APPLICATION_JSON);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
 
@@ -171,7 +173,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
         info.version = connectionTask.getVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.parent = new VersionInfo<>(device.getName(), device.getVersion());
 
         Entity<?> payload = Entity.json(info);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);

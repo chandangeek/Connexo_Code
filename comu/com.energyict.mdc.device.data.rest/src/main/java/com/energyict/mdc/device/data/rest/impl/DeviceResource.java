@@ -260,17 +260,17 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE)
     public Response addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
-        Device newDevice = newDevice(info.deviceConfigurationId, info.batch, info.mRID, info.serialNumber, info.yearOfCertification, info.shipmentDate);
+        Device newDevice = newDevice(info.deviceConfigurationId, info.batch, info.name, info.serialNumber, info.yearOfCertification, info.shipmentDate);
         return Response.status(Response.Status.CREATED).entity(deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice))).build();
     }
 
-    private Device newDevice(long deviceConfigurationId, String batch, String mRID, String serialNumber, int yearOfCertification, Instant shipmentDate) {
+    private Device newDevice(long deviceConfigurationId, String batch, String name, String serialNumber, int yearOfCertification, Instant shipmentDate) {
         Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
         Device newDevice;
         if (!is(batch).emptyOrOnlyWhiteSpace()) {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), mRID, mRID, batch, shipmentDate);
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), name, batch, shipmentDate);
         } else {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), mRID, mRID, shipmentDate);
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), name, shipmentDate);
         }
         newDevice.setSerialNumber(serialNumber);
         newDevice.setYearOfCertification(yearOfCertification);
@@ -298,7 +298,7 @@ public class DeviceResource {
         }
         deviceService.changeDeviceConfigurationForDevices(destinationConfiguration,
                 devicesForConfigChangeSearch,
-                request.deviceMRIDs.toArray(new String[request.deviceMRIDs.size()]));
+                request.deviceIds.stream().toArray(Long[]::new));
         return Response.ok().build();
     }
 
@@ -308,7 +308,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response updateDevice(@PathParam("id") long id, DeviceInfo info) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(info.mRID);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(info.name);
         if (device.getDeviceConfiguration().getId() != info.deviceConfigurationId) {
             DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
@@ -341,8 +341,8 @@ public class DeviceResource {
     }
 
     private void updateGateway(DeviceInfo info, Device device) {
-        if (info.masterDevicemRID != null) {
-            updateGateway(device, info.masterDevicemRID);
+        if (info.masterDeviceName != null) {
+            updateGateway(device, info.masterDeviceName);
         } else {
             removeGateway(device);
         }
@@ -364,16 +364,16 @@ public class DeviceResource {
         if (!slaveDeviceInfo.placeHolderForUnlinkedDataLoggerChannelsAndRegisters()) {
             Device slave;
             if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
-                validateBeforeCreatingNewSlaveViaWizard(slaveDeviceInfo.mRID);
-                slave = newDevice(slaveDeviceInfo.deviceConfigurationId, slaveDeviceInfo.batch, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification, Instant
-                        .ofEpochMilli(slaveDeviceInfo.shipmentDate));
+                validateBeforeCreatingNewSlaveViaWizard(slaveDeviceInfo.name);
+                slave = newDevice(slaveDeviceInfo.deviceConfigurationId, slaveDeviceInfo.batch, slaveDeviceInfo.name,
+                        slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification, Instant.ofEpochMilli(slaveDeviceInfo.shipmentDate));
             } else {
                 if (slaveDeviceInfo.isFromExistingLink()) {
                     // No new link, came along with deviceinfo
                     return;
                 }
-                slave = deviceService.findByUniqueMrid(slaveDeviceInfo.mRID)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, slaveDeviceInfo.mRID));
+                slave = deviceService.findDeviceByName(slaveDeviceInfo.name)
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, slaveDeviceInfo.name));
             }
             final Map<Channel, Channel> channelMap = new HashMap<>();
             if (slaveDeviceInfo.dataLoggerSlaveChannelInfos != null) {
@@ -394,15 +394,15 @@ public class DeviceResource {
     }
 
     /**
-     * Validates the uniqueness of the mrid when creating a datalogger slave via the wizard.
+     * Validates the uniqueness of the name when creating a datalogger slave via the wizard.
      * We do the validation here because it doesn't properly work with form-validation
      *
-     * @param mRID the mrid of the new-to-create datalogger slave
+     * @param deviceName the name of the new-to-create datalogger slave
      */
-    private void validateBeforeCreatingNewSlaveViaWizard(String mRID) {
-        Optional<Device> existingDevice = deviceService.findByUniqueMrid(mRID);
+    private void validateBeforeCreatingNewSlaveViaWizard(String deviceName) {
+        Optional<Device> existingDevice = deviceService.findDeviceByName(deviceName);
         if (existingDevice.isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.UNIQUE_MRID);
+            throw exceptionFactory.newException(MessageSeeds.UNIQUE_NAME);
         }
     }
 
@@ -427,20 +427,20 @@ public class DeviceResource {
     }
 
     private Register registerInfoToRegister(RegisterInfo info){
-        return resourceHelper.findRegisterOnDeviceOrThrowException(info.mRID, info.id );
+        return resourceHelper.findRegisterOnDeviceOrThrowException(info.deviceName, info.id);
     }
 
     private Register registerInfoToRegister(Device slave, RegisterInfo info){
-        return resourceHelper.findRegisterOnDeviceOrThrowException(slave, info.id );
+        return resourceHelper.findRegisterOnDeviceOrThrowException(slave, info.id);
     }
 
-    private void updateGateway(Device device, String gatewayMRID) {
+    private void updateGateway(Device device, String gatewayName) {
         if (device.getDeviceConfiguration().isDirectlyAddressable()) {
-            throw exceptionFactory.newException(MessageSeeds.IMPOSSIBLE_TO_SET_MASTER_DEVICE, device.getmRID());
+            throw exceptionFactory.newException(MessageSeeds.IMPOSSIBLE_TO_SET_MASTER_DEVICE, device.getName());
         }
         Optional<Device> currentGateway = topologyService.getPhysicalGateway(device);
-        if (!currentGateway.isPresent() || !currentGateway.get().getmRID().equals(gatewayMRID)) {
-            Device newGateway = resourceHelper.findDeviceByMrIdOrThrowException(gatewayMRID);
+        if (!currentGateway.isPresent() || !currentGateway.get().getName().equals(gatewayName)) {
+            Device newGateway = resourceHelper.findDeviceByNameOrThrowException(gatewayName);
             topologyService.setPhysicalGateway(device, newGateway);
         }
     }
@@ -464,28 +464,28 @@ public class DeviceResource {
     }
 
     @GET @Transactional
-    @Path("/{mRID}")
+    @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public DeviceInfo findDeviceBymRID(@PathParam("mRID") String mrid, @Context SecurityContext securityContext) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public DeviceInfo findDeviceByName(@PathParam("name") String name, @Context SecurityContext securityContext) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
     @GET @Transactional
-    @Path("/{mRID}/attributes")
+    @Path("/{name}/attributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public Response getDeviceAttributes(@PathParam("mRID") String id) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+    public Response getDeviceAttributes(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         return Response.ok(deviceAttributesInfoFactory.from(device)).build();
     }
 
     @PUT @Transactional
-    @Path("/{mRID}/attributes")
+    @Path("/{name}/attributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE})
-    public Response editDeviceAttributes(@PathParam("mRID") String id, DeviceAttributesInfo info) {
+    public Response editDeviceAttributes(@PathParam("name") String name, DeviceAttributesInfo info) {
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         deviceAttributesInfoFactory.validateOn(device, info);
         deviceAttributesInfoFactory.writeTo(device, info);
@@ -493,21 +493,21 @@ public class DeviceResource {
     }
 
     @GET @Transactional
-    @Path("/{mRID}/customproperties")
+    @Path("/{name}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public PagedInfoList getDeviceCustomProperties(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getDeviceCustomProperties(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<CustomPropertySetInfo> customPropertySetInfos = resourceHelper.getDeviceCustomPropertySetInfos(device);
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfos, queryParameters);
     }
 
     @GET @Transactional
-    @Path("/{mRID}/customproperties/{cpsId}")
+    @Path("/{name}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public CustomPropertySetInfo getDeviceCustomProperty(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @QueryParam("default") boolean defaultValues) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public CustomPropertySetInfo getDeviceCustomProperty(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @QueryParam("default") boolean defaultValues) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         if(defaultValues){
             return resourceHelper.getDeviceCustomPropertySetInfoWithDefaultValues(device, cpsId);
         } else {
@@ -520,21 +520,21 @@ public class DeviceResource {
     }
 
     @GET @Transactional
-    @Path("/{mRID}/customproperties/{cpsId}/versions")
+    @Path("/{name}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public PagedInfoList getDeviceCustomPropertyVersioned(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getDeviceCustomPropertyVersioned(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<CustomPropertySetInfo> customPropertySetInfoList = resourceHelper.getVersionedCustomPropertySetHistoryInfos(device, cpsId);
         return PagedInfoList.fromCompleteList("versions", customPropertySetInfoList, queryParameters);
     }
 
     @GET @Transactional
-    @Path("/{mRID}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Path("/{name}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public CustomPropertySetInfo getDeviceCustomPropertyVersionedHistory(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public CustomPropertySetInfo getDeviceCustomPropertyVersionedHistory(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         return resourceHelper.getDeviceCustomPropertySetInfos(device, Instant.ofEpochMilli(timeStamp))
                 .stream()
                 .filter(f -> f.id == cpsId)
@@ -543,55 +543,55 @@ public class DeviceResource {
     }
 
     @GET @Transactional
-    @Path("/{mRID}/customproperties/{cpsId}/currentinterval")
+    @Path("/{name}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public IntervalInfo getCurrentTimeInterval(@PathParam("name") String name, @PathParam("cpsId") long cpsId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(device, cpsId));
 
         return IntervalInfo.from(interval.toClosedOpenRange());
     }
 
     @GET @Transactional
-    @Path("/{mRID}/customproperties/{cpsId}/conflicts")
+    @Path("/{name}/customproperties/{cpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getOverlaps(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(device, cpsId, resourceHelper.getTimeRange(startTime, endTime));
         Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
     @GET @Transactional
-    @Path("/{mRID}/customproperties/{cpsId}/conflicts/{timeStamp}")
+    @Path("/{name}/customproperties/{cpsId}/conflicts/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public PagedInfoList getOverlaps(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(device, cpsId, resourceHelper.getTimeRange(startTime, endTime), Instant.ofEpochMilli(timeStamp));
         Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
     @PUT @Transactional
-    @Path("/{mRID}/customproperties/{cpsId}")
+    @Path("/{name}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response editDeviceCustomAttribute(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
-        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, mRID, customPropertySetInfo.version);
+    public Response editDeviceCustomAttribute(@PathParam("name") String name, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, name, customPropertySetInfo.version);
         resourceHelper.lockDeviceTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         resourceHelper.setDeviceCustomPropertySetInfo(lockedDevice, cpsId, customPropertySetInfo);
         return Response.ok().build();
     }
 
     @POST @Transactional
-    @Path("/{mRID}/customproperties/{cpsId}/versions")
+    @Path("/{name}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS})
-    public Response addDeviceCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
-        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, mRID, customPropertySetInfo.version);
+    public Response addDeviceCustomAttributeVersioned(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, name, customPropertySetInfo.version);
         resourceHelper.lockDeviceTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
         if (intervalErrors.isPresent()) {
@@ -613,11 +613,11 @@ public class DeviceResource {
     }
 
     @PUT @Transactional
-    @Path("/{mRID}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Path("/{name}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS})
-    public Response editDeviceCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
-        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, mRID, customPropertySetInfo.version);
+    public Response editDeviceCustomAttributeVersioned(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, name, customPropertySetInfo.version);
         resourceHelper.lockDeviceTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
         Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
         if (intervalErrors.isPresent()) {
@@ -639,12 +639,12 @@ public class DeviceResource {
     }
 
     @GET @Transactional
-    @Path("/{mRID}/privileges")
+    @Path("/{name}/privileges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public Response getDeviceConstraintsBasedOnDeviceState(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+    public Response getDeviceConstraintsBasedOnDeviceState(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<IdWithNameInfo> privileges = DevicePrivileges.getPrivilegesFor(device, user)
                 .stream()
                 .map(privilege -> new IdWithNameInfo(null, privilege))
@@ -662,19 +662,19 @@ public class DeviceResource {
      * - that have device messages specs on them (enablement)
      * - that the user has the required privileges for
      *
-     * @param mrid Device's mRID
+     * @param name Device's name
      * @return List of categories + device message specs, indicating if message spec will be picked up by a comtask or not
      */
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("/{mRID}/messagecategories")
+    @Path("/{name}/messagecategories")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
         deviceMessageSpecificationService
                 .filteredCategoriesForUserSelection()
@@ -702,47 +702,47 @@ public class DeviceResource {
                         queryParameters);
     }
 
-    @Path("/{mRID}/connectionmethods")
+    @Path("/{name}/connectionmethods")
     public ConnectionMethodResource getConnectionMethodResource() {
         return connectionMethodResourceProvider.get();
     }
 
-    @Path("/{mRID}/protocoldialects")
+    @Path("/{name}/protocoldialects")
     public ProtocolDialectResource getProtocolDialectsResource() {
         return protocolDialectResourceProvider.get();
     }
 
-    @Path("/{mRID}/registers")
+    @Path("/{name}/registers")
     public RegisterResource getRegisterResource() {
         return registerResourceProvider.get();
     }
 
-    @Path("/{mRID}/channels")
+    @Path("/{name}/channels")
     public ChannelResource getChannelResource() {
         return channelsOnDeviceResourceProvider.get();
     }
 
-    @Path("/{mRID}/validationrulesets")
+    @Path("/{name}/validationrulesets")
     public DeviceValidationResource getDeviceValidationResource() {
         return deviceValidationResourceProvider.get();
     }
 
-    @Path("/{mRID}/estimationrulesets")
+    @Path("/{name}/estimationrulesets")
     public DeviceEstimationResource getDeviceEstimationResource() {
         return deviceEstimationResourceProvider.get();
     }
 
-    @Path("/{mRID}/loadprofiles")
+    @Path("/{name}/loadprofiles")
     public LoadProfileResource getLoadProfileResource() {
         return loadProfileResourceProvider.get();
     }
 
-    @Path("/{mRID}/logbooks")
+    @Path("/{name}/logbooks")
     public LogBookResource getLogBookResource() {
         return logBookResourceProvider.get();
     }
 
-    @Path("/{mRID}/whatsgoingon")
+    @Path("/{name}/whatsgoingon")
     public GoingOnResource getGoingOnResource() {
         return goingOnResourceProvider.get();
     }
@@ -752,57 +752,57 @@ public class DeviceResource {
         return bulkScheduleResourceProvider.get();
     }
 
-    @Path("/{mRID}/schedules")
+    @Path("/{name}/schedules")
     public DeviceScheduleResource getComTaskExecutionResource() {
         return deviceScheduleResourceProvider.get();
     }
 
-    @Path("/{mRID}/comtasks")
+    @Path("/{name}/comtasks")
     public DeviceComTaskResource getComTaskResource() {
         return deviceComTaskResourceProvider.get();
     }
 
-    @Path("/{mRID}/devicemessages")
+    @Path("/{name}/devicemessages")
     public DeviceMessageResource getCommandResource() {
         return deviceCommandResourceProvider.get();
     }
 
-    @Path("/{mRID}/securityproperties")
+    @Path("/{name}/securityproperties")
     public SecurityPropertySetResource getSecurityPropertySetResource() {
         return securityPropertySetResourceProvider.get();
     }
 
-    @Path("/{mRID}/protocols")
-    public DeviceProtocolPropertyResource getDevicePropertyResource(@PathParam("mRID") String mRID) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    @Path("/{name}/protocols")
+    public DeviceProtocolPropertyResource getDevicePropertyResource(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         return devicePropertyResourceProvider.get().with(device);
     }
 
-    @Path("/{mRID}/devicelabels")
+    @Path("/{name}/devicelabels")
     public DeviceLabelResource getDeviceLabelResource() {
         return deviceLabelResourceProvider.get();
     }
 
-    @Path("/{mRID}/connections")
+    @Path("/{name}/connections")
     public ConnectionResource getConnectionResource() {
         return connectionResourceProvider.get();
     }
 
-    @Path("/{mRID}/history")
+    @Path("/{name}/history")
     public DeviceHistoryResource getDeviceHistoryResource() {
         return deviceHistoryResourceProvider.get();
     }
 
-    @Path("/{mRID}/transitions")
+    @Path("/{name}/transitions")
     public DeviceLifeCycleActionResource getDeviceLifeCycleActionsResource() {
         return deviceLifeCycleActionResourceProvider.get();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("{mRID}/runningservicecalls")
-    public PagedInfoList getServiceCallsFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    @Path("/{name}/runningservicecalls")
+    public PagedInfoList getServiceCallsFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Set<DefaultState> states = EnumSet.of(
                 DefaultState.CREATED,
@@ -820,8 +820,8 @@ public class DeviceResource {
     @PUT
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("{mRID}/runningservicecalls/{id}")
-    public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
+    @Path("/{name}/runningservicecalls/{id}")
+    public Response cancelServiceCall(@PathParam("name") String name, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
         if ("sclc.default.cancelled".equals(info.state.id)) {
             serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
             return Response.status(Response.Status.ACCEPTED).build();
@@ -831,9 +831,9 @@ public class DeviceResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("{mRID}/servicecallhistory")
-    public PagedInfoList getServiceCallHistoryFor(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    @Path("/{name}/servicecallhistory")
+    public PagedInfoList getServiceCallHistoryFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
@@ -848,9 +848,9 @@ public class DeviceResource {
     @PUT
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("/{mRID}/servicecalls")
-    public Response cancelServiceCallsFor(@PathParam("mRID") String mrid, ServiceCallInfo serviceCallInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    @Path("/{name}/servicecalls")
+    public Response cancelServiceCallsFor(@PathParam("name") String name, ServiceCallInfo serviceCallInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         if (serviceCallInfo.state == null) {
             throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
         }
@@ -862,20 +862,18 @@ public class DeviceResource {
     }
 
     @GET @Transactional
-    @Path("/{mRID}/topology/communication")
+    @Path("/{name}/topology/communication")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        Integer limit = queryParameters.getLimit().orElse(Integer.MAX_VALUE);
-        TopologyTimeline timeline = topologyService.getPhysicalTopologyTimelineAdditions(device, limit);
+    public PagedInfoList getCommunicationReferences(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
-        Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
-                .sorted(Comparator.comparing(Device::getmRID));
+        Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).sorted(Comparator.comparing(Device::getName));
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
             stream = stream.skip(queryParameters.getStart().get());
         }
@@ -885,11 +883,11 @@ public class DeviceResource {
     }
 
     @GET @Transactional
-    @Path("/{mRID}/dataloggerslaves")
+    @Path("/{name}/dataloggerslaves")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getDataLoggerSlaves(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        return PagedInfoList.fromPagedList("dataLoggerSlaveDevices", getDataLoggerSlavesForDevice(device), queryParameters);
+    public PagedInfoList getDataLoggerSlaves(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        return PagedInfoList.fromCompleteList("dataLoggerSlaveDevices",  getDataLoggerSlavesForDevice(device), queryParameters);
     }
 
     private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
@@ -906,15 +904,15 @@ public class DeviceResource {
             return dataLoggerSlaveDeviceInfoFactory.forDataLoggerSlaves(deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText))
                     .stream()
                     .limit(50)
-                    .collect(Collectors.<Device>toList()));
+                    .collect(Collectors.toList()));
         }
         return dataLoggerSlaveDeviceInfoFactory.forDataLoggerSlaves(Collections.emptyList());
     }
 
     private Condition getUnlinkedSlaveDevicesCondition(String dbSearchText) {
         // a. Datalogger slave devices
-        String regex = "*" + dbSearchText.replace(" ", "*") + "*";
-        Condition a = Where.where("mRID").likeIgnoreCase(regex)
+        String regex = '*' + dbSearchText.replace(' ', '*') + '*';
+        Condition a = Where.where("name").likeIgnoreCase(regex)
             .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE));
         // b. that are not linked yet to a data logger
         Condition b = ListOperator.NOT_IN.contains(topologyService.findAllEffectiveDataLoggerSlaveDevices().asSubQuery("origin"), "id");
@@ -923,26 +921,26 @@ public class DeviceResource {
 
     @GET
     @Transactional
-    @Path("/{mRID}/timeofuse")
+    @Path("/{name}/timeofuse")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
-    public Response getCalendarInfo(@PathParam("mRID") String id) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+    public Response getCalendarInfo(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         TimeOfUseInfo info = timeOfUseInfoFactory.from(device);
         return Response.ok(info).build();
     }
 
     @POST
     @Transactional
-    @Path("/{mRID}/timeofuse/send")
+    @Path("/{name}/timeofuse/send")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response sendCalendar(@PathParam("mRID") String mRID, SendCalendarInfo sendCalendarInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response sendCalendar(@PathParam("name") String name, SendCalendarInfo sendCalendarInfo) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
         AllowedCalendar calendar = device.getDeviceType().getAllowedCalendars().stream()
                 .filter(allowedCalendar -> !allowedCalendar.isGhost() && allowedCalendar.getId() == sendCalendarInfo.allowedCalendarId)
@@ -956,11 +954,11 @@ public class DeviceResource {
 
 
     @GET
-    @Path("/{mRID}/timeofuse/{calendarId}")
+    @Path("/{name}/timeofuse/{calendarId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE)
-    public Response getCalendar(@PathParam("mRID") String mRID, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response getCalendar(@PathParam("name") String name, @PathParam("calendarId") long calendarId, @QueryParam("weekOf") long milliseconds) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ActiveEffectiveCalendar activeCalendar = device.calendars().getActive().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
         AllowedCalendar allowedCalendar = activeCalendar.getAllowedCalendar();
         Calendar calendar = allowedCalendar.getCalendar().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
@@ -981,14 +979,14 @@ public class DeviceResource {
     }
 
     @GET
-    @Path("/{mRID}/timeofuse/availablecalendars")
+    @Path("/{name}/timeofuse/availablecalendars")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response getAvailableCalendars(@PathParam("mRID") String mRID) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response getAvailableCalendars(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<IdWithNameInfo> calendars = device.getDeviceConfiguration().getDeviceType().getAllowedCalendars().stream()
                 .filter(allowedCalendar -> !allowedCalendar.isGhost())
                 .map(allowedCalendar -> new IdWithNameInfo(allowedCalendar.getId(), allowedCalendar.getName()))
@@ -998,15 +996,15 @@ public class DeviceResource {
     }
 
     @PUT
-    @Path("/{mRID}/timeofuse/verify")
+    @Path("/{name}/timeofuse/verify")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response verifyCalendar(@PathParam("mRID") String mRID) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response verifyCalendar(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         try {
             device.runStatusInformationTask(ComTaskExecution::runNow);
         } catch (NoStatusInformationTaskException e) {
@@ -1016,15 +1014,15 @@ public class DeviceResource {
     }
 
     @PUT
-    @Path("/{mRID}/timeofuse/clearpassive")
+    @Path("/{name}/timeofuse/clearpassive")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response clearPassiveCalendar(@PathParam("mRID") String mRID) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response clearPassiveCalendar(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
         if (!allowedOptions.contains(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF)) {
             throw exceptionFactory.newException(MessageSeeds.COMMAND_NOT_ALLOWED_OR_SUPPORTED);
@@ -1036,15 +1034,15 @@ public class DeviceResource {
     }
 
     @PUT
-    @Path("/{mRID}/timeofuse/activatepassive")
+    @Path("/{name}/timeofuse/activatepassive")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response activatePassiveCalendar(@PathParam("mRID") String mRID, @FormParam("activationDate") long activationDate) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response activatePassiveCalendar(@PathParam("name") String name, @FormParam("activationDate") long activationDate) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
         if (!allowedOptions.contains(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR)) {
             throw exceptionFactory.newException(MessageSeeds.COMMAND_NOT_ALLOWED_OR_SUPPORTED);
@@ -1148,7 +1146,7 @@ public class DeviceResource {
 
     private Predicate<Device> getFilterForCommunicationTopology(JsonQueryFilter filter) {
         Predicate<Device> predicate = d -> true;
-        predicate = addPropertyStringFilterIfAvailabale(filter, "mrid", predicate, Device::getmRID);
+        predicate = addPropertyStringFilterIfAvailabale(filter, "name", predicate, Device::getName);
         predicate = addPropertyStringFilterIfAvailabale(filter, "serialNumber", predicate, Device::getSerialNumber);
         predicate = addPropertyListFilterIfAvailable(filter, "deviceTypeId", predicate, d -> d.getDeviceType()
                 .getId());
@@ -1183,7 +1181,7 @@ public class DeviceResource {
 
     /**
      * <ul>
-     * <li>Filter a device on the full MRID (e.g. 123456789)</li>
+     * <li>Filter a device on the full name (e.g. 123456789)</li>
      * <li>Filter a device ending with a certain set of characters (e.g. *6789)</li>
      * <li>Filter a device beginning with a certain set of characters (e.g. 1234*)</li>
      * <li>Filter a device containing a certain set of characters (e.g. *456*) - Not needed, but we implemented it</li>

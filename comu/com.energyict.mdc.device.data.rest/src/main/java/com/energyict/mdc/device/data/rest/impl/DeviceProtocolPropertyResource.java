@@ -61,7 +61,7 @@ public class DeviceProtocolPropertyResource {
             info.name = deviceProtocolPluggableClass.getName();
             info.properties = propertyInfos;
             info.version = deviceProtocolPluggableClass.getEntityVersion();
-            info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+            info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         });
         return Response.ok(info).build();
     }

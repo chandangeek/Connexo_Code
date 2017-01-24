@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
@@ -9,24 +8,13 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.longThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -112,7 +100,7 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
 
         dataLogger = mock(Device.class);
         when(dataLogger.getDeviceConfiguration()).thenReturn(dataLoggerDeviceConfiguration);
-        when(dataLogger.getName()).thenReturn("dataLogger.MRID");
+        when(dataLogger.getName()).thenReturn("dataLogger.Name");
         when(dataLogger.getDeviceType()).thenReturn(dataLoggerDeviceType);
         when(dataLogger.getChannels()).thenReturn(Arrays.asList(dataloggerC1,dataloggerC2, dataloggerC3, dataloggerC4, dataloggerC5, dataloggerC6));
 
@@ -122,7 +110,7 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
 
         slave1 = mock(Device.class);
         when(slave1.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration1);
-        when(slave1.getName()).thenReturn("slave.MRID1");
+        when(slave1.getName()).thenReturn("slave.Name1");
         when(slave1.getDeviceType()).thenReturn(slaveDeviceType1);
         when(slave1.getChannels()).thenReturn(Arrays.asList(slave1C1, slave1C2, slave1C3));
 
@@ -132,7 +120,7 @@ public class ResourceHelperTest extends DeviceDataRestApplicationJerseyTest {
 
         slave2 = mock(Device.class);
         when(slave2.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration2);
-        when(slave2.getName()).thenReturn("slave.MRID2");
+        when(slave2.getName()).thenReturn("slave.Name2");
         when(slave2.getDeviceType()).thenReturn(slaveDeviceType2);
         when(slave1.getChannels()).thenReturn(Arrays.asList( slave2C1, slave2C2, slave2C3));
 

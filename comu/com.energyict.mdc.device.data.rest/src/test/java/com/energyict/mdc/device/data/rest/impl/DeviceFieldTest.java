@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.*;
+import org.junit.Test;
 import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,14 +65,14 @@ public class DeviceFieldTest extends DeviceDataRestApplicationJerseyTest {
         Finder<Device> finder = mock(Finder.class);
         when(deviceService.findAllDevices(Matchers.any(Condition.class))).thenReturn(finder);
         when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
-        when(finder.sorted("mRID", true)).thenReturn(finder);
+        when(finder.sorted("name", true)).thenReturn(finder);
 
-        Device device1 = mockDevice(1L, "device1", true);
-        Device device2 = mockDevice(2L, "device2", false);
+        Device device1 = mockDevice(1L, "device1");
+        Device device2 = mockDevice(2L, "device2");
 
         when(finder.find()).thenReturn(Arrays.asList(device1, device2));
 
-        String response = target("field/gateways").queryParam("search", "00").queryParam("excludeDeviceMRID", "001").queryParam("limit", 2).request().get(String.class);
+        String response = target("field/gateways").queryParam("search", "00").queryParam("excludeDeviceName", "001").queryParam("limit", 2).request().get(String.class);
 
         JsonModel model = JsonModel.model(response);
         assertThat(model.<List<?>>get("$.gateways")).hasSize(2);
@@ -85,20 +85,25 @@ public class DeviceFieldTest extends DeviceDataRestApplicationJerseyTest {
         Finder<Device> finder = mock(Finder.class);
         when(deviceService.findAllDevices(Matchers.any(Condition.class))).thenReturn(finder);
         when(finder.from(Matchers.any(JsonQueryParameters.class))).thenReturn(finder);
-        when(finder.sorted("mRID", true)).thenReturn(finder);
+        when(finder.sorted("name", true)).thenReturn(finder);
 
         when(finder.find()).thenReturn(Arrays.asList());
 
-        String response = target("field/gateways").queryParam("search", "00").queryParam("excludeDeviceMRID", "001").queryParam("start", 0).queryParam("limit", 2).request().get(String.class);
+        String response = target("field/gateways").queryParam("search", "00")
+                .queryParam("excludeDeviceName", "001")
+                .queryParam("start", 0)
+                .queryParam("limit", 2)
+                .request()
+                .get(String.class);
 
         JsonModel model = JsonModel.model(response);
         assertThat(model.<List<?>>get("$.gateways")).isEmpty();
     }
 
-    private Device mockDevice(long id, String mrid, boolean canActAsGateway) {
+    private Device mockDevice(long id, String name) {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(id);
-        when(device.getmRID()).thenReturn(mrid);
+        when(device.getName()).thenReturn(name);
         return device;
     }
 }

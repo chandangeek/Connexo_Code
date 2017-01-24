@@ -57,6 +57,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.GrantPrivilege;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -114,6 +117,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -134,6 +138,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -239,6 +244,7 @@ public class InMemoryIntegrationPersistence {
                 new UserModule(),
                 new IdsModule(),
                 new FiniteStateMachineModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
@@ -329,7 +335,7 @@ public class InMemoryIntegrationPersistence {
             this.batchService = injector.getInstance(BatchService.class);
             this.deviceSearchDomain = injector.getInstance(DeviceSearchDomain.class);
             injector.getInstance(SearchService.class).register(deviceSearchDomain);
-            this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
+            this.meteringGroupsService.addQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.dataValidationKpiService = injector.getInstance(DataValidationKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
@@ -362,6 +368,11 @@ public class InMemoryIntegrationPersistence {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(User.class);
+        GrantPrivilege superGrant = mock(GrantPrivilege.class);
+        when(superGrant.canGrant(any())).thenReturn(true);
+        Group superUser = mock(Group.class);
+        when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", asList(superGrant)));
+        when(this.principal.getGroups()).thenReturn(asList(superUser));
         when(this.principal.getName()).thenReturn(testName);
         when(this.principal.hasPrivilege(any(), anyString())).thenReturn(true);
         Privilege ePrivilege1 = mockPrivilege(EditPrivilege.LEVEL_1);

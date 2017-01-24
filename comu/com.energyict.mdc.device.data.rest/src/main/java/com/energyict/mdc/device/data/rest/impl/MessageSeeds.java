@@ -5,7 +5,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-    NO_SUCH_DEVICE(14, "noSuchDevice", "No device with MRID {0}"),
+    NO_SUCH_DEVICE(14, "noSuchDevice", "No device with name {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
     NO_SUCH_PARTIAL_CONNECTION_TASK(16, "NoSuchPartialConnectionTask", "No such connection method on device config"),
     NO_SUCH_CONNECTION_METHOD(17, "NoSuchConnectionTask", "Device {0} has no connection method {1}"),
@@ -98,7 +98,7 @@ public enum MessageSeeds implements MessageSeed {
     ACTIVE_CALENDAR_IS_GHOST(280, "ActiveCalendarIsGhost", "The active calendar on this device is a ghost calendar and can not be previewed"),
     CALENDAR_NOT_ACTIVE_ON_DEVICE(281, "CalendarNotActiveOnDevice", "The requested calendar is not an active calendar on this device"),
     COMMAND_NOT_ALLOWED_OR_SUPPORTED(282, "CommandNotAllowedOrSupported", "The command you want to add is not supported or allowed on the device type"),
-    UNIQUE_MRID(283, "unique.mrid", "The MRID of the device must be unique"), // we only use this validation/error when we use the wizard to create slave devices
+    UNIQUE_NAME(283, "unique.name", "The name of the device must be unique"), // we only use this validation/error when we use the wizard to create slave devices
     INVALID_MULTIPLIER(284, "invalidMultiplier", "Should be larger than zero"),
     CANNOT_ADDEDITREMOVE_REGISTER_VALUE_WHEN_LINKED_TO_SLAVE(285, "cannotAddRegisterValueWhenLinkedToSlave", "You cannot add, edit or remove a register value at a timestamp at which you have a linked slave"),
     CANNOT_ADDEDITREMOVE_CHANNEL_VALUE_WHEN_LINKED_TO_SLAVE(286, "cannotAddChannelValueWhenLinkedToSlave", "You cannot add, edit or remove a channel value at a timestamp at which you have a linked slave"),
@@ -106,7 +106,8 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_ACTIVE(288, "ProcessStatusActive", "Active"),
     PROCESS_STATUS_COMPLETED(289, "ProcessStatusCompleted", "Completed"),
     PROCESS_STATUS_ABORTED(290, "ProcessStatusAborted", "Aborted"),
-    PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended");
+    PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended"),
+    OVERLAPPING_COMTASKS_IN_COMSCHEDULES(292, "OverlappingComTasks", "There are overlapping communication tasks in the schedules");
     private final int number;
     private final String key;
     private final String format;

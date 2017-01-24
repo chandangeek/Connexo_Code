@@ -78,6 +78,10 @@ public class DeviceAttributesInfoFactory {
         info.location.displayValue = editLocationInfo;
         fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
 
+        info.name = new DeviceAttributeInfo<>();
+        info.name.displayValue = device.getName();
+        fillAvailableAndEditable(info.name, DeviceAttribute.NAME, state);
+
         info.mrid = new DeviceAttributeInfo<>();
         info.mrid.displayValue = device.getmRID();
         fillAvailableAndEditable(info.mrid, DeviceAttribute.MRID, state);
@@ -116,11 +120,10 @@ public class DeviceAttributesInfoFactory {
         });
         fillAvailableAndEditable(info.batch, DeviceAttribute.BATCH, state);
 
-        info.usagePoint = new UsagePointAttributeInfo<>();
+        info.usagePoint = new DeviceAttributeInfo<>();
         device.getUsagePoint().ifPresent(usagePoint -> {
-            info.usagePoint.displayValue = usagePoint.getMRID();
-            info.usagePoint.mRID = usagePoint.getMRID();
             info.usagePoint.attributeId = usagePoint.getId();
+            info.usagePoint.displayValue = usagePoint.getName();
         });
         fillAvailableAndEditable(info.usagePoint, DeviceAttribute.USAGE_POINT, state);
 
@@ -262,8 +265,8 @@ public class DeviceAttributesInfoFactory {
         if (DeviceAttribute.MULTIPLIER.isEditableForState(state) && info.multiplier != null) {
             device.setMultiplier(info.multiplier.displayValue);
         }
-        if (DeviceAttribute.MRID.isEditableForState(state) && !Objects.equals(info.mrid.displayValue, device.getmRID())) {
-            device.setmRID(info.mrid.displayValue);
+        if (DeviceAttribute.NAME.isEditableForState(state) && !Objects.equals(info.name.displayValue, device.getName())) {
+            device.setName(info.name.displayValue);
         }
 
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
@@ -302,8 +305,8 @@ public class DeviceAttributesInfoFactory {
                 List<String> locationData = propertyInfoList.stream()
                         .map(d -> d.propertyValueInfo.value.toString())
                         .collect(Collectors.toList());
-                EndDevice endDevice = meteringService.findEndDevice(device.getmRID()).get();
-                LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
+                EndDevice endDevice = meteringService.findEndDeviceByMRID(device.getmRID()).get();
+                LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId(), "Perversion").newLocationBuilder();
                 Map<String, Integer> ranking = meteringService
                         .getLocationTemplate()
                         .getTemplateMembers()

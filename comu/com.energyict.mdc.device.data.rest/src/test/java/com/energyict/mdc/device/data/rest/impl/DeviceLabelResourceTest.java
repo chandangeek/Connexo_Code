@@ -1,28 +1,34 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.LabelCategory;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -37,11 +43,11 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
     public void setUp() throws Exception {
         super.setUp();
         when(device.getId()).thenReturn(100L);
-        when(device.getmRID()).thenReturn("mrid");
+        when(device.getName()).thenReturn("name");
         when(device.getVersion()).thenReturn(1L);
-        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(device.getId(), device.getVersion())).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion(device.getName(), device.getVersion())).thenReturn(Optional.of(device));
 
         when(category.getName()).thenReturn("mycategory");
         doReturn("My category").when(thesaurus).getString("mycategory", "mycategory");
@@ -50,10 +56,9 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
 
     @Test
     public void testNoDeviceLabels() {
-        List<DeviceLabel> deviceLabels = new ArrayList<>();
-        when(favoritesService.getDeviceLabels(device, user)).thenReturn(deviceLabels);
+        when(favoritesService.getDeviceLabels(device, user)).thenReturn(Collections.emptyList());
 
-        String response = target("/devices/mrid/devicelabels").request().get(String.class);
+        String response = target("/devices/name/devicelabels").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(0);
@@ -80,7 +85,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         deviceLabels.add(label1);
         deviceLabels.add(label2);
 
-        String response = target("/devices/mrid/devicelabels").request().get(String.class);
+        String response = target("/devices/name/devicelabels").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
@@ -111,7 +116,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         info.category = new IdWithNameInfo("mycategory", null);
         info.comment = "My comment";
         info.parent = new VersionInfo<>(device.getId(), device.getVersion());
-        Response response = target("/devices/mrid/devicelabels").request().post(Entity.json(info));
+        Response response = target("/devices/name/devicelabels").request().post(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         DeviceLabelInfo createdLabelInfo = response.readEntity(DeviceLabelInfo.class);
@@ -128,7 +133,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         info.category = new IdWithNameInfo("mycategory_XXX", null);
         info.parent = new VersionInfo<>(device.getId(), device.getVersion());
 
-        Response response = target("/devices/mrid/devicelabels").request().post(Entity.json(info));
+        Response response = target("/devices/name/devicelabels").request().post(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -144,7 +149,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         info.parent = new VersionInfo<>(device.getId(), device.getVersion());
         info.creationDate = now;
 
-        Response response = target("/devices/mrid/devicelabels/mycategory").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/devices/name/devicelabels/mycategory").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(favoritesService).removeDeviceLabel(label);
@@ -158,12 +163,12 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         DeviceLabelInfo info = new DeviceLabelInfo();
         info.parent = new VersionInfo<>(device.getId(), badVersion);
 
-        Response response = target("/devices/mrid/devicelabels").request().post(Entity.json(info));
+        Response response = target("/devices/name/devicelabels").request().post(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         ConcurrentModificationInfo concurrentModificationInfo = response.readEntity(ConcurrentModificationInfo.class);
-        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_TITLE).format("mrid"));
-        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("mrid"));
+        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_TITLE).format("name"));
+        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("name"));
         assertThat(concurrentModificationInfo.parent.id).isEqualTo((int)device.getId());
         assertThat(concurrentModificationInfo.parent.version).isEqualTo(device.getVersion());
     }
@@ -176,12 +181,12 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         DeviceLabelInfo info = new DeviceLabelInfo();
         info.parent = new VersionInfo<>(device.getId(), badVersion);
 
-        Response response = target("/devices/mrid/devicelabels/mycategory").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/devices/name/devicelabels/mycategory").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         ConcurrentModificationInfo concurrentModificationInfo = response.readEntity(ConcurrentModificationInfo.class);
-        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.REMOVE_FLAG_DEVICE_CONCURRENT_TITLE).format("mrid"));
-        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("mrid"));
+        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.REMOVE_FLAG_DEVICE_CONCURRENT_TITLE).format("name"));
+        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("name"));
         assertThat(concurrentModificationInfo.parent.id).isEqualTo((int)device.getId());
         assertThat(concurrentModificationInfo.parent.version).isEqualTo(device.getVersion());
     }
@@ -193,7 +198,7 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
         DeviceLabelInfo info = new DeviceLabelInfo();
         info.parent = new VersionInfo<>(device.getId(), device.getVersion());
 
-        Response response = target("/devices/mrid/devicelabels/mycategory").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/devices/name/devicelabels/mycategory").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }

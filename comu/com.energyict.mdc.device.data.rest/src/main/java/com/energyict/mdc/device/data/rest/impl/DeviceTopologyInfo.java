@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceTopologyInfo {
     public long id;
-    public String mRID;
+    public String name;
     public String deviceTypeName;
     public String deviceConfigurationName;
     public Long linkingTimeStamp;
@@ -34,7 +34,7 @@ public class DeviceTopologyInfo {
     public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         DeviceTopologyInfo info = new DeviceTopologyInfo();
         info.id = device.getId();
-        info.mRID = device.getmRID();
+        info.name = device.getName();
         info.deviceTypeName = device.getDeviceType().getName();
         info.deviceConfigurationName = device.getDeviceConfiguration().getName();
         info.serialNumber = device.getSerialNumber();

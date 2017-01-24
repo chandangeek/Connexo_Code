@@ -5,12 +5,13 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -33,7 +34,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
         when(state.getName()).thenReturn(stateName);
         Device device = mock(Device.class);
         when(device.getState()).thenReturn(state);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         return device;
     }
 
@@ -43,7 +44,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
         Response response = target("devices/1/validationrulesets/validationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceService, times(1)).findByUniqueMrid("1");
+        verify(deviceService, times(1)).findDeviceByName("1");
         verify(device, times(1)).getState();
     }
 
@@ -53,7 +54,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
         Response response = target("devices/1/validationrulesets/validationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceService, times(1)).findByUniqueMrid("1");
+        verify(deviceService, times(1)).findDeviceByName("1");
         verify(device, times(1)).getState();
     }
 
@@ -64,7 +65,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
         Response response = target("devices/1/validationrulesets/validationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isNotEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceService, times(1)).findByUniqueMrid("1");
+        verify(deviceService, times(1)).findDeviceByName("1");
         verify(device, times(1)).getState();
     }
 
@@ -74,7 +75,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
         Response response = target("devices/1/estimationrulesets/esimationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceService, times(1)).findByUniqueMrid("1");
+        verify(deviceService, times(1)).findDeviceByName("1");
         verify(device, times(1)).getState();
     }
 
@@ -84,7 +85,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
         Response response = target("devices/1/estimationrulesets/esimationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceService, times(1)).findByUniqueMrid("1");
+        verify(deviceService, times(1)).findDeviceByName("1");
         verify(device, times(1)).getState();
     }
 
@@ -94,7 +95,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
         Response response = target("devices/1/estimationrulesets/esimationstatus").request().put(Entity.json("some entity"));
         assertThat(response.getStatus()).isNotEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceService, times(1)).findByUniqueMrid("1");
+        verify(deviceService, times(1)).findDeviceByName("1");
         verify(device, times(1)).getState();
     }
 
@@ -108,7 +109,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
         Response response = target("devices/1/schedules").request().get(Response.class);
         assertThat(response.getStatus()).isNotEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceService, atLeastOnce()).findByUniqueMrid("1");
+        verify(deviceService, atLeastOnce()).findDeviceByName("1");
     }
 
     @Test
@@ -117,7 +118,7 @@ public class DeviceStateAccessTest extends DeviceDataRestApplicationJerseyTest{
 
         Response response = target("devices/1/schedules").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceService, times(1)).findByUniqueMrid("1");
+        verify(deviceService, times(1)).findDeviceByName("1");
         verify(device, times(1)).getState();
     }
 }

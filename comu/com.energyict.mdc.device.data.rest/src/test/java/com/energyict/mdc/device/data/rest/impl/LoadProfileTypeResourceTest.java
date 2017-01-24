@@ -125,8 +125,8 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
 
     @Before
     public void setUpStubs() {
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(device.getChannels()).thenReturn(Arrays.asList(channel1, channel2));

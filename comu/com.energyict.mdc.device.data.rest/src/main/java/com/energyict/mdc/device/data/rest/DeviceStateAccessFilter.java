@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class DeviceStateAccessFilter implements ContainerRequestFilter {
     private static final Logger LOGGER = Logger.getLogger(DeviceStateAccessFilter.class.getName());
-    private static final int MRID_SEGMENT_POSITION = 1;
+    private static final int DEVICE_NAME_SEGMENT_POSITION = 1;
     private static final int MINIMUM_SEGMENT_COUNT = 2;
 
     private final ResourceInfo resourceInfo;
@@ -40,29 +40,29 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         List<PathSegment> pathSegments = this.uriInfo.getPathSegments(true);
-        if (pathSegments == null || pathSegments.size() < MINIMUM_SEGMENT_COUNT){
+        if (pathSegments == null || pathSegments.size() < MINIMUM_SEGMENT_COUNT) {
             LOGGER.warning("You applied the RestrictedDeviceState annotation for incorrect resource. " +
-                    "The annotated resource url MUST match this template: \"/some_path_segment/{device_mrid}/*\"");
+                    "The annotated resource url MUST match this template: \"/some_path_segment/{device_name}/*\"");
             return;
         }
-        if (isUserHasIgnoredRole(requestContext)){
+        if (isUserHasIgnoredRole(requestContext)) {
             return;
         }
-        if (!isRestrictedHttpMethod(requestContext)){
+        if (!isRestrictedHttpMethod(requestContext)) {
             return;
         }
-        Optional<Device> device = deviceService.findByUniqueMrid(pathSegments.get(MRID_SEGMENT_POSITION).getPath());
-        if (device.isPresent() && !getRestrictedDeviceStates().contains(device.get().getState().getName())){
+        Optional<Device> device = deviceService.findDeviceByName(pathSegments.get(DEVICE_NAME_SEGMENT_POSITION).getPath());
+        if (device.isPresent() && !getRestrictedDeviceStates().contains(device.get().getState().getName())) {
             // Current device state is not restricted, so stop our work
             return;
         }
         requestContext.abortWith(Response.status(Response.Status.NOT_FOUND).build());
     }
 
-    private Set<String> getRestrictedDeviceStates(){
+    private Set<String> getRestrictedDeviceStates() {
         Set<String> restrictedStates = Collections.emptySet();
         DeviceStatesRestricted methodAnnotation = resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class);
-        if (methodAnnotation != null){
+        if (methodAnnotation != null) {
             restrictedStates = Arrays.stream(methodAnnotation.value()).map(DefaultState::getKey).collect(Collectors.toSet());
         } else {
             DeviceStatesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
@@ -77,23 +77,23 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
         return restrictedStates;
     }
 
-    private boolean isRestrictedHttpMethod(ContainerRequestContext requestContext){
-        if (this.resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class) != null){
+    private boolean isRestrictedHttpMethod(ContainerRequestContext requestContext) {
+        if (this.resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class) != null) {
             // Allow method annotation override a class annotation
             // For example we restrict all PUT and POST requests for a specific class and just one GET request via annotated method
             return true;
         }
         DeviceStatesRestricted classAnnotation = this.resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
-        if (classAnnotation != null && classAnnotation.methods() != null){
+        if (classAnnotation != null && classAnnotation.methods() != null) {
             return Arrays.asList(classAnnotation.methods()).contains(requestContext.getMethod());
         }
         return false;
     }
 
-    private boolean isUserHasIgnoredRole(ContainerRequestContext requestContext){
+    private boolean isUserHasIgnoredRole(ContainerRequestContext requestContext) {
         String[] ignoredRoles = null;
         DeviceStatesRestricted methodAnnotation = resourceInfo.getResourceMethod().getAnnotation(DeviceStatesRestricted.class);
-        if (methodAnnotation != null){
+        if (methodAnnotation != null) {
             ignoredRoles = methodAnnotation.ignoredUserRoles();
         } else {
             DeviceStatesRestricted classAnnotation = resourceInfo.getResourceClass().getAnnotation(DeviceStatesRestricted.class);
@@ -101,7 +101,7 @@ public class DeviceStateAccessFilter implements ContainerRequestFilter {
                 ignoredRoles = classAnnotation.ignoredUserRoles();
             }
         }
-        if (ignoredRoles != null && ignoredRoles.length > 0){
+        if (ignoredRoles != null && ignoredRoles.length > 0) {
             User user = (User) requestContext.getSecurityContext().getUserPrincipal();
             if (user != null) {
                 return Arrays.stream(ignoredRoles).anyMatch(candidate -> user.hasPrivilege(null, candidate));

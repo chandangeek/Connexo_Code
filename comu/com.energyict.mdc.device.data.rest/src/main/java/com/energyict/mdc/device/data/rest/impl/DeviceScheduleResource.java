@@ -12,7 +12,6 @@ import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -21,7 +20,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -47,21 +45,62 @@ public class DeviceScheduleResource {
         this.taskService = taskService;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response getAllComTaskExecutions(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getAllComTaskExecutions(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
         List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
-        List<DeviceSchedulesInfo> deviceSchedulesInfos = DeviceSchedulesInfo.from(comTaskExecutions, comTaskEnablements);
+        List<DeviceSchedulesInfo> deviceSchedulesInfos = DeviceSchedulesInfo.from(comTaskExecutions, comTaskEnablements, device);
         return Response.ok(PagedInfoList.fromPagedList("schedules", deviceSchedulesInfos, queryParameters)).build();
+    }
+
+
+    @GET
+    @Path("/{comTaskId}")
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response getComTask(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+        List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements();
+
+        Optional<ComTaskExecution> cte = comTaskExecutions.stream()
+                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskId)
+                .findFirst();
+        DeviceSchedulesInfo info = null;
+        if (cte.isPresent()) {
+            ComTaskExecution comTaskExecution = cte.get();
+            if (comTaskExecution.isScheduledManually() && !comTaskExecution.isAdHoc()) {
+                info = DeviceSchedulesInfo.fromManual(comTaskExecution);
+            }  else if(comTaskExecution.usesSharedSchedule()){
+                info = DeviceSchedulesInfo.fromScheduled(comTaskExecution);
+            } else if(comTaskExecution.isAdHoc()){
+                info = DeviceSchedulesInfo.fromAdHoc(comTaskExecution);
+            }
+        } else {
+            Optional<ComTaskEnablement> comTaskEnablement = comTaskEnablements.stream()
+                    .filter(c -> c.getComTask().getId() == comTaskId)
+                    .findFirst();
+            if(comTaskEnablement.isPresent()) {
+                info = DeviceSchedulesInfo.fromEnablement(comTaskEnablement.get(), device);
+            }
+        }
+        if(info != null) {
+            return Response.ok(info).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
     }
 
     private void checkForNoActionsAllowedOnSystemComTaskExecutions(long comTaskExecId) {
         ComTaskExecution comTaskExecution = resourceHelper.findComTaskExecutionOrThrowException(comTaskExecId);
-        if (comTaskExecution.getComTasks().stream().anyMatch(ComTask::isSystemComTask)) {
+        if (comTaskExecution.getComTask().isSystemComTask()) {
             throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK);
         }
     }
@@ -73,45 +112,37 @@ public class DeviceScheduleResource {
         }
     }
 
-    @POST @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @POST
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response createComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo schedulingInfo) {
+    public Response createComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo schedulingInfo) {
         // In this method, id == id of comtask
         checkForNoActionsAllowedOnSystemComTask(schedulingInfo.id);
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
             if (comTaskEnablement.getComTask().getId() == schedulingInfo.id) {
                 if (schedulingInfo.schedule != null) {
                     boolean comTaskExecutionExists = false;
                     for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
-                        if (comTaskExecution.isAdHoc() && comTaskExecution.getComTasks().get(0).getId() == comTaskEnablement.getComTask().getId()) {
-                            ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression()).update();
+                        if (comTaskExecution.isAdHoc() && comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
+                            comTaskExecution.getUpdater().createNextExecutionSpecs(schedulingInfo.schedule.asTemporalExpression()).update();
                             comTaskExecutionExists = true;
+                        } else if(comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()) {
+                            return Response.status(Response.Status.BAD_REQUEST).build();
                         }
                     }
                     if (!comTaskExecutionExists) {
-                        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
+                        ComTaskExecutionBuilder builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, schedulingInfo.schedule.asTemporalExpression());
                         if (comTaskEnablement.hasPartialConnectionTask()) {
                             device.getConnectionTasks()
-                                  .stream()
-                                  .filter(x -> x.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
-                                  .forEach(builder::connectionTask);
+                                    .stream()
+                                    .filter(x -> x.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
+                                    .forEach(builder::connectionTask);
                         }
                         builder.add();
-                    }
-                } else {
-                    boolean comTaskExecutionExists = false;
-                    for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
-                        if (comTaskExecution.isAdHoc() && comTaskExecution.getComTasks().get(0).getId() == comTaskEnablement.getComTask().getId()) {
-                            comTaskExecution.scheduleNow();
-                            comTaskExecutionExists = true;
-                        }
-                    }
-                    if (!comTaskExecutionExists) {
-                        device.newAdHocComTaskExecution(comTaskEnablement).scheduleNow().add();
                     }
                 }
             }
@@ -119,43 +150,24 @@ public class DeviceScheduleResource {
         return Response.status(Response.Status.CREATED).build();
     }
 
-    @PUT @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response updateComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo info) {
+    public Response updateComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo info) {
         // In this method, id == id of comtaskexec
         checkForNoActionsAllowedOnSystemComTaskExecutions(info.id);
         ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
-        Device device = comTaskExecution.getDevice();
+        if(!(comTaskExecution.isScheduledManually())) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         if (info.schedule == null) {
-            if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
-                ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().removeSchedule().update();
-            } else {
-                device.removeComTaskExecution(comTaskExecution);
-                // If the ComTaskExecution was not a ManuallyScheduledComTaskExecution, it was one related to a shared communication schedule.
-                // Note that in this case, as side effect of removal of the ComTaskExecution:
-                // - the still outstanding ComTaskExecutionTriggers for the shared schedule are no longer taken into account
-                // - the communication logging of the shared ComTaskExecution is no longer shown in the communication task history
-            }
+            comTaskExecution.getUpdater().removeSchedule().update();
         } else {
-            ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(info.schedule.asTemporalExpression()).update();
+            comTaskExecution.getUpdater().createNextExecutionSpecs(info.schedule.asTemporalExpression()).update();
         }
         return Response.status(Response.Status.OK).build();
-    }
-
-    @DELETE @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    @Path("/{comTaskExecutionId}")
-    public Response deleteComTaskExecution(@PathParam("mRID") String mrid, @PathParam("comTaskExecutionId") long id, DeviceSchedulesInfo info) {
-        // In this method, id == id of comtaskexec
-        checkForNoActionsAllowedOnSystemComTaskExecutions(id);
-        info.id = id;
-        ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
-        comTaskExecution.getDevice().removeComTaskExecution(comTaskExecution);
-        return Response.ok().build();
     }
 
 }
