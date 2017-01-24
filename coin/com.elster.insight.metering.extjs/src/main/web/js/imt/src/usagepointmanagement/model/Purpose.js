@@ -15,7 +15,6 @@ Ext.define('Imt.usagepointmanagement.model.Purpose', {
             type: 'json'
         }
     },
-
     triggerActivation: function (usagePoint, options) {
         var me = this,
             url = me.getProxy().url.replace('{usagePointId}', usagePoint.get('name'))

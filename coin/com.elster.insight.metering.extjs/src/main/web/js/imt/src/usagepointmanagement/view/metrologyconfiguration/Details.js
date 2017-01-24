@@ -9,15 +9,27 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
         'Imt.usagepointmanagement.store.metrologyconfiguration.Purposes',
         'Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid',
         'Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid',
-        'Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview'
+        'Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview',
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Uni.view.container.EmptyGridContainer'
     ],
     router: null,
     usagePoint: null,
-    meterRolesAvailable: false,
     initComponent: function () {
         var me = this,
-            meterRolesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles', {data: me.usagePoint.get('metrologyConfiguration_meterRoles')}),
-            purposesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.Purposes', {data: me.usagePoint.get('metrologyConfiguration_purposes')});
+            meterRolesAvailable = me.usagePoint.get('metrologyConfiguration_meterRoles'),
+            meterRoles = me.usagePoint.get('metrologyConfiguration_meterRoles'),
+            meterRolesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles', {
+                data: meterRoles || [],
+                totalCount: !Ext.isEmpty(meterRoles) ? meterRoles.length : 0
+            }),
+            purposes = me.usagePoint.get('metrologyConfiguration_purposes'),
+            purposesStore = Ext.create('Imt.usagepointmanagement.store.metrologyconfiguration.Purposes', {
+                data: purposes || [],
+                totalCount: !Ext.isEmpty(purposes) ? purposes.length : 0
+            }),
+            mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
+            canModify = me.usagePoint.get('state').stage === 'PRE_OPERATIONAL';
 
         me.content = [
             {
@@ -27,16 +39,11 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                 itemId: 'metrology-configuration-details-main-panel',
                 tools: [
                     {
-                        xtype: 'uni-button-action',
-                        margin: '5 0 0 0',
-                        itemId: 'metrology-configuration-details-top-actions-button',
-                        privileges: Imt.privileges.MetrologyConfig.canAdministrate,
-                        menu: {
-                            xtype: 'menu',
-                            itemId: 'metrology-configuration-details-actions-menu',
-                            router: me.router
-                        },
-                        hidden: true
+                        xtype: 'button',
+                        itemId: 'unlink-metrology-configuration-button',
+                        text: Uni.I18n.translate('usagePoint.metrologyConfiguration.unlink', 'IMT', 'Unlink metrology configuration'),
+                        privileges: mcIsLinked && canModify,
+                        usagePoint: me.usagePoint
                     }
                 ],
                 items: [
@@ -44,24 +51,51 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('general.noMetrologyConfiguration', 'IMT', 'No metrology configuration'),
                         reasons: [
-                            Uni.I18n.translate('usagePoint.metrologyConfiguration.empty.reason', 'IMT', 'No metrology configuration has been defined for this usage point yet')
+                            Uni.I18n.translate('usagePoint.metrologyConfiguration.empty.reason', 'IMT', 'Metrology configuration has not been linked to this usage point yet')
                         ],
                         itemId: 'no-metrology-configuration-panel',
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('usagePoint.metrologyConfiguration.define', 'IMT', 'Define metrology configuration'),
+                                text: Uni.I18n.translate('usagePoint.metrologyConfiguration.link', 'IMT', 'Link metrology configuration'),
                                 privileges: Imt.privileges.UsagePoint.canAdministrate,
                                 href: me.router.getRoute('usagepoints/view/definemetrology').buildUrl(),
                                 action: 'define',
                                 itemId: 'define-metrology-configuration'
                             }
                         ],
-                        hidden: me.usagePoint.get('metrologyConfiguration')
+                        privileges: !mcIsLinked
+                    },
+                    {
+                        title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
+                        ui: 'medium',
+                        style: 'padding-left: 0; padding-right: 0; padding-bottom: 0',
+                        privileges: !mcIsLinked
+                    },
+                    {
+                        xtype: 'emptygridcontainer',
+                        privileges: !mcIsLinked,
+                        grid: {
+                            xtype: 'meter-roles-grid',
+                            itemId: 'metrology-configuration-meter-roles-grid',
+                            store: 'Imt.usagepointmanagement.store.MeterRoles',
+                            router: me.router,
+                            style: 'padding-left: 0; padding-right: 0',
+                            hasLinkMetersButton: false
+                        },
+                        emptyComponent: {
+                            xtype: 'no-items-found-panel',
+                            itemId: 'meter-roles-empty-message',
+                            title: Uni.I18n.translate('usagePoint.meterRoles.empty.title', 'IMT', 'No meter roles'),
+                            reasons: [
+                                Uni.I18n.translate('usagePoint.meterRoles.empty.reason', 'IMT', 'Meter roles have not been linked to this usage point yet')
+                            ],
+                            style: 'margin-top: 15px'
+                        }
                     },
                     {
                         xtype: 'form',
                         itemId: 'metrology-configuration-details-form',
-                        hidden: !me.usagePoint.get('metrologyConfiguration'),
+                        privileges: mcIsLinked,
                         defaults: {
                             xtype: 'displayfield',
                             padding: 0,
@@ -101,6 +135,18 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
 
                                     return result;
                                 }
+                            },
+                            {
+                                xtype: 'meter-roles-grid',
+                                style: 'padding-left: 0; padding-right: 0',
+                                store: meterRolesStore,
+                                router: me.router,
+                                itemId: 'metrology-configuration-meter-roles-grid',
+                                ui: 'medium',
+                                title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
+                                maxHeight: 408,
+                                privileges: !Ext.isEmpty(meterRolesAvailable),
+                                hasLinkMetersButton: canModify
                             },
                             {
                                 ui: 'medium',
@@ -149,14 +195,11 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
         ];
         me.callParent(arguments);
         purposesStore.fireEvent('load');
-        if (!Ext.isEmpty(me.meterRolesAvailable)) {
-            me.down('#metrology-configuration-details-form').insert(2, {
-                xtype: 'meter-roles-grid',
-                style: 'padding-left: 0; padding-right: 0',
-                store: meterRolesStore,
-                router: me.router,
-                itemId: 'metrology-configuration-meter-roles-grid'
-            });
+        if (!mcIsLinked) {
+            Ext.getStore('Imt.usagepointmanagement.store.MeterRoles').getProxy().setExtraParam('usagePointId', me.usagePoint.get('name'));
+            Ext.getStore('Imt.usagepointmanagement.store.MeterRoles').load();
+        } else {
+            meterRolesStore.fireEvent('load', meterRolesStore.getRange());
         }
     }
 });
