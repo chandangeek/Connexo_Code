@@ -362,17 +362,12 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     @Override
     public Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState) {
-
-        List<String> stateKeys = inState.stream()
-                .map(DefaultState::getKey)
-                .collect(Collectors.toList());
-
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.targetObject = targetObject;
+        filter.states = inState.stream().map(Enum::name).collect(Collectors.toList());
 
         return getServiceCallFinder(filter)
                 .stream()
-                .filter(serviceCall -> stateKeys.contains(serviceCall.getState().getKey()))
                 .collect(Collectors.toSet());
     }
 
