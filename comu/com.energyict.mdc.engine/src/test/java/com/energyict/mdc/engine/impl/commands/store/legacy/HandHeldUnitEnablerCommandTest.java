@@ -241,12 +241,12 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
         }
 
         @Override
-        public ComChannel connect(List<ConnectionProperty> properties) throws com.energyict.mdc.protocol.api.ConnectionException {
+        public ComChannel connect(List<ConnectionProperty> properties) throws com.energyict.protocol.exceptions.ConnectionException {
             return null;
         }
 
         @Override
-        public void disconnect(ComChannel comChannel) throws com.energyict.mdc.protocol.api.ConnectionException {
+        public void disconnect(ComChannel comChannel) throws com.energyict.protocol.exceptions.ConnectionException {
         }
 
         @Override

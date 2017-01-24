@@ -52,8 +52,8 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.text.MessageFormat;
 import java.time.Clock;

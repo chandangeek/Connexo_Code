@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.logging;
 
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 /**
  * Defines all the log messages for connection related {@link com.energyict.mdc.engine.config.ComPort} operations.
