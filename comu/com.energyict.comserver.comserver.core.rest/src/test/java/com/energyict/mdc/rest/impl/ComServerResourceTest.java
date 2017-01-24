@@ -22,12 +22,12 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
@@ -36,9 +36,7 @@ import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -78,9 +76,8 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         comServers.add(mock);
         Finder<ComServer> finder = mock(Finder.class);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), anyBoolean())).thenReturn(finder);
         when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(comServers);
+        when(finder.stream()).thenReturn(comServers.stream());
         when(engineConfigurationService.findAllComServers()).thenReturn(finder);
         when(mock.getName()).thenReturn("Test");
         when(mock.getQueryApiPostUri()).thenReturn("/test");
@@ -214,7 +211,6 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         verify(serverSideComServer).setNumberOfStoreTaskThreads(numberOfStoreTaskThreadCaptor.capture());
         assertThat(numberOfStoreTaskThreadCaptor.getValue()).isEqualTo(9);
     }
-
 
     @Test
     public void testUpdateComServerBadVersion() throws Exception {
@@ -437,9 +433,8 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         Finder<ComServer> finder = mock(Finder.class);
         when(engineConfigurationService.findAllComServers()).thenReturn(finder);
         when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), anyBoolean())).thenReturn(finder);
         when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(Collections.<ComServer>emptyList());
+        when(finder.stream()).thenReturn(Stream.empty());
 
         final Response response = target("/comservers/").queryParam("start", 10).queryParam("limit", 20).queryParam("sort", "name").queryParam("dir", "ASC").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
