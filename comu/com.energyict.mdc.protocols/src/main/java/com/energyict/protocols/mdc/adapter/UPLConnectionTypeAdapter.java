@@ -6,11 +6,11 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.energyict.protocols.impl.channels.ServerConnectionType;
 import com.energyict.protocols.mdc.adapter.cps.ConnectionTypeCustomPropertySetNameDetective;
 import com.energyict.protocols.mdc.adapter.cps.UnableToCreateCustomPropertySet;
 import com.energyict.protocols.mdc.adapter.cps.UnableToLoadCustomPropertySetClass;
@@ -30,7 +30,7 @@ import java.util.Set;
  * @author khe
  * @since 10/01/2017 - 16:33
  */
-public class UPLConnectionTypeAdapter implements ConnectionType {
+public class UPLConnectionTypeAdapter implements ServerConnectionType {
 
     private static ConnectionTypeCustomPropertySetNameDetective connectionTypeCustomPropertySetNameDetective;
 
