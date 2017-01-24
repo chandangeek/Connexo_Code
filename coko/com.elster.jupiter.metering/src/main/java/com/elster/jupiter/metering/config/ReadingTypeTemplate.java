@@ -6,6 +6,7 @@ import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.List;
 import java.util.Set;
 
 @ProviderType
@@ -31,6 +32,11 @@ public interface ReadingTypeTemplate extends HasId, HasName {
     boolean hasWildcards();
 
     /**
+     * Returns additional reading type restrictions.
+     */
+    List<ReadingTypeRestriction> getReadingTypeRestrictions();
+
+    /**
      * Checks that all attributes in the given reading type (candidate) are within template limits.
      *
      * @param candidate reading type for check
@@ -43,6 +49,7 @@ public interface ReadingTypeTemplate extends HasId, HasName {
 
     void delete();
 
+    @ProviderType
     interface ReadingTypeTemplateAttributeSetter {
         /**
          * Updates attribute in template.
@@ -53,6 +60,8 @@ public interface ReadingTypeTemplate extends HasId, HasName {
          * @return the updater
          */
         ReadingTypeTemplateAttributeSetter setAttribute(ReadingTypeTemplateAttributeName name, Integer code, Integer... possibleValues);
+
+        ReadingTypeTemplateAttributeSetter setRegular(boolean regular);
 
         ReadingTypeTemplate done();
     }

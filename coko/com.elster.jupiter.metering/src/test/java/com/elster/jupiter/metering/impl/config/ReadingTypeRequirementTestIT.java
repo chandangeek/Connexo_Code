@@ -260,6 +260,7 @@ public class ReadingTypeRequirementTestIT {
     public void testAPlusMatchesSecondaryMeteredChannel() {
         ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .createReadingTypeTemplate("APlus")
+                .setRegular(true)
                 .setAttribute(ReadingTypeTemplateAttributeName.AGGREGATE, Aggregate.NOTAPPLICABLE.getId())
                 .setAttribute(ReadingTypeTemplateAttributeName.FLOW_DIRECTION, FlowDirection.FORWARD.getId())
                 .setAttribute(
@@ -306,8 +307,27 @@ public class ReadingTypeRequirementTestIT {
                 (PartiallySpecifiedReadingTypeRequirementImpl) metrologyConfiguration
                         .newReadingTypeRequirement("Zero partially specified")
                         .withReadingTypeTemplate(readingTypeTemplate);
-        // System possible values for macro period should be applied
+        // System possible values for accumulation should be applied
         assertThat(partiallySpecifiedReadingType.matches(readingType)).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testDoNotMatchWildCardPartiallySpecifiedReadingTypeWithRegister() {
+        ReadingTypeTemplate readingTypeTemplate = inMemoryBootstrapModule.getMetrologyConfigurationService()
+                .createReadingTypeTemplate("Regular reading type template")
+                .setRegular(true)
+                .done();
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("8.0.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Billing period reading type");
+        ReadingType readingTypeRegular = inMemoryBootstrapModule.getMeteringService().createReadingType("11.0.0.1.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Daily reading type");
+
+        PartiallySpecifiedReadingTypeRequirementImpl partiallySpecifiedReadingType =
+                (PartiallySpecifiedReadingTypeRequirementImpl) metrologyConfiguration
+                        .newReadingTypeRequirement("Regular partially specified")
+                        .withReadingTypeTemplate(readingTypeTemplate);
+        // Accepts only regular reading type
+        assertThat(partiallySpecifiedReadingType.matches(readingType)).isFalse();
+        assertThat(partiallySpecifiedReadingType.matches(readingTypeRegular)).isTrue();
     }
 
     @Test
@@ -363,7 +383,7 @@ public class ReadingTypeRequirementTestIT {
     @Transactional
     public void testCanMatchCommodity() {
         ReadingTypeTemplate aPlus = inMemoryBootstrapModule.getMetrologyConfigurationService().createReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS).done();
-        ReadingType rt = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "commodity-test");
+        ReadingType rt = inMemoryBootstrapModule.getMeteringService().createReadingType("11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "daily commodity-test");
         Assertions.assertThat(aPlus.matches(rt)).isTrue();
     }
 }

@@ -17,4 +17,5 @@ interface ServerMetrologyConfiguration extends MetrologyConfiguration {
     ReadingTypeDeliverable addReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula);
     void deliverableUpdated(ReadingTypeDeliverableImpl deliverable);
     void contractUpdated(MetrologyContractImpl contract);
+    void invalidateCache();
 }
