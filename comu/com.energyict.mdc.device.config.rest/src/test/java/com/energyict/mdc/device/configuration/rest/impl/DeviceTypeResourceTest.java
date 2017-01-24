@@ -7,6 +7,7 @@ import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
+import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
@@ -1496,7 +1497,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("updater", 31);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(32, deviceType);
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("Z666")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceById(13L)).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask1 = mockConnectionTask(101L);
         ConnectionTask<?, ?> connectionTask2 = mockConnectionTask(102L);
         ConnectionTask<?, ?> connectionTask3 = mockConnectionTask(103L);
@@ -1509,7 +1510,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         PropertyInfo propertyInfo = new PropertyInfo("key", "key", new PropertyValueInfo<>("value", null, null, true), new PropertyTypeInfo(), false);
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Map<String, Object> response = target("/devicetypes/31/deviceconfigurations/32/connectionmethods/").queryParam("available", "true")
-                .queryParam("mrId", "Z666")
+                .queryParam("deviceId", "13")
                 .request()
                 .get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
@@ -1663,8 +1664,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Category category = mock(Category.class);
         when(category.getName()).thenReturn("ToU");
         when(calendar.getCategory()).thenReturn(category);
-
-        when(calendar.getTimeZone()).thenReturn(TimeZone.getDefault());
+        when(calendar.getStatus()).thenReturn(Status.ACTIVE);
 
         Event event = mock(Event.class);
         when(event.getId()).thenReturn(2L);

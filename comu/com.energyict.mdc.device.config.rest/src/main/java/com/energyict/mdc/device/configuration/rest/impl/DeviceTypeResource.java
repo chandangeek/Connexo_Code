@@ -2,6 +2,8 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -77,6 +79,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -551,10 +554,10 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_DEVICE_TYPE)
     public Response getFiles(@PathParam("id") long id) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<DeviceMessageFileInfo> files = deviceType.getDeviceMessageFiles()
+        List<DeviceMessageFileInfo> files = resourceHelper.findDeviceTypeByIdOrThrowException(id)
+                .getDeviceMessageFiles()
                 .stream()
-                .sorted((f1,f2) -> f1.getName().compareTo(f2.getName()))
+                .sorted(Comparator.comparing(DeviceMessageFile::getName))
                 .map(DeviceMessageFileInfo::new)
                 .collect(Collectors.toList());
 
@@ -666,7 +669,9 @@ public class DeviceTypeResource {
 
         infos = calendarService.findAllCalendars()
                 .stream()
-                .filter(calendar -> !usedCalendars.contains(calendar))
+                .filter(calendar -> !usedCalendars.contains(calendar)
+                        && calendar.getStatus().equals(Status.ACTIVE)
+                        && calendar.getCategory().getId()==(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get().getId()))
                 .map(calendarInfoFactory::summaryFromCalendar)
                 .collect(Collectors.toList());
 

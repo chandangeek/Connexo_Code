@@ -179,7 +179,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(readingType.isCumulative()).thenReturn(true);
         when(readingType.getAliasName()).thenReturn("abcde");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());

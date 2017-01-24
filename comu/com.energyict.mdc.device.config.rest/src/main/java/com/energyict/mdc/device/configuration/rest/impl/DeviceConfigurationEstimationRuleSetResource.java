@@ -25,7 +25,11 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/estimationrulesets")
@@ -83,17 +87,16 @@ public class DeviceConfigurationEstimationRuleSetResource {
     }
     
     private List<DeviceConfiguration> computeLinkableDeviceConfigs(EstimationRuleSet estimationRuleSet) {
-        Comparator<DeviceConfiguration> byDeviceType = (e1, e2) -> e1
-                .getDeviceType().getName().compareToIgnoreCase(e2.getDeviceType().getName());
+        Comparator<DeviceConfiguration> byDeviceType = Comparator.comparing(
+                deviceConfiguration -> deviceConfiguration.getDeviceType().getName(), String.CASE_INSENSITIVE_ORDER);
 
-        Comparator<DeviceConfiguration> byName = (e1, e2) -> e1.getName()
-                .compareToIgnoreCase(e2.getName());
+        Comparator<DeviceConfiguration> byName = Comparator.comparing(DeviceConfiguration::getName, String.CASE_INSENSITIVE_ORDER);
 
         Set<ReadingType> readingTypesInRuleSet = readingTypesFor(estimationRuleSet);
         return deviceConfigurationService.findAllDeviceTypes().stream()
-            .flatMap(deviceType -> deviceType.getConfigurations().stream())
-            .filter(deviceConfig -> !areLinked(deviceConfig, estimationRuleSet))
-            .filter(deviceConfig -> haveCommonReadingTypes(readingTypesInRuleSet, readingTypesFor(deviceConfig)))
+                .flatMap(deviceType -> deviceType.getConfigurations().stream())
+                .filter(deviceConfig -> !areLinked(deviceConfig, estimationRuleSet))
+                .filter(deviceConfig -> haveCommonReadingTypes(readingTypesInRuleSet, readingTypesFor(deviceConfig)))
                 .sorted(byDeviceType.thenComparing(byName))
                 .collect(Collectors.toList());
     }

@@ -58,7 +58,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
     @Test
     public void testDeleteLoadProfileTypeFromDeviceType() {
         DeviceType deviceType = mockDeviceType("device", 2);
-        TimeDuration interval = getRandomTimeDuration();
+        TimeDuration interval = getTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(2, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
         when(deviceConfigurationService.findDeviceType(2)).thenReturn(Optional.of(deviceType));
         when(deviceConfigurationService.findAndLockDeviceType(2, OK_VERSION)).thenReturn(Optional.of(deviceType));
@@ -75,7 +75,7 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         DeviceType deviceType = mockDeviceType("device", 1);
         List<Integer> ids = new ArrayList<>();
         Entity<List<Integer>> json = Entity.json(ids);
-        TimeDuration interval = getRandomTimeDuration();
+        TimeDuration interval = getTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(1, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
 
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));

@@ -11,7 +11,6 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.obis.ObisCode;
@@ -36,7 +35,7 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
     protected List<LoadProfileType> getLoadProfileTypes(int count) {
         List<LoadProfileType> loadProfileTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
-            TimeDuration randomTimeDuration = getRandomTimeDuration();
+            TimeDuration randomTimeDuration = getTimeDuration();
             loadProfileTypes.add(mockLoadProfileType(1000 + i, String.format("Load Profile Type %04d", i), randomTimeDuration,
                     new ObisCode(i, i, i, i, i, i), getChannelTypes(getRandomInt(4), randomTimeDuration)));
         }
@@ -70,8 +69,8 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return (int) (start + new Random().nextDouble() * range);
     }
 
-    protected TimeDuration getRandomTimeDuration() {
-        return LocalizedTimeDuration.intervals.get(getRandomInt(LocalizedTimeDuration.intervals.size() - 1)).getTimeDuration();
+    protected TimeDuration getTimeDuration() {
+        return new TimeDuration(5, TimeDuration.TimeUnit.MINUTES);
     }
 
     protected DeviceType mockDeviceType(String name, long id) {
@@ -160,13 +159,13 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
         ObisCode obisCode = new ObisCode(0, 1, 2, 3, 4, 5);
         ObisCode overruledObisCode = new ObisCode(200,201,202,203,204,205);
-        TimeDuration randomTimeDuration = getRandomTimeDuration();
+        TimeDuration randomTimeDuration = getTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(id, "Load profile spec " + id, randomTimeDuration, obisCode, getChannelTypes(2, randomTimeDuration));
         when(loadProfileSpec.getId()).thenReturn(id);
         when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
         when(loadProfileSpec.getObisCode()).thenReturn(obisCode);
         when(loadProfileSpec.getDeviceObisCode()).thenReturn(overruledObisCode);
-        when(loadProfileSpec.getInterval()).thenReturn(getRandomTimeDuration());
+        when(loadProfileSpec.getInterval()).thenReturn(getTimeDuration());
         when(loadProfileSpec.getVersion()).thenReturn(OK_VERSION);
         when(deviceConfigurationService.findLoadProfileSpec(id)).thenReturn(Optional.of(loadProfileSpec));
         when(deviceConfigurationService.findAndLockLoadProfileSpecByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(loadProfileSpec));
