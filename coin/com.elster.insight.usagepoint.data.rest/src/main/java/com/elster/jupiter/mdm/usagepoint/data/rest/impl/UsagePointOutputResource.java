@@ -646,13 +646,6 @@ public class UsagePointOutputResource {
                                         new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
                                         purposeInfo.validationInfo.lastChecked));
 
-                effectiveMetrologyConfigurationOnUsagePoint.getUsagePoint().getCurrentMeterActivations()
-                        .stream()
-                        .map(MeterActivation::getChannelsContainer)
-                        .forEach(channelsContainer ->
-                                validationService.validate(
-                                        new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
-                                        purposeInfo.validationInfo.lastChecked));
                 break;
             case "estimate":
                 effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
