@@ -119,6 +119,8 @@ public class AllConnectionTypesTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private DeviceMessageFileService deviceMessageFileService;
+    @Mock
+    private LoadProfileFactory loadProfileFactory;
 
     private InMemoryBootstrapModule bootstrapModule;
     private ConnectionTypeService connectionTypeService;
@@ -283,6 +285,7 @@ public class AllConnectionTypesTest {
             bind(IdentificationService.class).toInstance(identificationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
+            bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }

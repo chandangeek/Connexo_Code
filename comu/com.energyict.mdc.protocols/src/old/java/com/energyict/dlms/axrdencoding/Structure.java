@@ -10,8 +10,9 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdc.protocol.api.ProtocolException;
+
+import com.energyict.dlms.DLMSUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -72,6 +73,13 @@ public class Structure extends AbstractDataType {
 
 	public AbstractDataType getNextDataType() {
 		return dataTypes.get(autoIndex++);
+	}
+
+	/**
+	 * Peek at the next datatype, without increasing the autoIndex
+	 */
+	public AbstractDataType peekAtNextDataType() {
+		return dataTypes.get(autoIndex);
 	}
 
 	public AbstractDataType getDataType() {

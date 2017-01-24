@@ -35,7 +35,7 @@ public enum WebPortalPasswordMethods implements DLMSClassMethods {
      * {@inheritDoc}
      */
     public final DLMSClassId getDlmsClassId() {
-        return DLMSClassId.WEB_PORTAL_PASSWORDS;
+        return DLMSClassId.WEB_PORTAL_CONFIGURATION;
     }
 
     /**

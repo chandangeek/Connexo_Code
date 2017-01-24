@@ -118,6 +118,8 @@ public class AllDeviceProtocolsTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private DeviceMessageFileService deviceMessageFileService;
+    @Mock
+    private LoadProfileFactory loadProfileFactory;
 
     private InMemoryBootstrapModule bootstrapModule;
     private DeviceProtocolService deviceProtocolService;
@@ -226,6 +228,7 @@ public class AllDeviceProtocolsTest {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
+            bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }

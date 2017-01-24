@@ -51,6 +51,15 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
     public static final String ISKRA_WRAPPER = "IskraWrapper";
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
+    public static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES = "IncrementFrameCounterForRetries";
+    public static final String READCACHE_PROPERTY = "ReadCache";
+    public static final String SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
+    public static final String SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
+    public static final String DEVICE_ID = "DevideId";
+    public static final String USE_GBT = "Use-GBT";
+    public static final String GBT_WINDOW_SIZE = "GBT-windowSize";
+    public static final String TIMEZONE = "TimeZone";
+    public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
 
     public static final String DEFAULT_CONNECTION = ConnectionMode.TCPIP.getModeAsString();
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
@@ -76,6 +85,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String DEFAULT_ROUND_TRIP_CORRECTION = "0";
     public static final String DEFAULT_ISKRA_WRAPPER = "1";
     public static final String DEFAULT_DEVICE_BUFFER_SIZE = "-1";
+    public static final String DEFAULT_DEVICE_ID = "";
 
     protected SecurityProvider securityProvider;
 

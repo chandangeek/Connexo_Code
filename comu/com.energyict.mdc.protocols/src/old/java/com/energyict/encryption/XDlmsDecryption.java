@@ -1,7 +1,11 @@
 package com.energyict.encryption;
 
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 
 /**
@@ -16,7 +20,14 @@ public class XDlmsDecryption {
 	private static final int	AUTHENTICATION_KEY_LENGTH	= 16;
 	private static final int	AUTHENTICATION_TAG_LENGTH	= 12;
 	private static final int	CONTROL_BYTE_LENGTH			= 1;
-
+    /**
+     * Points to the encryption Method that has to be used for dataTransport.
+     * Currently 3 suites defined in the DLMS blue book:
+     * - 0 (AES-GCM-128)
+     * - 1 (ECDH-ECDSAAES-GCM-128-SHA-256)
+     * - 2 (ECDH-ECDSAAES-GCM-256-SHA-384)
+     */
+    private final int securitySuite;
 	private byte[] systemTitle;
 	private byte[] frameCounter;
 	private byte[] globalKey;
@@ -25,38 +36,8 @@ public class XDlmsDecryption {
 	private byte[] authenticationTag;
 	private byte securityControlByte;
 
-	/**
-	 * @param title
-	 */
-	public void setSystemTitle(byte[] title) {
-		checkArgument(title, -1);
-		this.systemTitle = new byte[SYSTEM_TITLE_LENGTH];
-		int copyLength = title.length < SYSTEM_TITLE_LENGTH ? title.length : this.systemTitle.length;
-		System.arraycopy(title, 0, this.systemTitle, 0, copyLength);
-	}
-
-	/**
-	 * @param frameCounter
-	 */
-	public void setFrameCounter(byte[] frameCounter) {
-		checkArgument(frameCounter, FRAME_COUNTER_LENGTH);
-		this.frameCounter = frameCounter.clone();
-	}
-
-	/**
-	 * @param globalKey
-	 */
-	public void setGlobalKey(byte[] globalKey) {
-		checkArgument(globalKey, GLOBAL_KEY_LENGTH);
-		this.globalKey = globalKey.clone();
-	}
-
-	/**
-	 * @param authenticationKey
-	 */
-	public void setAuthenticationKey(byte[] authenticationKey) {
-		checkArgument(authenticationKey, AUTHENTICATION_KEY_LENGTH);
-		this.authenticationKey = authenticationKey.clone();
+    public XDlmsDecryption(int securitySuite) {
+        this.securitySuite = securitySuite;
 	}
 
 	/**
@@ -68,28 +49,13 @@ public class XDlmsDecryption {
 	}
 
 	/**
-	 * @param authenticationTag
-	 */
-	public void setAuthenticationTag(byte[] authenticationTag) {
-		checkArgument(authenticationTag, AUTHENTICATION_TAG_LENGTH);
-		this.authenticationTag = authenticationTag.clone();
-	}
-
-	/**
-	 * @param securityControlByte
-	 */
-	public void setSecurityControlByte(byte securityControlByte) {
-		this.securityControlByte = securityControlByte;
-	}
-
-	/**
 	 * @return
 	 */
 	public byte[] generatePlainText() throws ConnectionException {
 		if (containsNull(getGlobalKey(), getCipherText(), generateInitialisationVector(), generateAssociatedData(), getAuthenticationTag())) {
 			return null;
 		} else {
-			AesGcm128 aes = new AesGcm128();
+			AesGcm aes = new AesGcm();
 			aes.setGlobalKey(new BitVector(getGlobalKey()));
 			aes.setCipherText(new BitVector(getCipherText()));
 			aes.setInitializationVector(new BitVector(generateInitialisationVector()));
@@ -153,6 +119,14 @@ public class XDlmsDecryption {
 		return this.authenticationTag;
 	}
 
+    /**
+     * @param authenticationTag
+     */
+    public void setAuthenticationTag(byte[] authenticationTag) {
+        checkArgument(authenticationTag, AUTHENTICATION_TAG_LENGTH);
+        this.authenticationTag = authenticationTag.clone();
+    }
+
 	/**
 	 * @return
 	 */
@@ -167,6 +141,16 @@ public class XDlmsDecryption {
 		return systemTitle;
 	}
 
+    /**
+     * @param title
+     */
+    public void setSystemTitle(byte[] title) {
+        checkArgument(title, -1);
+        this.systemTitle = new byte[SYSTEM_TITLE_LENGTH];
+        int copyLength = title.length < SYSTEM_TITLE_LENGTH ? title.length : this.systemTitle.length;
+        System.arraycopy(title, 0, this.systemTitle, 0, copyLength);
+    }
+
 	/**
 	 * @return
 	 */
@@ -174,12 +158,44 @@ public class XDlmsDecryption {
 		return frameCounter;
 	}
 
+    /**
+     * @param frameCounter
+     */
+    public void setFrameCounter(byte[] frameCounter) {
+        checkArgument(frameCounter, FRAME_COUNTER_LENGTH);
+        this.frameCounter = frameCounter.clone();
+    }
+
 	/**
 	 * @return
 	 */
 	private byte[] getGlobalKey() {
 		return globalKey;
 	}
+
+    /**
+     * @param globalKey
+     */
+    public void setGlobalKey(byte[] globalKey) {
+        if (globalKey == null || globalKey.length != getGlobalKeyLength()) {
+            String value = (globalKey == null ? "null" : ProtocolTools.getHexStringFromBytes(globalKey, ""));
+            throw DeviceConfigurationException.unsupportedPropertyValue(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), value);
+        } else {
+            this.globalKey = globalKey.clone();
+        }
+    }
+
+    /**
+     * For suite 0 and 1: 16 bytes
+     * For suite 2: 32 bytes
+     */
+    private int getGlobalKeyLength() {
+        if (securitySuite == 2) {
+            return GLOBAL_KEY_LENGTH * 2;
+        } else {
+            return GLOBAL_KEY_LENGTH;
+        }
+    }
 
 	/**
 	 * @return
@@ -189,11 +205,39 @@ public class XDlmsDecryption {
 	}
 
 	/**
-	 * @return
+     * @param authenticationKey
 	 */
+    public void setAuthenticationKey(byte[] authenticationKey) {
+        if (authenticationKey == null || authenticationKey.length != getAuthenticationKeyLength()) {
+            String value = (authenticationKey == null ? "null" : ProtocolTools.getHexStringFromBytes(authenticationKey, ""));
+            throw DeviceConfigurationException.unsupportedPropertyValue(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), value);
+        } else {
+            this.authenticationKey = authenticationKey.clone();
+        }
+    }
+
+    /**
+     * For suite 0 and 1: 16 bytes
+     * For suite 2: 32 bytes
+     */
+    private int getAuthenticationKeyLength() {
+        if (securitySuite == 2) {
+            return AUTHENTICATION_KEY_LENGTH * 2;
+        } else {
+            return AUTHENTICATION_KEY_LENGTH;
+        }
+    }
+
 	private byte getSecurityControlByte() {
 		return securityControlByte;
 	}
+
+    /**
+     * @param securityControlByte
+     */
+    public void setSecurityControlByte(byte securityControlByte) {
+        this.securityControlByte = securityControlByte;
+    }
 
 	/**
 	 * @param object

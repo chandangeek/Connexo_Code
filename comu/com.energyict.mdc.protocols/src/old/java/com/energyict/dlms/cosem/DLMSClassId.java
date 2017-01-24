@@ -81,6 +81,8 @@ public enum DLMSClassId {
     ZIGBEE_WAN_MANAGEMENT(9905),
     ZIGBEE_SE_DEMAND_RESPONSE_LOAD_CONTROL(9906),
     GPRS_MANUAL_ROAMING_SETUP(10000),
+    DEDICATED_EVENT_LOG_SIMPLE(10920),
+    FRAME_COUNTER_PROVIDER(12544),
     LIFE_CYCLE_MANAGEMENT(20000),
     FIREWALL_SETUP(20001),
     G3_NETWORK_MANAGEMENT(20002),
@@ -92,7 +94,16 @@ public enum DLMSClassId {
     GATEWAY_SETUP(20008),
     NTP_SERVER_ADDRESS(20010),
     MODEM_WATCHDOG_SETUP(20011),
-    WEB_PORTAL_PASSWORDS(20013);
+    EVENT_NOTIFICATION(20012),
+    WEB_PORTAL_CONFIGURATION(20013),
+    SCHEDULE_MANAGER(20014),
+    DEVICE_TYPE_MANAGER(20015),
+    CLIENT_TYPE_MANAGER(20016),
+    OPERATION_MODE(20017),
+    CONCENTRATOR_SETUP(20018),
+    MEMORY_MANAGEMENT(20021),
+    MULTICAST_IC(20022),
+    USB_SETUP(20028);
 
     /**
      * The dlms class identifier
@@ -106,15 +117,6 @@ public enum DLMSClassId {
      */
     private DLMSClassId(int classId) {
         this.classId = classId;
-    }
-
-    /**
-     * Getter for the class number (classId)
-     *
-     * @return the class id as int
-     */
-    public int getClassId() {
-        return classId;
     }
 
     /**
@@ -140,6 +142,15 @@ public enum DLMSClassId {
      */
     public static String getDescription(int dlmsClassId) {
         return findById(dlmsClassId).toString();
+    }
+
+    /**
+     * Getter for the class number (classId)
+     *
+     * @return the class id as int
+     */
+    public int getClassId() {
+        return classId;
     }
 
 }

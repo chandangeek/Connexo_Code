@@ -1,5 +1,6 @@
 package com.energyict.dlms.protocolimplv2;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 
 /**
@@ -83,5 +84,41 @@ public interface CommunicationSessionProperties {
     /**
      * The initial baud rate to start the IEC1107 signon with
      */
-    public int getHHUSignonBaudRateCode();
+    int getHHUSignonBaudRateCode();
+
+    /**
+     * Boolean indicating whether or not the protocol supports (and can use) general block transfer
+     */
+    boolean useGeneralBlockTransfer();
+
+    /**
+     * Getter for the general block transfer window size<br/>
+     * This is the preferred window size of our head-end (ComServer) and should match the devices capabilities.
+     */
+    int getGeneralBlockTransferWindowSize();
+
+    /**
+     * The delay (in milliseconds) that the connection layer should wait between the polling on the inputstream (for responses).
+     * If set to 0, no polling will be used. In this case, the reading of responses is event-driven.
+     * <p/>
+     * E.g. the RTU+Server manages its thread performance itself, and prefers the protocols to avoid polling.
+     * <p/>
+     * Polling: check inputstream.available periodically, read number of bytes if available.
+     * Non polling: use blocking read calls on the inputstream without checking periodically.
+     */
+    TimeDuration getPollingDelay();
+
+    /**
+     * Indicate if a timeout error means that the connection should be considered as 'broken'.
+     * This has impact on the next physical slaves that re-use the same connection.
+     * <p/>
+     * Default is true, specific protocols can override this.
+     */
+    boolean timeoutMeansBrokenConnection();
+
+    /**
+     * Getter for boolean indicating whether the frame counter should be increased for each retry request
+     * or whether the same frame counter should be used for all retries
+     */
+    boolean incrementFrameCounterForRetries();
 }

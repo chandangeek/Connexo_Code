@@ -1,11 +1,12 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
-import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -174,7 +175,7 @@ public class NTASecurityProvider implements SecurityProvider {
     /**
      * @return the master key (this is the KeyEncryptionKey)
      */
-    public byte[] getMasterKey() throws IOException {
+    public byte[] getMasterKey() {
         if (this.masterKey == null) {
             this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
         }

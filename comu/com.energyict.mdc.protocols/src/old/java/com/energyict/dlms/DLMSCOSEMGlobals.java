@@ -96,6 +96,7 @@ public interface DLMSCOSEMGlobals {
 	byte[] LIMITER = {0,0,17,0,0,(byte)255};
 	byte[] PPPSETUP = {0,0,25,3,0,(byte)255};
 	byte[] GPRSMODEMSETUP = {0,0,25,4,0,(byte)255};
+	byte[] USBSETUP = {0,0,(byte)128,0,28,(byte)255};
 
 	//********************************************************************************************************
 	// Reserved SN logical name constants, should be filled in when requesting the object list first.
@@ -219,6 +220,7 @@ public interface DLMSCOSEMGlobals {
     byte COSEM_SETRESPONSE_FOR_DATABLOCK=2;
     byte COSEM_SETRESPONSE_FOR_LAST_DATABLOCK=3;
     byte COSEM_EVENTNOTIFICATIONRESUEST = (byte)0xC2;
+	byte COSEM_DATANOTIFICATIONREQUEST = (byte)0x0F;
 	byte COSEM_ACTIONREQUEST=(byte)0xC3;
 	byte COSEM_ACTIONREQUEST_NORMAL=1;
 	byte COSEM_ACTIONRESPONSE=(byte)0xC7;
@@ -227,6 +229,8 @@ public interface DLMSCOSEMGlobals {
 	byte COSEM_ACTIONRESPONSE_WITH_LIST=3;
 	byte COSEM_ACTIONRESPONSE_NEXT_PBLOCK=4;
     byte COSEM_EXCEPTION_RESPONSE = (byte) 0xD8;
+	byte COSEM_GENERAL_BLOCK_TRANSFER = (byte) 0xE0;
+	byte COSEM_DATA_NOTIFICATION = 15;
 
 	// Global-ciphering tags (LongName)
 	byte GLO_GETREQUEST = (byte)0xC8;
@@ -266,6 +270,11 @@ public interface DLMSCOSEMGlobals {
 	byte DED_UNCONFIRMEDWRITEREQUEST = (byte)0x56;
 	byte DED_INFORMATIONREPORTREQUEST = (byte)0x58;
 
+    byte GENERAL_GLOBAL_CIPHERING = (byte) 0xDB;
+	byte GENERAL_DEDICATED_CIPTHERING = (byte) 0xDC;
+	byte GENERAL_CIPHERING = (byte) 0xDD;
+	byte GENERAL_SIGNING = (byte) 0xDF;
+
 	byte COSEM_INITIATEREQUEST = (byte)0x01;
 	byte COSEM_INITIATERESPONSE = (byte)0x08;
 
@@ -300,6 +309,7 @@ public interface DLMSCOSEMGlobals {
     byte AARQ_CALLED_AP_TITLE               =   (byte)0xA2;
     byte AARQ_CALLED_AE_QUALIFIER           =   (byte)0xA3;
     byte AARQ_CALLING_AP_TITLE              = 	(byte)0xA6;
+	byte AARQ_CALLING_AE_QUALIFIER          =   (byte)0xA7;
     byte AARQ_SENDER_ACSE_REQUIREMENTS		= 	(byte)0x8A;
     byte AARQ_MECHANISM_NAME				=	(byte)0x8B;
     byte AARE_TAG							=	(byte)0x61;
@@ -307,6 +317,7 @@ public interface DLMSCOSEMGlobals {
     byte AARE_RESULT 						= 	(byte)0xA2;
     byte AARE_RESULT_SOURCE_DIAGNOSTIC 		= 	(byte)0xA3;
     byte AARE_RESPONING_AP_TITLE 			= 	(byte)0xA4;
+	byte AARE_RESPONDING_AE_QUALIFIER       =   (byte)0xA5;
     /** @deprecated this tag-name does not exist in DLMS, use the {@link #AARQ_CALLING_AP_TITLE} instead*/
     byte AARE_CALLING_AP_TITLE              = 	(byte)0xA6;
 	byte AARE_MECHANISM_NAME				=	(byte)0x89;
