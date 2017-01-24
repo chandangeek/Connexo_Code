@@ -39,10 +39,10 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistoryDevicesGrid',
             },
             {
                 header: Uni.I18n.translate('general.device', 'MDC', 'Device'),
-                dataIndex: 'mRID',
+                dataIndex: 'name',
                 renderer: function (value) {
                     var url = me.router.getRoute('devices/device').buildUrl({
-                        mRID: value
+                        deviceId: value
                     });
                     return Mdc.privileges.Device.canView() ? '<a href="' + url + '">' + value + '</a>' : value;
                 },

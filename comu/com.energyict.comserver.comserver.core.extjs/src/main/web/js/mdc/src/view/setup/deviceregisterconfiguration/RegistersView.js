@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersView', {
                     {
                         dock: 'top',
                         xtype: 'mdc-registers-overview-topfilter',
-                        deviceMRID: me.device.get('mRID')
+                        deviceId: me.device.get('name')
                     }
                 ]
             },
@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersView', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'deviceRegisterConfigurationGrid',
-                            mRID: encodeURIComponent(me.device.get('mRID')),
+                            deviceId: encodeURIComponent(me.device.get('name')),
                             showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
                             router: me.router
                         },

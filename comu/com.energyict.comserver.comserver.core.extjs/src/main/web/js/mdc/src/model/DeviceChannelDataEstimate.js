@@ -25,13 +25,9 @@ Ext.define('Mdc.model.DeviceChannelDataEstimate', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelId}/data/estimate',
+        url: '/api/ddr/devices/{deviceId}/channels/{channelId}/data/estimate',
         reader: {
             type: 'json'
-        },
-
-        setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{channelId}', params.channelId);
         }
     }
 });

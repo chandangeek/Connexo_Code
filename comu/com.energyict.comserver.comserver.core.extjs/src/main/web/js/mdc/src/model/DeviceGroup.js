@@ -16,7 +16,7 @@ Ext.define('Mdc.model.DeviceGroup', {
 
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devicegroups',
+        url: '/api/ddr/devicegroups',
         reader: {
             type: 'json'
         }

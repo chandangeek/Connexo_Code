@@ -17,9 +17,6 @@ Ext.define('Mdc.model.DeviceTransition', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/transitions',
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
-        }
+        url: '/api/ddr/devices/{deviceId}/transitions'
     }
 });

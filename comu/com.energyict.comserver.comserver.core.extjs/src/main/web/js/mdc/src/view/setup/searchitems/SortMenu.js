@@ -6,8 +6,8 @@ Ext.define('Mdc.view.setup.searchitems.SortMenu', {
     shadow: false,
     items: [
         {
-            text: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID'),
-            value: 'mRID'
+            text: Uni.I18n.translate('searchItems.name', 'MDC', 'Name'),
+            value: 'name'
         },
         {
             text: Uni.I18n.translate('searchItems.serialNumber', 'MDC', 'Serial number'),

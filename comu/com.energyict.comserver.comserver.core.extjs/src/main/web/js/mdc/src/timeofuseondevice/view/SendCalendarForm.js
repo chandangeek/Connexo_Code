@@ -14,13 +14,13 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
     defaults: {
         labelWidth: 250
     },
-    mRID: null,
+    deviceId: null,
     initComponent: function () {
         var me = this;
         me.content = [
             {
                 xtype: 'form',
-                mRID: me.mRID,
+                deviceId: me.deviceId,
                 defaults: {
                     labelWidth: 250
                 },
@@ -277,7 +277,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                                 itemId: 'tou-calendar-command-cancel-link',
                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 ui: 'link',
-                                href: '#/devices/' + me.mRID + '/timeofuse'
+                                href: '#/devices/' + encodeURIComponent(me.deviceId) + '/timeofuse'
                             }
                         ]
                     }

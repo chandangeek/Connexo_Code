@@ -1,9 +1,6 @@
 Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.metrology-configuration-versions-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
     router: null,
 
     initComponent: function () {
@@ -14,13 +11,15 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
                 itemId: 'action-menu-item-mc-edit',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.edit', 'MDC', 'Edit'),
-                action: 'edit'
+                action: 'edit',
+                section: this.SECTION_EDIT
             },
             {
                 itemId: 'action-menu-item-mc-remove',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.remove', 'MDC', 'Remove'),
-                action: 'remove'
+                action: 'remove',
+                section: this.SECTION_REMOVE
             }
         ];
         me.callParent(arguments);

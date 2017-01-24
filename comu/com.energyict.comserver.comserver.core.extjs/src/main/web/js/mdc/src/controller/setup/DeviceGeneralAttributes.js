@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
         this.getEditPropertyForm().restoreAll();
     },
 
-    showGeneralAttributesView: function (mRID) {
+    showGeneralAttributesView: function (deviceId) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             viewPort = Ext.ComponentQuery.query('viewport')[0],
@@ -102,18 +102,18 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
 
         viewPort.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 widget = Ext.widget('deviceGeneralAttributesSetup', {device: device, router: router});
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.loadPropertiesRecord(mRID, widget);
+                me.loadPropertiesRecord(deviceId, widget);
                 viewPort.setLoading(false);
             }
         });
     },
 
-    showEditGeneralAttributesView: function (mRID) {
+    showEditGeneralAttributesView: function (deviceId) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             viewPort = Ext.ComponentQuery.query('viewport')[0],
@@ -121,25 +121,25 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
 
         viewPort.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 widget = Ext.widget('deviceGeneralAttributesEdit', {device: device, router: router});
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.loadPropertiesRecord(mRID, widget);
+                me.loadPropertiesRecord(deviceId, widget);
                 viewPort.setLoading(false);
             }
         });
     },
 
-    loadPropertiesRecord: function (mRID, widget) {
+    loadPropertiesRecord: function (deviceId, widget) {
         var model = Ext.ModelManager.getModel('Mdc.model.DeviceGeneralAttributes'),
             form = widget.down('property-form'),
             idProperty = 1;
 
         widget.setLoading();
 
-        model.getProxy().setExtraParam('mRID', mRID);
+        model.getProxy().setExtraParam('deviceId', deviceId);
         model.load(idProperty, {
             success: function (generalAttribute) {
                 form.loadRecord(generalAttribute);

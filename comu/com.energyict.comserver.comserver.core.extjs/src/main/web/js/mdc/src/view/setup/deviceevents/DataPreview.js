@@ -29,12 +29,12 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                     var res = '';
                     if (Ext.isNumber(value)) {
                         var logbook = Mdc.model.LogbookOfDevice;
-                        logbook.getProxy().setUrl(me.device.get('mRID'));
+                        logbook.getProxy().setExtraParam('deviceId', me.device.get('name'));
                         logbook.load(value, {
                             success: function (record) {
-                                me.down('#logBookId').setValue(record)
+                                me.down('#logBookId').setValue(record);
                             }
-                        })
+                        });
                     }
                     value.isModel ? res = '<a href="{url}">{logbookName}</a>'.replace('{url}', me.router.getRoute('devices/device/logbooks/logbookdata').buildUrl({logbookId: value.get('id')})).replace('{logbookName}', Ext.String.htmlEncode(value.get('name'))) : null;
                     return res

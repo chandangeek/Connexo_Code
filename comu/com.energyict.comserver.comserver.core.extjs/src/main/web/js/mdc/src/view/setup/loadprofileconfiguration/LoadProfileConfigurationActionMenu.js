@@ -1,20 +1,20 @@
 Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.load-profile-configuration-action-menu',
-    plain: true,
-    border: false,
     itemId: 'load-profile-configuration-action-menu',
-    shadow: false,
-    items: [
-
-        {
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            action: 'editloadprofileconfigurationondeviceconfiguration'
-        },
-        {
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            action: 'deleteloadprofileconfigurationondeviceonfiguration'
-        }
-
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                action: 'editloadprofileconfigurationondeviceconfiguration',
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                action: 'deleteloadprofileconfigurationondeviceonfiguration',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

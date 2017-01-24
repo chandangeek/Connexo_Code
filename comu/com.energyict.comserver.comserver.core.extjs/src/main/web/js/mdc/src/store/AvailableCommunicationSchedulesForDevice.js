@@ -12,6 +12,10 @@ Ext.define('Mdc.store.AvailableCommunicationSchedulesForDevice',{
         reader: {
             type: 'json',
             root: 'schedules'
-        }
+        },
+
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });

@@ -73,14 +73,14 @@ Ext.define('Mdc.controller.history.Setup', {
                 },
                 device: {
                     title: Uni.I18n.translate('general.device', 'MDC', 'Device'),
-                    route: '{mRID}',
+                    route: '{deviceId}',
                     controller: 'Mdc.controller.setup.Devices',
                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
                     action: 'showDeviceDetailsView',
                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                     callback: function (route) {
                         this.getApplication().on('loadDevice', function (record) {
-                            route.setTitle(record.get('mRID'));
+                            route.setTitle(record.get('name'));
                             return true;
                         }, {single: true});
 
@@ -630,7 +630,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('tou.sendTimeOfUseCalendar', 'MDC', 'Send time of use calendar'),
                                     route: 'send',
                                     controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
-                                    privileges:  Mdc.privileges.DeviceCommands.executeCommands,
+                                    privileges: Mdc.privileges.DeviceCommands.executeCommands,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsSend,
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     action: 'showSendCalendarView'
@@ -640,23 +640,44 @@ Ext.define('Mdc.controller.history.Setup', {
                         communicationschedules: {
                             title: Uni.I18n.translate('general.communicationPlanning', 'MDC', 'Communication planning'),
                             route: 'communicationplanning',
-                            controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                            controller: 'Mdc.controller.setup.DeviceCommunicationPlanning',
                             privileges: Mdc.privileges.Device.deviceOperator,
-                            action: 'showDeviceCommunicationScheduleView',
+                            action: 'showDeviceCommunicationPlanning',
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages,
                             items: {
-
                                 add: {
                                     title: Uni.I18n.translate('general.addSharedCommunicationSchedules', 'MDC', 'Add shared communication schedules'),
                                     route: 'add',
-                                    controller: 'Mdc.controller.setup.DeviceCommunicationSchedules',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationPlanning',
                                     privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                                    action: 'addSharedCommunicationSchedule',
+                                    action: 'showAddSharedSchedule',
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages
+                                },
+                                remove: {
+                                    title: Uni.I18n.translate('general.removeSharedCommunicationSchedules', 'MDC', 'Remove shared communication schedules'),
+                                    route: 'remove',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationPlanning',
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    action: 'showRemoveSharedSchedule',
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages
+                                },
+                                addSchedule: {
+                                    title: Uni.I18n.translate('deviceCommunicationPlanning.addSchedule', 'MDC', 'Add schedule'),
+                                    route: '{comTaskId}/add',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationPlanning',
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    action: 'showAddSchedule'
+                                },
+                                editSchedule: {
+                                    title: Uni.I18n.translate('deviceCommunicationPlanning.editSchedule', 'MDC', 'Edit schedule'),
+                                    route: '{comTaskId}/edit',
+                                    controller: 'Mdc.controller.setup.DeviceCommunicationPlanning',
+                                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                                    action: 'showEditSchedule'
                                 }
-
                             }
                         },
                         communicationtasks: {
@@ -2146,6 +2167,20 @@ Ext.define('Mdc.controller.history.Setup', {
                                 controller: 'Mdc.controller.setup.CommunicationSchedules',
                                 action: 'showCommunicationSchedulesEditView'
                             },
+                            clone: {
+                                title: Uni.I18n.translate('general.cloneSharedCommunicationSchedule', 'MDC', 'Clone shared communication schedules'),
+                                route: 'clone',
+                                controller: 'Mdc.controller.setup.CommunicationSchedules',
+                                privileges: Mdc.privileges.CommunicationSchedule.admin,
+                                action: 'showCommunicationSchedulesCloneView',
+                                callback: function (route) {
+                                    this.getApplication().on('loadCommunicationSchedule', function (record) {
+                                        route.setTitle(Uni.I18n.translate('general.cloneX', 'MDC', "Clone '{0}'", record.get('name'), false));
+                                        return true;
+                                    }, {single: true});
+                                    return this;
+                                }
+                            },
                             edit: {
                                 title: Uni.I18n.translate('general.editSharedCommunicationSchedule', 'MDC', 'Edit shared communication schedule'),
                                 route: '{id}/edit',
@@ -2192,6 +2227,70 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         }
+                    },
+                    commandrules: {
+                        title: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
+                        route: 'commandrules',
+                        privileges: Mdc.privileges.CommandLimitationRules.view,
+                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                        action: 'showRulesView',
+                        items: {
+                            add: {
+                                title: Uni.I18n.translate('commandRules.create', 'MDC', 'Add command limitation rule'),
+                                route: 'add',
+                                privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                action: 'showAddEditCommandRule',
+                                items: {
+                                    commands: {
+                                        title: Uni.I18n.translate('general.addCommands', 'MDC', 'Add commands'),
+                                        route: 'commands',
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                        action: 'showAddCommandsPage'
+                                    }
+                                }
+                            },
+                            view: {
+                                title: Uni.I18n.translate('general.Overview', 'MDC', 'Overview'),
+                                route: '{ruleId}',
+                                privileges: Mdc.privileges.CommandLimitationRules.view,
+                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                action: 'showCommandRuleOverview',
+                                callback: function (route) {
+                                    this.getApplication().on('loadCommandRule', function (record) {
+                                        route.setTitle(record.get('name'));
+                                        return true;
+                                    }, {single: true});
+                                    return this;
+                                },
+                                items: {
+                                    edit: {
+                                        title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                        route: 'edit',
+                                        privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        action: 'showAddEditCommandRule',
+                                        items: {
+                                            commands: {
+                                                title: Uni.I18n.translate('general.addCommands', 'MDC', 'Add commands'),
+                                                route: 'commands',
+                                                controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                                privileges: Mdc.privileges.CommandLimitationRules.admin,
+                                                action: 'showAddCommandsPage'
+                                            }
+                                        }
+                                    },
+                                    changes: {
+                                        title: Uni.I18n.translate('general.pendingChanges', 'MDC', 'Pending changes'),
+                                        route: 'changes',
+                                        privileges: Mdc.privileges.CommandLimitationRules.view,
+                                        controller: 'Mdc.controller.setup.CommandLimitationRules',
+                                        action: 'showCommandRulePendingChanges'
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },
@@ -2217,7 +2316,7 @@ Ext.define('Mdc.controller.history.Setup', {
                         callback: function (route) {
                             me.checkInsightRedirect(route);
                             this.getApplication().on('usagePointLoaded', function (record) {
-                                route.setTitle(record.get('mRID'));
+                                route.setTitle(record.get('name'));
                                 return true;
                             }, {single: true});
 
@@ -2233,7 +2332,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 callback: function (route) {
                                     me.checkInsightRedirect(route);
                                     this.getApplication().on('editUsagePointLoaded', function (record) {
-                                        route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('mRID')));
+                                        route.setTitle(Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", record.get('name')));
                                         return true;
                                     }, {single: true});
 

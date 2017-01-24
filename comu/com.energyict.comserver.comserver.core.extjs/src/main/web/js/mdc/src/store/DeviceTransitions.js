@@ -8,16 +8,13 @@ Ext.define('Mdc.store.DeviceTransitions', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/transitions',
+        url: '/api/ddr/devices/{deviceId}/transitions',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
         reader: {
             type: 'json',
             root: 'transitions'
-        },
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

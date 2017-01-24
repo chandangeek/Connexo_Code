@@ -1,20 +1,16 @@
 Ext.define('Mdc.usagepointmanagement.view.UsagePointActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.usage-point-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
 
     initComponent: function () {
         var me = this;
-
         me.items = [
             {
                 text: Uni.I18n.translate('general.addUsagePoint.editUsagePoint', 'MDC', 'Edit'),
-                href: me.router.getRoute('usagepoints/usagepoint/edit').buildUrl()
+                href: me.router.getRoute('usagepoints/usagepoint/edit').buildUrl(),
+                section: this.SECTION_EDIT
             }
         ];
-
         me.callParent(arguments);
     }
 });

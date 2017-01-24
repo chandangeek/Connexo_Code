@@ -29,11 +29,11 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                     layout: 'column',
                     defaults: {
                         xtype: 'form',
-                        columnWidth: 0.5,
-                        minWidth: 450
+                        columnWidth: 0.5
                     },
                     items: [
                         {
+                            padding: '0 5 0 0',
                             items: [
                                 {
                                     xtype: 'fieldcontainer',
@@ -41,7 +41,8 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     layout: 'vbox',
                                     defaults: {
                                         xtype: 'displayfield',
-                                        labelWidth: 200
+                                        labelWidth: 200,
+                                        width: '100%'
                                     },
                                     items: [
                                         {
@@ -79,13 +80,13 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
-                                            name: 'dataloggerSlavemRID',
+                                            name: 'dataloggerSlaveName',
                                             hidden: Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger'),
                                             renderer: function(value) {
                                                 if (Ext.isEmpty(value)) {
                                                     return '-';
                                                 }
-                                                var href = me.router.getRoute('devices/device/channels').buildUrl({mRID: encodeURIComponent(value)});
+                                                var href = me.router.getRoute('devices/device/channels').buildUrl({deviceId: encodeURIComponent(value)});
                                                 return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                                             }
                                         },
@@ -114,18 +115,20 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                                     device;
                                                 if (value instanceof Mdc.model.LoadProfileOfDevice) {
                                                     var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({
-                                                        mRID: encodeURIComponent(me.device.get('mRID')),
+                                                        deviceId: encodeURIComponent(me.device.get('name')),
                                                         loadProfileId: value.get('id')
                                                     });
                                                     res = '<a href="' + url + '">' + Ext.String.htmlEncode(value.get('name')) + '</a>';
                                                 } else if (Ext.isNumber(value)) {
                                                     var loadProfile = Mdc.model.LoadProfileOfDevice;
-                                                    loadProfile.getProxy().setUrl(me.device.get('mRID'));
+                                                    loadProfile.getProxy().setExtraParam('deviceId', me.device.get('name'));
                                                     loadProfile.load(value, {
                                                         success: function (record) {
-                                                            me.down('[name=loadProfileId]').setValue(record)
+                                                            if (me.rendered) {
+                                                                me.down('[name=loadProfileId]').setValue(record)
+                                                            }
                                                         }
-                                                    })
+                                                    });
                                                 }
                                                 return res
                                             }
@@ -143,7 +146,8 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                             itemId: 'custom-attribute-sets-placeholder-form-id',
                             actionMenuXtype: 'deviceLoadProfileChannelsActionMenu',
                             attributeSetType: 'channel',
-                            router: me.router
+                            router: me.router,
+                            padding: '0 0 0 5'
                         }
                     ]
                 }

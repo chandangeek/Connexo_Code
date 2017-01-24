@@ -1,8 +1,12 @@
 Ext.define('Mdc.view.setup.devicedataestimation.RulesSetActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.deviceDataEstimationRulesSetActionMenu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [{itemId: 'changeEstimationRuleSetStateActionMenuItem'}]
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'changeEstimationRuleSetStateActionMenuItem'
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

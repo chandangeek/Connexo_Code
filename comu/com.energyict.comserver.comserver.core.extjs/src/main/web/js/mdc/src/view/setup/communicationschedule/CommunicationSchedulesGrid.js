@@ -43,14 +43,14 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                 header: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
                 dataIndex: 'plannedDate',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 },
                 flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.CommunicationSchedule.admin,
-                items: 'Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu'
+                menu: {xtype: 'communication-schedule-action-menu'}
             }
 
         ];

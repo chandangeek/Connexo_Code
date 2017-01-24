@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
             {
                 xtype: 'uni-actioncolumn',
-                items:'Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolActionMenu',
+                menu: {xtype: 'device-communication-protocol-action-menu'},
                 privileges: Mdc.privileges.Communication.admin
             }
 

@@ -8,7 +8,7 @@ Ext.define('Mdc.store.BillingRegisterData', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{mRID}/registers/{registerId}/data',
+        url: '/api/ddr/devices/{deviceId}/registers/{registerId}/data',
         reader: {
             type: 'json',
             root: 'data'

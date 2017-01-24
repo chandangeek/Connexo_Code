@@ -56,13 +56,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                                     },
                                     {
                                         fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
-                                        name: 'dataloggerSlavemRID',
+                                        name: 'dataloggerSlaveName',
                                         hidden: !me.showDataLoggerSlaveField,
                                         renderer: function(value) {
                                             if (Ext.isEmpty(value)) {
                                                 return '-';
                                             }
-                                            var href = me.router.getRoute('devices/device/registers').buildUrl({mRID: encodeURIComponent(value)});
+                                            var href = me.router.getRoute('devices/device/registers').buildUrl({deviceId: encodeURIComponent(value)});
                                             return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                                         }
                                     },

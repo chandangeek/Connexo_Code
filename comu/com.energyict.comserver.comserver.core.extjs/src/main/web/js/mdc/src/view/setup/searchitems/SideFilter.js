@@ -31,9 +31,9 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
             items: [
                 {
                     xtype: 'textfield',
-                    name: 'mrid',
-                    itemId: 'mrid',
-                    fieldLabel: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID'),
+                    name: 'name',
+                    itemId: 'name',
+                    fieldLabel: Uni.I18n.translate('searchItems.name', 'MDC', 'Name'),
                     listeners: {
                         afterrender: function(field) {
                             field.focus(false, 200);

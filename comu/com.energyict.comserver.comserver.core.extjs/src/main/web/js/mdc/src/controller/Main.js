@@ -29,7 +29,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.Comtasks',
         'Mdc.controller.setup.ConnectionMethods',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
-        'Mdc.controller.setup.DeviceCommunicationSchedules',
+        'Mdc.controller.setup.DeviceCommunicationPlanning',
         'Mdc.controller.setup.DeviceCommunicationTasks',
         'Mdc.controller.setup.DeviceConfigurationLogbooks',
         'Mdc.controller.setup.DeviceConfigurations',
@@ -50,7 +50,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceRegisterData',
         'Mdc.controller.setup.DeviceRegisterDataEdit',
         'Mdc.controller.setup.Devices',
-        'Mdc.controller.setup.DevicesAddGroupController',
         'Mdc.controller.setup.DeviceSecuritySettings',
         'Mdc.controller.setup.DeviceTopology',
         'Mdc.controller.setup.DeviceTypeLogbooks',
@@ -84,7 +83,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceRegisterTab',
         'Mdc.controller.setup.DeviceLogBookTab',
         'Mdc.controller.setup.DeviceLoadProfileTab',
-        'Mdc.controller.setup.DevicesEditGroupController',
         'Mdc.controller.setup.DeviceLogbookData',
         'Mdc.controller.setup.DataCollectionKpi',
         'Mdc.controller.setup.DeviceValidationResults',
@@ -115,7 +113,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.metrologyconfiguration.controller.ListView',
         'Mdc.metrologyconfiguration.controller.AddView',
         'Mdc.usagepointmanagement.controller.UsagePointHistory',
-        'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities'
+        'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
+        'Mdc.controller.setup.CommandLimitationRules'
     ],
 
     stores: [
@@ -270,6 +269,12 @@ Ext.define('Mdc.controller.Main', {
                             href: '#/administration/datacollectionkpis',
                             privileges: Mdc.privileges.DataCollectionKpi.view,
                             route: 'datacollectionkpis'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.commandLimitationRules', 'MDC', 'Command limitation rules'),
+                            href: '#/administration/commandrules',
+                            privileges: Mdc.privileges.CommandLimitationRules.view,
+                            route: 'commandrules'
                         }
                     ]
                 });

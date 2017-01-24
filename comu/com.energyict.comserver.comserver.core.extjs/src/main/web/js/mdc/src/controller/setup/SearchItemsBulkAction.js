@@ -32,10 +32,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             selector: '#searchitems-bulk-step1 devices-selection-grid'
         },
         {
-            ref: 'stepSelectionError',
-            selector: '#stepSelectionError'
-        },
-        {
             ref: 'schedulesGrid',
             selector: '#schedulesgrid'
         },
@@ -82,6 +78,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         {
             ref: 'devicesErrorsPanel',
             selector: 'searchitems-bulk-step1 uni-form-error-message'
+        },
+        {
+            ref: 'step3',
+            selector: 'searchitems-bulk-step3'
+        },
+        {
+            ref: 'warningMessage',
+            selector: 'searchitems-bulk-step3 #stepSelectionError'
         }
     ],
 
@@ -122,6 +126,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             },
             'searchitems-bulk-step2 #searchitemsactionselect': {
                 change: this.enableNextButton
+            },
+            'searchitems-bulk-step4 #strategyRadioGroup': {
+                change: this.enableConfirmButton
             }
         });
     },
@@ -176,6 +183,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         me.getNextButton().enable();
     },
 
+    enableConfirmButton: function (group) {
+        var me = this,
+            wizard = me.getSearchItemsWizard();
+        me.strategy = group.getChecked()[0].inputValue;
+        wizard.down('#confirmButton').enable()
+    },
+
     updateScheduleSelection: function (selModel, selected) {
         var count = selected.length;
         if (count === 0) {
@@ -185,7 +199,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     previewCommunicationSchedule: function (grid, record) {
-        var preview = this.getCommunicationSchedulePreview();
+        var me = this,
+            preview = this.getCommunicationSchedulePreview(),
+            communicationSchedules = grid.getSelectionModel().getSelection();
 
         if (!this.shedulesUnchecked) {
             preview.down('form').loadRecord(record);
@@ -193,6 +209,34 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             preview.show();
         } else {
             this.shedulesUnchecked = false;
+        }
+
+        if (me.operation === 'add') {
+            me.getStep3().down('#step3-errors').setVisible(false);
+            me.getWarningMessage().hide();
+            if (communicationSchedules.length > 1) {
+                me.checkOverlap(communicationSchedules);
+            }
+        }
+    },
+
+    checkOverlap: function (communicationSchedules) {
+        var me = this;
+        var valuesToCheck = [];
+        Ext.each(communicationSchedules, function (item) {
+            valuesToCheck.push.apply(valuesToCheck, item.get('comTaskUsages'));
+        });
+        if (_.uniq(valuesToCheck, function (item) {
+                return item.id;
+            }).length === valuesToCheck.length) {
+            me.getWarningMessage().hide();
+            me.getStep3().down('#step3-errors').setVisible(false);
+            return true;
+        } else {
+            me.getWarningMessage().update('<span style="color:red">' + Uni.I18n.translate('deviceCommunicationSchedule.ComTaskOverlap', 'MDC', "Shared communication schedules can't contain the same communication task.") + '</span>');
+            me.getWarningMessage().show();
+            me.getStep3().down('#step3-errors').setVisible(true);
+            return false;
         }
     },
 
@@ -217,7 +261,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             finishBtn = wizard.down('#finishButton'),
             statusPage = me.getStatusPage(),
             scheduleIds = [],
-            devicesMRID = [],
+            deviceIds = [],
             url = '/api/ddr/devices/schedules',
             request = {},
             jsonData,
@@ -232,15 +276,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 scheduleIds.push(item.getId());
             });
             Ext.each(me.devices, function (item) {
-                devicesMRID.push(item.get('mRID'));
+                deviceIds.push(item.getId());
             });
             request.action = me.operation;
             request.scheduleIds = scheduleIds;
+            request.strategy = me.strategy;
             if (me.allDevices) {
                 var store = me.getDevicesGrid().getStore();
                 request.filter = store.getProxy().encodeFilters(store.filters.getRange());
             } else {
-                request.deviceMRIDs = devicesMRID;
+                request.deviceIds = deviceIds;
             }
             jsonData = Ext.encode(request);
             Ext.Ajax.request({
@@ -420,13 +465,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             url = '/api/ddr/devices/changedeviceconfig',
             jsonData = {
                 'action': 'ChangeDeviceConfiguration',
-                'deviceMRIDs': [],
+                'deviceIds': [],
                 'filter': store.getProxy().encodeFilters(store.filters.getRange()),
                 'newDeviceConfiguration': toConfig
             };
         if (!me.allDevices) {
             me.devices.forEach(function (item) {
-                jsonData['deviceMRIDs'].push(item.get('mRID'))
+                jsonData['deviceIds'].push(item.getId())
             });
         }
 
@@ -463,14 +508,19 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             search = me.getController('Mdc.controller.Search'),
             wizard = me.getSearchItemsWizard(),
             layout = wizard.getLayout(),
-            errorContainer = currentCmp.down('#stepSelectionError');
+            errorContainer = currentCmp.down('#stepSelectionError'),
+            errorIsAlreadyShown = false;
 
         switch (currentCmp.name) {
             case 'selectDevices':
                 me.allDevices = me.getDevicesGrid().isAllSelected();
-
+                errorPanel = currentCmp.down('#step1-errors');
+                errorPanel.hide();
                 if (!me.allDevices) {
                     me.devices = me.getDevicesGrid().getSelectionModel().getSelection();
+                } else {
+                    me.devices = null;
+
                 }
 
                 if (me.changeDeviceConfigAvailable(search.service.getFilters())) {
@@ -482,7 +532,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     }
 
                 }
-                errorPanel = currentCmp.down('#step1-errors');
+
                 me.validation = me.allDevices || me.devices.length;
                 break;
             case 'selectOperation':
@@ -554,12 +604,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         (currentCmp.navigationIndex > nextCmp.navigationIndex) && (me.validation = true);
 
-        if (me.validation) {
+        errorIsAlreadyShown = errorPanel !== null && errorPanel.isVisible();
+        if (me.validation && !errorIsAlreadyShown) {
             switch (nextCmp.name) {
                 case 'confirmPage':
                     if (me.operation != 'changeconfig') {
                         nextCmp.showMessage(me.buildConfirmMessage());
-                        wizard.down('#confirmButton').enable()
+                        wizard.down('#confirmButton').setDisabled(me.operation === 'add' && wizard.down('#strategyRadioGroup').getChecked().length === 0);
+                        if (me.operation === 'remove') {
+                            nextCmp.isRemove();
+                        }
                     } else {
                         wizard.setLoading(true);
                         nextCmp.removeAll();
@@ -623,7 +677,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             return true;
         } else {
             errorPanel && errorPanel.show();
-            errorContainer && errorContainer.show();
+            if (errorContainer && !errorContainer.isVisible()) {
+                errorContainer.show();
+                errorContainer.update('<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectAtLeastOneDevice', 'MDC', 'Select at least 1 device') + '</span>')
+            }
             me.getStatusPage().setLoading(false);
             return false;
         }
@@ -670,10 +727,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             "Add shared communication schedule '{0}' to all devices?", [me.schedules[0].get('name')]);
                     } else {
                         Ext.each(me.schedules, function (item, index) {
-                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                            scheduleList += (index ? ', ' : '') + "'" + Ext.htmlEncode(item.get('name')) + "'";
                         });
                         titleText = Uni.I18n.translate('searchItems.bulk.addComSchedulesToAllDevices.confirmMsg', 'MDC',
-                            "Add shared communication schedules {0} to all devices?", [scheduleList]);
+                            "Add shared communication schedules {0} to all devices?", [scheduleList], false);
                     }
                     break;
                 case 'remove':
@@ -682,10 +739,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             "Remove shared communication schedule '{0}' from all devices?", [me.schedules[0].get('name')]);
                     } else {
                         Ext.each(me.schedules, function (item, index) {
-                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                            scheduleList += (index ? ', ' : '') + "'" + Ext.htmlEncode(item.get('name')) + "'";
                         });
                         titleText = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromAllDevices.confirmMsg', 'MDC',
-                            "Remove shared communication schedules {0} from all devices?", [scheduleList]);
+                            "Remove shared communication schedules {0} from all devices?", [scheduleList], false);
                     }
                     break;
                 case 'changeconfig':
@@ -705,14 +762,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(me.schedules[0].get('name')));
                     } else {
                         Ext.each(me.schedules, function (item, index) {
-                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                            scheduleList += (index ? ', ' : '') + "'" + Ext.htmlEncode(item.get('name')) + "'";
                         });
                         if (me.devices.length <= 1) {
                             pattern = Uni.I18n.translate('searchItems.bulk.addComSchedulesToDevices.confirmMsg0', 'MDC', "Add shared communication schedules '{1}' to {0} device?")
                         } else {
                             pattern = Uni.I18n.translate('searchItems.bulk.addComSchedulesToDevices.confirmMsgn', 'MDC', "Add shared communication schedules '{1}' to {0} devices?")
                         }
-                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(scheduleList));
+                        titleText = Ext.String.format(pattern, me.devices.length, scheduleList);
                     }
                     break;
                 case 'remove':
@@ -725,14 +782,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(me.schedules[0].get('name')));
                     } else {
                         Ext.each(me.schedules, function (item, index) {
-                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                            scheduleList += (index ? ', ' : '') + "'" + Ext.htmlEncode(item.get('name')) + "'";
                         });
                         if (me.devices.length <= 1) {
                             pattern = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromDevices.confirmMsg0', 'MDC', "Remove shared communication schedules '{1}' to {0} device?")
                         } else {
                             pattern = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromDevices.confirmMsgn', 'MDC', "Remove shared communication schedules '{1}' to {0} devices?")
                         }
-                        titleText = Ext.String.format(pattern, me.devices.length, Ext.String.htmlEncode(scheduleList));
+                        titleText = Ext.String.format(pattern, me.devices.length, scheduleList);
                     }
                     break;
                 case 'changeconfig':

@@ -8,7 +8,7 @@ Ext.define('Mdc.store.DataLoggerSlaves', {
     model: 'Mdc.model.Device',
     storeId: 'DataLoggerSlaves',
     sorters: [{
-        property: 'mRID',
+        property: 'name',
         direction: 'ASC'
     }],
 
@@ -18,11 +18,6 @@ Ext.define('Mdc.store.DataLoggerSlaves', {
             type: 'json',
             root: 'dataLoggerSlaveDevices'
         },
-        setUrl: function(mRID) {
-            this.url = '/api/ddr/devices/' + encodeURIComponent(mRID) + '/dataloggerslaves'
-        }
-
+        url: '/api/ddr/devices/{deviceId}/dataloggerslaves'
     }
-
-
 });

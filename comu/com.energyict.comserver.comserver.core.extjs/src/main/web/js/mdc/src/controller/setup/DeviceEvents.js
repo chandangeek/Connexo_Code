@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
     },
 
 
-    showOverview: function (mRID, logbookId) {
+    showOverview: function (deviceId, logbookId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             logbookModel = me.getModel('Mdc.model.LogbookOfDevice'),
@@ -50,11 +50,11 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
             toggleId = 'events',
             title = Uni.I18n.translate('general.events', 'MDC', 'Events');
 
-        dataStoreProxy.setUrl({mRID: mRID, logbookId: logbookId});
+        dataStoreProxy.setUrl({deviceId: deviceId, logbookId: logbookId});
         if (Ext.isDefined(logbookId)) {
             title = Uni.I18n.translate('devicelogbooks.event.header', 'MDC', 'Logbook events');
             toggleId = 'logbooksLink';
-            logbookModel.getProxy().setUrl(mRID);
+            logbookModel.getProxy().setExtraParam('deviceId', deviceId);
             logbookModel.load(logbookId, {
                 success: function (record) {
                     me.getApplication().fireEvent('logbookOfDeviceLoad', record);
@@ -62,7 +62,7 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
             });
         }
 
-        me.getModel('Mdc.model.Device').load(mRID, {
+        me.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 if (record.get('hasLogBooks')) {
                     me.getApplication().fireEvent('loadDevice', record);

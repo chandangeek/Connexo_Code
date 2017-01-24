@@ -62,19 +62,14 @@ Ext.define('Mdc.model.Register', {
             }
         },
         {name: 'mRID', type: 'string'},
-        {name: 'dataloggerSlavemRID', type: 'string'}
+        {name: 'dataloggerSlaveName', type: 'string'}
     ],
     proxy: {
         type: 'rest',
         timeout: 120000,
-        url: '/api/ddr/devices/{mRID}/registers',
-        urlTpl: '/api/ddr/devices/{0}/registers',
+        url: '/api/ddr/devices/{deviceId}/registers',
         reader: {
             type: 'json'
-        },
-
-        setUrl: function (mRID) {
-            this.url = Ext.String.format(this.urlTpl, encodeURIComponent(mRID));
         }
     }
 });

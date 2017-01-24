@@ -8,15 +8,15 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
     ],
 
     store: 'Mdc.store.RegisterConfigsOfDevice',
-    deviceMRID: null,
+    deviceId: null,
 
     initComponent: function () {
         var me = this,
             registerGroupsStore = Ext.getStore('Mdc.store.filter.RegisterGroups') || Ext.create('Mdc.store.filter.RegisterGroups'),
             registerStore = Ext.getStore('Mdc.store.filter.RegistersOfDeviceForRegisterGroups') || Ext.create('Mdc.store.filter.RegistersOfDeviceForRegisterGroups');
 
-        registerGroupsStore.getProxy().setUrl(me.deviceMRID);
-        registerStore.getProxy().setUrl(me.deviceMRID);
+        registerGroupsStore.getProxy().setUrl(me.deviceId);
+        registerStore.getProxy().setUrl(me.deviceId);
 
         me.filters = [
             {
@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
         me.callParent(arguments);
     },
 
-    onRegisterGroupComboCollapse: function() {
+    onRegisterGroupComboCollapse: function () {
         var me = this,
             groupCombo = me.down('#mdc-register-group-filter'),
             registerCombo = me.down('#mdc-register-filter'),
@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
         });
     },
 
-    onRegisterGroupComboChange: function(combo) {
+    onRegisterGroupComboChange: function (combo) {
         if (combo.isExpanded) {
             return; // if expanded, the collapse trigger will do
         }
@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegistersTopFilter', {
 
         if (groupCombo.isExpanded) {
             groupCombo.collapse();
-            Ext.defer(function(){
+            Ext.defer(function () {
                 me.callParent(arguments);
             }, 250);
         } else {

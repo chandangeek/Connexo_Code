@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Ext.form.field.TextArea',
-        'Ext.button.Button'
+        'Ext.button.Button',
+        'Uni.util.FormErrorMessage'
     ],
     alias: 'widget.securitySettingForm',
     config: {
@@ -30,14 +31,12 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                     },
                     items: [
                         {
+                            xtype: 'uni-form-error-message',
+                            itemId: 'mdc-security-settings-form-errors',
                             name: 'errors',
-                            ui: 'form-error-framed',
-                            layout: 'hbox',
                             margin: '0 0 10 0',
-                            hidden: true,
-                            defaults: {
-                                xtype: 'container'
-                            }
+                            width: 600,
+                            hidden: true
                         },
                         {
                             xtype: 'textfield',

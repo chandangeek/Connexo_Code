@@ -6,8 +6,7 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
     ],
 
     views: [
-        'setup.devicetype.DeviceTypeLogbooks',
-        'setup.devicetype.ActionMenu'
+        'setup.devicetype.DeviceTypeLogbooks'
     ],
 
     refs: [

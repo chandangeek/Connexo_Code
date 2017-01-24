@@ -71,20 +71,19 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         this.showPropertyValues(false);
     },
 
-    showDeviceSecuritySettings: function (mrid) {
+    showDeviceSecuritySettings: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
-        this.mrid = mrid;
+        this.deviceId = deviceId;
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
-                me.getStore('Mdc.store.SecuritySettingsOfDevice').getProxy().setUrl(mrid);
+                me.getStore('Mdc.store.SecuritySettingsOfDevice').getProxy().setExtraParam('deviceId', deviceId);
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('deviceSecuritySettingSetup', {
-                    device: device,
-                    mrid: mrid
+                    device: device
                 }));
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
@@ -135,7 +134,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     },
 
     editDeviceSecuritySettingHistory: function (record) {
-        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/securitysettings/' + encodeURIComponent(record.get('id')) + '/edit';
+        location.href = '#/devices/' + encodeURIComponent(this.deviceId) + '/securitysettings/' + encodeURIComponent(record.get('id')) + '/edit';
     },
 
     editDeviceSecuritySettingHistoryFromPreview: function () {
@@ -156,9 +155,9 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     saveRecord: function (record, values, propertyForm) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            backUrl = router.getRoute('devices/device/securitysettings').buildUrl({device: encodeURIComponent(me.mrid)});
+            backUrl = router.getRoute('devices/device/securitysettings').buildUrl({deviceId: encodeURIComponent(me.deviceId)});
 
-        record.getProxy().setExtraParam('mrid', me.mrid);
+        record.getProxy().setExtraParam('deviceId', me.deviceId);
         if (propertyForm) {
             propertyForm.clearInvalid();
             propertyForm.updateRecord(record);
@@ -207,22 +206,22 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
         }
     },
 
-    showDeviceSecuritySettingEditView: function (mrid, deviceSecuritySettingId) {
-        this.mrid = mrid;
+    showDeviceSecuritySettingEditView: function (deviceId, deviceSecuritySettingId) {
+        this.deviceId = deviceId;
         var me = this;
         var deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
         var deviceSecuritySettingModel = Ext.ModelManager.getModel('Mdc.model.DeviceSecuritySetting');
 
-        deviceModel.load(mrid, {
+        deviceModel.load(deviceId, {
             success: function (device) {
-                deviceSecuritySettingModel.getProxy().setExtraParam('mrid', mrid);
+                deviceSecuritySettingModel.getProxy().setExtraParam('deviceId', deviceId);
                 deviceSecuritySettingModel.load(deviceSecuritySettingId, {
                     success: function (deviceSecuritySetting) {
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('loadDeviceSecuritySetting', deviceSecuritySetting);
                         var widget = Ext.widget('deviceSecuritySettingEdit', {
                             edit: true,
-                            returnLink: '#/devices/' + encodeURIComponent(me.mrid) + '/securitysettings',
+                            returnLink: '#/devices/' + encodeURIComponent(me.deviceId) + '/securitysettings',
                             device: device
                         });
                         me.getApplication().fireEvent('changecontentevent', widget);

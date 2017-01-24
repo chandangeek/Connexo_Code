@@ -87,12 +87,30 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                     name: 'numberOfSimultaneousConnections',
                                     fieldLabel: Uni.I18n.translate('connectionmethod.numberOfSimultaneousConnections', 'MDC', 'Number of simultaneous connections'),
                                     renderer: function (value, field) {
-                                        var record = this.up('form').getRecord();
-                                        if (record && (record.get('direction') == 'Inbound')) {
-                                            field.hide();
-                                        } else {
+                                        var record = this.up('form').getRecord(),
+                                            isOutbound = record && record.get('direction') === 'Outbound',
+                                            isASAP = record && record.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE';
+                                        if (isOutbound && isASAP) {
                                             field.show();
                                             return value;
+                                        } else {
+                                            field.hide();
+                                        }
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'temporalExpression',
+                                    fieldLabel: Uni.I18n.translate('connectionmethod.connectionSchedule', 'MDC', 'Connection schedule'),
+                                    renderer: function (value, field) {
+                                        var record = this.up('form').getRecord(),
+                                            isOutbound = record && record.get('direction') === 'Outbound',
+                                            isMinimizeConnections = record && record.get('connectionStrategy') === 'MINIMIZE_CONNECTIONS';
+                                        if (isOutbound && isMinimizeConnections) {
+                                            field.show();
+                                            return Mdc.util.ScheduleToStringConverter.convert(record.get('temporalExpression'));
+                                        } else {
+                                            field.hide();
                                         }
                                     }
                                 },

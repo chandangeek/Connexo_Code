@@ -7,13 +7,10 @@ Ext.define('Mdc.store.SecuritySettingsOfDevice', {
     storeId: 'SecuritySettingsOfDevice',
     proxy: {
         type: 'rest',
-        urlTpl: '../../api/ddr/devices/{mRID}/securityproperties',
+        url: '/api/ddr/devices/{deviceId}/securityproperties',
         reader: {
             type: 'json',
             root: 'securityPropertySets'
-        },
-        setUrl: function (mRID) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });

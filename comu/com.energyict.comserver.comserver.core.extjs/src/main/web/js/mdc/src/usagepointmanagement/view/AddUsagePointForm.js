@@ -7,22 +7,15 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
     ],
 
     defaults: {
-        labelWidth: 250,
+        labelWidth: 250
     },
 
     items: [
         {
             xtype: 'textfield',
-            name: 'mRID',
-            itemId: 'fld-up-mRID',
-            required: true,
-            width: 600,
-            fieldLabel: Uni.I18n.translate('usagePoint.generalAttributes.mrid', 'MDC', 'MRID')
-        },
-        {
-            xtype: 'textfield',
             name: 'name',
             itemId: 'fld-up-name',
+            required: true,
             width: 600,
             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
         },

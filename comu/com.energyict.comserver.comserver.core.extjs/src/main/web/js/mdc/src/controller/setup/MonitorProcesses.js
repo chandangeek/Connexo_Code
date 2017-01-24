@@ -20,14 +20,14 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
         {ref: 'overviewLink', selector: '#usage-point-overview-link'}
     ],
 
-    showDeviceProcesses: function (mRID) {
+    showDeviceProcesses: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router');
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 var widget;
 
@@ -38,7 +38,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                     properties: {
                         variableId: 'deviceId',
                         name: 'device',
-                        value: mRID,
+                        value: device.get('mRID'),
                         route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/task': null
                     }
                 });
@@ -66,16 +66,16 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-main-view', {
                     router: router,
-                    mRID: usagepoint.get('mRID'),
+                    usagePointId: usagepoint.get('name'),
                     properties: {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
-                        value: usagePointId,
+                        value: usagepoint.get('mRID'),
                         route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/task': null
                     }
             });
             me.getApplication().fireEvent('changecontentevent', widget);
-            me.getOverviewLink().setText(usagepoint.get('mRID'));
+                me.getOverviewLink().setText(usagepoint.get('name'));
 
             },
             failure: function (response) {
@@ -84,14 +84,14 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
         });
     },
 
-    showDeviceStartProcess: function (mRID) {
+    showDeviceStartProcess: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router');
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 var widget;
 
@@ -116,12 +116,12 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                             },
                             {
                                 name: 'value',
-                                value: mRID
+                                value: device.get('mRID')
                             }
                         ],
                         additionalReasons: [Uni.I18n.translate('startProcess.empty.list.item', 'MDC', 'No processes are available for the current device state.')],
-                        successLink: router.getRoute('devices/device/processes').buildUrl({mRID: mRID}),
-                        cancelLink: router.getRoute('devices/device').buildUrl({mRID: mRID})
+                        successLink: router.getRoute('devices/device/processes').buildUrl({deviceId: deviceId}),
+                        cancelLink: router.getRoute('devices/device').buildUrl({deviceId: deviceId})
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -134,14 +134,14 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
         });
     },
 
-    showUsagePointStartProcess: function (id) {
+    showUsagePointStartProcess: function (usagePointId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router');
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.usagepointmanagement.model.UsagePoint').load(id, {
+        Ext.ModelManager.getModel('Mdc.usagepointmanagement.model.UsagePoint').load(usagePointId, {
             success: function (usagepoint) {
                 var widget;
 
@@ -149,7 +149,7 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-start', {
                     router: me.getController('Uni.controller.history.Router'),
-                    mRID: usagepoint,
+                    usagePointId: usagepoint,
                     properties: {
                         activeProcessesParams: {
                             type: 'usagePoint',
@@ -166,15 +166,15 @@ Ext.define('Mdc.controller.setup.MonitorProcesses', {
                             },
                             {
                                 name: 'value',
-                                value: id
+                                value: usagepoint.get('mRID')
                             }
                         ],
-                        successLink: router.getRoute('usagepoints/usagepoint/processes').buildUrl({usagePointId: id}),
-                        cancelLink: router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: id})
+                        successLink: router.getRoute('usagepoints/usagepoint/processes').buildUrl({usagePointId: usagePointId}),
+                        cancelLink: router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: usagePointId})
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.getOverviewLink().setText(usagepoint.get('mRID'));
+                me.getOverviewLink().setText(usagepoint.get('name'));
             },
             failure: function (response) {
                 viewport.setLoading(false);

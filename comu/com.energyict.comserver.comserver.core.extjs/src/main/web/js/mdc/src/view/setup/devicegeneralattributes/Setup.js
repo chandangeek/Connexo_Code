@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.devicegeneralattributes.Setup', {
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Uni.view.menu.ActionsMenu'
     ],
 
     initComponent: function () {
@@ -41,6 +42,7 @@ Ext.define('Mdc.view.setup.devicegeneralattributes.Setup', {
                         itemId: 'mdc-general-attributes-actions-button',
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.generalAttributesActions,
                         menu: {
+                            xtype: 'uni-actions-menu',
                             itemId: 'editBtnContainer',
                             items: [
                                 {

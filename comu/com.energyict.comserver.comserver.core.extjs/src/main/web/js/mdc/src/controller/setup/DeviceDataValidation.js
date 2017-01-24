@@ -24,7 +24,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         {ref: 'rulesSetVersionPreviewCt', selector: '#deviceDataValidationRuleSetVersionsPreviewCt'},
         {ref: 'ruleSetVersionsPreview', selector: '#deviceDataValidationRulesSetVersionPreview'}
     ],
-    mRID: null,
+    deviceId: null,
     ruleSetId: null,
 
     init: function () {
@@ -56,29 +56,29 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         });
     },
 
-    showDeviceDataValidationMainView: function (mRID) {
+    showDeviceDataValidationMainView: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
-        me.mRID = mRID;
+        me.deviceId = deviceId;
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 if (record.get('hasLogBooks')
                     || record.get('hasLoadProfiles')
                     || record.get('hasRegisters')) {
                     me.getApplication().fireEvent('loadDevice', record);
                     Ext.Ajax.request({
-                        url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
+                        url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/validationrulesets/validationstatus',
                         method: 'GET',
                         timeout: 60000,
                         success: function () {
                             var widget = Ext.widget('deviceDataValidationRulesSetMainView', {device: record});
                             me.getApplication().fireEvent('changecontentevent', widget);
-                            me.updateDataValidationStatusSection(mRID, widget);
+                            me.updateDataValidationStatusSection(deviceId, widget);
                             viewport.setLoading(false);
                         }
                     });
@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     },
     onRulesSetGridAfterRender: function (grid) {
         var me = this;
-        grid.store.getProxy().setExtraParam('mRID', me.mRID);
+        grid.store.getProxy().setExtraParam('deviceId', me.deviceId);
         grid.store.load({
             callback: function () {
                 grid.getSelectionModel().doSelect(0);
@@ -210,12 +210,12 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
             page = me.getPage();
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/' + ruleSetId + '/status',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/' + ruleSetId + '/status',
             method: 'PUT',
             isNotEdit: true,
             jsonData: {
                 isActive: !ruleSetIsActive,
-                device: _.pick(page.device.getRecordData(), 'mRID', 'version', 'parent')
+                device: _.pick(page.device.getRecordData(), 'name', 'version', 'parent')
             },
             success: function (res) {
                 var data = Ext.decode(res.responseText);

@@ -3,6 +3,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     alias: 'widget.deviceConfigurationEdit',
     itemId: 'deviceConfigurationEdit',
     edit: false,
+    requires: [
+        'Uni.util.FormErrorMessage'
+    ],
     returnLink: '#/administration/devicetypes/',
     isEdit: function () {
         return this.edit
@@ -46,6 +49,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                             labelWidth: 250
                                         },
                                         items: [
+                                            {
+                                                xtype: 'uni-form-error-message',
+                                                itemId: 'mdc-device-config-form-errors',
+                                                name: 'errors',
+                                                margin: '0 0 10 0',
+                                                hidden: true
+                                            },
                                             {
                                                 xtype: 'textfield',
                                                 name: 'name',

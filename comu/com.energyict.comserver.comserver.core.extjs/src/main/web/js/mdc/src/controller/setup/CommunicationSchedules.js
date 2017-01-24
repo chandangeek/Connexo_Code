@@ -34,6 +34,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     record: null,
     alreadyAddedComTasks: [],
+    cloneRecord: null,
 
     init: function () {
         this.control({
@@ -42,7 +43,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             },
             '#communicationSchedulesGrid actioncolumn': {
                 editCommunicationSchedule: this.editCommunicationScheduleHistory,
-                deleteCommunicationSchedule: this.deleteCommunicationSchedule
+                deleteCommunicationSchedule: this.deleteCommunicationSchedule,
+                cloneCommunicationSchedule: this.cloneCommunicationSchedule
             },
             '#comTasksOnForm actioncolumn': {
                 deleteComTask: this.deleteComTask
@@ -64,6 +66,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             },
             '#communicationSchedulePreview menuitem[action=editCommunicationSchedule]': {
                 click: this.editCommunicationScheduleHistory
+            },
+            '#communicationSchedulePreview menuitem[action=cloneCommunicationSchedule]': {
+                click: this.cloneCommunicationSchedule
             },
             'addCommunicationTaskWindow #addCommunicationTasksToSchedule': {
                 click: this.addCommunicationTasksToSchedule
@@ -109,7 +114,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('communicationScheduleEdit', {
-                edit: id !== undefined,
+                mode: id !== undefined ? 'edit' : 'add',
                 returnLink: router.getRoute('administration/communicationschedules').buildUrl(),
                 router: router
             });
@@ -151,7 +156,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
     initComTaskStore: function (widget) {
         this.comTaskStore = Ext.data.StoreManager.lookup('CommunicationTasksForCommunicationSchedule');
-        if (this.record.get('id') === null) {
+        if (this.record.get('id') === null && this.mode !== 'clone') {
             this.comTaskStore.setProxy({
                 type: 'rest',
                 url: '/api/cts/comtasks',
@@ -226,6 +231,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     location.href = backUrl;
                     if (me.mode == 'edit') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.saved', 'MDC', 'Shared communication schedule saved'));
+                    } else if (me.mode === 'clone') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.cloned', 'MDC', 'Shared communication schedule cloned'));
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.added', 'MDC', 'Shared communication schedule added'));
                     }
@@ -298,7 +305,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var msg = Uni.I18n.translate('communicationschedule.deleteCommunicationSchedule', 'MDC', 'This schedule will no longer be available.');
         Ext.create('Uni.view.window.Confirmation').show({
             msg: msg,
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[communicationSchedule.get('name')]),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [communicationSchedule.get('name')]),
             config: {
                 communicationScheduleToDelete: communicationSchedule,
                 me: me
@@ -332,6 +339,49 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 }
             });
         }
+    },
+
+    cloneCommunicationSchedule: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        me.cloneRecord = me.getCommunicationSchedulesGrid().getSelectionModel().getSelection()[0];
+        router.getRoute('administration/communicationschedules/clone').forward();
+    },
+
+    showCommunicationSchedulesCloneView: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            widget;
+        if (me.cloneRecord == null) {
+            window.location.replace(router.getRoute('notfound').buildUrl());
+            return;
+        }
+        widget = Ext.widget('communicationScheduleEdit', {
+            mode: 'clone',
+            returnLink: router.getRoute('administration/communicationschedules').buildUrl(),
+            router: router
+        });
+
+        me.record = me.cloneRecord.copy();
+        me.cloneRecord.comTaskUsages().each(function (record) {
+            me.record.comTaskUsages().add(record.copy());
+            me.alreadyAddedComTasks.push(record);
+        });
+        widget.down('#card').getLayout().setActiveItem(0);
+        me.record.set('name', null);
+        me.record.set('mRID', null)
+        me.mode = 'clone';
+        me.getApplication().fireEvent('loadCommunicationSchedule', me.cloneRecord);
+        widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.cloneX', 'MDC', "Clone '{0}'", me.cloneRecord.get('name')));
+        widget.down('#communicationScheduleEditForm').loadRecord(me.record);
+        widget.down('#noComTasksSelectedMsg').hide();
+        widget.down('#comTasksOnForm').show();
+        widget.down('#communicationScheduleEditForm').down('#comTasksOnForm').reconfigure(me.record.comTaskUsages());
+        me.initComTaskStore(widget);
+        me.cloneRecord = null;
+        me.record.set('id', null);
+
+        me.getApplication().fireEvent('changecontentevent', widget);
     },
 
     addCommunicationTasksToSchedule: function () {
@@ -417,23 +467,11 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     showErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
-        });
-        formErrorsPlaceHolder.show();
+        this.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors').show();
     },
 
     hideErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
+        this.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors').hide();
     }
 
 });

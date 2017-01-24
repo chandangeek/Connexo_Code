@@ -3,8 +3,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.Grid', {
     requires: [
         'Uni.grid.column.RemoveAction',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.comportpoolcomports.ActionMenu'
+        'Uni.view.toolbar.PagingBottom'
     ],
     alias: 'widget.comPortPoolComPortsGrid',
     itemId: 'comPortPoolsComPortsGrid',
@@ -67,7 +66,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.Grid', {
                     action: 'addComPort',
                     itemId: 'btn-add-comport-to-pool',
                     text: Uni.I18n.translate('comServerComPorts.add', 'MDC', 'Add communication port'),
-                    privileges: Mdc.privileges.Communication.admin,
+                    privileges: Mdc.privileges.Communication.admin
                 }
             ]
         },

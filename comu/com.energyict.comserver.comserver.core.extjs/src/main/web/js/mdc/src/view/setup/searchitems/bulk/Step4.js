@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
     alias: 'widget.searchitems-bulk-step4',
     bodyCls: 'isu-bulk-wizard-no-border',
     name: 'confirmPage',
-    layout: 'hbox',
+    layout: 'vbox',
     title: Uni.I18n.translate('searchItems.bulk.step4title', 'MDC', 'Step 4: Confirmation'),
     ui: 'large',
     tbar: {
@@ -15,14 +15,56 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         title: '',
         itemId: 'searchitemsbulkactiontitle'
     },
+
+    items: [
+        {
+            xtype: 'displayfield',
+            itemId: 'displayTitle',
+            htmlEncode: false
+        },
+        {
+            xtype: 'displayfield',
+            itemId: 'messageField'
+        },
+        {
+            xtype: 'form',
+            width: '100%',
+            ui: 'large',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            itemId: 'strategyform',
+            items: [
+                {
+                    xtype: 'displayfield',
+                    value: Uni.I18n.translate('searchItems.bulk.chooseStrategy', 'MDC',
+                        "It's not possible to add a new shared communication schedule to a device if it contains a communication task that is already scheduled with a shared communication schedule on that device. In that case, choose a strategy to deal with this.")
+                },
+                {
+                    xtype: 'radiogroup',
+                    fieldLabel: 'Strategy',
+                    itemId: 'strategyRadioGroup',
+                    labelWidth: 150,
+                    required: true,
+                    allowBlank: false,
+                    columns: 1,
+                    vertical: true,
+                    items: [
+                        {boxLabel: "Keep the old shared communication schedule and don't add the new one", name: 'rb', inputValue: 'keep'},
+                        {boxLabel: 'Remove the old shared communication schedule and add the new one', name: 'rb', inputValue: 'remove'}
+                    ]
+                }
+            ]
+        }
+    ],
     showMessage: function (message) {
-        var widget = {
-            html: '<h3>' + Ext.String.htmlEncode(message.title) + '</h3><br>' + Ext.String.htmlEncode(message.body)
-        };
-        Ext.suspendLayouts();
-        this.removeAll();
-        this.add(widget);
-        Ext.resumeLayouts();
+        this.down('#messageField').setValue(Ext.String.htmlEncode(message.body));
+        this.down('#displayTitle').setValue('<h3>' + Ext.String.htmlEncode(message.title) + '</h3>');
+    },
+
+    isRemove: function () {
+        this.down('#strategyform').hide();
     },
 
 

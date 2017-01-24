@@ -18,6 +18,6 @@ Ext.define('Mdc.model.DeviceCommunicationTaskExecution', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/connectionmethods/{connectionId}/comsessions/{sessionId}/comtaskexecutionsessions'
+        url: '/api/ddr/devices/{deviceId}/connectionmethods/{connectionId}/comsessions/{sessionId}/comtaskexecutionsessions'
     }
 });

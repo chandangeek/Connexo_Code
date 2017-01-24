@@ -45,16 +45,16 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistoryDevicesPrevie
                         },
                         items: [
                             {
-                                itemId: 'mRID-field',
-                                name: 'mRID',
-                                fieldLabel: Uni.I18n.translate('general.MRID', 'MDC', 'MRID'),
+                                itemId: 'name-field',
+                                name: 'name',
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 renderer: function (value) {
                                     if (value) {
                                         var deviceUrl = me.router.getRoute('devices/device').buildUrl({
-                                                mRID: value
+                                                deviceId: value
                                             }),
                                             meterActivationHistoryUrl = me.router.getRoute('devices/device/history').buildUrl({
-                                                mRID: value
+                                                deviceId: value
                                             }, {activeTab: 'meterActivations'});
                                         if (Mdc.privileges.Device.canView()) {
                                             return '<a href="' + deviceUrl + '">' + value + '</a>&nbsp;&nbsp;&nbsp;&nbsp;(<a href="' + meterActivationHistoryUrl + '">' +

@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsView', {
         var me = this,
             registerReadingsStore = Ext.getStore('Mdc.store.RegisterReadings') || Ext.create('Mdc.store.RegisterReadings');
 
-        registerReadingsStore.getProxy().setUrl(me.device.get('mRID'));
+        registerReadingsStore.getProxy().setUrl(me.device.get('name'));
 
         me.items = [
             {
@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsView', {
                         dock: 'top',
                         xtype: 'mdc-registerReadings-overview-topfilter',
                         store: registerReadingsStore,
-                        deviceMRID: me.device.get('mRID')
+                        deviceId: me.device.get('name')
                     }
                 ]
             },
@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsView', {
                             itemId: 'mdc-register-readings-grid',
                             router: me.router,
                             store: registerReadingsStore,
-                            mRID: me.device.get('mRID'),
+                            mRID: encodeURIComponent(me.device.get('name')),
                             showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')
                         },
                         emptyComponent: {

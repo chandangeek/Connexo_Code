@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
                                 grid: {
                                     xtype: 'deviceDataEstimationRulesSetGrid',
                                     itemId: 'device-data-estimation-rules-set-grid',
-                                    mRID: me.device.get('mRID')
+                                    deviceId: me.device.get('name')
                                 },
                                 emptyComponent: {
                                     xtype: 'no-items-found-panel',

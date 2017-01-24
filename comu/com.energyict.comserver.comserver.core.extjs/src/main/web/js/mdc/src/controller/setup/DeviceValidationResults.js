@@ -51,7 +51,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         {ref: 'dataViewValidationResults', selector: '#frm-device-validation-results-load-profile-register #dpl-data-view-validation-results'}
 
     ],
-    mRID: null,
+    deviceId: null,
     veto: false,
     dataValidationLastChecked: null,
     loadProfileDurations: [],
@@ -87,7 +87,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     showDeviceValidationResultsMainView: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            mRID = decodeURIComponent(router.arguments.mRID),
+            deviceId = decodeURIComponent(router.arguments.deviceId),
             activeTab = parseInt(router.arguments.activeTab),
             viewport = Ext.ComponentQuery.query('#contentPanel')[0],
             validationResultsStore = me.getStore('Mdc.store.DeviceValidationResults'),
@@ -100,11 +100,11 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 limitParam: loadProfileStoreProxy.limitParam
             };
 
-        me.mRID = mRID;
+        me.deviceId = deviceId;
         viewport.setLoading();
-        validationResultsStore.getProxy().setUrl(mRID);
-        configurationResultsStore.getProxy().setUrl(mRID);
-        me.getModel('Mdc.model.Device').load(mRID, {
+        validationResultsStore.getProxy().setExtraParam('deviceId', deviceId);
+        configurationResultsStore.getProxy().setExtraParam('deviceId', deviceId);
+        me.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 if (record.get('hasLogBooks')
                     || record.get('hasLoadProfiles')
@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                     }
                     me.veto = true;
                     me.getValidationResultsTabPanel().setActiveTab(activeTab);
-                    loadProfileStoreProxy.setUrl(me.mRID);
+                    loadProfileStoreProxy.setExtraParam('deviceId', deviceId);
                     loadProfileStoreProxy.pageParam = false;
                     loadProfileStoreProxy.startParam = false;
                     loadProfileStoreProxy.limitParam = false;
@@ -165,13 +165,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
             if (tab.itemId === 'validationResults-configuration') {
                 Ext.util.History.removeListener('change', me.getMainPage().down('deviceMenu').checkNavigation, me.getMainPage().down('deviceMenu'));
-                routeParams.mRID = encodeURIComponent(me.mRID);
+                routeParams.deviceId = encodeURIComponent(me.deviceId);
                 route = 'devices/device/validationresultsconfiguration';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, router.queryParams);
             }
             else if (tab.itemId === 'validationResults-data') {
-                routeParams.mRID = encodeURIComponent(me.mRID);
+                routeParams.deviceId = encodeURIComponent(me.deviceId);
                 route = 'devices/device/validationresultsdata';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, router.queryParams);
@@ -228,7 +228,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
         viewport.setLoading();
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
             success: function (response) {
@@ -248,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
                 confirmationWindow.insert(1, me.getActivationConfirmationContent());
                 confirmationWindow.show({
-                    title: Ext.String.format(Uni.I18n.translate('validationResults.validate.title', 'MDC', 'Validate data of device {0}?'), me.mRID)
+                    title: Ext.String.format(Uni.I18n.translate('validationResults.validate.title', 'MDC', 'Validate data of device {0}?'), me.deviceId)
                 });
 
             },
@@ -268,13 +268,13 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatus',
             method: 'PUT',
             isNotEdit: true,
             jsonData: {
                 isActive: 'true',
                 lastChecked: (isFromNewValidation ? confWindow.down('#dtm-validation-from-date').getValue().getTime() : me.dataValidationLastChecked.getTime()),
-                device: _.pick(me.getMainPage().device.getRecordData(), 'mRID', 'version', 'parent')
+                device: _.pick(me.getMainPage().device.getRecordData(), 'name', 'version', 'parent')
             },
             success: function () {
                 me.updateDevice(function () {
@@ -321,19 +321,19 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                         }
                     }).show({
                             ui: 'notification-error',
-                            title: Uni.I18n.translate('device.dataValidation.timeout.title', 'MDC', 'Data validation takes longer as expected'),
-                            msg: Uni.I18n.translate('device.dataValidation.timeout.msg', 'MDC', 'Data validation takes longer as expected. Data validation will continue in the background'),
+                            title: Uni.I18n.translate('device.dataValidation.timeout.title1', 'MDC', 'Data validation takes longer than expected'),
+                            msg: Uni.I18n.translate('device.dataValidation.timeout.msg1', 'MDC', 'Data validation takes longer than expected. Data validation will continue in the background.'),
                             icon: Ext.MessageBox.ERROR
                         });
                 }
             });
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validate',
+            url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validate',
             method: 'PUT',
             timeout: 600000,
             isNotEdit: true,
-            jsonData: _.pick(me.getMainPage().device.getRecordData(), 'mRID', 'version', 'parent'),
+            jsonData: _.pick(me.getMainPage().device.getRecordData(), 'name', 'version', 'parent'),
             success: function () {
                 me.getStore('Mdc.store.DeviceValidationResults').load();
                 me.destroyConfirmationWindow();
@@ -530,7 +530,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         var me = this,
             page = me.getMainPage();
 
-        me.getModel('Mdc.model.Device').load(page.device.get('mRID'), {
+        me.getModel('Mdc.model.Device').load(page.device.get('name'), {
             success: function (record) {
                 if (page.rendered) {
                     page.device = record;

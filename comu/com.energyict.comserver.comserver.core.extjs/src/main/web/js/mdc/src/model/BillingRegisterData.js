@@ -4,7 +4,7 @@ Ext.define('Mdc.model.BillingRegisterData', {
         {name: 'interval', type:'auto', useNull: true},
         {name: 'interval.start', mapping: 'interval.start', useNull: true, persist: false},
         {name: 'interval.end', mapping: 'interval.end', useNull: true, persist: false},
-        {name: 'calculatedValue', type:'string'},
-        {name: 'calculatedUnit', type:'string'}
+        {name: 'calculatedValue', type: 'string'},
+        {name: 'calculatedUnit', type: 'string'}
     ]
 });

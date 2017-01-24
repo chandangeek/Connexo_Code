@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.servicecalls.ServiceCallsSetup', {
                 title: Uni.I18n.translate('general.serviceCalls', 'MDC', 'Service calls'),
                 ui: 'large',
                 activeTab: me.activeTab,
-                mRID: me.device.get('mRID'),
+                deviceId: me.device.get('name'),
                 items: [
                     {
                         title: Uni.I18n.translate('servicecalls.runningServiceCalls', 'MDC', 'Running service calls'),

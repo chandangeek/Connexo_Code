@@ -130,7 +130,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                         itemId: 'previewContainer',
                         grid: {
                             xtype: 'deviceCommunicationTaskHistoryLogGrid',
-                            mrid: me.mrid
+                            deviceId: me.deviceId
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',

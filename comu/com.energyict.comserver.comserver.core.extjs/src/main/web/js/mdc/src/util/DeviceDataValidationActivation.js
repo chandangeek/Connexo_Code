@@ -5,27 +5,30 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         'Mdc.model.DeviceValidation'
     ],
 
-    mRID: null,
+    deviceId: null,
     dataValidationLastChecked: null,
 	validationOnStorage: null,
 
-    updateDataValidationStatusSection: function (mRID, view) {
+    updateDataValidationStatusSection: function (deviceId, view, deviceRecord) {
         var me = this;
-        me.mRID = mRID;
+        me.deviceId = deviceId;
         if (view.down('#deviceDataValidationStatusField')) {
             view.down('#deviceDataValidationStatusField').setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
             view.down('#dataValidationStatusPanel').setLoading(true);
             !!view.down('#deviceDataValidationStateChangeBtn') && view.down('#deviceDataValidationStateChangeBtn').setDisabled(true);
         }
-        if (view && view.device) {
-            me.getModel('Mdc.model.Device').load(mRID, {
+        if (view && view.device && Ext.isEmpty(deviceRecord)) {
+            me.getModel('Mdc.model.Device').load(deviceId, {
                 success: function (record) {
                     view.device = record;
                 }
             });
+        } else if(view && view.device) {
+            view.device = deviceRecord;
         }
+
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
+            url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',
             timeout: 60000,
             callback: function () {
@@ -79,7 +82,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 				
             });
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatusactivation',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatusactivation',
             method: 'GET',
             timeout: 60000,
             success: function (response) {
@@ -112,7 +115,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 					owner.insert(1, me.getButtonContent(confirmationWindow));
 					
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.mRID]),
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.deviceId]),
                         msg: ''
                     });
                 } else {
@@ -126,7 +129,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                         padding: '0 0 15px 48px'
                     }]);
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.mRID]),
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.deviceId]),
                         msg: Uni.I18n.translate('device.dataValidation.activateMsg', 'MDC', 'There are currently no readings for this device')
                     });
                 }
@@ -148,20 +151,20 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 		
         me.confirmationWindowButtonsDisable(true);
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatus',
             method: 'PUT',
             isNotEdit: true,
             jsonData: {
                 isActive: 'true',
 				isStorage: isValidationOnStorage,
                 lastChecked: (me.hasValidation ? confWindow.down('#validationFromDate').getValue().getTime() : new Date().getTime()),
-                device: _.pick(view.device.getRecordData(), 'mRID', 'version', 'parent')
+                device: _.pick(view.device.getRecordData(), 'name', 'version', 'parent')
             },
             success: function () {
-                me.updateDataValidationStatusSection(me.mRID, view);
+                me.updateDataValidationStatusSection(me.deviceId, view);
                 if (runNow) {
                     me.isValidationRunImmediately = true;
-                    me.getModel('Mdc.model.Device').load(me.mRID, {
+                    me.getModel('Mdc.model.Device').load(me.deviceId, {
                         success: function (record) {
                             me.validateData(confWindow, record);
                         }
@@ -220,15 +223,15 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         });
 
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validate',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validate',
             method: 'PUT',
             timeout: 600000,
             isNotEdit: true,
-            jsonData: _.pick(device.getRecordData(), 'mRID', 'version', 'parent'),
+            jsonData: _.pick(device.getRecordData(), 'name', 'version', 'parent'),
             success: function () {
                 var view = me.getPage();
                 if (view && view.device) {
-                    me.getModel('Mdc.model.Device').load(me.mRID, {
+                    me.getModel('Mdc.model.Device').load(me.deviceId, {
                         success: function (record) {
                             view.device = record;
                         }
@@ -356,7 +359,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate')
         }).show({
-            title: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.title', 'MDC', 'Deactivate data validation on device {0}?', [me.mRID]),
+            title: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.title', 'MDC', 'Deactivate data validation on device {0}?', [me.deviceId]),
             msg: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.msg', 'MDC', 'The data of this device will no longer be validated'),
             fn: function (state) {
                 if (state === 'confirm') {
@@ -369,15 +372,15 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
     deactivateDataValidation: function (view) {
         var me = this;
         Ext.Ajax.request({
-            url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
+            url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatus',
             method: 'PUT',
             isNotEdit: true,
             jsonData: {
                 isActive: 'false',
-                device: _.pick(view.device.getRecordData(), 'mRID', 'version', 'parent')
+                device: _.pick(view.device.getRecordData(), 'name', 'version', 'parent')
             },
             success: function () {
-                me.updateDataValidationStatusSection(me.mRID, view);
+                me.updateDataValidationStatusSection(me.deviceId, view);
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.dataValidation.deactivation.successMsg', 'MDC', 'Data validation deactivated'));
             }

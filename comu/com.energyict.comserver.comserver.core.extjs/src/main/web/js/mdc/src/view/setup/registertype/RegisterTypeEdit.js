@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
     requires: [
         'Uni.form.field.Obis',
         'Uni.form.field.ReadingTypeDisplay',
-        'Uni.form.field.ReadingTypeCombo'
+        'Uni.form.field.ReadingTypeCombo',
+        'Uni.util.FormErrorMessage'
     ],
 
     layout: {
@@ -53,15 +54,11 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                         hidden: true
                     },
                     {
-                        name: 'errors',
-                        ui: 'form-error-framed',
+                        xtype: 'uni-form-error-message',
                         itemId: 'registerTypeEditFormErrors',
-                        layout: 'hbox',
+                        name: 'errors',
                         margin: '0 0 10 0',
-                        hidden: true,
-                        defaults: {
-                            xtype: 'container'
-                        }
+                        hidden: true
                     },
                     {
                         itemId: 'readingTypeCombo',

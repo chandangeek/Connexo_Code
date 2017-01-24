@@ -16,6 +16,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
             {
                 itemId: 'step1-adddevicegroup-errors',
                 xtype: 'uni-form-error-message',
+                width: 400,
                 hidden: true
             },
             {

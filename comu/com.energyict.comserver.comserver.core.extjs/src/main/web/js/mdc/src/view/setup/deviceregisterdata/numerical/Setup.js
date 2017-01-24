@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
                                 xtype: 'preview-container',
                                 grid: {
                                     xtype: 'deviceregisterreportgrid-numerical',
-                                    mRID: me.mRID,
+                                    deviceId: me.deviceId,
                                     registerId: me.registerId
                                 },
                                 emptyComponent: {
@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
                                         {
                                             text:  Uni.I18n.translate('general.addReading','MDC','Add reading'),
                                             privileges: Mdc.privileges.Device.administrateDeviceData,
-                                            href: '#/devices/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/data/add',
+                                            href: '#/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/data/add',
                                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                                         }
                                     ]

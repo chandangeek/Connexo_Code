@@ -1,27 +1,29 @@
 Ext.define('Mdc.view.setup.deviceconflictingmappings.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-conflicting-mapping-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'btn-solve-device-config',
-            text: Uni.I18n.translate('deviceConflictingMappings.solve', 'MDC', 'Solve'),
-            action: 'solveConflictingMapping',
-            visible: function () {
-                return !this.record.get('isSolved');
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'btn-solve-device-config',
+                text: Uni.I18n.translate('deviceConflictingMappings.solve', 'MDC', 'Solve'),
+                action: 'solveConflictingMapping',
+                visible: function () {
+                    return !this.record.get('isSolved');
+                },
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'btn-edit-device-config',
+                text: Uni.I18n.translate('deviceConflictingMappings.edit', 'MDC', 'Edit'),
+                action: 'editConflictingMapping',
+                visible: function () {
+                    return this.record.get('isSolved');
+                },
+                section: this.SECTION_EDIT
             }
-        },
-        {
-            itemId: 'btn-edit-device-config',
-            text: Uni.I18n.translate('deviceConflictingMappings.edit', 'MDC', 'Edit'),
-            action: 'editConflictingMapping',
-            visible: function () {
-                return this.record.get('isSolved');
-            }
-        }
-    ],
+        ];
+        this.callParent(arguments);
+    },
     listeners: {
         beforeshow: function () {
             var me = this;

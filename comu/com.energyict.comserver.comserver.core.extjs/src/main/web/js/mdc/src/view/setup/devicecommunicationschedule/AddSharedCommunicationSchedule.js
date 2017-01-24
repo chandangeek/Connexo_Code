@@ -1,26 +1,35 @@
 Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSchedule', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.addSharedCommunicationSchedule',
-    itemId: 'AddSharedCommunicationSchedule',
+    itemId: 'addSharedCommunicationSchedule',
     requires: [
-        'Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationScheduleGrid',
-        'Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSchedulePreview',
+        'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleSelectionGrid',
+        'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedulePreview',
+        'Uni.util.FormInfoMessage',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
-    store: 'Mdc.store.AvailableCommunicationSchedulesForDevice',
+    store: null,
 
     side: [],
+    deviceName: undefined,
 
     initComponent: function () {
-        this.content = [
+        var me = this;
+        me.content = [
             {
                 xtype: 'panel',
                 ui: 'large',
                 title: Uni.I18n.translate('deviceCommunicationSchedule.addCommunicationSchedules', 'MDC', 'Add shared communication schedules'),
                 items: [
                     {
-                        itemId: 'form-errors',
+                        xtype: 'uni-form-info-message',
+                        text: Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item2', 'MDC',
+                            "Shared communication schedules with a communication task that is already scheduled with a shared communication schedule on this device aren't included in the list."),
+                        hidden: false
+                    },
+                    {
+                        itemId: 'form-errors-shared-schedules',
                         xtype: 'uni-form-error-message',
                         name: 'form-errors',
                         hidden: true,
@@ -30,7 +39,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                         xtype: 'preview-container',
                         selectByDefault: false,
                         grid: {
-                            xtype: 'addSharedCommunicationScheduleGrid'
+                            xtype: 'sharedCommunicationScheduleSelectionGrid',
+                            store: me.store
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -39,15 +49,11 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                 type: 'vbox',
                                 align: 'stretch'
                             },
-                            title: Uni.I18n.translate('deviceCommunicationSchedule.empty.title', 'MDC', 'No shared communication schedules found'),
+                            title: Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.title', 'MDC', 'No shared communication schedules found'),
                             reasons: [
-                                Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item1', 'MDC', 'No shared communication schedules have been added yet'),
-                                Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item2', 'MDC', 'There are no communication tasks on the device/device config'),
-                                Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item3.1', 'MDC', 'There are shared communication schedules defined in administration but a mismatch between device configuration and the communication schedule')
-                                + ' ' + Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item3.2', 'MDC', '(one or more communication tasks defined in the shared communication schedule is not available on the device configuration of the device)'),
-                                Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item4.1', 'MDC', 'There are shared communication schedules defined in administration but one or more communication tasks in the communication schedule are already scheduled on the device with a shared communication schedule')
-                                + ' ' + Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item4.2', 'MDC', '(a communication task on device level can only be scheduled in maximum one communication schedule)'),
-                                Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item5', 'MDC', 'There are shared communication schedules defined in administration but the communication tasks in the communication schedule doesn\'t have the same connection method, security set, protocol dialect and/or urgency')
+                                Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item1', 'MDC', 'No shared communication schedules with communication tasks on this device have been added yet.'),
+                                Uni.I18n.translate('deviceSharedCommunicationSchedules.empty.list.item2', 'MDC',
+                                    "Shared communication schedules with a communication task that is already scheduled with a shared communication schedule on this device aren't included in the list.")
                             ],
                             stepsText: '',
                             stepItems: [
@@ -55,14 +61,18 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                     xtype: 'button',
                                     ui: 'link',
                                     text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                                    href: '#/devices/' + encodeURIComponent(this.mRID) + '/communicationplanning'
+                                    href: '#/devices/' + encodeURIComponent(this.deviceName) + '/communicationplanning'
                                 }
                             ]
+                        },
+                        previewComponent: {
+                            xtype: 'sharedCommunicationSchedulePreview',
+                            itemId: 'sharedCommunicationSchedulePreview'
                         }
                     },
                     {
                         xtype: 'component',
-                        itemId: 'warningMessage',
+                        itemId: 'warningMessageSchedules',
                         html: '',
                         hidden: true
                     },

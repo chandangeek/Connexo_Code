@@ -57,22 +57,22 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
         });
     },
 
-    showServiceCalls: function (mRID) {
+    showServiceCalls: function (deviceId) {
         var me = this;
 
         if (!Uni.util.History.isSuspended()) {
-            me.showTabbedView(mRID, 0);
+            me.showTabbedView(deviceId, 0);
         }
 
     },
 
-    showServiceCallHistory: function (mRID) {
+    showServiceCallHistory: function (deviceId) {
         var me = this;
         if (!Uni.util.History.isSuspended() && !me.skip) {
-            me.showTabbedView(mRID, 1);
+            me.showTabbedView(deviceId, 1);
         } else if (!me.historyAdded) {
             me.skip = true;
-            Ext.getStore('Scs.store.object.ServiceCallHistory').getProxy().setUrl('/api/ddr/devices/' + encodeURIComponent(mRID) + '/servicecallhistory');
+            Ext.getStore('Scs.store.object.ServiceCallHistory').getProxy().setUrl('/api/ddr/devices/' + encodeURIComponent(deviceId) + '/servicecallhistory');
             me.getServiceCallsSetup().addHistoryGrid(me.getSixtyDaysFilter());
             me.historyAdded = true;
         } else {
@@ -81,7 +81,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
 
     },
 
-    showTabbedView: function (mRID, activeTab) {
+    showTabbedView: function (deviceId, activeTab) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             widget,
@@ -89,8 +89,8 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
             runningStore = Ext.getStore('Scs.store.object.RunningServiceCalls');
 
         me.historyAdded = false;
-        runningStore.getProxy().setUrl('/api/ddr/devices/' + encodeURIComponent(mRID) + '/runningservicecalls');
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        runningStore.getProxy().setUrl('/api/ddr/devices/' + encodeURIComponent(deviceId) + '/runningservicecalls');
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 widget = Ext.widget('service-calls-setup', {
                     device: device,
@@ -98,7 +98,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
                     activeTab: activeTab
                 });
                 if(activeTab === 1) {
-                    historyStore.getProxy().setUrl('/api/ddr/devices/' + encodeURIComponent(mRID) + '/servicecallhistory');
+                    historyStore.getProxy().setUrl('/api/ddr/devices/' + encodeURIComponent(deviceId) + '/servicecallhistory');
                     widget.addHistoryGrid(me.getSixtyDaysFilter());
                     me.historyAdded = true;
                 }
@@ -114,7 +114,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
             route,
             filter = {};
 
-        router.arguments.mRID = tabPanel.mRID;
+        router.arguments.deviceId = tabPanel.deviceId;
         Uni.util.History.suspendEventsForNextCall(true);
         if (newTab.itemId === 'history-service-calls-tab') {
             if(me.getFilter()) {
@@ -174,7 +174,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
         record.setProxy(
             {
                 type: 'rest',
-                url: '/api/ddr/devices/' + encodeURIComponent(router.arguments.mRID) + '/runningservicecalls',
+                url: '/api/ddr/devices/' + encodeURIComponent(router.arguments.deviceId) + '/runningservicecalls',
                 timeout: 120000,
                 reader: {
                     type: 'json'
@@ -233,7 +233,7 @@ Ext.define('Mdc.controller.setup.ServiceCalls', {
                     if (state === 'confirm') {
                         me.getRunningServiceCallsGrid().setLoading(true);
                         Ext.Ajax.request({
-                            url: '/api/ddr/devices/' + encodeURIComponent(router.arguments.mRID) + '/servicecalls',
+                            url: '/api/ddr/devices/' + encodeURIComponent(router.arguments.deviceId) + '/servicecalls',
                             jsonData: {state: serviceCallState},
                             method: 'PUT',
                             success: function () {

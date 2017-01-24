@@ -5,7 +5,7 @@ Ext.define('Mdc.store.DeviceConnectionLog', {
     model: 'Mdc.model.DeviceConnectionLog',
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/connectionmethods/{connectionId}/comsessions/{sessionId}/journals',
+        url: '/api/ddr/devices/{deviceId}/connectionmethods/{connectionId}/comsessions/{sessionId}/journals',
         timeout: 250000,
         pageParam: undefined,
         startParam: undefined,

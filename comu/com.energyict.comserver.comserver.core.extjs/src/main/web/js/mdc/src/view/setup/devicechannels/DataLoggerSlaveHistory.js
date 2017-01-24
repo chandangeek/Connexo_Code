@@ -35,6 +35,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataLoggerSlaveHistory', {
                     store: 'Mdc.store.DataLoggerSlaveChannelHistory',
                     maxHeight: 450,
                     viewConfig: {
+                        loadMask: false,
                         disableSelection: true,
                         enableTextSelection: true
                     },
@@ -46,7 +47,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataLoggerSlaveHistory', {
                         },
                         {
                             header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
-                            dataIndex: 'mrid',
+                            dataIndex: 'deviceName',
                             flex: 1,
                             renderer: function (value, meta, record) {
                                 if (Ext.isEmpty(value)) {

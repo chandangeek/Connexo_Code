@@ -2,7 +2,8 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     extend: 'Ext.app.Controller',
     requires: [
         'Uni.view.window.Acknowledgement',
-        'Uni.view.window.Confirmation'
+        'Uni.view.window.Confirmation',
+        'Uni.util.Common'
     ],
 
     views: [
@@ -129,12 +130,12 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     actionTriggerCommand: function (menu) {
         var me = this,
             record = menu.record,
-            comTaskId = record.get('preferredComTask').id,
-            mRID = menu.mRID;
-        me.showTriggerConfirmation(mRID, comTaskId, menu.device)
+            comTaskId = record.get('preferredComTask').id;
+
+        me.showTriggerConfirmation(menu.deviceId, comTaskId, menu.device);
     },
 
-    showTriggerConfirmation: function (mRID, comTaskId, device) {
+    showTriggerConfirmation: function (deviceId, comTaskId, device) {
         var me = this;
         Ext.widget('confirmation-window', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.trigger', 'MDC', 'Trigger'),
@@ -145,7 +146,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 fn: function (btnId) {
                     if (btnId == 'confirm') {
                         var store = me.getStore('Mdc.store.DeviceCommands');
-                        me.triggerCommand(mRID, comTaskId, device)
+                        me.triggerCommand(deviceId, comTaskId, device);
                     }
                 },
                 msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger a communication task to execute this command?'),
@@ -153,11 +154,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             });
     },
 
-    triggerCommand: function (mRID, comTaskId, device) {
+    triggerCommand: function (deviceId, comTaskId, device) {
         var me = this,
             infoData = {'device': {
                 'version': device.data.version,
-                'mRID': device.data.mRID,
+                'name': device.data.name,
                 'parent' : {
                     'id': device.data.parent.id,
                     'version': device.data.parent.version
@@ -165,7 +166,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             }};
         var info = Ext.encode(infoData);
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/comtasks/' + comTaskId + '/runnow',
+            url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/comtasks/' + comTaskId + '/runnow',
             jsonData: info,
             method: 'PUT',
             success: function () {
@@ -178,7 +179,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     revokeCommand: function (record) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            mRID = router.arguments.mRID,
+            deviceId = router.arguments.deviceId,
             title = Uni.I18n.translate('deviceCommand.overview.revokex', 'MDC', "Revoke '{0}'?",[record.get('command').name]);
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke')
@@ -190,7 +191,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                         record.set('status', {value: 'CANCELED'});
                         record.save({
                             isNotEdit: true,
-                            url: '/api/ddr/devices/' + mRID + '/devicemessages/',
+                            url: '/api/ddr/devices/' + deviceId + '/devicemessages/',
                             success: function () {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
                                 router.getRoute().forward();
@@ -219,17 +220,19 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this,
             title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'",[record.get('command').name]),
             router = me.getController('Uni.controller.history.Router'),
-            responseText;
+            responseText,
+            store = me.getStore('Mdc.store.DeviceCommands');
 
+        store.getProxy().setExtraParam('deviceId', device.get('name'));
         Ext.widget('device-command-change-release-date', {
             title: title,
             record: record,
             listeners: {
                 save: {
                     fn: function (newDate, record, oldDate) {
+                        record.setProxy(store.getProxy());
                         record.set('releaseDate', newDate);
                         record.save({
-                            url: me.getStore('Mdc.store.DeviceCommands').getProxy().url,
                             isNotEdit: true,
                             success: function () {
                                 router.getRoute().forward();
@@ -237,7 +240,6 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             },
                             failure: function (record, operation) {
                                 responseText = Ext.decode(operation.response.responseText, true);
-                                me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceCommand.changeReleaseDateFailed', 'MDC', "'Change release date' failed"), responseText.errors[0].msg);
                                 record.reject();
                             }
                         });
@@ -247,14 +249,15 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         }).show();
     },
 
-    showOverview: function (mrid) {
+    showOverview: function (deviceId) {
         var me = this,
             store = me.getStore('Mdc.store.DeviceCommands');
 
-        store.getProxy().setUrl(mrid);
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
+
+                me.getStore('Mdc.store.DeviceCommands').getProxy().setExtraParam('deviceId', device.get('name'));
                 var widget = Ext.widget('deviceCommandsSetup', {
                     device: device
                 });
@@ -264,19 +267,19 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         });
     },
 
-    showAddOverview: function (mrid) {
+    showAddOverview: function (deviceId) {
         var me = this,
             catStore = me.getStore('Mdc.store.DeviceMessageCategories');
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
-                me.getStore('Mdc.store.DeviceCommands').getProxy().setUrl(device.get('mRID'));
+                me.getStore('Mdc.store.DeviceCommands').getProxy().setExtraParam('deviceId', device.get('name'));
                 widget = Ext.widget('device-command-add', {
                     device: device
                 });
-                if (mrid) {
-                    catStore.setMrid(mrid);
-                    catStore.load()
+                if (deviceId) {
+                    catStore.setName(deviceId);
+                    catStore.load();
                 }
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -286,12 +289,12 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
 
     navigateAdd: function (btn) {
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('devices/device/commands/add').forward({mRID: encodeURIComponent(btn.mRID)});
+        router.getRoute('devices/device/commands/add').forward({deviceId: encodeURIComponent(btn.deviceId)});
     },
 
     cancelClick: function (btn) {
         var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('devices/device/commands').forward({mRID: encodeURIComponent(btn.mRID)});
+        router.getRoute('devices/device/commands').forward({deviceId: encodeURIComponent(btn.deviceId)});
     },
 
     selectCommand: function (grid, selected) {
@@ -334,16 +337,16 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 actionsButton.menu.record = record;
                 if (!!actionClmn) {
                     actionClmn.menu.device = device;
-                    actionClmn.menu.mRID = device.get('mRID');
+                    actionClmn.menu.deviceId = device.get('name');
                 }
             } else {
-                actionsButton.hide()
+                actionsButton.hide();
             }
             if (!Ext.isEmpty(record.get('properties'))) {
                 previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('deviceCommand.overview.attr', 'MDC', 'Attributes of {0}', [title]) + '</h3>');
-                previewPropertiesHeader.show()
+                previewPropertiesHeader.show();
             } else {
-                previewPropertiesHeader.hide()
+                previewPropertiesHeader.hide();
             }
         }
     },
@@ -369,8 +372,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
 
     commandChange: function (combo, records) {
         var me = this,
-            command = records[0],
+            command = records[0].copy(),
             propertyHeader = me.getAddPropertyHeader();
+        records[0].properties().each(function(record) {
+            command.properties().add(record)
+        });
         if (command) {
             me.getAddPropertyForm().loadRecord(command);
             if (command.properties() && (command.properties().getCount() > 0)) {
@@ -398,23 +404,23 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         if (commandForm.isValid() && (propertyForm && propertyForm.isValid())) {
             addCommandPnl.down('#form-errors').hide();
             propertyForm.updateRecord();
-            var record = propertyForm.getRecord(),
+            var newRecord = propertyForm.getRecord(),
                 releaseDate = new Date(commandForm.getValues().releaseDate).getTime(),
                 messageSpecification;
-            if (!Ext.isEmpty(record.get('id'))) {
-                messageSpecification = {id: record.get('id')}
+            if (!Ext.isEmpty(newRecord.get('id'))) {
+                messageSpecification = {id: newRecord.get('id')}
             }
-            record.beginEdit();
-            record.set('id', '');
-            releaseDate && record.set('releaseDate', releaseDate);
-            messageSpecification && record.set('messageSpecification', messageSpecification);
-            record.set('status', null);
+            newRecord.beginEdit();
+            newRecord.set('id', '');
+            releaseDate && newRecord.set('releaseDate', releaseDate);
+            messageSpecification && newRecord.set('messageSpecification', messageSpecification);
+            newRecord.set('status', null);
             if (Ext.isEmpty(commandForm.getValues().trackingCategory)) {
-                record.set('trackingCategory', null);
+                newRecord.set('trackingCategory', null);
             }
-            record.endEdit();
-            record.save({
-                url: '/api/ddr/devices/' + encodeURIComponent(btn.mRID) + '/devicemessages',
+            newRecord.endEdit();
+            newRecord.save({
+                url: '/api/ddr/devices/' + encodeURIComponent(btn.deviceId) + '/devicemessages',
                 method: 'POST',
                 success: function (record, operation) {
                     if (operation.success) {
@@ -422,9 +428,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                         var router = me.getController('Uni.controller.history.Router'),
                             response = Ext.JSON.decode(operation.response.responseText);
                         router.getRoute('devices/device/commands').forward();
-                        Ext.ModelManager.getModel('Mdc.model.Device').load(btn.mRID, {
+                        Ext.ModelManager.getModel('Mdc.model.Device').load(btn.deviceId, {
                             success: function (device) {
-                                response['preferredComTask'] && me.showTriggerConfirmation(btn.mRID, response['preferredComTask'].id, device);
+                                response['preferredComTask'] && me.showTriggerConfirmation(btn.deviceId, response['preferredComTask'].id, device);
                             }
                         });
                     }
@@ -432,6 +438,8 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 failure: function (record, operation) {
                     if (operation && operation.response && operation.response.status === 400) {
                         me.formMarkInvalid(Ext.decode(operation.response.responseText));
+                        addCommandPnl.down('#form-errors').show();
+                        newRecord.set('id', messageSpecification.id);
                     }
                 }
             });
@@ -453,18 +461,22 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     },
 
     getEditField: function (key) {
-        var editForm = this.getAddPropertyForm();
+        var editPropertyForm = this.getAddPropertyForm(),
+            editForm = this.getAddCommandForm();
 
-        if (editForm) {
+        if (editPropertyForm) {
             if (key.indexOf('deviceMessageAttributes.')==0)
             {
                 key = key.replace('deviceMessageAttributes.', '');
-                return editForm.down('component[itemId='+key+']');
+                return editPropertyForm.down('component[itemId='+key+']');
             }
-        } else {
-            return null
         }
+        if(editForm) {
+            return editForm.down('component[name='+key+']');
+        }
+        return null;
     }
+
 
 })
 ;

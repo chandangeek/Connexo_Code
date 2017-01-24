@@ -24,7 +24,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'validationInfo', type: 'auto'},
         {name: 'loadProfileId', type: 'auto'},
         {name: 'loadProfileName', type: 'string'},
-        {name: 'dataloggerSlavemRID', type: 'string'},
+        {name: 'dataloggerSlaveName', type: 'string'},
         {
             name: 'validationInfo_validationActive',
             persist: false,
@@ -108,13 +108,10 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{0}/channels',
+        url: '/api/ddr/devices/{deviceId}/channels',
         reader: {
             type: 'json'
         },
-        timeout: 300000,
-        setUrl: function (deviceMRID) {
-            this.url = Ext.String.format(this.urlTpl, encodeURIComponent(deviceMRID));
-        }
+        timeout: 300000
     }
 });

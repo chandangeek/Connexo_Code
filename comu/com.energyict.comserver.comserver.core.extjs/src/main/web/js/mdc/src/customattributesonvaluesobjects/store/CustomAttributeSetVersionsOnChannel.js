@@ -7,14 +7,10 @@ Ext.define('Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersions
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelId}/customproperties/{customPropertySetId}/versions',
+        url: '/api/ddr/devices/{deviceId}/channels/{channelId}/customproperties/{customPropertySetId}/versions',
         reader: {
             type: 'json',
             root: 'versions'
-        },
-
-        setUrl: function (mRID, channelId, customPropertySetId) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{channelId}', channelId).replace('{customPropertySetId}', customPropertySetId);
         }
     }
 });

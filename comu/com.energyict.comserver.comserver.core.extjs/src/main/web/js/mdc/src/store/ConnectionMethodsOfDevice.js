@@ -7,7 +7,7 @@ Ext.define('Mdc.store.ConnectionMethodsOfDevice', {
     storeId: 'ConnectionMethodsOfDevice',
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mrid}/connectionmethods',
+        url: '/api/ddr/devices/{deviceId}/connectionmethods',
         reader: {
             type: 'json',
             root: 'connectionMethods'

@@ -1,9 +1,8 @@
 Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGridActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.versions-overlap-grid-action-menu',
     itemId: 'versions-overlap-grid-action-menu-id',
     metaData: null,
-    plain: true,
 
     initComponent: function () {
         var me = this,
@@ -23,7 +22,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGridActionMenu'
                 itemId: 'custom-attribute-set-version-action-menu-align-left-btn-id',
                 handler: function() {
                     Ext.ComponentQuery.query('#custom-attribute-set-versions-overlap-grid-id')[0].fireEvent('alignleft', leftRecord.get('endTime'));
-                }
+                },
+                section: this.SECTION_ACTION
             });
         }
 
@@ -34,7 +34,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGridActionMenu'
                 itemId: 'custom-attribute-set-version-action-menu-align-right-btn-id',
                 handler: function() {
                     Ext.ComponentQuery.query('#custom-attribute-set-versions-overlap-grid-id')[0].fireEvent('alignright', rightRecord.get('startTime'));
-                }
+                },
+                section: this.SECTION_ACTION
             });
         }
 

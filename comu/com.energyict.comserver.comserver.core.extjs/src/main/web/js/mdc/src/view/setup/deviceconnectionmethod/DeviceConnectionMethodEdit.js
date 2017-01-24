@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                         xtype: 'form',
                         border: false,
                         itemId: 'deviceConnectionMethodEditForm',
-                        width: 800,
+                        width: 845,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
@@ -177,7 +177,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                value: ''
+                                                emptyValueDisplay: ''
                                             },
                                             {
                                                 xtype: 'container',

@@ -21,15 +21,15 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
     refs: [],
 
-    editCustomAttributeVersion: function (mRID, channelId, customAttributeSetId, versionId) {
+    editCustomAttributeVersion: function (deviceId, channelId, customAttributeSetId, versionId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             versionModel = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetVersionOnChannel'),
             overlapStore = Ext.create('Mdc.customattributesonvaluesobjects.store.ConflictedAttributeSetVersions'),
             widget;
 
-        versionModel.getProxy().setUrl(mRID, channelId, customAttributeSetId);
-        overlapStore.getProxy().setChannelEditUrl(mRID, channelId, customAttributeSetId, versionId);
+        versionModel.getProxy().setParams(deviceId, channelId, customAttributeSetId);
+        overlapStore.getProxy().setChannelEditUrl(deviceId, channelId, customAttributeSetId, versionId);
 
         widget = Ext.widget('custom-attribute-set-version-form', {
             router: router,
@@ -41,9 +41,9 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading();
 
-        me.loadDeviceModel(mRID);
-        me.loadChannelModel(mRID, channelId);
-        me.loadAttributeSetModel(mRID, channelId, customAttributeSetId);
+        me.loadDeviceModel(deviceId);
+        me.loadChannelModel(deviceId, channelId);
+        me.loadAttributeSetModel(deviceId, channelId, customAttributeSetId);
 
         versionModel.load(versionId, {
             success: function (record) {
@@ -58,7 +58,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
     },
 
-    addCustomAttributeVersion: function (mRID, channelId, customAttributeSetId) {
+    addCustomAttributeVersion: function (deviceId, channelId, customAttributeSetId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             attributeSetModel = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel'),
@@ -67,9 +67,9 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
             overlapStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ConflictedAttributeSetVersions'),
             widget;
 
-        versionModel.getProxy().setUrl(mRID, channelId, customAttributeSetId);
-        versionPeriod.getProxy().setChannelUrl(mRID, channelId, customAttributeSetId);
-        overlapStore.getProxy().setChannelUrl(mRID, channelId, customAttributeSetId);
+        versionModel.getProxy().setParams(deviceId, channelId, customAttributeSetId);
+        versionPeriod.getProxy().setChannelUrl(deviceId, channelId, customAttributeSetId);
+        overlapStore.getProxy().setChannelUrl(deviceId, channelId, customAttributeSetId);
         widget = Ext.widget('custom-attribute-set-version-form', {
             router: router,
             overlapStore: overlapStore,
@@ -80,10 +80,11 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading();
 
-        me.loadDeviceModel(mRID);
-        me.loadChannelModel(mRID, channelId);
+        me.loadDeviceModel(deviceId);
+        me.loadChannelModel(deviceId, channelId);
 
-        attributeSetModel.getProxy().setUrl(mRID, channelId);
+        attributeSetModel.getProxy().setExtraParam('deviceId', deviceId);
+        attributeSetModel.getProxy().setExtraParam('channelId', channelId);
         attributeSetModel.load(customAttributeSetId, {
             success: function (customattributeset) {
                 versionPeriod.load('currentinterval', {
@@ -103,7 +104,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
     },
 
-    cloneCustomAttributeVersion: function (mRID, channelId, customAttributeSetId, versionId) {
+    cloneCustomAttributeVersion: function (deviceId, channelId, customAttributeSetId, versionId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             versionModel = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetVersionOnChannel'),
@@ -111,9 +112,9 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
             overlapStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ConflictedAttributeSetVersions'),
             widget;
 
-        versionModel.getProxy().setUrl(mRID, channelId, customAttributeSetId);
-        versionPeriod.getProxy().setChannelUrl(mRID, channelId, customAttributeSetId);
-        overlapStore.getProxy().setChannelUrl(mRID, channelId, customAttributeSetId);
+        versionModel.getProxy().setParams(deviceId, channelId, customAttributeSetId);
+        versionPeriod.getProxy().setChannelUrl(deviceId, channelId, customAttributeSetId);
+        overlapStore.getProxy().setChannelUrl(deviceId, channelId, customAttributeSetId);
         widget = Ext.widget('custom-attribute-set-version-form', {
             router: router,
             overlapStore: overlapStore,
@@ -124,9 +125,9 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         me.getApplication().fireEvent('changecontentevent', widget);
 
         widget.setLoading();
-        me.loadDeviceModel(mRID);
-        me.loadChannelModel(mRID, channelId);
-        me.loadAttributeSetModel(mRID, channelId, customAttributeSetId);
+        me.loadDeviceModel(deviceId);
+        me.loadChannelModel(deviceId, channelId);
+        me.loadAttributeSetModel(deviceId, channelId, customAttributeSetId);
 
         versionModel.load(versionId, {
             success: function (record) {
@@ -144,17 +145,17 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         });
     },
 
-    loadCustomAttributeVersions: function (mRID, channelId, customAttributeSetId) {
+    loadCustomAttributeVersions: function (deviceId, channelId, customAttributeSetId) {
         var me = this,
             versionsStore = me.getStore('Mdc.customattributesonvaluesobjects.store.CustomAttributeSetVersionsOnChannel'),
             router = me.getController('Uni.controller.history.Router'),
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             widget;
 
-        versionsStore.getProxy().setUrl(mRID, channelId, customAttributeSetId);
+        versionsStore.getProxy().setParams(deviceId, channelId, customAttributeSetId);
         contentPanel.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 widget = Ext.widget('channel-history-custom-attribute-sets-versions', {
@@ -163,8 +164,8 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
 
-                me.loadChannelModel(mRID, channelId);
-                me.loadAttributeSetModel(mRID, channelId, customAttributeSetId, widget);
+                me.loadChannelModel(deviceId, channelId);
+                me.loadAttributeSetModel(deviceId, channelId, customAttributeSetId, widget);
 
             },
             callback: function () {
@@ -173,11 +174,11 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         });
     },
 
-    loadDeviceModel: function (mRID) {
+    loadDeviceModel: function (deviceId) {
         var me = this,
             deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
 
-        deviceModel.load(mRID, {
+        deviceModel.load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
             }
@@ -185,11 +186,11 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
 
     },
 
-    loadChannelModel: function (mRID, channelId) {
+    loadChannelModel: function (deviceId, channelId) {
         var me = this,
             channelModel = me.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice');
 
-        channelModel.getProxy().setUrl(mRID);
+        channelModel.getProxy().setExtraParam('deviceId', deviceId);
         channelModel.load(channelId, {
             success: function (channel) {
                 me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
@@ -197,12 +198,14 @@ Ext.define('Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVer
         });
     },
 
-    loadAttributeSetModel: function (mRID, channelId, customAttributeSetId, widget) {
+    loadAttributeSetModel: function (deviceId, channelId, customAttributeSetId, widget) {
         var me = this,
             attributeSetModel = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel'),
             router = me.getController('Uni.controller.history.Router');
 
-        attributeSetModel.getProxy().setUrl(mRID, channelId);
+        attributeSetModel.getProxy().setExtraParam('deviceId', deviceId);
+        attributeSetModel.getProxy().setExtraParam('channelId', channelId);
+
         attributeSetModel.load(customAttributeSetId, {
             success: function (customattributeset) {
                 me.getApplication().fireEvent('loadCustomAttributeSetOnChannel', customattributeset);

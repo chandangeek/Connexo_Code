@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
     ],
 
     store: 'Mdc.store.RegisterReadings',
-    deviceMRID: null,
+    deviceId: null,
     containsBillingRegisters: false,
 
     initComponent: function () {
@@ -16,14 +16,14 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
             registerGroupsStore = Ext.getStore('Mdc.store.filter.RegisterGroups') || Ext.create('Mdc.store.filter.RegisterGroups'),
             registerStore = Ext.getStore('Mdc.store.filter.RegistersOfDeviceForRegisterGroups') || Ext.create('Mdc.store.filter.RegistersOfDeviceForRegisterGroups');
 
-        registerGroupsStore.getProxy().setUrl(me.deviceMRID);
-        registerStore.getProxy().setUrl(me.deviceMRID);
-        registerStore.on('load', function(store, records) {
-            Ext.Array.forEach(records, function(record) {
+        registerGroupsStore.getProxy().setUrl(me.deviceId);
+        registerStore.getProxy().setUrl(me.deviceId);
+        registerStore.on('load', function (store, records) {
+            Ext.Array.forEach(records, function (record) {
                 me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');
             });
             me.showOrHideToTimeFilter(me.containsBillingRegisters);
-        }, me, {single:true});
+        }, me, {single: true});
 
         me.filters = [
             {
@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         me.callParent(arguments);
     },
 
-    onRegisterGroupComboCollapse: function() {
+    onRegisterGroupComboCollapse: function () {
         var me = this,
             groupCombo = me.down('#mdc-register-group-filter'),
             registerCombo = me.down('#mdc-register-filter'),
@@ -91,14 +91,14 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         registerStore.load(function () {
             registerCombo.select(registerCombo.getValue()); // restore previous selection(s)
             me.containsBillingRegisters = false;
-            registerStore.each(function(record) {
+            registerStore.each(function (record) {
                 me.containsBillingRegisters = me.containsBillingRegisters || record.get('isBilling');
             });
             me.showOrHideToTimeFilter(me.containsBillingRegisters);
         });
     },
 
-    onRegisterGroupComboChange: function(combo) {
+    onRegisterGroupComboChange: function (combo) {
         if (combo.isExpanded) {
             return; // if expanded, the collapse trigger will do
         }
@@ -111,7 +111,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
 
         if (groupCombo.isExpanded) {
             groupCombo.collapse();
-            Ext.defer(function(){
+            Ext.defer(function () {
                 me.callParent(arguments);
             }, 250);
         } else {
@@ -119,7 +119,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsTopFilter
         }
     },
 
-    showOrHideToTimeFilter: function(showIt) {
+    showOrHideToTimeFilter: function (showIt) {
         var toTimeFilter = this.down('#mdc-to-time-filter');
         if (!toTimeFilter) {
             return;

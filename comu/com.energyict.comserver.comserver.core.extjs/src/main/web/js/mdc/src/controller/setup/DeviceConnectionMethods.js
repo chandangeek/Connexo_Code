@@ -44,7 +44,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         {ref: 'activateConnWindowRadiogroup', selector: '#activateConnWindowRadiogroup'},
         {ref: 'propertyForm', selector: '#propertyForm'},
         {ref: 'connectionMethodActionMenu', selector: '#device-connection-method-action-menu'},
-        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'}
+        {ref: 'breadCrumbs', selector: 'breadcrumbTrail'},
+        {ref: 'deviceConnectionMethodSetup', selector: 'deviceConnectionMethodSetup'}
 
     ],
 
@@ -117,18 +118,18 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         });
     },
 
-    showDeviceConnectionMethods: function (mrid) {
+    showDeviceConnectionMethods: function (deviceId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies'),
             connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfigurationCombo');
 
-        this.mrid = mrid;
+        this.deviceId = deviceId;
 
         viewport.setLoading();
         connectionStrategiesStore.load({
             callback: function () {
-                Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
+                Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
                     success: function (device) {
                         var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                         model.getProxy().setExtraParam('deviceType', device.get('deviceTypeId'));
@@ -141,7 +142,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                 connectionMethodsStore.load({
                                     params:{
                                         available: true,
-                                        mrId: mrid
+                                        deviceId: device.getId()
                                     },
                                     callback: function (records, operation, success) {
                                         me.showCorrectButtons(connectionMethodsStore, widget, success);
@@ -180,6 +181,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             showInbound = true;
         }
         if(showOutbound && showInbound) {
+            label && label.show();
             emptyOutboundButton && emptyOutboundButton.show();
             emptyInboundButton && emptyInboundButton.show();
             actionsMenu && actionsMenu.show();
@@ -190,12 +192,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             emptyOutboundButton && emptyOutboundButton.hide();
             emptyInboundButton && emptyInboundButton.hide();
         } else if (showInbound) {
+            label && label.show();
             emptyOutboundButton && emptyOutboundButton.hide();
             emptyInboundButton && emptyInboundButton.show();
             actionsMenu && actionsMenu.hide();
             gridInboundButton && gridInboundButton.show();
             gridOutboundButton && gridOutboundButton.hide();
         } else if (showOutbound) {
+            label && label.show();
             emptyOutboundButton && emptyOutboundButton.show();
             emptyInboundButton && emptyInboundButton.hide();
             actionsMenu && actionsMenu.hide();
@@ -249,15 +253,15 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     addOutboundConnectionMethodHistory: function () {
-        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/connectionmethods/addoutbound';
+        location.href = '#/devices/' + encodeURIComponent(this.deviceId) + '/connectionmethods/addoutbound';
     },
 
     addInboundConnectionMethodHistory: function () {
-        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/connectionmethods/addinbound';
+        location.href = '#/devices/' + encodeURIComponent(this.deviceId) + '/connectionmethods/addinbound';
     },
 
     editDeviceConnectionMethodHistory: function (record) {
-        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/connectionmethods/' + encodeURIComponent(record.get('id')) + '/edit';
+        location.href = '#/devices/' + encodeURIComponent(this.deviceId) + '/connectionmethods/' + encodeURIComponent(record.get('id')) + '/edit';
     },
 
     editDeviceConnectionMethodHistoryFromPreview: function () {
@@ -265,27 +269,27 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     viewConnectionHistory: function (record) {
-        location.href = '#/devices/' + encodeURIComponent(this.mrid) + '/connectionmethods/' + encodeURIComponent(record.get('id')) + '/history';
+        location.href = '#/devices/' + encodeURIComponent(this.deviceId) + '/connectionmethods/' + encodeURIComponent(record.get('id')) + '/history';
     },
 
     viewConnectionHistoryFromPreview: function () {
         this.viewConnectionHistory(this.getDeviceConnectionMethodPreviewForm().getRecord());
     },
 
-    showAddDeviceConnectionMethodView: function (mrid, direction) {
+    showAddDeviceConnectionMethodView: function (deviceId, direction) {
         var me = this,
             deviceModel = Ext.ModelManager.getModel('Mdc.model.Device'),
             connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfigurationCombo'),
             connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
 
-        me.mrid = mrid;
+        me.deviceId = deviceId;
         me.comPortPoolStore = Ext.StoreManager.get('ComPortPools');
 
-        deviceModel.load(mrid, {
+        deviceModel.load(deviceId, {
             success: function (device) {
                 var widget = Ext.widget('deviceConnectionMethodEdit', {
                     edit: false,
-                    returnLink: '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods',
+                    returnLink: '#/devices/' + encodeURIComponent(me.deviceId) + '/connectionmethods',
                     connectionMethods: connectionMethodsStore,
                     comPortPools: me.comPortPoolStore,
                     connectionStrategies: connectionStrategiesStore,
@@ -300,7 +304,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 connectionMethodsStore.load({
                     params:{
                         available: true,
-                        mrId: mrid
+                        deviceId: device.getId()
                     },
                     callback: function (records) {
                         if(connectionMethodsStore.count() > 0) {
@@ -497,7 +501,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield').clearInvalid();
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutcombobox').clearInvalid();
         }
-        record.getProxy().setExtraParam('mrid', me.mrid);
+        record.getProxy().setExtraParam('deviceId', me.deviceId);
         record.save({
             backUrl: backUrl,
             success: function (record) {
@@ -572,21 +576,32 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     removeDeviceConnectionMethod: function (btn, text, opt) {
         if (btn === 'confirm') {
+            var connectionMethodsStore;
             var connectionMethodToDelete = opt.config.connectionMethodToDelete;
             var me = opt.config.me;
-            connectionMethodToDelete.getProxy().extraParams = ({mrid: me.mrid});
+            var widget = me.getDeviceConnectionMethodSetup();
+            connectionMethodToDelete.getProxy().setExtraParam('deviceId', me.deviceId);
             connectionMethodToDelete.destroy({
                 success: function () {
-                    location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods';
+                    location.href = '#/devices/' + encodeURIComponent(me.deviceId) + '/connectionmethods';
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.remove', 'MDC', 'Connection method removed'));
+                    connectionMethodsStore = Ext.StoreManager.get('ConnectionMethodsOfDeviceConfigurationCombo');
+                    connectionMethodsStore.load({
+                        params: {
+                            available: true,
+                            deviceId: me.deviceId // TOCHECK
+                        },
+                        callback: function (records, operation, success) {
+                            me.showCorrectButtons(connectionMethodsStore, widget, success);
+                        }
+                    });
                 }
             });
-
         }
     },
 
-    showDeviceConnectionMethodEditView: function (mrid, connectionMethodId) {
-        this.mrid = mrid;
+    showDeviceConnectionMethodEditView: function (deviceId, connectionMethodId) {
+        this.deviceId = deviceId;
         var me = this;
         var deviceModel = Ext.ModelManager.getModel('Mdc.model.Device');
         var connectionMethodModel = Ext.ModelManager.getModel('Mdc.model.DeviceConnectionMethod');
@@ -594,16 +609,16 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.comPortPoolStore = Ext.getStore('ComPortPools');
         var connectionStrategiesStore = Ext.StoreManager.get('ConnectionStrategies');
 
-        deviceModel.load(mrid, {
+        deviceModel.load(deviceId, {
             success: function (device) {
-                connectionMethodModel.getProxy().setExtraParam('mrid', mrid);
+                connectionMethodModel.getProxy().setExtraParam('deviceId', deviceId);
                 connectionMethodModel.load(connectionMethodId, {
                     success: function (connectionMethod) {
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
                         var widget = Ext.widget('deviceConnectionMethodEdit', {
                             edit: true,
-                            returnLink: '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods',
+                            returnLink: '#/devices/' + encodeURIComponent(me.deviceId) + '/connectionmethods',
                             connectionMethods: connectionMethodsStore,
                             comPortPools: me.comPortPoolStore,
                             connectionStrategies: connectionStrategiesStore,
@@ -678,7 +693,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         }
         connectionMethod.endEdit();
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
-        connectionMethod.getProxy().extraParams = ({mrid: this.mrid});
+        connectionMethod.getProxy().setExtraParam('deviceId', me.deviceId);
         connectionMethod.save({
             isNotEdit: true,
             success: function () {
@@ -712,7 +727,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         }
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         //connectionMethod.propertiesStore = this.getPropertiesController().updateProperties();
-        connectionMethod.getProxy().extraParams = ({mrid: this.mrid});
+        connectionMethod.getProxy().setExtraParam('deviceId', me.deviceId);
         connectionMethod.save({
             isNotEdit: true,
             success: function () {

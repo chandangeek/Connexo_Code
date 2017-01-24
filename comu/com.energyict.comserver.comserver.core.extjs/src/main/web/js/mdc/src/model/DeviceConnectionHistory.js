@@ -20,6 +20,6 @@ Ext.define('Mdc.model.DeviceConnectionHistory', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/connectionmethods/{connectionId}/comsessions'
+        url: '/api/ddr/devices/{deviceId}/connectionmethods/{connectionId}/comsessions'
     }
 });

@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: 'Mdc.view.setup.validation.VersionActionMenu'
+                menu: {xtype: 'validation-version-actionmenu'}
             }
         ]; 
         me.dockedItems = [

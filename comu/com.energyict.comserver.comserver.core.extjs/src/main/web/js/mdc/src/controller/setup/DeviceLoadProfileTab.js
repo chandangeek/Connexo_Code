@@ -26,29 +26,29 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileTab', {
         if (this.veto === true)this.veto = false;
     },
 
-    initTabDeviceLoadProfileDetailsView: function (mrId, loadProfileId) {
-        this.mrId = mrId;
+    initTabDeviceLoadProfileDetailsView: function (deviceId, loadProfileId) {
+        this.deviceId = deviceId;
         this.loadProfileId = loadProfileId;
         var c = this.getController('Mdc.controller.setup.DeviceLoadProfileOverview');
-        c.showOverview(mrId, loadProfileId, this, null);
+        c.showOverview(deviceId, loadProfileId, this, null);
         this.veto = true;
     },
 
-    initTabLoadProfileDataView: function (mrId, loadProfileId) {
-        this.mrId = mrId;
+    initTabLoadProfileDataView: function (deviceId, loadProfileId) {
+        this.deviceId = deviceId;
         this.loadProfileId = loadProfileId;
         var c = this.getController('Mdc.controller.setup.DeviceLoadProfileData'),
             loadProfile = this.getController('Mdc.controller.setup.DeviceLoadProfileOverview').getLoadProfile();
-        c.showTableOverview(mrId, loadProfileId, this, loadProfile);
+        c.showTableOverview(deviceId, loadProfileId, this, loadProfile);
         this.veto = true;
     },
 
-    initTabLoadProfileGraphView: function (mrId, loadProfileId) {
-        this.mrId = mrId;
+    initTabLoadProfileGraphView: function (deviceId, loadProfileId) {
+        this.deviceId = deviceId;
         this.loadProfileId = loadProfileId;
         var c = this.getController('Mdc.controller.setup.DeviceLoadProfileData'),
             loadProfile = this.getController('Mdc.controller.setup.DeviceLoadProfileOverview').getLoadProfile();
-        c.showGraphOverview(mrId, loadProfileId, this, loadProfile);
+        c.showGraphOverview(deviceId, loadProfileId, this, loadProfile);
         this.veto = true;
     },
 

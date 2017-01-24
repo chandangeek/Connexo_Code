@@ -7,7 +7,7 @@ Ext.define('Mdc.model.RegisterData', {
         {name: 'validationStatus', type:'auto', useNull: true, persist: false},
         {name: 'type', type:'string'},
         {name: 'value', type:'string'},
-        {name: 'unit', type:'string'},
+        {name: 'unit', type:'string', useNull: true, defaultValue: null},
         {name: 'deltaValue', type:'string'},
         {name: 'dataValidated', type:'auto', persist: false},
         {name: 'suspectReason', type:'auto', persist: false},
@@ -46,7 +46,7 @@ Ext.define('Mdc.model.RegisterData', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{mRID}/registers/{registerId}/data',
+        url: '/api/ddr/devices/{deviceId}/registers/{registerId}/data',
         timeout: 300000
     }
 });

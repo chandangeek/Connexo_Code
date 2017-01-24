@@ -1,16 +1,15 @@
 Ext.define('Mdc.view.setup.validation.VersionActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.validation-version-actionmenu',
-
-    plain: true,
-    border: false,
-    shadow: false,
-
-    items: [
-        {
-            text: Uni.I18n.translate('general.view', 'MDC', 'View'),
-            itemId: 'viewVersion',
-            action: 'viewVersion'
-        }
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.view', 'MDC', 'View'),
+                itemId: 'viewVersion',
+                action: 'viewVersion',
+                section: this.SECTION_VIEW
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

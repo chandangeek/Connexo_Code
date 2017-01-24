@@ -40,6 +40,20 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 }
             },
             {
+                name: 'name',
+                itemId: 'fld-device-name',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name'),
+                renderer: function (value) {
+                    if (me.fullInfo && value && value.available) {
+                        this.show();
+                        return Ext.isEmpty(value.displayValue) ? '-' : Ext.String.htmlEncode(value.displayValue);
+                    } else {
+                        this.hide();
+                        return null;
+                    }
+                }
+            },
+            {
                 name: 'deviceType',
                 itemId: 'fld-device-type-name',
                 fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
@@ -125,14 +139,14 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 fieldLabel: Uni.I18n.translate('general.dataLogger', 'MDC', 'Data logger'),
                 hidden: Ext.isEmpty(me.dataLoggerSlave),
                 renderer: function() {
-                    var dataLoggerMRID = Ext.isEmpty(me.dataLoggerSlave) ? undefined : me.dataLoggerSlave.get('dataloggermRID');
-                    if (Ext.isEmpty(dataLoggerMRID)) {
+                    var dataloggerName = Ext.isEmpty(me.dataLoggerSlave) ? undefined : me.dataLoggerSlave.get('dataloggerName');
+                    if (Ext.isEmpty(dataloggerName)) {
                         return '-';
                     }
                     return Ext.String.format(
                         '<a href="{0}">{1}</a>',
-                        '#/devices/' + encodeURIComponent(dataLoggerMRID),
-                        Ext.String.htmlEncode(dataLoggerMRID)
+                        '#/devices/' + encodeURIComponent(dataloggerName),
+                        Ext.String.htmlEncode(dataloggerName)
                     );
                 }
             },
@@ -167,7 +181,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
                                 }
                             } else if (Mdc.privileges.UsagePoint.canView()) {
-                                url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.mRID});
+                                url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.displayValue});
                                 return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.displayValue));
                             }
                             return Ext.String.htmlEncode(value.displayValue);

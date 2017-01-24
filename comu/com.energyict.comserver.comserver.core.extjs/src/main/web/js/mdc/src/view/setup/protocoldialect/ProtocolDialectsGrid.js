@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectsGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.DeviceType.admin,
-                items: 'Mdc.view.setup.protocoldialect.ProtocolDialectActionMenu'
+                menu: {xtype: 'protocol-dialect-action-menu'}
             }
 
         ];

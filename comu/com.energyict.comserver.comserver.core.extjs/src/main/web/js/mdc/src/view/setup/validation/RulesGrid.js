@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: 'Mdc.view.setup.validation.RuleActionMenu'
+                menu: {xtype: 'validation-rule-actionmenu'}
             }
         ];
 

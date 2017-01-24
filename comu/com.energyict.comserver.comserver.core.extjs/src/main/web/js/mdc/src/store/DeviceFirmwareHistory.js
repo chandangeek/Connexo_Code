@@ -4,13 +4,10 @@ Ext.define('Mdc.store.DeviceFirmwareHistory', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mrid}/history/firmwarechanges',
+        url: '/api/ddr/devices/{deviceId}/history/firmwarechanges',
         reader: {
             type: 'json',
             root: 'deviceFirmwareHistoryInfos'
-        },
-        setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mrid}', params.mRID);
         },
         pageParam: undefined,
         startParam: undefined,

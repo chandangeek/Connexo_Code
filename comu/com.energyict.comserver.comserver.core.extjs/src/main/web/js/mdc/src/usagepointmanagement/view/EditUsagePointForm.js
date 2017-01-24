@@ -15,16 +15,8 @@ Ext.define('Mdc.usagepointmanagement.view.EditUsagePointForm', {
         me.items = [
             {
                 xtype: 'textfield',
-                name: 'mRID',
-                itemId: 'fld-up-mRID',
-                required: true,
-                disabled: true,
-                width: 600,
-                fieldLabel: Uni.I18n.translate('usagePoint.generalAttributes.mrid', 'MDC', 'MRID')
-            },
-            {
-                xtype: 'textfield',
                 name: 'name',
+                required: true,
                 itemId: 'fld-up-name',
                 width: 600,
                 fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
@@ -84,7 +76,7 @@ Ext.define('Mdc.usagepointmanagement.view.EditUsagePointForm', {
                         xtype: 'button',
                         ui: 'link',
                         itemId: 'cancelLink',
-                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({mRID: me.mRID})
+                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: me.usagePointId})
                     }
                 ]
             }

@@ -252,45 +252,47 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         me.getApplication().fireEvent('changecontentevent', widget);
         form = widget.down('#load-profile-type-edit-form');
         form.down('combobox[name=timeDuration]').bindStore(intervalsStore);
-        intervalsStore.load();
+        intervalsStore.load(function() {
+            if (loadProfileTypeId) {
+                widget.setLoading(true);
+                me.getModel('Mdc.model.LoadProfileType').load(loadProfileTypeId, {
+                    success: function (record) {
+                        me.getApplication().fireEvent('loadProfileType', record);
 
-        if (loadProfileTypeId) {
-            widget.setLoading(true);
-            me.getModel('Mdc.model.LoadProfileType').load(loadProfileTypeId, {
-                success: function (record) {
-                    me.getApplication().fireEvent('loadProfileType', record);
-
-                    if (intervalsStore.getCount()) {
-                        me.loadRecordOrClipboard(record)
-                    } else {
-                        intervalsStore.on('load', function () {
+                        if (intervalsStore.getCount()) {
                             me.loadRecordOrClipboard(record)
-                        }, me, {single: true});
-                    }
+                        } else {
+                            intervalsStore.on('load', function () {
+                                me.loadRecordOrClipboard(record)
+                            }, me, {single: true});
+                        }
 
-                    if (record.get('isLinkedToActiveDeviceConf')) {
-                        form.down('[name=timeDuration]').disable();
-                        form.down('[name=obisCode]').disable();
-                        form.down('#register-types-fieldcontainer').disable();
-                        form.down('#register-types-grid').disable();
+                        if (record.get('isLinkedToActiveDeviceConf')) {
+                            form.down('[name=timeDuration]').disable();
+                            form.down('[name=obisCode]').disable();
+                            form.down('#register-types-fieldcontainer').disable();
+                            form.down('#register-types-grid').disable();
+                        }
+                    },
+                    callback: function (record) {
+                        if (router.currentRoute !== 'administration/loadprofiletypes/edit/addregistertypes') {
+                            me.getEditPage().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
+                        }
+                        widget.setLoading(false);
+                        form.setEdit(true, returnLink, addRegisterTypesLink);
+                        form.showGridOrMessage();
                     }
-                },
-                callback: function (record) {
-                    if (router.currentRoute !== 'administration/loadprofiletypes/edit/addregistertypes') {
-                        me.getEditPage().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
-                    }
-                    widget.setLoading(false);
-                    form.setEdit(true, returnLink, addRegisterTypesLink);
-                    form.showGridOrMessage();
-                }
-            });
-        } else {
-            me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
-            form.setEdit(false, returnLink, addRegisterTypesLink);
-            form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
-            form.down('[name=timeDuration]').select(0);
-            form.showGridOrMessage();
-        }
+                });
+            } else {
+                me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
+                form.setEdit(false, returnLink, addRegisterTypesLink);
+                form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
+                var storeIndex = intervalsStore.findExact("asSeconds", 900);
+                var toSelect = storeIndex!=-1 ? intervalsStore.getAt(storeIndex) : 0;
+                form.down('[name=timeDuration]').select(toSelect);
+                form.showGridOrMessage();
+            }
+        });
     },
 
     loadRecordOrClipboard: function(record) {

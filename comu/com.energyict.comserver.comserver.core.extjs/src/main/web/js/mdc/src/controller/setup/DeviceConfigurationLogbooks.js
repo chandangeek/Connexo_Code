@@ -23,9 +23,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
             'device-configuration-logbooks grid': {
                 select: this.loadGridItemDetail
             },
-            'device-configuration-logbooks grid uni-actioncolumn': {
-                menuclick: this.chooseAction
-            },
             'device-logbook-action-menu': {
                 click: this.chooseAction
             }

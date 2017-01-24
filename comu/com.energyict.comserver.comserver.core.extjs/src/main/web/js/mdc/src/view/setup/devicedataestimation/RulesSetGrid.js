@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetGrid', {
     ],
     store: 'Mdc.store.DeviceDataEstimationRulesSet',
     overflowY: 'auto',
-    mRID: null,
+    deviceId: null,
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -44,7 +44,9 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                items: 'Mdc.view.setup.devicedataestimation.RulesSetActionMenu',
+                menu: {
+                    xtype: 'deviceDataEstimationRulesSetActionMenu'
+                },
                 privileges: Mdc.privileges.DeviceConfigurationEstimations.viewfineTuneEstimationConfigurationOnDevice,
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.estimationRuleSetsActions
             }

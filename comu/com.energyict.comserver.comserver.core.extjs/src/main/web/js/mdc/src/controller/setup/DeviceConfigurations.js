@@ -149,7 +149,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         var device = this.getChangeDeviceConfigurationView().device,
             deviceConfigState = Ext.state.Manager.get('deviceConfigState');
         if (Ext.isObject(deviceConfigState)) {
-            combo.setValue(deviceConfigState[device.get('mRID')]);
+            combo.setValue(deviceConfigState[device.get('name')]);
         }
         if (!Ext.isEmpty(combo.getValue())) {
             this.getSaveChangeDeviceConfigurationBtn().setDisabled(false);
@@ -158,7 +158,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
     deviceConfigSaveState: function (combo) {
         var device = this.getChangeDeviceConfigurationView().device, deviceConfigState = {};
-        deviceConfigState[device.get('mRID')] = combo.getValue();
+        deviceConfigState[device.get('name')] = combo.getValue();
         Ext.state.Manager.set('deviceConfigState', deviceConfigState);
         this.getSaveChangeDeviceConfigurationBtn().setDisabled(false);
     },
@@ -666,6 +666,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         }
 
         if (record) {
+            me.hideErrorPanel();
             record.set(values);
             if (!record.get('canBeGateway')) {
                 record.set('gatewayType', 'NONE')
@@ -683,6 +684,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     editForm.setLoading(false);
                 },
                 failure: function (record, operation) {
+                    me.showErrorPanel();
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getDeviceConfigurationEditForm().getForm().markInvalid(json.errors);
@@ -691,6 +693,14 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 }
             });
         }
+    },
+
+    showErrorPanel: function () {
+        this.getDeviceConfigurationEdit().down('#mdc-device-config-form-errors').show();
+    },
+
+    hideErrorPanel: function () {
+        this.getDeviceConfigurationEdit().down('#mdc-device-config-form-errors').hide();
     },
 
     showDeviceConfigurationLogbooksView: function (deviceTypeId, deviceConfigurationId) {
@@ -824,12 +834,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             }
         );
     },
-    showChangeDeviceConfigurationView: function (mRID) {
+    showChangeDeviceConfigurationView: function (deviceId) {
         var me = this, viewport = Ext.ComponentQuery.query('viewport')[0];
 
         viewport.setLoading();
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 var widget = Ext.widget('changeDeviceConfigurationView', {device: device}),
                     form = me.getChangeDeviceConfigurationForm(),
@@ -927,7 +937,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                                     id: json.changeDeviceConfigConflict
                                 }),
                                 message = canSolveConflictingMappings
-                                    ? Uni.I18n.translate('device.changeDeviceConfiguration.cannotbeChanged', 'MDC', "The configuration of device '{0}' cannot be changed to '{1}' due to unsolved conflicts. <br/><br/>", [device.get('mRID'), me.getNewDeviceConfigurationCombo().getRawValue()])
+                                    ? Uni.I18n.translate('device.changeDeviceConfiguration.cannotbeChanged', 'MDC', "The configuration of device '{0}' cannot be changed to '{1}' due to unsolved conflicts. <br/><br/>", [device.get('name'), me.getNewDeviceConfigurationCombo().getRawValue()])
                                 + Uni.I18n.translate('device.changeDeviceConfiguration.SolveTheConflictsBeforeYouRetry', 'MDC', '<a href="{0}">Solve the conflicts</a> before you retry.', solveConflictsLink)
                                     : Uni.I18n.translate('device.changeDeviceConfiguration.noRightsToSolveTheConflicts', 'MDC', 'You cannot solve the conflicts in conflicting mappings on device type because you do not have the privileges. Contact the administrator.');
 
@@ -937,7 +947,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
                             me.getController('Mdc.controller.setup.DeviceConflictingMapping').returnInfo = {
                                 from: 'changeDeviceConfiguration',
-                                id: device.get('mRID')
+                                id: device.get('name')
                             };
 
                             errorWindow.show(

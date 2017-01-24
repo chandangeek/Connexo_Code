@@ -9,7 +9,7 @@ Ext.define('Mdc.store.DeviceTypeCapabilities', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{id}/capabilities',
+        url: '/api/dtc/devicetypes/{deviceTypeId}/capabilities',
 
         reader: {
             type: 'json',
@@ -18,11 +18,6 @@ Ext.define('Mdc.store.DeviceTypeCapabilities', {
 
         pageParam: false,
         startParam: false,
-        limitParam: false,
-
-        setUrl: function(params) {
-            this.url = this.urlTpl.replace('{id}', params.deviceTypeId);
-        }
-
+        limitParam: false
     }
 });

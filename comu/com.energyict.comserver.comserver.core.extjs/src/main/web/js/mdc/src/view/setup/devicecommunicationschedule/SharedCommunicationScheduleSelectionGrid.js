@@ -1,14 +1,12 @@
-Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationScheduleGrid', {
+Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleSelectionGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
-    alias: 'widget.addSharedCommunicationScheduleGrid',
+    alias: 'widget.sharedCommunicationScheduleSelectionGrid',
     overflowY: 'auto',
-    itemId: 'addSharedCommunicationScheduleGrid',
+    itemId: 'sharedCommunicationScheduleSelectionGrid',
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.AvailableCommunicationSchedulesForDevice'
+        'Uni.view.toolbar.PagingBottom'
     ],
-    store: 'AvailableCommunicationSchedulesForDevice',
     columns: [
         {
             header: Uni.I18n.translate('general.name', 'MDC', 'Name'),

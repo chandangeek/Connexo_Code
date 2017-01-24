@@ -1,18 +1,19 @@
 Ext.define('Mdc.timeofuse.view.SpecificationsActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.tou-spec-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            itemId: 'edit-tou-specifications',
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            privileges: Mdc.privileges.DeviceType.admin,
-            action: 'editspecifications'
-        }
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'edit-tou-specifications',
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                privileges: Mdc.privileges.DeviceType.admin,
+                action: 'editspecifications',
+                section: this.SECTION_EDIT
+            }
+        ];
+        this.callParent(arguments);
+    },
 
-    ],
     listeners: {
         beforeshow: function () {
             var me = this;

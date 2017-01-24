@@ -3,7 +3,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
 
     daysOfWeekStore: Ext.create('Mdc.store.DaysOfWeek'),
 
-    convert: function (temporalExpression) {
+    convert: function (temporalExpression, useClockTimeFormat) {
         if (temporalExpression !== null && temporalExpression !== '') {
             var count = temporalExpression.every.count,
                 formattedSchedule;
@@ -30,13 +30,13 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                     formattedSchedule = Uni.I18n.translatePlural('general.every.years', count, 'MDC', 'Every {0} years', 'Every year', 'Every {0} years');
                     break;
             }
-            return formattedSchedule + this.formatOffset(temporalExpression);
+            return formattedSchedule + this.formatOffset(temporalExpression, useClockTimeFormat);
         } else {
             return undefined;
         }
     },
 
-    formatOffset: function (temporalExpression) {
+    formatOffset: function (temporalExpression, useClockTimeFormat) {
         var offset = temporalExpression.offset,
             result = '',
             seconds,
@@ -46,6 +46,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
             dayOfWeek;
 
         if (!!offset) {
+            useClockTimeFormat = Ext.isEmpty(useClockTimeFormat) ? false : useClockTimeFormat;
             switch (temporalExpression.every.timeUnit) {
                 case 'minutes':
                     seconds = offset.count;
@@ -60,15 +61,19 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                     minutes = Math.floor((offset.count % 3600) / 60);
 
                     if (minutes || seconds) {
-                        result += ' ' + Uni.I18n.translate('general.lowercase.at', 'MDC', 'at') + ' ';
-                        if (minutes) {
-                            result += Ext.String.format(Uni.I18n.translatePlural('general.timeUnit.minutes', minutes, 'MDC', '{0} minutes', '{0} minute', '{0} minutes'), minutes);
-                        }
-                        if (minutes && seconds) {
-                            result += ' ' + Uni.I18n.translate('scheduleToStringConverter.and', 'MDC', 'and') + ' ';
-                        }
-                        if (seconds) {
-                            result += Ext.String.format(Uni.I18n.translatePlural('general.timeUnit.seconds', seconds, 'MDC', '{0} seconds', '{0} second', '{0} seconds'), seconds);
+                        if (useClockTimeFormat) {
+                            result += this.formatClockTime(undefined, minutes, seconds)
+                        } else {
+                            result += ' ' + Uni.I18n.translate('general.lowercase.at', 'MDC', 'at') + ' ';
+                            if (minutes) {
+                                result += Ext.String.format(Uni.I18n.translatePlural('general.timeUnit.minutes', minutes, 'MDC', '{0} minutes', '{0} minute', '{0} minutes'), minutes);
+                            }
+                            if (minutes && seconds) {
+                                result += ' ' + Uni.I18n.translate('scheduleToStringConverter.and', 'MDC', 'and') + ' ';
+                            }
+                            if (seconds) {
+                                result += Ext.String.format(Uni.I18n.translatePlural('general.timeUnit.seconds', seconds, 'MDC', '{0} seconds', '{0} second', '{0} seconds'), seconds);
+                            }
                         }
                     }
                     break;
@@ -77,7 +82,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                     minutes = Math.floor((offset.count % 3600) / 60);
                     hours = Math.floor(offset.count / 3600);
 
-                    result += this.formatTime(hours, minutes, seconds);
+                    result += useClockTimeFormat ? this.formatClockTime(hours, minutes, seconds) : this.formatTime(hours, minutes, seconds);
 
                     break;
                 case 'weeks':
@@ -90,7 +95,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                         result += ' ' + Uni.I18n.translate('scheduleToStringConverter.on', 'MDC', 'on') + ' ' + dayOfWeek;
                     }
 
-                    result += this.formatTime(hours, minutes, seconds);
+                    result += useClockTimeFormat ? this.formatClockTime(hours, minutes, seconds) : this.formatTime(hours, minutes, seconds);
 
                     break;
                 case 'months':
@@ -105,7 +110,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                         result += ' ' + Uni.I18n.translate('scheduleToStringConverter.onTheLastDay', 'MDC', 'on the last day');
                     }
 
-                    result += this.formatTime(hours, minutes, seconds);
+                    result += useClockTimeFormat ? this.formatClockTime(hours, minutes, seconds) : this.formatTime(hours, minutes, seconds);
 
                     break;
             }
@@ -135,6 +140,17 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
             }
         }
 
+        return result;
+    },
+
+    formatClockTime: function (hours, minutes, seconds) {
+        var result = '';
+        result += ' ' + Uni.I18n.translate('general.lowercase.at', 'MDC', 'at') + ' ';
+        if (Ext.isEmpty(hours)) {
+            result += moment.utc([2016, 0, 1, 12, minutes, seconds, 0]).format('mm:ss');
+        } else {
+            result += moment.utc([2016, 0, 1, hours, minutes, seconds, 0]).format('HH:mm:ss');
+        }
         return result;
     }
 });

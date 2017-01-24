@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
     deviceTypeId: null,
     deviceConfigurationId: null,
     requires: [
-        'Uni.form.field.Obis'
+        'Uni.form.field.Obis',
+        'Uni.util.FormErrorMessage'
     ],
     edit: false,
     cancelLink: undefined,
@@ -21,7 +22,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                 itemId: 'LoadProfileConfigurationFormId',
                 title: !me.edit ? Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration') : ' ',
                 defaults: {
-                    labelWidth: 150,
+                    labelWidth: 250,
                     validateOnChange: false,
                     validateOnBlur: false
                 },
@@ -30,7 +31,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                         xtype: 'uni-form-error-message',
                         name: 'errors',
                         hidden: true,
-                        margin: '0 0 32 0'
+                        margin: '0 0 32 0',
+                        width: 650
                     },
                     {
                         xtype: 'displayfield',

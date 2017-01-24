@@ -3,7 +3,9 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
     alias: 'widget.communicationTaskEdit',
     itemId: 'communicationTaskEdit',
     edit: false,
-
+    requires: [
+        'Uni.util.FormErrorMessage'
+    ],
     isEdit: function () {
         return this.edit
     },
@@ -73,15 +75,12 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                 },
                 items: [
                     {
-                        name: 'errors',
-                        ui: 'form-error-framed',
+                        xtype: 'uni-form-error-message',
                         itemId: 'communicationTaskEditFormErrors',
-                        layout: 'hbox',
+                        name: 'errors',
                         margin: '0 0 10 0',
-                        hidden: true,
-                        defaults: {
-                            xtype: 'container'
-                        }
+                        width: 600,
+                        hidden: true
                     },
                     {
                         xtype: 'displayfield',

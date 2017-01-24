@@ -6,15 +6,15 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
     store: 'ext-empty-store',
     alias: 'widget.mdc-device-validation-results-filter',
     duration: '1years',
+    todayMidnight: moment((new Date()).setHours(0, 0, 0, 0)).toDate(),
 
     initComponent: function () {
-        var me = this,
-            intervalStart = (new Date()).setHours(0, 0, 0, 0);
+        var me = this;
 
         me.filters = [
             {
                 type: 'datetimeselect',
-                value: moment(intervalStart).toDate(),
+                value: me.todayMidnight,
                 dataIndex: 'intervalStart',
                 name: 'intervalStart',
                 fireFilterUpdateEvent: function () {
@@ -45,7 +45,6 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
         if (me.hasActiveFilter()) {
             var tempParams = {};
 
-
             Ext.merge(tempParams, me.getIntervalLoadProfileParam());
             Ext.merge(tempParams, me.getIntervalRegisterParam());
             if (me.filterObjectEnabled) {
@@ -60,7 +59,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
         }
 
         Ext.apply(options.params, params);
-        me.down('button[action=clearAll]').setDisabled(!((options.params.filter && Ext.decode(options.params.filter).length)));
+        me.enableClearAll(Ext.decode(options.params.filter, true) || []);
     },
 
     getIntervalLoadProfileParam: function () {
@@ -93,5 +92,18 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
             intervalRegisterStart: filterParams.intervalStart,
             intervalRegisterEnd: moment(filterParams.intervalStart).add(duration.get('timeUnit'), duration.get('count')).valueOf()
         };
+    },
+
+    enableClearAll: function (filters) {
+        var me = this,
+            fromFilter = _.find(filters, function (item) {
+                return item.property === 'intervalLoadProfile';
+            }),
+            fromFilterIsDefault = fromFilter && Ext.isArray(fromFilter.value) && fromFilter.value[0].intervalStart === me.todayMidnight.getTime();
+
+        Ext.suspendLayouts();
+        me.down('button[action=clearAll]').setDisabled(fromFilterIsDefault);
+        Ext.resumeLayouts(true);
     }
+
 });

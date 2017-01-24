@@ -24,11 +24,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             mainValidationInfo,
             bulkValidationInfo,
             dataQualities,
-            dataQualitiesForChannels = false,
+            dataQualitiesForChannels = false,            
             router = me.router;
 
         me.setLoading();
-        record.getDetailedInformation(router.arguments.mRID, router.arguments.channelId, function (detailRecord) {
+        record.getDetailedInformation(router.arguments.deviceId, router.arguments.channelId, function (detailRecord) {
             Ext.suspendLayouts();
             me.down('#general-panel').setTitle(title);
             me.down('#values-panel').setTitle(title);
@@ -294,17 +294,17 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         if (Ext.isEmpty(slaveChannel)) {
                             return '-';
                         }
-                        var slaveMRID = slaveChannel.mrid,
+                        var slaveId = slaveChannel.deviceName,
                             channelId = slaveChannel.channelId;
                         return Ext.String.format('<a href="{0}">{1}</a>',
                             me.router.getRoute('devices/device/channels/channeldata').buildUrl(
                                 {
-                                    mRID: encodeURIComponent(slaveMRID),
+                                    deviceId: encodeURIComponent(slaveId),
                                     channelId: channelId
                                 },
                                 me.router.queryParams
                             ),
-                            slaveMRID);
+                            slaveId);
                     }
                 }
             );

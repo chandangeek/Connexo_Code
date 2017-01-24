@@ -109,7 +109,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                 type = readingToDelete.get("type"),
                 dataStore = me.getStore(me.getReadingTypePrefix(type));
 
-            readingToDelete.getProxy().extraParams = ({mRID: router.arguments.mRID, registerId: router.arguments.registerId});
+            readingToDelete.getProxy().setParams(router.arguments.deviceId, router.arguments.registerId);
             readingToDelete.destroy({
                 callback: function (record, operation) {
                     if (operation.wasSuccessful()) {
@@ -121,6 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
             });
         }
     },
+
 
     getReadingTypePrefix: function (type) {
         if (!Ext.isEmpty(type)) {
@@ -151,7 +152,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
         if (record) {
             me.setRecordValues(record, values);
-            record.getProxy().extraParams = ({mRID: router.arguments.mRID, registerId: router.arguments.registerId});
+            record.getProxy().setParams(router.arguments.deviceId, router.arguments.registerId);
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
@@ -199,27 +200,30 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         router.getRoute('devices/device/registers/registerdata/edit').forward({timestamp: lastSelected.getData().timeStamp});
     },
 
-    showDeviceRegisterConfigurationDataEditView: function (mRID, registerId, timestamp) {
+    showDeviceRegisterConfigurationDataEditView: function (deviceId, registerId, timestamp) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             router = me.getController('Uni.controller.history.Router');
 
         contentPanel.setLoading(true);
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setUrl(mRID);
+                model.getProxy().setExtraParam('deviceId', deviceId);
                 model.load(registerId, {
                     success: function (register) {
                         model = Ext.ModelManager.getModel(me.getReadingModelClassByType(register.get('type')));
-                        model.getProxy().extraParams = ({mRID: mRID, registerId: registerId});
+                        model.getProxy().extraParams = ({deviceId: deviceId, registerId: registerId});
                         model.load(timestamp, {
                             success: function (reading) {
                                 var type = register.get('type');
                                 var widget = Ext.widget('deviceregisterreportedit-' + type, {
                                     edit: true,
-                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}) + (me.getController('Uni.controller.history.EventBus').getPreviousQueryString()!==null ? '?'+me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : ''),
+                                    returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({
+                                        deviceId: encodeURIComponent(deviceId),
+                                        registerId: registerId
+                                    }) + (me.getController('Uni.controller.history.EventBus').getPreviousQueryString() !== null ? '?' + me.getController('Uni.controller.history.EventBus').getPreviousQueryString() : ''),
                                     registerType: type,
                                     router: router
                                 });
@@ -250,25 +254,25 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         });
     },
 
-    showDeviceRegisterConfigurationDataAddView: function (mRID, registerId) {
+    showDeviceRegisterConfigurationDataAddView: function (deviceId, registerId) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             router = me.getController('Uni.controller.history.Router');
 
         contentPanel.setLoading(true);
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
                 var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setUrl(mRID);
+                model.getProxy().setExtraParam('deviceId', deviceId);
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
                         var widget = Ext.widget('deviceregisterreportedit-' + type, {
                             edit: false,
-                            returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId}),
+                            returnLink: router.getRoute('devices/device/registers/registerdata').buildUrl({deviceId: encodeURIComponent(deviceId), registerId: registerId}),
                             registerType: type,
-                            mRID: mRID,
+                            deviceId: deviceId,
                             registerId: registerId,
                             router: router
                         });

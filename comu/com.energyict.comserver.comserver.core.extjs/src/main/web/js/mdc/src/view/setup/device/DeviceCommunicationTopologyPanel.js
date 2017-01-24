@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
     ],
     overflowY: 'auto',
     itemId: 'devicecommicationtopologypanel',
-    mRID: null,
+    deviceId: null,
     device: null,
     ui: 'tile',
 
@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                 xtype: 'container',
                 margin: '0 0 4 7',
                 html: Ext.String.format('<a href="{0}">{1}</a>',
-                    me.router.getRoute('devices/device/topology').buildUrl({mRID: me.router.arguments.mRID}),
+                    me.router.getRoute('devices/device/topology').buildUrl(),
                     Uni.I18n.translate('deviceCommunicationTopology.manageLinkText', 'MDC', 'Manage communication topology')
                 )
             },
@@ -50,12 +50,12 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                 fieldLabel: Uni.I18n.translate('deviceCommunicationTopology.master', 'MDC', 'Master'),
                 margin: '0 0 10 7',
                 renderer: function() {
-                    var masterMRID = device.get('masterDevicemRID');
-                    if (masterMRID) {
+                    var masterId = device.get('masterDeviceName');
+                    if (masterId) {
                         return Ext.String.format(
                             '<a href="{0}">{1}</a>',
-                            me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(masterMRID)}),
-                            Ext.String.htmlEncode(masterMRID)
+                            me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(masterId)}),
+                            Ext.String.htmlEncode(masterId)
                         );
                     } else {
                         return '-';
@@ -87,11 +87,11 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                     },
                     columns: [
                         {
-                            header: Uni.I18n.translate('deviceCommunicationTopology.mRID', 'MDC', 'MRID'),
-                            dataIndex: 'mRID',
+                            header: Uni.I18n.translate('deviceCommunicationTopology.name', 'MDC', 'Name'),
+                            dataIndex: 'name',
                             flex: 1,
                             renderer: function (value, meta, record) {
-                                var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(record.get('mRID'))});
+                                var href = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(record.get('name'))});
                                 return Ext.String.format('<a href="{0}">{1}</a>', href, Ext.String.htmlEncode(value));
                             }
                         },

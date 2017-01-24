@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodsGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.DeviceType.admin,
-                items: 'Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu'
+                menu: {xtype: 'connection-method-action-menu'}
             }
 
         ];

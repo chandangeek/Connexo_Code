@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                             filters: isDynamic
                                 ? Ext.decode(record.get('filter'), true)
                                 : [{
-                                property: 'mRID',
+                                property: 'name',
                                 value: [{
                                     criteria: '*',
                                     operator: '=='
@@ -258,7 +258,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                     } else {
                         Ext.suspendLayouts();
                         step1ErrorMsg.show();
-                        nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name should be unique'));
+                        nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name must be unique'));
                         Ext.resumeLayouts(true);
                     }
                 }

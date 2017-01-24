@@ -3,6 +3,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointSideMenu', {
     alias: 'widget.usage-point-management-side-menu',
     router: null,
     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
+    usagePointId: null,
 
     initComponent: function () {
         var me = this;
@@ -11,9 +12,9 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointSideMenu', {
                 xtype: 'menu',
                 items: [
                     {
-                        text: me.mRID,
+                        text: me.usagePointId,
                         itemId: 'usage-point-overview-link',
-                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({mRID: me.mRID})
+                        href: me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: encodeURIComponent(me.usagePointId)})
                     },
                     {
                         text: Uni.I18n.translate('general.history', 'MDC', 'History'),

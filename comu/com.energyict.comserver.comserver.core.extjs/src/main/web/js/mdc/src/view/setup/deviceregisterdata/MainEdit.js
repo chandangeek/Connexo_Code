@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
 
     initComponent: function () {
         var me = this,
-            mRID = me.mRID,
+            deviceId = me.deviceId,
             registerId = me.registerId;
 
         me.side = [
@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
                         menuItems: [
                             {
                                 itemId: 'editReading',
-                                href:  me.router.getRoute('devices/device/registers/registerdata/create').buildUrl({mRID: encodeURIComponent(mRID), registerId: registerId})
+                                href: me.router.getRoute('devices/device/registers/registerdata/create').buildUrl({deviceId: encodeURIComponent(deviceId), registerId: registerId})
                             }
                         ]
                     }

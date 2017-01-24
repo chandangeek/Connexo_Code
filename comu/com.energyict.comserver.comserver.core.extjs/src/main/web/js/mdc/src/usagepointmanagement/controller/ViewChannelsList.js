@@ -30,7 +30,7 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelsList', {
         });
     },
 
-    showOverview: function (mRID) {
+    showOverview: function (usagePointId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
@@ -39,15 +39,15 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelsList', {
             widget = Ext.widget('view-channels-list', {
                 itemId: 'view-channels-list',
                 router: router,
-                mRID: mRID
+                usagePointId: usagePointId
             });
 
         pageMainContent.setLoading();
-        me.getModel('Mdc.usagepointmanagement.model.UsagePoint').load(mRID, {
+        me.getModel('Mdc.usagepointmanagement.model.UsagePoint').load(usagePointId, {
             success: function (usagePoint) {
                 app.fireEvent('usagePointLoaded', usagePoint);
                 app.fireEvent('changecontentevent', widget);
-                channelsStore.getProxy().setUrl(mRID);
+                channelsStore.getProxy().setExtraParam('usagePointId', usagePointId);
                 channelsStore.load();
             },
             callback: function () {

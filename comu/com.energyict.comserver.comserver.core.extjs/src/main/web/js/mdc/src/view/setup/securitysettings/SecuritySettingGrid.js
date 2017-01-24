@@ -42,7 +42,9 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.DeviceType.admin,
-                items: 'Mdc.view.setup.securitysettings.SecuritySettingsActionMenu'
+                menu: {
+                    xtype: 'security-settings-action-menu'
+                }
             }
         ];
 

@@ -8,6 +8,7 @@ Ext.define('Mdc.model.Device', {
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
+        {name: 'name', type: 'string', useNull: true},
         {name: 'mRID', type: 'string', useNull: true},
         {name: 'state', defaultValue: null},
         {name: 'serialNumber', type: 'string', useNull: true},
@@ -18,7 +19,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'shipmentDate', type: 'number'},
         {name: 'yearOfCertification', type: 'string', useNull: true},
         {name: 'batch', type: 'string', useNull: true},
-        {name: 'masterDevicemRID', defaultValue: null},
+        {name: 'masterDeviceName', defaultValue: null},
         {name: 'masterDeviceId', type: 'number', useNull: true},
         {name: 'nbrOfDataCollectionIssues', type: 'number', useNull: true},
         {name: 'openDataValidationIssue', type: 'number', useNull: true},
@@ -26,7 +27,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'creationTime', type: 'number', useNull: true},
         {name: 'linkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
         {name: 'unlinkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
-        {name: 'dataloggermRID', type: 'string', useNull: true}, // Only for a data logger slave device
+        {name: 'dataloggerName', type: 'string', useNull: true}, // Only for a data logger slave device
         {name: 'isDirectlyAddressed', type: 'boolean'},
         {name: 'isGateway', type: 'boolean'},
         {name: 'isDataLogger', type: 'boolean'},
@@ -98,6 +99,5 @@ Ext.define('Mdc.model.Device', {
             type: 'json'
         }
     }
-
 });
 

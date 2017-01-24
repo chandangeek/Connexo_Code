@@ -70,7 +70,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                     var widget = Ext.widget('usage-point-history', {
                         itemId: 'usage-point-history',
                         router: router,
-                        mRID: record.get('mRID'),
+                        usagePointId: record.get('name'),
                         usagePoint: record,
                         activeTab: tab,
                         controller: me
@@ -114,9 +114,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
         Uni.util.History.setParsePath(false);
         router.getRoute('usagepoints/usagepoint/history').forward({tab: 'devices'});
 
-        store.getProxy().extraParams = {
-            mRID: router.arguments.usagePointId
-        };
+        store.getProxy().setExtraParam('usagePointId', router.arguments.usagePointId);
         store.load(function () {
             Ext.suspendLayouts();
             panel.removeAll();
@@ -143,7 +141,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
         var me = this;
 
         Ext.suspendLayouts();
-        me.getDevicesPage().down('usage-point-history-devices-preview').setTitle(record.get('mRID'));
+        me.getDevicesPage().down('usage-point-history-devices-preview').setTitle(record.get('name'));
         me.getDevicesPage().down('#usage-point-history-devices-preview-form').loadRecord(record);
         Ext.resumeLayouts(true);
     },
@@ -161,7 +159,11 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
     editMetrologyConfigurationVersion: function (menu, item) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-        router.getRoute('usagepoints/usagepoint/history/editmetrologyconfigurationversion').forward({mRID: menu.usagePoint.get('mRID'), start: menu.record.get('start')});
+
+        router.getRoute('usagepoints/usagepoint/history/editmetrologyconfigurationversion').forward({
+            usagePointId: menu.usagePoint.get('name'),
+            start: menu.record.get('start')
+        });
     },
 
     showMetrologyConfigurationHistory: function (tab) {
@@ -171,7 +173,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             usagePoint = tab.usagePoint;
         pageMainContent.setLoading(true);
-        versions.getProxy().setUrl(usagePoint.get('mRID'));
+
+        versions.getProxy().setExtraParam('usagePointId', usagePoint.get('name'));
         var grid = tab.down('#metrology-configuration-history-grid-id');
 
         versions.load({
@@ -216,7 +219,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
         usagePointModel.load(id, {
             success: function (record) {
                 me.usagePoint = record;
-                availableConfigs.getProxy().setUrl(record.get('mRID'));
+                availableConfigs.getProxy().setExtraParam('usagePointId', record.get('name'));
                 availableConfigs.load(
                     {
                         scope: me,
@@ -239,24 +242,23 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
 
     },
 
-    showEditVersion: function (mRID, tabname, start) {
+    showEditVersion: function (usagePointId, tabname, start) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Mdc.usagepointmanagement.model.UsagePoint'),
             versionRecord = me.getModel('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion'),
-            usagePointWithVersionModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
-            availableConfigs = me.getStore('Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations');
+        //usagePointWithVersionModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
+            availableConfigs = me.getStore('Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations'),
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
-
-        pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         pageMainContent.setLoading(true);
-        usagePointModel.load(mRID, {
+        usagePointModel.load(usagePointId, {
             success: function (usagePoint) {
                 me.usagePoint = usagePoint;
-                availableConfigs.getProxy().setUrl(usagePoint.get('mRID'));
+                availableConfigs.getProxy().setExtraParam('usagePointId', usagePoint.get('name'));
                 availableConfigs.load({
-                    callback: function (store) {
-                        versionRecord.getProxy().setUrl(usagePoint.get('mRID'));
+                    callback: function () {
+                        versionRecord.getProxy().setExtraParam('usagePointId', usagePoint.get('name'));
                         versionRecord.load(start, {
                             success: function (record) {
                                 if (record.get('editable') || record.get('current')) {
@@ -285,11 +287,11 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
     deleteMetrologyConfigurationVersion: function (menu, menuItem) {
         if (menu.usagePoint && menu.record) {
             var me = this,
-                url = menu.record.getProxy().urlTpl,
+                url = menu.record.getProxy().url,
                 router = me.getController('Uni.controller.history.Router'),
                 versionsStore = me.getMetrologyConfigGrid().getStore(),
                 doRemove = function () {
-                    url = url.replace('{mRID}', menu.usagePoint.get('mRID')) + '/{id}'.replace('{id}', menu.record.get('id'));
+                    url = url.replace('{usagePointId}', menu.usagePoint.get('name')) + '/{id}'.replace('{id}', menu.record.get('id'));
                     Ext.Ajax.request({
                         url: url,
                         method: 'DELETE',
@@ -306,7 +308,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                     'You will not be able to view and use data from reading types specified on this metrology configuration'),
                 fn: function (action) {
                     if (action == "confirm") {
-                        doRemove()
+                        doRemove();
                     }
                     ;
                 }
@@ -333,7 +335,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
             versionRecord.set('metrologyConfiguration', metrologyConfig.getData());
             usagePointWithVersionModel.set(me.usagePoint.getRecordData());
             usagePointWithVersionModel.set('metrologyConfigurationVersion', versionRecord.getData());
-            usagePointWithVersionModel.getProxy().setUrl(me.usagePoint.get('mRID'));
+            usagePointWithVersionModel.getProxy().setExtraParam('usagePointId', me.usagePoint.get('name'));
             if (btn.action == 'add') {
 
                 usagePointWithVersionModel.save({

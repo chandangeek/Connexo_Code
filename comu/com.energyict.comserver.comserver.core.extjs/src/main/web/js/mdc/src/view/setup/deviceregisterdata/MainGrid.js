@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
         'Mdc.view.setup.deviceregisterdata.ActionMenu'
     ],
 
-    mRID: null,
+    deviceId: null,
     registerId: null,
 
     initComponent: function () {
@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addReading', 'MDC', 'Add reading'),
                         privileges: Mdc.privileges.Device.administrateDeviceData,
-                        href: '#/devices/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/data/add',
+                        href: '#/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/data/add',
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions
                     }
                 ]
@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
                 store: me.store,
                 deferLoading: true,
                 params: [
-                    {mRID: me.mRID},
+                    {deviceId: me.deviceId},
                     {registerId: me.registerId}
                 ],
                 dock: 'bottom',

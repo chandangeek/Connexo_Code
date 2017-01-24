@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Grid', {
                 header: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'MDC', 'Load profile'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({mRID: encodeURIComponent(me.mRID), loadProfileId: record.get('id')});
+                    var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({deviceId: encodeURIComponent(me.deviceId), loadProfileId: record.get('id')});
                     return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value));
                 },
                 flex: 1

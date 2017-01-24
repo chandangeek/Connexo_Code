@@ -5,7 +5,7 @@ Ext.define('Mdc.store.DeviceCommunicationTaskLog', {
     model: 'Mdc.model.DeviceCommunicationTaskLog',
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/comtasks/{comTaskId}/comtaskexecutionsessions/{sessionId}/journals',
+        url: '/api/ddr/devices/{deviceId}/comtasks/{comTaskId}/comtaskexecutionsessions/{sessionId}/journals',
         timeout: 250000,
         pageParam: undefined,
         startParam: undefined,

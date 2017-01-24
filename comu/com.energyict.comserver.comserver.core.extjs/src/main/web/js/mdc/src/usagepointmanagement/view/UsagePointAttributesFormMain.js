@@ -31,14 +31,6 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                         fieldLabel: Uni.I18n.translate('usagePoint.generalAttributes.mrid', 'MDC', 'MRID')
                     },
                     {
-                        name: 'name',
-                        itemId: 'fld-up-name',
-                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                        renderer: function (value) {
-                            return value ? value : '-';
-                        }
-                    },
-                    {
                         name: 'serviceCategory',
                         itemId: 'fld-up-serviceCategory',
                         fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.serviceCategory', 'MDC', 'Service category'),

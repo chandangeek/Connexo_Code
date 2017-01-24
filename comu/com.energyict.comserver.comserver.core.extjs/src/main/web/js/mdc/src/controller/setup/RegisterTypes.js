@@ -245,23 +245,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     },
 
     showErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getRegisterTypeEditForm().down('#registerTypeEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
-        });
-        formErrorsPlaceHolder.show();
+        this.getRegisterTypeEditForm().down('#registerTypeEditFormErrors').show();
     },
 
     hideErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getRegisterTypeEditForm().down('#registerTypeEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
+        this.getRegisterTypeEditForm().down('#registerTypeEditFormErrors').hide();
     }
 
 });

@@ -15,6 +15,12 @@ Ext.define('Mdc.view.setup.deviceattributes.CustomAttributesEdit', {
             ui: 'large',
             items: [
                 {
+                    itemId: 'device-custom-attributes-error-msg',
+                    xtype: 'uni-form-error-message',
+                    width: 521,
+                    hidden: true
+                },
+                {
                     xtype: 'property-form',
                     itemId: 'device-custom-attributes-property-form'
                 }

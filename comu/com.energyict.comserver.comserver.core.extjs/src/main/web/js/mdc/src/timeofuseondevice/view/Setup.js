@@ -77,14 +77,14 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
                             privileges: Mdc.privileges.DeviceCommands.executeCommands,
                             itemId: 'empty-comp-send-calendar-tou',
                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsSend,
-                            mRID: me.device.get('mRID')
+                            deviceId: me.device.get('name')
                         },
                         {
                             text: Uni.I18n.translate('timeofuse.checkTimeOfUseCalendar', 'MDC', 'Check time of use calendar'),
                             itemId: 'empty-comp-verify-calendars-tou',
                             privileges: Mdc.privileges.DeviceCommands.executeCommands,
-                            mRID: me.device.get('mRID')
-                        },
+                            deviceId: me.device.get('name')
+                        }
                     ],
                     hidden: true
                 }

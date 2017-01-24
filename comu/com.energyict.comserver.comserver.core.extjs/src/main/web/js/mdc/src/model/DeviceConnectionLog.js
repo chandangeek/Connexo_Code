@@ -8,6 +8,6 @@ Ext.define('Mdc.model.DeviceConnectionLog', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devices/{mRID}/connectionmethods/{connectionId}/comsessions/{sessionId}/journals'
+        url: '/api/ddr/devices/{deviceId}/connectionmethods/{connectionId}/comsessions/{sessionId}/journals'
     }
 });

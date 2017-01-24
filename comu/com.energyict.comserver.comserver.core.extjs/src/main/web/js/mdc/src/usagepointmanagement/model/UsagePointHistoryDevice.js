@@ -1,7 +1,7 @@
 Ext.define('Mdc.usagepointmanagement.model.UsagePointHistoryDevice', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'mRID', type: 'string'},
+        {name: 'name', type: 'string'},
         {name: 'serialNumber', type: 'string'},
         {name: 'state', type: 'string'},
         {name: 'start', type: 'date', dateFormat: 'time'},

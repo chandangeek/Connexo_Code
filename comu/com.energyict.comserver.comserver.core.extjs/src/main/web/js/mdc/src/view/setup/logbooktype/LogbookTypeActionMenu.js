@@ -1,20 +1,22 @@
 Ext.define('Mdc.view.setup.logbooktype.LogbookTypeActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.logbook-type-action-menu',
     itemId: 'logbook-type-action-menu',
-    plain: true,
-    border: false,
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            itemId: 'logbookTypeActionEdit',
-            action: 'editLogbookType'
-        },
-        {
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            itemId: 'logbookTypeActionRemove',
-            action: 'removeLogbookType'
-        }
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                itemId: 'logbookTypeActionEdit',
+                action: 'editLogbookType',
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                itemId: 'logbookTypeActionRemove',
+                action: 'removeLogbookType',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

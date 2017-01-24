@@ -1,26 +1,29 @@
 Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.connection-method-action-menu',
-    plain: true,
-    border: false,
     itemId: 'connection-method-action-menu',
-    shadow: false,
-    items: [
-        {
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-            itemId: 'editConnectionMethod',
-            action: 'editConnectionMethod'
-        },
-        {
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-            itemId: 'deleteConnectionMethod',
-            action: 'deleteConnectionMethod'
-        },
-        {
-            text: Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'),
-            itemId: 'toggleDefaultMenuItem',
-            action: 'toggleDefault'
-        }
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                itemId: 'editConnectionMethod',
+                action: 'editConnectionMethod',
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                itemId: 'deleteConnectionMethod',
+                action: 'deleteConnectionMethod',
+                section: this.SECTION_REMOVE
+            },
+            {
+                text: Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'),
+                itemId: 'toggleDefaultMenuItem',
+                action: 'toggleDefault',
+                section: this.SECTION_ACTION
+            }
+        ];
+        this.callParent(arguments);
+    }
 });
 

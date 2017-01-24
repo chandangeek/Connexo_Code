@@ -521,22 +521,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     },
 
     showErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
-        });
-        formErrorsPlaceHolder.show();
+        this.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors').show();
     },
 
     hideErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
+        this.getCommunicationTaskEditForm().down('#communicationTaskEditFormErrors').hide();
     }
 });

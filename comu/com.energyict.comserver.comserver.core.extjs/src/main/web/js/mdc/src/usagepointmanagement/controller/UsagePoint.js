@@ -44,7 +44,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         usagePointModel.load(id, {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
-                var widget = Ext.widget('usage-point-management-setup', {router: router, mRID: record.get('mRID')});
+                var widget = Ext.widget('usage-point-management-setup', {router: router, usagePointId: record.get('name')});
                 widget.down('usagePointAttributesFormMain').loadRecord(record);
                 widget.down('metrology-configuration').loadRecord(record);
                 serviceCategories.load({
@@ -88,7 +88,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
                 var widget = Ext.widget('add-usage-point-setup', {
                     router: router,
                     edit: true,
-                    mRID: record.get('mRID')
+                    usagePointId: record.get('name')
                 });
                 widget.down('#add-edit-form').loadRecord(record);
                 serviceCategories.load({
@@ -114,11 +114,11 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
             backUrl: isEdit ? router.getRoute('usagepoints/usagepoint').buildUrl() : null,
             success: function (record) {
                 if (isEdit) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.saved', 'MDC', "Usage point '{0}' saved.", record.get('mRID')));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.saved', 'MDC', "Usage point '{0}' saved.", record.get('name')));
                 } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' added.", record.get('mRID')));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.added', 'MDC', "Usage point '{0}' added.", record.get('name')));
                 }
-                router.getRoute('usagepoints/usagepoint').forward({usagePointId: record.get('mRID')});
+                router.getRoute('usagepoints/usagepoint').forward({usagePointId: encodeURIComponent(record.get('name'))});
             },
             failure: function (record, operation) {
                 if (operation.response.status == 400) {

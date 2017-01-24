@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter', {
 
     requires: [
         'Mdc.store.DeviceTypes',
-        'Mdc.store.DeviceConfigurations'
+        'Mdc.store.DeviceConfigurations',
+        'Mdc.store.filter.DeviceTypes'
     ],
 
     store: 'Mdc.store.DeviceTopology',
@@ -14,8 +15,8 @@ Ext.define('Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter', {
         me.filters = [
             {
                 type: 'text',
-                dataIndex: 'mrid',
-                emptyText: Uni.I18n.translate('deviceCommunicationTopology.mRID', 'MDC', 'MRID')
+                dataIndex: 'name',
+                emptyText: Uni.I18n.translate('deviceCommunicationTopology.name', 'MDC', 'Name')
             },
             {
                 type: 'text',

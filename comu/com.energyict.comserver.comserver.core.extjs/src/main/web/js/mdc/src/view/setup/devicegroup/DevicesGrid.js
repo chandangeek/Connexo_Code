@@ -31,12 +31,12 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('searchItems.mrid', 'MDC', 'MRID'),
-                dataIndex: 'mRID',
+                header: Uni.I18n.translate('searchItems.name', 'MDC', 'Name'),
+                dataIndex: 'name',
                 sortable: false,
                 hideable: false,
                 renderer: function (value, b, record) {
-                    return '<a href="#/devices/' + record.get('mRID') + '">' + Ext.String.htmlEncode(value) + '</a>';
+                    return '<a href="#/devices/' + record.get('name') + '">' + Ext.String.htmlEncode(value) + '</a>';
                 },
                 fixed: true,
                 flex: 3

@@ -1,15 +1,15 @@
 Ext.define('Mdc.view.setup.comportpoolcomports.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.comPortPoolComPortsActionMenu',
-    plain: true,
-    border: false,
-    shadow: false,
-    defaultAlign: 'tr-br?',
-    items: [
-        {
-            itemId: 'remove',
-            text: Uni.I18n.translate('general.remove','MDC','Remove'),
-            action: 'remove'
-        }
-    ]
+    initComponent: function () {
+        this.items = [
+            {
+                itemId: 'remove',
+                text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                action: 'remove',
+                section: this.SECTION_REMOVE
+            }
+        ];
+        this.callParent(arguments);
+    }
 });

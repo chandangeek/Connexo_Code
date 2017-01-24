@@ -44,7 +44,8 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow', {
                         required: true,
                         fieldLabel: Uni.I18n.translate('deviceCommand.add.releaseDate', 'MDC', 'Release date'),
                         dateCfg: {
-                            width: 155
+                            width: 155,
+                            minValue: new Date()
                         },
                         hourCfg: {
                             width: 60

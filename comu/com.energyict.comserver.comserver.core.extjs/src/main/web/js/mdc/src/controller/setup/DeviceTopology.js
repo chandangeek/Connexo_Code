@@ -35,22 +35,24 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
         });
     },
 
-    showTopologyView: function (mRID) {
+    showTopologyView: function (deviceId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             deviceTopologyStore = me.getStore('Mdc.store.DeviceTopology'),
             widget;
 
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+        Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 var gatewayType = record.get('gatewayType');
 
-                if (gatewayType === 'LAN' || gatewayType === 'HAN') {
-                    widget = Ext.widget('deviceTopologySetup', {device: record, router: router});
+                if (gatewayType === 'LAN' || gatewayType === 'HAN' || !record.get('isDirectlyAddressed')) {
+                    widget = Ext.widget('deviceTopologySetup', {device: record, router: router, hasgateway: (gatewayType === 'LAN' || gatewayType === 'HAN')});
                     me.getApplication().fireEvent('loadDevice', record);
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    deviceTopologyStore.getProxy().setUrl(record.get('mRID'));
-                    deviceTopologyStore.load();
+                    if (gatewayType === 'LAN' || gatewayType === 'HAN') {
+                        deviceTopologyStore.getProxy().setExtraParam('deviceId', record.get('name'));
+                        deviceTopologyStore.load();
+                    }
                 } else {
                     window.location.replace(router.getRoute('notfound').buildUrl());
                 }
@@ -76,7 +78,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
                 me.updateDevice(
                     {
                         masterDeviceId: null,
-                        masterDevicemRID: null,
+                        masterDeviceName: null,
                         acknowledgeMessage: Uni.I18n.translate('deviceCommunicationTopology.masterRemoved', 'MDC', 'Master removed')
                     }
                 );
@@ -84,7 +86,7 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
                 me.updateDevice(
                     {
                         masterDeviceId: masterCombo.getValue(),
-                        masterDevicemRID: masterCombo.getRawValue(),
+                        masterDeviceName: masterCombo.getRawValue(),
                         acknowledgeMessage: Uni.I18n.translate('deviceCommunicationTopology.masterSaved', 'MDC', 'Master saved')
                     }
                 );
@@ -99,14 +101,14 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
             deviceTopologyContent = me.getDeviceTopology();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.title', 'MDC', "Remove '{0}' as master device?", deviceTopologyContent.device.get('masterDevicemRID')),
-            msg: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.message', 'MDC', "This device will no longer be the master of '{0}'", deviceTopologyContent.device.get('mRID'), false),
+            title: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.title', 'MDC', "Remove '{0}' as master device?", deviceTopologyContent.device.get('masterDeviceName')),
+            msg: Uni.I18n.translate('deviceCommunicationTopology.removeMasterConfirmation.message', 'MDC', "This device will no longer be the master of '{0}'", deviceTopologyContent.device.get('name'), false),
             fn: function (action) {
                 if (action === 'confirm') {
                     me.updateDevice(
                         {
                             masterDeviceId: null,
-                            masterDevicemRID: null,
+                            masterDeviceName: null,
                             acknowledgeMessage: Uni.I18n.translate('deviceCommunicationTopology.masterRemoved', 'MDC', 'Master removed')
                         }
                     );
@@ -121,12 +123,12 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
 
         deviceTopologyContent.setLoading(true);
         deviceTopologyContent.device.set('masterDeviceId', data.masterDeviceId);
-        deviceTopologyContent.device.set('masterDevicemRID', data.masterDevicemRID);
+        deviceTopologyContent.device.set('masterDeviceName', data.masterDeviceName);
         deviceTopologyContent.device.save({
             isNotEdit: true,
             success: function (deviceData) {
                 me.getApplication().fireEvent('acknowledge', data.acknowledgeMessage);
-                Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.get('mRID'), {
+                Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.get('name'), {
                     success: function (device) {
                         deviceTopologyContent.addMasterContainerViewItems();
                     },
