@@ -4,7 +4,7 @@ Ext.define('Dxp.store.DataExportTaskFilter', {
 
     proxy: {
         type: 'rest',
-        url: '/api/export/dataexporttask/list',
+        url: '/api/export/dataexporttask',
         timeout: 240000,
         reader: {
             type: 'json',

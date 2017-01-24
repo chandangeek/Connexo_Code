@@ -22,15 +22,22 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl({occurrenceId: record.get('id')}),
+                    var url = me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl({taskId: record.get("taskId"), occurrenceId: record.get('id')}),
                         date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                     return '<a href="' + url + '">' + date + '</a>';
                 }
             },
             {
                 header: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
-                hidden: !me.showExportTask,
-                dataIndex: 'exportTaskName'
+                hidden: me.showExportTask,
+                dataIndex: 'name',
+
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: record.get("taskId")});
+                    return value //TODO: add privileges
+                        ? '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
+                        : '-';
+                }
             },
             {
                 xtype: 'uni-grid-column-duration',

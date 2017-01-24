@@ -92,7 +92,13 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 return data.task.name;
             }
         },
-
+        {
+            name: 'taskId',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.id;
+            }
+        },
         {
             name: 'statusOnDate',
             persist: false,

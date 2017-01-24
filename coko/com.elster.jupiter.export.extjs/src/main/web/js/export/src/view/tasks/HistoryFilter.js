@@ -11,6 +11,18 @@ Ext.define('Dxp.view.tasks.HistoryFilter', {
 
     initComponent: function () {
         var me = this;
+        // me.items = [
+        //     {
+        //         xtype: 'uni-filter-combo',
+        //         labelAlign: 'top',
+        //         itemId: 'cbo-status',
+        //         name: 'status',
+        //         fieldLabel: Uni.I18n.translate('general.status', 'FIM', 'Status'),
+        //         displayField: 'display',
+        //         valueField: 'value',
+        //         store: 'Fim.store.Status'
+        //     }
+        // ];
         me.filters = [
             {
                 type: 'interval',
@@ -26,18 +38,17 @@ Ext.define('Dxp.view.tasks.HistoryFilter', {
                 dataIndexTo: 'finishedOnTo',
                 text: Uni.I18n.translate('tasks.historyFilter.finishedBetween', 'DES', 'Finished between')
             },
-            //TODO: add task filter
-            // {
-            //     xtype: 'uni-filter-combo',
-            //     itemId: 'cbo-import-service',
-            //     dataIndex: 'exportTask',
-            //     fieldLabel: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
-            //     displayField: 'name',
-            //     valueField: 'id',
-            //     labelAlign: 'top',
-            //     store: 'Dxp.store.DataExportTaskFilter',
-            //     hidden: !me.showExportTask
-            // },
+            {
+                type: 'combobox',
+                itemId: 'cbo-import-service',
+                dataIndex: 'exportTask',
+                emptyText: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
+                displayField: 'name',
+                valueField: 'id',
+                multiSelect: true,
+                store: 'Dxp.store.DataExportTaskFilter',
+                hidden: me.showExportTask
+            },
             {
                 type: 'combobox',
                 dataIndex: 'status',

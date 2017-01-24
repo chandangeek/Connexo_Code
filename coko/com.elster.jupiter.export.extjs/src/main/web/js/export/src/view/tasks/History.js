@@ -3,7 +3,6 @@ Ext.define('Dxp.view.tasks.History', {
     alias: 'widget.data-export-tasks-history',
 
     requires: [
-        // 'Uni.form.filter.FilterCombobox',
         'Dxp.view.tasks.Menu',
         'Dxp.view.tasks.HistoryPreview',
         'Dxp.view.tasks.HistoryPreviewForm',
