@@ -512,4 +512,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         return new TranslatableApplicationException(thesaurus, MessageSeeds.NOT_UNIQUE);
     }
 
+    @Override
+    public ComServer lockComServer(ComServer comServer) {
+        return getComServerDataMapper().lock(comServer.getId());
+    }
 }

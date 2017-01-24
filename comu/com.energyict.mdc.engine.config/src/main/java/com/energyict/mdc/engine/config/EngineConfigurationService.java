@@ -228,4 +228,11 @@ public interface EngineConfigurationService {
 
     List<ComPort> findAllComPortsIncludingObsolete();
 
+    /**
+     * Locks the given ComServer. This is a blocking call until a proper lock is provided
+     *
+     * @param comServer the ComServer to lock
+     * @return the 'locked' ComServer object
+     */
+    ComServer lockComServer(ComServer comServer);
 }
