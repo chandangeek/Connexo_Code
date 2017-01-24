@@ -60,6 +60,7 @@ public class MetrologyContractEstimationRuleSetResolverTest {
         doReturn(Optional.of(metrologyConfiguration)).when(usagePoint).getEffectiveMetrologyConfiguration(any());
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfigurationOnUsagePoint.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
 
