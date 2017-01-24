@@ -22,10 +22,9 @@ import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.ComServer;
@@ -172,8 +171,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     @Transactional
     public void testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp() {
         Instant earliestNextExecutionTimestamp = LocalDateTime.of(2013, 2, 14, 0, 0).toInstant(ZoneOffset.UTC);
-        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
-        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+        ComTaskExecution comTaskExecution = createComTaskExecution();
+        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(earliestNextExecutionTimestamp, comTaskEnablementPriority);
         comTaskExecutionUpdater.update();
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateDefaultWithASAPCopiesTheEarliestNextExecutionTimestamp");
@@ -217,13 +216,13 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         freezeClock(2013, Calendar.FEBRUARY, 17, 10, 53, 20, 0);    // anything, as long as it's different from comTaskNextExecutionTimeStamp
 
         ScheduledConnectionTaskImpl theOneThatMinimizesConnections = this.createMinimizeWithNoPropertiesWithoutViolations("updateToDefaultTestNextExecutionTimeStamp", new TemporalExpression(EVERY_HOUR));
-        Instant nextExecutionTimestamp = theOneThatMinimizesConnections.getNextExecutionTimestamp();
         ConnectionTaskService connectionTaskService = inMemoryPersistence.getConnectionTaskService();
 
         ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(comTaskNextExecutionTimeStamp);
 
         // Business method
         connectionTaskService.setDefaultConnectionTask(theOneThatMinimizesConnections);
+        Instant nextExecutionTimestamp = theOneThatMinimizesConnections.getNextExecutionTimestamp();
         ScheduledConnectionTask reloaded = connectionTaskService.findScheduledConnectionTask(theOneThatMinimizesConnections.getId()).get();
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device, comTaskExecution);
 
@@ -257,7 +256,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     public void creatingDefaultFromPartialShouldAlsoUpdateComTaskExecutionsWhichUseTheDefaultTest() {
         this.partialScheduledConnectionTask.setDefault(true);
         this.partialScheduledConnectionTask.save();
-        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+        ComTaskExecution comTaskExecution = createComTaskExecution();
 
         // Prologue asserts
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
@@ -297,11 +296,11 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         final Instant futureDate = freezeClock(2013, Calendar.JULY, 4);
         Instant triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = new EarliestNextExecutionTimeStampAndPriority(triggerDate, TaskPriorityConstants.DEFAULT_PRIORITY);
-        ScheduledComTaskExecution comTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
+        ComTaskExecution comTaskExecution1 = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, comTaskEnablement1);
         ((ServerComTaskExecution) comTaskExecution1).executionCompleted();
         comTaskExecution1.getDevice().getComTaskExecutionUpdater(comTaskExecution1).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
 
-        ScheduledComTaskExecution comTaskExecution2 = createComTaskExecution(comTaskEnablement2);
+        ComTaskExecution comTaskExecution2 = createComTaskExecution(comTaskEnablement2);
         comTaskExecution2.putOnHold();
 
         // Business method
@@ -396,7 +395,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         final Instant triggerDate = freezeClock(2013, Calendar.JUNE, 3);
         final Instant lastExecutionStartTimestamp = freezeClock(2013, Calendar.MAY, 3);
 
-        ScheduledComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, lastExecutionStartTimestamp, comTaskEnablement1);
+        ComTaskExecution comTaskExecution = createComTaskExecutionAndSetNextExecutionTimeStamp(futureDate, lastExecutionStartTimestamp, comTaskEnablement1);
         assertThat(comTaskExecution.getStatus()).isEqualTo(TaskStatus.NeverCompleted);
         // Reload task because entity was changed during comTaskExecution creation process
         connectionTask = (ScheduledConnectionTaskImpl) inMemoryPersistence.getConnectionTaskService().findDefaultConnectionTaskForDevice(device).get();
@@ -410,7 +409,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
             }
         });
         // Reload comTaskExecution because entity was changed during ConnectionTask#trigger(...) method call
-        comTaskExecution = (ScheduledComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         ((ServerComTaskExecution) comTaskExecution).executionCompleted();
         comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update(); // waiting task
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.Waiting);
@@ -439,7 +438,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
             }
         });
         setCurrentlyExecutionComServerOnConnectionTask(connectionTask, null);
-        comTaskExecution = (ScheduledComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         ((ServerComTaskExecution) comTaskExecution).setLockedComPort(null);
         comTaskExecution.putOnHold(); // on hold task
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.OnHold);
@@ -454,7 +453,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
             }
         });
 
-        comTaskExecution = (ScheduledComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         comTaskExecution.resume();
         comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
         final Instant futureTrigger = freezeClock(2013, Calendar.AUGUST, 5); // pending task
@@ -469,7 +468,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
                 return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
             }
         });
-        comTaskExecution = (ScheduledComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         ((ServerComTaskExecution) comTaskExecution).executionFailed();  // make it retry
         assertThat(getReloadedComTaskExecution(device, comTaskExecution).getStatus()).isEqualTo(TaskStatus.Retrying);
         assertThat(comTaskExecutions).areExactly(1, new Condition<ComTaskExecution>() {
@@ -488,7 +487,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
                 return futureTrigger.equals(comTaskExecution.getNextExecutionTimestamp());
             }
         });
-        comTaskExecution = (ScheduledComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        comTaskExecution = (ComTaskExecution) inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution).forceNextExecutionTimeStampAndPriority(futureDate, 100).update();
         ((ServerComTaskExecution) comTaskExecution).executionCompleted();   // Resets any failures/retries
 
@@ -560,11 +559,11 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         return frozenClockValue;
     }
 
-    protected ScheduledComTaskExecution createComTaskExecution() {
+    protected ComTaskExecution createComTaskExecution() {
         return createComTaskExecution(comTaskEnablement1);
     }
 
-    protected ScheduledComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
+    protected ComTaskExecution createComTaskExecution(ComTaskEnablement comTaskEnablement) {
         ComSchedule comSchedule = this.createComSchedule(comTaskEnablement.getComTask());
         return device.newScheduledComTaskExecution(comSchedule).add();
     }
@@ -573,13 +572,13 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         return createComTaskExecutionAndSetNextExecutionTimeStamp(nextExecutionTimeStamp, comTaskEnablement1);
     }
 
-    protected ScheduledComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Instant nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
+    protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Instant nextExecutionTimeStamp, ComTaskEnablement comTaskEnablement) {
         return createComTaskExecutionAndSetNextExecutionTimeStamp(nextExecutionTimeStamp, null, comTaskEnablement);
     }
 
-    protected ScheduledComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Instant nextExecutionTimeStamp, Instant lastExecutionStartTimestamp, ComTaskEnablement comTaskEnablement) {
-        ScheduledComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
-        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+    protected ComTaskExecution createComTaskExecutionAndSetNextExecutionTimeStamp(Instant nextExecutionTimeStamp, Instant lastExecutionStartTimestamp, ComTaskEnablement comTaskEnablement) {
+        ComTaskExecution comTaskExecution = createComTaskExecution(comTaskEnablement);
+        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
         comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimeStamp, 100);
         if (lastExecutionStartTimestamp != null) {
             comTaskExecutionUpdater.forceLastExecutionStartTimestamp(lastExecutionStartTimestamp);
