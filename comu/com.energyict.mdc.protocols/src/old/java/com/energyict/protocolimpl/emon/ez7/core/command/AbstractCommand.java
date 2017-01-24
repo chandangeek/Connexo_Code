@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;

@@ -4,7 +4,7 @@ package com.energyict.protocols.impl.channels.ip.socket;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 import org.junit.*;

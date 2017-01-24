@@ -44,12 +44,12 @@ public class GarnetSecuritySupportCustomPropertySet extends SecurityCustomProper
 
     @Override
     public String getId() {
-        return CustomPropertySetTranslationKeys.DLMS_SECURITY_CUSTOM_PROPERTY_SET_NAME.getKey();
+        return CustomPropertySetTranslationKeys.GARNET_SECURITY_CUSTOM_PROPERTY_SET_NAME.getKey();
     }
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.DLMS_SECURITY_CUSTOM_PROPERTY_SET_NAME).format();
+        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.GARNET_SECURITY_CUSTOM_PROPERTY_SET_NAME).format();
     }
 
     @Override

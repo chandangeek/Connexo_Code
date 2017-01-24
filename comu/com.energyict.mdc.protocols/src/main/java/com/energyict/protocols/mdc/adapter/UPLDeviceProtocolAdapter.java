@@ -132,8 +132,8 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     }
 
     @Override
-    public List<ConnectionType> getSupportedConnectionTypes() {
-        return null;    //TODO Govanni?
+    public List<? extends ConnectionType> getSupportedConnectionTypes() {
+        return deviceProtocol.getSupportedConnectionTypes().stream().map(connectionType -> new UPLConnectionTypeAdapter(connectionType, injector)).collect(Collectors.toList());
     }
 
     @Override

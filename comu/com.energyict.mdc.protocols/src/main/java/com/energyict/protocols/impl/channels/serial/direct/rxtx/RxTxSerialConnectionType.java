@@ -4,9 +4,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocols.impl.channels.serial.AbstractSerialConnectionType;
 
 import java.util.List;

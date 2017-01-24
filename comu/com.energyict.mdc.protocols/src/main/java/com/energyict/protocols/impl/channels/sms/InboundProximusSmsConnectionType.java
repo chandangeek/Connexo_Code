@@ -6,10 +6,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocols.impl.channels.ConnectionTypeImpl;
 import com.energyict.protocols.impl.channels.VoidComChannel;
 
