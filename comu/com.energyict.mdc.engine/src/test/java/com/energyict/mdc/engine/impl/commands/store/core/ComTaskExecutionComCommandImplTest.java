@@ -80,7 +80,7 @@ public class ComTaskExecutionComCommandImplTest {
         when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.comTask.getName()).thenReturn(ComTaskExecutionComCommandImplTest.class.getSimpleName());
         when(this.comTaskExecution.getId()).thenReturn(COM_TASK_EXECUTION_ID);
-        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
+        when(this.comTaskExecution.getComTask()).thenReturn(this.comTask);
         ComPort comPort = mock(ComPort.class);
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);

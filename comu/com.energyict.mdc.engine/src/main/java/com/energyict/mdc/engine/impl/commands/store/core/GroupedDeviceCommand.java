@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
@@ -518,7 +519,15 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
             getAlreadyExecutedCommand(groupedDeviceCommand, comTaskExecution, ComCommandTypes.MESSAGES_COMMAND);
             return messagesCommand;
         } else {
-            return createMessagesCommand(messagesTask, groupedDeviceCommand, comTaskExecution);
+            try {
+                return createMessagesCommand(messagesTask, groupedDeviceCommand, comTaskExecution);
+            } catch (MacException e) {
+                ComTaskExecutionComCommandImpl comTaskRoot = groupedDeviceCommand.getComTaskRoot(comTaskExecution);
+                Problem problem = getServiceProvider().issueService().newProblem(this, MessageSeeds.MAC_CHECK_FAILURE);
+                comTaskRoot.addIssue(problem, CompletionCode.NotExecuted);
+                comTaskRoot.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
+                return null;
+            }
         }
     }
 

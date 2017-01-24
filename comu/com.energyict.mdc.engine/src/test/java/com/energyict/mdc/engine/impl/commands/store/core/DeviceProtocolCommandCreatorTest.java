@@ -99,7 +99,7 @@ public class DeviceProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
 
         DeviceProtocolCommandCreator commandCreator = new DeviceProtocolCommandCreator();
@@ -128,7 +128,7 @@ public class DeviceProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createMiddleDeviceComTaskExecutionSteps();
 
         DeviceProtocolCommandCreator commandCreator = new DeviceProtocolCommandCreator();
@@ -159,7 +159,7 @@ public class DeviceProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createLastDeviceComTaskExecutionSteps();
 
         DeviceProtocolCommandCreator commandCreator = new DeviceProtocolCommandCreator();

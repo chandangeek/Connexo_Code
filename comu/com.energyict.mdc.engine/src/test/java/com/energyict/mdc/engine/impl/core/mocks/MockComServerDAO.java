@@ -444,12 +444,17 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
-        return null;
+        return TypedProperties.empty();
+    }
+
+    @Override
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+        return TypedProperties.empty();
     }
 
     @Override
     public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
-        return null;
+        return TypedProperties.empty();
     }
 
     @Override

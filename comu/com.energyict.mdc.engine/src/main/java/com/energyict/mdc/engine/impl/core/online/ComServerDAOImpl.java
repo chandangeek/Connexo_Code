@@ -111,6 +111,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Currying.use;
 
@@ -652,6 +654,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void releaseTasksFor(final ComPort comPort) {
         this.executeTransaction(() -> {
+            //first of all, lock the comserver object so you don't run into a deadlock
+            ComServer lockedComServer = getEngineModelService().lockComServer(comPort.getComServer());
+
             List<ComTaskExecution> comTaskExecutionsWhichAreExecuting = getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort);
             Set<ConnectionTask> lockedConnectionTasks = new HashSet<>();
 
@@ -844,7 +849,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             return null;
         } else {
             for (ComTaskEnablement comTaskEnablement : enabledComTasks(device.getDeviceConfiguration())) {
-                if (comTaskEnablement.getComTask().equals(first.getComTasks().get(0))) {
+                if (comTaskEnablement.getComTask().equals(first.getComTask())) {
                     securityPropertySet = comTaskEnablement.getSecurityPropertySet();
                 }
             }
@@ -896,6 +901,25 @@ public class ComServerDAOImpl implements ComServerDAO {
             return null;
         } else {
             return connectionTask.getTypedProperties();
+        }
+    }
+
+    @Override
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+        Device device = (Device) deviceIdentifier.findDevice();
+
+        List<OutboundConnectionTask> outboundConnectionTasks = device.getConnectionTasks().stream()
+                .filter(connectionTask -> connectionTask instanceof OutboundConnectionTask)
+                .map(connectionTask1 -> ((OutboundConnectionTask) connectionTask1))
+                .collect(Collectors.toList());
+        Optional<OutboundConnectionTask> defaultConnectionTask = outboundConnectionTasks.stream().filter(OutboundConnectionTask::isDefault).findAny();
+
+        if (defaultConnectionTask.isPresent()) {
+            return defaultConnectionTask.get().getTypedProperties();
+        } else if (outboundConnectionTasks.size() > 0) {
+            return outboundConnectionTasks.get(0).getTypedProperties();
+        } else {
+            return TypedProperties.empty();
         }
     }
 
@@ -1243,6 +1267,11 @@ public class ComServerDAOImpl implements ComServerDAO {
         @Override
         public FirmwareService firmwareService() {
             return serviceProvider.firmwareService();
+        }
+
+        @Override
+        public EventService eventService() {
+            return serviceProvider.eventService();
         }
 
     }

@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -18,9 +17,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
@@ -99,30 +96,8 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected static TypedProperties getProtocolDialectTypedProperties(ComTaskExecution comTaskExecution) {
-        if (isItAScheduledComTaskExecution(comTaskExecution)) {
-            ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) comTaskExecution;
-            return getProtocolDialectTypedProperties(scheduledComTaskExecution);
-        } else if (isSingleComTaskComTaskExecution(comTaskExecution)) {
-            SingleComTaskComTaskExecution singleComTaskComTaskExecution = (SingleComTaskComTaskExecution) comTaskExecution;
-            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), singleComTaskComTaskExecution.getProtocolDialectConfigurationProperties());
-        } else {
-            return TypedProperties.empty();
-        }
-    }
-
-    private static boolean isItAScheduledComTaskExecution(ComTaskExecution comTaskExecution) {
-        return comTaskExecution instanceof ScheduledComTaskExecution;
-    }
-
-    private static boolean isSingleComTaskComTaskExecution(ComTaskExecution comTaskExecution) {
-        return comTaskExecution instanceof SingleComTaskComTaskExecution;
-    }
-
-    private static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {
-        Optional<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = getProtocolDialectConfigurationProperties(comTaskExecution);
-        if (protocolDialectConfigurationProperties.isPresent()) {
-            Device device = comTaskExecution.getDevice();
-            return getProtocolDialectTypedProperties(device, protocolDialectConfigurationProperties.get());
+        if (comTaskExecution != null) {
+            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), comTaskExecution.getProtocolDialectConfigurationProperties());
         } else {
             return TypedProperties.empty();
         }
@@ -135,30 +110,6 @@ public abstract class JobExecution implements ScheduledJob {
         } else {
             return TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
         }
-    }
-
-    private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(ComTaskExecution comTaskExecution) {
-        if (comTaskExecution.getComTasks().isEmpty()) {
-            return Optional.empty();
-        } else {
-            for (ComTask comTask : comTaskExecution.getComTasks()) {
-                Optional<ProtocolDialectConfigurationProperties> properties = getProtocolDialectConfigurationProperties(comTaskExecution.getDevice(), comTask);
-                if (properties.isPresent()) {
-                    return properties;  // Got out now that we have got one, else continue with the next ComTask
-                }
-            }
-            // Bugger: none of the ComTask were enabled with ProtocolDialectConfigurationProperties
-            return Optional.empty();
-        }
-    }
-
-    private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(Device device, ComTask comTask) {
-        for (ComTaskEnablement comTaskEnablement : device.getDeviceConfiguration().getComTaskEnablements()) {
-            if (comTaskEnablement.getComTask().getId() == comTask.getId()) {
-                return Optional.of(comTaskEnablement.getProtocolDialectConfigurationProperties());
-            }
-        }
-        return Optional.empty();
     }
 
     /**
@@ -252,10 +203,7 @@ public abstract class JobExecution implements ScheduledJob {
      * Each <i>set</i> of ProtocolTasks of a ComTask will be preceded by a CreateComTaskSession command.
      */
     private List<ProtocolTask> generateProtocolTaskList(ComTaskExecution comTaskExecution) {
-        return comTaskExecution
-                .getComTasks()
-                .stream()
-                .flatMap(comTask -> generateProtocolTaskList(comTask, comTaskExecution))
+        return generateProtocolTaskList(comTaskExecution.getComTask(), comTaskExecution)
                 .collect(Collectors.toList());
     }
 
@@ -394,21 +342,10 @@ public abstract class JobExecution implements ScheduledJob {
 
     private void rescheduleFailure(ComSession.SuccessIndicator successIndicator) {
         for (ComTaskExecution failedComTaskExecution : getFailedComTaskExecutions()) {
-            getExecutionContext().connectionLogger.reschedulingTask(getThreadName(), getComTasksDescription(failedComTaskExecution.getComTasks()));
+            getExecutionContext().connectionLogger.reschedulingTask(getThreadName(), failedComTaskExecution.getComTask().getName());
         }
 
         this.completeFailedComSession(successIndicator);
-    }
-
-    private String getComTasksDescription(List<ComTask> comTasks) {
-        StringBuilder result = new StringBuilder();
-        for (ComTask comTask : comTasks) {
-            if (result.length() > 0) {
-                result.append(", ");
-            }
-            result.append(comTask.getName());
-        }
-        return result.toString();
     }
 
     private void rescheduleSuccess() {
@@ -444,6 +381,8 @@ public abstract class JobExecution implements ScheduledJob {
     public CommandRoot.ServiceProvider getComCommandServiceProvider() {
         return new ComCommandServiceProvider();
     }
+
+    public abstract void appendStatisticalInformationToComSession();
 
     protected enum BasicCheckTasks implements Comparator<ProtocolTask> {
         FIRST;

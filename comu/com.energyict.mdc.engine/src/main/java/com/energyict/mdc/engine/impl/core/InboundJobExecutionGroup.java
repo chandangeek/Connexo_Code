@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
@@ -28,12 +29,14 @@ import java.util.List;
 public class InboundJobExecutionGroup extends JobExecution {
 
     private final InboundDiscoveryContext inboundDiscoveryContext;
+    private final InboundCommunicationHandler inboundCommunicationHandler;
     private InboundConnectionTask connectionTask;
     private List<ComTaskExecution> comTaskExecutions;
 
-    public InboundJobExecutionGroup(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContext inboundDiscoveryContext, ServiceProvider serviceProvider) {
+    public InboundJobExecutionGroup(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContext inboundDiscoveryContext, ServiceProvider serviceProvider, InboundCommunicationHandler InboundCommunicationHandler) {
         super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.inboundDiscoveryContext = inboundDiscoveryContext;
+        inboundCommunicationHandler = InboundCommunicationHandler;
     }
 
     @Override
@@ -130,5 +133,9 @@ public class InboundJobExecutionGroup extends JobExecution {
 
     protected InboundDiscoveryContextImpl getInboundDiscoveryContext() {
         return (InboundDiscoveryContextImpl) inboundDiscoveryContext;
+    }
+
+    public void appendStatisticalInformationToComSession() {
+        inboundCommunicationHandler.appendStatisticalInformationToComSession();
     }
 }

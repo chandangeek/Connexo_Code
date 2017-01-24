@@ -42,9 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -545,12 +543,9 @@ public class RunningComServerChangesTest {
             runningComServer.refresh(firstComPort);
 
             final CountDownLatch refreshAndStartCounter = new CountDownLatch(1);
-            doAnswer(new Answer() {
-                @Override
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    refreshAndStartCounter.countDown();
-                    return null;
-                }
+            doAnswer(invocationOnMock -> {
+                refreshAndStartCounter.countDown();
+                return null;
             }).when(refreshedComPort).start();
 
             runningComServer.start();
@@ -603,12 +598,9 @@ public class RunningComServerChangesTest {
                     .when(comServerDAO).refreshComPort(firstComPort);
 
             final CountDownLatch refreshAndStartCounter = new CountDownLatch(1);
-            doAnswer(new Answer() {
-                @Override
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    refreshAndStartCounter.countDown();
-                    return null;
-                }
+            doAnswer(invocationOnMock -> {
+                refreshAndStartCounter.countDown();
+                return null;
             }).when(refreshedComPort).start();
 
             runningComServer.start();
@@ -625,7 +617,6 @@ public class RunningComServerChangesTest {
                 runningComServer.shutdownImmediate();
             }
         }
-
     }
 
     @Test
@@ -656,12 +647,9 @@ public class RunningComServerChangesTest {
             runningComServer.refresh(secondComPort);
 
             final CountDownLatch refreshAndStartCounter = new CountDownLatch(1);
-            doAnswer(new Answer() {
-                @Override
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    refreshAndStartCounter.countDown();
-                    return null;
-                }
+            doAnswer(invocationOnMock -> {
+                refreshAndStartCounter.countDown();
+                return null;
             }).when(refreshedComPortListener).start();
 
             runningComServer.start();
@@ -678,7 +666,6 @@ public class RunningComServerChangesTest {
                 runningComServer.shutdownImmediate();
             }
         }
-
     }
 
     @Test
@@ -714,12 +701,9 @@ public class RunningComServerChangesTest {
                     .when(comServerDAO).refreshComPort(secondComPort);
 
             final CountDownLatch refreshAndStartCounter = new CountDownLatch(1);
-            doAnswer(new Answer() {
-                @Override
-                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                    refreshAndStartCounter.countDown();
-                    return null;
-                }
+            doAnswer(invocationOnMock -> {
+                refreshAndStartCounter.countDown();
+                return null;
             }).when(refreshedComPortListener).start();
 
             runningComServer.start();

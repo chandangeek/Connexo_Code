@@ -437,6 +437,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
     public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
         /* Todo: do not forget to take into account that DeviceIdentifier implementation classes
          * throw a NotFoundException when the device does not exist. */

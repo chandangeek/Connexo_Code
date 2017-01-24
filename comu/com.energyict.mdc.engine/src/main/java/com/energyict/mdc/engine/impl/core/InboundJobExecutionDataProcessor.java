@@ -72,7 +72,7 @@ import java.util.logging.Logger;
  * A logical <i>connect</i> can be skipped as the
  * {@link ComChannel ComChannl}
  * will already be created by the ComPortListener
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 9/3/13
  * Time: 3:38 PM
@@ -105,7 +105,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
 
     public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, ServiceProvider serviceProvider, InboundCommunicationHandler inboundCommunicationHandler, ComPortDiscoveryLogger logger, boolean executePendingTaskOnInboundConnection) {
-        super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, serviceProvider);
+        super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, serviceProvider, inboundCommunicationHandler);
         this.inboundDeviceProtocol = inboundDeviceProtocol;
         this.offlineDevice = offlineDevice;
         this.serviceProvider = serviceProvider;
@@ -166,9 +166,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                     ProtocolTask messageTask = getMessageTask(comTaskExecution);
                     ProtocolTask topologyTask = getTopologyTask(comTaskExecution);
                     List<ProtocolTask> protocolTasksToExecute = new ArrayList<>();
-                    for (ComTask comTask : comTaskExecution.getComTasks()) {
-                        protocolTasksToExecute.addAll(comTask.getProtocolTasks());
-                    }
+                    protocolTasksToExecute.addAll(comTaskExecution.getComTask().getProtocolTasks());
 
                     if (registersTask != null && receivedRegisterData) {
                         if (!alreadyProcessedDataOfType(alreadyProcessedDataTypes, REGISTER_DATA)) {
@@ -251,9 +249,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     @Override
     protected void prepareComTaskExecution(ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, GroupedDeviceCommand groupedDeviceCommand, CommandCreator commandCreator) {
         List<ProtocolTask> allProtocolTasks = new ArrayList<>();
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            allProtocolTasks.addAll(comTask.getProtocolTasks());
-        }
+        allProtocolTasks.addAll(comTaskExecution.getComTask().getProtocolTasks());
 
         final List<ProtocolTask> protocolTasks =
                 protocolTasksAlreadyExecutedForComTask.get(comTaskExecution) != null ?
@@ -288,7 +284,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
      * Check if data of the given type is already processed.
      *
      * @param alreadyProcessedDataTypes The bitstring containing the already processed data types
-     * @param dataType                  The byte indicating the dataType
+     * @param dataType The byte indicating the dataType
      * @return true if the given data type is already processed
      * false if the given data type was not yet processed
      */
@@ -320,22 +316,18 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     }
 
     private ProtocolTask getMessageTask(ComTaskExecution comTaskExecution) {
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-                if (ComCommandTypes.MESSAGES_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
-                    return protocolTask;
-                }
+        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+            if (ComCommandTypes.MESSAGES_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+                return protocolTask;
             }
         }
         return null;
     }
 
     private ProtocolTask getLogBooksTask(ComTaskExecution comTaskExecution) {
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-                if (ComCommandTypes.LOGBOOKS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
-                    return protocolTask;
-                }
+        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+            if (ComCommandTypes.LOGBOOKS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+                return protocolTask;
             }
         }
         return null;
@@ -343,55 +335,45 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
 
     private ProtocolTask getLoadProfilesTask(ComTaskExecution comTaskExecution) {
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-                if (ComCommandTypes.LOAD_PROFILE_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
-                    return protocolTask;
-                }
+        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+            if (ComCommandTypes.LOAD_PROFILE_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+                return protocolTask;
             }
         }
         return null;
     }
 
     private ProtocolTask getRegistersTask(ComTaskExecution comTaskExecution) {
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-                if (ComCommandTypes.REGISTERS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
-                    return protocolTask;
-                }
+        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+            if (ComCommandTypes.REGISTERS_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+                return protocolTask;
             }
         }
         return null;
     }
 
     private ProtocolTask getTopologyTask(ComTaskExecution comTaskExecution) {
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-                if (ComCommandTypes.TOPOLOGY_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
-                    return protocolTask;
-                }
+        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+            if (ComCommandTypes.TOPOLOGY_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+                return protocolTask;
             }
         }
         return null;
     }
 
     private ProtocolTask getClockTask(ComTaskExecution comTaskExecution) {
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-                if (ComCommandTypes.CLOCK_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
-                    return protocolTask;
-                }
+        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+            if (ComCommandTypes.CLOCK_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+                return protocolTask;
             }
         }
         return null;
     }
 
     private ProtocolTask getBasicCheckTask(ComTaskExecution comTaskExecution) {
-        for (ComTask comTask : comTaskExecution.getComTasks()) {
-            for (ProtocolTask protocolTask : comTask.getProtocolTasks()) {
-                if (ComCommandTypes.BASIC_CHECK_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
-                    return protocolTask;
-                }
+        for (ProtocolTask protocolTask : comTaskExecution.getComTask().getProtocolTasks()) {
+            if (ComCommandTypes.BASIC_CHECK_COMMAND.equals(ComCommandTypes.forProtocolTask(protocolTask.getClass()))) {
+                return protocolTask;
             }
         }
         return null;

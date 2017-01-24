@@ -113,7 +113,7 @@ public abstract class AbstractRescheduleBehaviorTest {
         doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionStarted(any(ConnectionTask.class), any(ComServer.class));
         doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionFailed(any(ConnectionTask.class));
         doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o ->  o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO).executionCompleted(any(ConnectionTask.class));
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getDevice()).thenReturn(device);
         Optional<NextExecutionSpecs> nextExecutionSpecs = Optional.empty();
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(nextExecutionSpecs);
@@ -236,7 +236,7 @@ public abstract class AbstractRescheduleBehaviorTest {
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getNextExecutionSpecs()).thenReturn(Optional.empty());
         ComTask comTask = mock(ComTask.class);
-        when(comTaskExecution1.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution1.getComTask()).thenReturn(comTask);
         return comTaskExecution1;
     }
 

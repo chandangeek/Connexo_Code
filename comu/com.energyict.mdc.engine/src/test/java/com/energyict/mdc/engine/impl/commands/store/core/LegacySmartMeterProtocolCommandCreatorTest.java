@@ -88,7 +88,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
         LegacySmartMeterProtocolCommandCreator commandCreator = new LegacySmartMeterProtocolCommandCreator();
         commandCreator.createCommands(
@@ -117,7 +117,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
 
         LegacySmartMeterProtocolCommandCreator commandCreator = new LegacySmartMeterProtocolCommandCreator();

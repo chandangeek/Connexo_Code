@@ -587,13 +587,19 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
             // No implementation required
-            return null;
+            return TypedProperties.empty();
+        }
+
+        @Override
+        public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+            return TypedProperties.empty();
+
         }
 
         @Override
         public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
             // No implementation required
-            return null;
+            return TypedProperties.empty();
         }
 
         @Override
@@ -704,13 +710,18 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         // No support for inbound communication in monitoring mode
-        return null;
+        return TypedProperties.empty();
+    }
+
+    @Override
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+        return TypedProperties.empty();
     }
 
     @Override
     public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
         // No support for inbound communication in monitoring mode
-        return null;
+        return TypedProperties.empty();
     }
 
     @Override

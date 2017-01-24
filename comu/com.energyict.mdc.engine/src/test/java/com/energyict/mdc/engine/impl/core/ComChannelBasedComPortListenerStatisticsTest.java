@@ -528,6 +528,11 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         }
 
         @Override
+        public void appendStatisticalInformationToComSession() {
+
+        }
+
+        @Override
         public boolean attemptLock() {
             return false;  //To change body of implemented methods use File | Settings | File Templates.
         }

@@ -21,6 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -43,6 +46,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private HttpServletRequest servletRequest;
     private HttpServletResponse servletResponse;
     private boolean allCollectedDataWasProcessed = true;
+    private List<Handler> loggerExtraHandlers = new ArrayList<>();
 
     public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, ConnectionTaskService connectionTaskService) {
         super();
@@ -62,6 +66,35 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     @Override
     public Logger getLogger() {
         return logger;
+    }
+
+    public void logOnAllLoggerHandlers(String info, Level level) {
+
+        //TODO see if you can fix this. We keep getting the set on a 'completed' comSession
+        attachAllExtraHandlersToLogger();
+        logger.log(level, info);
+        detachAllExtraHandlersToLogger();
+    }
+
+    @Override
+    public Optional<OfflineDevice> getOfflineDevice(DeviceIdentifier deviceIdentifier, DeviceOfflineFlags deviceOfflineFlags) {
+        return this.inboundDAO.findOfflineDevice(deviceIdentifier);
+    }
+
+    private void attachAllExtraHandlersToLogger() {
+        for (Handler handler : loggerExtraHandlers) {
+            logger.addHandler(handler);
+        }
+    }
+
+    private void detachAllExtraHandlersToLogger() {
+        for (Handler handler : loggerExtraHandlers) {
+            logger.removeHandler(handler);
+        }
+    }
+
+    public void addLoggerExtraHandler(Handler publisher) {
+        this.loggerExtraHandlers.add(publisher);
     }
 
     @Override
@@ -139,6 +172,11 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     @Override
     public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
         return this.getInboundDAO().getDeviceConnectionTypeProperties(deviceIdentifier, this.getComPort());
+    }
+
+    @Override
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+        return this.getInboundDAO().getOutboundConnectionTypeProperties(deviceIdentifier);
     }
 
     @Override

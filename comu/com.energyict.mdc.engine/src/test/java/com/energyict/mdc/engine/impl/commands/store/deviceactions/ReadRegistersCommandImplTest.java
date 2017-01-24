@@ -75,7 +75,7 @@ public class ReadRegistersCommandImplTest extends AbstractComCommandExecuteTest 
     public void initializeMocks() {
         when(this.comTaskExecution.getDevice()).thenReturn(this.device);
         ComTask comTask = mock(ComTask.class);
-        when(this.comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(this.comTaskExecution.getComTask()).thenReturn(comTask);
         when(this.device.getmRID()).thenReturn(ReadRegistersCommandImplTest.class.getSimpleName());
     }
 
