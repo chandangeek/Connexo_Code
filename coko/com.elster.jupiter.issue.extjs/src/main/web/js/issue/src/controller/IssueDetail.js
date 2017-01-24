@@ -4,6 +4,7 @@ Ext.define('Isu.controller.IssueDetail', {
         'Isu.privileges.Issue',
         'Isu.store.TimelineEntries',
         'Bpm.monitorissueprocesses.store.IssueProcesses',
+        'Bpm.monitorissueprocesses.store.AlarmProcesses',
         'Uni.util.FormEmptyMessage'
     ],
 
@@ -11,7 +12,8 @@ Ext.define('Isu.controller.IssueDetail', {
         'Isu.store.IssueActions',
         'Isu.store.Issues',
         'Isu.store.TimelineEntries',
-        'Bpm.monitorissueprocesses.store.IssueProcesses'
+        'Bpm.monitorissueprocesses.store.IssueProcesses',
+        'Bpm.monitorissueprocesses.store.AlarmProcesses'
     ],
 
     itemUrl: '/api/isu/issues/',
@@ -75,7 +77,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     if (issueType === 'datacollection') {
                         me.loadDataCollectionIssueDetails(widget, record);
                     } else {
-                        me.getIssueDetailForm().loadRecord(record);
+                        widget.down('#issue-detail-form').loadRecord(record);
                     }
                     Ext.resumeLayouts(true);
                     if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
@@ -102,7 +104,8 @@ Ext.define('Isu.controller.IssueDetail', {
             timelineView = this.widget ? this.widget.down('#issue-timeline-view') : this.getPage().down('#issue-timeline-view'),
             processView = this.widget ? this.widget.down('#issue-process-view') :this.getPage().down('#issue-process-view'),
             timelineStore = me.getStore('Isu.store.TimelineEntries'),
-            procesStore = me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
+            alarm = Ext.ComponentQuery.query('alarm-timeline')[0];
+            procesStore = (alarm)?me.getStore('Bpm.monitorissueprocesses.store.AlarmProcesses'):me.getStore('Bpm.monitorissueprocesses.store.IssueProcesses'),
             router = me.getController('Uni.controller.history.Router'),
             data=[];
 
@@ -442,7 +445,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     if (issueType === 'datacollection') {
                         me.loadDataCollectionIssueDetails(widget, record);
                     } else {
-                        me.getIssueDetailForm().loadRecord(record);
+                        widget.down('#issue-detail-form').loadRecord(record);
                     }
                     Ext.resumeLayouts(true);
                     if (me.getActionMenu()) {

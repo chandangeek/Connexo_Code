@@ -103,7 +103,6 @@ Ext.define('Isu.controller.IssuesOverview', {
                 callback: function (records) {
                     queryString.myopenissues = undefined;
                     queryString.userAssignee = records[0].getId();
-                    queryString.status = 'status.open';
                     queryString.groupingType = 'none';
                     queryString.sort = ['dueDate'];
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
@@ -121,7 +120,6 @@ Ext.define('Isu.controller.IssuesOverview', {
                         queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
                             return wg.id;
                         });
-                        queryString.status = undefined;
                         queryString.groupingType = 'none';
                         queryString.sort = ['dueDate'];
                         window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));

@@ -10,7 +10,13 @@ Ext.define('Isu.model.Issue', {
         'Isu.model.IssueAction'
     ],
     fields: [
-        {name: 'id', type: 'int'},
+        {
+            name: 'title',
+            persist: false,
+            mapping: function (data) {
+                return data.issueId + ': ' + data.title;
+            }
+        },
         {name: 'dueDate', type: 'date', dateFormat: 'time'},
         {name: 'creationDate', type: 'date', dateFormat: 'time'},
         {name: 'version', type: 'int'},
@@ -21,21 +27,10 @@ Ext.define('Isu.model.Issue', {
         {name: 'reason', type: 'auto'},
         {name: 'device', type: 'auto'},
         {name: 'issueId', type: 'string'},
-        {
-            name: 'title',
-            persist: false,
-            mapping: function (data) {
-                if (data.device) {
-                    return data.issueId +': ' + data.reason.name + ' ' + data.device.name;
-                } else if (data.deviceName) {
-                    return data.issueId +': ' + data.reason.name + ' ' + data.deviceName;
-                } else {
-                    return data.issueId +': ' + data.reason.name;
-                }
-            }
-        },
         {name: 'issueType_name', persist: false, mapping: 'issueType.name'},
         {name: 'reason_name', persist: false, mapping: 'reason.name'},
+        {name: 'urgency', persist: false, mapping: 'priority.urgency'},
+        {name: 'impact', persist: false, mapping: 'priority.impact'},
         {name: 'status_name', persist: false, mapping: 'status.name'},
         {name: 'device_name', persist: false, mapping: 'device.name'},
         {name: 'workgroup_name', persist: false, mapping: 'workGroupAssignee.name'},

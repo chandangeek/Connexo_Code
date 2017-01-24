@@ -26,6 +26,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         }
     ],
 
+    actionUrl: '/api/isu/issues/{0}/actions',
+    assignUrl: '/api/isu/issues/{0}/{1}',
     init: function () {
         this.control({
             'issue-action-view issue-action-form #issue-action-apply': {
@@ -34,6 +36,12 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             'assign-issue #issue-assign-action-apply': {
                 click: this.assignAction
             },
+            'issues-action-menu #assign-to-me': {
+                click: this.assignToMe
+            },
+            'issues-action-menu #unassign': {
+                click: this.unassign
+            }
         });
     },
 
@@ -72,7 +80,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                         form.issue = issueRecord;
 
                         //todo: this definitely should be refactored. BE should send action button translation instead of this splitting
-                        if (form.title === 'Close issue' || form.title === 'Notify user' || form.title === 'Assign issue') {
+                        if (form.title === 'Close issue' || form.title === 'Close alarm' || form.title === 'Notify user' || form.title === 'Assign issue' || form.title === 'Assign alarm') {
                             form.down('#issue-action-apply').setText(form.title.split(' ')[0]);
                         }
                     }
@@ -81,8 +89,9 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             actionRecord,
             issueRecord;
 
+
         mainView.setLoading();
-        actionModel.getProxy().url = '/api/isu/issues/' + issueId + '/actions';
+        actionModel.getProxy().url = Ext.String.format(me.actionUrl, issueId);
         actionModel.load(actionId, {
             success: function (record) {
                 actionRecord = record;
@@ -94,6 +103,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             issueModel = me.getModel('Idc.model.Issue');
         } else if (issueType == 'datavalidation') {
             issueModel = me.getModel('Idv.model.Issue');
+        } else {
+            issueModel = me.getModel(me.issueModel);
         }
         issueModel.load(issueId, {
             success: function (record) {
@@ -161,87 +172,78 @@ Ext.define('Isu.controller.ApplyIssueAction', {
         }
     },
 
-    showAssignIssue: function (issueId, actionId) {
-        var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0],
-            router = me.getController('Uni.controller.history.Router'),
-            fromOverview = router.queryParams.fromOverview === 'true',
-            queryParamsForBackUrl = fromOverview ? router.queryParams : null,
-            queryString = Uni.util.QueryString.getQueryStringValues(false),
-            issueType = queryString.issueType;
-
-        viewport.setLoading();
-
-        if (issueType === 'datacollection') {
-            issueModel = 'Idc.model.Issue';
-        } else if (issueType === 'datavalidation') {
-            issueModel = 'Idv.model.Issue';
-        }
-
-        Ext.ModelManager.getModel(issueModel).load(issueId, {
-            success: function (issue) {
-                viewport.setLoading(false);
-
-                var widget = Ext.create('Isu.view.issues.AssignIssue', {
-                    cancelLink: router.getRoute(router.currentRoute.replace(fromOverview ? '/assignIssue' : '/view/assignIssue', '')).buildUrl({issueId: issueId}, queryParamsForBackUrl)
-                });
-                widget.down('#frm-assign-issue').loadRecord(issue);
-                widget.down('#frm-assign-issue').issue = issue;
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getApplication().fireEvent('issueLoad', issue);
-            },
-            failure: function (response) {
-                viewport.setLoading(false);
-            }
-        });
+    assignToMe: function (menuItem) {
+        this.assign(menuItem, 'assigntome');
     },
 
-    assignAction: function () {
+    unassign: function (menuItem) {
+        this.assign(menuItem, 'unassign');
+    },
+
+    assign: function (menuItem, assign) {
         var me = this,
-            assignIssuePage = me.getAssignIssuePage(),
-            issueRecord = assignIssuePage.down('#frm-assign-issue').issue,
-            assignIssueForm = assignIssuePage.down('#frm-assign-issue'),
-            formErrorsPanel = assignIssueForm.down('#assign-issue-form-errors'),
-            router = me.getController('Uni.controller.history.Router'),
-            fromOverview = router.queryParams.fromOverview === 'true',
-            queryParamsForBackUrl = fromOverview ? router.queryParams : null;
+            record = menuItem.record,
+            issueId = record.get('id');
 
-        if (assignIssueForm.isValid()) {
-            if (!formErrorsPanel.isHidden()) {
-                formErrorsPanel.hide();
-            }
+        Ext.Ajax.request({
+            url: Ext.String.format(me.assignUrl, assign, issueId),
+            jsonData: Ext.JSON.encode({'issue' : _.pick(record.getData(), 'title', 'version')}),
+            method: 'PUT',
+            success: function (response) {
+                var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
 
-            assignIssueForm.updateRecord(issueRecord);
-            var formValues = assignIssueForm.getValues(),
-                jsonData = {
-                    issue: {
-                        id: issueRecord.get('id'),
-                        version: issueRecord.get('version')
-                    },
-                    assignee: {
-                        userId: formValues.userId,
-                        workGroupId: formValues.workgroupId
-                    },
-                    comment: formValues.comment
-                };
-            assignIssuePage.setLoading();
-            Ext.Ajax.request({
-                url: '/api/isu/issues/assignissue',
-                jsonData: jsonData,
-                method: 'PUT',
-                success: function (response) {
-                    var responseText = Ext.decode(response.responseText, true);
-
-                    if (responseText.data.success) {
-                        me.getApplication().fireEvent('acknowledge', responseText.data.success[0].title);
-                    }
-                },
-                callback: function () {
-                    assignIssuePage.setLoading(false);
-                    router.getRoute(router.currentRoute.replace(fromOverview ? '/assignIssue' : '/view/assignIssue', ''))
-                        .forward({issueId: issueRecord.get('id')});
+                if (decoded.data && decoded.data.success) {
+                    me.getApplication().fireEvent('acknowledge', decoded.data.success[0].title);
                 }
-            });
-        }
+                else if (decoded.success) {
+                    me.getApplication().fireEvent('acknowledge', decoded.success[0].title);
+                }
+
+
+                var mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+                if (mainView && mainView.down('issues-grid')) {
+                    var grid = mainView.down('issues-grid');
+                    grid.getStore().load();
+                }
+                else if (mainView && mainView.down('alarms-grid')) {
+                    var grid = mainView.down('alarms-grid');
+                    grid.getStore().load();
+                }
+                else {
+                    var detail = Ext.ComponentQuery.query('issue-detail-top')[0] ||
+                        Ext.ComponentQuery.query('alarm-detail-top')[0];
+                    if (detail) {
+                        var router = me.getController('Uni.controller.history.Router'),
+                            issueType = router.queryParams.issueType,
+                            issueModel;
+
+                        if (issueType == 'datacollection') {
+                            issueModel = me.getModel('Idc.model.Issue');
+                        } else if (issueType == 'datavalidation') {
+                            issueModel = me.getModel('Idv.model.Issue');
+                        }
+                        else {
+                            issueModel = me.issueModel;
+                        }
+
+                        Ext.ModelManager.getModel(issueModel).load(issueId, {
+                            success: function (issue) {
+                                if (issueType == 'datacollection') {
+                                    Ext.ComponentQuery.query('#data-collection-issue-detail-container')[0].down('form').loadRecord(issue);
+                                    Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
+                                } else if (issueType == 'datavalidation') {
+                                    Ext.ComponentQuery.query('#issue-detail-form')[0].loadRecord(issue);
+                                    Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
+                                }
+                                else {
+                                    Ext.ComponentQuery.query('#alarm-detail-form')[0].loadRecord(issue);
+                                    Ext.ComponentQuery.query('#alarm-detail-action-menu')[0].record = issue;
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        });
     }
 });

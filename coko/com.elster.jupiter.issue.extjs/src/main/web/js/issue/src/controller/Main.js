@@ -23,7 +23,8 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.ApplyIssueAction',
         'Isu.controller.StartProcess',
         'Isu.controller.Overview',
-        'Isu.controller.BulkChangeIssues'
+        'Isu.controller.BulkChangeIssues',
+        'Isu.controller.SetPriority'
     ],
 
     init: function () {
@@ -96,7 +97,7 @@ Ext.define('Isu.controller.Main', {
                     {
                         text: Uni.I18n.translate('workspace.issues.myWorkgroupsIssues', 'ISU', 'My workgroups issues'),
                         itemId: 'my-workgroup-issues-item',
-                        href: router.getRoute('workspace/issues').buildUrl({}, {myworkgroupissues: true})
+                        href: router.getRoute('workspace/issues').buildUrl({}, {myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
                     }
                 ]
             });
