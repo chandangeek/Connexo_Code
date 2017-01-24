@@ -486,7 +486,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         return Optional.ofNullable(this.obsoleteTime);
     }
 
-    private void invalidateCache() {
+    @Override
+    public void invalidateCache() {
         this.publisher.publish(new InvalidateCacheRequest(MeteringService.COMPONENTNAME, TableSpecs.MTR_METROLOGYCONFIG.name()));
     }
 }
