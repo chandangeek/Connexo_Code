@@ -1,9 +1,7 @@
 package com.energyict.mdc.channels;
 
 import com.energyict.mdc.protocol.ComChannel;
-
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +57,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
 
     /**
      * Executes a read operation, checking first that reading is
-     * permitted and wrapping all IOExceptions in a {@link CommunicationException}.
+     * permitted and wrapping all IOExceptions in a {@link ConnectionCommunicationException}.
      *
      * @param operation The ReadOperation
      * @return The value returned by the ReadOperation
@@ -106,7 +104,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
 
     /**
      * Executes a write operation, checking first that writing is
-     * permitted and wrapping all IOExceptions in a {@link CommunicationException}.
+     * permitted and wrapping all IOExceptions in a {@link ConnectionCommunicationException}.
      *
      * @param operation The WriteOperation
      */

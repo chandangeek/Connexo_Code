@@ -2,8 +2,7 @@ package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.mdc.channels.SynchroneousComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
-
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.net.Socket;

@@ -7,13 +7,13 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.io.SerialPortException;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 
 import Serialio.SerInputStream;
 import Serialio.SerOutputStream;
 import Serialio.SerialConfig;
 import Serialio.SerialPort;
 import Serialio.SerialPortLocal;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,9 +1,8 @@
 package com.energyict.mdc.channels;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -113,17 +112,16 @@ public abstract class AbstractComChannel implements ComChannel {
     }
 
     /**
-     * Check if the communication should be aborted or not. <br/>
-     * If the communication should be aborted, then a {@link ConnectionCommunicationException#communicationAbortedByUserException} will be thrown;
-     * else the execution can continue.
+     * Checks if the communication should be aborted and will throw
+     * a {@link ConnectionCommunicationException} iff that is the case.
      */
     private void checkIfCommunicationShouldBeAborted() {
         // If we are disconnecting, then we want communication to continue (or in other words: ALWAYS do the disconnect)
         if (!getDisconnectingAtomicBoolean().get()) {
             if (ComChannel.abortCommunication.get()) {
-                throw ConnectionCommunicationException.communicationAbortedByUserException();
+                throw ConnectionCommunicationException.userInterrupted();
             } else if (Thread.currentThread().isInterrupted()) {
-                throw ConnectionCommunicationException.communicationInterruptedException();
+                throw ConnectionCommunicationException.systemInterrupted();
             }
         }
     }
@@ -133,9 +131,6 @@ public abstract class AbstractComChannel implements ComChannel {
         disconnecting.set(true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void setTimeout(long millis) {
         //Does nothing by default. Subclasses can override.
