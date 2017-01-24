@@ -14,7 +14,7 @@ public class ServletWrapper extends HttpServlet  {
 	private static final long serialVersionUID = 1L;
 	private final HttpServlet servlet;
 	private final ThreadPrincipalService threadPrincipalService;
-	private final String X_CONNEXO_APPLICATION_NAME = "X-CONNEXO-APPLICATION-NAME";
+	private static final String X_CONNEXO_APPLICATION_NAME = "X-CONNEXO-APPLICATION-NAME";
 	
 	public ServletWrapper(HttpServlet servlet,ThreadPrincipalService threadPrincipalService) {
 		this.servlet = servlet;
