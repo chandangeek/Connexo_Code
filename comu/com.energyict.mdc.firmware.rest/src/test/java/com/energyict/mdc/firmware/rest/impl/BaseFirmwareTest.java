@@ -11,7 +11,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.rest.FirmwareApplication;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
 

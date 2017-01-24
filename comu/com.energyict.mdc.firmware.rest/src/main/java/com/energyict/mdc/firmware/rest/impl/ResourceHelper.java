@@ -45,13 +45,13 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId));
     }
 
-    public Device findDeviceByMridOrThrowException(String mRID) {
-        return deviceService.findByUniqueMrid(mRID)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_NOT_FOUND, mRID));
+    public Device findDeviceByNameOrThrowException(String deviceName) {
+        return deviceService.findDeviceByName(deviceName)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_NOT_FOUND, deviceName));
     }
 
-    public Optional<Device> getLockedDevice(String mRID, long version) {
-        return deviceService.findAndLockDeviceBymRIDAndVersion(mRID, version);
+    public Optional<Device> getLockedDevice(String deviceName, long version) {
+        return deviceService.findAndLockDeviceByNameAndVersion(deviceName, version);
     }
 
     public FirmwareVersion findFirmwareVersionByIdOrThrowException(Long id) {

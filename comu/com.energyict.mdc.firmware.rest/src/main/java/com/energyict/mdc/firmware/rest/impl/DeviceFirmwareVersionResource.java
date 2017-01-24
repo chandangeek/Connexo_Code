@@ -16,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
 
-@Path("/device/{mRID}/firmwares")
+@Path("/devices/{name}/firmwares")
 public class DeviceFirmwareVersionResource {
     private final DeviceFirmwareVersionInfoFactory versionInfoFactory;
     private final ResourceHelper resourceHelper;
@@ -30,8 +30,8 @@ public class DeviceFirmwareVersionResource {
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response getFirmwareVersionsOnDevice(@PathParam("mRID") String mRID) {
-        Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
+    public Response getFirmwareVersionsOnDevice(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         return Response.ok(versionInfoFactory.from(device)).build();
     }
 
@@ -40,8 +40,8 @@ public class DeviceFirmwareVersionResource {
     @Path("/{campaign}/cancel")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
-    public Response cancelDeviceInFirmwareCampaign(@PathParam("mRID") String mRID, @PathParam("campaign") long campaignId ){
-        Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
+    public Response cancelDeviceInFirmwareCampaign(@PathParam("name") String name, @PathParam("campaign") long campaignId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         FirmwareCampaign campaign = resourceHelper.findFirmwareCampaignOrThrowException(campaignId);
         Optional<DeviceInFirmwareCampaignInfo> deviceInFirmwareCampaignInfo = resourceHelper.cancelDeviceInFirmwareCampaign(campaign, device);
         return Response.ok(deviceInFirmwareCampaignInfo.isPresent() ? deviceInFirmwareCampaignInfo.get() : "").build();
@@ -52,8 +52,8 @@ public class DeviceFirmwareVersionResource {
     @Path("/{campaign}/retry")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
-    public Response retryDeviceInFirmwareCampaign(@PathParam("mRID") String mRID, @PathParam("campaign") long campaignId ){
-        Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
+    public Response retryDeviceInFirmwareCampaign(@PathParam("name") String name, @PathParam("campaign") long campaignId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         FirmwareCampaign campaign = resourceHelper.findFirmwareCampaignOrThrowException(campaignId);
         Optional<DeviceInFirmwareCampaignInfo> deviceInFirmwareCampaignInfo = resourceHelper.retryDeviceInFirmwareCampaign(campaign, device);
         return Response.ok(deviceInFirmwareCampaignInfo.isPresent() ? deviceInFirmwareCampaignInfo.get() : "").build();

@@ -1,4 +1,4 @@
-package com.energyict.mdc.firmware.rest;
+package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -18,22 +18,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareMessagesResource;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionResource;
-import com.energyict.mdc.firmware.rest.impl.DeviceInFirmwareCampaignInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareComTaskResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareManagementOptionsResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareStatusTranslationKeys;
-import com.energyict.mdc.firmware.rest.impl.FirmwareTypesResource;
-import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
-import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
-import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;

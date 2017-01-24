@@ -42,7 +42,7 @@ public class DeviceInFirmwareCampaignInfoTest {
     public void initMock(){
         when(thesaurus.getString(anyString(), anyString())).thenReturn("someTranslatedFirmwareManagementDeviceStatus");
 
-        when(device.getmRID()).thenReturn("MridOfDevice");
+        when(device.getName()).thenReturn("NameOfDevice");
         when(firmwareCampaign.getId()).thenReturn(6598L);
         when(deviceInFirmwareCampaign.getDevice()).thenReturn(device);
         when(deviceInFirmwareCampaign.getFirmwareCampaign()).thenReturn(firmwareCampaign);
@@ -55,7 +55,7 @@ public class DeviceInFirmwareCampaignInfoTest {
         DeviceInFirmwareCampaignInfo info = new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign, thesaurus);
 
         assertThat(info.campaignId).isEqualTo(6598L);
-        assertThat(info.mrid).isEqualTo("MridOfDevice");
+        assertThat(info.deviceName).isEqualTo("NameOfDevice");
         assertThat(info.status.id).isEqualTo(FirmwareManagementDeviceStatus.UPLOAD_PENDING.key());
         assertThat(info.status.name).isEqualTo("someTranslatedFirmwareManagementDeviceStatus");
         assertThat(info.startedOn).isEqualTo(startedOn);

@@ -17,7 +17,6 @@ import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -56,10 +55,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * TODO replace by /devices
- */
-@Path("/device/{mrid}")
+@Path("/devices/{name}")
 public class DeviceFirmwareMessagesResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
@@ -90,8 +86,8 @@ public class DeviceFirmwareMessagesResource {
     @Path("/firmwaremessagespecs/{uploadOption}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
-    public Response getMessageAttributes(@PathParam("mrid") String mrid, @PathParam("uploadOption") String uploadOption, @QueryParam("firmwareType") String firmwareType) {
-        Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
+    public Response getMessageAttributes(@PathParam("name") String name, @PathParam("uploadOption") String uploadOption, @QueryParam("firmwareType") String firmwareType) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(device.getDeviceType(), uploadOption);
         return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, device, uploadOption, firmwareType)).build();
     }
@@ -101,8 +97,8 @@ public class DeviceFirmwareMessagesResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response uploadFirmwareToDevice(@PathParam("mrid") String mrid, FirmwareMessageInfo info) {
-        Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
+    public Response uploadFirmwareToDevice(@PathParam("name") String name, FirmwareMessageInfo info) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         checkFirmwareUpgradeOption(device.getDeviceType(), info.uploadOption);
 
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(device.getDeviceType(), info.uploadOption);
@@ -126,10 +122,10 @@ public class DeviceFirmwareMessagesResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response activateFirmwareOnDevice(@PathParam("mrid") String mrid, @PathParam("messageId") Long messageId, FirmwareMessageInfo info) {
-        Device device = resourceHelper.getLockedDevice(mrid, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(mrid)
-                        .withActualVersion(() -> deviceService.findByUniqueMrid(mrid).map(Device::getVersion).orElse(null))
+    public Response activateFirmwareOnDevice(@PathParam("name") String name, @PathParam("messageId") Long messageId, FirmwareMessageInfo info) {
+        Device device = resourceHelper.getLockedDevice(name, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                        .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
                         .supplier());
 
         DeviceMessage upgradeMessage = device.getMessages().stream()
@@ -191,10 +187,10 @@ public class DeviceFirmwareMessagesResource {
     @Path("/firmwaremessages/{msgId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response cancelFirmwareUpload(@PathParam("mrid") String mrid, @PathParam("msgId") long msgId, DeviceFirmwareVersionInfos info) {
-        Device device = resourceHelper.getLockedDevice(mrid, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(mrid)
-                        .withActualVersion(() -> deviceService.findByUniqueMrid(mrid).map(Device::getVersion).orElse(null))
+    public Response cancelFirmwareUpload(@PathParam("name") String name, @PathParam("msgId") long msgId, DeviceFirmwareVersionInfos info) {
+        Device device = resourceHelper.getLockedDevice(name, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                        .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
                         .supplier());
         DeviceMessage upgradeMessage = device.getMessages().stream()
                 .filter(message -> message.getId() == msgId)
@@ -214,8 +210,8 @@ public class DeviceFirmwareMessagesResource {
     @Path("/firmwaresactions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
-    public Response getDynamicActions(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
+    public Response getDynamicActions(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<DeviceFirmwareActionInfo> deviceFirmwareActions = new ArrayList<>();
         FirmwareManagementDeviceUtils helper = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         if (isDeviceFirmwareUpgradeAllowed(helper)) {
@@ -246,11 +242,11 @@ public class DeviceFirmwareMessagesResource {
     @Path("/status/run")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
-    public Response runFirmwareVersionCheck(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters, DeviceFirmwareActionInfo info) {
+    public Response runFirmwareVersionCheck(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, DeviceFirmwareActionInfo info) {
         String actionName = thesaurus.getFormat(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION).format();
-        Device device = resourceHelper.getLockedDevice(mrid, info.version)
+        Device device = resourceHelper.getLockedDevice(name, info.version)
                 .orElseThrow(conflictFactory.conflict()
-                        .withActualVersion(() -> deviceService.findByUniqueMrid(mrid).map(Device::getVersion).orElse(null))
+                        .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
                         .withMessageTitle(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE, actionName)
                         .withMessageBody(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY, actionName)
                         .supplier());
@@ -263,11 +259,11 @@ public class DeviceFirmwareMessagesResource {
     @Path("/status/runnow")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
-    public Response runFirmwareVersionCheckNow(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters, DeviceFirmwareActionInfo info) {
+    public Response runFirmwareVersionCheckNow(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, DeviceFirmwareActionInfo info) {
         String actionName = thesaurus.getFormat(MessageSeeds.Keys.FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY).format();
-        Device device = resourceHelper.getLockedDevice(mrid, info.version)
+        Device device = resourceHelper.getLockedDevice(name, info.version)
                 .orElseThrow(conflictFactory.conflict()
-                        .withActualVersion(() -> deviceService.findByUniqueMrid(mrid).map(Device::getVersion).orElse(null))
+                        .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
                         .withMessageTitle(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE, actionName)
                         .withMessageBody(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY, actionName)
                         .supplier());
@@ -300,13 +296,13 @@ public class DeviceFirmwareMessagesResource {
         }
     }
 
-    private FirmwareComTaskExecution createFirmwareComTaskExecution(Device device) {
+    private ComTaskExecution createFirmwareComTaskExecution(Device device) {
         // Check firmware upgrade task
         ComTask comTask = taskService.findFirmwareComTask()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND));
         ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(comTask)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_IS_NOT_ACTIVE));
-        FirmwareComTaskExecution firmwareComTaskExecution = device.newFirmwareComTaskExecution(comTaskEnablement).add();
+        ComTaskExecution firmwareComTaskExecution = device.newFirmwareComTaskExecution(comTaskEnablement).add();
         device.save();
         return firmwareComTaskExecution;
     }

@@ -25,7 +25,7 @@ public enum MessageSeeds implements MessageSeed {
     UPGRADE_OPTIONS_REQUIRED(12, Keys.UPGRADE_OPTIONS_REQUIRED, "At least one option should be selected"),
 
     DEVICE_TYPE_NOT_FOUND(13, Keys.DEVICE_TYPE_NOT_FOUND, "No device type with id {0} could be found"),
-    DEVICE_NOT_FOUND(14, Keys.DEVICE_NOT_FOUND, "No device with id {0} could be found"),
+    DEVICE_NOT_FOUND(14, Keys.DEVICE_NOT_FOUND, "No device {0} could be found"),
     MAX_FILE_SIZE_EXCEEDED(15, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " Mb"),
     FILE_IO(16, Keys.FILE_IO, "Failure while doing IO on file"),
     FIRMWARE_VERSION_NOT_FOUND(14, Keys.FIRMWARE_VERSION_NOT_FOUND, "No firmware version with id {0} could be found"),

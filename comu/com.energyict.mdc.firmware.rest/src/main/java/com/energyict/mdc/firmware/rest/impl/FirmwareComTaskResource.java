@@ -2,13 +2,12 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-
-import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -23,7 +22,7 @@ import javax.ws.rs.core.Response;
 /**
  * Provides logic regarding the FirmwareComTaskExecution.
  */
-@Path("/devices/{mrid}/comtasks")
+@Path("/devices/{name}/comtasks")
 public class FirmwareComTaskResource {
 
     private final ResourceHelper resourceHelper;
@@ -47,19 +46,17 @@ public class FirmwareComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response retryFirmwareComTask(@PathParam("mrid") String mrid, @PathParam("comTaskId") Long comTaskId, DeviceFirmwareActionInfo info) {
+    public Response retryFirmwareComTask(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, DeviceFirmwareActionInfo info) {
         String actionName = thesaurus.getFormat(MessageSeeds.FIRMWARE_COMMUNICATION_TASK_NAME).format();
-        Device device = resourceHelper.getLockedDevice(mrid, info.version)
+        Device device = resourceHelper.getLockedDevice(name, info.version)
                 .orElseThrow(conflictFactory.conflict()
-                        .withActualVersion(() -> deviceService.findByUniqueMrid(mrid).map(Device::getVersion).orElse(null))
+                        .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
                         .withMessageTitle(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE, actionName)
                         .withMessageBody(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY, actionName)
                         .supplier());
 
         ComTaskExecution firmwareComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
-                        .filter(comTask -> comTask.getId() == comTaskId).findAny()
-                        .isPresent())
+                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId));
         firmwareComTaskExecution.runNow();
