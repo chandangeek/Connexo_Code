@@ -52,6 +52,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.usagepoint.calendar.UsagePointCalendarService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -143,6 +144,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     MessageService messageService;
     @Mock
     MeteringTranslationService meteringTranslationService;
+    @Mock
+    UsagePointLifeCycleService usagePointLifeCycleService;
 
     @Override
     protected Application getApplication() {
@@ -188,6 +191,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setSearchService(searchService);
         application.setMessageService(messageService);
         application.setMeteringTranslationService(meteringTranslationService);
+        application.setUsagePointLifeCycleService(usagePointLifeCycleService);
         return application;
     }
 

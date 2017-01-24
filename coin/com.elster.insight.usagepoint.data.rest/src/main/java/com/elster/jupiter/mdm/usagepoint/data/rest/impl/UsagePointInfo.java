@@ -43,6 +43,7 @@ public class UsagePointInfo {
     public String displayType;
     public UsagePointLifeCycleStateInfo state;
     public UsagePointLifeCycleInfo lifeCycle;
+    public Long lastTransitionTime;
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "serviceCategory")
     @JsonTypeIdResolver(BaseUsagePointDetailsInfo.UsagePointDetailsTypeResolver.class)
