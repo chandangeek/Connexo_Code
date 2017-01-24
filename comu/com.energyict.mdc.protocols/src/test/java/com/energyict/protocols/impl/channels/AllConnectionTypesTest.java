@@ -16,9 +16,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SocketService;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -105,8 +102,6 @@ public class AllConnectionTypesTest {
     @Mock
     private TopologyService topologyService;
     @Mock
-    private SerialComponentService serialComponentService;
-    @Mock
     private IssueService issueService;
     @Mock
     private MdcReadingTypeUtilService mdcReadingTypeUtilService;
@@ -134,7 +129,6 @@ public class AllConnectionTypesTest {
                 Guice.createInjector(
                         new MockModule(),
                         this.bootstrapModule,
-                        new MdcIOModule(),
                         new ProtocolsModule());
         this.connectionTypeService = this.getConnectionTypeService(injector);
     }
@@ -143,10 +137,8 @@ public class AllConnectionTypesTest {
         return ConnectionTypeServiceImpl.withAllSerialComponentServices(
                 injector.getInstance(com.elster.jupiter.properties.PropertySpecService.class),
                 injector.getInstance(PropertySpecService.class),
-                injector.getInstance(SocketService.class),
                 injector.getInstance(NlsService.class),
-                injector.getInstance(TransactionService.class),
-                serialComponentService);
+                injector.getInstance(TransactionService.class));
     }
 
     protected void initializeMocks() {
@@ -288,7 +280,6 @@ public class AllConnectionTypesTest {
             bind(CollectedDataFactory.class).toInstance(collectedDataFactory);
             bind(IdentificationService.class).toInstance(identificationService);
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-            bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }

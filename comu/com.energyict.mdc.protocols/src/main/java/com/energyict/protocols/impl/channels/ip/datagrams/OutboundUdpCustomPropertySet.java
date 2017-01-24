@@ -1,19 +1,12 @@
 package com.energyict.protocols.impl.channels.ip.datagrams;
 
 import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.io.ConnectionType;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
-import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
-import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionPropertiesPersistenceSupport;
-import com.energyict.protocols.impl.channels.ip.OutboundIpCustomPropertySet;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-
-import java.util.Arrays;
-import java.util.List;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpCustomPropertySet;
 
 /**
  * Provides an implementation for the {@link CustomPropertySet} interface
@@ -22,24 +15,19 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:03)
  */
-public class OutboundUdpCustomPropertySet extends OutboundIpCustomPropertySet {
+public class OutboundUdpCustomPropertySet extends OutboundTcpIpCustomPropertySet {
 
     public OutboundUdpCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        super(thesaurus, CustomPropertySetTranslationKeys.OUTBOUND_UDP_CUSTOM_PROPERTY_SET_NAME, propertySpecService);
+        super(thesaurus, propertySpecService);
     }
 
     @Override
-    public PersistenceSupport<ConnectionProvider, OutboundIpConnectionProperties> getPersistenceSupport() {
-        return new OutboundIpConnectionPropertiesPersistenceSupport();
+    public String getName() {
+        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.OUTBOUND_UDP_CUSTOM_PROPERTY_SET_NAME).format();
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
-                this.hostPropertySpec(),
-                this.portPropertySpec(),
-                this.connectionTimeoutPropertySpec(),
-                this.bufferSizePropertySpec());
+    public ConnectionType getConnectionTypeSupport() {
+        return new com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType(propertySpecService);
     }
-
 }

@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.EZ7;
 import com.energyict.protocolimpl.emon.ez7.core.command.AllEnergy;
 import com.energyict.protocolimpl.emon.ez7.core.command.AllMaximumDemand;
