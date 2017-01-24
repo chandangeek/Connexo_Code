@@ -26,7 +26,7 @@ public class EffectiveTimestampNotAfterLastStateChangeException extends DeviceLi
 
     private final Thesaurus thesaurus;
     private final MessageSeed messageSeed;
-    private final String mRID;
+    private final String deviceName;
     private final Instant effectiveTimestamp;
     private final Instant lastStateChange;
     private final DateTimeFormatter formatter;
@@ -35,7 +35,7 @@ public class EffectiveTimestampNotAfterLastStateChangeException extends DeviceLi
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
-        this.mRID = device.getmRID();
+        this.deviceName = device.getName();
         this.effectiveTimestamp = effectiveTimestamp;
         this.lastStateChange = lastStateChange;
         this.formatter = formatter;
@@ -46,7 +46,7 @@ public class EffectiveTimestampNotAfterLastStateChangeException extends DeviceLi
         return this.thesaurus
                 .getFormat(this.messageSeed)
                 .format(
-                        this.mRID,
+                        this.deviceName,
                         getFormattedInstant(this.formatter, this.effectiveTimestamp),
                         getFormattedInstant(this.formatter, this.lastStateChange));
     }

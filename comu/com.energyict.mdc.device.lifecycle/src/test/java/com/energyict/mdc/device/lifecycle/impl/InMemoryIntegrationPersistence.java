@@ -45,6 +45,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.users.GrantPrivilege;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -87,6 +90,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -106,6 +110,7 @@ import java.util.Properties;
 
 import org.mockito.Matchers;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -169,6 +174,7 @@ public class InMemoryIntegrationPersistence {
                 new CustomPropertySetsModule(),
                 new InMemoryMessagingModule(),
                 new FiniteStateMachineModule(),
+                new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
                 new SearchModule(),
@@ -251,6 +257,11 @@ public class InMemoryIntegrationPersistence {
         when(this.bundleContext.getProperty(anyString())).thenReturn(null);
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(User.class);
+        GrantPrivilege superGrant = mock(GrantPrivilege.class);
+        when(superGrant.canGrant(any())).thenReturn(true);
+        Group superUser = mock(Group.class);
+        when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", asList(superGrant)));
+        when(this.principal.getGroups()).thenReturn(asList(superUser));
         when(this.principal.getName()).thenReturn(testName);
         when(this.principal.hasPrivilege(Matchers.matches("MDC"), any(Privilege.class))).thenReturn(true);
         this.licenseService = mock(LicenseService.class);

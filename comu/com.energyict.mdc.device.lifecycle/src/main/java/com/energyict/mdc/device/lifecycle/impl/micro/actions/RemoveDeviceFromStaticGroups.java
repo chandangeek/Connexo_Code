@@ -1,17 +1,16 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
-
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
 import java.util.List;
@@ -69,7 +68,7 @@ public class RemoveDeviceFromStaticGroups extends TranslatableServerMicroAction 
         group
             .getEntries()
             .stream()
-            .filter(each -> each.getEndDevice().getId() == endDevice.getId())
+            .filter(each -> each.getMember().getId() == endDevice.getId())
             .findFirst()
             .ifPresent(group::remove);
     }

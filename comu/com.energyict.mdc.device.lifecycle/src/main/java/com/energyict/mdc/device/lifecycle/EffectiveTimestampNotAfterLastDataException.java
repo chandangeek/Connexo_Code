@@ -19,7 +19,7 @@ public class EffectiveTimestampNotAfterLastDataException extends DeviceLifeCycle
 
     private final Thesaurus thesaurus;
     private final MessageSeed messageSeed;
-    private final String mRID;
+    private final String deviceName;
     private final Instant effectiveTimestamp;
     private final Instant lastStateChange;
     private final DateTimeFormatter formatter;
@@ -28,7 +28,7 @@ public class EffectiveTimestampNotAfterLastDataException extends DeviceLifeCycle
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
-        this.mRID = device.getmRID();
+        this.deviceName = device.getName();
         this.effectiveTimestamp = effectiveTimestamp;
         this.lastStateChange = lastData;
         this.formatter = formatter;
@@ -39,7 +39,7 @@ public class EffectiveTimestampNotAfterLastDataException extends DeviceLifeCycle
         return this.thesaurus
                 .getFormat(this.messageSeed)
                 .format(
-                        this.mRID,
+                        this.deviceName,
                         getFormattedInstant(this.formatter, this.effectiveTimestamp),
                         getFormattedInstant(this.formatter, this.lastStateChange));
     }

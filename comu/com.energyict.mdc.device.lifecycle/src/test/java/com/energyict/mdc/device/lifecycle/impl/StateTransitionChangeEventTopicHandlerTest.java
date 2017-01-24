@@ -83,7 +83,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService, never()).findEndDevice(anyString());
+        verify(this.meteringService, never()).findEndDeviceByMRID(anyString());
     }
 
     @Test

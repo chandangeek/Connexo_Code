@@ -67,7 +67,7 @@ public class ForceValidationAndEstimation extends TranslatableServerMicroAction 
     private void validateAndEstimate(MeterActivation meterActivation) {
         ChannelsContainer channelsContainer = meterActivation.getChannelsContainer();
         validationService.validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer);
-        estimationService.estimate(QualityCodeSystem.MDC, meterActivation, meterActivation.getRange());
+        estimationService.estimate(QualityCodeSystem.MDC, channelsContainer, meterActivation.getRange());
         boolean hasSuspects = channelsContainer.getChannels().stream()
                 .anyMatch(channel -> channel.findReadingQualities()
                         .ofQualitySystem(QualityCodeSystem.MDC)

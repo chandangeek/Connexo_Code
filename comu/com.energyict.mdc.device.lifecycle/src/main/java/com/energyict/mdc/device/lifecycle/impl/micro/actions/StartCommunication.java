@@ -38,8 +38,7 @@ public class StartCommunication extends TranslatableServerMicroAction {
         Set<Long> usedComtaskIds =
                 comTaskExecutions
                         .stream()
-                        .flatMap(each -> each.getComTasks().stream())
-                        .map(ComTask::getId)
+                        .map(each -> each.getComTask().getId())
                         .collect(Collectors.toSet());
         for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
             if (!usedComtaskIds.contains(comTaskEnablement.getComTask().getId())) {
