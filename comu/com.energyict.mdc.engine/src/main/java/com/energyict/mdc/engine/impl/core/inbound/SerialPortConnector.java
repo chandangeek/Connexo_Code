@@ -85,7 +85,7 @@ public class SerialPortConnector implements InboundComPortConnector {
                 } else {
                     currentRingCount = 0;
                 }
-            } catch (ModemException e) {
+            } catch (com.energyict.mdc.upl.io.ModemException e) {
                 currentRingCount = 0;
             }
         } while (currentRingCount < comPort.getRingCount());

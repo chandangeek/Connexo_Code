@@ -19,13 +19,8 @@ import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import org.joda.time.DateTimeConstants;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +32,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -78,7 +80,7 @@ public class SerialPortConnectorTest {
         when(comPort.getConnectTimeout()).thenReturn(new TimeDuration(3));
         when(comPort.getDelayAfterConnect()).thenReturn(new TimeDuration(1));
         when(comPort.getDelayBeforeSend()).thenReturn(new TimeDuration(0));
-        when(comPort.getModemInitStrings()).thenReturn(Arrays.asList("ATM0"));
+        when(comPort.getModemInitStrings()).thenReturn(Collections.singletonList("ATM0"));
         when(comPort.getAtCommandTry()).thenReturn(new BigDecimal(3));
         when(comPort.getAddressSelector()).thenReturn("");
         when(comPort.getPostDialCommands()).thenReturn("");
@@ -208,10 +210,7 @@ public class SerialPortConnectorTest {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
         SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
-        when(comPort.getGlobalModemInitStrings()).thenReturn(
-                new ArrayList<String>() {{
-                    add("GLOBAL INIT");
-                }});
+        when(comPort.getGlobalModemInitStrings()).thenReturn(Arrays.asList("GLOBAL INIT"));
         when(comPort.getModemInitStrings()).thenReturn(Arrays.asList("FIRST INIT", "2TH INIT"));
 
         serialComChannel.setResponses(Arrays.asList(
@@ -381,7 +380,7 @@ public class SerialPortConnectorTest {
 
 //        serialComChannel.setResponses(Arrays.asList("RUBBISH - RUBBISH", "RUBBISH - RUBBISH", "RUBBISH - RUBBISH"));      // Answer at modem hang up command (first try)
 
-        serialComChannel.setResponseTimings(Arrays.asList(0));    // Answer at modem hang up command
+        serialComChannel.setResponseTimings(Collections.singletonList(0));    // Answer at modem hang up command
         int expectedRunTime = 1 + (3 * 1);    // Delay before hang up + 3 tries to hang up
         long timeBeforeConnect = System.currentTimeMillis();
 
@@ -524,7 +523,7 @@ public class SerialPortConnectorTest {
 
         @Override
         public int write(byte[] bytes) {
-            if (new String(bytes).equals("+++")) {
+            if ("+++".equals(new String(bytes))) {
                 // Writing the disconnect sequence is always followed by a flush of the inputStream.
                 requestToFlushInputStream = true;
             }

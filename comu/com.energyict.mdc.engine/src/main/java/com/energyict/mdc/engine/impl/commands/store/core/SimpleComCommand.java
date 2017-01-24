@@ -120,7 +120,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                         connectionErrorOccurred(deviceProtocol, e);
                     }
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
-                } catch (ConnectionSetupException | ModemException e) {
+                } catch (ConnectionSetupException | ModemException | com.energyict.mdc.upl.io.ModemException e) {
                     connectionErrorOccurred(deviceProtocol, e);
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
                 } catch (CommunicationException | DataParseException e) {
