@@ -6,8 +6,7 @@ Ext.define('Fim.view.history.HistoryGrid', {
         'Uni.grid.column.Action',
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Fim.view.history.HistoryActionMenu'
+        'Uni.view.toolbar.PagingBottom'
     ],
     showImportService: false,
     initComponent: function () {
@@ -52,13 +51,6 @@ Ext.define('Fim.view.history.HistoryGrid', {
                 dataIndex: 'status',
                 textAlign: 'center',
                 flex: 1
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                width: 100,
-                menu: {
-                    xtype: 'fim-history-action-menu'
-                }
             }
         ];
 

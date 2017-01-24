@@ -3,16 +3,7 @@ Ext.define('Fim.view.history.HistoryPreview', {
     frame: true,
     alias: 'widget.fim-history-preview',
     requires: [
-        'Fim.view.history.HistoryPreviewForm',
-        'Fim.view.history.HistoryActionMenu'
-    ],
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            menu: {
-                xtype: 'fim-history-action-menu'
-            }
-        }
+        'Fim.view.history.HistoryPreviewForm'
     ],
 
     items: {

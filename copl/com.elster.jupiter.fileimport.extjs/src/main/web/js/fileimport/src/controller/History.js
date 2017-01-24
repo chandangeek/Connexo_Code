@@ -46,9 +46,6 @@ Ext.define('Fim.controller.History', {
             },
             '#fim-history-sort-toolbar #itemsContainer button': {
                 click: this.switchSortingOrder
-            },
-            'fim-history-action-menu': {
-                click: this.chooseAction
             }
         });
     },
@@ -152,7 +149,6 @@ Ext.define('Fim.controller.History', {
         Ext.suspendLayouts();
         preview.setTitle(record.get('startedOnDisplay'));
         previewForm.loadRecord(record);
-        preview.down('fim-history-action-menu').record = record;
         Ext.resumeLayouts();
     },
 
@@ -244,20 +240,5 @@ Ext.define('Fim.controller.History', {
         store.load(function(records, operation, success) {
             gridView.setLoading(false);
         });
-    },
-
-    chooseAction: function (menu, item) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            route;
-
-        router.arguments.importServiceId = menu.record.get('importServiceId');
-        router.arguments.occurrenceId = menu.record.get('occurrenceId');
-        if (item.action === 'viewLog') {
-            route = 'administration/importservices/importservice/history/occurrence';
-        }
-
-        route && (route = router.getRoute(route));
-        route && route.forward(router.arguments);
     }
 });
