@@ -2,27 +2,15 @@ package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.masterdata.LoadProfileIntervals;
 import com.energyict.mdc.masterdata.rest.impl.TranslationKeys;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class LocalizedTimeDuration {
-
-    public static final Map<Integer, LocalizedTimeDuration> intervals;
-
-    static {
-        int i = 0;
-        intervals = new HashMap<>();
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), TranslationKeys.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(10, TimeDuration.TimeUnit.MINUTES), TranslationKeys.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(15, TimeDuration.TimeUnit.MINUTES), TranslationKeys.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(30, TimeDuration.TimeUnit.MINUTES), TranslationKeys.TIME_MINUTES));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.TimeUnit.HOURS), TranslationKeys.TIME_HOUR));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.TimeUnit.DAYS), TranslationKeys.TIME_DAY));
-        intervals.put(i++, new LocalizedTimeDuration(new TimeDuration(1, TimeDuration.TimeUnit.MONTHS), TranslationKeys.TIME_MONTH));
-    }
 
     private TimeDuration timeDuration;
     private TranslationKeys localizedUnit;
@@ -40,29 +28,45 @@ public class LocalizedTimeDuration {
         return thesaurus.getFormat(localizedUnit).format(timeDuration.getCount());
     }
 
+    public static List<TimeDurationInfo> getAllInfos(Thesaurus thesaurus){
+        List<TimeDurationInfo> all = new ArrayList<>();
+        for (LoadProfileIntervals interval : LoadProfileIntervals.values()) {
+            all.add(new TimeDurationInfo(interval, thesaurus));
+        }
+        return all;
+    }
+
     public static class TimeDurationInfo {
         public int id;
         public String name;
         public int asSeconds;
+
+        public TimeDurationInfo(){}
+
+        TimeDurationInfo(LoadProfileIntervals loadProfileIntervals, Thesaurus thesaurus){
+            this();
+            this.id = loadProfileIntervals.ordinal();
+            if (thesaurus != null)
+                this.name = thesaurus.getFormat(TranslationKeys.getByKey(loadProfileIntervals.unitName())).format(loadProfileIntervals.getTimeDuration().getCount());
+            else
+                this.name =  loadProfileIntervals.name();
+
+            this.asSeconds = loadProfileIntervals.getTimeDuration().getSeconds();
+        }
     }
 
     public static class Adapter extends XmlAdapter<TimeDurationInfo, TimeDuration> {
 
         @Override
         public TimeDuration unmarshal(TimeDurationInfo info) throws Exception {
-            LocalizedTimeDuration duration = intervals.get(info.id);
-            return duration != null ? duration.getTimeDuration() : null;
+            return LoadProfileIntervals.values()[info.id].getTimeDuration();
         }
 
         @Override
         public TimeDurationInfo marshal(TimeDuration timeDuration) throws Exception {
-            for (Map.Entry<Integer, LocalizedTimeDuration> durationEntry : intervals.entrySet()) {
-                if (durationEntry.getValue().getTimeDuration().equals(timeDuration)){
-                    TimeDurationInfo info = new TimeDurationInfo();
-                    info.id = durationEntry.getKey();
-                    info.asSeconds = durationEntry.getValue().getTimeDuration().getSeconds();
-                    return info;
-                }
+            Optional<LoadProfileIntervals> interval = LoadProfileIntervals.fromTimeDuration(timeDuration);
+            if (interval.isPresent()){
+                return new TimeDurationInfo(interval.get(), null);
             }
             return null;
         }

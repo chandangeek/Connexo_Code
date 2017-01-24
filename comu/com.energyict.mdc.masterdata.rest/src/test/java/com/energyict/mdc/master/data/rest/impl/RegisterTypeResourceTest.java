@@ -22,11 +22,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
-import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -37,11 +32,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Test;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -49,6 +46,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
+
+    private static final long OK_VERSION = 11;
+    private static final long BAD_VERSION = 8;
+    private static final long REGISTER_ID = 1L;
 
     @Mock
     private ReadingType readingType;
@@ -88,7 +89,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(readingType.isCumulative()).thenReturn(true);
 
         List<RegisterSpec> registerSpecs = mock(List.class);
@@ -102,7 +103,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("obisCode")
             .containsKey("isLinkedByDeviceType")
             .containsKey("readingType");
-        assertThat((Map)map.get("readingType")).hasSize(24)
+        assertThat((Map)map.get("readingType")).hasSize(25)
             .containsKey("mRID")
             .containsKey("aliasName")
             .containsKey("active")
@@ -112,6 +113,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("accumulation")
             .containsKey("flowDirection")
             .containsKey("commodity")
+            .containsKey("isGasRelated")
             .containsKey("measurementKind")
             .containsKey("interHarmonicNumerator")
             .containsKey("interHarmonicDenominator")
@@ -127,9 +129,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("version")
             .containsKey("isCumulative")
             .containsKey("names");
-
     }
-
 
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
@@ -140,12 +140,6 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
         when(finder.stream()).thenReturn(list.stream());
         return finder;
     }
-
-
-
-    public static final long OK_VERSION = 11;
-    public static final long BAD_VERSION = 8;
-    public static final long REGISTER_ID = 1L;
 
     private RegisterType mockRegisterType() {
         when(readingType.getAliasName()).thenReturn("register type");
@@ -166,7 +160,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         when(readingType.isCumulative()).thenReturn(true);
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getId()).thenReturn(REGISTER_ID);
@@ -174,26 +168,6 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
         when(registerType.getDescription()).thenReturn("Default description");
         when(registerType.getObisCode()).thenReturn(new ObisCode(1,2,3,4,5,1,false));
         when(registerType.getReadingType()).thenReturn(readingType);
-        when(readingType.getAliasName()).thenReturn("register type");
-        when(readingType.getMRID()).thenReturn("mrid");
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
-        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
-        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
-        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getTou()).thenReturn(3);
-        when(readingType.getCpp()).thenReturn(4);
-        when(readingType.getConsumptionTier()).thenReturn(5);
-        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
-        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
-        when(readingType.isCumulative()).thenReturn(true);
         when(masterDataService.findRegisterType(REGISTER_ID)).thenReturn(Optional.of(registerType));
         when(masterDataService.findAndLockRegisterTypeByIdAndVersion(REGISTER_ID, OK_VERSION)).thenReturn(Optional.of(registerType));
         when(masterDataService.findAndLockRegisterTypeByIdAndVersion(REGISTER_ID, BAD_VERSION)).thenReturn(Optional.empty());

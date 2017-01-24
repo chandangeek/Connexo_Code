@@ -20,8 +20,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.obis.ObisCode;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
@@ -53,8 +55,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     @Test
     public void testIntervalsList() throws Exception {
         List<Object> intervals = target("/loadprofiles/intervals").request().get(List.class);
-        assertThat(intervals).hasSize(7);
-        assertThat(((Map) intervals.get(0)).get("name")).isEqualTo("5 minutes");
+        assertThat(intervals).hasSize(16);
     }
 
     @Test
@@ -88,7 +89,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
 
     @Test
     public void testGetLoadProfileType() throws Exception {
-        TimeDuration interval = getRandomTimeDuration();
+        TimeDuration interval = getTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
                 new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.of(loadProfileType));
@@ -158,7 +159,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     private List<LoadProfileType> getLoadProfileTypes(int count) {
         List<LoadProfileType> loadProfileTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
-            TimeDuration interval = getRandomTimeDuration();
+            TimeDuration interval = getTimeDuration();
             loadProfileTypes.add(mockLoadProfileType(1000 + i, String.format("Load Profile Type %04d", i), interval,
                     new ObisCode(i, i, i, i, i, i), getChannelTypes(getRandomInt(4), interval)));
         }
@@ -264,7 +265,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
 
     @Test
     public void testUpdateLoadProfileTypeOkVersion() {
-        TimeDuration interval = getRandomTimeDuration();
+        TimeDuration interval = getTimeDuration();
         LoadProfileType loadProfile = mockLoadProfileType(LOADPROFILE_ID, String.format("Load Profile Type %04d", 1), interval,
                 new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
         LoadProfileTypeInfo info = loadProfileTypeInfoFactory.from(loadProfile, false);
@@ -277,7 +278,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
 
     @Test
     public void testUpdateLoadPrifileTypeBadVersion() {
-        TimeDuration interval = getRandomTimeDuration();
+        TimeDuration interval = getTimeDuration();
         LoadProfileType loadProfile = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
                 new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
         LoadProfileTypeInfo info = loadProfileTypeInfoFactory.from(loadProfile, false);
@@ -290,7 +291,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
 
     @Test
     public void testDeleteLoadProfileTypeOkVersion() {
-        TimeDuration interval = getRandomTimeDuration();
+        TimeDuration interval = getTimeDuration();
         LoadProfileType loadProfile = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
                 new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
         LoadProfileTypeInfo info = loadProfileTypeInfoFactory.from(loadProfile, false);
@@ -302,7 +303,7 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
 
     @Test
     public void testDeleteLogBookTypeBadVersion() {
-        TimeDuration interval = getRandomTimeDuration();
+        TimeDuration interval = getTimeDuration();
         LoadProfileType loadProfile = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
                 new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
         LoadProfileTypeInfo info = loadProfileTypeInfoFactory.from(loadProfile, false);
