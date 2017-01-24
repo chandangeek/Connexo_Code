@@ -33,10 +33,11 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-
+import com.energyict.protocol.exceptions.ConnectionException;
 import org.joda.time.DateTimeConstants;
+import org.junit.After;
+import org.junit.Test;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -46,8 +47,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

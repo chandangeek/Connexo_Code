@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.tasks;
 import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.List;
 
