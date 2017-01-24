@@ -8,12 +8,15 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Insert your comments here.
@@ -25,6 +28,21 @@ public class MockOutboundConnectionType implements ConnectionType {
     @Override
     public boolean allowsSimultaneousConnections() {
         return false;
+    }
+
+    @Override
+    public ComChannel connect() throws ConnectionException {
+        return null;
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
     }
 
     @Override
