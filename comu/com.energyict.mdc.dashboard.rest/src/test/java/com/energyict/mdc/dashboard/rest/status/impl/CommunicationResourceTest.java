@@ -23,7 +23,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ItemizeCommunicationsFilterQueueMessage;
 import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterRescheduleQueueMessage;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -40,6 +39,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -47,6 +47,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -238,7 +242,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testCommunicationTaskJsonBinding() throws Exception {
-        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(communicationTaskService.findComTaskExecutionsByFilter(Matchers.<ComTaskExecutionFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1));
         ComSession comSession = mock(ComSession.class);
         when(comSession.getNumberOfFailedTasks()).thenReturn(401);
@@ -293,16 +297,15 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getName()).thenReturn("Weekly billing");
         when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS),new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
-        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution1.getComSchedule()).thenReturn(Optional.of(comSchedule));
+        when(comTaskExecution1.usesSharedSchedule()).thenReturn(true);
         when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(Instant.now());
         when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(Instant.now());
         when(comTaskExecution1.getNextExecutionTimestamp()).thenReturn(Instant.now());
         ComTask comTask1 = mock(ComTask.class);
         when(comTask1.getName()).thenReturn("Read all");
-        ComTask comTask2 = mock(ComTask.class);
-        when(comTask2.getName()).thenReturn("Basic check");
-        when(comTaskExecution1.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
+        when(comTaskExecution1.getComTask()).thenReturn(comTask1);
         ScheduledConnectionTask connectionTask = mockConnectionTask();
         doReturn(Optional.of(connectionTask)).when(comTaskExecution1).getConnectionTask();
         Map<String, Object> map = target("/communications").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
@@ -312,7 +315,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         Map<String, Object> communicationTaskMap = (Map) ((List) map.get("communicationTasks")).get(0);
         assertThat(communicationTaskMap)
                 .containsKey("name")
-                .containsKey("comTasks")
+                .containsKey("comTask")
                 .containsKey("device")
                 .containsKey("deviceType")
                 .containsKey("deviceConfiguration")
@@ -359,7 +362,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(deviceConfiguration.getName()).thenReturn("123123");
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
@@ -379,7 +382,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getName()).thenReturn("Weekly billing");
         when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration(1, TimeDuration.TimeUnit.WEEKS),new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
-        when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution1.getComSchedule()).thenReturn(Optional.of(comSchedule));
         when(comTaskExecution1.getExecutionPriority()).thenReturn(100);
         when(comTaskExecution1.getLastExecutionStartTimestamp()).thenReturn(Instant.now());
         when(comTaskExecution1.getLastSuccessfulCompletionTimestamp()).thenReturn(Instant.now());
