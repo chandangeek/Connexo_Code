@@ -9,46 +9,45 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 
 public class CreateDeviceCommand {
-
-    private DeviceConfigurationTpl configurationTpl = DeviceConfigurationTpl.DEFAULT;
+    private DeviceConfigurationTpl configurationTpl = DeviceConfigurationTpl.PROSUMERS;
     private DeviceTypeTpl deviceType = DeviceTypeTpl.Elster_AS1440;
     private String serialNumber;
-    private String mridPrefix;
+    private String deviceNamePrefix;
 
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
-
-    public void setMridPrefix(String mridPrefix) {
-        this.mridPrefix = mridPrefix;
-    }
-
-    public void run(){
+    public void run() {
         DeviceType deviceType = Builders.from(this.deviceType).find()
-                .orElseThrow(() -> new UnableToCreate("Unable to find the " + this.deviceType.getLongName()+ " device type"));
+                .orElseThrow(() -> new UnableToCreate("Unable to find the " + this.deviceType.getName() + " device type"));
         DeviceConfiguration configuration = Builders.from(configurationTpl).withDeviceType(deviceType).find()
-                .orElseThrow(() -> new UnableToCreate("Unable to find the device configuration '" + configurationTpl.getName() +"'"));
+                .orElseThrow(() -> new UnableToCreate("Unable to find the device configuration '" + configurationTpl.getName() + "'"));
         Builders.from(DeviceBuilder.class)
-                .withMrid(getMrid())
+                .withName(getDeviceName())
                 .withDeviceConfiguration(configuration)
                 .withSerialNumber(serialNumber)
                 .get();
-    }
-
-    protected void setDeviceTypeTpl(DeviceTypeTpl deviceTypeTpl){
-        this.deviceType = deviceTypeTpl;
     }
 
     protected String getSerialNumber() {
         return serialNumber;
     }
 
-    protected String getMridPrefix() {
-        return mridPrefix;
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
     }
 
-    protected String getMrid(){
-        return this.mridPrefix + serialNumber;
+    protected String getDeviceNamePrefix() {
+        return deviceNamePrefix;
+    }
+
+    public void setDeviceNamePrefix(String deviceNamePrefix) {
+        this.deviceNamePrefix = deviceNamePrefix;
+    }
+
+    protected String getDeviceName() {
+        return this.deviceNamePrefix + serialNumber;
+    }
+
+    protected void setDeviceTypeTpl(DeviceTypeTpl deviceTypeTpl) {
+        this.deviceType = deviceTypeTpl;
     }
 
     protected void setConfigurationTpl(DeviceConfigurationTpl configurationTpl) {

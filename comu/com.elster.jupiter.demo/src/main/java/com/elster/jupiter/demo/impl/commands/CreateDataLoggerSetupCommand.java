@@ -5,7 +5,6 @@ import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerSlaveCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
@@ -28,14 +27,14 @@ import java.util.Optional;
  * Date: 20/06/2016
  * Time: 9:13
  */
-public class CreateDataLoggerSetupCommand {
+public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder;
+    private final Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder;
 
     private String dataLoggerMrid;
     private String dataLoggerSerial;
@@ -47,7 +46,7 @@ public class CreateDataLoggerSetupCommand {
                                         ConnectionTaskService connectionTaskService,
                                         Provider<DeviceBuilder> deviceBuilderProvider,
                                         Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
-                                        Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder) {
+                                        Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder) {
 
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
@@ -79,7 +78,7 @@ public class CreateDataLoggerSetupCommand {
                 activeLifeCyclestatePostBuilder
         );
         if (this.dataLoggerMrid != null) {
-            dataLoggerCommand.setDataLoggerMrid(dataLoggerMrid);
+            dataLoggerCommand.setDataLoggerName(dataLoggerMrid);
         }
         if (this.dataLoggerSerial != null) {
             dataLoggerCommand.setSerialNumber(dataLoggerSerial);
@@ -121,7 +120,7 @@ public class CreateDataLoggerSetupCommand {
         for (int i = existing + 1; i <= existing + numberOfSlaves; i++) {
             CreateDataLoggerSlaveCommand slave = new CreateDataLoggerSlaveCommand();
             slave.setActiveLifeCyclestatePostBuilder(this.activeLifeCyclestatePostBuilder);
-            slave.setMridPrefix(DeviceTypeTpl.EIMETER_FLEX.getLongName());
+            slave.setDeviceNamePrefix(DeviceTypeTpl.EIMETER_FLEX.getName());
             slave.setSerialNumber("" + i);
             slave.run();
         }

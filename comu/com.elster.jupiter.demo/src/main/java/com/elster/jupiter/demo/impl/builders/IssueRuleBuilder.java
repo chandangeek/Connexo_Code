@@ -2,13 +2,16 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -25,10 +28,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.NamedBuilder<CreationRule, IssueRuleBuilder> {
 
-    private static final String DEFAULT_CONFIGURATION = "Default";
-
     public static final String BASIC_DATA_COLLECTION_RULE_TEMPLATE = "BasicDataCollectionRuleTemplate";
     public static final String BASIC_DATA_VALIDATION_RULE_TEMPLATE = "DataValidationIssueCreationRuleTemplate";
+    public static final String BASIC_DEVICE_ALARM_RULE_TEMPLATE = "BasicDeviceAlarmRuleTemplate";
 
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
@@ -37,7 +39,8 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private String type;
     private String reason;
     private String ruleTemplate;
-    private DueInType dueInType= null;
+    private DueInType dueInType = null;
+    private Priority priority;
 
     @Inject
     public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService) {
@@ -58,12 +61,17 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     }
 
     public IssueRuleBuilder withRuleTemplate(String ruleTemplate) {
-        this.ruleTemplate  = ruleTemplate;
+        this.ruleTemplate = ruleTemplate;
         return this;
     }
 
     public IssueRuleBuilder withDueInType(DueInType dueInType) {
         this.dueInType = dueInType;
+        return this;
+    }
+
+    public IssueRuleBuilder withPriority(Priority priority) {
+        this.priority = priority;
         return this;
     }
 
@@ -79,11 +87,16 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         builder.setName(getName());
         builder.setIssueType(getReasonForRule().getIssueType());
         builder.setReason(getReasonForRule());
+
         if (this.dueInType == null) {
             builder.setDueInTime(DueInType.WEEK, 1);
-        }
-        else {
+        } else {
             builder.setDueInTime(dueInType, 1);
+        }
+        if (this.priority == null) {
+            builder.setPriority(Priority.DEFAULT);
+        } else {
+            builder.setPriority(priority);
         }
 
         CreationRuleTemplate template = getCreationRuleTemplate();
@@ -112,45 +125,47 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private Map<String, Object> getProperties(CreationRuleTemplate template) {
         Map<String, Object> properties = new HashMap<>();
         if (template.getName().equals(BASIC_DATA_COLLECTION_RULE_TEMPLATE)) {
-             properties.put(
-                     BasicDataCollectionRuleTemplate.EVENTTYPE,
-                     template.getPropertySpec(BasicDataCollectionRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
-             properties.put(
-                     BasicDataCollectionRuleTemplate.AUTORESOLUTION,
-                     template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("1"));
+            properties.put(
+                    BasicDataCollectionRuleTemplate.EVENTTYPE,
+                    template.getPropertySpec(BasicDataCollectionRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
+            properties.put(
+                    BasicDataCollectionRuleTemplate.AUTORESOLUTION,
+                    template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).get().getValueFactory().fromStringValue("1"));
 
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
-            List<HasIdAndName>  deviceConfigurations = getAllDefaultConfigurations();
+            List<HasIdAndName> deviceConfigurations = getAllDefaultConfigurations();
             if (!deviceConfigurations.isEmpty()) {
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
+        } else if (template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE)) {
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.EVENTTYPE,
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
         }
         return properties;
     }
 
     private List<HasIdAndName> getAllDefaultConfigurations() {
         List<HasIdAndName> listValue = new ArrayList<>();
-        for (DeviceType type: deviceConfigurationService.findAllDeviceTypes().find()) {
-             if (type.getName().equals("Landis+Gyr ZMD")) {
-                 continue;
-             }
-             for (DeviceConfiguration configuration: type.getConfigurations()) {
-                 if (configuration.getName().equals(DEFAULT_CONFIGURATION)) {
-                     listValue.add(new HasIdAndName() {
-                         @Override
-                         public Object getId() {
-                             return configuration.getId();
-                         }
+        for (DeviceType type : this.deviceConfigurationService.findAllDeviceTypes().find()) {
+            for (DeviceConfiguration configuration : type.getConfigurations()) {
+                if (configuration.getName().equals(DeviceConfigurationTpl.PROSUMERS.getName()) ||
+                        configuration.getName().equals(DeviceConfigurationTpl.CONSUMERS.getName()) ||
+                        configuration.getName().equals(DeviceConfigurationTpl.PROSUMERS_VALIDATION_STRICT.getName())) {
+                    listValue.add(new HasIdAndName() {
+                        @Override
+                        public Object getId() {
+                            return configuration.getId();
+                        }
 
-                         @Override
-                         public String getName() {
-                             return configuration.getName();
-                         }
-                     });
-                 }
-             }
+                        @Override
+                        public String getName() {
+                            return configuration.getName();
+                        }
+                    });
+                }
+            }
         }
         return listValue;
     }
-
 }

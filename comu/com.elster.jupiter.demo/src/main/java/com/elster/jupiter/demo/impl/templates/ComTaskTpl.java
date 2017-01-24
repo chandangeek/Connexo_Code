@@ -3,14 +3,17 @@ package com.elster.jupiter.demo.impl.templates;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.ComTaskBuilder;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -48,17 +51,17 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             Collections.singletonList(TopologyAction.VERIFY),
             null),
     TOPOLOGY_UPDATE("Topology update",
-        null,
-        null,
-        null,
-        Collections.singletonList(TopologyAction.UPDATE),
-        null),
+            null,
+            null,
+            null,
+            Collections.singletonList(TopologyAction.UPDATE),
+            null),
     VERIFY_STATUS_INFO("Verify status information",
             null,
             null,
             null,
             null,
-            null){
+            null) {
         @Override
         protected boolean isVerifyStatusInformationTask() {
             return true;
@@ -71,9 +74,9 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             null,
             null,
             null,
-            null){
+            null) {
     },
-     READ_DATA_LOGGER_REGISTER_DATA("Read data logger register data",
+    READ_DATA_LOGGER_REGISTER_DATA("Read data logger register data",
             null,
             null,
             Collections.singletonList(RegisterGroupTpl.DATA_LOGGER_REGISTER_DATA),
@@ -85,6 +88,17 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             null,
             null,
             null),
+    COMMANDS("Commands",
+            null,
+            null,
+            null,
+            null,
+            null) {
+        @Override
+        protected Function<DeviceMessageSpecificationService, List<DeviceMessageCategory>> getCommandCategoryProvider() {
+            return DeviceMessageSpecificationService::filteredCategoriesForComTaskDefinition;
+        }
+    },
     ;
     private String name;
     private List<LoadProfileTypeTpl> loadProfileTypes;
@@ -110,15 +124,16 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
     @Override
     public ComTaskBuilder get(ComTaskBuilder builder) {
         builder.withName(this.name);
-        if (loadProfileTypes != null){
+        if (loadProfileTypes != null) {
             builder.withLoadProfileTypes(loadProfileTypes.stream().map(lptDescr -> Builders.from(lptDescr).get()).collect(Collectors.toList()));
         }
-        if (logBookTypes != null){
+        if (logBookTypes != null) {
             builder.withLogBookTypes(logBookTypes.stream().map(lbtDescr -> Builders.from(lbtDescr).get()).collect(Collectors.toList()));
         }
-        if (registerGroups != null){
+        if (registerGroups != null) {
             builder.withRegisterGroups(registerGroups.stream().map(rgDescr -> Builders.from(rgDescr).get()).collect(Collectors.toList()));
         }
+        builder.withCommandCategoryProvider(getCommandCategoryProvider());
         builder.withTopologyActions(topologyActions);
         builder.withClocks(clocks);
         builder.forStatusInformationTask(isVerifyStatusInformationTask());
@@ -129,15 +144,15 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         return name;
     }
 
-    protected boolean isVerifyStatusInformationTask(){
+    protected boolean isVerifyStatusInformationTask() {
         return false;
     }
 
-    static ComTaskTpl[] excludeTopologyTpls(){
-        return  EnumSet.of(READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, VERIFY_STATUS_INFO, FIRMWARE_MANAGEMENT ).toArray(new ComTaskTpl[5]);
+    protected Function<DeviceMessageSpecificationService, List<DeviceMessageCategory>> getCommandCategoryProvider() {
+        return null;
     }
 
-    static ComTaskTpl[] TopologyTpls(){
-        return  EnumSet.of(TOPOLOGY, TOPOLOGY_UPDATE).toArray(new ComTaskTpl[2]);
+    static ComTaskTpl[] excludeTopologyTpls() {
+        return EnumSet.of(READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, VERIFY_STATUS_INFO, FIRMWARE_MANAGEMENT, COMMANDS).toArray(new ComTaskTpl[6]);
     }
 }

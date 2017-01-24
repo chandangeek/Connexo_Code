@@ -5,7 +5,7 @@ import com.elster.jupiter.demo.impl.builders.NTASimToolBuilder;
 
 import javax.inject.Inject;
 
-public class CreateNtaConfigCommand {
+public class CreateNtaConfigCommand extends CommandWithTransaction {
     @Inject
     public CreateNtaConfigCommand() {
     }

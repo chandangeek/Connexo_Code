@@ -30,12 +30,12 @@ public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilde
     DATA_LOGGER_SLAVES("Data logger slaves", null, DeviceTypeTpl.EIMETER_FLEX);
 
     private String name;
-    private String mridPrefix;
+    private String namePrefix;
     private DeviceTypeTpl[] deviceTypes;
 
-    DeviceGroupTpl(String name, String mridPrefix, DeviceTypeTpl... deviceTypes) {
+    DeviceGroupTpl(String name, String namePrefix, DeviceTypeTpl... deviceTypes) {
         this.name = name;
-        this.mridPrefix = mridPrefix;
+        this.namePrefix = namePrefix;
         this.deviceTypes = deviceTypes;
     }
 
@@ -46,7 +46,7 @@ public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilde
 
     @Override
     public DeviceGroupBuilder get(DeviceGroupBuilder builder) {
-        return builder.withName(this.name).withMridPrefix(mridPrefix).withDeviceTypes(Arrays.stream(this.deviceTypes).map(DeviceTypeTpl::getLongName).collect(Collectors.toList()));
+        return builder.withName(this.name).withNamePrefix(namePrefix).withDeviceTypes(Arrays.stream(this.deviceTypes).map(DeviceTypeTpl::getName).collect(Collectors.toList()));
     }
 
     public String getName() {

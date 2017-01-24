@@ -6,7 +6,7 @@ import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
+import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -35,6 +35,7 @@ import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -48,7 +49,7 @@ public class CreateDataLoggerCommand {
 
     //   private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
-    private final static String DATA_LOGGER_MRID = "DemoDataLogger";
+    private final static String DATA_LOGGER_NAME = "DemoDataLogger";
     private final static String DATA_LOGGER_SERIAL = "660-05A043-1428";
     private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
 
@@ -57,10 +58,10 @@ public class CreateDataLoggerCommand {
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
+    private final Provider<ActivateDevicesCommand> lifecyclePostBuilder;
 
     private Map<ComTaskTpl, ComTask> comTasks;
-    private String mRID = DATA_LOGGER_MRID;
+    private String name = DATA_LOGGER_NAME;
     private String serialNumber = DATA_LOGGER_SERIAL;
 
     @Inject
@@ -69,7 +70,7 @@ public class CreateDataLoggerCommand {
                                    ConnectionTaskService connectionTaskService,
                                    Provider<DeviceBuilder> deviceBuilderProvider,
                                    Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
-                                   Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder) {
+                                   Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
@@ -78,8 +79,8 @@ public class CreateDataLoggerCommand {
         this.lifecyclePostBuilder = lifecyclePostBuilder;
     }
 
-    public void setDataLoggerMrid(String mRID) {
-        this.mRID = mRID;
+    public void setDataLoggerName(String name) {
+        this.name = name;
     }
 
     public void setSerialNumber(String serialNumber) {
@@ -88,9 +89,9 @@ public class CreateDataLoggerCommand {
 
     public void run() {
         // 1. Some basic checks
-        Optional<Device> device = deviceService.findByUniqueMrid(mRID);
+        Optional<Device> device = deviceService.findDeviceByName(name);
         if (device.isPresent()) {
-            System.out.println("Nothing was created since a device with MRID '" + this.mRID + "' already exists!");
+            System.out.println("Nothing was created since a device with name '" + this.name + "' already exists!");
             return;
         }
         Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(CONNECTION_TASK_PLUGGABLE_CLASS_NAME);
@@ -109,7 +110,9 @@ public class CreateDataLoggerCommand {
         DeviceConfiguration configuration = createDataLoggerDeviceConfiguration(deviceType);
 
         // 5. Create the gateway device (and set it to the 'Active' life cycle state)
-        lifecyclePostBuilder.get().accept(createDataLoggerDevice(configuration));
+        lifecyclePostBuilder.get()
+                .setDevices(Collections.singletonList(createDataLoggerDevice(configuration)))
+                .run();
 //
 //        //6. Create Device Group "Data loggers"
 //        EndDeviceGroup dataLoggerGroup = Builders.from(DeviceGroupTpl.DATA_LOGGERS).get();
@@ -145,19 +148,19 @@ public class CreateDataLoggerCommand {
 
     private Device createDataLoggerDevice(DeviceConfiguration configuration) {
         Device device = deviceBuilderProvider.get()
-                .withMrid(mRID)
+                .withName(name)
                 .withSerialNumber(serialNumber)
                 .withDeviceConfiguration(configuration)
                 .withYearOfCertification(2015)
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .get();
         addConnectionTasksToDevice(device);
-        device = deviceBuilderProvider.get().withMrid(mRID).get();
+        device = deviceBuilderProvider.get().withName(name).get();
         addSecurityPropertiesToDevice(device);
-        device = deviceBuilderProvider.get().withMrid(mRID).get();
+        device = deviceBuilderProvider.get().withName(name).get();
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA);
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA);
-        return deviceBuilderProvider.get().withMrid(mRID).get();
+        return deviceBuilderProvider.get().withName(name).get();
     }
 
 

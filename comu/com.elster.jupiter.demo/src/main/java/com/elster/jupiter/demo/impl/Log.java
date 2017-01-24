@@ -14,16 +14,16 @@ import java.util.Arrays;
 public final class Log {
     private static final boolean IS_PRODUCTION = false;
 
-    public static <T extends Builder<?>> void write(T factory){
-        if (factory != null && !IS_PRODUCTION){
+    public static <T extends Builder<?>> void write(T factory) {
+        if (!IS_PRODUCTION && factory != null) {
             StringBuilder log = new StringBuilder();
             boolean hasParameters = false;
             try {
-                if (factory instanceof NamedBuilder){
+                if (factory instanceof NamedBuilder) {
                     hasParameters = writeParameters(NamedBuilder.class, factory, log);
                 }
                 hasParameters = hasParameters | writeParameters(factory.getClass(), factory, log);
-                if (hasParameters){
+                if (hasParameters) {
                     log.insert(0, ". Parameters: ");
                 }
                 log.insert(0, whatCreate(factory));
@@ -49,7 +49,7 @@ public final class Log {
         return hasParameters;
     }
 
-    private static <T extends Builder<?>> String whatCreate(T factory){
+    private static <T extends Builder<?>> String whatCreate(T factory) {
         try {
             Method getMethod = factory.getClass().getDeclaredMethod("create");
             return getMethod.getReturnType().getSimpleName();
@@ -59,26 +59,26 @@ public final class Log {
         return " [unable to determine] ";
     }
 
-    private static <T> String objToReadableString(T obj){
-        if (obj != null){
+    private static <T> String objToReadableString(T obj) {
+        if (obj != null) {
             String out = obj.toString();
-            if (out.contains("@")){ // standard serialization
+            if (out.contains("@")) { // standard serialization
                 StringBuilder readableOutput = new StringBuilder();
                 readableOutput.append(" [");
-                if (obj instanceof String[]){
-                    Arrays.stream((String[]) obj).forEach(s -> readableOutput.append(s).append(" ,"));
-                    readableOutput.setLength(readableOutput.length()-2);
-                }else{
+                if (obj instanceof String[]) {
+                    Arrays.stream((String[]) obj).forEach(s -> readableOutput.append(s).append(", "));
+                    readableOutput.setLength(readableOutput.length() - 2);
+                } else {
                     readableOutput.append(obj.getClass().getSimpleName());
                 }
-                if (obj instanceof ArrayList){
-                    ((ArrayList) obj).stream().forEach(o -> readableOutput.append(objToReadableString(o)).append(" ,"));
-                    readableOutput.setLength(readableOutput.length()-2);
+                if (obj instanceof ArrayList) {
+                    ((ArrayList<?>) obj).forEach(o -> readableOutput.append(objToReadableString(o)).append(", "));
+                    readableOutput.setLength(readableOutput.length() - 2);
                 }
-                if (obj instanceof HasId){
-                    readableOutput.append("id = ").append(((HasId) obj).getId());
+                if (obj instanceof HasId) {
+                    readableOutput.append(" id = ").append(((HasId) obj).getId());
                 }
-                if (obj instanceof HasName){
+                if (obj instanceof HasName) {
                     readableOutput.append(" name = ").append(((HasName) obj).getName());
                 }
                 readableOutput.append("]");

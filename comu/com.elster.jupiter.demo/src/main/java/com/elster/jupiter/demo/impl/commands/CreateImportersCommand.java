@@ -17,7 +17,7 @@ import javax.inject.Inject;
  * Date: 15/09/2015
  * Time: 10:47
  */
-public class CreateImportersCommand {
+public class CreateImportersCommand extends CommandWithTransaction {
 
     private AppService appService;
     private String appServerName;

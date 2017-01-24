@@ -19,7 +19,7 @@ import java.util.List;
  * Date: 17/09/2015
  * Time: 9:46
  */
-public class CreateDemoUserCommand {
+public class CreateDemoUserCommand extends CommandWithTransaction {
 
     private final static String APPLICATION = "MDC";
     private final static String DEMO_USER_ROLE = "Demo Users";
@@ -52,7 +52,8 @@ public class CreateDemoUserCommand {
 
     private Group createAndGrantViewPrivilegesToGroup(){
         Group group = userService.createGroup(DEMO_USER_ROLE, DEMO_USER_ROLE_DESCRIPTION);
-        userService.getPrivilegeQuery().select(viewPrivilegesCondition(), Order.ascending("resource")).stream().forEach(x -> userService.grantGroupWithPrivilege(DEMO_USER_ROLE, APPLICATION, new String[] {x.getName()}));
+        userService.getPrivilegeQuery().select(viewPrivilegesCondition(), Order.ascending("resource"))
+                .forEach(x -> userService.grantGroupWithPrivilege(DEMO_USER_ROLE, APPLICATION, new String[] {x.getName()}));
         return group;
     }
 

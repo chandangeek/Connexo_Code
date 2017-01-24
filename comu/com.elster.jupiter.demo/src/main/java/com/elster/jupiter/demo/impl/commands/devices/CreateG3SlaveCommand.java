@@ -3,7 +3,7 @@ package com.elster.jupiter.demo.impl.commands.devices;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
+import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.common.Password;
@@ -15,12 +15,13 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 
@@ -62,7 +63,7 @@ public class CreateG3SlaveCommand {
             @Override
             MeterConfig getMeterConfig() {
                 return new MeterConfig().setProperty("DeviceTypeName", "Elster AS3000 [AM540]")
-                        .setProperty("MRID", "Demo board AS3000")
+                        .setProperty("name", "Demo board AS3000")
                         .setProperty("propertyID", "E0023000520685414")
                         .setProperty("serialNumber", "E0023000520685414")
                         .setProperty("MAC_address", "02237EFFFEFD835B")
@@ -80,7 +81,7 @@ public class CreateG3SlaveCommand {
             @Override
             MeterConfig getMeterConfig() {
                 return new MeterConfig().setProperty("DeviceTypeName", "Elster AS220 [AM540]")
-                        .setProperty("MRID", "Demo board AS220")
+                        .setProperty("name", "Demo board AS220")
                         .setProperty("propertyID", "123457S")
                         .setProperty("serialNumber", "123457S")
                         .setProperty("MAC_address", "02237EFFFEFD82F4")
@@ -99,20 +100,20 @@ public class CreateG3SlaveCommand {
 
     }
 
-    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
+    private final Provider<ActivateDevicesCommand> lifecyclePostBuilder;
 
-    private String mrId;
+    private String name;
     private MeterConfig meterConfig;
     private DeviceTypeTpl deviceTypeTemplate;
 
 
     @Inject
-    public CreateG3SlaveCommand(Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder) {
-        this.lifecyclePostBuilder = lifecyclePostBuilder;
+    public CreateG3SlaveCommand(Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
+        this.lifecyclePostBuilder = lifecyclePostBuilder;;
     }
 
-    public void setMrId(String mrId) {
-        this.mrId = mrId;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setConfig(String meterConfigName){
@@ -127,10 +128,12 @@ public class CreateG3SlaveCommand {
         meterConfig.setDeviceConfiguration(deviceConfiguration);
         meterConfig.setSecurityPropertySet(deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SECURITY_SET_NAME.equals(s.getName())).findFirst().get());
 
-        if (mrId != null){
-            meterConfig.setProperty("MRID", mrId);
+        if (name != null){
+            meterConfig.setProperty("name", name);
         }
-        lifecyclePostBuilder.get().accept(deviceFrom(meterConfig));
+        lifecyclePostBuilder.get()
+                .setDevices(Collections.singletonList(deviceFrom(meterConfig)))
+                .run();
     }
 
     private Device deviceFrom(MeterConfig config) {
@@ -196,7 +199,7 @@ public class CreateG3SlaveCommand {
 
         Device getDevice() {
             return Builders.from(DeviceBuilder.class)
-                    .withMrid((String) props.getProperty("MRID"))
+                    .withName((String) props.getProperty("name"))
                     .withDeviceConfiguration(deviceConfiguration)
                     .withSerialNumber((String) props.getProperty("serialNumber"))
                     .withPostBuilder(new SecurityPropertyPostBuilder(this))

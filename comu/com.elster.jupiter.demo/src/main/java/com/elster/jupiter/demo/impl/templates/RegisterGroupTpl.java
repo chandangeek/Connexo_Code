@@ -6,17 +6,16 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public enum RegisterGroupTpl implements Template<RegisterGroup, RegisterGroupBuilder> {
     DEVICE_DATA("Device data", Arrays.asList(
-            RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1,
-            RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2)),
+            RegisterTypeTpl.SECONDARY_BULK_A_PLUS, RegisterTypeTpl.SECONDARY_BULK_A_MINUS, RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1,
+            RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2)),
     TARIFF_1("Tariff 1",
-            Arrays.asList(RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T1)),
+            Arrays.asList(RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_1, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_1)),
     TARIFF_2("Tariff 2",
-            Arrays.asList(RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T2)),
+            Arrays.asList(RegisterTypeTpl.SECONDARY_SUM_A_PLUS_TOU_2, RegisterTypeTpl.SECONDARY_SUM_A_MINUS_TOU_2)),
     DATA_LOGGER_REGISTER_DATA("Data logger register data", RegisterTypeTpl.dataLoggerRegisterTypes())
     ;
 

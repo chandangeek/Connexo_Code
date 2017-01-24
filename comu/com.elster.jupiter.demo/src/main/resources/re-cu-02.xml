@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<calendars>
+    <!--xmlns="http://www.honeywell.com"-->
+    <!--xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"-->
+    <!--xsi:schemaLocation="http://www.honeywell.com /calendar-import-format.xsd>">-->
+
+    <eventset>
+        <name>Residential TOU Example</name>
+        <events>
+            <event>
+                <name>On Peak</name>
+                <code>3</code>
+            </event>
+            <event>
+                <name>Off Peak</name>
+                <code>5</code>
+            </event>
+            <event>
+                <name>Demand response</name>
+                <code>97</code>
+            </event>
+        </events>
+    </eventset>
+    <calendar>
+        <name>Re-Cu-02</name>
+        <category>Time of use</category>
+        <mRID>Re-Cu-02</mRID>
+        <description>Residential customers</description>
+        <start-year>2014</start-year>
+        <eventset>Residential TOU Example</eventset>
+        <day-types>
+            <day-type>
+                <id>1</id>
+                <name>summer weekday</name>
+                <ranges>
+                    <range-time>
+                        <!-- Closed-Open -->
+                        <from>
+                            <!-- maps to java class java.time.LocalTime -->
+                            <hour>0</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>Off Peak</event>
+                    </range-time>
+                    <range-time>
+                        <from>
+                            <hour>13</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>On Peak</event>
+                    </range-time>
+                    <range-time>
+                        <from>
+                            <hour>20</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>Off Peak</event>
+                    </range-time>
+                </ranges>
+            </day-type>
+            <day-type>
+                <id>2</id>
+                <name>weekend</name>
+                <ranges>
+                    <range-time>
+                        <from>
+                            <hour>0</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>Off Peak</event>
+                    </range-time>
+                </ranges>
+            </day-type>
+            <day-type>
+                <id>3</id>
+                <name>holiday</name>
+                <ranges>
+                    <range-time>
+                        <from>
+                            <hour>0</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>Off Peak</event>
+                    </range-time>
+                </ranges>
+            </day-type>
+            <day-type>
+                <id>4</id>
+                <name>winter day</name>
+                <ranges>
+                    <range-time>
+                        <!-- Closed-Open -->
+                        <from>
+                            <!-- maps to java class java.time.LocalTime -->
+                            <hour>0</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>Off Peak</event>
+                    </range-time>
+                    <range-time>
+                        <from>
+                            <hour>5</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>On Peak</event>
+                    </range-time>
+                    <range-time>
+                        <from>
+                            <hour>9</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>On Peak</event>
+                    </range-time>
+                    <range-time>
+                        <from>
+                            <hour>17</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>Off Peak</event>
+                    </range-time>
+                    <range-time>
+                        <from>
+                            <hour>21</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>Off Peak</event>
+                    </range-time>
+                </ranges>
+            </day-type>
+            <day-type>
+                <id>5</id>
+                <name>Demand Response</name>
+                <ranges>
+                    <range-time>
+                        <from>
+                            <hour>0</hour>
+                            <minute>0</minute>
+                            <second>0</second>
+                        </from>
+                        <event>Demand response</event>
+                    </range-time>
+                </ranges>
+            </day-type>
+        </day-types>
+        <periods>
+            <period>
+                <id>1</id>
+                <name>Summer</name>
+                <week-template>
+                    <monday day-type="1"/>
+                    <tuesday day-type="1"/>
+                    <wednesday day-type="1"/>
+                    <thursday day-type="1"/>
+                    <friday day-type="1"/>
+                    <saturday day-type="2"/>
+                    <sunday day-type="2"/>
+                </week-template>
+            </period>
+            <period>
+                <id>2</id>
+                <name>Winter</name>
+                <week-template>
+                    <monday day-type="4"/>
+                    <tuesday day-type="4"/>
+                    <wednesday day-type="4"/>
+                    <thursday day-type="4"/>
+                    <friday day-type="4"/>
+                    <saturday day-type="4"/>
+                    <sunday day-type="4"/>
+                </week-template>
+            </period>
+            <transitions recurring="true">
+                <!-- When recurring is true, all transition elements
+                     will only have month/day and not year
+                     and will map to a java.util.MonthDay
+                     When recurring is false, all transition elements
+                     will have year/month/day and will map to java.util.LocalDate -->
+                <transition>
+                    <to-period>1</to-period>
+                    <month>5</month>
+                    <day>1</day>
+                </transition>
+                <transition>
+                    <to-period>2</to-period>
+                    <month>11</month>
+                    <day>1</day>
+                </transition>
+            </transitions>
+        </periods>
+        <exceptions>
+            <exception day-type="3">
+                <occurrences>
+                    <recurring-occurrence>
+                        <!-- maps to java class java.time.MonthDay -->
+                        <month>1</month>
+                        <day>1</day>
+                    </recurring-occurrence>
+                    <recurring-occurrence>
+                        <!-- maps to java class java.time.MonthDay -->
+                        <month>12</month>
+                        <day>25</day>
+                    </recurring-occurrence>
+                    <recurring-occurrence>
+                        <!-- maps to java class java.time.MonthDay -->
+                        <month>12</month>
+                        <day>26</day>
+                    </recurring-occurrence>
+                    <recurring-occurrence>
+                        <!-- maps to java class java.time.MonthDay -->
+                        <month>7</month>
+                        <day>4</day>
+                    </recurring-occurrence>
+                    <recurring-occurrence>
+                        <!-- maps to java class java.time.MonthDay -->
+                        <month>11</month>
+                        <day>11</day>
+                    </recurring-occurrence>
+                    <fixed-occurrence>
+                        <day>5</day>
+                        <month>9</month>
+                        <year>2016</year>
+                    </fixed-occurrence>
+                    <fixed-occurrence>
+                        <day>10</day>
+                        <month>10</month>
+                        <year>2016</year>
+                    </fixed-occurrence>
+                    <fixed-occurrence>
+                        <day>24</day>
+                        <month>11</month>
+                        <year>2016</year>
+                    </fixed-occurrence>
+                    <fixed-occurrence>
+                        <day>18</day>
+                        <month>1</month>
+                        <year>2016</year>
+                    </fixed-occurrence>
+                    <fixed-occurrence>
+                        <day>15</day>
+                        <month>2</month>
+                        <year>2016</year>
+                    </fixed-occurrence>
+                    <fixed-occurrence>
+                        <day>30</day>
+                        <month>5</month>
+                        <year>2016</year>
+                    </fixed-occurrence>
+                </occurrences>
+            </exception>
+            <exception day-type="5">
+                <occurrences>
+                    <fixed-occurrence>
+                        <day>20</day>
+                        <month>5</month>
+                        <year>2016</year>
+                    </fixed-occurrence>
+                </occurrences>
+            </exception>
+        </exceptions>
+    </calendar>
+</calendars>

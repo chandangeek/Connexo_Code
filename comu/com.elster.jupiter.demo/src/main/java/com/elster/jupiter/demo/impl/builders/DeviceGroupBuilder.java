@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
  */
 public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroupBuilder> {
 
-    public static final String PROPERTY_MRID = "mRID";
+    public static final String PROPERTY_DEVICE_NAME = "name";
     public static final String PROPERTY_DEVICE_TYPE = "deviceType";
 
     private final MeteringGroupsService meteringGroupsService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final SearchService searchService;
 
-    private String mridPrefix;
+    private String namePrefix;
     private List<String> deviceTypes;
     private List<String> searchablePropertyNames = new ArrayList<>();
 
@@ -44,14 +44,14 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
         this.searchService = searchService;
     }
 
-    public DeviceGroupBuilder withMridPrefix(String mridPrefix) {
-        if (mridPrefix == null) {
-            searchablePropertyNames.remove(PROPERTY_MRID);
+    public DeviceGroupBuilder withNamePrefix(String namePrefix) {
+        if (namePrefix == null) {
+            searchablePropertyNames.remove(PROPERTY_DEVICE_NAME);
         } else {
-            searchablePropertyNames.add(PROPERTY_MRID);
+            searchablePropertyNames.add(PROPERTY_DEVICE_NAME);
         }
 
-        this.mridPrefix = mridPrefix;
+        this.namePrefix = namePrefix;
         return this;
     }
 
@@ -75,7 +75,6 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
                 .setMRID("MDC:" + getName())
                 .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
                 .create();
-        System.out.println("applying postbuilders on endDeviceGroup :" + endDeviceGroup.getName());
         applyPostBuilders(endDeviceGroup);
         return endDeviceGroup;
     }
@@ -86,8 +85,8 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
 
     protected SearchablePropertyValue[] getSearchablePropertyValues() {
         List<SearchablePropertyValue> values = new ArrayList<>(searchablePropertyNames.size());
-        if (searchablePropertyNames.contains(PROPERTY_MRID)) {
-            values.add(createSearchablePropertyValue(PROPERTY_MRID, Collections.singletonList(mridPrefix)));
+        if (searchablePropertyNames.contains(PROPERTY_DEVICE_NAME)) {
+            values.add(createSearchablePropertyValue(PROPERTY_DEVICE_NAME, Collections.singletonList(namePrefix)));
         }
         if (searchablePropertyNames.contains(PROPERTY_DEVICE_TYPE)) {
             values.add(createSearchablePropertyValue(PROPERTY_DEVICE_TYPE, getDeviceTypes().stream().map(HasId::getId).map(Object::toString).collect(Collectors.toList())));
