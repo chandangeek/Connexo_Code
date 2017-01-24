@@ -10,6 +10,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -69,6 +71,14 @@ public interface InboundDiscoveryContext {
     TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier);
 
     /**
+     * Get the properties of the default (or first if there's no default) outbound connection task
+     * based on the given deviceIdentifier
+     *
+     * @param deviceIdentifier the identifier that should uniquely identify the device
+     */
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier);
+
+    /**
      * Gets the {@link TypedProperties} of the Device that relate
      * to the protocol that is used to communicate with that Device.
      *
@@ -80,4 +90,7 @@ public interface InboundDiscoveryContext {
 
     void markNotAllCollectedDataWasProcessed();
 
+    void logOnAllLoggerHandlers(String loggingMessage, Level info);
+
+    Optional<OfflineDevice> getOfflineDevice(DeviceIdentifier deviceIdentifier, DeviceOfflineFlags deviceOfflineFlags);
 }

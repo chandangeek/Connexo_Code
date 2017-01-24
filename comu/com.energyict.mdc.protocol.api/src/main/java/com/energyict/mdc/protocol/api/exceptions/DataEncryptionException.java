@@ -33,4 +33,20 @@ public class DataEncryptionException extends CommunicationException {
         super(messageSeed, e);
     }
 
+    public DataEncryptionException (MessageSeed messageSeed, Object... arguments) {
+        super(messageSeed, arguments);
+    }
+
+    /**
+     * Throws a new DataEncryptionException that indicates
+     * that encrypted data received could not be correctly decrypted.
+     */
+    public static DataEncryptionException dataEncryptionException() {
+        return new DataEncryptionException(MessageSeeds.DATA_ENCRYPTION_EXCEPTION);
+    }
+
+    public static DataEncryptionException dataEncryptionException(Exception cause) {
+        return new DataEncryptionException(MessageSeeds.DATA_ENCRYPTION_EXCEPTION_WITH_CAUSE, cause.getMessage());
+    }
+
 }
