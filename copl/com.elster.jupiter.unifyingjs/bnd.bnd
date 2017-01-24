@@ -1,3 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
+Export-Package: !com.elster.jupiter.unifyingjs
 Private-Package: com.elster.jupiter.unifyingjs

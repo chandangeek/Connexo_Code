@@ -45,6 +45,12 @@ Ext.define('Uni.form.field.EditedDisplay', {
                         ? Uni.I18n.translate('general.removedOnXApp', 'UNI', 'Removed in {0} on {1}', [app, formattedDate])
                         : Uni.I18n.translate('general.removedOnX', 'UNI', 'Removed on {0}', formattedDate);
                     break;
+                case 'RESET':
+                    iconClass = 'icon-cancel-circle';
+                    tooltipText = app
+                        ? Uni.I18n.translate('general.restoredOnXApp', 'UNI', 'Restored in {0} on {1}', [app, formattedDate])
+                        : Uni.I18n.translate('general.restoredOnX', 'UNI', 'Restored on {0}', formattedDate);
+                    break;
             }
             if (iconClass && tooltipText) {
                 result = '<span style="display: none;">' + value.flag + '</span><span class="' + iconClass + '" data-qtip="' + tooltipText + '"></span>';

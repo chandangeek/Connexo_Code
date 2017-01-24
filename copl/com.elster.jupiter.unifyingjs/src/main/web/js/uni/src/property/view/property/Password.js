@@ -28,6 +28,7 @@ Ext.define('Uni.property.view.property.Password', {
      * @returns {Object}
      */
     getDisplayCmp: function () {
+        var me = this;
         return {
             xtype: 'password-display-field',
             name: this.getName(),

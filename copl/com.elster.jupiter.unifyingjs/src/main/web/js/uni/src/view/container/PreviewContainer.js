@@ -88,6 +88,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
     ],
 
     initComponent: function () {
+
         var me = this,
             grid = me.grid,
             emptyCmp = me.emptyComponent,
@@ -270,9 +271,11 @@ Ext.define('Uni.view.container.PreviewContainer', {
 
         if (me.selectByDefault && !isEmpty) {
             if (me.rendered) {
+                gridView.getEl().setScrollTop(0);
                 gridView.getSelectionModel().select(0);
             } else {
                 gridView.on('afterrender', function() {
+                    gridView.getEl().setScrollTop(0);
                     gridView.getSelectionModel().select(0);
                 }, me, {single:true});
             }

@@ -35,43 +35,56 @@ Ext.define("Ext.ux.exporter.csvformatter.CsvFormatter", {
     getRows: function(store) {
         var rows = [];
         store.each(function(record, index) {
-            rows.push(this.getCell(record, index));
+            var cell = this.getCell(record, index);
+            if (cell !== null) {
+                rows.push(cell);
+            }
         }, this);
 
         return rows.join("\n");
     },
     getCell: function(record, index) {
-        var cells = [];
+        var cells = [],
+            hasInvalidCells = false;
         Ext.each(this.columns, function(col) {
             var name = col.name || col.dataIndex || col.stateId;
             if (name && col.getXType() != "rownumberer") {
                 if (Ext.isFunction(col.renderer)) {
-                    var value = col.renderer(record.get(name), {column: col}, record);
-                    //to handle specific case if renderer returning html(img tags inside div)
-                    this.parserDiv.innerHTML = value;
-                    var values = [];
-                    var divEls = this.parserDiv.getElementsByTagName('div');
-                    if(divEls && divEls.length > 0) {
-                        Ext.each(divEls, function(divEl) {
-                            var innerValues = [];
-                            var imgEls = divEl.getElementsByTagName('img');
-                            Ext.each(imgEls, function(imgEl) {
-                                innerValues.push(imgEl.getAttribute('title'));
+                    //Sometimes value in cell can be invalid. In this case, whole record won't be added in export file.
+                    try {
+                        var value = col.renderer(record.get(name), {column: col}, record);
+                        //to handle specific case if renderer returning html(img tags inside div)
+                        this.parserDiv.innerHTML = value;
+                        var values = [];
+                        var divEls = this.parserDiv.getElementsByTagName('div');
+                        if(divEls && divEls.length > 0) {
+                            Ext.each(divEls, function(divEl) {
+                                var innerValues = [];
+                                var imgEls = divEl.getElementsByTagName('img');
+                                Ext.each(imgEls, function(imgEl) {
+                                    innerValues.push(imgEl.getAttribute('title'));
+                                });
+                                innerValues.push(divEl.innerText || divEl.textContent);
+                                values.push(innerValues.join(':'));
                             });
-                            innerValues.push(divEl.innerText || divEl.textContent);
-                            values.push(innerValues.join(':'));
-                        });
-                    } else {
-                        values.push(this.parserDiv.innerText || this.parserDiv.textContent);
+                        } else {
+                            values.push(this.parserDiv.innerText || this.parserDiv.textContent);
+                        }
+                        value = values.join('\n');
+                    } catch(e){
+                        hasInvalidCells = true;
+                        //<debug>
+                          console.error(e);
+                        //</debug>
                     }
-                    value = values.join('\n');
                 } else {
                     var value = record.get(name);
                 }
                 //cells.push("\""+value+"\"");
-                cells.push(value !== 'undefined'?value:'');
+                cells.push(value !== 'undefined' ? value : '');
             }
         }, this);
-        return cells.join(this.separator);
+
+        return hasInvalidCells ? null : cells.join(this.separator);
     }
 });

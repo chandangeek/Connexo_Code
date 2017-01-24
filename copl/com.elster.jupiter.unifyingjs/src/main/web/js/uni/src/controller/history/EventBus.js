@@ -74,13 +74,11 @@ Ext.define('Uni.controller.history.EventBus', {
             Ext.util.History.add(token);
         }
         queryString = queryStringIndex===-1 ? null : token.substring(queryStringIndex+1, token.length);
-        if(queryString !== this.getCurrentQueryString()){
-            this.setPreviousQueryString(this.getCurrentQueryString());
-            this.setCurrentQueryString(queryString);
-            if (!Uni.util.History.isSuspended()) {
-                queryStringChanged = true;
-            }
+        if (!Uni.util.History.isSuspended() && queryString !== this.getCurrentQueryString()) {
+            queryStringChanged = true;
         }
+        this.setPreviousQueryString(this.getCurrentQueryString());
+        this.setCurrentQueryString(queryString);
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);
         }

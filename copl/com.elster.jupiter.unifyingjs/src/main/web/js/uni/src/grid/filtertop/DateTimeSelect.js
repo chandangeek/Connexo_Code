@@ -15,10 +15,12 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
 
     dataIndex: null,
     value: undefined,
+    defaultValue: undefined,
 
     initComponent: function () {
         var me = this;
 
+        me.defaultValue = Ext.clone(me.value);
         me.items = [
             {
                 xtype: 'button',
@@ -78,6 +80,7 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
 
         me.callParent(arguments);
 
+        me.updateClearButton();
         me.initActions();
     },
 
@@ -97,6 +100,7 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
         me.fireFilterUpdateEvent();
         me.getChooseIntervalButton().hideMenu();
         me.updateTitle();
+        me.updateClearButton();
     },
 
     setFilterValue: function (date) {
@@ -110,6 +114,8 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
 
     applyParamValue: function () {
         this.getDateTime().applyParamValue.apply(this.getDateTime(), arguments);
+        this.updateTitle();
+        this.updateClearButton();
     },
 
     onClearInterval: function () {
@@ -134,6 +140,10 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
         return this.down('uni-grid-filtertop-datetime');
     },
 
+    getClearButton: function() {
+        return this.down('button[action=clear]');
+    },
+
     updateTitle: function () {
         var me = this,
             fromValue = me.getParamValue();
@@ -142,6 +152,19 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
             me.down('button').setText( Uni.DateTime.formatDateTimeShort(new Date(fromValue)) );
         } else {
             me.down('button').setText( me.text );
+        }
+    },
+
+    updateClearButton: function() {
+        var me = this,
+            currentDate = me.getParamValue() ? me.getParamValue() : undefined;
+        if ( (Ext.isEmpty(me.defaultValue) && Ext.isEmpty(currentDate))
+             ||
+             (!Ext.isEmpty(me.defaultValue) && !Ext.isEmpty(currentDate) && me.defaultValue.getTime() === currentDate)
+           ) {
+            me.getClearButton().setDisabled(true);
+        } else {
+            me.getClearButton().setDisabled(false);
         }
     }
 });

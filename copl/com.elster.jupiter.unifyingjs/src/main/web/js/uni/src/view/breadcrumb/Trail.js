@@ -17,6 +17,8 @@ Ext.define('Uni.view.breadcrumb.Trail', {
         align: 'middle'
     },
 
+    skipForNextCall: false,
+
     setBreadcrumbItem: function (item) {
         var me = this;
 
@@ -87,5 +89,10 @@ Ext.define('Uni.view.breadcrumb.Trail', {
 
         this.add(component);
         Ext.resumeLayouts(true);
+    },
+
+    setSkipForNextCall: function (skip) {
+        var me = this;
+        me.skipForNextCall = skip
     }
 });

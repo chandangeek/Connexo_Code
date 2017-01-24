@@ -2,7 +2,8 @@ Ext.define('Uni.DynamicPrivileges', {
     singleton: true,
 
     requires: [
-        'Uni.store.DynamicPrivileges'
+        'Uni.store.DynamicPrivileges',
+        'Uni.util.Common'
     ],
 
     getDynamicPrivilegesStore: function () {
@@ -55,7 +56,7 @@ Ext.define('Uni.DynamicPrivileges', {
         Ext.each(stores, function (store) {
             var store = Ext.data.StoreManager.lookup(store) || Ext.create(store);
 
-            store.getProxy().setUrl(router.arguments);
+            Ext.apply(store.getProxy().extraParams, Uni.util.Common.decodeURIArguments(router.arguments));
             store.load({
                 callback: function () {
                     this.each(function (record) {

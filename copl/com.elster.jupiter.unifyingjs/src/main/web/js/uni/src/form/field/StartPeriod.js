@@ -71,7 +71,7 @@ Ext.define('Uni.form.field.StartPeriod', {
                         xtype: 'radio',
                         name: me.baseRadioName,
                         inputValue: me.inputValueDate,
-                        value: me.showOptionNow ? false : true
+                        value: true
                     },
                     {
                         xtype: 'datefield',
@@ -213,6 +213,7 @@ Ext.define('Uni.form.field.StartPeriod', {
         }, me);
 
         if (me.showOptionDate) {
+            me.selectedValue = me.inputValueDate;
             me.getOptionDateRadio().on('change', function (scope, newValue, oldValue) {
                 if (newValue) {
                     me.selectedValue = me.inputValueDate;

@@ -63,6 +63,9 @@ Ext.define('Uni.view.grid.SelectionGrid', {
                     {
                         xtype: 'component',
                         itemId: 'selectionCounter',
+                        style: {
+                            color: '#686868'
+                        },
                         html: Ext.String.htmlEncode(me.counterTextFn(0)),
                         margin: '0 8 0 0',
                         setText: function (text) {
@@ -127,7 +130,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
     onSelectionChange: function () {
         var me = this,
-            selection = me.view.getSelectionModel().getSelection();
+            selection = me.getSelectedItems();
 
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.getUncheckAllButton().setDisabled(selection.length === 0);

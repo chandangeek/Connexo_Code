@@ -29,7 +29,8 @@ Ext.define('Uni.view.search.field.Location', {
                         action: 'reset',
                         disabled: true,
                         handler: me.reset,
-                        scope: me
+                        scope: me,
+                        hidden: true  // Always (CXO-3259)
                     }
                 ]
             }
@@ -89,7 +90,7 @@ Ext.define('Uni.view.search.field.Location', {
         me.down('#filter-operator').setDisabled(newValue);
         me.down('#filter-input').setDisabled(newValue);
         me.down('#properties-form').setVisible(newValue);
-        me.down('#clearall').setVisible(!newValue);
+        //me.down('#clearall').setVisible(!newValue);   // No "Clear all" button (CXO-3259)
         me.down('#grid-selection').body.setVisible(!newValue);
 
         newValue && me.hasChanged();
