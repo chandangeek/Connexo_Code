@@ -146,7 +146,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "15", "Jeff", created
                 .minusSeconds(5), created.plusSeconds(5), sent, deviceMessageCategoryClock);
         when(device.getMessages()).thenReturn(Arrays.asList(command1, command2));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         when(serviceCallService.getServiceCall(14L)).thenReturn(Optional.empty());
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(serviceCallService.getServiceCall(15L)).thenReturn(Optional.of(serviceCall));
@@ -201,7 +201,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .plusSeconds(10), null, deviceMessageCategoryDeviceActions);
         when(command1.getTrackingId()).thenReturn("XXX"); // INVALID
         when(device.getMessages()).thenReturn(Arrays.asList(command1));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -243,7 +243,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage command4 = mockCommand(device, 4L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "14", "Jeff", created, created
                 .minusSeconds(20), null, deviceMessageCategoryDeviceActions);
         when(device.getMessages()).thenReturn(Arrays.asList(command1, command2, command3, command4));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -279,7 +279,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "15", "Jeff", created
                 .minusSeconds(5), null, sent, deviceMessageCategoryClock);
         when(device.getMessages()).thenReturn(Arrays.asList(command1, command2));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -317,7 +317,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessageAttribute attribute3 = mockAttribute("Time", now, new DateAndTimeFactory(), Required);
         doReturn(Arrays.asList(attribute1, attribute2, attribute3)).when(command1).getAttributes();
         when(device.getMessages()).thenReturn(Arrays.<DeviceMessage>asList(command1));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -365,7 +365,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "15", "Jeff", created
                 .minusSeconds(5), created.plusSeconds(5), null, deviceMessageCategoryClock);
         when(device.getMessages()).thenReturn(Arrays.asList(command2));
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
 
@@ -399,7 +399,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testGetAvailableCategoriesForUserOnDevice() throws Exception {
         int categoryId = 1011;
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
 
         ComTaskEnablement comTaskEnablement1 = mockComTaskEnablement(categoryId);
         DeviceMessageCategory contactorCategory = this.deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream().filter(each -> each.getId() == DeviceMessageCategories.CONTACTOR.ordinal()).findFirst().get();
@@ -444,7 +444,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testGetAvailableCategoriesWithMessageSpecsForUserOnDevice() throws Exception {
         int categoryId = 1011;
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DataModel dataModel = mock(DataModel.class);
         OrmService ormService = mock(OrmService.class);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
@@ -509,7 +509,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         Device device = mockDevice();
         DeviceMessage deviceMessage = mockDeviceMessage(1L, device);
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         Device.DeviceMessageBuilder deviceMessageBuilder = mock(Device.DeviceMessageBuilder.class);
         when(deviceMessageBuilder.addProperty(anyString(), anyObject())).thenReturn(deviceMessageBuilder);
         when(deviceMessageBuilder.setReleaseDate(anyObject())).thenReturn(deviceMessageBuilder);
@@ -537,8 +537,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testDeleteDeviceMessage() throws Exception {
         Device device = mockDevice();
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
         DeviceMessageSpec deviceMessageSpecification = mock(DeviceMessageSpec.class);
         when(deviceMessageSpecification.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
@@ -575,8 +575,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testUpdateDeviceMessage() throws Exception {
         Device device = mockDevice();
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
         DeviceMessage msg1 = mock(DeviceMessage.class);
         when(msg1.getId()).thenReturn(1L);
         DeviceMessage msg2 = mock(DeviceMessage.class);
@@ -605,8 +605,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     @Test
     public void testUpdateDeviceMessageBadVersion() throws Exception {
         Device device = mockDevice();
-        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
 
         DeviceMessage msg3 = mockDeviceMessage(3L, device);
         when(deviceMessageService.findAndLockDeviceMessageByIdAndVersion(3L, 2L)).thenReturn(Optional.empty());
@@ -651,9 +651,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
     private ComTaskExecution mockComTaskExecution(int categoryId, boolean isOnHold, boolean isAdHoc) {
         ComTaskExecution mock = mock(ComTaskExecution.class);
-        ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(categoryId);
-        ComTask comTask2 = mockComTaskWithoutProtocolTaskForCategory();
-        when(mock.getComTasks()).thenReturn(Arrays.asList(comTask2, comTask1));
+        ComTask comTask = mockComTaskWithoutProtocolTaskForCategory();
+        when(mock.getComTask()).thenReturn(comTask);
         when(mock.isOnHold()).thenReturn(isOnHold);
         when(mock.isAdHoc()).thenReturn(isAdHoc);
         return mock;

@@ -20,7 +20,7 @@ import static com.elster.jupiter.util.Checks.is;
 public class DataLoggerSlaveDeviceInfo {
 
     public long id;
-    public String mRID;
+    public String name;
     public String deviceTypeName;
     public long deviceConfigurationId;
     public long deviceTypeId;
@@ -60,7 +60,7 @@ public class DataLoggerSlaveDeviceInfo {
     // and or a list of {@link DataLoggerSlaveRegisterInfo}s is used
     // for keeping the data logger's channels and registers which are not linked yet
     public boolean placeHolderForUnlinkedDataLoggerChannelsAndRegisters(){
-        return is(mRID).emptyOrOnlyWhiteSpace();
+        return is(name).emptyOrOnlyWhiteSpace();
     }
 
     public boolean unlinked(){
@@ -74,7 +74,7 @@ public class DataLoggerSlaveDeviceInfo {
     static DataLoggerSlaveDeviceInfo from(Device device, BatchService batchService, TopologyService topologyService, Clock clock) {
         DataLoggerSlaveDeviceInfo info = new DataLoggerSlaveDeviceInfo();
         info.id = device.getId();
-        info.mRID = device.getmRID();
+        info.name = device.getName();
         info.deviceTypeName = device.getDeviceType().getName();
         info.deviceTypeId = device.getDeviceType().getId();
         info.deviceConfigurationId = device.getDeviceConfiguration().getId();

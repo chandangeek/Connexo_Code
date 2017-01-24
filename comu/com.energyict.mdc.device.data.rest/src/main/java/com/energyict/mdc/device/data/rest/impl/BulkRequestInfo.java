@@ -8,7 +8,8 @@ import java.util.List;
 public class BulkRequestInfo {
     public String action;
     public String filter;
-    public List<String> deviceMRIDs;
+    public List<Long> deviceIds;
     public List<Long> scheduleIds;
     public long newDeviceConfiguration;
+    public String strategy;
 }

@@ -78,8 +78,8 @@ public class LoadProfileResource {
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response getAllLoadProfiles(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getAllLoadProfiles(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<LoadProfile> allLoadProfiles = device.getLoadProfiles();
         List<LoadProfile> loadProfilesOnPage = ListPager.of(allLoadProfiles, LOAD_PROFILE_COMPARATOR_BY_NAME).from(queryParameters).find();
         List<LoadProfileInfo> loadProfileInfos = LoadProfileInfo.from(loadProfilesOnPage, channelInfoFactory);
@@ -90,8 +90,8 @@ public class LoadProfileResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("{lpid}")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response getLoadProfile(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
-        LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
+    public Response getLoadProfile(@PathParam("name") String name, @PathParam("lpid") long loadProfileId) {
+        LoadProfile loadProfile = doGetLoadProfile(name, loadProfileId);
         LoadProfileInfo loadProfileInfo = LoadProfileInfo.from(loadProfile, channelInfoFactory);
 
         addValidationInfo(loadProfile, loadProfileInfo);
@@ -99,8 +99,8 @@ public class LoadProfileResource {
         return Response.ok(loadProfileInfo).build();
     }
 
-    private LoadProfile doGetLoadProfile(String mrid, long loadProfileId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    private LoadProfile doGetLoadProfile(String deviceName, long loadProfileId) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         return resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
     }
 
@@ -122,10 +122,10 @@ public class LoadProfileResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response updateLoadProfile(LoadProfileInfo info, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
-        LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
-        Date lastReading = loadProfile.getLastReading();
-        if (lastReading == null || lastReading.toInstant().compareTo(info.lastReading) != 0) {
+    public Response updateLoadProfile(LoadProfileInfo info, @PathParam("name") String name, @PathParam("lpid") long loadProfileId) {
+        LoadProfile loadProfile = doGetLoadProfile(name, loadProfileId);
+        Optional<Instant> lastReading = loadProfile.getLastReading();
+        if (!lastReading.isPresent() || lastReading.get().compareTo(info.lastReading) != 0) {
             loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile).setLastReading(info.lastReading).update();
         }
         return Response.status(Response.Status.OK).build();
@@ -195,11 +195,11 @@ public class LoadProfileResource {
     @Path("{lpid}/data")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getLoadProfileData(
-            @PathParam("mRID") String mrid,
+            @PathParam("name") String name,
             @PathParam("lpid") long loadProfileId,
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         LoadProfile loadProfile = resourceHelper.findLoadProfileOrThrowException(device, loadProfileId);
         Boolean isValidationActive = isValidationActive(loadProfile);
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
@@ -218,7 +218,7 @@ public class LoadProfileResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
-    public Response validateDeviceData(LoadProfileTriggerValidationInfo info, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
+    public Response validateDeviceData(LoadProfileTriggerValidationInfo info, @PathParam("name") String name, @PathParam("lpid") long loadProfileId) {
         info.id = loadProfileId;
         LoadProfile loadProfile = resourceHelper.lockLoadProfileOrThrowException(info);
         Instant start = info.lastChecked == null ? null : Instant.ofEpochMilli(info.lastChecked);
@@ -251,8 +251,8 @@ public class LoadProfileResource {
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
-        LoadProfile loadProfile = doGetLoadProfile(mrid, loadProfileId);
+    public Response getValidationFeatureStatus(@PathParam("name") String name, @PathParam("lpid") long loadProfileId) {
+        LoadProfile loadProfile = doGetLoadProfile(name, loadProfileId);
         ValidationStatusInfo deviceValidationStatusInfo = determineStatus(loadProfile);
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
     }

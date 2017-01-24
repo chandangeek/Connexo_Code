@@ -32,24 +32,21 @@ public class ChannelResourceHelper {
     private final ResourceHelper resourceHelper;
     private final Clock clock;
     private final ValidationInfoFactory validationInfoFactory;
-    private final TopologyService topologyService;
     private final ChannelInfoFactory channelInfoFactory;
 
     @Inject
     public ChannelResourceHelper(ResourceHelper resourceHelper,
                                  Clock clock,
                                  ValidationInfoFactory validationInfoFactory,
-                                 TopologyService topologyService,
                                  ChannelInfoFactory channelInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.clock = clock;
         this.validationInfoFactory = validationInfoFactory;
-        this.topologyService = topologyService;
         this.channelInfoFactory = channelInfoFactory;
     }
 
-    public Response getChannels(String mrid, Function<Device, List<Channel>> channelsProvider, JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getChannels(String deviceName, Function<Device, List<Channel>> channelsProvider, JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(deviceName);
         List<Channel> channelsPage = ListPager.of(channelsProvider.apply(device), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
 
         List<ChannelInfo> channelInfos = new ArrayList<>();

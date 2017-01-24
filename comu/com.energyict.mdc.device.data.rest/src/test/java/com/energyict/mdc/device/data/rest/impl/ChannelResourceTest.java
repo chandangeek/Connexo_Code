@@ -181,8 +181,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(meterActivation.getStart()).thenReturn(NOW);
         Interval intervalActivation = Interval.of(Ranges.openClosed(Instant.ofEpochMilli(INTERVAL_START), Instant.ofEpochMilli(INTERVAL_END)));
         when(meterActivation.getInterval()).thenReturn(intervalActivation);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByNameAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
         when(device.getVersion()).thenReturn(1L);
         when(device.getmRID()).thenReturn("1");
@@ -682,7 +682,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(anyString())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(device));
         when(deviceConfigurationService.findAndLockChannelSpecByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(channelSpec));
         when(masterDataService.findLoadProfileType(anyLong())).thenReturn(Optional.of(loadProfileType));
@@ -988,7 +988,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl)).thenReturn(Optional.of(estimator));
         when(estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl, new HashMap<>())).thenReturn(Optional.of(estimator));
-        when(estimationService.previewEstimate(eq(QualityCodeSystem.MDC), any(MeterActivation.class), any(Range.class), any(ReadingType.class), any(Estimator.class))).thenReturn(estimationResult);
+        when(estimationService.previewEstimate(eq(QualityCodeSystem.MDC), any(ChannelsContainer.class), any(Range.class), any(ReadingType.class), any(Estimator.class))).thenReturn(estimationResult);
 
         Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/data/issue/estimate").request().post(Entity.json(estimateChannelDataInfo));
         verify(channelDataUpdater).complete();

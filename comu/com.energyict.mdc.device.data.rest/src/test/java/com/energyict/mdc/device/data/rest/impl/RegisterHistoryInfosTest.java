@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
  */
 public class RegisterHistoryInfosTest {
 
-    private final String myDeviceMRID = "MyDeviceMRID";
+    private final String myDeviceName = "MyDeviceMRID";
     private final Long registerId = 6542L;
 
     @Test
@@ -47,7 +47,7 @@ public class RegisterHistoryInfosTest {
         List<RegisterHistoryInfo> registerHistory = RegisterHistoryInfos.from(Collections.singletonList(dataLoggerChannelUsage)).registerHistory;
         assertThat(registerHistory).isNotEmpty();
         assertThat(registerHistory.get(0).startDate).isEqualTo(startDate);
-        assertThat(registerHistory.get(0).mrid).isEqualTo(myDeviceMRID);
+        assertThat(registerHistory.get(0).deviceName).isEqualTo(myDeviceName);
         assertThat(registerHistory.get(0).registerId).isEqualTo(registerId);
         assertThat(registerHistory.get(0).endDate).isNull();
     }
@@ -64,11 +64,11 @@ public class RegisterHistoryInfosTest {
         List<RegisterHistoryInfo> registerHistory = RegisterHistoryInfos.from(Collections.singletonList(dataLoggerChannelUsage)).registerHistory;
         assertThat(registerHistory).hasSize(2);
         assertThat(registerHistory.get(0).startDate).isEqualTo(endDate);
-        assertThat(registerHistory.get(0).mrid).isNull();
+        assertThat(registerHistory.get(0).deviceName).isNull();
         assertThat(registerHistory.get(0).registerId).isNull();
         assertThat(registerHistory.get(0).endDate).isNull();
         assertThat(registerHistory.get(1).startDate).isEqualTo(startDate);
-        assertThat(registerHistory.get(1).mrid).isEqualTo(myDeviceMRID);
+        assertThat(registerHistory.get(1).deviceName).isEqualTo(myDeviceName);
         assertThat(registerHistory.get(1).registerId).isEqualTo(registerId);
         assertThat(registerHistory.get(1).endDate).isEqualTo(endDate);
     }
@@ -88,11 +88,11 @@ public class RegisterHistoryInfosTest {
         List<RegisterHistoryInfo> registerHistory = RegisterHistoryInfos.from(Arrays.asList(dataLoggerChannelUsage2, dataLoggerChannelUsage1)).registerHistory;
         assertThat(registerHistory).hasSize(2);
         assertThat(registerHistory.get(0).startDate).isEqualTo(endDateFirstStartDateNew);
-        assertThat(registerHistory.get(0).mrid).isEqualTo(myDeviceMRID);
+        assertThat(registerHistory.get(0).deviceName).isEqualTo(myDeviceName);
         assertThat(registerHistory.get(0).registerId).isEqualTo(registerId2);
         assertThat(registerHistory.get(0).endDate).isNull();
         assertThat(registerHistory.get(1).startDate).isEqualTo(startDate);
-        assertThat(registerHistory.get(1).mrid).isEqualTo(myDeviceMRID);
+        assertThat(registerHistory.get(1).deviceName).isEqualTo(myDeviceName);
         assertThat(registerHistory.get(1).registerId).isEqualTo(this.registerId);
         assertThat(registerHistory.get(1).endDate).isEqualTo(endDateFirstStartDateNew);
     }
@@ -114,19 +114,19 @@ public class RegisterHistoryInfosTest {
         List<RegisterHistoryInfo> registerHistory = RegisterHistoryInfos.from(Arrays.asList(dataLoggerChannelUsage2, dataLoggerChannelUsage1)).registerHistory;
         assertThat(registerHistory).hasSize(4);
         assertThat(registerHistory.get(0).startDate).isEqualTo(endDate2);
-        assertThat(registerHistory.get(0).mrid).isNull();
+        assertThat(registerHistory.get(0).deviceName).isNull();
         assertThat(registerHistory.get(0).registerId).isNull();
         assertThat(registerHistory.get(0).endDate).isNull();
         assertThat(registerHistory.get(1).startDate).isEqualTo(startDate2);
-        assertThat(registerHistory.get(1).mrid).isEqualTo(myDeviceMRID);
+        assertThat(registerHistory.get(1).deviceName).isEqualTo(myDeviceName);
         assertThat(registerHistory.get(1).registerId).isEqualTo(registerId2);
         assertThat(registerHistory.get(1).endDate).isEqualTo(endDate2);
         assertThat(registerHistory.get(2).startDate).isEqualTo(endDate1);
-        assertThat(registerHistory.get(2).mrid).isNull();
+        assertThat(registerHistory.get(2).deviceName).isNull();
         assertThat(registerHistory.get(2).registerId).isNull();
         assertThat(registerHistory.get(2).endDate).isEqualTo(startDate2);
         assertThat(registerHistory.get(3).startDate).isEqualTo(startDate1);
-        assertThat(registerHistory.get(3).mrid).isEqualTo(this.myDeviceMRID);
+        assertThat(registerHistory.get(3).deviceName).isEqualTo(this.myDeviceName);
         assertThat(registerHistory.get(3).registerId).isEqualTo(this.registerId);
         assertThat(registerHistory.get(3).endDate).isEqualTo(endDate1);
     }
@@ -160,7 +160,7 @@ public class RegisterHistoryInfosTest {
         Device origin = mock(Device.class);
         when(originRegister.getReadingType()).thenReturn(channelReadingType);
         when(origin.getRegisters()).thenReturn(Collections.singletonList(originRegister));
-        when(origin.getmRID()).thenReturn(myDeviceMRID);
+        when(origin.getName()).thenReturn(myDeviceName);
         DataLoggerReference dataLoggerReference = mock(DataLoggerReference.class);
         when(dataLoggerReference.getOrigin()).thenReturn(origin);
         return dataLoggerReference;

@@ -4,7 +4,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 
 public class DeviceVersionInfo {
 
-    public String mRID;
+    public String name;
     public long version;
     public VersionInfo<Long> parent;
 }

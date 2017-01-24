@@ -79,8 +79,8 @@ public class DeviceLifeCycleActionResource {
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public Response getAvailableActionsForCurrentDevice(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getAvailableActionsForCurrentDevice(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<IdWithNameInfo> availableActions = deviceLifeCycleService.getExecutableActions(device)
                 .stream()
                 .map(executableAction -> new IdWithNameInfo(executableAction.getAction()))
@@ -93,8 +93,8 @@ public class DeviceLifeCycleActionResource {
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
-    public Response getPropertiesForAction(@PathParam("mRID") String mrid, @PathParam("actionId") long actionId, @BeanParam JsonQueryParameters queryParameters){
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getPropertiesForAction(@PathParam("name") String name, @PathParam("actionId") long actionId, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
         DeviceLifeCycleActionInfo info = deviceLifeCycleActionInfoFactory.from(requestedAction);
         return Response.ok(info).build();
@@ -105,7 +105,7 @@ public class DeviceLifeCycleActionResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public Response executeAction(
-            @PathParam("mRID") String mrid,
+            @PathParam("name") String name,
             @PathParam("actionId") long actionId,
             @BeanParam JsonQueryParameters queryParameters,
             DeviceLifeCycleActionInfo info){

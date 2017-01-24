@@ -20,6 +20,10 @@
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.alarms</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data</artifactId>
         </dependency>
         <dependency>
@@ -61,6 +65,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>dualcontrol</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -415,6 +423,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>soap.whiteboard.cxf</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

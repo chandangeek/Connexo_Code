@@ -15,6 +15,7 @@ import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceAttributesInfo {
+    public DeviceAttributeInfo<String> name;
     public DeviceAttributeInfo<String> mrid;
     public DeviceAttributeInfo<String> deviceType;
     public DeviceAttributeInfo<String> deviceConfiguration;
@@ -23,7 +24,7 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<Integer> yearOfCertification;
     public DeviceAttributeInfo<String> lifeCycleState;
     public DeviceAttributeInfo<String> batch;
-    public UsagePointAttributeInfo<String> usagePoint;
+    public DeviceAttributeInfo<String> usagePoint;
     public DeviceAttributeInfo<Instant> shipmentDate;
     public DeviceAttributeInfo<Instant> installationDate;
     public DeviceAttributeInfo<Instant> deactivationDate;
@@ -65,10 +66,16 @@ public class DeviceAttributesInfo {
     }
 
     public enum DeviceAttribute {
-        MRID {
+        NAME {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
                 return Arrays.asList(DefaultState.values());
+            }
+        },
+        MRID {
+            @Override
+            public List<DefaultState> attributeIsEditableForStates() {
+                return Collections.emptyList();
             }
         },
         MULTIPLIER {

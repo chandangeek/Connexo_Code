@@ -19,6 +19,6 @@ public class DeviceEstimationRuleSetRefInfo extends EstimationRuleSetRefInfo {
     public DeviceEstimationRuleSetRefInfo(DeviceEstimationRuleSetActivation estimationRuleSetActivation, Device device) {
         super(estimationRuleSetActivation.getEstimationRuleSet());
         this.active = estimationRuleSetActivation.isActive();
-        this.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        this.parent = new VersionInfo<>(device.getName(), device.getVersion());
     }
 }

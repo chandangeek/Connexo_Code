@@ -149,7 +149,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         infos.add(createDescription("usagePoint", String.class));
         infos.add(createDescription("yearOfCertification", Integer.class));
         infos.add(createDescription("estimationActive", String.class));
-        infos.add(createDescription("masterDevicemRID", String.class));
+        infos.add(createDescription("masterDeviceName", String.class));
         infos.add(createDescription("shipmentDate", Instant.class));
         infos.add(createDescription("installationDate", Instant.class));
         infos.add(createDescription("deactivationDate", Instant.class));
@@ -159,13 +159,12 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 
         // Default columns in proper order
-
         infos.add(0, createDescription("location", String.class));
         infos.add(0, new PropertyDescriptionInfo("state", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE).format()));
         infos.add(0, createDescription("deviceConfigurationName", DeviceConfiguration.class));
         infos.add(0, createDescription("deviceTypeName", DeviceType.class));
         infos.add(0, createDescription("serialNumber", String.class));
-        infos.add(0, createDescription("mRID", String.class));
+        infos.add(0, createDescription("name", String.class));
         return infos;
     }
 

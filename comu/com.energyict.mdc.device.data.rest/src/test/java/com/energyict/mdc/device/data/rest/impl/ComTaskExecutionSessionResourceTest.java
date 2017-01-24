@@ -7,8 +7,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -16,8 +16,8 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyVararg;
@@ -56,7 +58,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         Device device = mock(Device.class);
         ConnectionTask<?, ?> connectionTask = mock(ConnectionTask.class);
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
-        when(device.getmRID()).thenReturn("0c53c750-4d5a-11e4-916c-0800200c9a66");
+        when(device.getId()).thenReturn(13L);
         when(device.getName()).thenReturn("AX1");
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(123L);
@@ -67,13 +69,16 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(deviceType.getName()).thenReturn("type AX1");
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
-        when(deviceService.findByUniqueMrid("0c53c750-4d5a-11e4-916c-0800200c9a66")).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName("AX1")).thenReturn(Optional.of(device));
         when(connectionTask.getId()).thenReturn(3L);
         when(connectionTask.isDefault()).thenReturn(true);
         when(connectionTask.getName()).thenReturn("GPRS");
         ComSession comSession1 = mockComSession(connectionTask, 61L, device);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1));
-        String response = target("/devices/0c53c750-4d5a-11e4-916c-0800200c9a66/connectionmethods/3/comsessions/61/comtaskexecutionsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        String response = target("/devices/AX1/connectionmethods/3/comsessions/61/comtaskexecutionsessions").queryParam("start", 0)
+                .queryParam("limit", 10)
+                .request()
+                .get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<String>get("$.device")).isEqualTo("AX1");
@@ -84,7 +89,7 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         assertThat(jsonModel.<List>get("$.comTaskExecutionSessions[0].comTasks")).hasSize(1);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].comTasks[0].name")).isEqualTo("Set clock");
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comTasks[0].id")).isEqualTo(1002);
-        assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.id")).isEqualTo("0c53c750-4d5a-11e4-916c-0800200c9a66");
+        assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].device.id")).isEqualTo(13);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].device.name")).isEqualTo("AX1");
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].deviceConfiguration.id")).isEqualTo(123);
         assertThat(jsonModel.<String>get("$.comTaskExecutionSessions[0].deviceConfiguration.name")).isEqualTo("config AX1");
@@ -131,20 +136,18 @@ public class ComTaskExecutionSessionResourceTest extends DeviceDataRestApplicati
         when(comTaskExecutionSession.getComSession()).thenReturn(comSession);
         when(comTaskExecutionSession.getDevice()).thenReturn(device);
         when(comTaskExecutionSession.getId()).thenReturn(222L);
-        ScheduledComTaskExecution comTaskExecution = mock(ScheduledComTaskExecution.class);
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("15 minutes"), new TimeDuration("10 seconds")));
         when(comSchedule.getName()).thenReturn("als ge eens tijd hebt");
-        when(comTaskExecution.getComSchedule()).thenReturn(comSchedule);
+        when(comTaskExecution.getComSchedule()).thenReturn(Optional.of(comSchedule));
+        when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
         when(comTaskExecution.isIgnoreNextExecutionSpecsForInbound()).thenReturn(true);
         when(comTaskExecution.getExecutionPriority()).thenReturn(-20);
-        ComTask comTask1 = mock(ComTask.class);
-        when(comTask1.getId()).thenReturn(1001L);
-        when(comTask1.getName()).thenReturn("Read all + Basic check");
         ComTask comTask2 = mock(ComTask.class);
         when(comTask2.getId()).thenReturn(1002L);
         when(comTask2.getName()).thenReturn("Set clock");
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask2, comTask1));
+        when(comTaskExecution.getComTask()).thenReturn(comTask2);
         when(comTaskExecutionSession.getComTask()).thenReturn(comTask2);
         when(comTaskExecutionSession.getComTaskExecution()).thenReturn(comTaskExecution);
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.IOError);

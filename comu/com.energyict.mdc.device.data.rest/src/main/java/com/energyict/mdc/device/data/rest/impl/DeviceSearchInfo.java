@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public class DeviceSearchInfo {
     public long id;
-    public String mRID;
+    public String name;
     public String serialNumber;
     public long deviceTypeId;
     public String deviceTypeName;
@@ -28,7 +28,7 @@ public class DeviceSearchInfo {
     public String usagePoint;
     public Integer yearOfCertification;
     public String estimationActive;
-    public String masterDevicemRID;
+    public String masterDeviceName;
     public Instant shipmentDate;
     public Instant installationDate;
     public Instant deactivationDate;
@@ -44,7 +44,7 @@ public class DeviceSearchInfo {
                                         DeviceValidationRetriever deviceValidationRetriever) {
         DeviceSearchInfo searchInfo = new DeviceSearchInfo();
         searchInfo.id = device.getId();
-        searchInfo.mRID = device.getmRID();
+        searchInfo.name = device.getName();
         searchInfo.serialNumber = device.getSerialNumber();
         searchInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
         searchInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
@@ -55,14 +55,14 @@ public class DeviceSearchInfo {
 
         searchInfo.hasOpenDataCollectionIssues = issueService.hasOpenDataCollectionIssues(device);
         device.getUsagePoint().ifPresent(usagePoint -> {
-            searchInfo.usagePoint = usagePoint.getMRID();
+            searchInfo.usagePoint = usagePoint.getName();
             searchInfo.serviceCategory = usagePoint.getServiceCategory().getName();
         });
         searchInfo.yearOfCertification = device.getYearOfCertification();
         searchInfo.estimationActive = getStatus(device.forEstimation().isEstimationActive(), thesaurus);
         Optional<Device> physicalGateway = gatewayRetriever.getPhysicalGateway(device);
         if (physicalGateway.isPresent()) {
-            searchInfo.masterDevicemRID = physicalGateway.get().getmRID();
+            searchInfo.masterDeviceName = physicalGateway.get().getName();
         }
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
         searchInfo.shipmentDate = lifecycleDates.getReceivedDate().orElse(null);

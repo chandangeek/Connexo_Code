@@ -15,7 +15,7 @@ import java.util.Optional;
 public class RegisterHistoryInfo {
     public Long startDate;
     public Long endDate;
-    public String mrid;
+    public String deviceName;
     public Long registerId;
 
     public static RegisterHistoryInfo from(DataLoggerChannelUsage dataLoggerChannelUsage) {
@@ -29,7 +29,7 @@ public class RegisterHistoryInfo {
                 .findFirst();
         slaveRegister.ifPresent(register -> {
             registerHistoryInfo.registerId = register.getRegisterSpecId();
-            registerHistoryInfo.mrid = dataLoggerChannelUsage.getDataLoggerReference().getOrigin().getmRID();
+            registerHistoryInfo.deviceName = dataLoggerChannelUsage.getDataLoggerReference().getOrigin().getName();
             if (dataLoggerChannelUsage.getRange().hasLowerBound()) {
                 registerHistoryInfo.startDate = dataLoggerChannelUsage.getRange().lowerEndpoint().toEpochMilli();
             }

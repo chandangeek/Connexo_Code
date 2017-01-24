@@ -33,8 +33,7 @@ public class DeviceMessageSpecInfoFactory {
         info.willBePickedUpByPlannedComTask = device.getComTaskExecutions()
                 .stream()
                 .filter(not(ComTaskExecution::isOnHold))
-                .map(ComTaskExecution::getComTasks)
-                .flatMap(Collection::stream)
+                .map(ComTaskExecution::getComTask)
                 .map(ComTask::getProtocolTasks)
                 .flatMap(Collection::stream)
                 .filter(task -> task instanceof MessagesTask).

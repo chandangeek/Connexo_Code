@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DeviceValidationResource {
     private final ResourceHelper resourceHelper;
@@ -71,8 +72,8 @@ public class DeviceValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response getValidationRuleSetsForDevice(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
         Optional<? extends MeterActivation> activation = device.getCurrentMeterActivation();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
@@ -100,9 +101,8 @@ public class DeviceValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
-    public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mRID, @PathParam("validationRuleSetId") long validationRuleSetId,
-                                                       DeviceValidationRuleSetInfo info) {
-        info.device.mRID = mRID;
+    public Response setValidationRuleSetStatusOnDevice(@PathParam("name") String name, @PathParam("validationRuleSetId") long validationRuleSetId, DeviceValidationRuleSetInfo info) {
+        info.device.name = name;
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
         MeterActivation activation = device.getCurrentMeterActivation()
@@ -126,9 +126,8 @@ public class DeviceValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationFeatureStatus(@PathParam("mRID") String mRID) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-
+    public Response getValidationFeatureStatus(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatus(device);
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
     }
@@ -139,9 +138,8 @@ public class DeviceValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationFeatureStatus2(@PathParam("mRID") String mRID) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-
+    public Response getValidationFeatureStatus2(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatusForActivation(device);
         return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
     }
@@ -152,18 +150,15 @@ public class DeviceValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationMonitoringConfigurationView(@PathParam("mRID") String mRID,
-                                                             @QueryParam("filter") JsonQueryFilter filter) {
-
-        List<DataValidationStatus> lpStatuses = new ArrayList<>();
-
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response getValidationMonitoringConfigurationView(@PathParam("name") String name, @QueryParam("filter") JsonQueryFilter filter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceValidation deviceValidation = device.forValidation();
         ValidationStatusInfo validationStatusInfo =
                 new ValidationStatusInfo(
                         deviceValidation.isValidationActive(),
                         deviceValidation.getLastChecked(),
                         device.hasData());
+        List<DataValidationStatus> lpStatuses = new ArrayList<>();
         if(filter.hasProperty("intervalRegisterStart")
                 && filter.hasProperty("intervalRegisterEnd")) {
             ValidationInfoParser parser = new ValidationInfoParser();
@@ -204,21 +199,16 @@ public class DeviceValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationMonitoringDataView(@PathParam("mRID") String mRID,
-                                                    @QueryParam("filter") JsonQueryFilter filter) {
-
-        Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus = new HashMap<>();
-
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-
+    public Response getValidationMonitoringDataView(@PathParam("name") String name, @QueryParam("filter") JsonQueryFilter filter) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         DeviceValidation deviceValidation = device.forValidation();
         ValidationStatusInfo validationStatusInfo =
                 new ValidationStatusInfo(
                         deviceValidation.isValidationActive(),
                         deviceValidation.getLastChecked(),
                         device.hasData());
-        if(filter.hasProperty("intervalRegisterStart")
-                && filter.hasProperty("intervalRegisterEnd")) {
+        Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus = new HashMap<>();
+        if (filter.hasProperty("intervalRegisterStart") && filter.hasProperty("intervalRegisterEnd")) {
             ValidationInfoParser parser = new ValidationInfoParser();
             List<ValidationLoadProfilePeriodInfo> loadProfilePeriodInfos = filter.getPropertyList("intervalLoadProfile", parser::parseFromNode);
             loadProfilePeriodInfos.forEach(lpPeriod -> {
@@ -232,9 +222,9 @@ public class DeviceValidationResource {
                                 lp ->
                                         lp.getChannels().stream()
                                                 .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
-                                                .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
+                                                .filter(s -> (Stream.concat(s.getReadingQualities().stream(), s.getBulkReadingQualities().stream()).anyMatch(q -> q.getType().isSuspect())))
                                                 .collect(Collectors.toList())
-                        )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
+                        )).entrySet().stream().filter(m -> !m.getValue().isEmpty())
                         .collect(Collectors.toMap(m -> (LoadProfile) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue()))));
             });
         }
@@ -246,7 +236,7 @@ public class DeviceValidationResource {
                         reg -> (device.forValidation().getValidationStatus(reg, Collections.emptyList(), intervalReg).stream())
                                 .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
                                 .collect(Collectors.toList())
-                )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
+                )).entrySet().stream().filter(m -> !m.getValue().isEmpty())
                 .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));
 
         validationStatusInfo.allDataValidated = isAllDataValidated(device);
@@ -262,8 +252,8 @@ public class DeviceValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response getValidationMonitoringRegister(@PathParam("mRID") String mrid) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+    public Response getValidationMonitoringRegister(@PathParam("name") String name) {
+        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
 
         ZonedDateTime intervalStart = end.minusYears(1);
@@ -274,7 +264,7 @@ public class DeviceValidationResource {
                         r -> r,
                         reg -> (device.forValidation().getValidationStatus(reg, Collections.emptyList(), interval).stream())
                                 .collect(Collectors.counting())
-                )).entrySet().stream().filter(m -> ((Long) m.getValue()) > 0L)
+                )).entrySet().stream().filter(m -> m.getValue() > 0L)
                 .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (Long) (m.getValue())));
 
         return Response.status(Response.Status.OK).entity(registerStatus).build();
@@ -370,8 +360,8 @@ public class DeviceValidationResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
-    public Response setValidationFeatureStatus(@PathParam("mRID") String mRID, DeviceValidationStatusInfo info) {
-        info.device.mRID = mRID;
+    public Response setValidationFeatureStatus(@PathParam("name") String name, DeviceValidationStatusInfo info) {
+        info.device.name = name;
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         try {
             if (info.isActive) {
@@ -388,7 +378,7 @@ public class DeviceValidationResource {
             }
             device.save();
         } catch (InvalidLastCheckedException e) {
-            throw new LocalizedFieldValidationException(e.getMessageSeed(), "lastChecked", device.getmRID(), e.getOldLastChecked(), e.getNewLastChecked());
+            throw new LocalizedFieldValidationException(e.getMessageSeed(), "lastChecked", device.getName(), e.getOldLastChecked(), e.getNewLastChecked());
         }
         return Response.status(Response.Status.OK).build();
     }
@@ -398,8 +388,8 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VALIDATE_MANUAL)
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
-    public Response validateDeviceData(@PathParam("mRID") String mRID, DeviceInfo info) {
-        info.mRID = mRID;
+    public Response validateDeviceData(@PathParam("name") String name, DeviceInfo info) {
+        info.name = name;
         Device device = resourceHelper.lockDeviceOrThrowException(info);
         device.forValidation().validateData();
         device.save();
