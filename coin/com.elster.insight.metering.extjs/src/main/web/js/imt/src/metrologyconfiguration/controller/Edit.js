@@ -177,7 +177,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         router.getRoute().forward();
     },
     onFailureSaving: function (response) {
-        var form = this.getMetrologyConfigurationEditPage().down('form'),
+        var me = this,
+            form = me.getMetrologyConfigurationEditPage().down('form'),
             formErrorsPanel = form.down('uni-form-error-message'),
             basicForm = form.getForm(),
             responseText;
@@ -192,6 +193,23 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 formErrorsPanel.show();
             }
         }
+    },
+
+    mapErrors: function (errors) {
+        var map = {};
+
+        Ext.Array.each(errors, function (error) {
+            if (!map[error.id]) {
+                map[error.id] = {
+                    id: error.id,
+                    msg: [error.msg]
+                };
+            } else {
+                map[error.id].msg.push(error.msg);
+            }
+        });
+
+        return _.values(map);
     },
 
     showWizard: function (usagePointId) {
@@ -294,7 +312,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                         errors = Ext.decode(response.responseText, true);
 
                     if (errors && !Ext.isEmpty(errors.errors)) {
-                        wizard.markInvalid(errors.errors);
+                        wizard.markInvalid(me.mapErrors(errors.errors));
                     }
                 }
             }, Ext.merge(options, {

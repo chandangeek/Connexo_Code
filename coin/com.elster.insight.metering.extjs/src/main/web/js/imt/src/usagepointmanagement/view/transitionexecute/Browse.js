@@ -1,6 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.transitionexecute.Browse', {
     extend: 'Uni.view.container.ContentContainer',
-    xtype: 'usagepointTransitionExecuteBrowse',    
+    xtype: 'usagepointTransitionExecuteBrowse',
 
     requires: [
         'Imt.usagepointmanagement.view.transitionexecute.WizardNavigation',
@@ -8,7 +8,7 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.Browse', {
     ],
     router: null,
     side: {
-        itemId: 'usagepoint-transition-execute-navigation-panel',        
+        itemId: 'usagepoint-transition-execute-navigation-panel',
         ui: 'medium',
         layout: {
             type: 'vbox',
@@ -21,7 +21,7 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.Browse', {
             }
         ]
     },
-    
+
     initComponent: function () {
         var me = this;
         me.content = [

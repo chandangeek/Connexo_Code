@@ -10,7 +10,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Preview', {
 
     tools: [
         {
-            xtype: 'uni-button-action',            
+            xtype: 'uni-button-action',
             privileges: Imt.privileges.UsagePointLifeCycle.configure,
             menu: {
                 xtype: 'usagepoint-life-cycle-states-action-menu',

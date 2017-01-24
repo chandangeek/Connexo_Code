@@ -28,12 +28,12 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.Step2', {
         var me = this;
 
         Ext.suspendLayouts();
-        me.removeAll(true);        
+        me.removeAll(true);
         me.add({
                 xtype: 'transition-result-panel',
                 itemId: 'transition-result-panel',
                 response: response,
-                router: router                
+            router: router
             }
         );
         Ext.resumeLayouts(true);

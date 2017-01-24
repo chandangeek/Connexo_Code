@@ -7,7 +7,8 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
     stores: [
         'Imt.usagepointmanagement.store.metrologyconfiguration.MeterRoles',
-        'Imt.usagepointmanagement.store.metrologyconfiguration.Purposes'
+        'Imt.usagepointmanagement.store.metrologyconfiguration.Purposes',
+        'Imt.usagepointmanagement.store.MeterRoles'
     ],
 
     models: [
@@ -34,6 +35,9 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             },
             '#usage-point-purpose-action-menu': {
                 click: this.chooseAction
+            },
+            'usage-point-metrology-configuration-details #unlink-metrology-configuration-button': {
+                click: this.unlinkMetrologyConfiguration
             }
         });
     },
@@ -45,18 +49,15 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             router = me.getController('Uni.controller.history.Router'),
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
 
+        viewport.setLoading();
         usagePointsController.loadUsagePoint(usagePointId, {
             success: function (types, usagePoint) {
                 me.usagePoint = usagePoint;
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usage-point-metrology-configuration-details', {
                     itemId: 'usage-point-metrology-configuration-details',
                     router: router,
-                    usagePoint: usagePoint,
-                    meterRolesAvailable: usagePoint.get('metrologyConfiguration_meterRoles')
+                    usagePoint: usagePoint
                 }));
-
-            },
-            failure: function () {
                 viewport.setLoading(false);
             }
         });
@@ -93,6 +94,22 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.deactivated', 'IMT', 'Purpose deactivated'));
                 }
                 me.getController('Uni.controller.history.Router').getRoute().forward();
+            }
+        });
+    },
+
+    unlinkMetrologyConfiguration: function (button) {
+        var me = this,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+
+        mainView.setLoading();
+        button.usagePoint.unlinkMetrologyConfiguration({
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyConfiguration.unlinked', 'IMT', 'Metrology configuration unlinked'));
+                me.getController('Uni.controller.history.Router').getRoute().forward();
+            },
+            callback: function () {
+                mainView.setLoading(false);
             }
         });
     }
