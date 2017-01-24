@@ -80,8 +80,8 @@ Ext.define('Imt.purpose.view.OutputPreview', {
         var me = this,
             data = {
                 allDataValidated: validationInfo.allDataValidated
-                    ? Uni.I18n.translate('general.yes', 'INS', 'Yes')
-                    : Uni.I18n.translate('general.no', 'INS', 'No')
+                    ? Uni.I18n.translate('general.yes', 'IMT', 'Yes')
+                    : Uni.I18n.translate('general.no', 'IMT', 'No')
             };
 
         if (!Ext.isEmpty(validationInfo.lastChecked)) {
