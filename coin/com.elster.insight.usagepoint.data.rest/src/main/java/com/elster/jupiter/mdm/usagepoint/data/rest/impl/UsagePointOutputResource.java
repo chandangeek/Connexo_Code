@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -10,15 +11,19 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -27,11 +32,16 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
@@ -85,6 +95,10 @@ public class UsagePointOutputResource {
     private final ValidationStatusFactory validationStatusFactory;
     private final TimeService timeService;
     private final EstimationService estimationService;
+    private final MeteringService meteringService;
+    private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
+    private final Thesaurus thesaurus;
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
@@ -100,7 +114,11 @@ public class UsagePointOutputResource {
                              ValidationStatusFactory validationStatusFactory,
                              Clock clock,
                              TimeService timeService,
-                             EstimationService estimationService) {
+                             EstimationService estimationService,
+                             MeteringService meteringService,
+                             DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                             Thesaurus thesaurus,
+                             MetrologyConfigurationService metrologyConfigurationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -113,6 +131,10 @@ public class UsagePointOutputResource {
         this.clock = clock;
         this.timeService = timeService;
         this.estimationService = estimationService;
+        this.meteringService = meteringService;
+        this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
+        this.thesaurus = thesaurus;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @GET
@@ -682,5 +704,72 @@ public class UsagePointOutputResource {
             effectiveMC.deactivateOptionalMetrologyContract(metrologyContract, clock.instant());
         }
         return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
+    }
+
+    @GET
+    @Path("/{purposeId}/validationtasks")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getValidationTasksOnUsagePoint(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
+        List<DataValidationTask> validationTasks = validationService.findValidationTasks()
+                .stream()
+                .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose().get().getId() == metrologyContract.getMetrologyPurpose().getId())
+                .collect(Collectors.toList());
+
+        List<DataValidationTaskInfo> dataValidationTasks = validationTasks
+                .stream()
+                .map(DataValidationTask::getUsagePointGroup)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .distinct()
+                .filter(usagePointGroup -> isMember(usagePoint, usagePointGroup))
+                .flatMap(usagePointGroup -> validationTasks.stream()
+                        .filter(dataValidationTask -> dataValidationTask.getUsagePointGroup()
+                                .filter(usagePointGroup::equals)
+                                .isPresent()))
+                .map(dataValidationTaskInfoFactory::asInfo)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("dataValidationTasks", dataValidationTasks, queryParameters);
+    }
+
+    @GET
+    @Path("/{purposeId}/estimationtasks")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getEstimationTasksOnUsagePoint(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
+        List<EstimationTask> estimationTasks = estimationService.findEstimationTasks(QualityCodeSystem.MDM)
+                .stream()
+                .filter(task -> task.getMetrologyPurpose().get().getId() == metrologyContract.getMetrologyPurpose().getId())
+                .collect(Collectors.toList());
+
+        List<EstimationTaskInfo> dataEstimationTasks = estimationTasks
+                .stream()
+                .map(EstimationTask::getUsagePointGroup)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .distinct()
+                .filter(usagePointGroup -> isMember(usagePoint, usagePointGroup))
+                .flatMap(usagePointGroup -> estimationTasks.stream()
+                        .filter(estimationTask -> estimationTask.getUsagePointGroup()
+                                .filter(usagePointGroup::equals)
+                                .isPresent()))
+                .map(estimationTask -> new EstimationTaskInfo(estimationTask, thesaurus, timeService))
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("dataEstimationTasks", dataEstimationTasks, queryParameters);
+    }
+
+    private boolean isMember(UsagePoint usagePoint, UsagePointGroup usagePointGroup) {
+        return !meteringService.getUsagePointQuery()
+                .select(Where.where("id").isEqualTo(usagePoint.getId())
+                        .and(ListOperator.IN.contains(usagePointGroup.toSubQuery("id"), "id")), 1, 1)
+                .isEmpty();
     }
 }
