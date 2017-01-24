@@ -15,6 +15,7 @@ public class ActionAdapter extends MapBasedXmlAdapter<String> {
         register(MessageSeeds.SET.getKey(), "set");
         register(MessageSeeds.FORCE.getKey(), "force");
         register(MessageSeeds.SYNCHRONIZE.getKey(), "synchronize");
+        register(MessageSeeds.CHECK.getKey(), "check");
     }
 
 }

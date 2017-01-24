@@ -34,13 +34,14 @@ public class ComTaskResourceTest extends ComTasksApplicationJerseyTest {
         String response = target("/comtasks/categories").request().get(String.class);
 
         JsonModel jsonModel = JsonModel.create(response);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(6);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(7);
         assertThat(jsonModel.<String>get("$.data[?(@.id=='logbooks')].name[0]")).isEqualTo(MessageSeeds.LOGBOOKS.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='registers')].name[0]")).isEqualTo(MessageSeeds.REGISTERS.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='topology')].name[0]")).isEqualTo(MessageSeeds.TOPOLOGY.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='loadprofiles')].name[0]")).isEqualTo(MessageSeeds.LOADPROFILES.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='clock')].name[0]")).isEqualTo(MessageSeeds.CLOCK.getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[?(@.id=='statusInformation')].name[0]")).isEqualTo(MessageSeeds.STATUS_INFORMATION.getDefaultFormat());
+        assertThat(jsonModel.<String>get("$.data[?(@.id=='basiccheck')].name[0]")).isEqualTo(MessageSeeds.BASIC_CHECK.getDefaultFormat());
     }
 
     @Test

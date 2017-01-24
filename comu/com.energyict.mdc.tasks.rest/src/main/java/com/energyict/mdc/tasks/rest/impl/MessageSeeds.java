@@ -12,6 +12,7 @@ public enum MessageSeeds implements MessageSeed {
     LOADPROFILES(4, "loadprofiles", "Load profiles"),
     CLOCK(5, "clock", "Clock"),
     STATUS_INFORMATION(6, "statusInformation", "Status information"),
+    BASIC_CHECK(7, "basiccheck", "Basic check"),
 
     READ(20, "read", "Read"),
     UPDATE(21, "update", "Update"),
@@ -19,6 +20,7 @@ public enum MessageSeeds implements MessageSeed {
     SET(23, "set", "Set"),
     FORCE(24, "force", "Force"),
     SYNCHRONIZE(25, "synchronize", "Synchronize"),
+    CHECK(26, "check", "Check")
     ;
 
     private final int number;

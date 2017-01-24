@@ -6,6 +6,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
@@ -442,6 +443,91 @@ public enum Categories {
         @Override
         public List<ParameterInfo> getProtocolTaskParameters(ProtocolTask protocolTask) {
             return new ArrayList<>(0); // xxxTasks has no protocol tasks and no parameters
+        }
+    },
+
+    BASICCHECK("basiccheck") {
+        @Override
+        public Class<? extends ProtocolTask> getProtocolTaskClass() {
+            return BasicCheckTask.class;
+        }
+
+        @Override
+        public List<ParameterInfo> getProtocolTaskParameters(ProtocolTask protocolTask) {
+            BasicCheckTask basicCheckTask = (BasicCheckTask) protocolTask;
+            List<ParameterInfo> protocolTaskParameters = new ArrayList<>();
+
+            ParameterInfo verifySerialNumber = new ParameterInfo(ComTaskInfo.VERIFY_SERIAL_NUMBER);
+            verifySerialNumber.value = basicCheckTask.verifySerialNumber();
+            protocolTaskParameters.add(verifySerialNumber);
+
+            ParameterInfo readClockDifference = new ParameterInfo(ComTaskInfo.READ_CLOCK_DIFFERENCE);
+            readClockDifference.value = basicCheckTask.verifyClockDifference();
+            protocolTaskParameters.add(readClockDifference);
+
+            ParameterInfo maxClockDifference = new ParameterInfo(ComTaskInfo.MAX_CLOCK_DIFFERENCE);
+            if (basicCheckTask.getMaximumClockDifference().isPresent()) {
+                ParameterInfo maxClockDifferenceValue = new ParameterInfo(TimeDuration.getTimeUnitDescription(basicCheckTask.getMaximumClockDifference().get().getTimeUnitCode()));
+                maxClockDifferenceValue.value = basicCheckTask.getMaximumClockDifference().get().getCount();
+                maxClockDifference.value = maxClockDifferenceValue;
+            }
+            protocolTaskParameters.add(maxClockDifference);
+
+            return protocolTaskParameters;
+        }
+
+        @Override
+        public int getAction(ProtocolTask protocolTask) {
+            return 1;
+        }
+
+        @Override
+        public List<String> getActions() {
+            return Arrays.asList("check");
+        }
+
+        @Override
+        public void createProtocolTask(MasterDataService masterDataService, ComTask comTask, ProtocolTaskInfo protocolTaskInfo) {
+            BasicCheckTask.BasicCheckTaskBuilder basicCheckTaskBuilder = comTask.createBasicCheckTask();
+            for (ParameterInfo parameterInfo : protocolTaskInfo.parameters) {
+                switch (parameterInfo.name) {
+                    case ComTaskInfo.VERIFY_SERIAL_NUMBER:
+                        basicCheckTaskBuilder.verifySerialNumber((Boolean) parameterInfo.value);
+                        break;
+                    case ComTaskInfo.READ_CLOCK_DIFFERENCE:
+                        basicCheckTaskBuilder.verifyClockDifference((Boolean) parameterInfo.value);
+                        break;
+                    case ComTaskInfo.MAX_CLOCK_DIFFERENCE:
+                        ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.value);
+                        RestHelper restHelper = new RestHelper();
+                        TimeDuration timeDuration = restHelper.getTimeDuration(parameterInfoValue.name, (Integer) parameterInfoValue.value);
+                        basicCheckTaskBuilder.maximumClockDifference(timeDuration);
+                        break;
+                }
+            }
+            basicCheckTaskBuilder.add();
+        }
+
+        @Override
+        public void updateProtocolTask(MasterDataService masterDataService, ProtocolTask protocolTask, ProtocolTaskInfo protocolTaskInfo) {
+            BasicCheckTask basicCheckTask = (BasicCheckTask) protocolTask;
+            for (ParameterInfo parameterInfo : protocolTaskInfo.parameters) {
+                switch (parameterInfo.name) {
+                    case ComTaskInfo.VERIFY_SERIAL_NUMBER:
+                        basicCheckTask.setVerifySerialNumber((Boolean) parameterInfo.value);
+                        break;
+                    case ComTaskInfo.READ_CLOCK_DIFFERENCE:
+                        basicCheckTask.setVerifyClockDifference((Boolean) parameterInfo.value);
+                        break;
+                    case ComTaskInfo.MAX_CLOCK_DIFFERENCE:
+                        ParameterInfo parameterInfoValue = ParameterInfo.from((Map<String, Object>) parameterInfo.value);
+                        RestHelper restHelper = new RestHelper();
+                        TimeDuration timeDuration = restHelper.getTimeDuration(parameterInfoValue.name, (Integer) parameterInfoValue.value);
+                        basicCheckTask.setMaximumClockDifference(timeDuration);
+                        break;
+                }
+            }
+            basicCheckTask.save();
         }
     };
 

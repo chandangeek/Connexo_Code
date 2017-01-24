@@ -22,7 +22,9 @@ public class ComTaskInfo {
             CLOCK_SYNCHRONIZE_TYPE = "synchronize",
             MIN_CLOCK_DIFFERENCE = "minimumclockdifference",
             MAX_CLOCK_DIFFERENCE = "maximumclockdifference",
-            MAX_CLOCK_SHIFT = "maximumclockshift";
+            MAX_CLOCK_SHIFT = "maximumclockshift",
+            READ_CLOCK_DIFFERENCE = "readclockdifference",
+            VERIFY_SERIAL_NUMBER = "verifyserialnumber";
 
     public Long id;
     public String name;

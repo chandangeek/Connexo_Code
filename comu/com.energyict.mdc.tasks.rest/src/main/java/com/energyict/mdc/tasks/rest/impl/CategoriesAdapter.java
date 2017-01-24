@@ -16,5 +16,6 @@ public class CategoriesAdapter extends MapBasedXmlAdapter<Categories> {
         register(MessageSeeds.LOADPROFILES.getKey(), Categories.LOADPROFILES);
         register(MessageSeeds.CLOCK.getKey(), Categories.CLOCK);
         register(MessageSeeds.STATUS_INFORMATION.getKey(), Categories.STATUSINFORMATION);
+        register(MessageSeeds.BASIC_CHECK.getKey(), Categories.BASICCHECK);
     }
 }
