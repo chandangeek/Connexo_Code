@@ -29,12 +29,14 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                         var status = record.data.validationResult ? record.data.validationResult.split('.')[1] : 'unknown',
                             icon = '';
                         if (record.get('isConfirmed')) {
-                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>'
+                            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
+                                + Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed') + '"></span>'
                         } else if (status === 'suspect') {
                             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
                                 + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
                         } else if (status === 'notValidated') {
-                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
+                                + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
                         }
                         return Uni.Number.formatNumber(data, -1) + icon;
                     }
