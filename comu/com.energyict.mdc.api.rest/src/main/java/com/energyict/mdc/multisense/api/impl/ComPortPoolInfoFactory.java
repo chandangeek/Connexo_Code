@@ -1,10 +1,10 @@
 package com.energyict.mdc.multisense.api.impl;
 
 
-import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
-import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
-import com.elster.jupiter.rest.util.hypermedia.Relation;
-import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.energyict.mdc.engine.config.ComPortPool;
 
 import javax.ws.rs.core.Link;

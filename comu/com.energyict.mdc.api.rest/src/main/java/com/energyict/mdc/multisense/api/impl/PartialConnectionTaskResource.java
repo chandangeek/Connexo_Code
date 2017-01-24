@@ -1,11 +1,11 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
-import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -123,7 +124,7 @@ public class PartialConnectionTaskResource {
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG))
                 .getPartialConnectionTasks();
-        List<PartialConnectionTaskInfo> infos = ListPager.of(partialConnectionTasks, (pct1, pct2) -> (pct1.getName().compareToIgnoreCase(pct2.getName())))
+        List<PartialConnectionTaskInfo> infos = ListPager.of(partialConnectionTasks, Comparator.comparing(PartialConnectionTask::getName, String.CASE_INSENSITIVE_ORDER))
                 .from(queryParameters).stream()
                 .map(pct -> partialConnectionTypeInfoFactory.from(pct, uriInfo, fieldSelection.getFields()))
                 .collect(toList());

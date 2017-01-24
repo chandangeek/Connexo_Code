@@ -1,6 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 
 public class ComTaskEnablementInfo extends LinkInfo<Long> {
     public LinkInfo comTask;

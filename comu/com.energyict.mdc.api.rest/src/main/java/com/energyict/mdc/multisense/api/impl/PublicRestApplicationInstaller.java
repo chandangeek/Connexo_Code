@@ -2,9 +2,11 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.rest.api.util.Roles;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -18,6 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 /**
@@ -71,24 +74,27 @@ public class PublicRestApplicationInstaller {
         @Override
         public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
             doTry(
-                    "Create default roles for MRI",
-                    this::createDefaultRoles,
+                    "Create default role: Developer",
+                    this::createDeveloperRole,
                     logger
             );
             doTry(
-                    "Create default roles for MRI",
-                    this::assignPrivilegesToDefaultRoles,
+                    "Assign privileges to Developer role",
+                    this::assignPrivilegesToDeveloperRole,
                     logger
             );
             userService.addModulePrivileges(this);
         }
 
-        public void createDefaultRoles() {
-            try {
+        private void createDeveloperRole() {
+            Optional<Group> developer = userService.findGroup(Roles.DEVELOPER.value());
+            if (!developer.isPresent()) {
                 userService.createGroup(Roles.DEVELOPER.value(), Roles.DEVELOPER.description());
-            } catch (Exception e) {
-                LOGGER.severe(e.getMessage());
             }
+        }
+
+        private void assignPrivilegesToDeveloperRole() {
+            userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestApplication.APP_KEY, new String[]{Privileges.Constants.PUBLIC_REST_API});
         }
 
         @Override
@@ -102,34 +108,5 @@ public class PublicRestApplicationInstaller {
                     Privileges.RESOURCE_PUBLIC_API.getKey(), Privileges.RESOURCE_PUBLIC_API_DESCRIPTION.getKey(),
                     Collections.singletonList(Privileges.Constants.PUBLIC_REST_API)));
         }
-
-        private void assignPrivilegesToDefaultRoles() {
-            userService.grantGroupWithPrivilege(Roles.DEVELOPER.value(), PublicRestApplication.APP_KEY, new String[] {Privileges.Constants.PUBLIC_REST_API});
-            //TODO: workaround: attached Meter expert to user admin !!! to remove this line when the user can be created/added to system
-            userService.getUser(1).ifPresent(u -> u.join(userService.getGroups().stream().filter(e -> e.getName().equals(Roles.DEVELOPER.value())).findFirst().get()));
-        }
-
     }
-
-    enum Roles {
-        DEVELOPER("Developer", "Grants access to public rest api");
-
-        private String role;
-        private String description;
-
-        Roles(String r, String d) {
-            role = r;
-            description = d;
-        }
-
-        public String value() {
-            return role;
-        }
-
-        public String description() {
-            return description;
-        }
-
-    }
-
 }

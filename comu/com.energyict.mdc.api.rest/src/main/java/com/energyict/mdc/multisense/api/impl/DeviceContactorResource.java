@@ -1,15 +1,14 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -73,12 +72,11 @@ public class DeviceContactorResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        Device device = deviceService.findDeviceByMrid(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessageId deviceMessageId = getMessageId(contactorInfo);
         ComTaskEnablement comTaskEnablement = getComTaskEnablementForDeviceMessage(device, deviceMessageId);
         Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(cte -> cte.getComTasks().stream()
-                        .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
+                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         long messageId = createDeviceMessageOnDevice(contactorInfo, device, deviceMessageId);
         existingComTaskExecution.orElseGet(()->createAdHocComTaskExecution(device, comTaskEnablement)).runNow();
@@ -117,15 +115,15 @@ public class DeviceContactorResource {
         return Arrays.asList("status", "loadLimit", "activationDate", "loadTolerance", "callback").stream().sorted().collect(toList());
     }
 
-    private ManuallyScheduledComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+    private ComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
+        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         if (comTaskEnablement.hasPartialConnectionTask()) {
             device.getConnectionTasks().stream()
                     .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
                     .findFirst()
                     .ifPresent(comTaskExecutionBuilder::connectionTask);
         }
-        ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = comTaskExecutionBuilder.add();
+        ComTaskExecution manuallyScheduledComTaskExecution = comTaskExecutionBuilder.add();
         device.save();
         return manuallyScheduledComTaskExecution;
     }

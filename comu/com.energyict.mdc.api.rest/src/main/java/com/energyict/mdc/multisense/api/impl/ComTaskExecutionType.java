@@ -2,13 +2,12 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 
 /**
  * Created by bvn on 10/6/15.
  */
 public enum ComTaskExecutionType {
+    //TODO: FIX THIS
     SharedSchedule {
         @Override
         public ComTaskExecution createComTaskExecution(ComTaskExecutionInfoFactory factory, ComTaskExecutionInfo comTaskExecutionInfo, Device device) {
@@ -17,7 +16,7 @@ public enum ComTaskExecutionType {
 
         @Override
         public ComTaskExecution updateComTaskExecution(ComTaskExecutionInfoFactory factory, ComTaskExecutionInfo comTaskExecutionInfo, ComTaskExecution comTaskExecution) {
-            return factory.updateSharedScheduledComtaskExecution(comTaskExecutionInfo, (ScheduledComTaskExecution) comTaskExecution);
+            return factory.updateSharedScheduledComtaskExecution(comTaskExecutionInfo, comTaskExecution);
         }
     },
     ManualSchedule {
@@ -28,7 +27,7 @@ public enum ComTaskExecutionType {
 
         @Override
         public ComTaskExecution updateComTaskExecution(ComTaskExecutionInfoFactory factory, ComTaskExecutionInfo comTaskExecutionInfo, ComTaskExecution comTaskExecution) {
-            return factory.updateManuallyScheduledComTaskExecution(comTaskExecutionInfo, (ManuallyScheduledComTaskExecution) comTaskExecution);
+            return factory.updateManuallyScheduledComTaskExecution(comTaskExecutionInfo, comTaskExecution);
         }
     },
     AdHoc {
@@ -39,7 +38,7 @@ public enum ComTaskExecutionType {
 
         @Override
         public ComTaskExecution updateComTaskExecution(ComTaskExecutionInfoFactory factory, ComTaskExecutionInfo comTaskExecutionInfo, ComTaskExecution comTaskExecution) {
-            return factory.updateAdHocComTaskExecution(comTaskExecutionInfo, (ManuallyScheduledComTaskExecution) comTaskExecution);
+            return factory.updateAdHocComTaskExecution(comTaskExecutionInfo, comTaskExecution);
         }
     };
 

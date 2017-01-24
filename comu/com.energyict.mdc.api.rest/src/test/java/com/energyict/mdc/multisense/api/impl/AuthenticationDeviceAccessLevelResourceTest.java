@@ -3,7 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
-import com.elster.jupiter.rest.util.hypermedia.Relation;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;

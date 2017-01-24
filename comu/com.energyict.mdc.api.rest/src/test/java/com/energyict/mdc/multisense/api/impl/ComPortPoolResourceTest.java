@@ -1,6 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.rest.util.hypermedia.Relation;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.ports.ComPortType;
 import com.jayway.jsonpath.JsonModel;

@@ -5,17 +5,16 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -24,6 +23,9 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -63,8 +65,8 @@ public class DeviceContactorResourceTest extends MultisensePublicApiJerseyTest {
         DeviceMessage deviceMessage = mockDeviceMessage(111L, mockDevice, messageSpec, Optional.of(now), 3333L);
         Device.DeviceMessageBuilder deviceMessageBuilder = FakeBuilder.initBuilderStub(deviceMessage, Device.DeviceMessageBuilder.class);
         when(mockDevice.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE)).thenReturn(deviceMessageBuilder);
-        ManuallyScheduledComTaskExecution comtaskExecution = mock(ManuallyScheduledComTaskExecution.class);
-        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = FakeBuilder.initBuilderStub(comtaskExecution, ComTaskExecutionBuilder.class);
+        ComTaskExecution comtaskExecution = mock(ComTaskExecution.class);
+        ComTaskExecutionBuilder comTaskExecutionBuilder = FakeBuilder.initBuilderStub(comtaskExecution, ComTaskExecutionBuilder.class);
         when(mockDevice.newAdHocComTaskExecution(any())).thenReturn(comTaskExecutionBuilder);
 
         Response response = target("/devices/X01/contacter").request().put(Entity.json(info));

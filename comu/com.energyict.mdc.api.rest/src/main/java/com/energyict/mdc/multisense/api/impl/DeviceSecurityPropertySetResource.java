@@ -2,12 +2,12 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
-import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -56,7 +56,6 @@ public class DeviceSecurityPropertySetResource {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-
     /**
      * Models named set of security properties whose values are managed against a Device.
      * The exact set of PropertySpecs that are used is determined by the AuthenticationDeviceAccessLevel
@@ -77,7 +76,7 @@ public class DeviceSecurityPropertySetResource {
     @Path("/{securityPropertySetId}")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public DeviceSecurityPropertySetInfo getDeviceSecurityPropertySet(@PathParam("mrid") String mrid, @PathParam("securityPropertySetId") long deviceSecurityPropertySetId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mrid)
+        Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityPropertySet securityPropertySet = device.getDeviceConfiguration().getSecurityPropertySets().stream()
                 .filter(sps -> sps.getId() == deviceSecurityPropertySetId)
@@ -108,7 +107,7 @@ public class DeviceSecurityPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public PagedInfoList<DeviceSecurityPropertySetInfo> getDeviceSecurityPropertySets(@PathParam("mrid") String mrid, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
-        Device device = deviceService.findByUniqueMrid(mrid)
+        Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         List<DeviceSecurityPropertySetInfo> infos = device.getDeviceConfiguration().getSecurityPropertySets().stream()
                 .sorted(Comparator.comparing(SecurityPropertySet::getName))
@@ -117,7 +116,7 @@ public class DeviceSecurityPropertySetResource {
 
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                 .path(DeviceSecurityPropertySetResource.class)
-		        .resolveTemplate("mrid", device.getmRID());
+                .resolveTemplate("mrid", device.getmRID());
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
@@ -168,7 +167,6 @@ public class DeviceSecurityPropertySetResource {
         return deviceSecurityPropertySetInfoFactory.from(device, securityPropertySet, uriInfo, Collections.emptyList());
     }
 
-
     /**
      * List the fields available on this type of entity.
      * <br>E.g.
@@ -205,6 +203,4 @@ public class DeviceSecurityPropertySetResource {
         }
         return false;
     }
-
-
 }

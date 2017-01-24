@@ -2,11 +2,11 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
-import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
-import com.elster.jupiter.rest.util.hypermedia.Relation;
-import com.elster.jupiter.rest.util.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -28,7 +28,11 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 

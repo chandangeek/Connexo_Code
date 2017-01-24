@@ -1,11 +1,11 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
-import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
@@ -35,6 +35,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -83,7 +84,7 @@ public class ConnectionTaskResource {
                                               @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<ConnectionTaskInfo> infos = ListPager.
-                of(device.getConnectionTasks(), (a, b) -> a.getName().compareTo(b.getName())).
+                of(device.getConnectionTasks(), Comparator.comparing(ConnectionTask::getName)).
                 from(queryParameters).stream().
                 map(ct -> connectionTaskInfoFactory.from(ct, uriInfo, fieldSelection.getFields())).
                 collect(toList());
