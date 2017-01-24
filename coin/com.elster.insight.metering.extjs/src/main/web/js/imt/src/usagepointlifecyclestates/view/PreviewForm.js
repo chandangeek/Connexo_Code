@@ -9,15 +9,15 @@ Ext.define('Imt.usagepointlifecyclestates.view.PreviewForm', {
         var me = this;
 
         me.items = [
-            {                
+            {
                 itemId: 'state-name-field',
                 fieldLabel: Uni.I18n.translate('general.name', 'IMT', 'Name'),
-                name: 'name'                
+                name: 'name'
             },
-            {                
+            {
                 itemId: 'is-initial-field',
                 fieldLabel: Uni.I18n.translate('usagePointLifeCycleStates.initialState', 'IMT', 'Initial state'),
-                name: 'isInitial',                
+                name: 'isInitial',
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('general.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.no', 'IMT', 'No')
                 }

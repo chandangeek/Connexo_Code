@@ -48,7 +48,7 @@ Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTra
             },
             'usagepoint-life-cycle-transitions-add #no-states button': {
                 click: this.redirectToAddStatePage
-            }            
+            }
         });
     },
 
@@ -143,7 +143,7 @@ Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTra
             }),
             form = view.down('#usagepoint-life-cycle-transitions-add-form'),
             fromCombo = view.down('#transition-from-combo'),
-            toCombo = view.down('#transition-to-combo'),            
+            toCombo = view.down('#transition-to-combo'),
             privilegesCheckboxgroup = view.down('#privileges-checkboxgroup'),
             transitionModel = me.getModel('Imt.usagepointlifecycletransitions.model.UsagePointLifeCycleTransition'),
             statesStore = me.getStore('Imt.usagepointlifecycletransitions.store.UsagePointLifeCycleTransitionFromState'),
@@ -225,7 +225,7 @@ Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTra
                     me.setFormValues();
                 }
                 me.getApplication().fireEvent('changecontentevent', view);
-                isEdit && view.setLoading();                
+                isEdit && view.setLoading();
             });
         });
     },
@@ -269,7 +269,7 @@ Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTra
         record.beginEdit();
         record.set('name', form.down('#transition-name').getValue());
         record.set('fromState', {id: form.down('#transition-from-combo').getValue()});
-        record.set('toState', {id: form.down('#transition-to-combo').getValue()});        
+        record.set('toState', {id: form.down('#transition-to-combo').getValue()});
         record.set('privileges', privilegesArray);
         record.set('microActions', microActions);
         record.set('microChecks', microChecks);
@@ -339,7 +339,7 @@ Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTra
 
         page.down('#privileges-checkboxgroup').setValue({
             privilege: obj.privilege
-        });        
+        });
         page.down('#transition-name').setValue(obj.name);
         if (obj.fromState) {
             fromValue = statesStore.getById(obj.fromState);
@@ -362,5 +362,5 @@ Ext.define('Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTra
         if (token.search(addStateRegexp) == -1) {
             me.getStore('Imt.store.Clipboard').clear('addTransitionValues');
         }
-    }    
+    }
 });

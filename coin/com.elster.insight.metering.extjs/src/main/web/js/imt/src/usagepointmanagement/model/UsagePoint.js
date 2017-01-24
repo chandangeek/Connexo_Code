@@ -11,6 +11,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'serviceCategory', type: 'string'},
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
+        {name: 'lastTransitionTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'state', persist: false},
         {
             name: 'extendedGeoCoordinates',
@@ -105,5 +106,18 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         reader: {
             type: 'json'
         }
+    },
+
+    unlinkMetrologyConfiguration: function (options) {
+        var me = this,
+            url = me.getProxy().url + me.get('name') + '/unlinkmetrologyconfiguration';
+
+        Ext.Ajax.request(Ext.Object.merge(
+            {
+                url: url,
+                method: 'PUT',
+                jsonData: me.getProxy().getWriter().getRecordData(me)
+            }
+            , options));
     }
 });

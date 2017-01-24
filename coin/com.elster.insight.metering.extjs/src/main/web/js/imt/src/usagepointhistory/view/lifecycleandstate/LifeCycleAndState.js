@@ -22,7 +22,7 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState', {
                         fn: Ext.bind(me.onTypeSelect, me)
                     }
                 }
-            },            
+            },
             previewComponent: {
                 xtype: 'life-cycle-and-state-preview',
                 itemId: 'life-cycle-and-state-preview'
@@ -33,6 +33,6 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndState', {
     },
 
     onTypeSelect: function (selectionModel, record) {
-        this.down('#life-cycle-and-state-preview').loadRecord(record);        
+        this.down('#life-cycle-and-state-preview').loadRecord(record);
     }
 });

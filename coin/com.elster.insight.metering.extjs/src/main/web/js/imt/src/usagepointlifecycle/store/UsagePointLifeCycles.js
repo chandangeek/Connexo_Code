@@ -3,7 +3,7 @@ Ext.define('Imt.usagepointlifecycle.store.UsagePointLifeCycles', {
     model: 'Imt.usagepointlifecycle.model.UsagePointLifeCycle',
     proxy: {
         type: 'rest',
-        url: '/api/upl/lifecycle',        
+        url: '/api/upl/lifecycle',
         reader: {
             type: 'json',
             root: 'lifeCycles'
