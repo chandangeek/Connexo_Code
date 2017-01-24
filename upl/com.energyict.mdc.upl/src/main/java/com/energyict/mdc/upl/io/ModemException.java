@@ -1,4 +1,4 @@
-package com.energyict.mdc.io;
+package com.energyict.mdc.upl.io;
 
 /**
  * Models exceptional situations that occur while working with a AT serial modem components.

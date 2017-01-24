@@ -4,11 +4,10 @@ import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.AbstractAtPostDialCommand;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.PostDialCommandParser;
-import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
+import com.energyict.mdc.upl.io.ModemException;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
@@ -62,7 +61,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
             Thread.sleep(milliSecondsToSleep);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw ConnectionCommunicationException.communicationInterruptedException(e);
+            throw ConnectionCommunicationException.systemInterrupted(e);
         }
     }
 
@@ -384,7 +383,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw ConnectionCommunicationException.communicationInterruptedException(e);
+            throw ConnectionCommunicationException.systemInterrupted(e);
         }
     }
 
