@@ -4,11 +4,13 @@ import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.masterdata.LoadProfileIntervals;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -21,6 +23,10 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,10 +34,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 /**
  * Performs several actions on the given LoadProfile data which are required before storing.
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 7/30/14
  * Time: 9:34 AM
@@ -76,11 +85,20 @@ public class PreStoreLoadProfile {
      */
     static class PreStoredLoadProfile {
 
+        enum PreStoreResult {
+            NOT_PROCESSED,
+            OK,
+            LOADPROFILE_NOT_FOUND,
+            NO_INTERVALS_COLLECTED,
+            LOAD_PROFILE_CONFIGURATION_MISMATCH
+        }
+
         private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
         private OfflineLoadProfile offlineLoadProfile;
         private List<IntervalBlock> intervalBlocks;
         private PreStoreResult preStoreResult = PreStoreResult.NOT_PROCESSED;
         private Instant lastReading;
+
         private PreStoredLoadProfile(MdcReadingTypeUtilService mdcReadingTypeUtilService) {
             this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
         }
@@ -144,15 +162,23 @@ public class PreStoreLoadProfile {
             this.preStoreResult = result;
         }
 
-        protected IntervalBlock processBlock(IntervalBlock intervalBlock, ChannelInfo channelInfo, Range<Instant> rangeToProcess) {
-            return this.processBlock(intervalBlock, channelInfo.getReadingTypeMRID(), channelInfo.getUnit(), channelInfo.getMultiplier(), rangeToProcess);
+        protected IntervalBlock processBlock(IntervalBlock intervalBlock, ChannelInfo channelInfo, Range<Instant> rangeToProcess, ZoneId zone) {
+            return this.processBlock(intervalBlock, channelInfo.getReadingTypeMRID(), channelInfo.getUnit(), channelInfo.getMultiplier(), rangeToProcess, zone);
         }
 
-        protected IntervalBlock processBlock(IntervalBlock intervalBlock, OfflineLoadProfileChannel offlineChannel, BigDecimal multiplier, Range<Instant> rangeToProcess) {
-            return this.processBlock(intervalBlock, offlineChannel.getReadingTypeMRID(), offlineChannel.getUnit(), multiplier, rangeToProcess);
+        protected IntervalBlock processBlock(IntervalBlock intervalBlock, OfflineLoadProfileChannel offlineChannel, BigDecimal multiplier, Range<Instant> rangeToProcess, ZoneId zone) {
+            return this.processBlock(intervalBlock, offlineChannel.getReadingType().getMRID(), offlineChannel.getUnit(), multiplier, rangeToProcess, zone);
         }
 
-        private IntervalBlock processBlock(IntervalBlock intervalBlock, String readingTypeMRID, Unit unit, BigDecimal multiplier, Range<Instant> rangeToProcess) {
+        private IntervalBlock processBlock(IntervalBlock intervalBlock, String readingTypeMRID, Unit unit, BigDecimal multiplier, Range<Instant> rangeToProcess, ZoneId zone) {
+            Optional<IntervalReading> invalidInterval = findInValidInterval(intervalBlock, readingTypeMRID, zone);
+
+            if (invalidInterval.isPresent()) {
+                IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
+                setPreStoreResult(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH);
+                return processingBlock;
+            }
+
             Unit configuredUnit = mdcReadingTypeUtilService.getMdcUnitFor(readingTypeMRID);
             int scaler = getScaler(unit, configuredUnit);
             IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
@@ -162,6 +188,46 @@ public class PreStoreLoadProfile {
                 processingBlock.addIntervalReading(multipliedReading);
             });
             return processingBlock;
+        }
+
+        private Optional<IntervalReading> findInValidInterval(IntervalBlock intervalBlock, String readingTypeMRID, ZoneId zone) {
+            TimeDuration timeDuration = mdcReadingTypeUtilService.getReadingTypeInformationFor(readingTypeMRID).getTimeDuration();
+            final boolean validInterval = Stream.of(LoadProfileIntervals.values())
+                    .filter(interval -> interval.getTimeDuration().getSeconds() == timeDuration.getSeconds())
+                    .findAny()
+                    .isPresent();
+
+            return intervalBlock.getIntervals().stream().filter(not(intervalReading1 -> {
+                if(!validInterval) {
+                    return false;
+                }
+                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(intervalReading1.getTimeStamp(), zone);
+
+                if (timeDuration.getTemporalUnit().equals(ChronoUnit.SECONDS) && timeDuration.getCount() <= 3600) {
+                    return zonedDateTime.getMinute() % getMinuteIntervalLength(timeDuration.getTemporalUnit(), timeDuration) == 0
+                            && zonedDateTime.getSecond() == 0 && zonedDateTime.getNano() == 0;
+                }
+                if (!validTimeOfDay(zonedDateTime)) {
+                    return false;
+                }
+                return !timeDuration.getTemporalUnit().equals(ChronoUnit.MONTHS) || zonedDateTime.getDayOfMonth() == 1;
+            })).findAny();
+        }
+
+        private boolean validTimeOfDay(ZonedDateTime dateTime) {
+            return dateTime.getMinute() == 0 && dateTime.getSecond() == 0 && dateTime.getNano() == 0 && dateTime.getHour() == 0;
+        }
+
+        private int getMinuteIntervalLength(TemporalUnit unit, TimeDuration interval) {
+            if (unit.equals(ChronoUnit.SECONDS)) {
+                long seconds = interval.getSeconds();
+                if ((seconds % 60) != 0) {
+                    throw new IllegalArgumentException("Duration not in whole minutes");
+                }
+                long minutes = seconds / 60;
+                return (int) minutes;
+            }
+            return -1;
         }
 
         public void updateCommand(MeterDataStoreCommand meterDataStoreCommand) {
@@ -225,22 +291,27 @@ public class PreStoreLoadProfile {
                 ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
                 comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), getRangeForNewIntervalStorage(intervalStorageEnd)).forEach(pair -> {
                     IntervalBlock processed = null;
+                    ZoneId zone = ((Device) collectedLoadProfile.getLoadProfileIdentifier().getDeviceIdentifier().findDevice()).getZone();
                     if (pair.getFirst().isDataLoggerSlaveLoadProfile()) {
-                        OfflineLoadProfileChannel offlineLoadProfileChannel = pair.getFirst().getAllOfflineChannels().get(0);
-                        processed = processBlock(intervalBlock, offlineLoadProfileChannel, channelInfo.getMultiplier(), pair.getLast());
+                        OfflineLoadProfileChannel offlineLoadProfileChannel = pair.getFirst().getAllChannels().get(0);
+                        processed = processBlock(intervalBlock, offlineLoadProfileChannel, channelInfo.getMultiplier(), pair.getLast(), zone);
                     }
                     if (processed == null) {
-                        processed = processBlock(intervalBlock, channelInfo, pair.getLast());
+                        processed = processBlock(intervalBlock, channelInfo, pair.getLast(), zone);
                     }
                     if (!processed.getIntervals().isEmpty()) {
                         PreStoredLoadProfile preStoredLoadProfile = findOrCreatePreStoredLoadProfile(pair.getFirst());
                         if (preStoredLoadProfile.addIntervalBlock(processed)) {
-                            preStoredLoadProfile.setPreStoreResult(PreStoreResult.OK);
+                            if(!this.getPreStoreResult().equals(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
+                                setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
+                            }
                         }
                     }
                 });
             }
-            setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
+            if(!this.getPreStoreResult().equals(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
+                setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
+            }
             return this;
         }
 

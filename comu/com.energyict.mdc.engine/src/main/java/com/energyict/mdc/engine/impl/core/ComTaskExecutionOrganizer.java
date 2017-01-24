@@ -171,7 +171,7 @@ public final class ComTaskExecutionOrganizer {
                  *   1. have at least one ComTasks (so get(0) is not returning null)
                  *   2. all ComTasks in the ComSchedule must use the same SecurityPropertySet
                  * Therefore, it suffices to take the first ComTask. */
-                ComTask comTask = comTaskExecution.getComTasks().get(0);
+                ComTask comTask = comTaskExecution.getComTask();
                 Key key = toKey(device, comTaskExecution, comTask);
                 if (!result.containsKey(key)) {
                     result.put(key, new ArrayList<>());

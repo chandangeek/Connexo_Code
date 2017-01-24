@@ -389,6 +389,11 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         }
 
         @Override
+        public void appendStatisticalInformationToComSession() {
+
+        }
+
+        @Override
         public boolean attemptLock() {
             return true;
         }

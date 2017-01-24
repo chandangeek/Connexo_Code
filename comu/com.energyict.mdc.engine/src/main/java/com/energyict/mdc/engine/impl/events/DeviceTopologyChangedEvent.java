@@ -18,7 +18,7 @@ public class DeviceTopologyChangedEvent {
         super();
         masterDevice = masterDeviceIdentifier;
         this.masterDeviceId = masterDeviceIdentifier.getIdentifier();
-        slaveDevices = ImmutableList.copyOf(slaveIdentifiers);
+        slaveDevices = slaveIdentifiers;
         this.slaveIdentifiers = asString(slaveIdentifiers);
     }
 

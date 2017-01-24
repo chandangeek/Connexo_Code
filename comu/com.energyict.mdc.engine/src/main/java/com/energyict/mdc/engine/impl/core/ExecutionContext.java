@@ -157,14 +157,7 @@ public final class ExecutionContext implements JournalEntryFactory {
             this.comPortRelatedComChannel.close();
             this.publish(new CloseConnectionEvent(new ComServerEventServiceProvider(), this.getComPort(), this.getConnectionTask()));
         } finally {
-            ComSessionBuilder comSessionBuilder = this.getComSessionBuilder();
-            comSessionBuilder.connectDuration(Duration.ofMillis(this.connecting.getElapsed() / NANOS_IN_MILLI));
-            comSessionBuilder.talkDuration(this.comPortRelatedComChannel.talkTime());
-            Counters sessionCounters = this.comPortRelatedComChannel.getSessionCounters();
-            comSessionBuilder.addSentBytes(sessionCounters.getBytesSent());
-            comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead());
-            comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent());
-            comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead());
+            jobExecution.appendStatisticalInformationToComSession();
         }
     }
 
@@ -200,6 +193,10 @@ public final class ExecutionContext implements JournalEntryFactory {
             }
         }
         return false;
+    }
+
+    protected Duration getElapsedTimeInMillis() {
+        return Duration.ofMillis(this.connecting.getElapsed() / NANOS_IN_MILLI);
     }
 
     private boolean isConnected() {
@@ -399,7 +396,7 @@ public final class ExecutionContext implements JournalEntryFactory {
                         this.getConnectionTask()
                 ));
         this.comTaskExecution = comTaskExecutionComCommand.getComTaskExecution();
-        connectionLogger.startingTask(Thread.currentThread().getName(), comTaskExecution.getComTasks().get(0).getName());
+        connectionLogger.startingTask(Thread.currentThread().getName(), comTaskExecution.getComTask().getName());
         if (this.isConnected()) {
             executionStopWatchStart();
             Counters taskSessionCounters = this.comPortRelatedComChannel.getTaskSessionCounters();
@@ -410,7 +407,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
 
         this.comTaskExecutionComCommand = comTaskExecutionComCommand;
-        this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTaskExecution.getComTasks().get(0), now()));
+        this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTaskExecution.getComTask(), now()));
         initializeJournalist();
         if (this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
             this.addProtocolDialectPropertiesAsJournalEntries(comTaskExecution);
@@ -428,7 +425,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         if (isConnected()) {
             this.getComPortRelatedComChannel().logRemainingBytes();
         }
-        connectionLogger.completingTask(Thread.currentThread().getName(), comTaskExecution.getComTasks().get(0).getName());
+        connectionLogger.completingTask(Thread.currentThread().getName(), comTaskExecution.getComTask().getName());
         try {
             comTaskExecutionCompleted(successIndicator);
         } finally {
@@ -474,7 +471,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      * @param comTaskExecution The ComTaskExecution
      */
     public void comTaskExecutionFailed(ComTaskExecution comTaskExecution) {
-        connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), comTaskExecution.getComTasks().get(0).getName(), comTaskExecution.getDevice().getmRID());
+        connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), comTaskExecution.getComTask().getName(), comTaskExecution.getDevice().getName());
         publish(new ComTaskExecutionFailureEvent(new ComServerEventServiceProvider(), comTaskExecution, getComPort(), getConnectionTask()));
         failWithProblems();
     }

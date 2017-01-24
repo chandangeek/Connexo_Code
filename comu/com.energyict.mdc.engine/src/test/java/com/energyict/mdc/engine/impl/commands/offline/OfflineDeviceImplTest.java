@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -135,6 +136,8 @@ public class OfflineDeviceImplTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
+    private EventService eventService;
+    @Mock
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private static LoadProfile getNewMockedLoadProfile(final ObisCode obisCode, Device device) {
@@ -208,6 +211,7 @@ public class OfflineDeviceImplTest {
         when(this.offlineDeviceServiceProvider.identificationService()).thenReturn(this.identificationService);
         when(this.offlineDeviceServiceProvider.firmwareService()).thenReturn(this.firmwareService);
         when(this.offlineDeviceServiceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
+        when(this.offlineDeviceServiceProvider.eventService()).thenReturn(eventService);
         when(this.topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
         when(this.topologyService.getPhysicalGateway(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(this.topologyService.findPhysicalConnectedDevices(any(Device.class))).thenReturn(Collections.<Device>emptyList());

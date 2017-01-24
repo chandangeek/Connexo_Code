@@ -33,23 +33,25 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
      * The unique identifier of the Device.
      */
     private final DeviceIdentifier deviceIdentifier;
+
     /**
      * A list containing the unique device identifiers of all attached slave devices.
      * If this device has no attached slaves, the list is empty.
      */
     private final Map<DeviceIdentifier, ObservationTimestampProperty> slaveDeviceIdentifiers;
+
+    /**
+     * A list containing additional info that is collected for (some of) the devices
+     */
+    private final List<CollectedDeviceInfo> additionalCollectedDeviceInfo;
+
     /**
      * The {@link TopologyAction action} that should be executed.
      * By default, topology action UPDATE will be used.
      */
     private TopologyAction topologyAction = TopologyAction.UPDATE;
+
     private ComTaskExecution comTaskExecution;
-
-    /**
-     * A list containing additional info that is collected for (some of) the devices.
-     */
-    private List<CollectedDeviceInfo> additionalCollectedDeviceInfo;
-
     private List<TopologyPathSegment> topologyPathSegments;
     private List<TopologyNeighbour> topologyNeighbours;
     private G3TopologyDeviceAddressInformation g3IDeviceAddressInformation;

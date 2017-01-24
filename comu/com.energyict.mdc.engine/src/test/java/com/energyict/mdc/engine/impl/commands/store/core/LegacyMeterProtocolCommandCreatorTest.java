@@ -86,7 +86,7 @@ public class LegacyMeterProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
 
         LegacyMeterProtocolCommandCreator commandCreator = new LegacyMeterProtocolCommandCreator();
@@ -116,7 +116,7 @@ public class LegacyMeterProtocolCommandCreatorTest {
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
-        when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
 
         LegacyMeterProtocolCommandCreator commandCreator = new LegacyMeterProtocolCommandCreator();

@@ -46,11 +46,20 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
     @Mock
     private OfflineDevice offlineDevice;
 
+
+    private Map<DeviceIdentifier, LastSeenDateInfo> createSlaveIdentifiers(DeviceIdentifier... identifier) {
+        LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo("LastSeenDate", Instant.now());
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = new HashMap<>();
+        Stream.of(identifier).forEach(deviceIdentifier1 -> slaveDeviceIdentifiers.put(deviceIdentifier1, lastSeenDateInfo));
+        return slaveDeviceIdentifiers;
+    }
+
     @Test
     public void doExecuteTest() {
         DeviceIdentifierById masterDevice = new DeviceIdentifierById(1L, mock(DeviceService.class));
         DeviceIdentifierById slaveDevice1 = new DeviceIdentifierById(2L, mock(DeviceService.class));
         DeviceIdentifierById slaveDevice2 = new DeviceIdentifierById(3L, mock(DeviceService.class));
+        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slaveDevice1, slaveDevice2);
 
         Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
         slaveDeviceIdentifiers.put(slaveDevice1, mock(CollectedTopology.ObservationTimestampProperty.class));

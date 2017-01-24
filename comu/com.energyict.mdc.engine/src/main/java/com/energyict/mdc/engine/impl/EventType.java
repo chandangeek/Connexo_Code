@@ -70,7 +70,8 @@ public enum EventType {
             return super.addCustomProperties(eventTypeBuilder).
                     withProperty("deviceIdentifier", ValueType.STRING, "deviceIdentifier");
         }
-    };
+    },
+    COMMANDS_WILL_BE_SENT("outboundcommunication/COMMANDSWILLBESENT");
 
     private static final String NAMESPACE = "com/energyict/mdc/";
     private final String topic;

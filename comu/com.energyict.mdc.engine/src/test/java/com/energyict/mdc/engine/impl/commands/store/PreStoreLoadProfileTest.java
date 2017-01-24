@@ -18,6 +18,7 @@ import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLoadProfileImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -101,6 +102,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     private ComServerDAOImpl.ServiceProvider serviceProvider;
     @Mock
     private User comServerUser;
+    @Mock
+    private IssueService issueService;
 
     protected ComServerDAOImpl.ServiceProvider getComServerDAOServiceProvider() {
         return serviceProvider;

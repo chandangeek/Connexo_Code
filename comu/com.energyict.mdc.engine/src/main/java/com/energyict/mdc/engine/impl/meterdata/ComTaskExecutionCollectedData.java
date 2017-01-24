@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.tasks.ComTask;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -36,12 +37,12 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
         this.comTaskExecution = comTaskExecution;
         this.communicationLogLevel = communicationLogLevel;
         this.exposeStoringException = exposeStoringException;
-        relatedCollectedData.forEach(collectedData ->  collectedData.injectComTaskExecution(comTaskExecution));
+        relatedCollectedData.forEach(collectedData -> collectedData.injectComTaskExecution(comTaskExecution));
         relatedCollectedData.forEach(this::add);
     }
 
     @Override
-    public void postProcess (ConnectionTask connectionTask) {
+    public void postProcess(ConnectionTask connectionTask) {
         for (ServerCollectedData collectedData : this.getElements()) {
             collectedData.postProcess(connectionTask);
         }
@@ -49,12 +50,7 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
 
     @Override
     public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
-        for (ComTask comTask : this.comTaskExecution.getComTasks()) {
-            if (comTask.equals(configuration)) {
-                return true;
-            }
-        }
-        return false;
+        return this.comTaskExecution.getComTask().equals(configuration);
     }
 
     @Override

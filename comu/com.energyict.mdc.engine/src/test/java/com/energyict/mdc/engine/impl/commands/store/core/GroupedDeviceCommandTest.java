@@ -389,7 +389,7 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getDevice()).thenReturn(device);
         ComTask comTask = mock(ComTask.class);
-        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+        when(comTaskExecution.getComTask()).thenReturn(comTask);
         return comTaskExecution;
     }
 
@@ -401,6 +401,7 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
 
     private OfflineDevice mockOfflineDevice(Long deviceId) {
         OfflineDevice offlineDevice1 = mock(OfflineDevice.class);
+        when(offlineDevice1.getMacException()).thenReturn(Optional.empty());
         when(offlineDevice1.getId()).thenReturn(deviceId);
         return offlineDevice1;
     }
