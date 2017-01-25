@@ -210,18 +210,18 @@ public class RegisterDataResource {
 
     @DELETE
     @Transactional
-    @Path("/{timeStamp}")
+    @Path("/{timeStampId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-    public Response deleteRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryParameters queryParameters) {
+    public Response deleteRegisterData(@PathParam("name") String name, @PathParam("registerId") long registerId, @PathParam("timeStampId") long timeStamp, @BeanParam JsonQueryParameters queryParameters, ReadingInfo info) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         try {
-            Instant removalDate = Instant.ofEpochMilli(timeStamp);
+            Instant removalDate = info.timeStamp;
             validateLinkedToSlave(register, removalDate);
             register.startEditingData().removeReading(removalDate).complete();
         } catch (IllegalArgumentException e) {
-            throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId).get();
+            throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, register.getReadingType().getName()).get();
         }
         return Response.status(Response.Status.OK).build();
     }

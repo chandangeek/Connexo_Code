@@ -871,8 +871,7 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        Integer limit = queryParameters.getLimit().orElse(Integer.MAX_VALUE);
-        TopologyTimeline timeline = topologyService.getPhysicalTopologyTimelineAdditions(device, limit);
+        TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate).sorted(Comparator.comparing(Device::getName));
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
@@ -888,7 +887,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getDataLoggerSlaves(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        return PagedInfoList.fromPagedList("dataLoggerSlaveDevices", getDataLoggerSlavesForDevice(device), queryParameters);
+        return PagedInfoList.fromCompleteList("dataLoggerSlaveDevices",  getDataLoggerSlavesForDevice(device), queryParameters);
     }
 
     private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
