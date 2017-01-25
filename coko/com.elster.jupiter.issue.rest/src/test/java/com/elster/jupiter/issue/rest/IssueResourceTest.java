@@ -45,6 +45,7 @@ import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -384,8 +385,9 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         doReturn(groupedList).when(issueService).getIssueGroupList(issueGroupFilter);
         TransactionContext context = mock(TransactionContext.class);
         when(transactionService.getContext()).thenReturn(context);
+        when(issueGroupFilter.withId(anyString())).thenReturn(issueGroupFilter);
 
-        String filter = URLEncoder.encode("[{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":[\"datacollection\"]}]");
+        String filter = URLEncoder.encode("[{\"property\":\"id\",\"value\":\"1\"},{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":[\"datacollection\"]}]");
         Query<IssueType> query = mock(Query.class);
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueType>emptyList());
         when(issueService.query(IssueType.class)).thenReturn(query);
