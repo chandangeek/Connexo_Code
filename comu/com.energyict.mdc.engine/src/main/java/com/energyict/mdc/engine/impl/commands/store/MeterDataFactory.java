@@ -75,6 +75,7 @@ public final class MeterDataFactory {
             EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(meterProtocolEvent.getEventType().getMRID(), meterProtocolEvent.getTime().toInstant());
             endDeviceEvent.setLogBookId(logBookId);
             endDeviceEvent.setLogBookPosition(meterProtocolEvent.getDeviceEventId());
+            endDeviceEvent.setType(String.valueOf(meterProtocolEvent.getProtocolCode()));
             endDeviceEvents.add(endDeviceEvent);
         }
         return endDeviceEvents;
