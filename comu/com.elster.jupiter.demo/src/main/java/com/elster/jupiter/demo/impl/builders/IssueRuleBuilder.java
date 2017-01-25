@@ -3,6 +3,7 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.fsm.impl.StateImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -153,18 +154,18 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodes(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.DEVICE_TYPES,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES).get().getValueFactory().fromStringValue("1"));
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES).get().getValueFactory().fromStringValue("0"));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EIS_CODES,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EIS_CODES).get().getValueFactory().fromStringValue("1"));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE).get().getValueFactory().fromStringValue("1"));
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE).get().getValueFactory().fromStringValue("18"));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.LOG_ON_SAME_ALARM, true);
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("1"));
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("2"));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.THRESHOLD,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.THRESHOLD).get().getValueFactory().fromStringValue(String.valueOf(System.currentTimeMillis() + 5 * 60 * 1000)));
@@ -209,7 +210,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                         return collected.stream();
                     }))
                     .limit(10)
-                    .map(value -> value.getEndDeviceEventTypeMRID())
+                    .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
                     .collect(Collectors.joining(","));
         } else {
             return Stream.of(EndDeviceEventTypeMapping.values())
@@ -219,7 +220,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                         return collected.stream();
                     }))
                     .limit(10)
-                    .map(value -> value.getEndDeviceEventTypeMRID())
+                    .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
                     .collect(Collectors.joining(","));
         }
     }
