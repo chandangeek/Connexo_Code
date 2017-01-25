@@ -20,13 +20,20 @@ Ext.define('Isu.model.IssueAssignee', {
         },
         buildUrl: function(request) {
             var idx = request.params.id,
-                params;
-
+                params,
+                me = this,
+                url = this.url;
             if (idx) {
-                return this.url + '/' + request.params.id;
-            } else {
-                return this.url
+                url = this.url + '/' + request.params.id;
             }
+
+            if (me.noCache) {
+                url = Ext.urlAppend(url, Ext.String.format("{0}={1}", me.cacheString, Ext.Date.now()));
+            }
+
+            request.url = url;
+
+            return url;
         }
     }
 });
