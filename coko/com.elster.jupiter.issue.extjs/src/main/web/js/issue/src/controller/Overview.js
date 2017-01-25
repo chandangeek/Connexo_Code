@@ -30,7 +30,7 @@ Ext.define('Isu.controller.Overview', {
         }
     ],
 
-    sections: ['issueType', 'status', 'userAssignee', 'reason'],
+    sections: ['issueType', 'status', 'userAssignee', 'reason', 'workGroupAssignee'],
 
     widgetType: 'overview-of-issues',
     model: 'Isu.model.Group',

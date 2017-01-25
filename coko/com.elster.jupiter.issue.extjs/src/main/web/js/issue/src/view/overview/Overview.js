@@ -65,7 +65,7 @@ Ext.define('Isu.view.overview.Overview', {
                                 },
                                 items: [
                                     {
-                                        title: Uni.I18n.translate('workspace.perAssignee', 'ISU', 'Per assignee'),
+                                        title: Uni.I18n.translate('workspace.perUserAssignee', 'ISU', 'Per user'),
                                         itemId: 'userAssignee',
                                         margin: '20 10 0 0'
                                     },
@@ -73,6 +73,26 @@ Ext.define('Isu.view.overview.Overview', {
                                         title: Uni.I18n.translate('workspace.perReason', 'ISU', 'Per reason'),
                                         itemId: 'reason',
                                         margin: '20 0 0 10'
+                                    }
+                                ]
+                            },
+                            {
+                                layout: {
+                                    type: 'hbox'
+                                },
+                                defaults: {
+                                    xtype: 'overview-of-issues-section',
+                                    ui: 'tile',
+                                    flex: 1
+                                },
+                                items: [
+                                    {
+                                        title: Uni.I18n.translate('workspace.perWorkgroupAssignee', 'ISU', 'Per workgroup'),
+                                        itemId: 'workGroupAssignee',
+                                        margin: '20 10 0 0'
+                                    },
+                                    {
+                                        xtype: 'container'
                                     }
                                 ]
                             }
