@@ -12,7 +12,9 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
     initComponent: function () {
         var me = this,
-            metrologyConfiguration = me.usagePoint.get('metrologyConfiguration');
+            metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
+            meterRolesWithMeters,
+            count;
 
         me.items = [
             {
@@ -94,22 +96,72 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
         me.callParent(arguments);
 
-        me.performWidget();
-    },
-
-
-    performWidget: function(){
-        var me = this;
+        if (metrologyConfiguration) {
+            meterRolesWithMeters =  _.filter(metrologyConfiguration.meterRoles, function(role){ return !Ext.isEmpty(role.meter); });
+            count = meterRolesWithMeters.length;
+        }
 
         Ext.suspendLayouts();
-        me.loadMeterActivations();
         me.loadPurposes();
+        me.addMeters(meterRolesWithMeters, count);
+
+        // add WhatsGoingOn info to linked meters
+        if (count && count <= 2) {
+            me.loadMeterActivations();
+        }
         Ext.resumeLayouts(true);
+    },
+
+    addMeters: function (meterRolesWithMeters, count) {
+        var me = this,
+            first = true,
+            metersContainer = me.down('#up-metrology-config-meters');
+
+        if (count && count <= 2) {
+            Ext.Array.each(meterRolesWithMeters, function (meterRoleWithMeter) {
+                metersContainer.add({
+                    xtype: 'displayfield',
+                    labelWidth: 120,
+                    fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
+                    renderer: function () {
+                        var result = '',
+                            link = meterRoleWithMeter.url
+                                ? '<a href="' + meterRoleWithMeter.url + '" target="_blank">' + Ext.String.htmlEncode(meterRoleWithMeter.meter) + '</a>'
+                                : Ext.String.htmlEncode(meterRoleWithMeter.meter),
+                            activationTime = meterRoleWithMeter.activationTime;
+                        result += link;
+
+                        if (activationTime) {
+                            result += '<br><span style="font-size: 90%">'
+                                + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
+                                + '</span>';
+                        }
+
+                        return result;
+                    }
+                });
+                first = false;
+            });
+        } else if (count && count > 2){
+            metersContainer.add({
+                xtype: 'displayfield',
+                labelWidth: 120,
+                fieldLabel: Uni.I18n.translate('general.label.countedMeters', 'IMT', '{0} meters', count),
+                value: '-'
+            });
+        } else if (!count) {
+            metersContainer.add({
+                xtype: 'displayfield',
+                labelWidth: 120,
+                fieldLabel: Uni.I18n.translate('general.label.meters', 'IMT', 'Meters'),
+                value: '-'
+            });
+        }
     },
 
     loadPurposes: function(){
         var me = this,
-            purposesContainer = me.down('#up-metrology-config-meters'),
+            purposesContainer = me.down('#up-metrology-config-purposes'),
             first = true,
             purposes;
         if(me.usagePoint.get('metrologyConfiguration')){
@@ -183,63 +235,42 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             };
 
         store.getProxy().setExtraParam('usagePointId', usagePointId);
-        store.load({
-            callback: function(){
-                store.filter(function(item){
-                    if(item.get('meter')){
-                        return item;
+        store.load(function () {
+                // replace rendered meters with meters + icon
+                metersContainer.removeAll();
+                store.each(function (meterActivation) {
+                    if (meterActivation.get('meter')) {
+                        metersContainer.add({
+                            xtype: 'displayfield',
+                            labelWidth: 120,
+                            fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
+                            value: meterActivation.get('meter'),
+                            renderer: function (value) {
+                                var result = '',
+                                    gotConfig = makeWGOTooltip(value.watsGoingOnMeterStatus),
+                                    tooltip = gotConfig.result,
+                                    icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
+                                        + 'icon-warning2'
+                                        + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                                        + tooltip
+                                        + '"></i>',
+                                    link = value.url ? '<a href="' + value.url + '" target="_blank">' + Ext.String.htmlEncode(value.name) + '</a>' : Ext.String.htmlEncode(value.name),
+                                    activationTime = meterActivation.get('meterRole').activationTime;
+                                result += gotConfig.status ? link + icon : link;
+
+                                if (activationTime) {
+                                    result += '<br><span style="font-size: 90%">'
+                                        + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
+                                        + '</span>';
+                                }
+
+                                return result;
+                            }
+                        });
+                        first = false;
                     }
                 });
-                var count = store.getCount();
-                if (count && count <= 2) {
-                    store.each(function (meterActivation) {
-                        if(meterActivation.get('meter')){
-                            metersContainer.add({
-                                xtype: 'displayfield',
-                                labelWidth: 120,
-                                fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
-                                value: meterActivation.get('meter'),
-                                renderer: function (value) {
-                                    var result = '',
-                                        gotConfig = makeWGOTooltip(value.watsGoingOnMeterStatus),
-                                        tooltip = gotConfig.result,
-                                        icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
-                                            + 'icon-warning2'
-                                            + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
-                                            + tooltip
-                                            + '"></i>',
-                                        link = value.url ? '<a href="' + value.url + '" target="_blank">' + Ext.String.htmlEncode(value.name) + '</a>' : Ext.String.htmlEncode(value.name),
-                                        activationTime = meterActivation.get('meterRole').activationTime;
-                                    result += gotConfig.status ? link + icon : link;
-
-                                    if (activationTime) {
-                                        result += '<br><span style="font-size: 90%">'
-                                            + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
-                                            + '</span>';
-                                    }
-
-                                    return result;
-                                }
-                            });
-                            first = false;
-                        }
-                    });
-                } else if (count && count > 2){
-                    metersContainer.add({
-                        xtype: 'displayfield',
-                        labelWidth: 120,
-                        fieldLabel: Uni.I18n.translate('general.label.countedMeters', 'IMT', '{0} meters', count),
-                        value: '-'
-                    });
-                } else if (!count) {
-                    metersContainer.add({
-                        xtype: 'displayfield',
-                        labelWidth: 120,
-                        fieldLabel: Uni.I18n.translate('general.label.meters', 'IMT', 'Meters'),
-                        value: '-'
-                    });
-                }
             }
-        })
+        )
     }
 });

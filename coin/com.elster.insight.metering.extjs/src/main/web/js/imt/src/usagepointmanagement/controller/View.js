@@ -108,6 +108,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                             }
                         })
                     }));
+                    mainView.down('whatsgoingon').setLoading();
                     mainView.down('usage-point-setup-action-menu').setActions(transitionsStore, router);
                     mainView.setLoading(false);
                 });
