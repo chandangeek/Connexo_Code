@@ -147,7 +147,7 @@ public class FavoritesResource {
     public Response getFavoriteUsagePoints(@BeanParam JsonQueryParameters queryParameters) {
         List<FavoriteUsagePointDetailsInfo> infos = favoritesService.getFavoriteUsagePoints().stream()
                 .map(up -> new FavoriteUsagePointDetailsInfo(up, thesaurus))
-                .sorted((u1, u2) -> u2.flaggedDate.compareTo(u1.flaggedDate))//descending order
+                .sorted((u1, u2) -> u1.name.compareToIgnoreCase(u2.name))
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("usagePoints", infos, queryParameters)).build();
     }
@@ -170,7 +170,7 @@ public class FavoritesResource {
         } else {
             infos = favoriteUsagePointGroups.stream()
                     .map(FavoriteUsagePointGroupDetailsInfo::new)
-                    .sorted((g1, g2) -> g2.flaggedDate.compareTo(g1.flaggedDate))//descending order
+                    .sorted((g1, g2) -> g1.name.compareToIgnoreCase(g2.name))
                     .collect(Collectors.toList());
         }
         return Response.ok(PagedInfoList.fromPagedList("usagePointGroups", infos, queryParameters)).build();
