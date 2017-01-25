@@ -1,15 +1,12 @@
 package com.energyict.dlms.exceptionhandler;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.NotInObjectListException;
 import com.energyict.mdc.protocol.api.ProtocolException;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 
 import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ExceptionResponseException;
 
 import java.io.IOException;
 
@@ -31,11 +28,10 @@ public class DLMSIOExceptionHandler {
     /**
      * Throw the proper ComServer runtime exception
      */
-
-    public static CommunicationException handle(IOException e, int nbRetries) {
+    public static ConnectionCommunicationException handle(IOException e, int nbRetries) {
         if (isUnexpectedResponse(e, nbRetries)) {
             //Unexpected problem or response, but we can still communicate with the device
-            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         } else {
             //We can no longer communicate with the device
             return connectionCommunicationException(e, nbRetries);
@@ -81,11 +77,11 @@ public class DLMSIOExceptionHandler {
     /**
      * Checks whether the returned error is an authorization error (basically an R/W denied).
      *
-     * @param 		e		The IO error.
+     * @param e The IO error.
      *
-     * @return		<code>true</code> if this concerns an authorization problem, <code>false</code> if not.
+     * @return <code>true</code> if this concerns an authorization problem, <code>false</code> if not.
      */
-    public static final boolean isAuthorizationProblem(final IOException e) {
+    public static boolean isAuthorizationProblem(final IOException e) {
         Throwable t = e;
 
         while (t != null) {
@@ -103,7 +99,8 @@ public class DLMSIOExceptionHandler {
         return false;
     }
 
-    private static CommunicationException connectionCommunicationException(IOException e, int noRetries) {
-        return new  ConnectionCommunicationException(noRetries);
+    private static ConnectionCommunicationException connectionCommunicationException(IOException e, int numberOfRetries) {
+        return ConnectionCommunicationException.allowedAttemptsExceeded(e, numberOfRetries);
     }
+
 }

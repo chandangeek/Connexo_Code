@@ -4,7 +4,6 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
@@ -15,6 +14,7 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
