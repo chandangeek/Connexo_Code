@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc.protocoltasks;
+package com.energyict.protocolimplv2.abnt.common.dialects;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
 import com.google.inject.Module;
 
@@ -16,12 +15,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link TcpDeviceProtocolDialect}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link AbntOpticalDeviceProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-26 (16:50)
+ * @since 2015-11-26 (11:47)
  */
-public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, TcpDeviceProtocolDialectProperties> {
+public class AbntDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, AbntDeviceProtocolDialectProperties> {
     @Override
     public String application() {
         return "MultiSense";
@@ -39,17 +38,17 @@ public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements Persi
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_TCP_DIALECT";
+        return DeviceProtocolService.COMPONENT_NAME + "_ABNTOPTICAL_DIALECT";
     }
 
     @Override
     public String domainForeignKeyName() {
-        return "FK_TCP_DIALECT_PROPS";
+        return "FK_ABNTOPTICAL_DIALECT_PROPS";
     }
 
     @Override
     public String componentName() {
-        return CustomPropertySetComponentName.P03.name();
+        return CustomPropertySetComponentName.P12.name();
     }
 
     @Override
@@ -58,8 +57,8 @@ public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements Persi
     }
 
     @Override
-    public Class<TcpDeviceProtocolDialectProperties> persistenceClass() {
-        return TcpDeviceProtocolDialectProperties.class;
+    public Class<AbntDeviceProtocolDialectProperties> persistenceClass() {
+        return AbntDeviceProtocolDialectProperties.class;
     }
 
     @Override
@@ -71,7 +70,7 @@ public class TcpDeviceProtocolDialectPropertyPersistenceSupport implements Persi
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(TcpDeviceProtocolDialectProperties.ActualFields.values())
+            .of(AbntDeviceProtocolDialectProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
 

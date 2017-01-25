@@ -13,7 +13,7 @@ import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link CustomPropertySet} interface
- * for the {@link InboundProximusSmsConnectionType}.
+ * for the {@link com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-04 (17:26)

@@ -9,13 +9,12 @@ import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.impl.channels.AbstractConnectionTypeCustomPropertySet;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
-import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 
 import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link CustomPropertySet} interface
- * for the {@link OutboundIpConnectionType} class hierarcy.
+ * for the {@link CTRInboundDialHomeIdConnectionType} class hierarcy.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:03)

@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
-
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -70,15 +69,15 @@ public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceS
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         table
-            .column(EIWebConnectionProperties.Fields.IP_ADDRESS.databaseName())
-            .varChar()
-            .map(EIWebConnectionProperties.Fields.IP_ADDRESS.javaName())
-            .add();
+                .column(EIWebConnectionProperties.Fields.IP_ADDRESS.databaseName())
+                .varChar()
+                .map(EIWebConnectionProperties.Fields.IP_ADDRESS.javaName())
+                .add();
         table
-            .column(EIWebConnectionProperties.Fields.MAC_ADDRESS.databaseName())
-            .varChar()
-            .map(EIWebConnectionProperties.Fields.MAC_ADDRESS.javaName())
-            .add();
+                .column(EIWebConnectionProperties.Fields.MAC_ADDRESS.databaseName())
+                .varChar()
+                .map(EIWebConnectionProperties.Fields.MAC_ADDRESS.javaName())
+                .add();
     }
 
 }

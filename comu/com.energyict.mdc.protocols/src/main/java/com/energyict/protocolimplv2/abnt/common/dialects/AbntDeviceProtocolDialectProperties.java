@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc.protocoltasks;
+package com.energyict.protocolimplv2.abnt.common.dialects;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
@@ -7,41 +7,37 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
-import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
-import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
+import com.energyict.protocolimplv2.abnt.AbntTranslationKeys;
 
 import java.math.BigDecimal;
 
 /**
- * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link SerialDeviceProtocolDialect}.
+ * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link AbntOpticalDeviceProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-26 (14:35)
  */
-public class SerialDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
+class AbntDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProperties {
 
     private BigDecimal retries;
     private TimeDuration timeoutMillis;
-    private BigDecimal addressingMode;
-    private BigDecimal informationFieldSize;
-    private BigDecimal roundTripCorrection;
+    private TimeDuration forcedDelay;
+    private TimeDuration delayAfterError;
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.retries = (BigDecimal) propertyValues.getProperty(ActualFields.RETRIES.propertySpecName());
         this.timeoutMillis = (TimeDuration) propertyValues.getProperty(ActualFields.TIMEOUT_PROPERTY.propertySpecName());
-        this.addressingMode = (BigDecimal) propertyValues.getProperty(ActualFields.ADDRESSING_MODE.propertySpecName());
-        this.informationFieldSize = (BigDecimal) propertyValues.getProperty(ActualFields.INFORMATION_FIELD_SIZE.propertySpecName());
-        this.roundTripCorrection = (BigDecimal) propertyValues.getProperty(ActualFields.ROUND_TRIP_CORRECTION.propertySpecName());
+        this.forcedDelay = (TimeDuration) propertyValues.getProperty(ActualFields.FORCED_DELAY.propertySpecName());
+        this.delayAfterError = (TimeDuration) propertyValues.getProperty(ActualFields.DELAY_AFTER_ERROR.propertySpecName());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         this.setPropertyIfNotNull(propertySetValues, ActualFields.RETRIES.propertySpecName(), this.retries);
         this.setPropertyIfNotNull(propertySetValues, ActualFields.TIMEOUT_PROPERTY.propertySpecName(), this.timeoutMillis);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.ADDRESSING_MODE.propertySpecName(), this.addressingMode);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.INFORMATION_FIELD_SIZE.propertySpecName(), this.informationFieldSize);
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.ROUND_TRIP_CORRECTION.propertySpecName(), this.roundTripCorrection);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.FORCED_DELAY.propertySpecName(), this.forcedDelay);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.DELAY_AFTER_ERROR.propertySpecName(), this.delayAfterError);
     }
 
     @Override
@@ -49,48 +45,38 @@ public class SerialDeviceProtocolDialectProperties extends CommonDeviceProtocolD
         // Nothing to validate
     }
 
-    public enum ActualFields {
-
-        ADDRESSING_MODE("addressingMode", DlmsProtocolProperties.ADDRESSING_MODE, CommonV2TranslationKeys.ADDRESSING_MODE, "ADDRESSINGMODE") {
+    enum ActualFields {
+        RETRIES("retries", DlmsProtocolProperties.RETRIES, AbntTranslationKeys.RETRIES, "RETRIES") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
         },
-
-        INFORMATION_FIELD_SIZE("informationFieldSize", DlmsProtocolProperties.INFORMATION_FIELD_SIZE, CommonV2TranslationKeys.INFORMATION_FIELD_SIZE, "INFOFIELDSIZE") {
-            @Override
-            public void addTo(Table table) {
-                this.addAsBigDecimalColumnTo(table);
-            }
-        },
-
-        RETRIES("retries", DlmsProtocolProperties.RETRIES, CommonV2TranslationKeys.RETRIES, "RETRIES") {
-            @Override
-            public void addTo(Table table) {
-                this.addAsBigDecimalColumnTo(table);
-            }
-        },
-        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, CommonV2TranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
+        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, AbntTranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
         },
-
-        ROUND_TRIP_CORRECTION("roundTripCorrection", DlmsProtocolProperties.ROUND_TRIP_CORRECTION, CommonV2TranslationKeys.ROUNDTRIP_CORRECTION, "ROUNDTRIPCORRECTION") {
+        FORCED_DELAY("forcedDelay", DlmsProtocolProperties.FORCED_DELAY, AbntTranslationKeys.FORCED_DELAY, "FORCED_DELAY") {
             @Override
             public void addTo(Table table) {
-                this.addAsBigDecimalColumnTo(table);
+                this.addAsTimeDurationColumnTo(table);
+            }
+        },
+        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, AbntTranslationKeys.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
+            @Override
+            public void addTo(Table table) {
+                this.addAsTimeDurationColumnTo(table);
             }
         };
 
         private final String javaName;
         private final String propertySpecName;
-        private final CommonV2TranslationKeys translationKey;
+        private final AbntTranslationKeys translationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, String propertySpecName, CommonV2TranslationKeys translationKey, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, AbntTranslationKeys translationKey, String databaseName) {
             this.javaName = javaName;
             this.propertySpecName = propertySpecName;
             this.translationKey = translationKey;
@@ -134,4 +120,5 @@ public class SerialDeviceProtocolDialectProperties extends CommonDeviceProtocolD
                     .add();
         }
     }
+
 }

@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
-
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -74,10 +73,10 @@ public class CTRInboundDialHomeIdConnectionPropertiesPersistenceSupport implemen
 
     private void addRequiredStringColumnTo(Table table, CTRInboundDialHomeIdConnectionProperties.Fields fieldName) {
         table
-            .column(fieldName.databaseName())
-            .varChar()
-            .map(fieldName.javaName())
-            .add();
+                .column(fieldName.databaseName())
+                .varChar()
+                .map(fieldName.javaName())
+                .add();
     }
 
 }
