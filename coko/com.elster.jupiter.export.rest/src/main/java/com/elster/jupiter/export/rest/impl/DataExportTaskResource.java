@@ -121,18 +121,17 @@ public class DataExportTaskResource {
     @Path("/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
-    public PagedInfoList getAllDataExportTaskHistory(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+    public PagedInfoList getAllDataExportTaskHistory(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         String applicationName = getApplicationNameFromCode(appCode);
         ExportTaskFinder finder = dataExportService.findExportTasks().ofApplication(applicationName);
         queryParameters.getStart().ifPresent(finder::setStart);
         queryParameters.getLimit().ifPresent(finder::setLimit);
 
-        List<DataExportTaskHistoryInfo> infos = finder.stream()
-                .flatMap(task -> task.getOccurrences().stream())
-                .map(dataExportTaskHistoryInfoFactory::asInfo)
-                .collect(Collectors.toList());
+        List<DataExportTaskHistoryInfo> infos = finder.stream().flatMap(task -> getFinderWithStatusFilter(task.getOccurrencesFinder(), filter).stream()
+                    .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(task.getHistory(), occurrence))
+                    .collect(Collectors.toList()).stream()).collect(Collectors.toList());
 
-        return PagedInfoList.fromPagedList("exportTasksHistory", infos, queryParameters);
+        return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
 
     private String getApplicationNameFromCode(String appCode) {
@@ -572,6 +571,17 @@ public class DataExportTaskResource {
                         .filter(destination -> destination.getId() == destinationInfo.id)
                         .findAny()
                         .ifPresent(destination -> destinationInfo.type.update(destination, destinationInfo)));
+    }
+
+    private DataExportOccurrenceFinder getFinderWithStatusFilter(DataExportOccurrenceFinder occurrenceFinder, JsonQueryFilter filter) {
+        if (filter.hasProperty("status")) {
+            occurrenceFinder.withExportStatus(filter.getStringList("status")
+                    .stream()
+                    .map(DataExportStatus::valueOf)
+                    .collect(Collectors.toList()));
+        }
+
+        return occurrenceFinder;
     }
 
     private Predicate<DestinationInfo> isNewDestination() {
