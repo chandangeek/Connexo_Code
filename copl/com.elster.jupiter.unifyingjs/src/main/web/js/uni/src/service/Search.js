@@ -279,9 +279,14 @@ Ext.define('Uni.service.Search', {
     removeProperty: function (property) {
         var me = this,
             removed = me.criteria.remove(property),
-            filter =  me.filters.removeAtKey(property.getId());
+            filter =  me.filters.removeAtKey(property.getId()),
+            dependentProperties;
 
         if (removed) {
+            dependentProperties = me.getDependentProperties(property);
+            for(var i = 0; i < dependentProperties.length; i++) {
+                me.removeProperty(dependentProperties.get(i));
+            }
             me.fireEvent('remove', me.criteria, property);
         }
 
@@ -607,9 +612,11 @@ Ext.define('Uni.service.Search', {
                         me.fireEvent('criteriaChange', me.criteria, criteria);
                     });
                 } else {
-                    criteria.refresh(function () {
-                        me.fireEvent('criteriaChange', me.criteria, criteria);
-                    });
+                    if(criteria.get('exhaustive') && !Ext.isEmpty(filter.value)) {
+                        criteria.refresh(function () {
+                            me.fireEvent('criteriaChange', me.criteria, criteria);
+                        });
+                    }
                 }
                 me.fireEvent('criteriaChange', me.criteria, criteria);
             });
