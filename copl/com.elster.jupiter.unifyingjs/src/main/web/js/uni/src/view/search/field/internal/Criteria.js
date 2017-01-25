@@ -2,7 +2,8 @@ Ext.define('Uni.view.search.field.internal.Criteria', {
     extend: 'Ext.panel.Panel',
     xtype: 'uni-search-internal-criteria',
     requires: [
-        'Ext.util.Filter'
+        'Ext.util.Filter',
+        'Uni.model.search.Value'
     ],
     minWidth: 300,
     items: [],

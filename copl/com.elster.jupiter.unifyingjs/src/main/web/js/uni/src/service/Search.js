@@ -21,7 +21,7 @@ Ext.define('Uni.service.Search', {
 
     config: {
         router: null,
-        searchDomainsStore: 'Uni.store.search.Domains', //Ext.getStore('Uni.store.search.Domains'),
+        searchDomainsStore: 'Uni.store.search.Domains',
         searchResultsStore: 'Uni.store.search.Results',
         searchPropertiesStore: 'Uni.store.search.Properties',
         searchFieldsStore: 'Uni.store.search.Fields'
@@ -104,11 +104,6 @@ Ext.define('Uni.service.Search', {
         'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration',
         'Quantity': 'uni-grid-column-search-quantity'
     },
-
-    /*defaultColumns: {
-        'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state.name', 'location'],
-        'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayMetrologyConfiguration']
-     },*/
 
     getDomain: function() {
         return this.searchDomain;
@@ -352,7 +347,13 @@ Ext.define('Uni.service.Search', {
         return _.filter(this.filters.getRange(), function(f){
             return !!f.value
                 && Ext.isArray(f.value)
-                && !Ext.isEmpty(_.filter(f.value, function(v) { return !Ext.isEmpty(v.criteria);}))
+                && !Ext.isEmpty(
+                    _.filter(f.value, function(v) {
+                        return (v.operator === '==' && !Ext.isEmpty(v.criteria))
+                            || v.operator === 'ISDEFINED'
+                            || v.operator === 'ISNOTDEFINED';
+                    })
+                )
         });
     },
 
@@ -490,6 +491,12 @@ Ext.define('Uni.service.Search', {
         if (property.get('name') === 'location') {
             Ext.apply(config, {
                 xtype: 'uni-search-criteria-location'
+            });
+        }
+
+        if (property.get('name') === 'device.topology.master') {
+            Ext.apply(config, {
+                xtype: 'uni-search-criteria-has-string'
             });
         }
 
