@@ -429,5 +429,21 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
 
     }
 
+    @Test
+    public void testGetUsagePointGroupsFavorite(){
+        FavoriteUsagePointGroup favoriteUsagePointGroup = mock(FavoriteUsagePointGroup.class);
+        UsagePointGroup usagePointGroup = mock(UsagePointGroup.class);
+        when(favoritesService.getFavoriteUsagePointGroups()).thenReturn(Collections.singletonList(favoriteUsagePointGroup));
+        when(favoriteUsagePointGroup.getComment()).thenReturn("Comment");
+        when(favoriteUsagePointGroup.getCreationDate()).thenReturn(Instant.now());
+        when(favoriteUsagePointGroup.getUsagePointGroup()).thenReturn(usagePointGroup);
+        when(usagePointGroup.getId()).thenReturn(1L);
+        when(usagePointGroup.getName()).thenReturn("UPG name");
+        when(usagePointGroup.isDynamic()).thenReturn(false);
+        when(usagePointGroup.getVersion()).thenReturn(1L);
+        Response response = target("/favorites/usagepointgroups").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
 
 }
