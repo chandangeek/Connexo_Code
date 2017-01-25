@@ -25,7 +25,7 @@ public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAt
     private final OfflineDeviceMessage offlineDeviceMessage;
     private final OfflineDevice offlineDevice;
     private String name;
-    private String deviceMessageAttributeValue;
+    private String value;
     private PropertySpec propertySpec;
     private long deviceMessageId;
 
@@ -61,7 +61,7 @@ public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAt
             value = tempFile.getAbsolutePath();
         }
 
-        this.deviceMessageAttributeValue = deviceProtocol.format(
+        this.value = deviceProtocol.format(
                 offlineDevice,
                 offlineDeviceMessage,
                 new ConnexoToUPLPropertSpecAdapter(deviceMessageAttribute.getSpecification()),
@@ -83,21 +83,12 @@ public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAt
     }
 
     @Override
-    public String getDeviceMessageAttributeValue() {
-        return deviceMessageAttributeValue;
+    public String getValue() {
+        return value;
     }
 
     @Override
     public long getDeviceMessageId() {
         return deviceMessageId;
-    }
-
-    @Override
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
     }
 }

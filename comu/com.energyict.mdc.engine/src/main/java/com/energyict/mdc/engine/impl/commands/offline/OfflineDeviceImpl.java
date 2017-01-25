@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -137,25 +138,6 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private String usagePoint = "";
     private MacException macException;
 
-    public interface ServiceProvider {
-
-        Thesaurus thesaurus();
-
-        TopologyService topologyService();
-
-        Optional<DeviceCache> findProtocolCacheByDevice(Device device);
-
-        IdentificationService identificationService();
-
-        DeviceConfigurationService deviceConfigurationService();
-
-        FirmwareService firmwareService();
-
-        EventService eventService();
-
-
-    }
-
     public OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider) {
         this.device = device;
         this.serviceProvider = serviceProvider;
@@ -193,15 +175,15 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setAllLogBooks(convertToOfflineLogBooks(this.device.getLogBooks()));
         }
         if (context.needsRegisters()) {
-            setAllRegisters(convertToOfflineRegister(createCompleteRegisterList()));
+            setAllOfflineRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
         if (context.needsPendingMessages()) {
             try {
                 serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
                 PendingMessagesValidator validator = new PendingMessagesValidator(this.device);
-                List<DeviceMessage<Device>> pendingMessages = getAllPendingMessagesIncludingSlaves(device);
-                List<DeviceMessage<Device>> reallyPending = new ArrayList<>();
-                List<DeviceMessage<Device>> invalidSinceCreation = new ArrayList<>();
+                List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device);
+                List<DeviceMessage> reallyPending = new ArrayList<>();
+                List<DeviceMessage> invalidSinceCreation = new ArrayList<>();
                 pendingMessages
                         .stream()
                         .forEach(deviceMessage -> {
@@ -222,17 +204,18 @@ public class OfflineDeviceImpl implements OfflineDevice {
             } catch (MacException e) {
                 this.macException = e;
             }
-        if (context.needsSentMessages()) {
-            setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
+            if (context.needsSentMessages()) {
+                setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
+            }
+            if (context.needsFirmwareVersions()) {
+                this.firmwareManagementAllowed = serviceProvider.firmwareService().findFirmwareManagementOptions(device.getDeviceType()).isPresent();
+            }
+            if (context.needsTouCalendar()) {
+                this.touCalendarAllowed = serviceProvider.deviceConfigurationService().findTimeOfUseOptions(device.getDeviceType()).isPresent();
+            }
+            setDeviceCache(serviceProvider);
+            this.setCalendars();
         }
-        if (context.needsFirmwareVersions()) {
-            this.firmwareManagementAllowed = serviceProvider.firmwareService().findFirmwareManagementOptions(device.getDeviceType()).isPresent();
-        }
-        if (context.needsTouCalendar()) {
-            this.touCalendarAllowed = serviceProvider.deviceConfigurationService().findTimeOfUseOptions(device.getDeviceType()).isPresent();
-        }
-        setDeviceCache(serviceProvider);
-        this.setCalendars();
     }
 
     private List<Device> getPhysicalConnectedDevices(Device device) {
@@ -257,7 +240,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
             Serializable cacheObject = deviceProtocolCache.get().getSimpleCacheObject();
             if (cacheObject != null) {
                 this.deviceProtocolCache = (DeviceProtocolCache) cacheObject;
-                this.deviceProtocolCache.markClean(); // Cache is loaded from DB, so make sure it is marked clean, i.e. not dirty or changed
+                this.deviceProtocolCache.setContentChanged(false); // Cache is loaded from DB, so make sure it is marked clean, i.e. not dirty or changed
             }
         }
     }
@@ -409,28 +392,43 @@ public class OfflineDeviceImpl implements OfflineDevice {
     }
 
     @Override
-    public List<OfflineLoadProfile> getAllOfflineLoadProfilesForMRID(String mrid) {
-        return getAllOfflineLoadProfiles().stream().filter(offlineLoadProfile -> offlineLoadProfile.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
-    }
-
-    @Override
     public List<OfflineLogBook> getAllOfflineLogBooks() {
         return this.allLogBooks;
     }
 
     @Override
-    public List<OfflineLogBook> getAllOfflineLogBooksForMRID(String mrid) {
-        return getAllOfflineLogBooks().stream().filter(offlineLogBook -> offlineLogBook.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
+    public List<OfflineRegister> getAllOfflineRegisters() {
+        return allOfflineRegisters;
+    }
+
+    private void setAllOfflineRegisters(final List<OfflineRegister> registers) {
+        this.allOfflineRegisters = registers;
     }
 
     @Override
-    public List<OfflineRegister> getAllRegisters() {
-        return allRegisters;
+    public List<OfflineRegister> getRegistersForRegisterGroup(List<RegisterGroup> rtuRegisterGroups) {
+        List<Long> ids = rtuRegisterGroups
+                .stream()
+                .map(HasId.class::cast)     //Downcast from UPL to CXO
+                .map(HasId::getId)
+                .collect(Collectors.toList());
+
+        return getAllOfflineRegisters()
+                .stream()
+                .filter(register -> register.inAtLeastOneGroup(ids))
+                .collect(Collectors.toList());
     }
 
-    @Override
+    /**
+     * Get a list of {@link OfflineRegister}s which are configured on this {@link OfflineDevice}
+     * <b>AND</b> are included in one of the given RegisterGroup that are specified by ID.
+     *
+     * @param deviceRegisterGroupIds the list ID of RegisterGroup
+     * @param mrid                   the mrid of the device
+     * @return a list of {@link OfflineRegister}s filtered according to the given RegisterGroup
+     */
     public List<OfflineRegister> getRegistersForRegisterGroupAndMRID(final List<Long> deviceRegisterGroupIds, String mrid) {
-        return getAllRegisters().stream().filter(register -> register.inAtLeastOneGroup(deviceRegisterGroupIds) && register.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
+        return getAllOfflineRegisters().stream().filter(register -> register.inAtLeastOneGroup(deviceRegisterGroupIds) && register.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
     }
 
     @Override
@@ -446,6 +444,20 @@ public class OfflineDeviceImpl implements OfflineDevice {
     @Override
     public List<OfflineDeviceMessage> getAllSentDeviceMessages() {
         return this.sentDeviceMessages;
+    }
+
+    @Override
+    public List<OfflineLoadProfile> getLoadProfilesForLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
+        List<Long> ids = loadProfileTypes
+                .stream()
+                .map(HasId.class::cast)     //Downcast from UPL to CXO
+                .map(HasId::getId)
+                .collect(Collectors.toList());
+
+        return getAllOfflineLoadProfiles()
+                .stream()
+                .filter(loadProfile -> ids.contains(loadProfile.getLoadProfileTypeId()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -473,8 +485,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * @param device the Device to collect the pending DeviceMessages from
      * @return a List of pending DeviceMessages
      */
-    private List<DeviceMessage<Device>> getAllPendingMessagesIncludingSlaves(Device device) {
-        List<DeviceMessage<Device>> allDeviceMessages = new ArrayList<>();
+    private List<DeviceMessage> getAllPendingMessagesIncludingSlaves(Device device) {
+        List<DeviceMessage> allDeviceMessages = new ArrayList<>();
         allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.PENDING));
         getPhysicalConnectedDevices(device).stream().
                 filter(this::checkTheNeedToGoOffline).
@@ -490,8 +502,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
      * @param device the Device to collect the sent DeviceMessages from
      * @return a List of sent DeviceMessages
      */
-    private List<DeviceMessage<Device>> getAllSentMessagesIncludingSlaves(Device device) {
-        List<DeviceMessage<Device>> allDeviceMessages = new ArrayList<>();
+    private List<DeviceMessage> getAllSentMessagesIncludingSlaves(Device device) {
+        List<DeviceMessage> allDeviceMessages = new ArrayList<>();
         allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.SENT));
         getPhysicalConnectedDevices(device).stream().
                 filter(this::checkTheNeedToGoOffline).
@@ -499,27 +511,20 @@ public class OfflineDeviceImpl implements OfflineDevice {
         return allDeviceMessages;
     }
 
-    private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage<Device>> deviceMessages) {
+    private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage> deviceMessages) {
         return deviceMessages
                 .stream()
-                .filter(deviceMessage -> deviceMessage.getDevice().getDeviceProtocolPluggableClass().isPresent())
+                .filter(deviceMessage -> ((Device) deviceMessage.getDevice()).getDeviceProtocolPluggableClass().isPresent()) //Downcast to CXO Device
                 .map(this::toOfflineDeviceMessage)
                 .collect(Collectors.toList());
     }
 
-    private OfflineDeviceMessageImpl toOfflineDeviceMessage(DeviceMessage<Device> deviceMessage) {
+    private OfflineDeviceMessageImpl toOfflineDeviceMessage(DeviceMessage deviceMessage) {
         return new OfflineDeviceMessageImpl(
                 deviceMessage,
-                deviceMessage.getDevice().getDeviceProtocolPluggableClass().get().getDeviceProtocol(),
-                serviceProvider.identificationService());
-    }
-
-    private void setAllRegisters(final List<OfflineRegister> registers) {
-        this.allRegisters = registers;
-    }
-
-    private void setSerialNumber(final String serialNumber) {
-        this.serialNumber = serialNumber;
+                ((Device) deviceMessage.getDevice()).getDeviceProtocolPluggableClass().get().getDeviceProtocol(),  //Downcast to CXO Device
+                serviceProvider.identificationService(),
+                this);
     }
 
     private void setSlaveDevices(final List<OfflineDevice> offlineDevices) {
@@ -554,6 +559,10 @@ public class OfflineDeviceImpl implements OfflineDevice {
         return deviceProtocolPluggableClass;
     }
 
+    private void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
+    }
+
     @Override
     public DeviceProtocolCache getDeviceProtocolCache() {
         return deviceProtocolCache;
@@ -562,15 +571,6 @@ public class OfflineDeviceImpl implements OfflineDevice {
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(device);
-    }
-
-    @Override
-    public List<OfflineRegister> getAllRegistersForMRID(String mrid) {
-        return getAllRegisters().stream().filter(offlineRegister -> offlineRegister.getDeviceMRID().equals(mrid)).collect(Collectors.toList());
-    }
-
-    private void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        this.deviceProtocolPluggableClass = deviceProtocolPluggableClass;
     }
 
     @Override
@@ -597,4 +597,20 @@ public class OfflineDeviceImpl implements OfflineDevice {
         this.calendars = this.device.getDeviceType().getAllowedCalendars().stream().map(OfflineCalendarImpl::from).collect(Collectors.toList());
     }
 
+    public interface ServiceProvider {
+
+        Thesaurus thesaurus();
+
+        TopologyService topologyService();
+
+        Optional<DeviceCache> findProtocolCacheByDevice(Device device);
+
+        IdentificationService identificationService();
+
+        DeviceConfigurationService deviceConfigurationService();
+
+        FirmwareService firmwareService();
+
+        EventService eventService();
+    }
 }

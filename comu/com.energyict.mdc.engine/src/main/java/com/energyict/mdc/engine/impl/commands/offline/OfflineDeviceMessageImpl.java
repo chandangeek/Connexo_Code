@@ -84,7 +84,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
                 .collect(Collectors.toList());
         getOfflineDeviceMessageAttributes(attributes);
 
-        this.preparedContext = deviceProtocol.prepareMessageContext(offlineDevice, deviceMessage);
+        this.preparedContext = deviceProtocol.prepareMessageContext(device, offlineDevice, deviceMessage).orElse("");
     }
 
     private void getOfflineDeviceMessageAttributes(List<DeviceMessageAttribute> attributes) {
