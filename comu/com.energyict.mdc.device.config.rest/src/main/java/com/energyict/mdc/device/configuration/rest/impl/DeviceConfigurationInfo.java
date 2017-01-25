@@ -25,6 +25,7 @@ public class DeviceConfigurationInfo {
     public Integer registerCount;
     public Integer logBookCount;
     public Boolean canBeGateway;
+    public Boolean validateOnStore;
     public Boolean isDirectlyAddressable;
     public long version;
     @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
@@ -49,6 +50,7 @@ public class DeviceConfigurationInfo {
         logBookCount = deviceConfiguration.getLogBookSpecs().size();
         canBeGateway = deviceConfiguration.canActAsGateway();
         gatewayType = deviceConfiguration.getGatewayType();
+        validateOnStore = deviceConfiguration.getValidateOnStore();
         isDirectlyAddressable = deviceConfiguration.isDirectlyAddressable();
         version = deviceConfiguration.getVersion();
         parent = new VersionInfo<>(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getDeviceType().getVersion());
@@ -82,5 +84,6 @@ public class DeviceConfigurationInfo {
             deviceConfiguration.setDirectlyAddressable(this.isDirectlyAddressable);
         }
         deviceConfiguration.setDataloggerEnabled(dataloggerEnabled);
+        deviceConfiguration.setValidateOnStore(this.validateOnStore);
     }
 }
