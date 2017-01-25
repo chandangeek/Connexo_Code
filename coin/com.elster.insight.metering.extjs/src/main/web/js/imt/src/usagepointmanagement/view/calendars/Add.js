@@ -35,7 +35,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                             itemId: 'form-errors',
                             xtype: 'uni-form-error-message',
                             name: 'form-errors',
-                            width: 400,
+                           // width: 400,
                             margin: '0 0 10 0',
                             hidden: true
                         },
@@ -79,8 +79,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                             xtype: 'fieldcontainer',
                             fieldLabel: Uni.I18n.translate('general.activateCalendar', 'IMT', 'Activate calendar'),
                             itemId: 'activate-calendar-container',
-                            //required: Mdc.dynamicprivileges.DeviceState.activationDateSupported(),
-                            //hidden: !Mdc.dynamicprivileges.DeviceState.activationDateSupported() ,
+                            required: true,
                             layout: 'hbox',
                             items: [
                                 {
@@ -112,6 +111,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                         {
                                             itemId: 'on-activation-date',
                                             boxLabel: Uni.I18n.translate('general.on', 'IMT', 'On'),
+                                            margin: '7 0 0 0',
                                             inputValue: 'on-date-activation'
                                         }
                                     ]
@@ -133,6 +133,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                             dateConfig: {
                                                 allowBlank: true,
                                                 value: new Date(),
+                                                minValue: new Date(),
                                                 editable: false,
                                                 format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                                             },
@@ -148,6 +149,13 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                     ]
                                 }
                             ]
+                        },
+                        {
+                            xtype: 'label',
+                            itemId: 'error-label',
+                            hidden: true,
+                            cls: 'x-form-invalid-under',
+                            margin: '0 0 0 264'
                         },
                         {
                             xtype: 'fieldcontainer',
