@@ -29,9 +29,13 @@ Ext.define('Imt.dashboard.view.widget.FlaggedItems', {
                 overflowY: 'auto',
                 itemSelector: 'a.x-btn.flag-toggle',
                 emptyText: me.emptyText,
-
+                style: {
+                    margin: '0px !important',
+                    left: '5px',
+                    top: '-1px'
+                },
                 tpl: new Ext.XTemplate(
-                    '<table style="margin: 5px 0 10px 2px">',
+                    '<table style="margin: 0px 0px 0px -3px">',
                     '<tpl for=".">',
                     '<tr id="{name}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
                     '<td width="100%"><a href="{href}">{[Ext.htmlEncode(values.name)]}</a></td>',
@@ -59,7 +63,6 @@ Ext.define('Imt.dashboard.view.widget.FlaggedItems', {
                         var icon = elm.down('.x-btn-icon-el');
                         var pressed = icon.hasCls('icon-star-full');
 
-
                         var callback = function (rec, operation) {
                             if (operation && !Ext.isEmpty(operation.response.responseText)) {
 
@@ -83,7 +86,6 @@ Ext.define('Imt.dashboard.view.widget.FlaggedItems', {
                                 'data-qtip': pressed ? me.clickToAddText : me.clickToRemoveText
                             });
                         };
-
                         pressed ? view.flag(record, false, callback) : view.flag(record, true, callback);
                     }
                 },
