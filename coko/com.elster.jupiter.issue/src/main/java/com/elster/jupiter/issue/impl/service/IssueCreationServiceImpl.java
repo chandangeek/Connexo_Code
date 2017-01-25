@@ -180,6 +180,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         });
     }
 
+
     @Override
     public void processAlarmCreationEvent(long ruleId, IssueEvent event, int logOnSameAlarm) {
 
