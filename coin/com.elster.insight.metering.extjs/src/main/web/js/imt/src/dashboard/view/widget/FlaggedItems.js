@@ -114,6 +114,7 @@ Ext.define('Imt.dashboard.view.widget.FlaggedItems', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'btn-select',
                         text: Uni.I18n.translate('overview.widget.flaggedUsagePointGroups.selectBtn', 'IMT', 'Select'),
                         style: 'margin-top: 15px; margin-left:4px',
                         href: '#/dashboard/favoriteusagepointgroups'
