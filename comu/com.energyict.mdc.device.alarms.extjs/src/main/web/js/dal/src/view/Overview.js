@@ -51,7 +51,7 @@ Ext.define('Dal.view.Overview', {
                                     },
                                     {
                                         title: Uni.I18n.translate('workspace.perWorkgroupAssignee', 'DAL', 'Per workgroup'),
-                                        itemId: 'workgroupAssignee',
+                                        itemId: 'workGroupAssignee',
                                         margin: '20 0 0 10'
                                     }
 
