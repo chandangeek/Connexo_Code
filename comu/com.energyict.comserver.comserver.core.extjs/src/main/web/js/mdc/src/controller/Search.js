@@ -1,6 +1,3 @@
-/**
- * @class MdcApp.controller.Main
- */
 Ext.define('Mdc.controller.Search', {
     extend: 'Ext.app.Controller',
 
