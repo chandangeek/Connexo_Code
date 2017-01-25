@@ -2,21 +2,30 @@ package com.energyict.mdc.device.alarms.rest;
 
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.share.IssueGroupFilter;
+import com.elster.jupiter.issue.share.entity.IssueGroup;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 
 import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
@@ -62,6 +71,49 @@ public class DeviceAlarmResourceTest extends DeviceAlarmApplicationTest{
 
         Map<?, ?> alarmMap = (Map<?, ?>) data.get(0);
         assertDefaultAlarmMap(alarmMap);
+    }
+
+    @Test
+    public void testGroupedList() {
+        IssueGroup entity = mock(IssueGroup.class);
+        when(entity.getGroupKey()).thenReturn(1L);
+        when(entity.getGroupName()).thenReturn("Reason 1");
+        when(entity.getCount()).thenReturn(5L);
+
+        List<IssueGroup> groupedList = Arrays.asList(entity);
+        IssueGroupFilter issueGroupFilter = mock(IssueGroupFilter.class);
+        when(issueGroupFilter.using(Matchers.<Class>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.onlyGroupWithKey(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withIssueTypes(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withStatuses(Matchers.<List<String>>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withMeterName(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withClearedStatuses(anyCollection())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.groupBy(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withId(Matchers.<String>anyObject())).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.setAscOrder(false)).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.from(1L)).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.to(2L)).thenReturn(issueGroupFilter);
+        when(issueService.newIssueGroupFilter()).thenReturn(issueGroupFilter);
+        doReturn(groupedList).when(issueService).getIssueGroupList(issueGroupFilter);
+        TransactionContext context = mock(TransactionContext.class);
+        when(transactionService.getContext()).thenReturn(context);
+
+        String filter = URLEncoder.encode("[{\"property\":\"id\",\"value\":\"1\"},{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":[\"datacollection\"]}]");
+        Query<IssueType> query = mock(Query.class);
+        when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueType>emptyList());
+        when(issueService.query(IssueType.class)).thenReturn(query);
+        Map<?, ?> map = target("alarms/groupedlist")
+                .queryParam("start", 0).queryParam("limit", 1).queryParam("filter", filter).request().get(Map.class);
+
+        assertThat(map.get("total")).isEqualTo(1);
+
+        List<?> groups = (List<?>) map.get("alarmGroups");
+        assertThat(groups).hasSize(1);
+
+        Map<?, ?> groupMap = (Map<?, ?>) groups.get(0);
+        assertThat(groupMap.get("id")).isEqualTo(1);
+        assertThat(groupMap.get("description")).isEqualTo("Reason 1");
+        assertThat(groupMap.get("number")).isEqualTo(5);
     }
 
     private void assertDefaultAlarmMap(Map<?, ?> alarmMap) {
