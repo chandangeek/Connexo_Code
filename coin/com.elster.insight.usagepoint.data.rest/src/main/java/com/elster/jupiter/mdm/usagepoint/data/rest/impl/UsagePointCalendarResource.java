@@ -33,6 +33,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -115,8 +116,14 @@ public class UsagePointCalendarResource {
         Calendar calendar = calendarService.findCalendar(calendarOnUsagePointInfo.calendar.id)
                 .orElse(null);
         Instant start = Instant.ofEpochMilli(calendarOnUsagePointInfo.fromTime);
-        CalendarOnUsagePoint calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
-                .addCalendar(start, calendar);
+        CalendarOnUsagePoint calendarOnUsagePoint;
+        if(calendarOnUsagePointInfo.immediately){
+            calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
+                    .addCalendar(calendar);
+        } else {
+            calendarOnUsagePoint = usagePointCalendarService.calendarsFor(usagePoint)
+                    .addCalendar(start, calendar);
+        }
         return Response.ok(calendarOnUsagePointInfoFactory.from(calendarOnUsagePoint)).build();
     }
 
