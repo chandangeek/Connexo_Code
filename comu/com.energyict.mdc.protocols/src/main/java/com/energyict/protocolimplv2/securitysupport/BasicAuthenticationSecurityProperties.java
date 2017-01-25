@@ -2,10 +2,7 @@ package com.energyict.protocolimplv2.securitysupport;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
@@ -22,54 +19,6 @@ import static com.elster.jupiter.util.Checks.is;
  * @since 2015-11-20 (10:10)
  */
 public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecurityProperties {
-
-    public enum ActualFields {
-        PASSWORD(SecurityPropertySpecName.PASSWORD) {
-            @Override
-            public String javaName() {
-                return "password";
-            }
-
-            @Override
-            public String databaseName() {
-                return "PASSWORD";
-            }
-        },
-        USER_NAME(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER) {
-            @Override
-            public String javaName() {
-                return "user";
-            }
-
-            @Override
-            public String databaseName() {
-                return "USER_NME";
-            }
-        };
-
-        private final DeviceSecurityProperty deviceSecurityProperty;
-
-        ActualFields(DeviceSecurityProperty deviceSecurityProperty) {
-            this.deviceSecurityProperty = deviceSecurityProperty;
-        }
-
-        public abstract String javaName();
-
-        public abstract String databaseName();
-
-        public void addTo(Table table) {
-            table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName())
-                .add();
-        }
-
-        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return this.deviceSecurityProperty.getPropertySpec(propertySpecService, thesaurus);
-        }
-
-    }
 
     @Size(max = Table.MAX_STRING_LENGTH)
     private String password;
@@ -95,4 +44,40 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         // Nothing to validate
     }
 
+    public enum ActualFields {
+        PASSWORD() {
+            @Override
+            public String javaName() {
+                return "password";
+            }
+
+            @Override
+            public String databaseName() {
+                return "PASSWORD";
+            }
+        },
+        USER_NAME() {
+            @Override
+            public String javaName() {
+                return "user";
+            }
+
+            @Override
+            public String databaseName() {
+                return "USER_NME";
+            }
+        };
+
+        public abstract String javaName();
+
+        public abstract String databaseName();
+
+        public void addTo(Table table) {
+            table
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName())
+                    .add();
+        }
+    }
 }

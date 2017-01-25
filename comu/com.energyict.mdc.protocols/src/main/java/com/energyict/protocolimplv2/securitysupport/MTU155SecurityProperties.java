@@ -2,12 +2,8 @@ package com.energyict.protocolimplv2.securitysupport;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import javax.validation.constraints.Size;
 import java.util.stream.Stream;
@@ -20,6 +16,34 @@ import java.util.stream.Stream;
  */
 public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties {
 
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String password;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String serviceEncryptionKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String factoryEncryptionKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String temporaryEncryptionKey;
+
+    @Override
+    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+        Stream
+                .of(ActualFields.values())
+                .forEach(field -> field.setValue(this, (String) getTypedPropertyValue(propertyValues, field.propertySpecName())));
+    }
+
+    @Override
+    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+        Stream
+                .of(ActualFields.values())
+                .forEach(field -> field.copyPropertyTo(propertySetValues, this));
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
     public enum ActualFields {
         PASSWORD("password", com.energyict.protocolimplv2.security.SecurityPropertySpecName.PASSWORD.toString()) {
             @Override
@@ -30,11 +54,6 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             @Override
             protected void setValue(MTU155SecurityProperties perClientProperties, String value) {
                 perClientProperties.password = value;
-            }
-
-            @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus);
             }
         },
         SERVICE_ENCRYPTION_KEY("serviceEncryptionKey", com.energyict.protocolimplv2.security.SecurityPropertySpecName.ENCRYPTION_KEY_2.toString()) {
@@ -47,16 +66,6 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             protected void setValue(MTU155SecurityProperties perClientProperties, String value) {
                 perClientProperties.serviceEncryptionKey = value;
             }
-
-            @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return propertySpecService
-                        .encryptedHexStringSpec()
-                        .named(SecurityPropertySpecName.ENCRYPTION_KEY_2)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish();
-            }
         },
         FACTORY_ENCRYPTION_KEY("factoryEncryptionKey", com.energyict.protocolimplv2.security.SecurityPropertySpecName.ENCRYPTION_KEY_3.toString()) {
             @Override
@@ -68,16 +77,6 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             protected void setValue(MTU155SecurityProperties perClientProperties, String value) {
                 perClientProperties.factoryEncryptionKey = value;
             }
-
-            @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return propertySpecService
-                        .encryptedHexStringSpec()
-                        .named(SecurityPropertySpecName.ENCRYPTION_KEY_3)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish();
-            }
         },
         TEMPORARY_ENCRYPTION_KEY("temporaryEncryptionKey", com.energyict.protocolimplv2.security.SecurityPropertySpecName.ENCRYPTION_KEY_1.toString()) {
             @Override
@@ -88,16 +87,6 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             @Override
             protected void setValue(MTU155SecurityProperties perClientProperties, String value) {
                 perClientProperties.temporaryEncryptionKey = value;
-            }
-
-            @Override
-            public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-                return propertySpecService
-                        .encryptedHexStringSpec()
-                        .named(SecurityPropertySpecName.ENCRYPTION_KEY_1)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
-                        .finish();
             }
         };
 
@@ -123,48 +112,19 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
 
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName)
-                .add();
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName)
+                    .add();
         }
-
-        public abstract PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
 
         public void copyPropertyTo(CustomPropertySetValues propertySetValues, MTU155SecurityProperties perClientProperties) {
             perClientProperties.setPropertyIfNotNull(propertySetValues, this.propertySpecName(), this.getValue(perClientProperties));
         }
 
         protected abstract String getValue(MTU155SecurityProperties perClientProperties);
+
         protected abstract void setValue(MTU155SecurityProperties perClientProperties, String value);
-    }
-
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String password;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String serviceEncryptionKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String factoryEncryptionKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String temporaryEncryptionKey;
-
-    @Override
-    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        Stream
-            .of(ActualFields.values())
-                .forEach(field -> field.setValue(this, (String) getTypedPropertyValue(propertyValues, field.propertySpecName())));
-    }
-
-    @Override
-    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        Stream
-            .of(ActualFields.values())
-            .forEach(field -> field.copyPropertyTo(propertySetValues, this));
-    }
-
-    @Override
-    public void validateDelete() {
-        // Nothing to validate
     }
 
 }

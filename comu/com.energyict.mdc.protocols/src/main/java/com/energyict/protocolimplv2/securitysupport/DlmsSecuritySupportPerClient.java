@@ -31,7 +31,7 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupportAdapter
 
     @Override
     public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.of(new DlmsSecurityPerClientCustomPropertySet(this.thesaurus, this.propertySpecService));
+        return Optional.of(new DlmsSecurityPerClientCustomPropertySet(this.thesaurus));
     }
 
     protected com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities getSecuritySupport() {

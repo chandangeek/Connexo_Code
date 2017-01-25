@@ -17,8 +17,8 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsSlaveProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessaging;
 import com.energyict.protocolimplv2.securitysupport.DsmrSecuritySupport;
-import com.energyict.protocolimplv2.securitysupport.InheritedAuthenticationDeviceAccessLevel;
-import com.energyict.protocolimplv2.securitysupport.InheritedEncryptionDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

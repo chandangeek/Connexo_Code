@@ -10,8 +10,8 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.protocolimplv2.securitysupport.InheritedAuthenticationDeviceAccessLevel;
-import com.energyict.protocolimplv2.securitysupport.InheritedEncryptionDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

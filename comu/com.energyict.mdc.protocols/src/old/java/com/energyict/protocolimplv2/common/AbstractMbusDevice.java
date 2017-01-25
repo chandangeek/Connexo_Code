@@ -34,8 +34,8 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.protocolimplv2.securitysupport.InheritedAuthenticationDeviceAccessLevel;
-import com.energyict.protocolimplv2.securitysupport.InheritedEncryptionDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 
 import javax.inject.Provider;

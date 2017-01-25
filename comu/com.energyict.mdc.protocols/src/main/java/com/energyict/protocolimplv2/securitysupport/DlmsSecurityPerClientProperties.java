@@ -2,10 +2,7 @@ package com.energyict.protocolimplv2.securitysupport;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
@@ -19,6 +16,62 @@ import java.util.stream.Stream;
  * @since 2015-11-19 (14:46)
  */
 public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityProperties {
+
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String publicPassword;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String dataPassword;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String extraDataPassword;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String managementPassword;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String firmwarePassword;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String manufacturerPassword;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String publicEncryptionKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String dataEncryptionKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String extraDataEncryptionKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String managementEncryptionKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String firmwareEncryptionKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String manufacturerEncryptionKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String publicAuthenticationKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String dataAuthenticationKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String extraDataAuthenticationKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String managementAuthenticationKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String firmwareAuthenticationKey;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String manufacturerAuthenticationKey;
+
+    @Override
+    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
+        Stream
+                .of(ActualFields.values())
+                .forEach(field -> field.setValue(this, (String) getTypedPropertyValue(propertyValues, field.propertySpecName().getKey())));
+    }
+
+    @Override
+    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
+        Stream
+                .of(ActualFields.values())
+                .forEach(field -> field.copyPropertyTo(propertySetValues, this));
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
 
     public enum ActualFields {
         PUBLIC_PASSWORD("publicPassword", SecurityPropertySpecName.PASSWORD_PUBLIC) {
@@ -272,20 +325,10 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
 
         public void addTo(Table table) {
             table
-                .column(this.databaseName())
-                .varChar()
-                .map(this.javaName)
-                .add();
-        }
-
-        public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            return propertySpecService
-                    .encryptedHexStringSpec()
-                    .named(this.propertySpecName)
-                    .fromThesaurus(thesaurus)
-                    .markRequired()
-                    .finish();
-
+                    .column(this.databaseName())
+                    .varChar()
+                    .map(this.javaName)
+                    .add();
         }
 
         public void copyPropertyTo(CustomPropertySetValues propertySetValues, DlmsSecurityPerClientProperties perClientProperties) {
@@ -293,63 +336,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
         }
 
         protected abstract String getValue(DlmsSecurityPerClientProperties perClientProperties);
+
         protected abstract void setValue(DlmsSecurityPerClientProperties perClientProperties, String value);
     }
-
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String publicPassword;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String dataPassword;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String extraDataPassword;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String managementPassword;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String firmwarePassword;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String manufacturerPassword;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String publicEncryptionKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String dataEncryptionKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String extraDataEncryptionKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String managementEncryptionKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String firmwareEncryptionKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String manufacturerEncryptionKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String publicAuthenticationKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String dataAuthenticationKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String extraDataAuthenticationKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String managementAuthenticationKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String firmwareAuthenticationKey;
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String manufacturerAuthenticationKey;
-
-    @Override
-    protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        Stream
-            .of(ActualFields.values())
-                .forEach(field -> field.setValue(this, (String) getTypedPropertyValue(propertyValues, field.propertySpecName().getKey())));
-    }
-
-    @Override
-    protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
-        Stream
-            .of(ActualFields.values())
-            .forEach(field -> field.copyPropertyTo(propertySetValues, this));
-    }
-
-    @Override
-    public void validateDelete() {
-        // Nothing to validate
-    }
-
 }
