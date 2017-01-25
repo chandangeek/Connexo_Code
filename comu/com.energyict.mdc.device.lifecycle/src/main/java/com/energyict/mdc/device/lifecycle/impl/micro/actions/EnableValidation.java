@@ -23,6 +23,8 @@ import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySup
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-20 (09:29)
  */
+
+
 public class EnableValidation extends TranslatableServerMicroAction {
 
     public EnableValidation(Thesaurus thesaurus) {
@@ -36,7 +38,11 @@ public class EnableValidation extends TranslatableServerMicroAction {
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        device.forValidation().activateValidation(getLastCheckedTimestamp(properties));
+        if(device.getDeviceConfiguration().getValidateOnStore()) {
+            device.forValidation().activateValidation(getLastCheckedTimestamp(properties));
+        } else {
+            device.forValidation().activateValidationOnStorage(getLastCheckedTimestamp((properties)));
+        }
     }
 
     @Override
