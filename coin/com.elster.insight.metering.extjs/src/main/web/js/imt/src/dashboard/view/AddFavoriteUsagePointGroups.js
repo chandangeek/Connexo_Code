@@ -3,7 +3,8 @@ Ext.define('Imt.dashboard.view.AddFavoriteUsagePointGroups', {
     alias: 'widget.add-favorite-usage-point-groups',
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Imt.dashboard.view.FavoriteUsagePointGroups'
+        'Imt.dashboard.view.FavoriteUsagePointGroups',
+        'Imt.privileges.UsagePointGroup'
     ],
 
     initComponent: function () {
@@ -30,6 +31,14 @@ Ext.define('Imt.dashboard.view.AddFavoriteUsagePointGroups', {
                             title: Uni.I18n.translate('selectFavoriteUsagePointGroups.empty.title', 'IMT', 'No usage point group found'),
                             reasons: [
                                 Uni.I18n.translate('selectFavoriteUsagePointGroups.empty.list.item0', 'IMT', 'No usage point group have been defined.')
+                            ],
+                            stepItems: [
+                                {
+                                    itemId: 'btn-add-usage-point-group',
+                                    text: Uni.I18n.translate('selectFavoriteUsagePointGroups.addUsagePointGroup', 'IMT', 'Add usage point group'),
+                                    privileges: Imt.privileges.UsagePointGroup.administrate,
+                                    href: '#/usagepoints/usagepointgroups/add'
+                                }
                             ]
                         }
                     }
