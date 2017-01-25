@@ -551,8 +551,10 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         invokeProtectedMethod(logicalName, classId, methodIndex, new Integer8(0));
     }
 
-    private void invokeProtectedMethod(OctetString logicalName, Unsigned16 classId, Integer8 methodIndex, Integer8 methodParameter) throws IOException {
-        int generalCipheringKeyTypeId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.generalCipheringKeyTypeId).getDeviceMessageAttributeValue());
+    private void invokeProtectedMethod(OctetString logicalName, Unsigned16 classId, Integer8 methodIndex, AbstractDataType methodParameter) throws IOException {
+        //NOTE: this property will not be used if requiredProtection will be set to Digital signature(and that will be the case for T210D)
+        int generalCipheringKeyTypeId = 0;
+
         Structure objectMethodDefinition = DataProtectionFactory.createObjectMethodDefinition(classId, logicalName, methodIndex);
         List<ProtectionType> protectionLayers = getRequestProtectionTypeLayers();
         SecurityContext securityContext = getSecurityContext();
@@ -569,7 +571,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
 
     }
 
-    private byte[] getEncryptedMethodInvocationParameters(List<ProtectionType> protectionLayers, SecurityContext securityContext, Integer8 parameter) throws UnsupportedException {
+    private byte[] getEncryptedMethodInvocationParameters(List<ProtectionType> protectionLayers, SecurityContext securityContext, AbstractDataType parameter) throws UnsupportedException {
         byte[] dataToEncrypt = parameter.getBEREncodedByteArray();
         byte[] encryptedData = new byte[]{};
         for(ProtectionType protectionType: protectionLayers){
