@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePoint;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoriteUsagePointGroup;
+import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoriteUsagePointGroupDetailsInfo;
 import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoriteUsagePointGroupInfo;
 import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoriteUsagePointInfo;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -445,5 +446,26 @@ public class FavoritesResourceTest extends UsagePointDataRestApplicationJerseyTe
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
+    @Test
+    public void testUpdateUsagePointGroupsFavorite(){
+        FavoriteUsagePointGroup favoriteUsagePointGroup = mock(FavoriteUsagePointGroup.class);
+        UsagePointGroup usagePointGroup = mock(UsagePointGroup.class);
+        when(favoritesService.getFavoriteUsagePointGroups()).thenReturn(Collections.singletonList(favoriteUsagePointGroup));
+        when(favoriteUsagePointGroup.getComment()).thenReturn("Comment");
+        when(favoriteUsagePointGroup.getCreationDate()).thenReturn(Instant.now());
+        when(favoriteUsagePointGroup.getUsagePointGroup()).thenReturn(usagePointGroup);
+        when(usagePointGroup.getId()).thenReturn(1L);
+        when(usagePointGroup.getName()).thenReturn("UPG name");
+        when(usagePointGroup.isDynamic()).thenReturn(false);
+        when(usagePointGroup.getVersion()).thenReturn(1L);
+        when(meteringGroupsService.findAndLockUsagePointGroupByIdAndVersion(1L, 1L)).thenReturn(Optional.of(usagePointGroup));
+
+        FavoriteUsagePointGroupDetailsInfo favInfo = new FavoriteUsagePointGroupDetailsInfo(favoriteUsagePointGroup);
+        FavoriteUsagePointGroupDetailsInfo.FavoriteUsagePointGroups info = new FavoriteUsagePointGroupDetailsInfo.FavoriteUsagePointGroups();
+        info.favoriteUsagePointGroups = Collections.singletonList(favInfo);
+
+        Response response = target("/favorites/usagepointgroups").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
 
 }
