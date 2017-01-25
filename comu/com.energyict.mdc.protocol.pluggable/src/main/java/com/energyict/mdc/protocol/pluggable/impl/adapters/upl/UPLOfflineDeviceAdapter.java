@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
+import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -14,6 +15,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
 /**
@@ -38,6 +40,12 @@ public class UPLOfflineDeviceAdapter implements OfflineDevice {
     @Override
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
         // Todo: let's wait and see, I think we can get away with this
+        return null;
+    }
+
+    @Override
+    public Optional<MacException> getMacException() {
+        //Protocols do not use this method
         return null;
     }
 
