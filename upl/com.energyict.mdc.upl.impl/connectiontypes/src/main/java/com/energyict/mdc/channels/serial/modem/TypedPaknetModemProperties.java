@@ -1,7 +1,11 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.upl.properties.*;
-
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -16,26 +20,12 @@ import java.util.List;
  */
 public class TypedPaknetModemProperties extends AbstractPaknetModemProperties implements HasDynamicProperties {
 
-    public static final String MODEM_DIAL_PREFIX = "modem_dial_prefix";         // the prefix command to use when performing the actual dial to the modem of the device
-    public static final String CONNECT_TIMEOUT = "modem_connect_timeout";       // timeout for the connect command
-    public static final String DELAY_AFTER_CONNECT = "modem_delay_after_connect";   // timeout to wait after a connect command has been received
-    public static final String DELAY_BEFORE_SEND = "modem_senddelay";           // delay to wait before we send a command
-    public static final String COMMAND_TIMEOUT = "modem_command_timeout";       // timeout for regular commands
-    public static final String COMMAND_TRIES = "modem_command_tries";           // the number of attempts a command should be send to the modem before
-    public static final String MODEM_INIT_STRINGS = "modem_init_string";        // the initialization strings for this modem type modem
-    public static final String DTR_TOGGLE_DELAY = "disconnect_line_toggle_delay";// the delay between DTR line toggles, which are used to disconnect the active connection.
-
     private static final String DEFAULT_MODEM_INIT_STRINGS = "1:0;2:0;3:0;4:10;5:0;6:5";
     private static final BigDecimal DEFAULT_COMMAND_TRIES = new BigDecimal(5);
     private static final Duration DEFAULT_COMMAND_TIMEOUT = Duration.ofSeconds(10);
-    private static final Duration DEFAULT_DELAY_BEFORE_SEND = Duration.ofMillis(500);
-    private static final Duration DEFAULT_DELAY_AFTER_CONNECT = Duration.ofMillis(500);
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
-    private static final String DEFAULT_MODEM_DIAL_PREFIX = "";
-    private static final Duration DEFAULT_DTR_TOGGLE_DELAY = Duration.ofSeconds(2);
-
-    private TypedProperties properties;
     private final PropertySpecService propertySpecService;
+    private TypedProperties properties;
 
     public TypedPaknetModemProperties(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -175,7 +165,7 @@ public class TypedPaknetModemProperties extends AbstractPaknetModemProperties im
     }
 
     public PropertySpec phoneNumberSpec() {
-        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER_PROPERTY_NAME, false,this.propertySpecService::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(PHONE_NUMBER_PROPERTY_NAME, false, this.propertySpecService::stringSpec).finish();
     }
 
     private PropertySpec durationSpec(String name, boolean required, Duration defaultValue) {

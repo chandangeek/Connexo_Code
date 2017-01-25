@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.DefaultSerialComponentFactory;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
@@ -20,11 +21,14 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
-
-import com.energyict.cbo.TimeDuration;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ModemException;
 import com.energyict.protocol.exceptions.ProtocolExceptionReference;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,12 +36,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -91,21 +89,21 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
     private List<ConnectionTaskProperty> getProperProperties() {
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_BEFORE_SEND);
         delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TIMEOUT);
+        ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.COMMAND_TIMEOUT);
         atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
+        ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(1));
-        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_GLOBAL_INIT_STRINGS);
+        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_GLOBAL_INIT_STRINGS);
         atModemInitStrings.setValue("ATS0=0E0V1");
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_AFTER_CONNECT);
         delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_CONNECT_TIMEOUT);
+        ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedAtModemProperties.CONNECT_TIMEOUT);
         connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_DIAL_PREFIX);
+        ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_DIAL_PREFIX);
         dialPrefix.setValue("");
-        ConnectionTaskPropertyImpl addressSelector = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_ADDRESS_SELECTOR);
+        ConnectionTaskPropertyImpl addressSelector = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_ADDRESS_SELECTOR);
         addressSelector.setValue("");
-        ConnectionTaskPropertyImpl postDialCommands = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_POST_DIAL_COMMANDS);
+        ConnectionTaskPropertyImpl postDialCommands = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_POST_DIAL_COMMANDS);
         postDialCommands.setValue("");
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedAtModemProperties.PHONE_NUMBER_PROPERTY_NAME);
         phoneNumber.setValue(PHONE_NUMBER);
@@ -227,9 +225,9 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
 
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_BEFORE_SEND);
         delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TIMEOUT);
+        ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.COMMAND_TIMEOUT);
         atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
-        ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
+        ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(3));
         List<ConnectionTaskProperty> properties = Arrays.<ConnectionTaskProperty>asList(delayBeforeSendProperty, atCommandTimeout, atCommandTries);
 
@@ -300,28 +298,28 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_BEFORE_SEND);
         delayBeforeSendProperty.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
         properProperties.add(delayBeforeSendProperty);
-        ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TIMEOUT);
+        ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.COMMAND_TIMEOUT);
         atCommandTimeout.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
         properProperties.add(atCommandTimeout);
-        ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
+        ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(1));
         properProperties.add(atCommandTries);
-        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_INIT_STRINGS);
+        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_INIT_STRINGS);
         atModemInitStrings.setValue("ATS0=0E0V1;ATM0;ATS1=0");
         properProperties.add(atModemInitStrings);
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_AFTER_CONNECT);
         delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
         properProperties.add(delayAfterConnect);
-        ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_CONNECT_TIMEOUT);
+        ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedAtModemProperties.CONNECT_TIMEOUT);
         connectTimeOut.setValue(new TimeDuration(COMMAND_TIMEOUT_VALUE, TimeDuration.MILLISECONDS));
         properProperties.add(connectTimeOut);
-        ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_DIAL_PREFIX);
+        ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_DIAL_PREFIX);
         dialPrefix.setValue("");
         properProperties.add(dialPrefix);
-        ConnectionTaskPropertyImpl addressSelector = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_ADDRESS_SELECTOR);
+        ConnectionTaskPropertyImpl addressSelector = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_ADDRESS_SELECTOR);
         addressSelector.setValue("");
         properProperties.add(addressSelector);
-        ConnectionTaskPropertyImpl postDialCommands = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_POST_DIAL_COMMANDS);
+        ConnectionTaskPropertyImpl postDialCommands = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_POST_DIAL_COMMANDS);
         postDialCommands.setValue("");
         properProperties.add(postDialCommands);
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedAtModemProperties.PHONE_NUMBER_PROPERTY_NAME);
@@ -530,7 +528,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
 
         List<ConnectionTaskProperty> properProperties = getProperProperties();
         for (ConnectionTaskProperty properProperty : properProperties) {
-            if (properProperty.getName().equals(TypedAtModemProperties.AT_MODEM_ADDRESS_SELECTOR)) {
+            if (properProperty.getName().equals(TypedAtModemProperties.MODEM_ADDRESS_SELECTOR)) {
                 ((ConnectionTaskPropertyImpl) properProperty).setValue("AddressSelect_01");
             }
         }
@@ -558,13 +556,13 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         ConnectionTaskPropertyImpl delayBeforeSendProperty = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_BEFORE_SEND);
         delayBeforeSendProperty.setValue(new TimeDuration(20, TimeDuration.MILLISECONDS));
         properProperties.add(delayBeforeSendProperty);
-        ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TIMEOUT);
+        ConnectionTaskPropertyImpl atCommandTimeout = new ConnectionTaskPropertyImpl(TypedAtModemProperties.COMMAND_TIMEOUT);
         atCommandTimeout.setValue(new TimeDuration(1, TimeDuration.SECONDS));
         properProperties.add(atCommandTimeout);
-        ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_COMMAND_TRIES);
+        ConnectionTaskPropertyImpl atCommandTries = new ConnectionTaskPropertyImpl(TypedAtModemProperties.COMMAND_TRIES);
         atCommandTries.setValue(new BigDecimal(1));
         properProperties.add(atCommandTries);
-        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_INIT_STRINGS);
+        ConnectionTaskPropertyImpl atModemInitStrings = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_INIT_STRINGS);
         atModemInitStrings.setValue("ATS0=0E0V1;ATM0");
         properProperties.add(atModemInitStrings);
         ConnectionTaskPropertyImpl baudrate = new ConnectionTaskPropertyImpl(SerialPortConfiguration.BAUDRATE_NAME);
@@ -585,13 +583,13 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests{
         ConnectionTaskPropertyImpl delayAfterConnect = new ConnectionTaskPropertyImpl(TypedAtModemProperties.DELAY_AFTER_CONNECT);
         delayAfterConnect.setValue(new TimeDuration(10, TimeDuration.MILLISECONDS));
         properProperties.add(delayAfterConnect);
-        ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_CONNECT_TIMEOUT);
+        ConnectionTaskPropertyImpl connectTimeOut = new ConnectionTaskPropertyImpl(TypedAtModemProperties.CONNECT_TIMEOUT);
         connectTimeOut.setValue(new TimeDuration(30, TimeDuration.SECONDS));
         properProperties.add(connectTimeOut);
-        ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_DIAL_PREFIX);
+        ConnectionTaskPropertyImpl dialPrefix = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_DIAL_PREFIX);
         dialPrefix.setValue("");
         properProperties.add(dialPrefix);
-        ConnectionTaskPropertyImpl addressSelector = new ConnectionTaskPropertyImpl(TypedAtModemProperties.AT_MODEM_ADDRESS_SELECTOR);
+        ConnectionTaskPropertyImpl addressSelector = new ConnectionTaskPropertyImpl(TypedAtModemProperties.MODEM_ADDRESS_SELECTOR);
         addressSelector.setValue("");
         properProperties.add(addressSelector);
         ConnectionTaskPropertyImpl phoneNumber = new ConnectionTaskPropertyImpl(TypedAtModemProperties.PHONE_NUMBER_PROPERTY_NAME);

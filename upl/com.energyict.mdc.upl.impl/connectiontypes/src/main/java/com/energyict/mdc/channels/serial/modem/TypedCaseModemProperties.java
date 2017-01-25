@@ -1,11 +1,20 @@
 package com.energyict.mdc.channels.serial.modem;
 
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author sva
@@ -13,31 +22,15 @@ import java.util.*;
  */
 public class TypedCaseModemProperties extends AbstractCaseModemProperties implements HasDynamicProperties {
 
-    public static final String MODEM_DIAL_PREFIX = "modem_dial_prefix";         // the prefix command to use when performing the actual dial to the modem of the device
-    public static final String CONNECT_TIMEOUT = "modem_connect_timeout";       // timeout for the connect command
-    public static final String DELAY_AFTER_CONNECT = "modem_delay_after_connect";   // timeout to wait after a connect command has been received
-    public static final String DELAY_BEFORE_SEND = "modem_senddelay";           // delay to wait before we send a command
-    public static final String COMMAND_TIMEOUT = "modem_command_timeout";       // timeout for regular commands
-    public static final String COMMAND_TRIES = "modem_command_tries";           // the number of attempts a command should be send to the modem before
-    public static final String GLOBAL_MODEM_INIT_STRINGS = "modem_global_init_string";   // the initialization strings for this modem type (separated by a colon
-    public static final String MODEM_INIT_STRINGS = "modem_init_string";        // the initialization strings for this modem type modem
-    public static final String MODEM_ADDRESS_SELECTOR = "modem_address_select"; // the address selector to use after a physical connect
-    public static final String DTR_TOGGLE_DELAY = "disconnect_line_toggle_delay";// the delay between DTR line toggles, which are used to disconnect the active connection.
-
     private static final String DEFAULT_GLOBAL_MODEM_INIT_STRINGS = "";
     private static final String DEFAULT_MODEM_INIT_STRINGS = "";
     private static final BigDecimal DEFAULT_COMMAND_TRIES = new BigDecimal(5);
     private static final Duration DEFAULT_COMMAND_TIMEOUT = Duration.ofSeconds(10);
-    private static final Duration DEFAULT_DELAY_BEFORE_SEND = Duration.ofMillis(500);
-    private static final Duration DEFAULT_DELAY_AFTER_CONNECT = Duration.ofMillis(500);
     private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(30);
-    private static final String DEFAULT_MODEM_DIAL_PREFIX = "";
     private static final String DEFAULT_MODEM_ADDRESS_SELECTOR = "";
-    private static final Duration DEFAULT_DTR_TOGGLE_DELAY = Duration.ofSeconds(2);
-
+    private final PropertySpecService propertySpecService;
     private TypedProperties properties;
     private Map<String, PropertySpec> propertySpecs;
-    private final PropertySpecService propertySpecService;
 
     public TypedCaseModemProperties(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -82,7 +75,7 @@ public class TypedCaseModemProperties extends AbstractCaseModemProperties implem
         propertySpecs.put(MODEM_ADDRESS_SELECTOR, modemAddressSelectorSpec());
         propertySpecs.put(CONNECT_TIMEOUT, atConnectTimeoutSpec());
         propertySpecs.put(MODEM_DIAL_PREFIX, atCommandPrefixSpec());
-        propertySpecs.put(GLOBAL_MODEM_INIT_STRINGS, atGlobalModemInitStringSpec());
+        propertySpecs.put(MODEM_GLOBAL_INIT_STRINGS, atGlobalModemInitStringSpec());
         propertySpecs.put(MODEM_INIT_STRINGS, atModemInitStringSpec());
         propertySpecs.put(COMMAND_TRIES, atCommandTriesSpec());
         propertySpecs.put(COMMAND_TIMEOUT, atCommandTimeoutSpec());
@@ -135,7 +128,7 @@ public class TypedCaseModemProperties extends AbstractCaseModemProperties implem
 
     @Override
     protected List<String> getGlobalModemInitStrings() {
-        Object value = getProperty(GLOBAL_MODEM_INIT_STRINGS);
+        Object value = getProperty(MODEM_GLOBAL_INIT_STRINGS);
         String globalInitStringSpecs = value != null ? (String) value : DEFAULT_GLOBAL_MODEM_INIT_STRINGS;
         if (!globalInitStringSpecs.isEmpty()) {
             return Arrays.asList(globalInitStringSpecs.split(AtModemComponent.SEPARATOR));
@@ -180,7 +173,7 @@ public class TypedCaseModemProperties extends AbstractCaseModemProperties implem
     }
 
     public PropertySpec atGlobalModemInitStringSpec() {
-        return this.stringWithDefaultSpec(GLOBAL_MODEM_INIT_STRINGS, false, DEFAULT_GLOBAL_MODEM_INIT_STRINGS);
+        return this.stringWithDefaultSpec(MODEM_GLOBAL_INIT_STRINGS, false, DEFAULT_GLOBAL_MODEM_INIT_STRINGS);
     }
 
     public PropertySpec atModemInitStringSpec() {
