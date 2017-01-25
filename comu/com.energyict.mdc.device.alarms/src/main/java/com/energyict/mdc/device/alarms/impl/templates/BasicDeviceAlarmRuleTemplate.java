@@ -114,12 +114,11 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "rule \"Basic device alarm rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
-                // maybe both TRIGGERING_EVENTS + CLEARING_EVENTS
-                "\teval( event.computeOccurenceCount(\"@{" + THRESHOLD + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + DEVICE_TYPES + "}\", \"@{" + EIS_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
+                "\teval( event.computeOccurenceCount(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + LOG_ON_SAME_ALARM + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\", \"@{" + DEVICE_TYPES + "}\", \"@{" + EIS_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
+                // == will become IN for lists
                 "\teval( event.getAssociatedDeviceLifecycleState() == @{" + DEVICE_LIFECYCLE_STATE + "} )\n" +
                 "then\n" +
-                "\tSystem.out.println(\"Generating device alarm @{ruleId}\");\n" +
-                //  "\tboolean clearing = event.isClearing();\n" +
+                "\tSystem.out.println(\"Processing device alarm based on rule template number @{ruleId}\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM + "});\n" +
                 "end";
     }
@@ -212,14 +211,14 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
-                .stringSpec()
+                .booleanSpec()
                 .named(UP_URGENCY_ON_RAISE, TranslationKeys.UP_URGENCY_ON_RAISE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
-                .stringSpec()
+                .booleanSpec()
                 .named(DOWN_URGENCY_ON_CLEAR, TranslationKeys.DOWN_URGENCY_ON_CLEAR)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
@@ -238,19 +237,19 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
             Optional<String> clearingEvents = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
                     .findFirst().map(found -> (String) found.getValue());
-            Optional<String> upUrgencyOnRaise = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(UP_URGENCY_ON_RAISE))
-                    .findFirst().map(found -> (String) found.getValue());
-            Optional<String> downUrgencyOnClear = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(DOWN_URGENCY_ON_CLEAR))
-                    .findFirst().map(found -> (String) found.getValue());
+            Optional<Boolean> upUrgencyOnRaise = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(UP_URGENCY_ON_RAISE))
+                    .findFirst().map(found -> (Boolean) found.getValue());
+            Optional<Boolean> downUrgencyOnClear = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(DOWN_URGENCY_ON_CLEAR))
+                    .findFirst().map(found -> (Boolean) found.getValue());
             if (clearingEvents.isPresent() && ((DeviceAlarmEvent) event).isClearing(clearingEvents.get()) && !alarm.isStatusCleared()) {
                 alarm.setClearedStatus();
-                if (downUrgencyOnClear.isPresent() && Integer.parseInt(downUrgencyOnClear.get()) == 1) {
+                if (downUrgencyOnClear.isPresent() && downUrgencyOnClear.get()) {
                     if (!alarm.getPriority().lowerUrgency()) {
                         LOG.log(Level.SEVERE, "Urgency is minimum [" + alarm.getPriority().getUrgency() +"]. Unable to decrement anymore");
                     }
                 }
             }
-            if (upUrgencyOnRaise.isPresent() && Integer.parseInt(upUrgencyOnRaise.get()) == 1) {
+            if (upUrgencyOnRaise.isPresent() && upUrgencyOnRaise.get()) {
                 if (!alarm.getPriority().increaseUrgency()) {
                     LOG.log(Level.SEVERE, "Urgency is maximum [" + alarm.getPriority().getUrgency() +"]. Unable to increment anymore");
                 }
