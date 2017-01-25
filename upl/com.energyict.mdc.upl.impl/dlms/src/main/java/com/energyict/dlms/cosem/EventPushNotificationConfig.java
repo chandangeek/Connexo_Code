@@ -3,9 +3,12 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.EventPushNotificationAttributes;
+import com.energyict.dlms.cosem.methods.EventPushNotificationMethods;
 import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Enumeration;
 import java.util.List;
 
 /**
@@ -54,4 +57,12 @@ public class EventPushNotificationConfig extends AbstractCosemObject {
         write(EventPushNotificationAttributes.PUSH_OBJECT_LIST, objectDefinitions.getBEREncodedByteArray());
     }
 
+    public void writeNotificationCiphering(int notificationCiphering) throws IOException {
+        TypeEnum enumeration = new TypeEnum(notificationCiphering);
+        write(EventPushNotificationAttributes.NOTIFICATION_CYPHERING, enumeration.getBEREncodedByteArray());
+    }
+
+    public void setSendTestNotificationMethod(String echoTestNotification) throws IOException {
+        methodInvoke(EventPushNotificationMethods.SEND_TEST_NOTIFICATION_METHOD, echoTestNotification.getBytes());
+    }
 }

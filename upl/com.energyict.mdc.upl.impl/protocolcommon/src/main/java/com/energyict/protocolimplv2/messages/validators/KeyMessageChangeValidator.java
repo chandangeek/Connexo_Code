@@ -109,13 +109,24 @@ public class KeyMessageChangeValidator {
     }
 
     protected int getFreeTextClientId(DeviceMessage deviceMessage){
-        String client = getDeviceMessageAttributeValue(deviceMessage, DeviceMessageConstants.clientMacAddress);
-        if (client!=null) {
-            if (!client.isEmpty()) {
-                try{
-                    return Integer.parseInt(client);
-                } catch (Exception ex){
-                    // swallow
+        DeviceMessageAttribute clientMacAttribute = getDeviceMessageAttribute(deviceMessage, DeviceMessageConstants.clientMacAddress);
+
+        if (clientMacAttribute.getValue() instanceof BigDecimal){
+            BigDecimal client = (BigDecimal) clientMacAttribute.getValue();
+            if (client!=null){
+                return client.intValue();
+            }
+        }
+
+        if (clientMacAttribute.getValue() instanceof String){
+            String client = (String) clientMacAttribute.getValue();
+            if (client != null) {
+                if (!client.isEmpty()) {
+                    try {
+                        return Integer.parseInt(client);
+                    } catch (Exception ex) {
+                        // swallow
+                    }
                 }
             }
         }
