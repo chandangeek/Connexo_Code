@@ -41,8 +41,9 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
                 if (view.down('#dataValidationStatusPanel')) {
+                    var validateOnStorage = res.isStorage?'(' + Uni.I18n.translate('general.validateOnStore', 'MDC', 'Validate data on storage') + ')':'(' + Uni.I18n.translate('general.validateOnValidationTask', 'MDC', 'Validate data using validation task')+')';
                     view.down('#deviceDataValidationStatusField').setValue(res.isActive ?
-                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
+                        Uni.I18n.translate('general.active', 'MDC', 'Active') + ' ' + validateOnStorage:
                         Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     );
                     if (!!view.down('#deviceDataValidationStateChangeBtn')) {
@@ -71,6 +72,8 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'activationConfirmationWindow',
+                green: true,
+                confirmBtnUi: 'action',
                 confirmText: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
 				confirmAndRunText: Uni.I18n.translate('general.activateAndRun', 'MDC', 'Activate & Run'),
                 confirmation: function () {
@@ -93,7 +96,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 } else {
                     me.dataValidationLastChecked = new Date();
                 }
-				if (res.isStorage) {
+				if (res.validateOnStorageConfiguration) {
                     me.validationOnStorage = true;
                 } else {
                     me.validationOnStorage = false;
