@@ -11,18 +11,6 @@ Ext.define('Dxp.view.tasks.HistoryFilter', {
 
     initComponent: function () {
         var me = this;
-        // me.items = [
-        //     {
-        //         xtype: 'uni-filter-combo',
-        //         labelAlign: 'top',
-        //         itemId: 'cbo-status',
-        //         name: 'status',
-        //         fieldLabel: Uni.I18n.translate('general.status', 'FIM', 'Status'),
-        //         displayField: 'display',
-        //         valueField: 'value',
-        //         store: 'Fim.store.Status'
-        //     }
-        // ];
         me.filters = [
             {
                 type: 'interval',
