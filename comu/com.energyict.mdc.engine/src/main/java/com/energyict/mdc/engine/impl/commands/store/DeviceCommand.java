@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.EngineService;
@@ -84,6 +85,8 @@ public interface DeviceCommand {
         NlsService nlsService();
 
         EventPublisher eventPublisher();
+
+        DeviceMessageService deviceMessageService();
 
     }
 

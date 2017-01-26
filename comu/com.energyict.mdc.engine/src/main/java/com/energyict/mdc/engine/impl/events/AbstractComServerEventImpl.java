@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.events;
 
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.events.ComServerEvent;
-
 import org.json.JSONException;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
@@ -26,21 +26,15 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
         OCCURRENCE_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS (Z)");
     }
 
-    public interface ServiceProvider {
-
-        public Clock clock();
-
-    }
-
-    private Instant occurrenceTimestamp;
     private final ServiceProvider serviceProvider;
+    private Instant occurrenceTimestamp;
 
     protected AbstractComServerEventImpl(ServiceProvider serviceProvider) {
         this.serviceProvider = serviceProvider;
         this.occurrenceTimestamp = serviceProvider.clock().instant();
     }
 
-    private ServiceProvider getServiceProvider () {
+    private ServiceProvider getServiceProvider() {
         return this.serviceProvider;
     }
 
@@ -48,71 +42,80 @@ public abstract class AbstractComServerEventImpl implements ComServerEvent {
         return this.getServiceProvider().clock();
     }
 
+    protected DeviceMessageService getDeviceMessageService() {
+        return this.getServiceProvider().deviceMessageService();
+    }
+
     @Override
     public Instant getOccurrenceTimestamp() {
         return this.occurrenceTimestamp;
     }
 
-    protected String getOccurrenceTimestampUTCString () {
+    protected String getOccurrenceTimestampUTCString() {
         return this.formatOccurrenceTimeStamp(this.getOccurrenceTimestamp());
     }
 
-    protected String formatOccurrenceTimeStamp (Instant occurrenceTimestamp) {
+    protected String formatOccurrenceTimeStamp(Instant occurrenceTimestamp) {
         if (occurrenceTimestamp != null) {
             return OCCURRENCE_TIMESTAMP_FORMAT.format(occurrenceTimestamp.atOffset(ZoneOffset.UTC));
-        }
-        else {
+        } else {
             return "null";
         }
     }
 
     @Override
-    public boolean isDeviceRelated () {
+    public boolean isDeviceRelated() {
         return false;
     }
 
     @Override
-    public boolean isConnectionTaskRelated () {
+    public boolean isConnectionTaskRelated() {
         return false;
     }
 
     @Override
-    public boolean isComPortRelated () {
+    public boolean isComPortRelated() {
         return false;
     }
 
     @Override
-    public boolean isComPortPoolRelated () {
+    public boolean isComPortPoolRelated() {
         return false;
     }
 
     @Override
-    public boolean isComTaskExecutionRelated () {
+    public boolean isComTaskExecutionRelated() {
         return false;
     }
 
     @Override
-    public boolean isLoggingRelated () {
+    public boolean isLoggingRelated() {
         return false;
     }
 
     @Override
-    public String toString () {
+    public String toString() {
         try {
             JSONWriter jsonWriter = new JSONStringer().object();
             this.toString(jsonWriter);
             jsonWriter.endObject();
             return jsonWriter.toString();
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace(System.err);
             return super.toString();
         }
     }
 
-    protected void toString (JSONWriter writer) throws JSONException {
+    protected void toString(JSONWriter writer) throws JSONException {
         writer.key("class").value(this.getClass().getSimpleName());
         writer.key("timestamp").value(this.getOccurrenceTimestampUTCString());
     }
 
+    public interface ServiceProvider {
+
+        Clock clock();
+
+        DeviceMessageService deviceMessageService();
+
+    }
 }

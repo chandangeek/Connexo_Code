@@ -33,7 +33,7 @@ public class DeviceIdentifierByIdTest {
         when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.<Device>empty());
 
         // Business method
-        new DeviceIdentifierById(DEVICE_ID, this.deviceService).findDevice();
+        new DeviceIdentifierById(DEVICE_ID).findDevice();
 
         // Expected a CanNotFindForIdentifier
     }
@@ -44,7 +44,7 @@ public class DeviceIdentifierByIdTest {
         when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
 
         // Business method
-        com.energyict.mdc.upl.meterdata.Device foundDevice = new DeviceIdentifierById(DEVICE_ID, this.deviceService).findDevice();
+        com.energyict.mdc.upl.meterdata.Device foundDevice = new DeviceIdentifierById(DEVICE_ID).findDevice();
 
         // Asserts
         assertThat(foundDevice).isEqualTo(device);

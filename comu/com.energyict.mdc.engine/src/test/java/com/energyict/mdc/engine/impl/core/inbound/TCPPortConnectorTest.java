@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link TCPPortConnector} component.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 18/10/12
  * Time: 14:43
@@ -50,6 +51,8 @@ public class TCPPortConnectorTest {
     private ServerSocket serverSocket;
     @Mock
     private EventPublisher eventPublisher;
+    @Mock
+    private DeviceMessageService deviceMessageService;
 
     private Clock clock = Clock.systemUTC();
 
@@ -74,7 +77,7 @@ public class TCPPortConnectorTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 
         // creating a Connector with a ServerSocket with a backLog of 2 sessions
-        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.eventPublisher, this.clock);
+        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.eventPublisher, this.clock, this.deviceMessageService);
 
         // business method
         ComChannel accept = connector.accept();
@@ -94,13 +97,11 @@ public class TCPPortConnectorTest {
 
         try {
             // Business method
-            new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.eventPublisher, this.clock);
-        }
-        catch (InboundCommunicationException e) {
+            new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.eventPublisher, this.clock, this.deviceMessageService);
+        } catch (InboundCommunicationException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
                 fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessage());
-            }
-            else {
+            } else {
                 throw e;
             }
         }
@@ -113,17 +114,15 @@ public class TCPPortConnectorTest {
         TCPBasedInboundComPort tcpBasedInboundComPort = createTCPBasedInboundComPort();
 
         // creating a Connector with a ServerSocket with a backLog of 2 sessions
-        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.eventPublisher, this.clock);
+        TCPPortConnector connector = new TCPPortConnector(tcpBasedInboundComPort, socketService, this.hexService, this.eventPublisher, this.clock, this.deviceMessageService);
 
         try {
             // Business method
             connector.accept();
-        }
-        catch (InboundCommunicationException e) {
+        } catch (InboundCommunicationException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
                 fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessage());
-            }
-            else {
+            } else {
                 throw e;
             }
         }

@@ -106,7 +106,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .create(justBeforeRegisterReadEventTime1);
         long deviceId = device.getId();
 
-        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, getInjector().getInstance(DeviceService.class));
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId);
 
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(device)).thenReturn(deviceIdentifier);
 
@@ -159,7 +159,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
         long deviceId = dataLogger.getId();
 
-        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, getInjector().getInstance(DeviceService.class));
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId);
 
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(dataLogger)).thenReturn(deviceIdentifier);
         when(serviceProvider.topologyService()).thenReturn(topologyService);
@@ -226,7 +226,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
         long dataLoggerId = dataLogger.getId();
 
-        DeviceIdentifier dataLoggerIdentifier = new DeviceIdentifierById(dataLoggerId, getInjector().getInstance(DeviceService.class));
+        DeviceIdentifier dataLoggerIdentifier = new DeviceIdentifierById(dataLoggerId);
 
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(dataLogger)).thenReturn(dataLoggerIdentifier);
         when(serviceProvider.topologyService()).thenReturn(topologyService);
@@ -240,7 +240,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .registerType(registerType)
                 .create(justBeforeRegisterReadEventTime1);
         long slaveId = dataLogger.getId();
-        DeviceIdentifier slaveIdentifier = new DeviceIdentifierById(slaveId, getInjector().getInstance(DeviceService.class));
+        DeviceIdentifier slaveIdentifier = new DeviceIdentifierById(slaveId);
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(slave)).thenReturn(slaveIdentifier);
 
         // Linked slave register

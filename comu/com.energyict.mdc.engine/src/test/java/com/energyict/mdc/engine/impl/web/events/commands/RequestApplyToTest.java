@@ -16,7 +16,6 @@ import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventReceiver;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifierType;
 import org.junit.Before;
@@ -67,8 +66,6 @@ public class RequestApplyToTest {
     private RunningComServer runningComServer;
     @Mock
     private OutboundCapableComServer comServer;
-    @Mock
-    private IdentificationService identificationService;
 
     @Before
     public void initializeMocks() {
@@ -92,7 +89,7 @@ public class RequestApplyToTest {
     @Test
     public void testDeviceRequest() {
         Device device = this.mockDevice();
-        DeviceRequest request = new DeviceRequest(identificationService, Collections.singleton(DEVICE1_ID));
+        DeviceRequest request = new DeviceRequest(deviceService, Collections.singleton(DEVICE1_ID));
         EventPublisher eventPublisher = mock(EventPublisher.class);
 
         // Business method

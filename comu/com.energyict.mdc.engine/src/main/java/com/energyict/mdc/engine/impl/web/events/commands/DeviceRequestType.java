@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.Set;
@@ -16,10 +16,10 @@ import java.util.StringTokenizer;
  */
 class DeviceRequestType extends IdBusinessObjectRequestType {
 
-    private final IdentificationService identificationService;
+    private final DeviceService deviceService;
 
-    DeviceRequestType(IdentificationService identificationService) {
-        this.identificationService = identificationService;
+    DeviceRequestType(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -42,7 +42,7 @@ class DeviceRequestType extends IdBusinessObjectRequestType {
             if (mrids.length == 0) {
                 return this.newRequestForAll();
             }
-            return new DeviceRequest(identificationService, mrids);
+            return new DeviceRequest(deviceService, mrids);
         }catch (CanNotFindForIdentifier e) {
             DeviceIdentifier identifier = (DeviceIdentifier) e.getMessageArguments()[0];
             throw new BusinessObjectParseException(identifier.toString() + " could not be found", e);
@@ -56,7 +56,7 @@ class DeviceRequestType extends IdBusinessObjectRequestType {
 
     @Override
     protected Request newRequestFor(Set<Long> ids) {
-        return new DeviceRequest(identificationService, ids);
+        return new DeviceRequest(deviceService, ids);
     }
 
 }

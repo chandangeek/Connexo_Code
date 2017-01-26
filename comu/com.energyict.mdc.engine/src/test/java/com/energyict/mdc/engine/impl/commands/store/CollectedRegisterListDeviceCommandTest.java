@@ -187,7 +187,7 @@ public class CollectedRegisterListDeviceCommandTest {
     }
 
     private DeviceRegisterList getDeviceRegisterList() {
-        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceRegisterList deviceRegisterList = new DeviceRegisterList(deviceIdentifier);
         when(this.collectedRegisterIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         deviceRegisterList.addCollectedRegister(collectedRegister);

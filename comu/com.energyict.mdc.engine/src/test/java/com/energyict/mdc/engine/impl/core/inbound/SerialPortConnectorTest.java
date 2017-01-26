@@ -8,6 +8,7 @@ import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.ModemException;
@@ -19,8 +20,13 @@ import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
 import org.joda.time.DateTimeConstants;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,13 +38,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -59,6 +58,8 @@ public class SerialPortConnectorTest {
     private ModemBasedInboundComPort comPort;
     @Mock
     private EventPublisher eventPublisher;
+    @Mock
+    private DeviceMessageService deviceMessageService;
 
     private SerialComponentService serialComponentService;
     private HexService hexService;
@@ -92,7 +93,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAccept() throws IOException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.eventPublisher, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, this.eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -130,7 +131,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptWithAdditionalRubbish() throws IOException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -169,7 +170,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptWithDelayBeforeSend() throws IOException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
         when(comPort.getDelayBeforeSend()).thenReturn(new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS));
 
@@ -208,7 +209,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptMultipleInitStrings() throws IOException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
         when(comPort.getGlobalModemInitStrings()).thenReturn(Arrays.asList("GLOBAL INIT"));
         when(comPort.getModemInitStrings()).thenReturn(Arrays.asList("FIRST INIT", "2TH INIT"));
@@ -252,7 +253,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptWithLongConnectDelay() throws IOException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -290,7 +291,7 @@ public class SerialPortConnectorTest {
     @Test
     public void testProperAcceptButTimeoutBetweenRings() throws IOException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -333,7 +334,7 @@ public class SerialPortConnectorTest {
     @Test(expected = ModemException.class)
     public void testNoConnectDueToTimeout() throws IOException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
         serialComChannel.setResponses(Arrays.asList(
@@ -375,7 +376,7 @@ public class SerialPortConnectorTest {
     @Test(expected = ModemException.class)
     public void testTimeoutAtModemCommandWithRetries() throws IOException {
         TestableSerialComChannel serialComChannel = getTestableComChannel();
-        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock));
+        SerialPortConnector portConnector = Mockito.spy(new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService));
         doReturn(serialComChannel).when(portConnector).getNewComChannel();
 
 //        serialComChannel.setResponses(Arrays.asList("RUBBISH - RUBBISH", "RUBBISH - RUBBISH", "RUBBISH - RUBBISH"));      // Answer at modem hang up command (first try)
@@ -412,7 +413,7 @@ public class SerialPortConnectorTest {
         when(comPort.getAddressSelector()).thenReturn("");
 
         // Business methods
-        SerialPortConnector portConnector = new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock);
+        SerialPortConnector portConnector = new SerialPortConnector(comPort, serialComponentService, this.hexService, eventPublisher, this.clock, this.deviceMessageService);
         portConnector.accept();
 
         // Asserts

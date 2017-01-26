@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -29,19 +30,21 @@ public class UDPPortConnector implements InboundComPortConnector {
     private final Clock clock;
     private final EventPublisher eventPublisher;
     private final InboundComPort comPort;
+    private final DeviceMessageService deviceMessageService;
 
-    public UDPPortConnector(UDPBasedInboundComPort comPort, SocketService socketService, HexService hexService, EventPublisher eventPublisher, Clock clock) {
+    public UDPPortConnector(UDPBasedInboundComPort comPort, SocketService socketService, HexService hexService, EventPublisher eventPublisher, Clock clock, DeviceMessageService deviceMessageService) {
         super();
         this.comPort = comPort;
         this.hexService = hexService;
         this.eventPublisher = eventPublisher;
         this.clock = clock;
         this.inboundUdpSession = socketService.newInboundUdpSession(comPort.getBufferSize(), comPort.getPortNumber());
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Override
     public ComPortRelatedComChannel accept() {
-        return new ComPortRelatedComChannelImpl(this.inboundUdpSession.accept(), this.comPort, this.clock, this.hexService, eventPublisher);
+        return new ComPortRelatedComChannelImpl(this.inboundUdpSession.accept(), this.comPort, this.clock, this.deviceMessageService, this.hexService, eventPublisher);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.EngineService;
@@ -94,7 +95,7 @@ public class CollectedDeviceCacheCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
         CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache, null, new EngineServiceOnly());
 
@@ -173,6 +174,11 @@ public class CollectedDeviceCacheCommandTest {
 
         @Override
         public EventPublisher eventPublisher() {
+            return null;
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
             return null;
         }
     }

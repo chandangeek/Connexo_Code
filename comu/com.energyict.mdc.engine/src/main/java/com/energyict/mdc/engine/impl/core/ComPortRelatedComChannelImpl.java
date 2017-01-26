@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
@@ -41,16 +42,18 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
     private final StopWatch talking;
     private final Counters sessionCounters = new Counters();
     private final Counters taskSessionCounters = new Counters();
+    private final DeviceMessageService deviceMessageService;
     private ComChannel comChannel;
     private ComChannelLogger logger;
     private ComPort comPort;
     private ByteArrayOutputStream bytesReadForLogging;
     private ByteArrayOutputStream bytesWrittenForLogging;
 
-    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, HexService hexService, EventPublisher eventPublisher) {
+    public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, DeviceMessageService deviceMessageService, HexService hexService, EventPublisher eventPublisher) {
         super();
         this.comChannel = comChannel;
         this.clock = clock;
+        this.deviceMessageService = deviceMessageService;
         this.hexService = hexService;
         this.eventPublisher = eventPublisher;
         this.talking = new StopWatch(false);  // No cpu required;
@@ -368,6 +371,10 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
         public Clock clock() {
             return clock;
         }
-    }
 
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return deviceMessageService;
+        }
+    }
 }

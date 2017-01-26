@@ -1,22 +1,21 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
-import com.elster.jupiter.events.EventService;
-
-import java.time.Clock;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -39,11 +38,11 @@ public class DeviceCommandImplExecutionLoggingTest {
     private IssueService issueService;
 
     @Test
-    public void testExecuted () {
+    public void testExecuted() {
         ForTestingPurposesOnly command = new ForTestingPurposesOnly();
         command.logExecutionWith(this.executionLogger);
 
-         // Business method
+        // Business method
         command.execute(this.comServerDAO);
 
         // Asserts
@@ -51,11 +50,11 @@ public class DeviceCommandImplExecutionLoggingTest {
     }
 
     @Test
-    public void testLoggedAfterExecuted () {
+    public void testLoggedAfterExecuted() {
         DeviceCommand command = new ForTestingPurposesOnly();
         command.logExecutionWith(this.executionLogger);
 
-         // Business method
+        // Business method
         command.execute(this.comServerDAO);
 
         // Asserts
@@ -70,7 +69,7 @@ public class DeviceCommandImplExecutionLoggingTest {
         }
 
         @Override
-        protected void doExecute (ComServerDAO comServerDAO) {
+        protected void doExecute(ComServerDAO comServerDAO) {
             this.executed = true;
         }
 
@@ -118,6 +117,11 @@ public class DeviceCommandImplExecutionLoggingTest {
 
         @Override
         public EventPublisher eventPublisher() {
+            return null;
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
             return null;
         }
     }

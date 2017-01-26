@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
@@ -36,6 +35,11 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
     private final DeviceIdentifier deviceIdentifier;
 
     /**
+     * The serial number of the device that owns this LoadProfile
+     */
+    private final String meterSerialNumber;
+
+    /**
      * The interval (in seconds) of this {@link com.energyict.mdc.upl.meterdata.LoadProfile}
      */
     private int profileInterval;
@@ -52,25 +56,29 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
 
     /**
      * Default constructor. {@link #supportedByMeter} will default be set to true
-     *  @param obisCode the LoadProfileObisCode for this configuration
+     *
+     * @param obisCode         the LoadProfileObisCode for this configuration
      * @param deviceIdentifier the serialNumber of the master of this <code>LoadProfile</code>
      */
-    public DeviceLoadProfileConfiguration (ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
+    public DeviceLoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier deviceIdentifier, String meterSerialNumber) {
         this.obisCode = obisCode;
         this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = true;
+        this.meterSerialNumber = meterSerialNumber;
     }
 
     /**
      * Default constructor. {@link #supportedByMeter} will default be set to true
-     *  @param obisCode the LoadProfileObisCode for this configuration
+     *
+     * @param obisCode         the LoadProfileObisCode for this configuration
      * @param deviceIdentifier the serialNumber of the master of this <code>LoadProfile</code>
-     * @param supported indicates whether the <code>LoadProfile</code> is supported by the Device
+     * @param supported        indicates whether the <code>LoadProfile</code> is supported by the Device
      */
-    public DeviceLoadProfileConfiguration (ObisCode obisCode, DeviceIdentifier deviceIdentifier, boolean supported) {
+    public DeviceLoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier deviceIdentifier, String meterSerialNumber, boolean supported) {
         this.obisCode = obisCode;
         this.deviceIdentifier = deviceIdentifier;
         this.supportedByMeter = supported;
+        this.meterSerialNumber = meterSerialNumber;
     }
 
     /**
@@ -79,7 +87,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      * @return {@link #obisCode}
      */
     @Override
-    public ObisCode getObisCode () {
+    public ObisCode getObisCode() {
         return this.obisCode;
     }
 
@@ -94,7 +102,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
 
     @Override
     public String getMeterSerialNumber() {
-        return ((Device) getDeviceIdentifier().findDevice()).getSerialNumber(); //Downcast to Connexo Device
+        return meterSerialNumber;
     }
 
     /**
@@ -103,7 +111,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      * @return {@link #profileInterval}
      */
     @Override
-    public int getProfileInterval () {
+    public int getProfileInterval() {
         return profileInterval;
     }
 
@@ -113,7 +121,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      * @param profileInterval the new {@link #profileInterval} to set
      */
     @Override
-    public void setProfileInterval (int profileInterval) {
+    public void setProfileInterval(int profileInterval) {
         this.profileInterval = profileInterval;
     }
 
@@ -123,7 +131,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      * @return number of channels
      */
     @Override
-    public int getNumberOfChannels () {
+    public int getNumberOfChannels() {
         return (channelInfos != null) ? channelInfos.size() : 0;
     }
 
@@ -133,7 +141,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      * @return {@link #channelInfos}
      */
     @Override
-    public List<ChannelInfo> getChannelInfos () {
+    public List<ChannelInfo> getChannelInfos() {
         return channelInfos;
     }
 
@@ -142,7 +150,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      *
      * @param channelInfos the new {@link #channelInfos} to set
      */
-    public void setChannelInfos (List<ChannelInfo> channelInfos) {
+    public void setChannelInfos(List<ChannelInfo> channelInfos) {
         this.channelInfos = channelInfos;
     }
 
@@ -152,7 +160,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      * @return {@link #supportedByMeter}
      */
     @Override
-    public boolean isSupportedByMeter () {
+    public boolean isSupportedByMeter() {
         return supportedByMeter;
     }
 
@@ -161,7 +169,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      *
      * @param supportedByMeter the new {@link #supportedByMeter} to set
      */
-    public void setSupportedByMeter (boolean supportedByMeter) {
+    public void setSupportedByMeter(boolean supportedByMeter) {
         this.supportedByMeter = supportedByMeter;
     }
 
@@ -171,7 +179,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
     }
 
     @Override
-    public boolean isConfiguredIn (DataCollectionConfiguration configuration) {
+    public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
         return configuration.isConfiguredToCollectLoadProfileData();
     }
 

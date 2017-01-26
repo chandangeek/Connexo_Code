@@ -47,6 +47,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
@@ -74,21 +75,9 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.http.HttpService;
-import org.osgi.service.log.LogService;
-
-import java.security.Principal;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Date;
-import java.util.TimeZone;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -99,6 +88,16 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.log.LogService;
+
+import java.security.Principal;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Date;
+import java.util.TimeZone;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -112,21 +111,18 @@ import static org.mockito.Mockito.when;
 public abstract class AbstractCollectedDataIntegrationTest {
 
     private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
-
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-
+    private static final Clock clock = mock(Clock.class);
     private static Injector injector;
     private static InMemoryBootstrapModule bootstrapModule;
     private static MeteringService meteringService;
-    private static final Clock clock = mock(Clock.class);
     private static MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private static MasterDataService masterDataService;
     private static TopologyService topologyService;
-
+    private static TransactionService transactionService;
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     @Mock
     private DeviceFactory deviceFactory;
-    private static TransactionService transactionService;
 
     @BeforeClass
     public static void initializeDatabase() {
@@ -237,11 +233,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
         bootstrapModule.deactivate();
     }
 
-    @Before
-    public void resetClock() {
-        initializeClock();
-    }
-
     private static void initializeClock() {
         when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
         when(clock.instant()).thenAnswer(new Answer<Instant>() {
@@ -250,12 +241,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 return Instant.now();
             }
         });
-    }
-
-    protected Date freezeClock(Date timeStamp) {
-        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
-        when(clock.instant()).thenReturn(timeStamp.toInstant());
-        return timeStamp;
     }
 
     protected static Injector getInjector() {
@@ -268,6 +253,17 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
     static TransactionService getTransactionService() {
         return transactionService;
+    }
+
+    @Before
+    public void resetClock() {
+        initializeClock();
+    }
+
+    protected Date freezeClock(Date timeStamp) {
+        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(clock.instant()).thenReturn(timeStamp.toInstant());
+        return timeStamp;
     }
 
     MeteringService getMeteringService() {
@@ -351,6 +347,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         @Override
         public EventPublisher eventPublisher() {
+            return null;
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
             return null;
         }
     }

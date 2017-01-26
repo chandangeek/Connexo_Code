@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
@@ -35,14 +36,16 @@ public class TCPPortConnector implements InboundComPortConnector {
     private final EventPublisher eventPublisher;
     private final Clock clock;
     private final InboundComPort comPort;
+    private final DeviceMessageService deviceMessageService;
 
-    public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService, HexService hexService, EventPublisher eventPublisher, Clock clock) {
+    public TCPPortConnector(TCPBasedInboundComPort comPort, SocketService socketService, HexService hexService, EventPublisher eventPublisher, Clock clock, DeviceMessageService deviceMessageService) {
         super();
         this.comPort = comPort;
         this.hexService = hexService;
         this.socketService = socketService;
         this.eventPublisher = eventPublisher;
         this.clock = clock;
+        this.deviceMessageService = deviceMessageService;
         try {
             this.serverSocket = socketService.newTCPSocket(comPort.getPortNumber());
         } catch (IOException e) {
@@ -54,7 +57,7 @@ public class TCPPortConnector implements InboundComPortConnector {
     public ComPortRelatedComChannel accept() {
         try {
             final Socket socket = this.serverSocket.accept();
-            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.comPort, this.clock, this.hexService, eventPublisher);
+            return new ComPortRelatedComChannelImpl(this.getSocketService().newSocketComChannel(socket), this.comPort, this.clock, this.deviceMessageService, this.hexService, eventPublisher);
         } catch (IOException e) {
             throw new InboundCommunicationException(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION, e);
         }

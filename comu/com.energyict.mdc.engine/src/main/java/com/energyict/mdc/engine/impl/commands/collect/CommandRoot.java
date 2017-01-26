@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.collect;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
@@ -99,6 +100,8 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
         IdentificationService identificationService();
 
         MeteringService meteringService();
+
+        DeviceMessageService deviceMessageService();
 
     }
 }

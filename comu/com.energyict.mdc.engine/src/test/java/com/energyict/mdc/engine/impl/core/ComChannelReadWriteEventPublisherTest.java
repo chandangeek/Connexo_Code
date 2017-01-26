@@ -1,21 +1,22 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.protocol.api.services.HexService;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Clock;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -42,6 +43,8 @@ public class ComChannelReadWriteEventPublisherTest {
     private ComPort comPort;
     @Mock
     private HexService hexService;
+    @Mock
+    private DeviceMessageService deviceMessageService;
 
     private Clock clock = Clock.systemDefaultZone();
     private byte[] expectedBytes;
@@ -246,7 +249,7 @@ public class ComChannelReadWriteEventPublisherTest {
         configurableComChannel.whenRead(singleByte);
         configurableComChannel.whenReadFromBuffer(FIRST_SERIES_OF_BYTES);
         configurableComChannel.whenReadFromBufferWithOffset(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
-        return new ComPortRelatedComChannelImpl(configurableComChannel, this.comPort, this.clock, this.hexService, eventPublisher);
+        return new ComPortRelatedComChannelImpl(configurableComChannel, this.comPort, this.clock, deviceMessageService, this.hexService, eventPublisher);
     }
 
     private void writeTo (ComPortRelatedComChannel comChannel) {
@@ -267,7 +270,7 @@ public class ComChannelReadWriteEventPublisherTest {
 
     private ComPortRelatedComChannel newComChannelForWriting () {
         SystemOutComChannel systemOutComChannel = new SystemOutComChannel();
-        return new ComPortRelatedComChannelImpl(systemOutComChannel, this.comPort, this.clock, this.hexService, eventPublisher);
+        return new ComPortRelatedComChannelImpl(systemOutComChannel, this.comPort, this.clock, deviceMessageService, this.hexService, eventPublisher);
     }
 
 }

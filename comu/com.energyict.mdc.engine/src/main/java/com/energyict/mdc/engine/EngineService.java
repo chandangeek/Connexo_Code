@@ -1,21 +1,18 @@
 package com.energyict.mdc.engine;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.engine.impl.cache.DeviceCache;
-
-import com.energyict.mdc.upl.cache.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
-
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.engine.impl.cache.DeviceCache;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.Optional;
 
-import java.io.Serializable;
-
 /**
  * Provides services that relate to {@link com.energyict.mdc.device.data.Device}s.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 08/05/14
  * Time: 12:01
@@ -23,15 +20,17 @@ import java.io.Serializable;
 @ProviderType
 public interface EngineService {
 
-    public static String COMPONENTNAME = "CES";
+    String COMPONENTNAME = "CES";
 
-    public IdentificationService identificationService();
+    IdentificationService identificationService();
 
-    public NlsService nlsService();
+    NlsService nlsService();
 
-    public DeviceCache newDeviceCache(Device device, DeviceProtocolCache deviceProtocolCache);
+    DeviceCache newDeviceCache(DeviceIdentifier device, DeviceProtocolCache deviceProtocolCache);
 
-    public Optional<DeviceCache> findDeviceCacheByDevice(Device device);
+    Optional<DeviceCache> findDeviceCacheByDevice(Device device);
+
+    Optional<DeviceCache> findDeviceCacheByDeviceIdentifier(DeviceIdentifier device);
 
     /**
      * Registers a component that is interested to receive
@@ -40,7 +39,7 @@ public interface EngineService {
      * @param deactivationNotificationListener The component
      * @see DeactivationNotificationListener
      */
-    public void register (DeactivationNotificationListener deactivationNotificationListener);
+    void register(DeactivationNotificationListener deactivationNotificationListener);
 
     /**
      * Unregisters a component that was interested to receive
@@ -49,7 +48,7 @@ public interface EngineService {
      * @param deactivationNotificationListener The component that no longer wants to receive notifications
      * @see DeactivationNotificationListener
      */
-    public void unregister (DeactivationNotificationListener deactivationNotificationListener);
+    void unregister(DeactivationNotificationListener deactivationNotificationListener);
 
     /**
      * A DeactivationNotificationListener gets notified when this EngineService
@@ -57,9 +56,9 @@ public interface EngineService {
      * it is being upgraded, its dependents have been deactivated
      * or the entire platform is being shutdown.
      */
-    public interface DeactivationNotificationListener {
+    interface DeactivationNotificationListener {
 
-        public void engineServiceDeactivationStarted();
+        void engineServiceDeactivationStarted();
 
     }
 

@@ -8,10 +8,12 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
+import java.util.Optional;
+
 /**
  * {@link CollectedDataProcessingEvent} related to a {@link UpdateDeviceMessage}
  */
-public class UpdateDeviceMessageEvent extends AbstractCollectedDataProcessingEventImpl  {
+public class UpdateDeviceMessageEvent extends AbstractCollectedDataProcessingEventImpl {
 
     private MessageIdentifier messageIdentifier;
     private DeviceMessageStatus deviceMessageStatus;
@@ -36,9 +38,9 @@ public class UpdateDeviceMessageEvent extends AbstractCollectedDataProcessingEve
         writer.key("updateDeviceMessage");
         writer.object();
         if (messageIdentifier != null) {
-            DeviceMessage message = ((DeviceMessage) messageIdentifier.getDeviceMessage());     //Downcast to Connexo DeviceMessage
-            if (message !=  null) {
-                writer.key("deviceMessageId").value(message.getId());
+            Optional<DeviceMessage> deviceMessage = getDeviceMessageService().findDeviceMessageByIdentifier(messageIdentifier);
+            if (deviceMessage.isPresent()) {
+                writer.key("deviceMessageId").value(deviceMessage.get().getId());
             }
         }
         if (deviceMessageStatus != null) {

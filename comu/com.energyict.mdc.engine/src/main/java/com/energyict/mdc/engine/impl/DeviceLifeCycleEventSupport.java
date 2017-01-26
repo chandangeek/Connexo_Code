@@ -67,8 +67,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
     public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine) {
         if (this.isCandidate(event.getType())) {
             return Extractor.from(event.getType()).extractFrom(event, finiteStateMachine, this.deviceService);
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -88,8 +87,17 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
         };
 
         private EnumSet<EventType> eventTypes;
+
         Extractor(EnumSet<EventType> eventTypes) {
             this.eventTypes = eventTypes;
+        }
+
+        static Extractor from(com.elster.jupiter.events.EventType eventType) {
+            return Stream
+                    .of(values())
+                    .filter(e -> e.topics().contains(eventType.getTopic()))
+                    .findFirst()
+                    .get();
         }
 
         private Set<String> topics() {
@@ -101,8 +109,8 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
         }
 
         protected Optional<CurrentState> currentStateFor(DeviceTopologyChangedEvent eventSource, FiniteStateMachine finiteStateMachine, DeviceService deviceService) {
-            Device device = (Device) eventSource.getMasterDevice().findDevice();  //Downcast to the Connexo Device
-            return this.currentStateFor(Optional.ofNullable(device), finiteStateMachine, deviceService);
+            Optional<Device> device = deviceService.findDeviceByIdentifier(eventSource.getMasterDevice());
+            return this.currentStateFor(device, finiteStateMachine, deviceService);
         }
 
         private Optional<CurrentState> currentStateFor(Optional<Device> device, FiniteStateMachine finiteStateMachine, DeviceService deviceService) {
@@ -114,24 +122,14 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
                     currentState.sourceType = Device.class.getName();
                     currentState.name = state.getName();
                     return Optional.of(currentState);
-                }
-                else {
+                } else {
                     // Device's state is not managed by a life cycle or not managed by the specified state machine
                     return Optional.empty();
                 }
-            }
-            else {
+            } else {
                 // Device was deleted just after the event was produced
                 return Optional.empty();
             }
-        }
-
-        static Extractor from(com.elster.jupiter.events.EventType eventType) {
-            return Stream
-                    .of(values())
-                    .filter(e -> e.topics().contains(eventType.getTopic()))
-                    .findFirst()
-                    .get();
         }
 
         public abstract Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine, DeviceService deviceService);

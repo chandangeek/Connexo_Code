@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
@@ -16,7 +17,6 @@ import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.time.Clock;
@@ -60,6 +60,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
                         propertyProvider.getProperties()),
                 getComPort(),
                 getServiceProvider().clock(),
+                getServiceProvider().deviceMessageService(),
                 getServiceProvider().hexService(),
                 getServiceProvider().eventPublisher());
     }
@@ -188,13 +189,6 @@ public abstract class ScheduledJobImpl extends JobExecution {
         this.getServiceProvider().eventPublisher().publish(event);
     }
 
-    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
-        @Override
-        public Clock clock() {
-            return getServiceProvider().clock();
-        }
-    }
-
     public void appendStatisticalInformationToComSession() {
         ComSessionBuilder comSessionBuilder = getExecutionContext().getComSessionBuilder();
         comSessionBuilder.connectDuration(getExecutionContext().getElapsedTimeInMillis());
@@ -204,6 +198,18 @@ public abstract class ScheduledJobImpl extends JobExecution {
         comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead());
         comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent());
         comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead());
+    }
+
+    private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {
+        @Override
+        public Clock clock() {
+            return getServiceProvider().clock();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return getServiceProvider().deviceMessageService();
+        }
     }
 
 
