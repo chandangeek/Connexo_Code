@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
 import javax.inject.Inject;
@@ -29,7 +30,7 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupportAdapte
     }
 
     @Inject
-    public DlmsSecuritySuite1And2Support(com.energyict.mdc.upl.properties.PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public DlmsSecuritySuite1And2Support(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
     }
 

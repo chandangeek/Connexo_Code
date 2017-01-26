@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
 import javax.inject.Inject;
@@ -25,7 +26,7 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupportAdapter
     }
 
     @Inject
-    public DlmsSecuritySupportPerClient(com.energyict.mdc.upl.properties.PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public DlmsSecuritySupportPerClient(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
     }
 
