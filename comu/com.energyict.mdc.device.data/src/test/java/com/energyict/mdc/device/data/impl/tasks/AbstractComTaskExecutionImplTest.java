@@ -32,6 +32,7 @@ import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Instant;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -111,7 +112,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected static InboundComPortPool createInboundComPortPool(String name) {
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
         when(inboundDeviceProtocolPluggableClass.getId()).thenReturn(1L);
-        InboundComPortPool inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        InboundComPortPool inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setActive(true);
         inboundComPortPool.update();
         return inboundComPortPool;
