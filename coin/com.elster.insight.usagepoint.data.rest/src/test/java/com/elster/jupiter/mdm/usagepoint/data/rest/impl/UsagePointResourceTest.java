@@ -577,6 +577,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         Response response = target("usagepoints").request().post(Entity.json(usagePointInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(usagePointBuilder).create();
+        verify(transactionService).getContext();
+        verify(usagePoint).apply(any());
     }
 
     @Test
@@ -597,6 +600,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         Response response = target("usagepoints").request().post(Entity.json(usagePointInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(usagePointLifeCycleService).scheduleTransition(usagePoint, transition, transitionToPerform.effectiveTimestamp, "INS", Collections.emptyMap());
+        verify(usagePointBuilder).create();
+        verify(transactionService).getContext();
+        verify(usagePoint).apply(any());
+        verify(usagePointLifeCycleService).scheduleTransition(any(), any(), any(), any(),any());
     }
 
     private UsagePointInfo getInfoWithMetrologyConfigurationAndMeters() {
