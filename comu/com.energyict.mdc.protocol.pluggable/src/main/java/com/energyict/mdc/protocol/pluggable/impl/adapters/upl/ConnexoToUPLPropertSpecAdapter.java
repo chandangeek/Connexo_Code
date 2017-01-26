@@ -23,7 +23,7 @@ public class ConnexoToUPLPropertSpecAdapter implements PropertySpec {
         this.actual = actual;
     }
 
-    com.elster.jupiter.properties.PropertySpec getConnexoPropertySpec() {
+    public com.elster.jupiter.properties.PropertySpec getConnexoPropertySpec() {
         return actual;
     }
 

@@ -25,6 +25,7 @@ import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
@@ -61,6 +62,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -97,6 +99,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     private final CollectedDataFactory collectedDataFactory;
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
+    private final IdentificationService identificationService;
 
     /**
      * The DeviceSecuritySupport component that <i>can</i> be used during communication.
@@ -163,10 +166,11 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
      */
     private PropertiesAdapter propertiesAdapter;
 
-    public SmartMeterProtocolAdapterImpl(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public SmartMeterProtocolAdapterImpl(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, IdentificationService identificationService, Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(propertySpecService, protocolPluggableService, thesaurus, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);
         this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.meteringService = meteringService;
+        this.identificationService = identificationService;
         this.thesaurus = thesaurus;
         this.protocolLogger = Logger.getAnonymousLogger(); // default for now
         this.meterProtocol = meterProtocol;
@@ -192,14 +196,14 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(getSmartMeterProtocol());
-        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory);
+        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, identificationService);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
         this.smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, meteringService);
         this.smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory);
 
         if (!DeviceMessageSupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.getDataModel(), this.messageAdapterMappingFactory, this.getProtocolPluggableService(), issueService, this.collectedDataFactory, this.deviceMessageSpecificationService);
+            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.messageAdapterMappingFactory, this.getProtocolPluggableService(), issueService, this.collectedDataFactory, this.deviceMessageSpecificationService);
         } else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
         }
@@ -245,9 +249,6 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
         this.propertiesAdapter.copyProperties(comChannel.getProperties());
-        if (this.smartMeterProtocolMessageAdapter != null) {
-            this.smartMeterProtocolMessageAdapter.setSerialNumber(this.offlineDevice.getSerialNumber());
-        }
     }
 
     @Override

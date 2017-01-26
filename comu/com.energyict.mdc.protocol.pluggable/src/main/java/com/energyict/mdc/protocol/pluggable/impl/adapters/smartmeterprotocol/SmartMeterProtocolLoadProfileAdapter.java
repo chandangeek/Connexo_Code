@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -14,6 +15,7 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 
@@ -43,23 +45,18 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
     private final SmartMeterProtocol smartMeterProtocol;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final IdentificationService identificationService;
 
     /**
      * The used {@link SmartMeterProtocolClockAdapter}
      */
     private final SmartMeterProtocolClockAdapter smartMeterProtocolClockAdapter;
 
-    /**
-     * Default constructor
-     *
-     * @param smartMeterProtocol   the {@link SmartMeterProtocol} to glue
-     * @param issueService
-     * @param collectedDataFactory
-     */
-    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService) {
         this.smartMeterProtocol = smartMeterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.identificationService = identificationService;
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(smartMeterProtocol);
     }
 
@@ -82,7 +79,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
         if (loadProfilesToRead != null) {
             try {
                 List<LoadProfileConfiguration> configurations = this.smartMeterProtocol.fetchLoadProfileConfiguration(loadProfilesToRead);
-                loadProfileConfigurations = convertToCollectedLoadProfileConfigurations(configurations);
+                loadProfileConfigurations = convertToCollectedLoadProfileConfigurations(configurations, this.meterSerialNumber(loadProfilesToRead));
             } catch (IOException | IndexOutOfBoundsException e) {
                 loadProfileConfigurations = createIssueListForLoadProfileReaders(loadProfilesToRead, e);
             }
@@ -98,7 +95,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                     CollectedLoadProfileConfiguration deviceLoadProfileConfiguration =
                             collectedDataFactory.createCollectedLoadProfileConfiguration(
                                     loadProfileReader.getProfileObisCode(),
-                                    loadProfileReader.getDeviceIdentifier());
+                                    loadProfileReader.getMeterSerialNumber());
                     deviceLoadProfileConfiguration.setSupportedByMeter(false);
                     deviceLoadProfileConfiguration.setFailureInformation(
                             ResultType.DataIncomplete,
@@ -108,7 +105,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                 .collect(Collectors.toList());
     }
 
-    private List<CollectedLoadProfileConfiguration> convertToCollectedLoadProfileConfigurations(List<LoadProfileConfiguration> loadProfileConfigurations) {
+    private List<CollectedLoadProfileConfiguration> convertToCollectedLoadProfileConfigurations(List<LoadProfileConfiguration> loadProfileConfigurations, String meterSerialNumber) {
         CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         return loadProfileConfigurations
                 .stream()
@@ -116,13 +113,18 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                     CollectedLoadProfileConfiguration deviceLoadProfileConfiguration =
                             collectedDataFactory.createCollectedLoadProfileConfiguration(
                                     loadProfileConfiguration.getObisCode(),
-                                    loadProfileConfiguration.getDeviceIdentifier());
+                                    loadProfileConfiguration.getDeviceIdentifier(),
+                                    meterSerialNumber);
                     deviceLoadProfileConfiguration.setSupportedByMeter(loadProfileConfiguration.isSupportedByMeter());
                     deviceLoadProfileConfiguration.setChannelInfos(loadProfileConfiguration.getChannelInfos());
                     deviceLoadProfileConfiguration.setProfileInterval(loadProfileConfiguration.getProfileInterval());
                     return deviceLoadProfileConfiguration;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private String meterSerialNumber(List<LoadProfileReader> readers) {
+        return readers.stream().map(LoadProfileReader::getMeterSerialNumber).findAny().orElse("");
     }
 
     /**
@@ -153,7 +155,9 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                     profileDataWithLoadProfileId.sort();
                     deviceLoadProfile =
                             collectedDataFactory.createCollectedLoadProfile(
-                                    loadProfileReader.getLoadProfileIdentifier());
+                                    this.identificationService.createLoadProfileIdentifierByDatabaseId(
+                                            loadProfileReader.getLoadProfileId(),
+                                            loadProfileReader.getProfileObisCode()));
                     if (!profileDataWithLoadProfileId.equals(INVALID_PROFILE_DATA)) {
                         deviceLoadProfile.setCollectedIntervalData(profileDataWithLoadProfileId.getIntervalDatas(), profileDataWithLoadProfileId.getChannelInfos());
                         deviceLoadProfile.setDoStoreOlderValues(profileDataWithLoadProfileId.shouldStoreOlderValues());
