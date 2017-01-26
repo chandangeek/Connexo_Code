@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateAlias;
+
 import com.energyict.obis.ObisCode;
 
 import java.util.List;
@@ -62,6 +63,8 @@ public interface CollectedDataFactory {
     CollectedRegisterList createCollectedRegisterList(DeviceIdentifier deviceIdentifier);
 
     CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, String meterSerialNumber);
+
+    CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier, String meterSerialNumber);
 
     CollectedDeviceInfo createCollectedDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
