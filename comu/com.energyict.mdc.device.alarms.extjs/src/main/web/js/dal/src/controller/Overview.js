@@ -14,7 +14,7 @@ Ext.define('Dal.controller.Overview', {
         'Dal.view.Overview'
     ],
 
-    sections: ['status', 'userAssignee', 'reason', 'workgroupAssignee'],
+    sections: ['status', 'userAssignee', 'reason', 'workGroupAssignee'],
 
     widgetType: 'overview-of-alarms',
     model: 'Dal.model.Group',
