@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.dlms.g3;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.protocolimpl.dlms.g3.messaging.G3MessagingSagemCom;
 

@@ -12,7 +12,6 @@ import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessageExecutor;

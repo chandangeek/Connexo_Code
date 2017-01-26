@@ -7,7 +7,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.protocols.messaging.LegacyPartialLoadProfileMessageBuilder;
 

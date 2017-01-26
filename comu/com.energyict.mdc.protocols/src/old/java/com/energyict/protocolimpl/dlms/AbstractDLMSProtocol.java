@@ -36,7 +36,6 @@ import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -7,7 +7,6 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.ScalerUnit;

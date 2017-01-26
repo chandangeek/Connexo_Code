@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.dlms.UniversalObject;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import java.sql.SQLException;
 

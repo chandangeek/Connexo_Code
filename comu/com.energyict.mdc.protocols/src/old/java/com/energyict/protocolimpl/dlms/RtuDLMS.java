@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.dlms.UniversalObject;
 

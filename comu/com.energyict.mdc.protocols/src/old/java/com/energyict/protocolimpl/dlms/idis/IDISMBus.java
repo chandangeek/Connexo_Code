@@ -5,7 +5,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.UniversalObject;

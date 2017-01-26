@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocols.mdc.services.impl.OrmClient;
-
 import java.io.IOException;
 import java.sql.SQLException;
 

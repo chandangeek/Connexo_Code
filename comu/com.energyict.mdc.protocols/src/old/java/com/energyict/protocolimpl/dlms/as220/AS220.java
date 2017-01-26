@@ -15,7 +15,6 @@ import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.cosem.DataAccessResultException;

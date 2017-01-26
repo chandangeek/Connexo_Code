@@ -13,7 +13,6 @@ import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.protocols.util.CacheMechanism;
 
 import com.energyict.cbo.Quantity;

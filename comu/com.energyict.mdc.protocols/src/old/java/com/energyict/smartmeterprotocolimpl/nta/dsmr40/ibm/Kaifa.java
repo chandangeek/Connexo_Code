@@ -11,7 +11,6 @@ import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.KaifaDsmr40MessageExecutor;

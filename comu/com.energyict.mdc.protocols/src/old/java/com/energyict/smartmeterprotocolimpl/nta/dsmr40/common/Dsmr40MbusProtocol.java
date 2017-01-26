@@ -5,7 +5,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
 

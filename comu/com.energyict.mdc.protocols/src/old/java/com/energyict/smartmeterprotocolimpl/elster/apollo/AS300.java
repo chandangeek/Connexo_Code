@@ -23,7 +23,6 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling.ApolloEventProfiles;

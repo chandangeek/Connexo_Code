@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
+
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 

@@ -20,7 +20,6 @@ import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.events.MT880EventProfile;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.profiles.LoadProfileBuilder;
 

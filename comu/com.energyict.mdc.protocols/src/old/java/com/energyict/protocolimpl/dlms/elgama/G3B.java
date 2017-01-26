@@ -7,7 +7,6 @@ import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.protocols.mdc.services.impl.OrmClient;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.core.SerialCommunicationChannel;
