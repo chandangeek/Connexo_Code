@@ -75,8 +75,16 @@
             <artifactId>mdc.pluggable</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.pluggable.rest</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

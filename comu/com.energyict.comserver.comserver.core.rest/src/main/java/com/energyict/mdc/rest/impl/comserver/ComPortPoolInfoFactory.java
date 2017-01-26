@@ -5,6 +5,8 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
 import javax.inject.Inject;
 
 
@@ -18,9 +20,9 @@ public class ComPortPoolInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public ComPortPoolInfo<? extends ComPortPool> asInfo(ComPortPool comPortPool, EngineConfigurationService engineConfigurationService) {
+    public ComPortPoolInfo<? extends ComPortPool> asInfo(ComPortPool comPortPool, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils) {
         if (InboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
-            return setLocalisedValue(new InboundComPortPoolInfo((InboundComPortPool) comPortPool, comPortInfoFactory));
+            return setLocalisedValue(new InboundComPortPoolInfo((InboundComPortPool) comPortPool, comPortInfoFactory, mdcPropertyUtils));
         } else {
             return setLocalisedValue(new OutboundComPortPoolInfo((OutboundComPortPool) comPortPool, engineConfigurationService, comPortInfoFactory));
         }

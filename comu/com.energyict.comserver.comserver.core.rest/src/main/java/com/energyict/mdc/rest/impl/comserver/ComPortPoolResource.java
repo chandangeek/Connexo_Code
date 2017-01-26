@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.config.security.Privileges;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -56,15 +57,17 @@ public class ComPortPoolResource {
     private final Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider;
     private final ResourceHelper resourceHelper;
     private final ComPortPoolInfoFactory comPortPoolInfoFactory;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public ComPortPoolResource(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider, DeviceConfigurationService deviceConfigurationService, ResourceHelper resourceHelper, ComPortPoolInfoFactory comPortPoolInfoFactory) {
+    public ComPortPoolResource(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider, DeviceConfigurationService deviceConfigurationService, ResourceHelper resourceHelper, ComPortPoolInfoFactory comPortPoolInfoFactory, MdcPropertyUtils mdcPropertyUtils) {
         this.engineConfigurationService = engineConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
         this.comPortPoolComPortResourceProvider = comPortPoolComPortResourceProvider;
         this.deviceConfigurationService = deviceConfigurationService;
         this.resourceHelper = resourceHelper;
         this.comPortPoolInfoFactory = comPortPoolInfoFactory;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     @GET @Transactional
@@ -74,7 +77,7 @@ public class ComPortPoolResource {
     public ComPortPoolInfo getComPortPool(@PathParam("id") long id) {
         return engineConfigurationService
                 .findComPortPool(id)
-                .map(comPortPool -> comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService))
+                .map(comPortPool -> comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService, mdcPropertyUtils))
                 .orElseThrow(() -> new WebApplicationException(
                         "No ComPortPool with id " + id,
                         Response.status(Response.Status.NOT_FOUND)
@@ -101,7 +104,7 @@ public class ComPortPoolResource {
         comPortPools = ListPager.of(comPortPools, Comparator.comparing(ComPortPool::getName, String.CASE_INSENSITIVE_ORDER)).from(queryParameters).find();
 
         for (ComPortPool comPortPool : comPortPools) {
-            comPortPoolInfos.add(comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService));
+            comPortPoolInfos.add(comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService, mdcPropertyUtils));
         }
         return PagedInfoList.fromPagedList("data", comPortPoolInfos, queryParameters);
     }
@@ -153,13 +156,13 @@ public class ComPortPoolResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
-        ComPortPool comPortPool = comPortPoolInfo.createNew(engineConfigurationService, protocolPluggableService);
+        ComPortPool comPortPool = comPortPoolInfo.createNew(engineConfigurationService, protocolPluggableService, mdcPropertyUtils);
         if (comPortPool instanceof OutboundComPortPool) { // TODO Polymorphism is in place here: get rid of these checks!
             handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool, engineConfigurationService, getBoolean(uriInfo, ALL));
         } else if (comPortPool instanceof InboundComPortPool) {
             handleInboundPoolPorts((InboundComPortPool)comPortPool, Optional.ofNullable(comPortPoolInfo.inboundComPorts));
         }
-        return Response.status(Response.Status.CREATED).entity(comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService)).build();
+        return Response.status(Response.Status.CREATED).entity(comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService, mdcPropertyUtils)).build();
     }
 
     @PUT @Transactional
@@ -169,7 +172,7 @@ public class ComPortPoolResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComPortPoolInfo updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> info, @Context UriInfo uriInfo) {
         ComPortPool comPortPool = resourceHelper.lockComPortPoolOrThrowException(info);
-        info.writeTo(comPortPool, protocolPluggableService);
+        info.writeTo(comPortPool, protocolPluggableService, mdcPropertyUtils);
         if (comPortPool instanceof OutboundComPortPool) {
             handlePools(info, (OutboundComPortPool) comPortPool, engineConfigurationService, getBoolean(uriInfo, ALL));
         }
@@ -177,7 +180,7 @@ public class ComPortPoolResource {
             handleInboundPoolPorts((InboundComPortPool)comPortPool, Optional.ofNullable(info.inboundComPorts));
         }
         comPortPool.update();
-        return comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService);
+        return comPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService, mdcPropertyUtils);
     }
 
     @Path("/{comPortPoolId}/comports")

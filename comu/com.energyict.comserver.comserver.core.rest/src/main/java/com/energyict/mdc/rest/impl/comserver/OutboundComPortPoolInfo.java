@@ -4,6 +4,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
     }
 
     @Override
-    protected OutboundComPortPool createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
+    protected OutboundComPortPool createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
         TimeDuration taskExecutionTimeout;
         if (this.taskExecutionTimeout==null || this.taskExecutionTimeout.count==0) {
             taskExecutionTimeout = new TimeDuration(6, TimeDuration.TimeUnit.HOURS);
