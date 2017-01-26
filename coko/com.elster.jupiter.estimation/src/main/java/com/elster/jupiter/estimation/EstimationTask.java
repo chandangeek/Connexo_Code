@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.HasName;
@@ -64,4 +65,8 @@ public interface EstimationTask extends HasName, HasAuditInfo {
     void triggerNow();
 
     void updateLastRun(Instant triggerTime);
+
+    TaskLogLevel getLogLevel();
+
+    void setLogLevel(TaskLogLevel newLevel);
 }
