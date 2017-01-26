@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.conditions.Condition;
@@ -9,8 +10,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -57,6 +56,8 @@ public interface DeviceService {
     Optional<Device> findDeviceById(long id);
 
     Optional<Device> findDeviceByIdentifier(DeviceIdentifier identifier);
+
+    List<Device> findAllDevicesByIdentifier(DeviceIdentifier identifier);
 
     /**
      * Finds and locks the Device based on his unique ID and VERSION.

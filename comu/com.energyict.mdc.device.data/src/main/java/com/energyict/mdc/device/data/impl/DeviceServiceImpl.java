@@ -67,7 +67,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
-
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
@@ -155,7 +154,7 @@ class DeviceServiceImpl implements ServerDeviceService {
         Condition passiveCondition = where(PassiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar);
         Finder<PassiveCalendar> pagedPassive =
                 DefaultFinder.of(PassiveCalendar.class, passiveCondition, this.deviceDataModelService.dataModel())
-                .paged(0,1);
+                        .paged(0, 1);
         List<PassiveCalendar> allPassiveCalendars = pagedPassive.find();
         return !allPassiveCalendars.isEmpty();
     }
@@ -309,6 +308,15 @@ class DeviceServiceImpl implements ServerDeviceService {
         }
     }
 
+    @Override
+    public List<Device> findAllDevicesByIdentifier(DeviceIdentifier identifier) {
+        try {
+            return this.find(identifier.forIntrospection());
+        } catch (UnsupportedDeviceIdentifierTypeName | IllegalArgumentException e) {
+            return Collections.emptyList();
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private List<Device> find(Introspector introspector) throws UnsupportedDeviceIdentifierTypeName {
         switch (introspector.getTypeName()) {
@@ -353,12 +361,10 @@ class DeviceServiceImpl implements ServerDeviceService {
     private Optional<Device> exactlyOne(List<Device> allDevices, DeviceIdentifier identifier) {
         if (allDevices.isEmpty()) {
             return Optional.empty();
-        }
-        else {
+        } else {
             if (allDevices.size() > 1) {
                 throw new NotUniqueException(identifier.toString());
-            }
-            else {
+            } else {
                 return Optional.of(allDevices.get(0));
             }
         }
