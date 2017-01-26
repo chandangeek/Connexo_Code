@@ -93,7 +93,7 @@ public class DeviceCommunicationProtocolsResource {
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public List<ConnectionTypeInfo> getSupportedConnectionTypes(@PathParam("deviceProtocolId") long deviceProtocolId, @Context UriInfo uriInfo, @BeanParam JsonQueryFilter queryFilter) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = resourceHelper.findDeviceProtocolPluggableClassByMrIdOrThrowException(deviceProtocolId);
-        List<ConnectionType> supportedConnectionTypes = deviceProtocolPluggableClass.getDeviceProtocol().getSupportedConnectionTypes();
+        List<? extends ConnectionType> supportedConnectionTypes = deviceProtocolPluggableClass.getDeviceProtocol().getSupportedConnectionTypes();
         List<ConnectionTypePluggableClass> allConnectionTypePluggableClassesToCheck = this.protocolPluggableService.findAllConnectionTypePluggableClasses();
         List<ConnectionTypeInfo> infos = new ArrayList<>();
         ConnectionType.ConnectionTypeDirection connectionTypeDirection = ConnectionType.ConnectionTypeDirection.fromString(queryFilter.getString("direction"));
