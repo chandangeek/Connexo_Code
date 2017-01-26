@@ -35,12 +35,14 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 
 import com.jayway.jsonpath.JsonModel;
@@ -107,6 +109,12 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     private FileDestination newDestination;
     @Mock
     private ExportTaskFinder exportTaskFinder;
+    @Mock
+    private DataExportOccurrence occurrence;
+    @Mock
+    private LogEntryFinder logEntryFinder;
+    @Mock
+    private QueryStream queryStream;
 
     private DataExportTaskBuilder builder;
 

@@ -66,6 +66,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -127,9 +128,8 @@ public class DataExportTaskResource {
         queryParameters.getStart().ifPresent(finder::setStart);
         queryParameters.getLimit().ifPresent(finder::setLimit);
 
-        List<DataExportTaskHistoryInfo> infos = finder.stream().flatMap(task -> getFinderWithStatusFilter(task.getOccurrencesFinder(), filter).stream()
-                    .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(task.getHistory(), occurrence))
-                    .collect(Collectors.toList()).stream()).collect(Collectors.toList());
+        List<DataExportTaskHistoryInfo> infos = finder.stream()
+                .flatMap(task -> getAllHistoryFromTask(task, filter).stream()).collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
@@ -516,6 +516,26 @@ public class DataExportTaskResource {
         return infos;
     }
 
+    @GET
+    @Path("/history/{occurrenceId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    public DataExportOccurrenceLogInfos getDataExportLogByOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
+        Optional<DataExportOccurrence> foundOccurrence = dataExportService.findDataExportOccurrence(occurrenceId);
+
+        if (foundOccurrence.isPresent()) {
+            DataExportOccurrence dataExportOccurrence = foundOccurrence.get();
+            LogEntryFinder finder = dataExportOccurrence.getLogsFinder()
+                    .setStart(queryParameters.getStart().orElse(0))
+                    .setLimit(queryParameters.getLimit().orElse(0) + 1);
+            List<? extends LogEntry> occurrences = finder.find();
+
+            return new DataExportOccurrenceLogInfos(occurrences, thesaurus);
+        }
+
+        return new DataExportOccurrenceLogInfos();
+    }
+
     private ExportTask findTaskOrThrowException(long id, String appCode) {
         String application = getApplicationNameFromCode(appCode);
         return dataExportService.findExportTask(id)
@@ -571,6 +591,13 @@ public class DataExportTaskResource {
                         .filter(destination -> destination.getId() == destinationInfo.id)
                         .findAny()
                         .ifPresent(destination -> destinationInfo.type.update(destination, destinationInfo)));
+    }
+
+    private List<DataExportTaskHistoryInfo> getAllHistoryFromTask(ExportTask task, JsonQueryFilter filter) {
+        return getFinderWithStatusFilter(task.getOccurrencesFinder(), filter)
+                .stream()
+                .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(task.getHistory(), occurrence))
+                .collect(Collectors.toList());
     }
 
     private DataExportOccurrenceFinder getFinderWithStatusFilter(DataExportOccurrenceFinder occurrenceFinder, JsonQueryFilter filter) {
