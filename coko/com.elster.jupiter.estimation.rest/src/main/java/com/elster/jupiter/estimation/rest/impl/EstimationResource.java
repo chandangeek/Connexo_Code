@@ -26,6 +26,7 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
@@ -407,6 +408,7 @@ public class EstimationResource {
 
         EstimationTask dataExportTask = estimationService.newBuilder()
                 .setName(info.name)
+                .setLogLevel(info.logLevelId == null ? TaskLogLevel.WARNING : TaskLogLevel.valueOf(info.logLevelId))
                 .setQualityCodeSystem(qualityCodeSystem)
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun))
@@ -452,6 +454,7 @@ public class EstimationResource {
 
         EstimationTask task = findAndLockTask(info, qualityCodeSystem);
         task.setName(info.name);
+        task.setLogLevel(info.logLevelId == null ? TaskLogLevel.WARNING : TaskLogLevel.valueOf(info.logLevelId));
         task.setScheduleExpression(getScheduleExpression(info));
         if (Never.NEVER.equals(task.getScheduleExpression())) {
             task.setNextExecution(null);
