@@ -221,8 +221,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(DeviceDataServices.COMPONENT_NAME, "Device data");
-        this.dataModel = dataModel;
+        this.dataModel = ormService.newDataModel(DeviceDataServices.COMPONENT_NAME, "Device data");
     }
 
     @Reference
@@ -604,7 +603,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.communicationTaskService = new CommunicationTaskServiceImpl(this);
         this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         this.deviceService = new DeviceServiceImpl(this, meteringService, queryService, thesaurus, clock);
-        this.registerService = new RegisterServiceImpl(this, this.deviceService);
+        this.registerService = new RegisterServiceImpl(this);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);

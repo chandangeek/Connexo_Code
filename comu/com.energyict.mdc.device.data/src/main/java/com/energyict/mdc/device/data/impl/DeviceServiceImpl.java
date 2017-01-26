@@ -345,7 +345,7 @@ class DeviceServiceImpl implements ServerDeviceService {
             }
             case "mRID": {
                 return this
-                        .findByUniqueMrid((String) introspector.getValue("databaseValue"))
+                        .findDeviceByMrid((String) introspector.getValue("databaseValue"))
                         .map(Collections::singletonList)
                         .orElseGet(Collections::emptyList);
             }

@@ -2,14 +2,9 @@ package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-
 import com.energyict.mdc.device.command.CommandRuleService;
-import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
