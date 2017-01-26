@@ -317,7 +317,19 @@ public class UsagePointResource {
     public Response getMetersOnUsagePoint(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         return Response.ok()
-                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint, auth), queryParameters))
+                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointFullInfo(usagePoint, auth), queryParameters))
+                .build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/meterroles")
+    public Response getMeterRolesOnUsagePoint(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        return Response.ok()
+                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint), queryParameters))
                 .build();
     }
 

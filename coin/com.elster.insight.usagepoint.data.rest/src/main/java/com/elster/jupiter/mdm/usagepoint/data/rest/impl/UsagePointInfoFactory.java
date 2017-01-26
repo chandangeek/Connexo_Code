@@ -412,7 +412,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                             meterActivationInfo.meter.mRID = meter.getMRID();
                             meterActivationInfo.meter.name = meter.getName();
                             meterActivationInfo.meter.version = meter.getVersion();
-                            meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
+                            meterActivationInfo.meter.watsGoingOnMeterStatus = authorization != null ? getWhatsGoingOnMeterStatus(meter, authorization) : null;
                             meterActivationInfo.meter.url = meter.getHeadEndInterface()
                                     .flatMap(he -> he.getURLForEndDevice(meter))
                                     .map(URL::toString)
@@ -424,7 +424,15 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .collect(Collectors.toList());
     }
 
-    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
+    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint) {
+        return this.getMetersOnUsagePointInfo(usagePoint, null);
+    }
+
+    public List<MeterActivationInfo> getMetersOnUsagePointFullInfo(UsagePoint usagePoint, String authorization) {
+        return this.getMetersOnUsagePointInfo(usagePoint, authorization);
+    }
+
+    private List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
         if(usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()){
             return getMetersOnUsagePointWithMetrologyConfigurationInfo(usagePoint, authorization);
         }
@@ -442,7 +450,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                         meterActivationInfo.meter.mRID = meter.getMRID();
                         meterActivationInfo.meter.name = meter.getName();
                         meterActivationInfo.meter.version = meter.getVersion();
-                        meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
+                        meterActivationInfo.meter.watsGoingOnMeterStatus = authorization != null ? getWhatsGoingOnMeterStatus(meter, authorization) : null;
                         meterActivationInfo.meter.url = meter.getHeadEndInterface()
                                 .flatMap(he -> he.getURLForEndDevice(meter))
                                 .map(URL::toString)
