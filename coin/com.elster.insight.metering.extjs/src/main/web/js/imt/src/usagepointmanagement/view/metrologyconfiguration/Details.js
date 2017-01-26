@@ -43,7 +43,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         xtype: 'button',
                         itemId: 'unlink-metrology-configuration-button',
                         text: Uni.I18n.translate('usagePoint.metrologyConfiguration.unlink', 'IMT', 'Unlink metrology configuration'),
-                        privileges: mcIsLinked && canModify,
+                        privileges: mcIsLinked && canModify && Imt.privileges.UsagePoint.canAdministrate(),
                         usagePoint: me.usagePoint
                     }
                 ],

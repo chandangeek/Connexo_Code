@@ -75,7 +75,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 fieldLabel: ' ',
                 privileges: me.usagePoint.get('state').stage === 'PRE_OPERATIONAL'
                 && !Ext.isEmpty(metrologyConfiguration)
-                && !Ext.isEmpty(metrologyConfiguration.meterRoles),
+                && !Ext.isEmpty(metrologyConfiguration.meterRoles)
+                && Imt.privileges.UsagePoint.canAdministrate(),
                 htmlEncode: false,
                 renderer: function () {
                     var url = me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl({}, {fromLandingPage: true});
