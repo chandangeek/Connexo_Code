@@ -5,28 +5,17 @@
 package com.energyict.mdc.protocol.api;
 
 /**
- * <p> This exception is thrown when a meter protocol specific parameter has an
- * invalid value </p>
+ * This exception is thrown when a meter protocol specific parameter has an invalid value.
  *
  * @author Karel
- *         </p>
  */
 public class InvalidPropertyException extends ProtocolException {
 
-    /**
-     * <p></p>
-     */
     public InvalidPropertyException() {
     }
 
-    /**
-     * <p></p>
-     *
-     * @param msg <br>
-     */
     public InvalidPropertyException(String msg) {
         super(msg);
     }
+
 }
-
-
