@@ -356,8 +356,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             navigation = me.getNavigationMenu(),
             currentSteps = wizard.query('[isWizardStep=true]'),
             currentMenuItems = navigation.query('menuitem'),
-            purposesField = wizard.down('#purposes-field'),
-            stepNumber = 1,
             stepsToAdd = [],
             navigationItemsToAdd = [];
 
@@ -402,13 +400,15 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         wizard.updateRecord(configuration);
         Ext.resumeLayouts(true);
 
-        purposesField.setLoading();
+        wizard.setLoading();
         me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration').load(newValue, {
             success: function (record) {
-                purposesField.setStore(record.metrologyContracts())
+                if (wizard.rendered) {
+                    wizard.down('#purposes-field').setStore(record.metrologyContracts())
+                }
             },
             callback: function () {
-                purposesField.setLoading(false);
+                wizard.setLoading(false);
             }
         });
     },
