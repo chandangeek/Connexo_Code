@@ -7,6 +7,8 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -297,5 +299,21 @@ public interface ProtocolPluggableService {
      * @return The Connexo {@link EncryptionDeviceAccessLevel}
      */
     EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.messages.DeviceMessageCategory Connexo device message category}
+     * to the UPL interface.
+     * @param connexoCategory The Connexo device message category
+     * @return The UPL device message category
+     */
+    com.energyict.mdc.upl.messages.DeviceMessageCategory adapt(DeviceMessageCategory connexoCategory);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.messages.DeviceMessageSpec Connexo device message specification}
+     * to the UPL interface.
+     * @param connexoSpec The Connexo device message specification
+     * @return The UPL device message specification
+     */
+    com.energyict.mdc.upl.messages.DeviceMessageSpec adapt(DeviceMessageSpec connexoSpec);
 
 }
