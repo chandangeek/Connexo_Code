@@ -1,7 +1,7 @@
 package com.energyict.protocols.impl.channels;
 
+import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
-import com.energyict.mdc.protocol.api.ConnectionType;
 
 /**
  * List all existing ConnectionType pluggable classes

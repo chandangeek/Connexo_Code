@@ -6,7 +6,6 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExce
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
-import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
 
 import org.osgi.service.component.annotations.Component;
 
