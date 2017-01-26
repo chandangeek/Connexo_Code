@@ -374,6 +374,10 @@ public class ObisCode implements Serializable {
         this.relativeBillingPeriod = obisCode.useRelativeBillingPeriod();
     }
 
+    public ObisCode nextB () {
+        return new ObisCode(this.a, this.b + 1, this.c, this.d, this.e, this.f);
+    }
+
     public void setB(int b) {
         this.b = b;
     }
