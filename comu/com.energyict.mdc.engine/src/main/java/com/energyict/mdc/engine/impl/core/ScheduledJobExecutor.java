@@ -6,7 +6,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import java.util.List;
