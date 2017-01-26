@@ -49,12 +49,16 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
         model.load(id, {
             success: function (record) {
                 var form = widget.down('form');
+                form.loadRecord(record);
                 if (record.get('direction').toLowerCase() === 'outbound') {
                     form.down('[name=discoveryProtocolPluggableClassId]').hide();
+                } else if (record.properties().count() > 0) {
+                    form.down('#protocolDetectionDetails').show();
+                    form.down('property-form').show();
+                    form.down('property-form').loadRecord(record);
                 }
-                form.loadRecord(record);
                 var actionMenu = widget.down('comportpool-actionmenu');
-                if(actionMenu)
+                if (actionMenu)
                     actionMenu.record = record;
                 widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
                 me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
@@ -108,7 +112,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
                     var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
                         Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
                     form.loadRecord(model);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comPortPoolMsg', 'MDC', 'Communication port pool {0}',[msg]));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comPortPoolMsg', 'MDC', 'Communication port pool {0}', [msg]));
                 }
             });
         }

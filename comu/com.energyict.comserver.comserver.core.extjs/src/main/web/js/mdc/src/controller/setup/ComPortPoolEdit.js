@@ -23,14 +23,20 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
     refs: [
         {
             ref: 'comPortPoolEditPage',
-            selector: 'comPortPoolEdit'
+            selector: '#comPortPoolEdit'
         }
     ],
+
+    isEdit: false,
+    editRecord: null,
 
     init: function () {
         this.control({
             'comPortPoolEdit button[action=saveModel]': {
                 click: this.saveComPortPool
+            },
+            '#cbo-comportpool-protocol-detect': {
+                select: this.loadProperties
             }
         });
     },
@@ -51,6 +57,8 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             isInbound = false,
             form,
             title;
+
+        this.isEdit = false;
 
         switch (type.toLowerCase()) {
             case 'inbound':
@@ -85,6 +93,19 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         form.loadRecord(model);
     },
 
+    loadProperties: function(combo, selectedRecords) {
+        var editPage = this.getComPortPoolEditPage();
+        if(this.isEdit && !Ext.isEmpty(this.editRecord) && this.selectedEqualsRecord(selectedRecords[0])) {
+            editPage.down('property-form').loadRecord(this.editRecord);
+        } else {
+            editPage.down('property-form').loadRecord(selectedRecords[0]);
+        }
+    },
+
+    selectedEqualsRecord: function (record) {
+        return record.get('id') === this.editRecord.get('discoveryProtocolPluggableClassId');
+    },
+
     showEditView: function (id) {
         var me = this,
             widget = Ext.widget('comPortPoolEdit'),
@@ -95,9 +116,12 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
 
         widget.setLoading(true);
 
+        this.isEdit = true;
+
         widget.down('#cbo-comportpool-type').store.load(function () {
             model.load(id, {
                 success: function (record) {
+                    me.editRecord = record;
                     var comServerType = record.get('comServerType'),
                         form = widget.down('form'),
                         isInbound = (record.get('direction').toLowerCase() === 'inbound'),
@@ -121,6 +145,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                     form.down('[name=direction_visual]').show();
                     form.down('[name=comPortType]').setDisabled(true);
                     form.loadRecord(record);
+                    if(record.properties().count() > 0) {
+                        form.down('property-form').loadRecord(record);
+                    }
                     form.down('[name=comPortType]').setValue(record.get('comPortType').id);
                 },
                 callback: function () {
@@ -137,8 +164,15 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             formErrorsPanel = form.down('uni-form-error-message'),
             record;
 
+        if(!form.isValid()) {
+            formErrorsPanel.show();
+            return;
+        }
         form.updateRecord();
         record = form.getRecord();
+        form.down('property-form').updateRecord();
+        record.propertiesStore = form.down('property-form').getRecord().properties();
+        record.set('properties', form.down('property-form').getFieldValues().properties);
         button.setDisabled(true);
         page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
         record.set('comPortType', form.down('#cbo-comportpool-type').findRecordByValue(form.down('#cbo-comportpool-type').getValue()).getData());

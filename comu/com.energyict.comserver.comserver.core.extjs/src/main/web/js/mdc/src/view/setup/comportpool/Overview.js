@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
             items: [
                 {
                     ui: 'large',
-                    title: Uni.I18n.translate('general.overview','MDC','Overview'),
+                    title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                     flex: 1
                 },
                 {
@@ -39,9 +39,12 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
             },
             items: [
                 {
+                    xtype: 'fieldcontainer',
+                    labelAlign: 'top',
+                    layout: 'vbox',
                     defaults: {
                         xtype: 'displayfield',
-                        labelWidth: 200
+                        labelWidth: 250
                     },
                     items: [
                         {
@@ -68,22 +71,41 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
                             }
                         },
                         {
+                            fieldLabel: Uni.I18n.translate('comPortPool.preview.communicationPorts', 'MDC', 'Communication ports'),
+                            htmlEncode: false,
+                            name: 'comportslink'
+                        },
+                        {
                             fieldLabel: Uni.I18n.translate('comPortPool.preview.protocolDetection', 'MDC', 'Protocol detection'),
                             name: 'discoveryProtocolPluggableClassId',
                             renderer: function (val) {
                                 var protDetect = val ? Ext.getStore('Mdc.store.DeviceDiscoveryProtocols').getById(val) : null;
                                 return protDetect ? Ext.String.htmlEncode(protDetect.get('name')) : '';
                             }
-                        },
-                        {
-                            fieldLabel: Uni.I18n.translate('comPortPool.preview.communicationPorts', 'MDC', 'Communication ports'),
-                            htmlEncode: false,
-                            name: 'comportslink'
                         }
                     ]
+                },
+                {
+                    xtype: 'fieldcontainer',
+                    hidden: true,
+                    itemId: 'protocolDetectionDetails',
+                    fieldLabel: Uni.I18n.translate('comportPool.protocolDetectionDetails', 'MDC', 'Protocol detection details'),
+                    labelAlign: 'top',
+                    layout: 'vbox'
+                },
+                {
+                    xtype: 'property-form',
+                    isEdit: false,
+                    defaults: {
+                        layout: 'form',
+                        resetButtonHidden: true,
+                        labelWidth: 250
+                    }
                 }
             ]
         }
+
+
     ],
 
     initComponent: function () {
