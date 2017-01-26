@@ -3,6 +3,7 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -19,6 +20,8 @@ public interface DataExportTaskBuilder {
     DataExportTaskBuilder scheduleImmediately();
 
     DataExportTaskBuilder setName(String string);
+
+    DataExportTaskBuilder setLogLevel(TaskLogLevel logLevel);
 
     DataExportTaskBuilder setDataFormatterFactoryName(String dataFormatter);
 

@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -79,6 +80,7 @@ final class ExportTaskImpl implements IExportTask {
     private List<IDataExportDestination> destinations = new ArrayList<>();
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    private transient TaskLogLevel logLevel;
 
     private transient String application;
 
@@ -88,10 +90,11 @@ final class ExportTaskImpl implements IExportTask {
         this.dataModel = dataModel;
         this.taskService = taskService;
         this.thesaurus = thesaurus;
+        this.logLevel = TaskLogLevel.WARNING;
     }
 
-    static ExportTaskImpl from(DataModel dataModel, String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution, String application) {
-        return dataModel.getInstance(ExportTaskImpl.class).init(name, dataFormatter, dataSelector, scheduleExpression, nextExecution, application);
+    static ExportTaskImpl from(DataModel dataModel, String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution, String application, TaskLogLevel logLevel) {
+        return dataModel.getInstance(ExportTaskImpl.class).init(name, dataFormatter, dataSelector, scheduleExpression, nextExecution, application, logLevel);
     }
 
     @Override
@@ -353,6 +356,7 @@ final class ExportTaskImpl implements IExportTask {
             if (!recurrentTask.get().getName().equals(this.name)) {
                 recurrentTask.get().setName(name);
             }
+            recurrentTask.get().setLogLevel(this.logLevel);
             recurrentTask.get().save();
         }
         if (propertiesDirty) {
@@ -370,6 +374,7 @@ final class ExportTaskImpl implements IExportTask {
                 .setPayLoad(getName())
                 .scheduleImmediately(scheduleImmediately)
                 .setFirstExecution(nextExecution)
+                .setLogLevel(logLevel)
                 .build();
         recurrentTask.set(task);
         Save.CREATE.save(dataModel, this);
@@ -420,13 +425,14 @@ final class ExportTaskImpl implements IExportTask {
         return dataModel;
     }
 
-    private ExportTaskImpl init(String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution, String application) {
+    private ExportTaskImpl init(String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution, String application, TaskLogLevel logLevel) {
         this.name = name;
         this.dataFormatter = dataFormatter;
         this.dataSelector = dataSelector;
         this.scheduleExpression = scheduleExpression;
         this.nextExecution = nextExecution;
         this.application = application;
+        this.logLevel = logLevel;
         return this;
     }
 
@@ -542,5 +548,16 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public Optional<DataSelectorConfig> getStandardDataSelectorConfig(Instant at) {
         return dataSelectorConfig.flatMap(selectorConfig -> selectorConfig.getHistory().getVersionAt(at));
+    }
+
+    public TaskLogLevel getLogLevel() {
+        return recurrentTask.isPresent() ? getRecurrentTask().getLogLevel() : logLevel;
+    }
+
+    public void setLogLevel(TaskLogLevel newLevel) {
+        this.logLevel = newLevel;
+        if (recurrentTask.isPresent()) {
+            recurrentTaskDirty = true;
+        }
     }
 }

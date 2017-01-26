@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -48,6 +49,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private boolean exportContinuousData;
     private boolean exportComplete;
     private String application;
+    private TaskLogLevel logLevel;
 
     DataExportTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -78,8 +80,14 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
+    public DataExportTaskBuilderImpl setLogLevel(TaskLogLevel logLevel) {
+        this.logLevel = logLevel;
+        return this;
+    }
+
+    @Override
     public ExportTask create() {
-        ExportTaskImpl exportTask = ExportTaskImpl.from(dataModel, name, dataFormatter, dataSelector, scheduleExpression, nextExecution, application);
+        ExportTaskImpl exportTask = ExportTaskImpl.from(dataModel, name, dataFormatter, dataSelector, scheduleExpression, nextExecution, application, logLevel);
         exportTask.setScheduleImmediately(scheduleImmediately);
         switch (defaultSelector) {
             case READINGTYPES: {
