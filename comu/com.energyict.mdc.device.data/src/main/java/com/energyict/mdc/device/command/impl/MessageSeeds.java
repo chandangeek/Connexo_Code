@@ -24,8 +24,7 @@ public enum MessageSeeds implements MessageSeed {
     AT_LEAST_ONE_COMMAND_REQUIRED(13, Keys.AT_LEAST_ONE_COMMAND_REQUIRED, "At least one command is required"),
     DUPLICATE_COMMAND(14, Keys.DUPLICATE_COMMAND, "Duplicate commands are not allowed in a command limitation rule"),
     LIMITS_EXCEEDED(15, Keys.LIMITS_EXCEEDED, "The command cannot have this release date as this would exceed the {0} of ''{1}''"),
-    INVALID_STATS(16, Keys.INVALID_STATS, "The counters for command limitation rules have been tampered with"),
-    MAC_COMMAND_RULES_FAILED(17, Keys.MAC_COMMAND_RULES_FAILED, "Message authentication check on one or more command limitation rules failed. Please contact your system administrator.")
+    MAC_COMMAND_RULES_FAILED(16, Keys.MAC_COMMAND_RULES_FAILED, "Message authentication check on one or more command limitation rules failed. Please contact your system administrator.")
     ;
 
 
@@ -86,7 +85,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String AT_LEAST_ONE_COMMAND_REQUIRED = "atLeastOneCommandRequired";
         public static final String DUPLICATE_COMMAND = "duplicateCommand";
         public static final String LIMITS_EXCEEDED = "limitsExceeded";
-        public static final String INVALID_STATS = "invalidStats";
         public static final String MAC_COMMAND_RULES_FAILED = "macCommandRulesFailed";
         public static final String THE_X_OF_Y = "theXOfY";
     }
