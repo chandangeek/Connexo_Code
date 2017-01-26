@@ -50,10 +50,12 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +69,8 @@ import org.mockito.Mock;
 import static com.elster.jupiter.export.rest.impl.DataExportTaskResource.X_CONNEXO_APPLICATION_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -624,6 +628,48 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         DataExportTaskBuilder.EventSelectorBuilder selectorBuilder = (DataExportTaskBuilder.EventSelectorBuilder) this.builder;
         verify(selectorBuilder).fromExportPeriod(exportPeriod);
         verify(selectorBuilder).fromEndDeviceGroup(endDeviceGroup);
+    }
+
+    @Test
+    public void testGetAllDataExportTaskHistory() throws Exception {
+        DataExportTaskHistoryInfo dataExportTaskHistoryInfo = new DataExportTaskHistoryInfo();
+        dataExportTaskHistoryInfo.id = 13L;
+
+        when(dataExportService.findExportTasks()).thenReturn(exportTaskFinder);
+        when(exportTaskFinder.ofApplication(anyString())).thenReturn(exportTaskFinder);
+        when(exportTaskFinder.setLimit(anyInt())).thenReturn(exportTaskFinder);
+        when(exportTaskFinder.setStart(anyInt())).thenReturn(exportTaskFinder);
+        when(exportTaskFinder.stream()).thenReturn(queryStream);
+        when(queryStream.flatMap(any())).thenReturn(queryStream);
+        when(queryStream.collect(any())).thenReturn(Collections.singletonList(dataExportTaskHistoryInfo));
+
+        Response response = target("/dataexporttask/history").request()
+                .header(X_CONNEXO_APPLICATION_NAME, "INS")
+                .header("start", 1)
+                .header("limit", 1).get();
+
+        JsonModel model = JsonModel.model((InputStream)response.getEntity());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(model.<Integer>get("$.data[0].id")).isEqualTo(13);
+    }
+
+    @Test
+    public void testGetDataExportLogByOccurrence() {
+        long occurrenceId = 13L;
+
+        when(dataExportService.findDataExportOccurrence(anyLong())).thenReturn(Optional.of(occurrence));
+        when(occurrence.getLogsFinder()).thenReturn(logEntryFinder);
+        when(logEntryFinder.setStart(anyInt())).thenReturn(logEntryFinder);
+        when(logEntryFinder.setLimit(anyInt())).thenReturn(logEntryFinder);
+        when(logEntryFinder.find()).thenReturn(Collections.emptyList());
+
+        Response response = target("/dataexporttask/history/" + occurrenceId).request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(dataExportService).findDataExportOccurrence(anyLong());
+        verify(occurrence).getLogsFinder();
+        verify(logEntryFinder).setStart(anyInt());
+        verify(logEntryFinder).setLimit(anyInt());
     }
 
     private ReadingTypeDataExportItem mockExportItem(DataExportOccurrence dataExportOccurrence, IdentifiedObject domainObject, Instant lastRun) {
