@@ -25,11 +25,13 @@ import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
@@ -127,6 +129,9 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
                 } catch (DeviceConfigurationException | CanNotFindForIdentifier | DuplicateException e) {
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ConfigurationError);
+                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                } catch (NestedPropertyValidationException e) {
+                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR, e.getUplException()), CompletionCode.ConfigurationError);
                     executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
                 } catch (LegacyProtocolException e) {
                     if (isExceptionCausedByALegacyTimeout(e)) {
