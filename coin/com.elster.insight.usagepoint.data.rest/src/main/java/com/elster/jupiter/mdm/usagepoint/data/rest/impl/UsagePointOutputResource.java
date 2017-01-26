@@ -594,7 +594,7 @@ public class UsagePointOutputResource {
 
     @PUT
     @Path("/{purposeId}")
-    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL, com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response validateOrEstimateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, @QueryParam("upVersion") long upVersion,
