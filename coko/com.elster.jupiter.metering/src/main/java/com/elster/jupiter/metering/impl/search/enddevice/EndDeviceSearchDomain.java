@@ -111,7 +111,7 @@ public class EndDeviceSearchDomain implements SearchDomain {
         return getProperties()
                 .stream()
                 .map(mapper)
-                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().isValid())
                 .collect(Collectors.toList());
     }
 
