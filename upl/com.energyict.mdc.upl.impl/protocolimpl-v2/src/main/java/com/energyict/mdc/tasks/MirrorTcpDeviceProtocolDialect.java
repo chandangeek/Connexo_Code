@@ -2,7 +2,6 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -29,10 +28,8 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
     public static final Duration DEFAULT_TCP_TIMEOUT = Duration.ofSeconds(30);
     public static final String BEACON_DC_MIRROR_TCP_DLMS = "Beacon DC Mirror TCP DLMS";
 
-    private final PropertySpecService propertySpecService;
-
     public MirrorTcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

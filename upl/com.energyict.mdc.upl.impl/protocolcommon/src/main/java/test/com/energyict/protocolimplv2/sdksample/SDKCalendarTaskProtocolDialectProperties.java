@@ -1,7 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cpo.MdwToUplPropertySpecAdapter;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -18,6 +18,10 @@ public class SDKCalendarTaskProtocolDialectProperties extends AbstractDeviceProt
     public static final String activeCalendarName = "activeCalendarName";
     public static final String passiveCalendarName = "passiveCalendarName";
 
+    public SDKCalendarTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_CALENDAR.getName();
@@ -31,8 +35,8 @@ public class SDKCalendarTaskProtocolDialectProperties extends AbstractDeviceProt
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.stringPropertySpec(activeCalendarName)),
-                MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.stringPropertySpec(passiveCalendarName))
+                UPLPropertySpecFactory.specBuilder(activeCalendarName, false, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(passiveCalendarName, false, propertySpecService::stringSpec).finish()
         );
     }
 }

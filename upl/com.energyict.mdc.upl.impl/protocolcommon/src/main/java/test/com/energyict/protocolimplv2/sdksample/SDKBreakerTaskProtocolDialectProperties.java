@@ -1,7 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cpo.MdwToUplPropertySpecAdapter;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -21,6 +21,10 @@ public class SDKBreakerTaskProtocolDialectProperties extends AbstractDeviceProto
     private static final String DISCONNECTED = "disconnected";
     private static final String ARMED = "armed";
 
+    public SDKBreakerTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_BREAKER.getName();
@@ -34,7 +38,12 @@ public class SDKBreakerTaskProtocolDialectProperties extends AbstractDeviceProto
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(breakerStatus, CONNECTED, CONNECTED, DISCONNECTED, ARMED))
+                UPLPropertySpecFactory
+                        .specBuilder(breakerStatus, false, this.propertySpecService::stringSpec)
+                        .addValues(CONNECTED, DISCONNECTED, ARMED)
+                        .markExhaustive()
+                        .setDefaultValue(CONNECTED)
+                        .finish()
         );
     }
 }

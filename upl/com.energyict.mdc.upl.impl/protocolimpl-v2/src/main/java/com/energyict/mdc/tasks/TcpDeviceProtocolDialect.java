@@ -2,7 +2,6 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -28,10 +27,8 @@ public class TcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final int DEFAULT_TCP_TIMEOUT = 30;
 
-    private final PropertySpecService propertySpecService;
-
     public TcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

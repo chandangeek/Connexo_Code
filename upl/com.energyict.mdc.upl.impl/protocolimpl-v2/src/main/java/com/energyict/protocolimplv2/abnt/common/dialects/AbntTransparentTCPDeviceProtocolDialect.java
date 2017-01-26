@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.abnt.common.dialects;
 
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -27,10 +26,8 @@ public class AbntTransparentTCPDeviceProtocolDialect extends AbstractDeviceProto
     public static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(0);
     public static final Duration DEFAULT_DELAY_AFTER_ERROR = Duration.ofMillis(250);
 
-    private final PropertySpecService propertySpecService;
-
     public AbntTransparentTCPDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

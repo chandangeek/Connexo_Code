@@ -1,9 +1,8 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -26,10 +25,8 @@ public class SerialDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     public static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(100);
     public static final Duration DEFAULT_DELAY_AFTER_ERROR = Duration.ofMillis(100);
 
-    private final PropertySpecService propertySpecService;
-
     public SerialDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

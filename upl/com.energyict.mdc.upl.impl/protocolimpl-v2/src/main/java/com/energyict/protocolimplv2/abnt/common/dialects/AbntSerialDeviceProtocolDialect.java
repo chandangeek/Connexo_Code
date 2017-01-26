@@ -1,8 +1,7 @@
 package com.energyict.protocolimplv2.abnt.common.dialects;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -28,11 +27,8 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
     public static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(100);
     public static final Duration DEFAULT_DELAY_AFTER_ERROR = Duration.ofMillis(250);
 
-    private final PropertySpecService propertySpecService;
-
-
     public AbntSerialDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override
