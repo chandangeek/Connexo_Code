@@ -40,7 +40,7 @@ public class MetrologyConfigurationInfoFactory {
         info.purposes = metrologyConfiguration.getContracts().stream().map(this::asInfo).collect(Collectors.toList());
         info.usagePointRequirements = metrologyConfiguration.getUsagePointRequirements()
                 .stream()
-                .map(requirement -> SearchCriteriaVisualizationInfo.from(requirement.getSearchableProperty(), requirement.toValueBean()))
+                .map(requirement -> new SearchCriteriaVisualizationInfo(requirement.getSearchableProperty(), requirement.toValueBean()))
                 .collect(Collectors.toList());
         return info;
     }
