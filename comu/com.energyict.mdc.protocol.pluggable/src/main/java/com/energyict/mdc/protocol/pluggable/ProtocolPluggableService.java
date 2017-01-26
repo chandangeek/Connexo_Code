@@ -8,6 +8,8 @@ import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -277,5 +279,23 @@ public interface ProtocolPluggableService {
      * @return The UPL PropertySpec
      */
     com.energyict.mdc.upl.properties.PropertySpec adapt(PropertySpec propertySpec);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel UPL authentication device access level}
+     * to the Connexo interface.
+     *
+     * @param uplLevel The UPL AuthenticationDeviceAccessLevel
+     * @return The Connexo {@link AuthenticationDeviceAccessLevel}
+     */
+    AuthenticationDeviceAccessLevel adapt(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel uplLevel);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel UPL encryption device access level}
+     * to the Connexo interface.
+     *
+     * @param uplLevel The UPL EncryptionDeviceAccessLevel
+     * @return The Connexo {@link EncryptionDeviceAccessLevel}
+     */
+    EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel);
 
 }
