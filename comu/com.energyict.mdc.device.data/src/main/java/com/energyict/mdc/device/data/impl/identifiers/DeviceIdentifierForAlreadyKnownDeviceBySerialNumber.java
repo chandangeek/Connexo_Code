@@ -30,11 +30,6 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
     }
 
     @Override
-    public Device findDevice() {
-        return this.device;
-    }
-
-    @Override
     public String toString() {
         return "device having serial number '" + ((com.energyict.mdc.device.data.Device) this.device).getSerialNumber() + "'";
     }
@@ -80,5 +75,4 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
             }
         }
     }
-
 }

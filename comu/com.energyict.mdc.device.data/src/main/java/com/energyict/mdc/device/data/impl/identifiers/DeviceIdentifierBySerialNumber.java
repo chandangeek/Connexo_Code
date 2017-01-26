@@ -1,15 +1,10 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface
@@ -26,9 +21,6 @@ import java.util.List;
 public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMultipleDevices {
 
     private String serialNumber;
-    private DeviceService deviceService;
-    private Device device;
-    private List<com.energyict.mdc.device.data.Device> allDevices;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -36,38 +28,13 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
     public DeviceIdentifierBySerialNumber() {
     }
 
-    public DeviceIdentifierBySerialNumber(String serialNumber, DeviceService deviceService) {
+    public DeviceIdentifierBySerialNumber(String serialNumber) {
         this();
         this.serialNumber = serialNumber;
-        this.deviceService = deviceService;
     }
 
     @Override
-    public Device findDevice() {
-        //lazyload the device
-        if (this.device == null) {
-            fetchAllDevices();
-            if (this.allDevices.isEmpty()) {
-                throw CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER);
-            }
-            else {
-                if (this.allDevices.size() > 1) {
-                    throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, Device.class, this.toString());
-                }
-                else {
-                    this.device = this.allDevices.get(0);
-                }
-            }
-        }
-        return this.device;
-    }
-
-    private void fetchAllDevices () {
-        this.allDevices = this.deviceService.findDevicesBySerialNumber(this.serialNumber);
-    }
-
-    @Override
-    public boolean equals (Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -79,26 +46,18 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         return serialNumber.hashCode();
     }
 
     @Override
-    public String toString () {
+    public String toString() {
         return "device having serial number '" + this.serialNumber + "'";
     }
 
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    public List<com.energyict.mdc.device.data.Device> getAllDevices() {
-        if (this.allDevices == null) {
-            fetchAllDevices();
-        }
-        return this.allDevices;
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
@@ -116,5 +75,4 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier, FindMul
             }
         }
     }
-
 }

@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -19,8 +15,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 public final class DeviceIdentifierByMRID implements DeviceIdentifier {
 
     private String mrid;
-    private DeviceService deviceService;
-    private Device device;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -28,19 +22,9 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier {
     public DeviceIdentifierByMRID() {
     }
 
-    public DeviceIdentifierByMRID(String mrid, DeviceService deviceService) {
+    public DeviceIdentifierByMRID(String mrid) {
         this();
         this.mrid = mrid;
-        this.deviceService = deviceService;
-    }
-
-    @Override
-    public Device findDevice() {
-        // lazyload the device
-        if (this.device == null) {
-            this.device = this.deviceService.findDeviceByMrid(this.mrid).orElseThrow(() -> CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
-        }
-        return this.device;
     }
 
     @Override
@@ -52,7 +36,6 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier {
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -91,7 +74,5 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier {
                 }
             }
         }
-
     }
-
 }

@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * This is a DeviceIdentifier that uniquely identifies a Device which you have given in the Constructor.
- *
+ * <p>
  * <b>You are encouraged to only use this identifier within the ComServer engine. If we provide this
  * identifier to a protocol, then the returned MRId by the Introspector is in most cases unknown to the device.
  * It is better to use the DeviceIdentifierForAlreadyKnownDeviceBySerialNumber in that case.</b>
@@ -31,11 +31,6 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    public Device findDevice() {
-        return this.device;
     }
 
     @Override
@@ -87,7 +82,5 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
                 }
             }
         }
-
     }
-
 }

@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -19,8 +15,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 public final class DeviceIdentifierById implements DeviceIdentifier {
 
     private long id;
-    private DeviceService deviceService;
-    private Device device;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -28,26 +22,15 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
     public DeviceIdentifierById() {
     }
 
-    public DeviceIdentifierById(long id, DeviceService deviceService) {
+    public DeviceIdentifierById(long id) {
         this();
         this.id = id;
-        this.deviceService = deviceService;
     }
 
     // used for reflection
-    public DeviceIdentifierById(String id, DeviceService deviceService) {
+    public DeviceIdentifierById(String id) {
         super();
-        this.deviceService = deviceService;
         this.id = Long.parseLong(id);
-    }
-
-    @Override
-    public Device findDevice() {
-        // lazyload the device
-        if (this.device == null) {
-            this.device = this.deviceService.findDeviceById(this.id).orElseThrow(() -> CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
-        }
-        return this.device;
     }
 
     @Override

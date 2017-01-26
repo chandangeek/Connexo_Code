@@ -1,17 +1,11 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.List;
 
 /**
  * Provides an implementation for the DeviceIdentifier interface,
@@ -23,9 +17,6 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
     private Class<? extends ConnectionType> connectionTypeClass;
     private String propertyName;
     private String propertyValue;
-    private DeviceService deviceService;
-    private Device device;
-    private List<com.energyict.mdc.device.data.Device> allDevices;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -33,48 +24,11 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
     public DeviceIdentifierByConnectionTypeAndProperty() {
     }
 
-    public DeviceIdentifierByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue, DeviceService deviceService) {
+    public DeviceIdentifierByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue) {
         this();
         this.connectionTypeClass = connectionTypeClass;
         this.propertyName = propertyName;
         this.propertyValue = propertyValue;
-        this.deviceService = deviceService;
-    }
-
-    @Override
-    public Device findDevice() {
-        if(this.device == null){
-            fetchAllDevices();
-            if (this.allDevices.isEmpty()) {
-                throw CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER);
-            } else {
-                if (this.allDevices.size() > 1) {
-                    throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, Device.class, this.toString());
-                } else {
-                    this.device = this.allDevices.get(0);
-                }
-            }
-        }
-        return this.device;
-    }
-
-    private void fetchAllDevices() {
-        this.allDevices = this.deviceService.findDevicesByConnectionTypeAndProperty(connectionTypeClass, propertyName, propertyValue);
-    }
-
-    /**
-     * Replace +XY by 0, e.g. +32 = 0, +39 = 0
-     *
-     * @param propertyValue: a given telephone number
-     * @return the modified telephone number
-     */
-    protected String alterPhoneNumberFormat(String propertyValue) {
-        if (propertyValue.length() > 3) {
-            if ("+".equals(Character.toString(propertyValue.charAt(0)))) {
-                propertyValue = "0" + propertyValue.substring(3);
-            }
-        }
-        return propertyValue;
     }
 
     @Override
@@ -90,14 +44,6 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
     @Override
     public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
         return new Introspector();
-    }
-
-    @Override
-    public List<com.energyict.mdc.device.data.Device> getAllDevices() {
-        if(this.allDevices == null){
-            fetchAllDevices();
-        }
-       return this.allDevices;
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
@@ -127,5 +73,4 @@ public class DeviceIdentifierByConnectionTypeAndProperty implements DeviceIdenti
             }
         }
     }
-
 }
