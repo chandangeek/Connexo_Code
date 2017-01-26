@@ -864,6 +864,7 @@ public class UsagePointResource {
                 .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(emc -> emc.getChannelsContainer(mc, clock.instant())).isPresent())
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
+                .sorted((a, b) -> a.getName().compareTo(b.getName()))
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
