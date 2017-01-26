@@ -270,7 +270,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 }
             }
             if (!requirementsMap.isEmpty()) {
-                validationReport.meterHasUnsatisfiedRequirements(activation.getMeter(), activation.getMeterRole(), requirementsMap);
+                validationReport.meterHasUnsatisfiedRequirements(activation.getMeter(), this.usagePoint, activation.getMeterRole(), requirementsMap);
             }
         }
     }
@@ -785,7 +785,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
         void usagePointHasMeterOnThisRole(Meter meterActiveOnRole, MeterRole meterRole, Range<Instant> conflictActivationRange);
 
-        void meterHasUnsatisfiedRequirements(Meter meter, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements);
+        void meterHasUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements);
 
         void activationWasFailedByCustomValidator(Meter meter, MeterRole meterRole, UsagePoint usagePoint, CustomUsagePointMeterActivationValidationException ex);
 
@@ -831,7 +831,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
 
         @Override
-        public void meterHasUnsatisfiedRequirements(Meter meter, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
+        public void meterHasUnsatisfiedRequirements( Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
             this.valid = false;
             String errorMessage =
                     this.thesaurus
@@ -872,12 +872,13 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
 
         @Override
-        public void meterHasUnsatisfiedRequirements(Meter meter, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
+        public void meterHasUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
             super.valid = false;
 
             for (Map.Entry<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirementEntry : unsatisfiedRequirements.entrySet()) {
                 Map<MetrologyPurpose, List<ReadingTypeRequirement>> requirements = unsatisfiedRequirementEntry.getKey().getContracts()
                         .stream()
+                        .filter(metrologyContract -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(mc -> mc.getChannelsContainer(metrologyContract, mc.getStart())).isPresent())
                         .collect(Collectors.toMap(MetrologyContract::getMetrologyPurpose, this::getReadingTypeRequirements, (a, b) -> a));
 
                 requirements.entrySet()
@@ -935,7 +936,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
 
         @Override
-        public void meterHasUnsatisfiedRequirements(Meter meter, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
+        public void meterHasUnsatisfiedRequirements(Meter meter, UsagePoint usagePoint, MeterRole meterRole, Map<UsagePointMetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
             throw UsagePointMeterActivationException.meterHasUnsatisfiedRequirements(this.thesaurus, meter, meterRole, unsatisfiedRequirements);
         }
 
