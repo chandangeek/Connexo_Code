@@ -14,6 +14,6 @@ public interface DeviceProtocolDialectSupport extends com.energyict.mdc.upl.Devi
      *
      * @return the supported DeviceProtocolDialects
      */
-    List<? extends DeviceProtocolDialect> getDeviceProtocolDialects();
+    List<DeviceProtocolDialect> getDeviceProtocolDialects();
 
 }
