@@ -85,7 +85,7 @@ public interface SearchableProperty {
          * always visible, it can be removed by the
          * user when no longer necessary.
          */
-        REMOVABLE;
+        REMOVABLE
     }
 
     /**
@@ -100,7 +100,7 @@ public interface SearchableProperty {
         /**
          * Supports multiple values to be specified/selected at the same time.
          */
-        MULTI;
+        MULTI
     }
 
     SearchDomain getDomain();
@@ -133,6 +133,8 @@ public interface SearchableProperty {
     default String getName() {
         return getSpecification().getName();
     }
+    default boolean allowsIsDefined() {return false;}   //'Is defined' operator possible ?
+    default boolean allowsIsUnDefined() {return false;} //'Is undefined' operator possible ?
 
     String getDisplayName();
 

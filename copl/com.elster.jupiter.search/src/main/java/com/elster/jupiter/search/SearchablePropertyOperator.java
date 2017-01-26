@@ -141,6 +141,11 @@ public enum SearchablePropertyOperator {
             }
             criterionBuilder.isDefined();
         }
+
+        @Override
+        public boolean isUnary() {
+            return true;
+        }
     },
     /**
      * The operator 'is not defined'
@@ -152,6 +157,11 @@ public enum SearchablePropertyOperator {
                 throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
             }
             criterionBuilder.isNotDefined();
+        }
+
+        @Override
+        public boolean isUnary() {
+            return true;
         }
     }
     ;
@@ -171,6 +181,14 @@ public enum SearchablePropertyOperator {
 
     public String code() {
         return this.code;
+    }
+
+    /**
+     * Unary operators do not expect arguments
+     * @return true if the operator is unary, false if not (=default)
+     */
+    public boolean isUnary(){
+        return false;
     }
 
     public void appendCriteria(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
