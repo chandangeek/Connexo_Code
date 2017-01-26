@@ -19,16 +19,8 @@ import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
-import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceProtocolDialectSupport;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -117,7 +109,9 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private List<DeviceProtocolDialect> getAllDeviceProtocolDialectsSupportedByTheDeviceType() {
         DeviceType deviceType = this.getDeviceConfiguration().getDeviceType();
         return deviceType.getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getDeviceProtocolDialects()).orElse(Collections.emptyList());
+                .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                .map(DeviceProtocolDialectSupport::getDeviceProtocolDialects)
+                .orElseGet(Collections::emptyList);
 
     }
 
