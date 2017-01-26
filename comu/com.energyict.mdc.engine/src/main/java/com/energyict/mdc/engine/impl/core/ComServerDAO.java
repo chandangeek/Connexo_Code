@@ -5,6 +5,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -37,7 +38,6 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -51,10 +51,10 @@ import java.util.Optional;
  * Models the behavior of a component that provides access to the data
  * that is relevant to the ComServer.
  * Implementation classes will focus on the actual data source containing the data.
- * <p/>
+ * <p>
  * The implementation classes are allowed to throw com.energyict.comserver.core.interfaces.DataAccessException(s)
  * to report severe problems that relate to the actual data source.
- * <p/>
+ * <p>
  * Refer to java website for a complete discussion on the
  * <a href="http://java.sun.com/blueprints/corej2eepatterns/Patterns/DataAccessObject.html">Data Access Object design pattern</a>.
  *
@@ -124,7 +124,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * or when none of the ComTaskExecutions are ready to execute, i.e. their state is not
      * TaskStatus#Pending, an empty list is returned.
      *
-     * @param device The device
+     * @param device  The device
      * @param comPort The InboundComPort
      * @return The List of ComTaskExecutions that are ready to be executed
      */
@@ -135,7 +135,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * that is uniquely identified by the specified {@link DeviceIdentifier}.
      *
      * @param deviceIdentifier The DeviceIdentifier
-     * @param propertyName The name of the protocol property
+     * @param propertyName     The name of the protocol property
      * @return The PropertyValueType
      */
     PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName);
@@ -160,7 +160,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * never execute again.
      *
      * @param connectionTask The OutboundConnectionTask
-     * @param comServer The ComServer
+     * @param comServer      The ComServer
      * @return <code>true</code> iff the lock succeeds
      */
     ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer);
@@ -186,7 +186,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * never execute again.
      *
      * @param comTaskExecution The ComTaskExecution
-     * @param comPort The ComPort
+     * @param comPort          The ComPort
      * @return <code>true</code> iff the lock succeeds
      */
     boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort);
@@ -202,8 +202,9 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     /**
      * Notifies that execution of the specified OutboundConnectionTask
      * was started by the specified ComServer.
-     *  @param connectionTask The OutboundConnectionTask
-     * @param comServer The ComServer that started the execution
+     *
+     * @param connectionTask The OutboundConnectionTask
+     * @param comServer      The ComServer that started the execution
      */
     ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer);
 
@@ -226,8 +227,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Notifies that execution of the specified ComTaskExecution has been started
      * on the specified ComPort.
      *
-     * @param comTaskExecution The ComTaskExecution
-     * @param comPort The ComPort that has started the execution of the ComTaskExecution
+     * @param comTaskExecution     The ComTaskExecution
+     * @param comPort              The ComPort that has started the execution of the ComTaskExecution
      * @param executeInTransaction A flag that indicates if a transaction is needed or not
      */
     void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
@@ -243,7 +244,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Notifies that the execution of the specified ComTaskExecution was postponed and needs to be rescheduled
      *
      * @param comTaskExecution the ComTaskExecution
-     * @param rescheduleDate The timestamp on which the task should be rescheduled for execution
+     * @param rescheduleDate   The timestamp on which the task should be rescheduled for execution
      */
     void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate);
 
@@ -316,7 +317,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Stores the given list of Reading readings on the Meter.
      *
      * @param deviceIdentifier the identifier of the Device
-     * @param meterReading the readings to store
+     * @param meterReading     the readings to store
      */
     void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading);
 
@@ -324,7 +325,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Finds the OfflineDevice that is uniquely identified
      * by the specified {@link DeviceIdentifier}.
      *
-     * @param identifier The DeviceIdentifier
+     * @param identifier           The DeviceIdentifier
      * @param offlineDeviceContext the offlineContext identifying what needs to be offline
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
@@ -358,8 +359,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * that is configured in the specified ConnectionTask
      * only when the value has actually changed.
      *
-     * @param ipAddress The new ip address
-     * @param connectionTask The ConnectionTask
+     * @param ipAddress                  The new ip address
+     * @param connectionTask             The ConnectionTask
      * @param connectionTaskPropertyName The name of the ConnectionTask's property that holds the ip address
      */
     void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName);
@@ -369,15 +370,15 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * that is uniquely identified by the specified identifier with the given value.
      *
      * @param deviceIdentifier The DeviceIdentifier
-     * @param propertyName The name of the generic communication property
-     * @param propertyValue The new property value
+     * @param propertyName     The name of the generic communication property
+     * @param propertyValue    The new property value
      */
     void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
     /**
      * Updates a dialect property of the Device
      * that is uniquely identified by the specified identifier with the given value.
-     * <p/>
+     * <p>
      * Note that, if multiple dialects contain the given propertyName, both properties will be updated.
      */
     void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
@@ -385,12 +386,12 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     /**
      * Updates a security property of the Device
      * that is uniquely identified by the specified identifier with the given value.
-     * <p/>
+     * <p>
      * Note that, if multiple security sets contain the given propertyName, both properties will be updated.
-     * <p/>
+     * <p>
      * Also note that, updating a security property of type CertificateAlias will
      * also add the given certificate in the DLMS key store, under the given alias.
-     * <p/>
+     * <p>
      * Also note that, updating a security property of type CertificateWrapperId will create
      * the proper CertificateWrapper and fill the property value with the ID of this certificateWrapper.
      */
@@ -411,7 +412,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Updates the gateway device of the Device device
      * that is uniquely identified by the specified identifier.
      *
-     * @param deviceIdentifier The DeviceIdentifier
+     * @param deviceIdentifier        The DeviceIdentifier
      * @param gatewayDeviceIdentifier The device identifier of the new gateway device or null (to be used in case no gateway is present)
      */
     void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier);
@@ -423,18 +424,18 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * in the same parent folder.
      *
      * @param deviceIdentifier The DeviceIdentifier
-     * @param timeStampFormat The preferred DateFormat that should be used for the
-     * current date and time when that should be necessary
-     * to create a unique name for the UserFile name.
-     * @param fileExtension The extension for the UserFile
-     * @param contents The contents of the UserFile   @see UserFile#getExtension()
+     * @param timeStampFormat  The preferred DateFormat that should be used for the
+     *                         current date and time when that should be necessary
+     *                         to create a unique name for the UserFile name.
+     * @param fileExtension    The extension for the UserFile
+     * @param contents         The contents of the UserFile   @see UserFile#getExtension()
      */
     void storeConfigurationFile(DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents);
 
     /**
      * Signals the occurrence of an event.
      *
-     * @param topic The name of the event topic where the event will be published
+     * @param topic  The name of the event topic where the event will be published
      * @param source The source that produced the event and that also holds the event data that will be published
      */
     void signalEvent(String topic, Object source);
@@ -444,10 +445,10 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * of the DeviceMessage DeviceMessage
      * which is identified by the given MessageIdentifier.
      *
-     * @param messageIdentifier the messageIdentifier
+     * @param messageIdentifier      the messageIdentifier
      * @param newDeviceMessageStatus the status to update the message to
-     * @param sentDate the date&time the message was sent to the device - if this message was not yet sent to the device, this could be null
-     * @param protocolInformation the protocolInformation to add to the DeviceMessage
+     * @param sentDate               the date&time the message was sent to the device - if this message was not yet sent to the device, this could be null
+     * @param protocolInformation    the protocolInformation to add to the DeviceMessage
      */
     void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation);
 
@@ -478,6 +479,16 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier);
 
     DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier);
+
+    /**
+     * Resolve a given deviceIdentifier using the deviceService
+     */
+    Optional<Device> getDeviceFor(DeviceIdentifier deviceIdentifier);
+
+    /**
+     * Return all devices matching the given deviceIdentifier
+     */
+    List<Device> getAllDevicesFor(DeviceIdentifier deviceIdentifier);
 
     void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading);
 

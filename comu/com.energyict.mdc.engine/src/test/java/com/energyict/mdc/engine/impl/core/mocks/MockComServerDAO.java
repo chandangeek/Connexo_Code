@@ -6,6 +6,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -17,6 +18,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
@@ -39,6 +41,7 @@ import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.CertificateAlias;
 import com.google.common.collect.Range;
 
 import java.sql.SQLException;
@@ -494,8 +497,43 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName) {
+        return null;
+    }
+
+    @Override
+    public void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
+    public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
+    public void addCACertificate(CertificateAlias certificateAlias) {
+
+    }
+
+    @Override
+    public int addEndDeviceCertificate(CertificateWrapperId certificateWrapperId) {
+        return 0;
+    }
+
+    @Override
+    public Optional<Device> getDeviceFor(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public List<Device> getAllDevicesFor(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
-         // I am her
+        // I am her
     }
 
     @Override

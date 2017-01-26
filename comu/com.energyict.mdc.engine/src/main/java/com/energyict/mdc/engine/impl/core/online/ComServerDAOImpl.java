@@ -950,6 +950,16 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public Optional<Device> getDeviceFor(DeviceIdentifier deviceIdentifier) {
+        return serviceProvider.deviceService().findDeviceByIdentifier(deviceIdentifier);
+    }
+
+    @Override
+    public List<Device> getAllDevicesFor(DeviceIdentifier deviceIdentifier) {
+        return serviceProvider.deviceService().findAllDevicesByIdentifier(deviceIdentifier);
+    }
+
+    @Override
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
         LogBook logBook = this.findLogBook(logBookIdentifier);
         // Refresh device and LogBook to avoid OptimisticLockException

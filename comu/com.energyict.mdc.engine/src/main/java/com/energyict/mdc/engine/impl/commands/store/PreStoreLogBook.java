@@ -17,7 +17,7 @@ import java.util.Set;
 
 /**
  * Performs several actions on the given LogBook which are required before storing.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/18/14
  * Time: 11:46 AM
@@ -35,9 +35,9 @@ public class PreStoreLogBook {
     /**
      * Tasks:
      * <ul>
-     *     <li>Filter future dates</li>
-     *     <li>Filter duplicates</li>
-     *     <li>Calculate lastlogbook date</li>
+     * <li>Filter future dates</li>
+     * <li>Filter duplicates</li>
+     * <li>Calculate lastlogbook date</li>
      * </ul>
      *
      * @param deviceLogBook the collected events from the device
@@ -51,7 +51,7 @@ public class PreStoreLogBook {
             Instant lastLogbook = null;
             Instant currentDate = this.clock.instant();
             for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(deviceLogBook, offlineLogBook.get().getLogBookId())) {
-                if(uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getEventTypeCode(), endDeviceEvent.getCreatedDateTime()))) {
+                if (uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getEventTypeCode(), endDeviceEvent.getCreatedDateTime()))) {
                     if (!endDeviceEvent.getCreatedDateTime().isAfter(currentDate)) {
                         filteredEndDeviceEvents.add(endDeviceEvent);
                         if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().isAfter(lastLogbook)) {
@@ -60,9 +60,10 @@ public class PreStoreLogBook {
                     }
                 }
             }
-            return Optional.of(Pair.of(deviceLogBook.getLogBookIdentifier().getDeviceIdentifier(), new LocalLogBook(filteredEndDeviceEvents, lastLogbook)));
-        }
-        else {
+
+            DeviceIdentifier deviceIdentifier = comServerDAO.getDeviceIdentifierFor(deviceLogBook.getLogBookIdentifier());
+            return Optional.of(Pair.of(deviceIdentifier, new LocalLogBook(filteredEndDeviceEvents, lastLogbook)));
+        } else {
             return Optional.empty();
         }
     }
@@ -87,7 +88,7 @@ public class PreStoreLogBook {
 
     }
 
-    private class UniqueDuo<F,S>{
+    private class UniqueDuo<F, S> {
         final F first;
         final S second;
 
@@ -105,7 +106,7 @@ public class PreStoreLogBook {
                 return false;
             }
 
-            UniqueDuo<F,S> uniqueDuo = (UniqueDuo<F,S>) o;
+            UniqueDuo<F, S> uniqueDuo = (UniqueDuo<F, S>) o;
 
             return first.equals(uniqueDuo.first) && second.equals(uniqueDuo.second);
 

@@ -1,9 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 /**
@@ -20,8 +18,6 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
     private final ObisCode registerObisCode;
     private final ObisCode deviceRegisterObisCode;
     private final DeviceIdentifier deviceIdentifier;
-
-    private Register register;
 
     public RegisterDataIdentifier(ObisCode registerObisCode, ObisCode deviceRegisterObisCode, DeviceIdentifier deviceIdentifier) {
         this.registerObisCode = registerObisCode;

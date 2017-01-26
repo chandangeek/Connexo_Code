@@ -8,6 +8,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -24,6 +25,7 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
@@ -48,6 +50,7 @@ import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.CertificateAlias;
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
@@ -233,6 +236,41 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+        return null;
+    }
+
+    @Override
+    public PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName) {
+        return null;
+    }
+
+    @Override
+    public void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
+    public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
+    public void addCACertificate(CertificateAlias certificateAlias) {
+
+    }
+
+    @Override
+    public int addEndDeviceCertificate(CertificateWrapperId certificateWrapperId) {
+        return 0;
+    }
+
+    @Override
+    public Optional<Device> getDeviceFor(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public List<Device> getAllDevicesFor(DeviceIdentifier deviceIdentifier) {
         return null;
     }
 

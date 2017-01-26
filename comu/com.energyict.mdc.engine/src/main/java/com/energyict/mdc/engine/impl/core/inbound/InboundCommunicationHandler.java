@@ -72,8 +72,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -217,12 +217,14 @@ public class InboundCommunicationHandler {
     }
 
     private List<? extends Device> getAllPossiblyRelatedDevices(InboundDeviceProtocol inboundDeviceProtocol) {
-        List<? extends Device> allDevices;
+        List<Device> allDevices = new ArrayList<>();
         if (FindMultipleDevices.class.isAssignableFrom(inboundDeviceProtocol.getDeviceIdentifier().getClass())) {
-            FindMultipleDevices multipleDevicesFinder = (FindMultipleDevices) inboundDeviceProtocol.getDeviceIdentifier();
-            allDevices = multipleDevicesFinder.getAllDevices();
+            allDevices.addAll(comServerDAO.getAllDevicesFor(inboundDeviceProtocol.getDeviceIdentifier()));
         } else {
-            allDevices = Collections.singletonList(inboundDeviceProtocol.getDeviceIdentifier().findDevice());
+            Optional<? extends Device> device = comServerDAO.getDeviceFor(inboundDeviceProtocol.getDeviceIdentifier());
+            if (device.isPresent()) {
+                allDevices.add(device.get());
+            }
         }
         return allDevices;
     }

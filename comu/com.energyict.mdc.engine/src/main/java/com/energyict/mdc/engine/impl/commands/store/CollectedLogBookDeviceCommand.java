@@ -8,8 +8,8 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedLogBookEvent;
-import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.List;
@@ -25,10 +25,10 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLo
 
     public static final String DESCRIPTION_TITLE = "Collected logbook data";
 
-    private final DeviceLogBook deviceLogBook;
+    private final CollectedLogBook deviceLogBook;
     private final MeterDataStoreCommand meterDataStoreCommand;
 
-    public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand) {
+    public CollectedLogBookDeviceCommand(CollectedLogBook deviceLogBook, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand) {
         super(comTaskExecution, meterDataStoreCommand.getServiceProvider());
         this.deviceLogBook = deviceLogBook;
         this.meterDataStoreCommand = meterDataStoreCommand;
@@ -40,8 +40,7 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLo
         Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
         if (localLogBook.isPresent()) {
             updateMeterDataStorer(localLogBook.get());
-        }
-        else {
+        } else {
             this.addIssue(
                     CompletionCode.ConfigurationWarning,
                     this.getIssueService().newWarning(
@@ -72,7 +71,7 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLo
     }
 
     protected Optional<CollectedLogBookEvent> newEvent(List<Issue> issues) {
-        CollectedLogBookEvent event  =  new CollectedLogBookEvent(new ComServerEventServiceProvider(), deviceLogBook);
+        CollectedLogBookEvent event = new CollectedLogBookEvent(new ComServerEventServiceProvider(), deviceLogBook);
         event.addIssues(issues);
         return Optional.of(event);
     }
