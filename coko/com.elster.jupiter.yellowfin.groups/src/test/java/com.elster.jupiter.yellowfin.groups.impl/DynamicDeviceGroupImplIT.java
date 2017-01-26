@@ -201,10 +201,6 @@ public class DynamicDeviceGroupImplIT {
     }
 
     private SearchablePropertyValue mockSearchablePropertyValue(SearchableProperty searchableProperty, SearchablePropertyOperator operator, List<String> values) {
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.operator = operator;
-        valueBean.propertyName = searchableProperty.getName();
-        valueBean.values = values;
-        return new SearchablePropertyValue(searchableProperty, valueBean);
+        return new SearchablePropertyValue(searchableProperty, new SearchablePropertyValue.ValueBean(searchableProperty.getName(), operator, values));
     }
 }
