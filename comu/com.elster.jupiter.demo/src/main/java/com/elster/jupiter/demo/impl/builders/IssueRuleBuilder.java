@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -148,10 +149,13 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EVENTTYPE,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
-            properties.put(
+           /* properties.put(
                     BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodes(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodes(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
+            */
+            properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
+            properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.DEVICE_TYPES,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES).get().getValueFactory().fromStringValue("0"));
@@ -223,6 +227,42 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
                     .collect(Collectors.joining(","));
         }
+    }
+
+
+    private List<HasName> getRandomEventCodeList (String eventType) {
+        List<String> rawList;
+        List<HasName> listValue = new ArrayList<>();
+        if (eventType.equals(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS)) {
+            rawList = Stream.of(EndDeviceEventTypeMapping.values())
+                    .limit(30)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                        Collections.shuffle(collected);
+                        return collected.stream();
+                    }))
+                    .limit(10)
+                    .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
+                    .collect(Collectors.toList());
+            rawList.stream().forEach(value ->
+                    listValue.add(() -> String.valueOf(value))
+            );
+
+        } else {
+            rawList = Stream.of(EndDeviceEventTypeMapping.values())
+                    .skip(30)
+                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                        Collections.shuffle(collected);
+                        return collected.stream();
+                    }))
+                    .limit(10)
+                    .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
+                    .collect(Collectors.toList());
+            rawList.stream().forEach(value ->
+                    listValue.add(() -> String.valueOf(value))
+            );
+
+        }
+        return listValue;
     }
 
 }
