@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.KeyAccessorType;
 
 import java.time.Duration;
 import java.util.Optional;

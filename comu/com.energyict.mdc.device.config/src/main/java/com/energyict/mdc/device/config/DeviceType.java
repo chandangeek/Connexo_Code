@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
