@@ -3,18 +3,18 @@ package com.energyict.mdc.pluggable;
 /**
  * Holds information to define a pluggable class.
  */
-public interface PluggableClassDefinition<T extends Pluggable> {
+public interface PluggableClassDefinition<T> {
 
     /**
      * Returns the type's name
      * @return type name
      */
-    public String getName();
+    String getName();
 
     /**
      * Returns the java type's class
      * @return the java type's class
      */
-    public Class<? extends T> getProtocolTypeClass();
+    Class<? extends T> getProtocolTypeClass();
 
 }
