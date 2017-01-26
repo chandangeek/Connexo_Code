@@ -31,12 +31,11 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 header: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
                 hidden: me.showExportTask,
                 dataIndex: 'name',
-
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: record.get("taskId")});
-                    return value //TODO: add privileges
+                    return Dxp.privileges.DataExport.canView()
                         ? '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
-                        : '-';
+                        : Ext.String.htmlEncode(value);
                 }
             },
             {
