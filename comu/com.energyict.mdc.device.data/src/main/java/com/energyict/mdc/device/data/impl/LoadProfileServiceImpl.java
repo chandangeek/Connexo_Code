@@ -10,8 +10,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
-
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -23,18 +21,24 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-01 (13:06)
  */
-@Component(name = "com.energyict.mdc.device.data.impl.LoadProfileServiceImpl", service = {LoadProfileService.class, LoadProfileFactory.class}, immediate = true)
-public class LoadProfileServiceImpl implements ServerLoadProfileService, LoadProfileFactory {
+@Component(name = "com.energyict.mdc.device.data.impl.LoadProfileServiceImpl", service = LoadProfileService.class, immediate = true)
+public class LoadProfileServiceImpl implements ServerLoadProfileService {
 
     private volatile DeviceDataModelService deviceDataModelService;
 
-    //Only testing purposes
+    // For OSGi purpose
     public LoadProfileServiceImpl() {
     }
 
+    // For testing purposes
     @Inject
     public LoadProfileServiceImpl(DeviceDataModelService deviceDataModelService) {
-        super();
+        this();
+        this.setDataModelService(deviceDataModelService);
+    }
+
+    @Reference
+    public void setDataModelService(DeviceDataModelService deviceDataModelService){
         this.deviceDataModelService = deviceDataModelService;
     }
 
@@ -104,11 +108,7 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService, LoadPro
     }
 
     private static class UnsupportedLoadProfileIdentifierTypeName extends RuntimeException {
-    }
 
-    @Reference
-    public void setDataModelService(DeviceDataModelService deviceDataModelService){
-        this.deviceDataModelService = deviceDataModelService;
     }
 
 }

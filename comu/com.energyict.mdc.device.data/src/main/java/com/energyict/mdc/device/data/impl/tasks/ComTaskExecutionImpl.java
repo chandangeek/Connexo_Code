@@ -45,7 +45,6 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -59,6 +58,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import javax.inject.Inject;
 import java.time.Clock;
