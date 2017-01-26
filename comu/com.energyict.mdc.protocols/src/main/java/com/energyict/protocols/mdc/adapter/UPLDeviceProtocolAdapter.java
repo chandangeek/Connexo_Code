@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
@@ -60,7 +61,7 @@ import java.util.stream.Collectors;
  * @author khe
  * @since 23/11/2016 - 16:56
  */
-public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter implements DeviceProtocol {
+public class UPLDeviceProtocolAdapter implements DeviceProtocol {
 
     private static SecurityCustomPropertySetNameDetective securityCustomPropertySetNameDetective;
 
@@ -319,8 +320,11 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
 
     @Override
     public void copyProperties(TypedProperties properties) {
-        deviceProtocol.setUPLProperties(properties);
-        //TODO exception handling?? await refactoring of exceptions in UPL
+        try {
+            deviceProtocol.setUPLProperties(properties);
+        } catch (PropertyValidationException e) {
+            throw new NestedPropertyValidationException(e);
+        }
     }
 
     @Override
@@ -357,4 +361,16 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
             return new UPLDeviceProtocolAdapter(this.deviceProtocol, thesaurus, mdcPropertySpecService, jupiterPropertySpecService);
         }
     }
+
+    private static class ValidationException extends RuntimeException {
+        private ValidationException(PropertyValidationException cause) {
+            super(cause);
+        }
+
+        @Override
+        public PropertyValidationException getCause() {
+            return (PropertyValidationException) super.getCause();
+        }
+    }
+
 }

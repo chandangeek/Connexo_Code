@@ -7,13 +7,15 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocols.impl.channels.ServerConnectionType;
 import com.energyict.protocols.mdc.adapter.cps.ConnectionTypeCustomPropertySetNameDetective;
 import com.energyict.protocols.mdc.adapter.cps.UnableToCreateCustomPropertySet;
 import com.energyict.protocols.mdc.adapter.cps.UnableToLoadCustomPropertySetClass;
+
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
@@ -132,7 +134,10 @@ public class UPLConnectionTypeAdapter implements ServerConnectionType {
 
     @Override
     public void copyProperties(com.energyict.mdc.common.TypedProperties properties) {
-        uplConnectionType.setUPLProperties(properties); //TODO catch exceptions? ????
-
+        try {
+            uplConnectionType.setUPLProperties(properties);
+        } catch (PropertyValidationException e) {
+            throw new NestedPropertyValidationException(e);
+        }
     }
 }
