@@ -103,11 +103,15 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     public int computeOccurenceCount(int ruleId, String range, String logOnSameAlarm, String triggeringEndDeviceEventTypes, String clearingEndDeviceEventTypes, String deviceTypes, String eisCodes) {
         List<String> inputTriggeringEventTypeList = getUpdatedEventTypeMrid(Arrays.asList(triggeringEndDeviceEventTypes.split(",")).stream().collect(Collectors.toList()),
                 Arrays.asList(deviceTypes.split(",")).stream().collect(Collectors.toList()));
+        if (!inputTriggeringEventTypeList.contains(this.getEventTypeMrid())) {
+            return -1;
+        }
+
         List<String> inputClearingEventTypeList = getUpdatedEventTypeMrid(Arrays.asList(clearingEndDeviceEventTypes.split(",")).stream().collect(Collectors.toList()),
                 Arrays.asList(deviceTypes.split(",")).stream().collect(Collectors.toList()));
         if (inputClearingEventTypeList.contains(this.getEventTypeMrid())) {
             if (Integer.parseInt(logOnSameAlarm) == 1 &&
-                   // issueService.getIssueCreationService().findCreationRuleById(Long.parseLong(ruleId)).isPresent() &&
+                    // issueService.getIssueCreationService().findCreationRuleById(Long.parseLong(ruleId)).isPresent() &&
                     issueService.findOpenIssuesForDevice(getDevice().getName()).find().stream().filter(issue -> issue.getRule().getId() == ruleId).findAny().isPresent()) {
                 return Integer.MAX_VALUE;
             } else {
@@ -151,6 +155,37 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
 
+    public int computeOccurenceCount(int ruleId, String range, String logOnSameAlarm, List<String> triggeringEndDeviceEventTypes, List<String> clearingEndDeviceEventTypes, String deviceTypes, String eisCodes) {
+
+        if (clearingEndDeviceEventTypes.contains(this.getEventTypeMrid())) {
+            if (Integer.parseInt(logOnSameAlarm) == 1 &&
+                    // issueService.getIssueCreationService().findCreationRuleById(Long.parseLong(ruleId)).isPresent() &&
+                    issueService.findOpenIssuesForDevice(getDevice().getName()).find().stream().filter(issue -> issue.getRule().getId() == ruleId).findAny().isPresent()) {
+                return Integer.MAX_VALUE;
+            } else {
+                return -1;
+            }
+        }
+        List<EndDeviceEventRecord> loggedEvents = getDevice().getLogBooks().stream()
+                .map(logBook -> logBook.getEndDeviceEvents(Range.closed(Instant.ofEpochMilli(Instant.now().toEpochMilli() - Long.valueOf(range)), Instant.now())))
+                .flatMap(Collection::stream).collect(Collectors.toList());
+        List<String> currentList = loggedEvents.stream().map(event -> event.getEventType().getMRID())
+                .collect(Collectors.toList());
+        List<String> currentEISCodeList = loggedEvents.stream()
+                .filter(event -> event.getEventType().getMRID().equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID()))
+                .map(EndDeviceEventRecord::getType)
+                .collect(Collectors.toList());
+        List<String> eisCodesList = Arrays.asList(eisCodes.split(",")).stream().collect(Collectors.toList());
+        return currentList.stream()
+                .filter(triggeringEndDeviceEventTypes::contains)
+                .filter(eventTypes -> !eventTypes.equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID()))
+                .collect(Collectors.toList()).size() +
+                currentEISCodeList.stream()
+                        .filter(eisCodesList::contains)
+                        .collect(Collectors.toList()).size();
+    }
+
+
     public long getAssociatedDeviceLifecycleState() {
         return getDevice().getState().getId();
     }
@@ -160,9 +195,8 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         return this.getEventType().contains(".") ? "-1" : this.getEventType();
     }
 
-    public boolean isClearing(String endDeviceEventTypes) {
-        List<String> inputEventTypeList = Arrays.asList(endDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
-        return inputEventTypeList.contains(this.getEventTypeMrid());
+    public boolean isClearing(List<String> endDeviceEventTypes) {
+        return endDeviceEventTypes.contains(this.getEventTypeMrid());
     }
 
 

@@ -11,6 +11,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;
@@ -26,11 +29,14 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
@@ -177,17 +183,19 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
-                .stringSpec()
+                .specForValuesOf(new AlarmCreationRuleInfoValueFactory())
                 .named(TRIGGERING_EVENTS, TranslationKeys.TRIGGERING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
+                .markMultiValued(",")
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
-                .stringSpec()
+                .specForValuesOf(new AlarmCreationRuleInfoValueFactory())
                 .named(CLEARING_EVENTS, TranslationKeys.CLEARING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
+                .markMultiValued(",")
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
@@ -236,14 +244,16 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private OpenIssue getAlarmForUpdate(OpenIssue openIssue, IssueEvent event) {
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
-            Optional<String> clearingEvents = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
-                    .findFirst().map(found -> (String) found.getValue());
+            List<String> clearingEvents = new ArrayList<>();
+            alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
+                    .findFirst().ifPresent(element ->
+                    ((ArrayList) (element.getValue())).forEach(value -> clearingEvents.add(((AlarmCreationRuleInfo) value).getName())));
             Optional<Boolean> upUrgencyOnRaise = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(UP_URGENCY_ON_RAISE))
                     .findFirst().map(found -> (Boolean) found.getValue());
             Optional<Boolean> downUrgencyOnClear = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(DOWN_URGENCY_ON_CLEAR))
                     .findFirst().map(found -> (Boolean) found.getValue());
-            if (clearingEvents.isPresent() && ((DeviceAlarmEvent) event).isClearing(clearingEvents.get())) {
-                if(!alarm.isStatusCleared()) {
+            if (!clearingEvents.isEmpty() && ((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
+                if (!alarm.isStatusCleared()) {
                     alarm.setClearedStatus();
                 }
                 if (downUrgencyOnClear.isPresent() && downUrgencyOnClear.get()) {
@@ -252,8 +262,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                         LOG.log(Level.SEVERE, "Urgency is minimum [" + alarm.getPriority().getUrgency() +"]. Unable to decrement anymore");
                     }*/
                 }
-            }
-            else if (upUrgencyOnRaise.isPresent() && upUrgencyOnRaise.get() && !((DeviceAlarmEvent) event).isClearing(clearingEvents.get())) {
+            } else if (upUrgencyOnRaise.isPresent() && upUrgencyOnRaise.get() && !((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
                 alarm.setPriority(Priority.get(alarm.getPriority().increaseUrgency(), alarm.getPriority().getImpact()));
                /* if (!alarm.getPriority().increaseUrgency()) {
                     LOG.log(Level.SEVERE, "Urgency is maximum [" + alarm.getPriority().getUrgency() +"]. Unable to increment anymore");
@@ -271,6 +280,89 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         }
         return openIssue;
     }
+
+    private class AlarmCreationRuleInfoValueFactory implements ValueFactory<HasName> {
+        @Override
+        public HasName fromStringValue(String stringValue) {
+            return new AlarmCreationRuleInfo(stringValue);
+        }
+
+        @Override
+        public String toStringValue(HasName object) {
+            return String.valueOf(object.getName());
+        }
+
+        @Override
+        public Class<HasName> getValueType() {
+            return HasName.class;
+        }
+
+        @Override
+        public HasName valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(HasName object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, HasName value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            } else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, HasName value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            } else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+    }
+
+    @XmlRootElement
+    static class AlarmCreationRuleInfo implements HasName {
+
+        private transient String value;
+
+        AlarmCreationRuleInfo(String value) {
+            this.value = value;
+        }
+
+
+        @Override
+        public String getName() {
+            return value;
+        }
+
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof AlarmCreationRuleInfo)) {
+                return false;
+            }
+
+            AlarmCreationRuleInfo that = (AlarmCreationRuleInfo) o;
+
+            return value.equals(that.value);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return value.hashCode();
+        }
+    }
+
 
     //TODO - write a check method to avoid number format exceptions
     /*
