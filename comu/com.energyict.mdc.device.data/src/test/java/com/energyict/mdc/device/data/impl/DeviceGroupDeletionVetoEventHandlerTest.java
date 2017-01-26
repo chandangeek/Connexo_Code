@@ -56,9 +56,7 @@ public class DeviceGroupDeletionVetoEventHandlerTest {
     @Before
     public void setUp() {
         deviceGroupDeletionVetoEventHandler = new DeviceGroupDeletionVetoEventHandler(meteringGroupsService, thesaurus);
-        valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = DeviceGroupSearchableProperty.PROPERTY_NAME;
-        valueBean.operator = SearchablePropertyOperator.EQUAL;
+        valueBean = new SearchablePropertyValue.ValueBean(DeviceGroupSearchableProperty.PROPERTY_NAME, SearchablePropertyOperator.EQUAL);
         searchablePropertyValue = new SearchablePropertyValue(deviceGroupSearchableProperty, valueBean);
 
         when(localEvent.getSource()).thenReturn(eventSource);
@@ -75,14 +73,14 @@ public class DeviceGroupDeletionVetoEventHandlerTest {
 
     @Test(expected = VetoDeleteDeviceGroupException.class)
     public void catchVetoDeleteDeviceGroupException() {
-        valueBean.values = Collections.singletonList(String.valueOf(queryEndDeviceGroup.getId()));
+        valueBean.setValues(Collections.singletonList(String.valueOf(queryEndDeviceGroup.getId())));
 
         deviceGroupDeletionVetoEventHandler.handle(localEvent);
     }
 
     @Test
     public void noVetoDeleteDeviceGroupException() {
-        valueBean.values = Collections.emptyList();
+        valueBean.setValues(Collections.emptyList());
         deviceGroupDeletionVetoEventHandler.handle(localEvent);
 
         // Asserts

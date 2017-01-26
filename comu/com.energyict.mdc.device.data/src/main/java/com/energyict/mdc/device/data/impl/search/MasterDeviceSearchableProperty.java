@@ -42,6 +42,16 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
     }
 
     @Override
+    public boolean allowsIsDefined() {
+        return true;
+    }
+
+    @Override
+    public boolean allowsIsUnDefined() {
+        return true;
+    }
+
+    @Override
     protected boolean valueCompatibleForDisplay(Object value) {
         return value instanceof Device;
     }
@@ -111,7 +121,7 @@ public class MasterDeviceSearchableProperty extends AbstractSearchableDeviceProp
 
     @Override
     protected TranslationKey getNameTranslationKey() {
-        return PropertyTranslationKeys.DEVICE_MASTER_NAME;
+        return PropertyTranslationKeys.DEVICE_MASTER_SEARCH_CRITERION_NAME;
     }
 
     @Override

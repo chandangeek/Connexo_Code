@@ -148,19 +148,11 @@ public class DeviceConfigChangeHandlerTest {
     }
 
     private SearchablePropertyValue.ValueBean getDeviceTypeValueBean(){
-        SearchablePropertyValue.ValueBean bean = new SearchablePropertyValue.ValueBean();
-        bean.propertyName = DeviceConfigChangeHandler.deviceTypeSearchPropertyName;
-        bean.operator = SearchablePropertyOperator.EQUAL;
-        bean.values = Collections.singletonList(String.valueOf(DEVICE_TYPE_ID));
-        return bean;
+        return new SearchablePropertyValue.ValueBean(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, SearchablePropertyOperator.EQUAL, String.valueOf(DEVICE_TYPE_ID));
     }
 
     private SearchablePropertyValue.ValueBean getDeviceConfigValueBean(){
-        SearchablePropertyValue.ValueBean bean = new SearchablePropertyValue.ValueBean();
-        bean.propertyName = DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName;
-        bean.operator = SearchablePropertyOperator.EQUAL;
-        bean.values = Collections.singletonList(String.valueOf(DEVICE_CONFIG_ID));
-        return bean;
+        return new SearchablePropertyValue.ValueBean(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, SearchablePropertyOperator.EQUAL, String.valueOf(DEVICE_CONFIG_ID) );
     }
 
 
@@ -311,7 +303,7 @@ public class DeviceConfigChangeHandlerTest {
         DevicesForConfigChangeSearch devicesForConfigChangeSearch = new DevicesForConfigChangeSearch();
         devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceTypeSearchPropertyName, getDeviceTypeValueBean());
         SearchablePropertyValue.ValueBean deviceConfigValueBean = getDeviceConfigValueBean();
-        deviceConfigValueBean.values = Arrays.asList("1", "2", "3");
+        deviceConfigValueBean.setValues("1", "2", "3");
         devicesForConfigChangeSearch.searchItems.put(DeviceConfigChangeHandler.deviceConfigurationSearchPropertyName, deviceConfigValueBean);
 
         ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(DESTINATION_CONFIG_ID, Collections.emptyList(), devicesForConfigChangeSearch, DEVICE_CONFIG_CHANGE_REQUEST_ID);
