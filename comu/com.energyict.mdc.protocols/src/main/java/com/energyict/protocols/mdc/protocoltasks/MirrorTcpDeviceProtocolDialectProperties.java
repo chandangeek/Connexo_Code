@@ -5,8 +5,9 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 
 import java.math.BigDecimal;
