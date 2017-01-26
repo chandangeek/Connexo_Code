@@ -252,10 +252,10 @@ public class PartialInboundConnectionTaskCrudIT {
             connectionTypePluggableClass2.save();
             InboundDeviceProtocolPluggableClass discoveryPluggable = protocolPluggableService.newInboundDeviceProtocolPluggableClass("MyDiscoveryName", DummyInboundDiscoveryProtocol.class.getName());
             discoveryPluggable.save();
-            inboundComPortPool = engineConfigurationService.newInboundComPortPool("inboundComPortPool", ComPortType.TCP, discoveryPluggable);
+            inboundComPortPool = engineConfigurationService.newInboundComPortPool("inboundComPortPool", ComPortType.TCP, discoveryPluggable, Collections.emptyMap());
             inboundComPortPool.setActive(true);
             inboundComPortPool.update();
-            inboundComPortPool2 = engineConfigurationService.newInboundComPortPool("inboundComPortPool2", ComPortType.TCP, discoveryPluggable);
+            inboundComPortPool2 = engineConfigurationService.newInboundComPortPool("inboundComPortPool2", ComPortType.TCP, discoveryPluggable, Collections.emptyMap());
             inboundComPortPool2.setActive(true);
             inboundComPortPool2.update();
             context.commit();
