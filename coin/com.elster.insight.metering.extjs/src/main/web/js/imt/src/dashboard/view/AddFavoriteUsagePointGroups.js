@@ -30,7 +30,7 @@ Ext.define('Imt.dashboard.view.AddFavoriteUsagePointGroups', {
                             itemId: 'ctr-add-no-usage-point-group',
                             title: Uni.I18n.translate('selectFavoriteUsagePointGroups.empty.title', 'IMT', 'No usage point group found'),
                             reasons: [
-                                Uni.I18n.translate('selectFavoriteUsagePointGroups.empty.list.item0', 'IMT', 'No usage point group have been defined.')
+                                Uni.I18n.translate('selectFavoriteUsagePointGroups.empty.list.item0', 'IMT', 'No usage point groups have been defined.')
                             ],
                             stepItems: [
                                 {
