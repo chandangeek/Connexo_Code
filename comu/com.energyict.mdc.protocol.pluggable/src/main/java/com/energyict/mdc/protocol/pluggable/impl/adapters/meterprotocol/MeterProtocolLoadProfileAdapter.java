@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
@@ -8,6 +7,7 @@ import com.energyict.mdc.protocol.api.LoadProfileConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -51,18 +51,18 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
     private final MeterProtocol meterProtocol;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
-    private final MeteringService meteringService;
+    private final IdentificationService identificationService;
 
     /**
      * The used <code>MeterProtocolClockAdapter</code> for the time handling of the {@link CollectedLoadProfile} interface.
      */
     private final MeterProtocolClockAdapter meterProtocolClockAdapter;
 
-    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
-        this.meteringService = meteringService;
+        this.identificationService = identificationService;
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
     }
 
@@ -88,7 +88,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
             List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(loadProfilesToRead.size());
             CollectedLoadProfileConfiguration loadProfileConfiguration;
             for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
-                loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getDeviceIdentifier());
+                loadProfileConfiguration = collectedDataFactory.createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
                 if (GENERIC_LOAD_PROFILE_OBISCODE.equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
                     loadProfileConfiguration.setChannelInfos(getDefaultChannelInfo(loadProfileReader));
                     // the B-field will be used as marker for the interval in minutes
@@ -219,7 +219,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
 
         CollectedLoadProfile deviceLoadProfile =
                 this.collectedDataFactory.createCollectedLoadProfile(
-                        loadProfileReader.getLoadProfileIdentifier());
+                        this.identificationService.createLoadProfileIdentifierByDatabaseId(
+                                loadProfileReader.getLoadProfileId(),
+                                loadProfileReader.getProfileObisCode()));
         try {
             ProfileData profileData = this.meterProtocol.getProfileData(loadProfileReader.getStartReadingTime(), false);
             deviceLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), convertToProperChannelInfos(profileData, loadProfileReader.getChannelInfos(), deviceLoadProfile));
@@ -273,7 +275,9 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         CollectedLoadProfile deviceLoadProfile =
                 collectedDataFactory.createCollectedLoadProfile(
-                        loadProfileReader.getLoadProfileIdentifier());
+                        this.identificationService.createLoadProfileIdentifierByDatabaseId(
+                                loadProfileReader.getLoadProfileId(),
+                                loadProfileReader.getProfileObisCode()));
         CollectedLogBook deviceLogBook = collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
         try {
             ProfileData profileData = this.meterProtocol.getProfileData(combinedLastReadingTime, true);

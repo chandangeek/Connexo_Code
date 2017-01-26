@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -74,8 +75,10 @@ import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
@@ -85,7 +88,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.CertificateAlias;
+
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -270,10 +275,10 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         for (PropertySpec propertySpec : deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs()) {
             unsupportedPropertyNames.remove(propertySpec.getName());
             if (properties.hasValueFor(propertySpec.getName())) {
-                deviceProtocolPluggableClass.setProperty(
-                        new UPLToConnexoPropertySpecAdapter(propertySpec),
-                        properties.getProperty(propertySpec.getName())
-                );
+                deviceProtocolPluggableClass
+                    .setProperty(
+                        propertySpec,
+                        properties.getProperty(propertySpec.getName()));
                 dirty = true;
             }
         }
@@ -702,10 +707,6 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         this.customPropertySetService = customPropertySetService;
     }
 
-    public List<ConnectionTypeService> getConnectionTypeServices() {
-        return connectionTypeServices;
-    }
-
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConnectionTypeService(ConnectionTypeService connectionTypeService) {
@@ -816,12 +817,12 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     }
 
     @Override
-    public com.elster.jupiter.properties.PropertySpec adapt(PropertySpec uplPropertySpec) {
+    public PropertySpec adapt(com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec) {
         return new UPLToConnexoPropertySpecAdapter(uplPropertySpec);
     }
 
     @Override
-    public PropertySpec adapt(com.elster.jupiter.properties.PropertySpec propertySpec) {
+    public com.energyict.mdc.upl.properties.PropertySpec adapt(PropertySpec propertySpec) {
         return new ConnexoToUPLPropertSpecAdapter(propertySpec);
     }
 
@@ -992,6 +993,46 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         @Override
         public CollectedMessage createCollectedMessage(MessageIdentifier messageIdentifier) {
             return this.getCollectedDataFactory().createCollectedMessage(messageIdentifier);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithLogbookData(MessageIdentifier messageIdentifier, CollectedLogBook collectedLoadProfile) {
+            return this.getCollectedDataFactory().createCollectedMessageWithLogbookData(messageIdentifier, collectedLoadProfile);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithUpdateSecurityProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue) {
+            return this.getCollectedDataFactory().createCollectedMessageWithUpdateSecurityProperty(deviceIdentifier, messageIdentifier, propertyName, propertyValue);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithUpdateGeneralProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue) {
+            return this.getCollectedDataFactory().createCollectedMessageWithUpdateGeneralProperty(deviceIdentifier, messageIdentifier, propertyName, propertyValue);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithCertificates(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CertificateAlias> certificateAliases) {
+            return this.getCollectedDataFactory().createCollectedMessageWithCertificates(deviceIdentifier, messageIdentifier, certificateAliases);
+        }
+
+        @Override
+        public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, String meterSerialNumber) {
+            return this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, meterSerialNumber);
+        }
+
+        @Override
+        public CollectedDeviceInfo createCollectedDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+            return this.getCollectedDataFactory().createCollectedDeviceDialectProperty(deviceIdentifier, propertyName, propertyValue);
+        }
+
+        @Override
+        public CollectedMessageAcknowledgement createDeviceProtocolMessageAcknowledgement(MessageIdentifier messageIdentifier) {
+            return this.getCollectedDataFactory().createDeviceProtocolMessageAcknowledgement(messageIdentifier);
+        }
+
+        @Override
+        public CollectedMessageAcknowledgement createDeviceProtocolMessageAcknowledgementFromSms(MessageIdentifier messageIdentifier) {
+            return this.getCollectedDataFactory().createDeviceProtocolMessageAcknowledgementFromSms(messageIdentifier);
         }
 
         @Override

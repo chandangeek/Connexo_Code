@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.upl.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 
 import java.util.List;
@@ -42,11 +41,6 @@ public class ConnexoDeviceMessageCategoryAdapter implements com.energyict.mdc.up
     @Override
     public String getNameResourceKey() {
         return cxoDeviceMessageCategory.getName();
-    }
-
-    @Override
-    public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
-        return cxoDeviceMessageCategory::getName;
     }
 
     @Override

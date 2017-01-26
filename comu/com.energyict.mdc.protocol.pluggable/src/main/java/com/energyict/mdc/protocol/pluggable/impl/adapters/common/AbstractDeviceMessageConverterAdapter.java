@@ -1,9 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -15,6 +13,7 @@ import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -25,6 +24,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
@@ -54,14 +54,12 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
      * Mask indicating that both method calls are made.
      */
     private static final int FIRE_MESSAGES_MASK = UPDATE_SENT_MASK | EXECUTE_PENDING_MASK;
-    private final DataModel dataModel;
     private final MessageAdapterMappingFactory messageAdapterMappingFactory;
     private final ProtocolPluggableService protocolPluggableService;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private MessageProtocol messageProtocol;
-    private String serialNumber = "";
     /**
      * The messageConverter which will be used.
      */
@@ -81,9 +79,8 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
 
     private Map<MessageEntry, OfflineDeviceMessage> messageEntries = new LinkedHashMap<>(); // Specific chosen for a LinkedHashMap, cause the order in which messages are added is important & should be kept
 
-    protected AbstractDeviceMessageConverterAdapter(DataModel dataModel, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    protected AbstractDeviceMessageConverterAdapter(MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super();
-        this.dataModel = dataModel;
         this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.protocolPluggableService = protocolPluggableService;
         this.issueService = issueService;
@@ -277,10 +274,6 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         }
     }
 
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
-
     /**
      * Get the className of the LegacyMessageConverter based on the given MeterProtocol.
      *
@@ -300,7 +293,8 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
     }
 
     @Override
-    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        return "";
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return Optional.empty();
     }
+
 }

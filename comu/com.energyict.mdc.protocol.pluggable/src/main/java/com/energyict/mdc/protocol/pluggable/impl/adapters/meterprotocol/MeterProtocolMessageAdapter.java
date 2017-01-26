@@ -22,7 +22,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 public class MeterProtocolMessageAdapter extends AbstractDeviceMessageConverterAdapter {
 
     public MeterProtocolMessageAdapter(MeterProtocol meterProtocol, DataModel dataModel, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
-        super(dataModel, messageAdapterMappingFactory, protocolPluggableService, issueService, collectedDataFactory, deviceMessageSpecificationService);
+        super(messageAdapterMappingFactory, protocolPluggableService, issueService, collectedDataFactory, deviceMessageSpecificationService);
         if (MessageProtocol.class.isAssignableFrom(meterProtocol.getClass())) {
             setMessageProtocol((MessageProtocol) meterProtocol);
             Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(meterProtocol.getClass().getName()));
