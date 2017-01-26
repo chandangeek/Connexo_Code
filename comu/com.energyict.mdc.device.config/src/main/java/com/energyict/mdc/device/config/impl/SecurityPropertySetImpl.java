@@ -24,8 +24,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -70,6 +69,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
+    private final ProtocolPluggableService protocolPluggableService;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -80,10 +80,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Instant modTime;
 
     @Inject
-    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus,
-                                   ThreadPrincipalService threadPrincipalService) {
+    public SecurityPropertySetImpl(
+            DataModel dataModel, EventService eventService, Thesaurus thesaurus,
+            ThreadPrincipalService threadPrincipalService, ProtocolPluggableService protocolPluggableService) {
         super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
 
@@ -212,7 +214,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         return this.getDeviceProtocol().getAuthenticationAccessLevels().stream()
                 .filter(level -> level.getId() == id)
                 .findAny()
-                .map(UPLAuthenticationLevelAdapter::new)
+                .map(this.protocolPluggableService::adapt)
                 .map(AuthenticationDeviceAccessLevel.class::cast)
                 .orElse(new NoAuthentication(getThesaurus()));
     }
@@ -238,11 +240,10 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have an EncryptionDeviceAccessLevel with the specified id
      */
     private EncryptionDeviceAccessLevel findEncryptionLevel(int id) {
-        return this.getDeviceProtocol().getAuthenticationAccessLevels().stream()
+        return this.getDeviceProtocol().getEncryptionAccessLevels().stream()
                 .filter(level -> level.getId() == id)
                 .findAny()
-                .map(UPLEncryptionLevelAdapter::new)
-                .map(EncryptionDeviceAccessLevel.class::cast)
+                .map(this.protocolPluggableService::adapt)
                 .orElse(new NoEncryption(getThesaurus()));
     }
 
@@ -425,10 +426,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     static class LevelsAreSupportedValidator implements ConstraintValidator<LevelMustBeProvidedIfSupportedByDevice, SecurityPropertySetImpl> {
 
+        private final ProtocolPluggableService protocolPluggableService;
         private final Thesaurus thesaurus;
 
         @Inject
-        LevelsAreSupportedValidator(Thesaurus thesaurus) {
+        LevelsAreSupportedValidator(ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus) {
+            this.protocolPluggableService = protocolPluggableService;
             this.thesaurus = thesaurus;
         }
 
@@ -451,7 +454,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
 
         private List<EncryptionDeviceAccessLevel> supportedEncryptionlevels(SecurityPropertySetImpl value) {
-            List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels().stream().map(UPLEncryptionLevelAdapter::new).collect(Collectors.toList());
+            List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels().stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
             if (levels.isEmpty()) {
                 return Collections.singletonList(new NoEncryption(thesaurus));
             } else {
@@ -469,7 +472,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         }
 
         private List<AuthenticationDeviceAccessLevel> supportedAuthenticationLevels(SecurityPropertySetImpl value) {
-            List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels().stream().map(UPLAuthenticationLevelAdapter::new).collect(Collectors.toList());
+            List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels().stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
             if (levels.isEmpty()) {
                 return Collections.singletonList(new NoAuthentication(thesaurus));
             } else {
@@ -500,4 +503,5 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     public int hashCode() {
         return Objects.hash(id);
     }
+
 }
