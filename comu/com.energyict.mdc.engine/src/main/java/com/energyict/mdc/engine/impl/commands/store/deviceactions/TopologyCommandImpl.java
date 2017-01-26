@@ -20,13 +20,12 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of a {@link TopologyCommand}
+ * Implementation of a {@link TopologyCommand}.
  *
  * @author gna
  * @since 9/05/12 - 15:49
@@ -70,7 +69,11 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
     }
 
     protected Set<DeviceIdentifier> getSlaveIdentifiersFromOfflineDevices() {
-        return this.offlineDevice.getAllSlaveDevices().stream().map(OfflineDevice::getDeviceIdentifier).collect(Collectors.toSet());
+        return this.offlineDevice
+                .getAllSlaveDevices()
+                .stream()
+                .map(com.energyict.mdc.upl.offline.OfflineDevice::getDeviceIdentifier)
+                .collect(Collectors.toSet());
     }
 
     public TopologyAction getTopologyAction() {

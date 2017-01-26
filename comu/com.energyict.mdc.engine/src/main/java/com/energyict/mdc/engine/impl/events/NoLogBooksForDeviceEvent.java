@@ -19,7 +19,7 @@ public class NoLogBooksForDeviceEvent {
 
     public NoLogBooksForDeviceEvent(DeviceIdentifier deviceIdentifier) {
         super();
-        this.deviceIdentifier = deviceIdentifier.getIdentifier();
+        this.deviceIdentifier = deviceIdentifier.toString();
     }
 
     public String getDeviceIdentifier() {

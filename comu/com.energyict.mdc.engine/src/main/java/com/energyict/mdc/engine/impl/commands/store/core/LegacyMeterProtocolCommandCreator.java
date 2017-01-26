@@ -35,7 +35,12 @@ public class LegacyMeterProtocolCommandCreator implements CommandCreator {
         if (comTaskExecutionConnectionStep.isLogOnRequired() || comTaskExecutionConnectionStep.isDaisyChainedLogOnRequired()) {
             CommandFactory.createSetDeviceCacheCommand(groupedDeviceCommand, comTaskExecution, groupedDeviceCommand.getOfflineDevice());
             CommandFactory.createLegacyInitLoggerCommand(groupedDeviceCommand, comTaskExecution);
-            CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, groupedDeviceCommand.getOfflineDevice().getAllProperties(), protocolDialectProperties, deviceProtocolSecurityPropertySet);
+            CommandFactory.createAddProperties(
+                    groupedDeviceCommand,
+                    comTaskExecution,
+                    TypedProperties.copyOf(groupedDeviceCommand.getOfflineDevice().getAllProperties()),
+                    protocolDialectProperties,
+                    deviceProtocolSecurityPropertySet);
             CommandFactory.createDeviceProtocolInitialization(groupedDeviceCommand, comTaskExecution, groupedDeviceCommand.getOfflineDevice(), comChannel);
             CommandFactory.createHandHeldUnitEnabler(groupedDeviceCommand, comTaskExecution, comChannel);
 

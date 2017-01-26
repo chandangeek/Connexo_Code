@@ -8,6 +8,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
+
 import com.energyict.protocol.LogBookReader;
 
 import java.time.Clock;
@@ -59,7 +60,6 @@ public class LogBookCommandHelper {
                 logBook.getOfflineLogBookSpec().getDeviceObisCode(),
                 logBook.getLastReading(),
                 logBook.getLogBookIdentifier(),
-                logBook.getDeviceIdentifier(),
                 logBook.getMasterSerialNumber());
     }
 

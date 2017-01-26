@@ -13,6 +13,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 
@@ -72,8 +73,8 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
                         MessageFormat.format(
                                 "{0} [{1,date,yyyy-MM-dd HH:mm:ss} - {2,date,yyy-MM-dd HH:mm:ss}]",
                                 loadProfileReader.getProfileObisCode(),
-                                Date.from(loadProfileReader.getStartReadingTime()),
-                                Date.from(loadProfileReader.getEndReadingTime())));
+                                loadProfileReader.getStartReadingTime(),
+                                loadProfileReader.getEndReadingTime()));
                 loadProfilesToReadBuilder = loadProfilesToReadBuilder.next();
             }
         }

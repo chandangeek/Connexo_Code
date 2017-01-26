@@ -53,7 +53,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
                             this,
                             MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED,
                             optionalLoadProfile.get().getObisCode().toString(),
-                            optionalLoadProfile.get().getLastReading().orElse(Instant.EPOCH)));
+                            optionalLoadProfile.get().getLastReading()));
         } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
             final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
             this.addIssue(
@@ -62,7 +62,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
                             this,
                             MessageSeeds.LOAD_PROFILE_CONFIGURATION_MISMATCH,
                             optionalLoadProfile.get().getObisCode().toString(),
-                            optionalLoadProfile.get().getInterval().toString()));
+                            optionalLoadProfile.get().interval().toString()));
         }
         else {
             this.addIssue(

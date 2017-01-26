@@ -18,8 +18,8 @@ public class UnknownSlaveDeviceEvent {
 
     public UnknownSlaveDeviceEvent(DeviceIdentifier masterDeviceIdentifier, DeviceIdentifier deviceIdentifier) {
         super();
-        this.masterDeviceId = masterDeviceIdentifier.getIdentifier();
-        this.deviceIdentifier = deviceIdentifier.getIdentifier();
+        this.masterDeviceId = masterDeviceIdentifier.toString();
+        this.deviceIdentifier = deviceIdentifier.toString();
     }
 
     public String getMasterDeviceId() {

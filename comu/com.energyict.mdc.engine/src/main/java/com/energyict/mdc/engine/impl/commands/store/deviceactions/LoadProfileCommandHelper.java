@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 
@@ -97,6 +98,10 @@ public class LoadProfileCommandHelper {
      * @return the masterIdentifier
      */
     private static String getMasterDeviceIdentifier(OfflineLoadProfileChannel lpChannel, OfflineLoadProfile offlineLoadProfile) {
-        return lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().isEmpty() ? offlineLoadProfile.getDeviceIdentifier().getIdentifier() : lpChannel.getMasterSerialNumber();
+        if (lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().isEmpty()) {
+            return offlineLoadProfile.getDeviceIdentifier().toString();
+        } else {
+            return lpChannel.getMasterSerialNumber();
+        }
     }
 }

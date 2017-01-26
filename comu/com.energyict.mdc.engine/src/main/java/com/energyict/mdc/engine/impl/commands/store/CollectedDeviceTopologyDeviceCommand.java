@@ -13,12 +13,12 @@ import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceTopologyEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         try {
-            Optional<OfflineDevice> device = comServerDAO.findOfflineDevice(deviceTopology.getDeviceIdentifier(), new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
+            Optional<com.energyict.mdc.protocol.api.device.offline.OfflineDevice> device = comServerDAO.findOfflineDevice(deviceTopology.getDeviceIdentifier(), new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
             if (device.isPresent()) {
                 this.topologyChanged = false;
                 try {
@@ -239,7 +239,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = new HashMap<>();
         Collection<DeviceIdentifier> actualSlaveDevices = deviceTopology.getSlaveDeviceIdentifiers().keySet();
         for (DeviceIdentifier slaveId : actualSlaveDevices) {
-            Optional<OfflineDevice> slave = Optional.empty();
+            Optional<com.energyict.mdc.protocol.api.device.offline.OfflineDevice> slave = Optional.empty();
             try {
                 slave = comServerDAO.findOfflineDevice(slaveId, new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
             } catch (CanNotFindForIdentifier e) {
@@ -251,7 +251,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
                 actualSlavesByDeviceId.put(slave.get().getSerialNumber(), slaveId);
             } else {
                 this.handleAdditionOfSlave(comServerDAO, slaveId);
-                this.unknownSerialNumbersAddedToTopology.add(slaveId.getIdentifier());
+                this.unknownSerialNumbersAddedToTopology.add(slaveId.toString());
                 this.topologyChanged = true;
             }
         }
@@ -260,7 +260,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
 
     private Map<String, OfflineDevice> mapOldSlavesToSerialNumber(OfflineDevice device) {
         Map<String, OfflineDevice> oldSlavesBySerialNumber = new HashMap<>();
-        List<OfflineDevice> oldSlaveDevices = device.getAllSlaveDevices();
+        List<? extends OfflineDevice> oldSlaveDevices = device.getAllSlaveDevices();
         for (OfflineDevice slave : oldSlaveDevices) {
             oldSlavesBySerialNumber.put(slave.getSerialNumber(), slave);
         }

@@ -26,7 +26,7 @@ public class UnknownInboundDeviceEvent {
         super();
         this.comPortName = comPort.getName();
         this.comServerName = comPort.getComServer().getName();
-        this.deviceIdentifier = deviceIdentifier.getIdentifier();
+        this.deviceIdentifier = deviceIdentifier.toString();
         this.discoveryProtocolId = discoveryProtocolPluggableClass.getId();
     }
 
