@@ -259,7 +259,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.engine.config</artifactId>
-                <version>3.2.0${revision}</version>
+                <version>4.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
