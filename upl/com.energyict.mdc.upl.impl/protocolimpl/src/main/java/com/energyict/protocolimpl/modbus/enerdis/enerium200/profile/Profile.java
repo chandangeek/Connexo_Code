@@ -1,16 +1,15 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -150,7 +149,7 @@ public class Profile {
 	    	MeterEvent eventInMap = eventsMap.get(time);
 	    	while (eventInMap != null) {
 	    		time.setTime(time.getTime() + 1000); // add one second
-				eventInMap = (MeterEvent) eventsMap.get(time);
+				eventInMap = eventsMap.get(time);
 	    	}
 	    	MeterEvent newMeterEvent = new MeterEvent(time, event.getEiCode(), event.getProtocolCode(),event.getMessage());
     		eventsMap.put(time, newMeterEvent);
@@ -240,8 +239,8 @@ public class Profile {
 		int ps = id1.getProtocolStatus();
 
 		for (int i = 0; i < id1.getValueCount(); i++) {
-			IntervalValue iv1 = (IntervalValue) id1.getIntervalValues().get(i);
-			IntervalValue iv2 = (IntervalValue) id2.getIntervalValues().get(i);
+			IntervalValue iv1 = id1.getIntervalValues().get(i);
+			IntervalValue iv2 = id2.getIntervalValues().get(i);
 
 			Number val1 = iv1.getNumber();
 			Number val2 = iv2.getNumber();

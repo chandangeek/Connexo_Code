@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.io.*; 
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.ProtocolUtils;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *

@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen

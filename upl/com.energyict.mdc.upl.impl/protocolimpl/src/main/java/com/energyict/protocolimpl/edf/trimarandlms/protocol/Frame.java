@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
+import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.CRCGenerator;
 
 /**
  *
@@ -56,11 +56,7 @@ public class Frame {
     }    
         
     public boolean isText() throws IOException {
-        if (getData()[0] != 0) {
-            return true;   
-        } else {
-            return false;
-        }
+        return getData()[0] != 0;
         
         //throw new IOException("Frame, isText, program flow error!");
     }

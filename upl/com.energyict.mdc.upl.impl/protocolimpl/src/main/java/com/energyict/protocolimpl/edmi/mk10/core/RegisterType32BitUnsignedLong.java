@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.edmi.mk10.core;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *

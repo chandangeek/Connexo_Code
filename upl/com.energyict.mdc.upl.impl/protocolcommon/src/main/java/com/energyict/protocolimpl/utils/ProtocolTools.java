@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.utils;
 
+import com.energyict.cpo.Environment;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-
-import com.energyict.cpo.Environment;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -16,7 +15,6 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
@@ -834,7 +832,7 @@ public final class ProtocolTools {
 
                 for (IntervalData intervalData : toAdd) {
                     for (int i = 0; i < intervalValues.length; i++) {
-                        IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(i);
+                        IntervalValue intervalValue = intervalData.getIntervalValues().get(i);
                         if (intervalValues[i] == null) {
                             intervalValues[i] = intervalValue;
                         } else {

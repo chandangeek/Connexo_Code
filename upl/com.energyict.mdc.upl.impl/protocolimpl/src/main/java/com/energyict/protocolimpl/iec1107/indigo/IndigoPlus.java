@@ -11,10 +11,8 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -22,6 +20,7 @@ import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,7 +73,7 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Thu Dec 29 09:39:05 2016 +0100 $";
     }
 
     @Override

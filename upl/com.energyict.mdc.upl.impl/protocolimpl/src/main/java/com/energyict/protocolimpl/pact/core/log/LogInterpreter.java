@@ -6,13 +6,13 @@
 
 package com.energyict.protocolimpl.pact.core.log;
 
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *

@@ -1,6 +1,6 @@
 package com.energyict.encryption;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 public class BitVector {
 	private byte[] value;
@@ -35,7 +35,7 @@ public class BitVector {
 		BitVector result = new BitVector(this.length());
 		for (int i = 0; i < this.length(); i++) {
 			result
-					.setValue((byte) convertEndiannessOfByte(this.getValue(i)),
+					.setValue(convertEndiannessOfByte(this.getValue(i)),
 							i);
 		}
 		return result;

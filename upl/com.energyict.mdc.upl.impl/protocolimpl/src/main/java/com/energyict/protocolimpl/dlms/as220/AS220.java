@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -8,13 +9,10 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
@@ -27,6 +25,7 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.plc.PLC;
 import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.dlms.as220.powerquality.PowerQuality;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -101,7 +100,7 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2014-10-10 16:52:23 +0200 (Fri, 10 Oct 2014) $";
+        return "$Date: Fri Nov 25 16:23:24 2016 +0100 $";
     }
 
     @Override

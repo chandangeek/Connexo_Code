@@ -1,5 +1,12 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -14,14 +21,6 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
@@ -30,7 +29,6 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
@@ -50,6 +48,7 @@ import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.google.common.collect.Range;
 
 import java.io.ByteArrayOutputStream;
@@ -570,34 +569,34 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             }
 
             if ("1.1.0.0.1.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("1.1.0.0.2.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("1.1.0.0.3.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("1.1.0.0.4.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("1.1.0.0.5.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("1.1.0.0.6.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("1.1.0.0.7.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("1.1.0.0.8.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("1.1.0.0.9.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("1.1.0.0.10.255".equals(obis.toString())) {
-                return new RegisterValue(obis, readSpecialRegister((String) this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
+                return new RegisterValue(obis, readSpecialRegister(this.aS220ObisCodeMapper.getObisMap().get(obis.toString())));
             }
 
             if (obis.getF() != 255) {
@@ -729,7 +728,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        String reginfo = (String) this.aS220ObisCodeMapper.getObisMap().get(obisCode.toString());
+        String reginfo = this.aS220ObisCodeMapper.getObisMap().get(obisCode.toString());
         if (reginfo == null) {
             reginfo = obisCode.toString();
         }

@@ -10,18 +10,17 @@
 
 package com.energyict.protocolimpl.elster.alpha.core.connection;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -229,7 +228,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
             if ((kar = readIn()) != -1) {
                 if (DEBUG >= 2) {
                     System.out.print(",0x");
-                    ProtocolUtils.outputHex( ((int)kar));
+                    ProtocolUtils.outputHex(kar);
                 }
                 allDataArrayOutputStream.write(kar);
 
@@ -414,10 +413,10 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveFrame() interframe timeout error",TIMEOUT_ERROR);
             }
         } // while(true)
@@ -451,7 +450,7 @@ public class AlphaConnection extends Connection  implements ProtocolConnection {
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
 
     }
-    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException {
         return null;
     }
     public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {

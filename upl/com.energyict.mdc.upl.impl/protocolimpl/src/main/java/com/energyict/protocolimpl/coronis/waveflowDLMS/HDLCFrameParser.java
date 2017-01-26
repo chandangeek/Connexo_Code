@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

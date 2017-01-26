@@ -6,12 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -36,7 +35,7 @@ public class InstantaneousValue {
         int format = (int)data[0]&0xFF;
         if ((format & 0x07) == 0x07)
             throw new ProtocolException("Instantaneous value too large!");
-        int scale = 4 - (int)(format & 0x07);
+        int scale = 4 - (format & 0x07);
         int sign = ((format & 0x80) == 0x80 ? -1 : 1);
         data = ProtocolUtils.getSubArray(data,1);
         BigDecimal bd = BigDecimal.valueOf(sign * ParseUtils.getBCD2Long(data,0,6),scale);

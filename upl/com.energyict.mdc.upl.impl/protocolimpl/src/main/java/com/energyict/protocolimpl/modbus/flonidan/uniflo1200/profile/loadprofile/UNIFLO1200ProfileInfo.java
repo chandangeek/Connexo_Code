@@ -7,13 +7,12 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile;
 
 import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200ProfileInfoParser;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.List;

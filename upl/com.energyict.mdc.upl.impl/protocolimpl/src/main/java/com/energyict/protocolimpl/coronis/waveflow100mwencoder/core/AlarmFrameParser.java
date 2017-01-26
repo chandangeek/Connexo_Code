@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW.MeterProtocolType;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;

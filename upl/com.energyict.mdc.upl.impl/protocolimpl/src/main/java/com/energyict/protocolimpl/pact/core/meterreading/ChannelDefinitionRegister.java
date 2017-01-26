@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import java.math.BigDecimal;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.math.BigDecimal;
 /**
  *
  * @author  Koen

@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *

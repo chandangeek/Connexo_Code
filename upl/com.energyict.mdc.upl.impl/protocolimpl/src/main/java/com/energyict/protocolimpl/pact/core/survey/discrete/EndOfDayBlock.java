@@ -6,12 +6,12 @@
 
 package com.energyict.protocolimpl.pact.core.survey.discrete;
 
-import java.util.Calendar;
-import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.common.PactUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.util.Calendar;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen

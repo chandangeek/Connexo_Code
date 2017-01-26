@@ -1,17 +1,16 @@
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;

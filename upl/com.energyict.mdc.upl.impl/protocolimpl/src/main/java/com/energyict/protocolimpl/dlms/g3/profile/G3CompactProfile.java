@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.dlms.g3.profile;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

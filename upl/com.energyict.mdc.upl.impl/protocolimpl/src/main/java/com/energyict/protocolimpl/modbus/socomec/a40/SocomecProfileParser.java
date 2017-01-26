@@ -1,14 +1,13 @@
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -279,10 +278,7 @@ public class SocomecProfileParser {
 	 * @return true if it is, false otherwise
 	 */
 	private boolean dateTimeStamp() {
-		if((this.memoryPointer-2 >= 0) && (this.virtualMemory[this.memoryPointer-2]&0xF000) == 0xF000){
-			return true;
-		}
-		return false;
+		return (this.memoryPointer - 2 >= 0) && (this.virtualMemory[this.memoryPointer - 2] & 0xF000) == 0xF000;
 	}
 
 	/**
@@ -290,10 +286,7 @@ public class SocomecProfileParser {
 	 * @return true if it is, false otherwise
 	 */
 	private boolean isItAPowerUpPowerDownSequence(){
-		if(((this.virtualMemory[this.memoryPointer-2]&0xF000) == 0xF000) && (this.virtualMemory[this.memoryPointer-5]&0xE000) == 0xE000){
-			return true;
-		}
-		return false;
+		return ((this.virtualMemory[this.memoryPointer - 2] & 0xF000) == 0xF000) && (this.virtualMemory[this.memoryPointer - 5] & 0xE000) == 0xE000;
 	}
 
 	/**
@@ -301,10 +294,7 @@ public class SocomecProfileParser {
 	 * @return true if it is, false otherwise
 	 */
 	private boolean isItAPowerDown(){
-		if((this.memoryPointer-2 >= 0) && (this.virtualMemory[this.memoryPointer-2]&0xE000) == 0xE000){
-			return true;
-		}
-		return false;
+		return (this.memoryPointer - 2 >= 0) && (this.virtualMemory[this.memoryPointer - 2] & 0xE000) == 0xE000;
 	}
 
 	/**
@@ -318,7 +308,7 @@ public class SocomecProfileParser {
 			/* It's a bit nasty thing to do but we need to add the memoryBlocks at the start
 			 * of the virtualMemory.
 			 */
-			int[] tempVirtualMemory = (int[])this.virtualMemory.clone();
+			int[] tempVirtualMemory = this.virtualMemory.clone();
 			this.virtualMemory = new int[memoryBlocks.length + tempVirtualMemory.length];
 			System.arraycopy(memoryBlocks, 0, this.virtualMemory, 0, memoryBlocks.length);
 			System.arraycopy(tempVirtualMemory, 0, this.virtualMemory, memoryBlocks.length, tempVirtualMemory.length);

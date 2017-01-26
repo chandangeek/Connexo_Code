@@ -1,18 +1,16 @@
 package com.energyict.protocolimplv2.dlms.g3.events;
 
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.NotInObjectListException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.g3.events.BreakerEventMapper;
 import com.energyict.protocolimpl.dlms.g3.events.CommunicationEventMapper;
 import com.energyict.protocolimpl.dlms.g3.events.CoverEventMapper;
@@ -21,6 +19,7 @@ import com.energyict.protocolimpl.dlms.g3.events.G3BasicEventLog;
 import com.energyict.protocolimpl.dlms.g3.events.G3LqiEventLog;
 import com.energyict.protocolimpl.dlms.g3.events.MainEventMapper;
 import com.energyict.protocolimpl.dlms.g3.events.VoltageCutEventMapper;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

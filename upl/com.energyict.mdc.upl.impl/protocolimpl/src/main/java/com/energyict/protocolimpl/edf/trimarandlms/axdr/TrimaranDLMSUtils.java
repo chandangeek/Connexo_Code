@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 /**

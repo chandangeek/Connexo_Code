@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.instromet.v444;
 
-import java.util.Calendar;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.LogoffCommand;
 import com.energyict.protocolimpl.instromet.connection.ReadCommand;
 import com.energyict.protocolimpl.instromet.connection.TableSwitchCommand;
@@ -12,6 +9,8 @@ import com.energyict.protocolimpl.instromet.v444.tables.CountersTable;
 import com.energyict.protocolimpl.instromet.v444.tables.LoggedDataTable;
 import com.energyict.protocolimpl.instromet.v444.tables.LoggingConfigurationTable;
 import com.energyict.protocolimpl.instromet.v444.tables.PeakHourPeakDayTable;
+
+import java.util.Calendar;
   
 public class CommandFactory {
 	

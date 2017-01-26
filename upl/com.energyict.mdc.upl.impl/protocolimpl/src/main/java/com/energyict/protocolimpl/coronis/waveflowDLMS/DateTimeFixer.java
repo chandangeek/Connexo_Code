@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.Date;
 import java.util.TimeZone;

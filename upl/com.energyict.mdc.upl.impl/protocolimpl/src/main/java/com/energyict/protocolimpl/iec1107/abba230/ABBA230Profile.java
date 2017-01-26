@@ -1,15 +1,14 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.mdc.upl.cache.CacheMechanism;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.AbstractEventLog;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -85,7 +84,7 @@ public class ABBA230Profile {
 
     ABBA230Profile(ABBA230 abba230,ABBA230RegisterFactory abba230RegisterFactory) throws IOException {
     	this.abba230=abba230;
-    	this.protocolLink = (ProtocolLink)abba230;
+    	this.protocolLink = abba230;
         this.rFactory = abba230RegisterFactory;
         long val = abba230.isInstrumentationProfileMode()
                 ? ((Long) rFactory.getRegister("InstrumentationProfileDSTConfig")).longValue()

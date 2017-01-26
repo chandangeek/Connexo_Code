@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
-import java.util.Calendar;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.ProtocolUtils;
+import java.util.Calendar;
 
 /**
  * The dateTime values from the S4s device

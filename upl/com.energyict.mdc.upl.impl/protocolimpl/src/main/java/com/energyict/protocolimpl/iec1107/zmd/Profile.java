@@ -1,16 +1,14 @@
 
 package com.energyict.protocolimpl.iec1107.zmd;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -18,6 +16,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -222,7 +221,7 @@ class Profile extends VDEWProfile {
 
                     intervalDate = interval.next();
                 }
-            };
+            }
 
             iMap.addToProfile(profileData);
 

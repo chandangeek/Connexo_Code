@@ -6,12 +6,12 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import java.util.*;
-import java.io.*;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.TimeZone;
+
 //import com.energyict.protocolimpl.myprotocol.*;
-import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen
@@ -58,7 +58,7 @@ abstract public class AbstractLogicalAddress {
         
     
     
-    private byte[] getILONRegister() throws ProtocolConnectionException,IOException {
+    private byte[] getILONRegister() throws IOException {
         //StringBuffer strbuff = new StringBuffer();
         getLogicalAddressFactory().getU1600().getEclConnection().sendLONCommandFrame(getChannel());
         byte[] ba = getLogicalAddressFactory().getU1600().getEclConnection().receiveLONFrame();

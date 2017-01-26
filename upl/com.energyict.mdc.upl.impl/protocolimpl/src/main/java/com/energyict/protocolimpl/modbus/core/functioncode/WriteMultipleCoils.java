@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.connection.RequestData;
 import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

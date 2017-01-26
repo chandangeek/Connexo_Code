@@ -10,23 +10,22 @@
 
 package com.energyict.protocolimpl.modbus.enerdis.recdigitpower;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
 /** 
  * RegisterFactory is used as a central point for parsing.
@@ -377,7 +376,7 @@ class RegisterFactory extends AbstractRegisterFactory {
         d = "Active E time slot 0";
         active_e_slot_0   = add( "1.1.1.8.1.255", 0x0094, d, kWh, type);
         d = "Reactive E time slot 0";
-        reactive_e_slot_0 = add( "1.1.3.8.1.255", 0x0094, d, kWh, type);;
+        reactive_e_slot_0 = add( "1.1.3.8.1.255", 0x0094, d, kWh, type);
 
         d = "Active E time slot 1";
         active_e_slot_1   = add( "1.1.1.8.2.255", 0x009E, d, kWh, type);

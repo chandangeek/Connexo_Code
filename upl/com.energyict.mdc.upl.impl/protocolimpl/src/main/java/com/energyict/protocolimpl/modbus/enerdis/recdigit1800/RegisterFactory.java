@@ -10,15 +10,23 @@
 
 package com.energyict.protocolimpl.modbus.enerdis.recdigit1800;
 
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
-
-import com.energyict.cbo.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.modbus.core.*;
+import java.util.Calendar;
+import java.util.Date;
 
 /** 
  * Responsibilities:
@@ -406,8 +414,8 @@ class RegisterFactory extends AbstractRegisterFactory {
         max_q_ph2 = add( o, 0x17CA, d, VAr, Type.DATE_AND_LONG_WORD);
         d = "Maximum Of Q Ph 3";
         o = "1.1.63.6.0.255";
-        max_q_ph3 = add( o, 0x17D4, d, VAr, Type.DATE_AND_LONG_WORD);;
-        
+        max_q_ph3 = add( o, 0x17D4, d, VAr, Type.DATE_AND_LONG_WORD);
+
         d = "Maximum Of Q totale";
         o = "1.1.3.6.0.255";
         max_q_tot = add( o, 0x17DE, d, VAr, Type.DATE_AND_LONG_WORD);
@@ -996,7 +1004,6 @@ class RegisterFactory extends AbstractRegisterFactory {
             .append( toDbgString( max_u_ph1 ) ).append( "\n" )
             .append( toDbgString( max_u_ph2 ) ).append( "\n" )
             .append( toDbgString( max_u_ph3 ) ).append( "\n" );
-              ;
             return result.toString();
             
         } catch (IOException e) {

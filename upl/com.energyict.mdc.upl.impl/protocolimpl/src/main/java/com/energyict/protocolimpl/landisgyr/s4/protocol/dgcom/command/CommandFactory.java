@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.S4;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;

@@ -10,13 +10,12 @@
 
 package com.energyict.protocolimpl.elster.a1800.tables;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
 import com.energyict.protocolimpl.ansi.c12.tables.TableFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *

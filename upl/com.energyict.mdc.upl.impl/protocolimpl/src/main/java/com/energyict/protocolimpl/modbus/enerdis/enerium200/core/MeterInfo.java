@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.core;
 
-import java.util.Date;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.ProtocolUtils;
+import java.util.Date;
 
 public class MeterInfo {
 

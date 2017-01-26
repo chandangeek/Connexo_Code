@@ -7,8 +7,8 @@
 package com.energyict.protocolimpl.rtuplusbus;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;

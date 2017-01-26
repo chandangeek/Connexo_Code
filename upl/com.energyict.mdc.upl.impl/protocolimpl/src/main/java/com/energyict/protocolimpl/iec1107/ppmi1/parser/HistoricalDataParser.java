@@ -1,12 +1,7 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.MetaRegister;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
@@ -16,6 +11,11 @@ import com.energyict.protocolimpl.iec1107.ppmi1.register.HistoricalDataSet;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MainRegister;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.MaximumDemand;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.RegisterInformation;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.TimeZone;
 
 /**
  * @author fbo

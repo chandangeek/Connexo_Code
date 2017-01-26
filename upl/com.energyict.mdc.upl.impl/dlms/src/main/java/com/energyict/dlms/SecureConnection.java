@@ -5,7 +5,7 @@ import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.protocolimplv2.connection.DlmsConnection;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestPreparationConsumer;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestPreparationHandler;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

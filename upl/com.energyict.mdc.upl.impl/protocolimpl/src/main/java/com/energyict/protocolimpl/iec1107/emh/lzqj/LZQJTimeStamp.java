@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * 
@@ -71,14 +71,14 @@ public class LZQJTimeStamp {
 			offset = 1;
 		}
 
-		calendar.set(calendar.YEAR, (getYear1900_2000(ProtocolUtils.bcd2byte(datePart, offset))));
-		calendar.set(calendar.MONTH, (ProtocolUtils.bcd2byte(datePart, 2 + offset) - 1));
-		calendar.set(calendar.DAY_OF_MONTH, ProtocolUtils.bcd2byte(datePart, 4 + offset));
+		calendar.set(Calendar.YEAR, (getYear1900_2000(ProtocolUtils.bcd2byte(datePart, offset))));
+		calendar.set(Calendar.MONTH, (ProtocolUtils.bcd2byte(datePart, 2 + offset) - 1));
+		calendar.set(Calendar.DAY_OF_MONTH, ProtocolUtils.bcd2byte(datePart, 4 + offset));
 
-		calendar.set(calendar.HOUR_OF_DAY, ProtocolUtils.bcd2byte(timePart, offset));
-		calendar.set(calendar.MINUTE, ProtocolUtils.bcd2byte(timePart, 2 + offset));
+		calendar.set(Calendar.HOUR_OF_DAY, ProtocolUtils.bcd2byte(timePart, offset));
+		calendar.set(Calendar.MINUTE, ProtocolUtils.bcd2byte(timePart, 2 + offset));
 		if ((timePart.length == 6) || (timePart.length == 7)) {
-			calendar.set(calendar.SECOND, ProtocolUtils.bcd2byte(timePart, 4 + offset));
+			calendar.set(Calendar.SECOND, ProtocolUtils.bcd2byte(timePart, 4 + offset));
 		}
 	}
 
@@ -102,13 +102,13 @@ public class LZQJTimeStamp {
 		}
 
 		calendar = ProtocolUtils.getCleanCalendar(tz);
-		calendar.set(calendar.YEAR, (getYear1900_2000(ProtocolUtils.bcd2byte(data, offset))));
-		calendar.set(calendar.MONTH, (ProtocolUtils.bcd2byte(data, 2 + offset) - 1));
-		calendar.set(calendar.DAY_OF_MONTH, ProtocolUtils.bcd2byte(data, 4 + offset));
-		calendar.set(calendar.HOUR_OF_DAY, ProtocolUtils.bcd2byte(data, 6 + offset));
-		calendar.set(calendar.MINUTE, ProtocolUtils.bcd2byte(data, 8 + offset));
+		calendar.set(Calendar.YEAR, (getYear1900_2000(ProtocolUtils.bcd2byte(data, offset))));
+		calendar.set(Calendar.MONTH, (ProtocolUtils.bcd2byte(data, 2 + offset) - 1));
+		calendar.set(Calendar.DAY_OF_MONTH, ProtocolUtils.bcd2byte(data, 4 + offset));
+		calendar.set(Calendar.HOUR_OF_DAY, ProtocolUtils.bcd2byte(data, 6 + offset));
+		calendar.set(Calendar.MINUTE, ProtocolUtils.bcd2byte(data, 8 + offset));
 		if ((data.length == 12) || (data.length == 13)) {
-			calendar.set(calendar.SECOND, ProtocolUtils.bcd2byte(data, 10 + offset));
+			calendar.set(Calendar.SECOND, ProtocolUtils.bcd2byte(data, 10 + offset));
 		}
 	}
 

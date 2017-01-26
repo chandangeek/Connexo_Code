@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba1140.eventlogs;
 
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
-
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
 
 abstract public class AbstractEventLog {
     

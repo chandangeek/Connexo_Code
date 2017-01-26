@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.modbus.socomec.countis.e44;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.Calendar;
 import java.util.TimeZone;

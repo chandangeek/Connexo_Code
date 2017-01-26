@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;

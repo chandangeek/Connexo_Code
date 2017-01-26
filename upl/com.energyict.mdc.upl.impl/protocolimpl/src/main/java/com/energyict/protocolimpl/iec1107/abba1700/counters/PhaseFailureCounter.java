@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba1700.counters;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  * The phaseFailureCounter keeps track of how many times a phaseFailure has occurred plus the latest three eventTimes and phase indication

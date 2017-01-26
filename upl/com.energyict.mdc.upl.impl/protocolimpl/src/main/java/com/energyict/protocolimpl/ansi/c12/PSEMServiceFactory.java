@@ -11,9 +11,9 @@
 package com.energyict.protocolimpl.ansi.c12;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.IdentificationFeature;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 /**

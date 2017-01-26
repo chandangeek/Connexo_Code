@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.ArrayList;
 import java.util.List;

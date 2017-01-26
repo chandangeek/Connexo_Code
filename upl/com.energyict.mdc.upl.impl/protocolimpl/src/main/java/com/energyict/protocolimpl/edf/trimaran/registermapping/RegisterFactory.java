@@ -10,14 +10,13 @@
 
 package com.energyict.protocolimpl.edf.trimaran.registermapping;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.edf.trimaran.Trimaran;
 import com.energyict.protocolimpl.edf.trimaran.core.MonthInfoTable;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

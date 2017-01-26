@@ -11,13 +11,12 @@
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
 import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.util.Equality;
 
 import java.io.IOException;

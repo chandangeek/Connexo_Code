@@ -7,9 +7,8 @@
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
 import com.energyict.mdc.io.NestedIOException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;

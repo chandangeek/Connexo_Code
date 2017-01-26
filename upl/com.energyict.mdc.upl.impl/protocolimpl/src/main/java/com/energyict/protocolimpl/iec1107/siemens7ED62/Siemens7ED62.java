@@ -15,12 +15,11 @@ KV|06092005|VDEW changed to do channel mapping!
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -56,7 +55,7 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol implements SerialNumbe
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:24:27 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Fri Nov 4 16:50:07 2016 +0100 $";
     }
 
     @Override

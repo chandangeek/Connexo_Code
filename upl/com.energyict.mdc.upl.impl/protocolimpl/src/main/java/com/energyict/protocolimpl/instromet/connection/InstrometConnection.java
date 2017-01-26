@@ -1,17 +1,16 @@
 package com.energyict.protocolimpl.instromet.connection;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -135,7 +134,7 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 		sendOut(outputStream.toByteArray());
 	}
 
-	private void doSendCommand(Command command) throws ConnectionException, IOException {
+	private void doSendCommand(Command command) throws IOException {
 		outputStream.reset();
 		if (command.getCommand() == 0) {
 			return;
@@ -157,7 +156,7 @@ public class InstrometConnection extends Connection implements ProtocolConnectio
 		outputStream.write((crc >> 8) & 0xFF);
 	}
 
-	private void doWakeUp() throws ConnectionException, IOException {
+	private void doWakeUp() throws IOException {
 		outputStream.reset();
 		outputStream.write((byte) 0x20);
 	}

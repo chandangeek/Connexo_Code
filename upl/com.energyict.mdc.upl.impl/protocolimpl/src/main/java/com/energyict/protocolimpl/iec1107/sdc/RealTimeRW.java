@@ -7,11 +7,12 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import java.util.*;
-import java.io.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.cbo.TimeZoneManager;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.StringTokenizer;
 /**
  *
  * @author gna
@@ -73,7 +74,7 @@ public class RealTimeRW extends AbstractDataReadingCommand {
     
     public String shorterDateStr(String str){
     	String hulpStr;
-    	hulpStr = (String) str.subSequence(0, 11) + ((String) str.subSequence(14, 22));    	
+    	hulpStr = str.subSequence(0, 11) + str.subSequence(14, 22);
     	return hulpStr;
     }
     

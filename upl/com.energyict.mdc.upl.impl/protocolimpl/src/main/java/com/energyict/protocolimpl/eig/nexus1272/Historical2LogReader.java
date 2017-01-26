@@ -3,13 +3,13 @@ package com.energyict.protocolimpl.eig.nexus1272;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.parse.LinePoint;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,7 +34,7 @@ public class Historical2LogReader extends AbstractLogReader {
 		masterlpMap = mstrlpMap;
 		outputStream = os;
 		connection = npc;
-		windowIndexAddress = new byte[] {(byte) 0x95, 0x01};;  
+		windowIndexAddress = new byte[] {(byte) 0x95, 0x01};
 		windowModeAddress = new byte[] {(byte) 0x95, 0x41};
 		windowEndAddress = 38400;
 	}

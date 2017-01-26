@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.pact.core.common.MeterType;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 /**
  *
  * @author  Koen

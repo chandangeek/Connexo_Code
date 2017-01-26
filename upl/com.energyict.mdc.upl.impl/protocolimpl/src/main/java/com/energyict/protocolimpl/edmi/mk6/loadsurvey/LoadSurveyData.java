@@ -10,17 +10,17 @@
 
 package com.energyict.protocolimpl.edmi.mk6.loadsurvey;
 
+import com.energyict.protocolimpl.edmi.mk6.command.FileAccessReadCommand;
+import com.energyict.protocolimpl.edmi.mk6.command.FileAccessSearchCommand;
+import com.energyict.protocolimpl.edmi.mk6.core.AbstractRegisterType;
+import com.energyict.protocolimpl.edmi.mk6.core.RegisterTypeParser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edmi.mk6.command.FileAccessReadCommand;
-import com.energyict.protocolimpl.edmi.mk6.command.FileAccessSearchCommand;
-import com.energyict.protocolimpl.edmi.mk6.core.AbstractRegisterType;
-import com.energyict.protocolimpl.edmi.mk6.core.RegisterTypeParser;
 
 /**
  *

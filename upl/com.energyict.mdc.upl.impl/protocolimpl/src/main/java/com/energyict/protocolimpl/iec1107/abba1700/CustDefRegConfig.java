@@ -7,9 +7,8 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  * @author Koen

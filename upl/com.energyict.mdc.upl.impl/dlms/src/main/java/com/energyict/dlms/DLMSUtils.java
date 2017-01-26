@@ -6,13 +6,12 @@
 
 package com.energyict.dlms;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -951,7 +950,7 @@ public final class DLMSUtils {
         else if (aField == 0) // abstract objects
         {
             if ((bField >= 1) && (bField <= 64)) {
-                str += " object/channel" + Integer.toString((int) bField & 0xFF);
+                str += " object/channel" + Integer.toString(bField & 0xFF);
             } else if ((bField >= 65) && (bField <= 127)) {
                 str += " ???, reserved";
             } else if ((bField >= 128) && (bField <= 254)) {
@@ -1141,11 +1140,11 @@ public final class DLMSUtils {
             if (secondArray == null) {
                 return new byte[0];
             } else {
-                return (byte[]) secondArray.clone();
+                return secondArray.clone();
             }
         } else {
             if (secondArray == null) {
-                return (byte[]) firstArray.clone();
+                return firstArray.clone();
             }
         }
 

@@ -1,14 +1,13 @@
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
 import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +26,7 @@ public class EnermetE70XIEC1107Connection extends IEC1107Connection {
     }
 
     @Override
-    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strIdentConfig, String strPass, int iSecurityLevel, String meterID) throws IOException {
         if (getIEC1107Compatible() < 2 || getHhuSignOn() != null) {
             // if property 'ProtocolCompatible' is not set to use advanced logon (not set to 2-6)
             // of if hhuSignOn is used (~ and thus using optical head connection, for which the 1.5s timing should not be an issue)
@@ -79,7 +78,7 @@ public class EnermetE70XIEC1107Connection extends IEC1107Connection {
         }
     }
 
-    private MeterType receiveAndValidateConnectMACResponses(String strIdentConfig) throws ProtocolConnectionException, IOException {
+    private MeterType receiveAndValidateConnectMACResponses(String strIdentConfig) throws IOException {
         // 1. Receive identification
         String strIdentRaw = receiveIdent(strIdentConfig);
         if (strIdentRaw.indexOf('/') == -1) {

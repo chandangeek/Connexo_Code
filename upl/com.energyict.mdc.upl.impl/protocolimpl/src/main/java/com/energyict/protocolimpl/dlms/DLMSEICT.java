@@ -15,18 +15,17 @@
 
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,7 +85,7 @@ public class DLMSEICT extends DLMSSN {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+        return "$Date: Thu Dec 29 09:39:05 2016 +0100 $";
     }
 
     @Override

@@ -2,8 +2,8 @@ package com.energyict.protocolimpl.iec1107.siemenss4s;
 
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;

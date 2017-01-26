@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *
@@ -64,20 +64,20 @@ public class Encryptor6205651 {
         for (i = data.length; i > 1; i -= 2) {
 //System.out.println(Integer.toHexString(key));
             tmp = ((int)data[pointer++]&0xff) << 8;
-            tmp = (int)((tmp ^ key) & 0xFF00);
+            tmp = (tmp ^ key) & 0xFF00;
             encryptedData[encryptedDataPointer++] = (byte)(tmp >> 8);
             tmp |= ((int)data[pointer++]&0xff);
-            tmp = (int)(tmp ^ (key & 0x00FF));
+            tmp = tmp ^ (key & 0x00FF);
             encryptedData[encryptedDataPointer++] = (byte)(tmp & 0xFF);
             
             // Mettre e jour la cle de cryptage F tantque
-            tmp = (int)(key << 1)&0xffff; /* a'(i) = a(i+1) */
-            key = (int)(key & POLY_CRYPTAGE); /* AB = a1b1 a2b2 a3b3 ... anbn */
+            tmp = key << 1 &0xffff; /* a'(i) = a(i+1) */
+            key = key & POLY_CRYPTAGE; /* AB = a1b1 a2b2 a3b3 ... anbn */
             int j = 0;
             while (key != cryptage[j][ENTREE]) {
                 j += 1;
             }
-            key = (int)(tmp | cryptage[j][SORTIE]) & 0xffff;
+            key = (tmp | cryptage[j][SORTIE]) & 0xffff;
 
         }
         
@@ -97,7 +97,7 @@ public class Encryptor6205651 {
         byte[] passwordKey = new byte[]{(byte)0x62,(byte)0x69,(byte)0x6C,(byte)0x63,(byte)0x6F,(byte)0x62,(byte)0x63,(byte)0x6C};
         //byte[] serverRandom = new byte[]{(byte)0x30,(byte)0xc4,(byte)0x2a,(byte)0xcf,(byte)0xfc,(byte)0xd6,(byte)0xbc,(byte)0x4e};
         byte[] serverRandom = new byte[]{(byte)0x9d,(byte)0x97,(byte)0x7a,(byte)0x15,(byte)0xc7,(byte)0xe4,(byte)0xf3,(byte)0x19};
-        int masking = s.getMasking16Bit(serverRandom, passwordKey);
+        int masking = SHA1Encryptor.getMasking16Bit(serverRandom, passwordKey);
         System.out.println("0x"+Integer.toHexString(masking));
         
         Encryptor6205651 e = new Encryptor6205651();

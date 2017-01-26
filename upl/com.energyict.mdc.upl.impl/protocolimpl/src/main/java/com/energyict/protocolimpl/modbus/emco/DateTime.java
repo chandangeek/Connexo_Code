@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.modbus.emco;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.Calendar;
 import java.util.TimeZone;

@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
 
 public class DataType {
 

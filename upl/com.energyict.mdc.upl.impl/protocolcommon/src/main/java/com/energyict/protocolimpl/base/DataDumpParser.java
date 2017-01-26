@@ -6,12 +6,11 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -166,11 +165,7 @@ public class DataDumpParser {
     }
 
     private boolean hasBaseRegister(String strRegister,String strDelimiter) {
-        if (strRegister.indexOf(strDelimiter) != -1) {
-			return true;
-		} else {
-			return false;
-		}
+        return strRegister.indexOf(strDelimiter) != -1;
     }
 
     private String doGetBaseRegister(String strRegister,String strDelimiter) throws IOException {

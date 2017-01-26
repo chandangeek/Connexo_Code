@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.eict.AM110R.events;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110R;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110RRegisterFactory;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.BasicEventLog;

@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.instromet.v444;
 
-import java.io.IOException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.InstrometConnection;
 import com.energyict.protocolimpl.instromet.connection.ResponseReceiver;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 public class ResponseReceiver444 extends ResponseReceiver {
 	

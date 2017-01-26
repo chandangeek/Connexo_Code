@@ -10,10 +10,9 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -35,7 +34,7 @@ public class VisibleString extends AbstractDataType {
 			throw new ProtocolException("VisibleString, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
-		size = (int) DLMSUtils.getAXDRLength(berEncodedData, offset);
+		size = DLMSUtils.getAXDRLength(berEncodedData, offset);
 		offset += DLMSUtils.getAXDRLengthOffset(berEncodedData, offset);
 
 		setStr(new String(ProtocolUtils.getSubArray2(berEncodedData, offset, size)));

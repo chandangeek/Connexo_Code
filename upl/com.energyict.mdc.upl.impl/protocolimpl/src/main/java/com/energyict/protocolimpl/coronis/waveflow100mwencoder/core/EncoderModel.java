@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import com.energyict.mdc.upl.UnsupportedException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderModelInfo.EncoderModelType;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

@@ -1,13 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import java.io.IOException;
-
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import java.io.IOException;
 
 public class FirmwareXMLHandler extends DefaultHandler {
 
@@ -110,7 +109,7 @@ public class FirmwareXMLHandler extends DefaultHandler {
 					while(true) {
 						try {
 							
-				            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+				            if (System.currentTimeMillis() - timeout > 0) {
 				                timeout = System.currentTimeMillis() + AUTHENTICATE_REARM_FIRMWARE; // arm again...
 				    			if (DEBUG>=1) {
 									System.out.println("Authenticate...");

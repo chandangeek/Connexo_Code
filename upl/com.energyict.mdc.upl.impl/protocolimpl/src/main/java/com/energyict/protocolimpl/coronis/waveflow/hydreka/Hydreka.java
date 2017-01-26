@@ -5,13 +5,11 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BubbleUpObject;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
@@ -20,6 +18,7 @@ import com.energyict.protocolimpl.coronis.waveflow.core.messages.HydrekaMessages
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter.ParameterFactoryHydreka;
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.radiocommand.RadioCommandFactoryHydreka;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,7 +89,7 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2013-01-11 11:48:08 +0100 (vr, 11 jan 2013) $";
+        return "$Date: Tue Nov 8 16:41:03 2016 +0100 $";
     }
 
     @Override

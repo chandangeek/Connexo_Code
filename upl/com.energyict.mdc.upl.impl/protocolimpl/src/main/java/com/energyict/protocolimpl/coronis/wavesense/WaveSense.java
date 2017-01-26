@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.wavesense;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
@@ -8,14 +9,11 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
@@ -29,6 +27,7 @@ import com.energyict.protocolimpl.coronis.wavesense.core.AlarmFrameParser;
 import com.energyict.protocolimpl.coronis.wavesense.core.ObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavesense.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavesense.core.radiocommand.RadioCommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -138,7 +137,7 @@ public class WaveSense extends AbstractProtocol implements MessageProtocol, Prot
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2011-05-24 15:41:26 +0200 (di, 24 mei 2011) $";
+        return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
     }
 
     @Override

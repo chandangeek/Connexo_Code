@@ -1,12 +1,11 @@
 package com.energyict.protocolimpl.instromet.v555.tables;
 
-import java.io.IOException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Command;
 import com.energyict.protocolimpl.instromet.connection.Response;
-import com.energyict.protocolimpl.instromet.connection.StatusCommand;
 import com.energyict.protocolimpl.instromet.v555.CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 public abstract class AbstractTable {
 	

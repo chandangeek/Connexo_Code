@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.elster.a3.tables;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
 import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
 import com.energyict.protocolimpl.ansi.c12.tables.ManufacturerIdentificationTable;
 import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

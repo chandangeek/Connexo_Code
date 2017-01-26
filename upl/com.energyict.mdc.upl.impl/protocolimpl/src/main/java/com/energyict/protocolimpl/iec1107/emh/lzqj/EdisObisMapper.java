@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
+import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * @author jme

@@ -1,5 +1,14 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -11,15 +20,6 @@ import java.util.SortedMap;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.logging.Level;
-
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 
 public class LoadProfileRegister extends Register {
 
@@ -365,7 +365,7 @@ public class LoadProfileRegister extends Register {
         while( intervalI.hasNext() ){
             IntervalData id = (IntervalData)intervalI.next();
             Date time = id.getEndTime(); 
-            IntervalValue iv = (IntervalValue)id.getValuesIterator().next();
+            IntervalValue iv = id.getValuesIterator().next();
             
             result
                 .append(dateFormat.format(time))

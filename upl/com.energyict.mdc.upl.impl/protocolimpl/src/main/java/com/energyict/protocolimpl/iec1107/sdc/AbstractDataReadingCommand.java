@@ -6,13 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocolimpl.base.*;
-
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+
+import java.io.IOException;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
@@ -44,7 +42,7 @@ public abstract class AbstractDataReadingCommand {
         return null;
     }
     
-    protected void write(String command, String data) throws ProtocolConnectionException,IOException {
+    protected void write(String command, String data) throws IOException {
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(command);
         strbuff.append('(');
@@ -55,7 +53,7 @@ public abstract class AbstractDataReadingCommand {
              validateData(str);
     }
     
-    private byte[] read(String Command,String data) throws ProtocolConnectionException,IOException {
+    private byte[] read(String Command,String data) throws IOException {
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(Command);
         strbuff.append('(');

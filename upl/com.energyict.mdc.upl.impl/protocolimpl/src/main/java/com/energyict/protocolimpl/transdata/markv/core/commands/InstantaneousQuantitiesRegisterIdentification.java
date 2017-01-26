@@ -10,11 +10,8 @@
 
 package com.energyict.protocolimpl.transdata.markv.core.commands;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.io.*;
-
-import com.energyict.protocol.ProtocolUtils;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author Koen

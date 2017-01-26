@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.EventUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;

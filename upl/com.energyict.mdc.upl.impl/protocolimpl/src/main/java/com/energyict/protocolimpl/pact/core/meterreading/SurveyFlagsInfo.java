@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *

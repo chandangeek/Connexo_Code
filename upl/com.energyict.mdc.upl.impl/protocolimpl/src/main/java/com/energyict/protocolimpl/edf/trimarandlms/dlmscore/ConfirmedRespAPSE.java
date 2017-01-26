@@ -11,8 +11,7 @@
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *

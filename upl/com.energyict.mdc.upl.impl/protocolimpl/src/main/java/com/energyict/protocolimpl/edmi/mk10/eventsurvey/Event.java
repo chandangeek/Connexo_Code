@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Date;

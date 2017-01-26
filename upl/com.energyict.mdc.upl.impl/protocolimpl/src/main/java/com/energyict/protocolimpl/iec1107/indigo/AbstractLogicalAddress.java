@@ -6,11 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.protocol.ProtocolUtils;
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
@@ -56,7 +58,7 @@ abstract public class AbstractLogicalAddress {
         return getLogicalAddressFactory().getHistoricalData(getId()%0x100).getBillingDate();
     }
     
-    private void setLogicalAddress(byte[] data) throws FlagIEC1107ConnectionException,IOException {
+    private void setLogicalAddress(byte[] data) throws IOException {
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(Integer.toHexString(getId()).toUpperCase());
         strbuff.append('(');
@@ -67,7 +69,7 @@ abstract public class AbstractLogicalAddress {
             validateData(str);
     }
     
-    private byte[] getLogicalAddress() throws FlagIEC1107ConnectionException,IOException {
+    private byte[] getLogicalAddress() throws IOException {
         StringBuffer strbuff = new StringBuffer();
         strbuff.append(Integer.toHexString(getId()).toUpperCase());
         strbuff.append('(');

@@ -1,11 +1,10 @@
 package com.energyict.dlms;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.io.NestedIOException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -306,7 +305,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         }
     } // private void setProtocolParams()
 
-    private byte[] macSNRMFrame = {(byte) SNRM | (byte) HDLC_FRAME_CONTROL_PF_BIT,
+    private byte[] macSNRMFrame = {SNRM | HDLC_FRAME_CONTROL_PF_BIT,
             0x00, 0x00, // Header CRC
             (byte) 0x81, (byte) 0x80, 0x12,
             // Changing the MAX information field size does not seems to
@@ -319,7 +318,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 
 //    private byte[] flexSNRMFrame={(byte) 0x93, (byte) 0x00, (byte) 0x00};
 
-    private byte[] flexSNRMFrame = {(byte) SNRM | (byte) HDLC_FRAME_CONTROL_PF_BIT,
+    private byte[] flexSNRMFrame = {SNRM | HDLC_FRAME_CONTROL_PF_BIT,
             0x00, 0x00, // Header CRC
             (byte) 0x81, (byte) 0x80, 0x12,
             // Changing the MAX information field size does not seems to
@@ -436,7 +435,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         }
     } // public void doConnectMAC() throws DLMSConnectionException
 
-    private byte[] macDISCFrame = {(byte) DISC | (byte) HDLC_FRAME_CONTROL_PF_BIT, 0x00, 0x00}; // Header CRC
+    private byte[] macDISCFrame = {DISC | HDLC_FRAME_CONTROL_PF_BIT, 0x00, 0x00}; // Header CRC
 
     /**
      * Method that requests a MAC disconnect for the HDLC layer.
@@ -661,7 +660,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 
                 } // if ((iNewKar = readIn()) != -1)
 
-                if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                if (System.currentTimeMillis() - lMSTimeout > 0) {
                     return HDLC_TIMEOUT;
                 }
 

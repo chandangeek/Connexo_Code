@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.as220;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.logging.Logger;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * This class sends a message onto the display of the meter. This message has
@@ -109,10 +109,7 @@ public class AS220DisplayController {
 		String returnValue = "";
 
 		for (int i = 0; i < attributeValue.length(); i++) {
-			isValidChar = true;
-			if (attributeValue.charAt(i) == CR) {
-				isValidChar = false;
-			}
+			isValidChar = attributeValue.charAt(i) != CR;
 			if (attributeValue.charAt(i) == LF) {
 				isValidChar = false;
 			}

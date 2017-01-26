@@ -6,20 +6,19 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.gmc.base.EclConnection;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -95,7 +94,7 @@ public class U1600 extends AbstractProtocol {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+        return "$Date: Thu Nov 3 10:52:06 2016 +0100 $";
     }
 
     // KV 04122006
@@ -112,7 +111,7 @@ public class U1600 extends AbstractProtocol {
     @Override
     public Date getTime() throws IOException {
         Date date = null;
-        String timeDateString = getEclConnection().getTimeDateString().trim();;
+        String timeDateString = getEclConnection().getTimeDateString().trim();
         DateFormat sdf = new SimpleDateFormat("HH:mm:ss dd.MM.yy");
         sdf.setTimeZone(getTimeZone());
 

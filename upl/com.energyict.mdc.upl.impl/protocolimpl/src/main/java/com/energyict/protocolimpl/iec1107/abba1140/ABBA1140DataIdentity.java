@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public class ABBA1140DataIdentity {
      * @throws java.io.IOException 
      * @return 
      */
-    byte[] read(boolean cached,int dataLength, int set) throws FlagIEC1107ConnectionException,IOException {
+    byte[] read(boolean cached,int dataLength, int set) throws IOException {
         if ((!cached) || (dataBlocks[set] == null)) {
             boolean useIec1107 = dataIdentityFactory.getProtocolLink().isIEC1107Compatible();
             if( streameable && !useIec1107 ) {
@@ -84,7 +84,7 @@ public class ABBA1140DataIdentity {
      * @throws java.io.IOException 
      * @return 
      */
-    byte[] readStream(boolean cached, int nrOfBlocks) throws FlagIEC1107ConnectionException,IOException {
+    byte[] readStream(boolean cached, int nrOfBlocks) throws IOException {
         if (getSets() != 1)
             throw new IOException("ABBA1140DataIdentity, readRawRegisterStream, error nr of sets != 1 !!!, use of method not allowed");
         if ((!cached) || (dataBlocks[0] == null)) {
@@ -98,7 +98,7 @@ public class ABBA1140DataIdentity {
      * @throws com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException 
      * @throws java.io.IOException 
      */
-    void writeRawRegister(String value) throws FlagIEC1107ConnectionException,IOException {
+    void writeRawRegister(String value) throws IOException {
         String data = dataId+"001("+value+")";
         String retVal = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrameAndReturn(FlagIEC1107Connection.WRITE1,data.getBytes());
         if ((retVal != null) && (retVal.indexOf("ERR") != -1))
@@ -106,7 +106,7 @@ public class ABBA1140DataIdentity {
         dataBlocks = new byte[getSets()][];
     }
     
-    private byte[] doReadRawRegisterStream( boolean cached, int nrOfBlocks) throws FlagIEC1107ConnectionException,IOException {
+    private byte[] doReadRawRegisterStream( boolean cached, int nrOfBlocks) throws IOException {
         byte[] dataBlock=null;
         String data = dataId+"001("+Integer.toHexString(nrOfBlocks)+")";
         
@@ -135,7 +135,7 @@ public class ABBA1140DataIdentity {
     
     // normal iec1107 read method
     // read register in the meter
-    private byte[] doReadRawRegister(int dataLen,int set) throws FlagIEC1107ConnectionException,IOException {
+    private byte[] doReadRawRegister(int dataLen,int set) throws IOException {
         byte[] dataBlock=null;
         long timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // After 4,5 min, do authentication before continue! otherwise we can receive ERR5, password timeout!
         if (dataLen <= 0) throw new FlagIEC1107ConnectionException("ABBA1140DataIdentity, doReadRawRegister, wrong dataLength ("+dataLen+")!");
@@ -164,7 +164,7 @@ public class ABBA1140DataIdentity {
             }
             data.write(ba);
             
-            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+            if (System.currentTimeMillis() - timeout > 0) {
                 timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // arm again...
                 dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().authenticate();
             }

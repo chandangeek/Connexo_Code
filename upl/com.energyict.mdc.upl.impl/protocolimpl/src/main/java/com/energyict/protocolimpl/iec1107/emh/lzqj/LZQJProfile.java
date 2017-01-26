@@ -11,12 +11,12 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -201,7 +201,7 @@ public class LZQJProfile extends VDEWProfile {
 					eiCode = 0;
 					for (t = 0; t < 8; t++) {
 						if ((bStatus & (byte) (0x01 << t)) != 0) {
-							eiCode |= mapStatus2IntervalStateBits((int) (bStatus & (byte) (0x01 << t)) & 0xFF);
+							eiCode |= mapStatus2IntervalStateBits(bStatus & (byte) (0x01 << t) & 0xFF);
 						}
 					}
 
@@ -386,7 +386,7 @@ public class LZQJProfile extends VDEWProfile {
 						profileData.addInterval(intervalData);
 					}
 
-					calendar.add(calendar.MINUTE, profileInterval);
+					calendar.add(Calendar.MINUTE, profileInterval);
 
 					i = gotoNextCR(responseData, i + 1);
 

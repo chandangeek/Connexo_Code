@@ -7,10 +7,12 @@
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen
@@ -51,17 +53,17 @@ public class TrimaranOctetString implements Serializable {
 		Calendar calendar = Calendar.getInstance(timeZone);
 		calendar.clear();
 		int year = ProtocolUtils.getShort(this.array,0)&0x0000FFFF;
-		if (year != 0xFFFF) { calendar.set(calendar.YEAR,year); }
+		if (year != 0xFFFF) { calendar.set(Calendar.YEAR,year); }
 		int month = this.array[2]&0xFF;
-		if (month != 0xFF) { calendar.set(calendar.MONTH,month-1); }
+		if (month != 0xFF) { calendar.set(Calendar.MONTH,month-1); }
 		int date = this.array[3]&0xFF;
-		if (date != 0xFF) { calendar.set(calendar.DAY_OF_MONTH,date); }
+		if (date != 0xFF) { calendar.set(Calendar.DAY_OF_MONTH,date); }
 		int hour = this.array[5]&0xFF;
-		if (hour != 0xFF) { calendar.set(calendar.HOUR_OF_DAY,hour); }
+		if (hour != 0xFF) { calendar.set(Calendar.HOUR_OF_DAY,hour); }
 		int minute = this.array[6]&0xFF;
-		if (minute != 0xFF) { calendar.set(calendar.MINUTE,minute); }
+		if (minute != 0xFF) { calendar.set(Calendar.MINUTE,minute); }
 		int seconds = this.array[7]&0xFF;
-		if (seconds != 0xFF) { calendar.set(calendar.SECOND,seconds); }
+		if (seconds != 0xFF) { calendar.set(Calendar.SECOND,seconds); }
 
 		return calendar.getTime();
 	}
@@ -74,17 +76,17 @@ public class TrimaranOctetString implements Serializable {
 			calendar.clear();
 		}
 		int year = ProtocolUtils.getShort(this.array,0)&0x0000FFFF;
-		if (year != 0xFFFF) { calendar.set(calendar.YEAR,year); }
+		if (year != 0xFFFF) { calendar.set(Calendar.YEAR,year); }
 		int month = this.array[2]&0xFF;
-		if (month != 0xFF) { calendar.set(calendar.MONTH,month-1); }
+		if (month != 0xFF) { calendar.set(Calendar.MONTH,month-1); }
 		int day = this.array[3]&0xFF;
-		if (day != 0xFF) { calendar.set(calendar.DAY_OF_MONTH,day); }
+		if (day != 0xFF) { calendar.set(Calendar.DAY_OF_MONTH,day); }
 		int hour = this.array[5]&0xFF;
-		if (hour != 0xFF) { calendar.set(calendar.HOUR_OF_DAY,hour); }
+		if (hour != 0xFF) { calendar.set(Calendar.HOUR_OF_DAY,hour); }
 		int minute = this.array[6]&0xFF;
-		if (minute != 0xFF) { calendar.set(calendar.MINUTE,minute); }
+		if (minute != 0xFF) { calendar.set(Calendar.MINUTE,minute); }
 		int seconds = this.array[7]&0xFF;
-		if (seconds != 0xFF) { calendar.set(calendar.SECOND,seconds); }
+		if (seconds != 0xFF) { calendar.set(Calendar.SECOND,seconds); }
 		return calendar.getTime();
 	}
 

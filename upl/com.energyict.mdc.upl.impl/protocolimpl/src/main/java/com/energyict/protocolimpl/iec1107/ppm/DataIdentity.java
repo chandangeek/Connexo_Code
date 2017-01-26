@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.Serializable;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppm.opus.OpusResponse;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
 
 /** @author Koen, fbo */
 
@@ -62,7 +62,7 @@ class DataIdentity implements Serializable {
 		return this.length;
 	}
 
-	void writeRegister(String dataID, String value) throws FlagIEC1107ConnectionException, IOException {
+	void writeRegister(String dataID, String value) throws IOException {
 
 		if (ppm().isOpus()) {
 			ppm().getOpusConnection().writeRegister(dataID, value.getBytes());
@@ -75,7 +75,7 @@ class DataIdentity implements Serializable {
 	}
 
 	// read register in the meter if not cached
-	byte[] readRegister(String dataID, boolean cached, int dataLength, int set) throws FlagIEC1107ConnectionException, IOException {
+	byte[] readRegister(String dataID, boolean cached, int dataLength, int set) throws IOException {
 		if ((!cached) || (this.dataBlocks[set] == null)) {
 			if (ppm().isOpus()) {
 				OpusResponse or = ppm().getOpusConnection().readRegister(dataID, 0, 0, this.nrPackets, false);
@@ -92,7 +92,7 @@ class DataIdentity implements Serializable {
 	}
 
 	byte[] doReadFlagRegister(String dataID, int dataLen, int set)
-	throws FlagIEC1107ConnectionException, IOException {
+	throws IOException {
 		byte[] dataBlock = null;
 		if (dataLen <= 0) {
 			throw new FlagIEC1107ConnectionException(
@@ -148,7 +148,7 @@ class DataIdentity implements Serializable {
 			4, 3, 2, 1};
 
 	byte[] doReadRegisterProfile(String dataID, int dataLen, int set)
-	throws FlagIEC1107ConnectionException, IOException {
+	throws IOException {
 
 		if (dataLen <= 0) {
 			throw new FlagIEC1107ConnectionException(

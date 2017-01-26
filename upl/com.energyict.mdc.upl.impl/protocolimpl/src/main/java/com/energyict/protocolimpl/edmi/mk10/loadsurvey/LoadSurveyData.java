@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.mk10.core.AbstractRegisterType;
 import com.energyict.protocolimpl.edmi.mk10.core.RegisterTypeParser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

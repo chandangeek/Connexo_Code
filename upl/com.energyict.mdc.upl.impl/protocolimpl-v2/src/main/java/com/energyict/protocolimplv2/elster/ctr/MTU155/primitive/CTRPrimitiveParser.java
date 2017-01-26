@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.primitive;
 
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRBCDValue;
@@ -84,10 +84,7 @@ public class CTRPrimitiveParser {
             byte[] value = ProtocolUtils.getSubArray(rawData, offset, offset + valueLength1 - 1);
             Unit unit = object.getUnit(id, i);
 
-            signed = false;
-            if (x == 8 && y == 0 && z == 0 && i == 7) {
-                signed = true;
-            }
+            signed = x == 8 && y == 0 && z == 0 && i == 7;
             if (x == 8 && y == 1 && z == 2) {
                 signed = true;
             }
@@ -133,10 +130,7 @@ public class CTRPrimitiveParser {
             byte[] value = ProtocolUtils.getSubArray(rawData, offset, offset + valueLength1 - 1);
             Unit unit = object.getUnit(id, i);
 
-            stringValue = false;
-            if (x == 9 && y == 0 && z < 9) {
-                stringValue = true;
-            }
+            stringValue = x == 9 && y == 0 && z < 9;
             if (x == 9 && y == 2 && z < 3) {
                 stringValue = true;
             }
@@ -192,11 +186,8 @@ public class CTRPrimitiveParser {
 
             signedValue = false;
             stringValue = false;
-            bcdValue = false;
 
-            if (x == 0x0C && y == 0 && z == 0) {
-                bcdValue = true;
-            }
+            bcdValue = x == 0x0C && y == 0 && z == 0;
             if (x == 0x0C && y == 0 && z == 4) {
                 stringValue = true;
             }

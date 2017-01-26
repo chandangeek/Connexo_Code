@@ -6,15 +6,15 @@
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers;
 
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Registers;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.modbus.core.AbstractRegister;
-import com.energyict.protocolimpl.modbus.core.Parser;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Registers;
 
 /**
  * @author jme

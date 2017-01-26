@@ -1,8 +1,6 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ToStringBuilder;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -10,6 +8,7 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium150.Enerium150;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium50.Enerium50;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;

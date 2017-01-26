@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.CM32;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
 
 public class TimeTable {
 	

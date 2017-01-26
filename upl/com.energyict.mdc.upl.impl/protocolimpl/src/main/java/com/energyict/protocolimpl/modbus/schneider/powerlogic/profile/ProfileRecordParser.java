@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic.profile;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.schneider.powerlogic.DateTime;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.ArrayList;
 import java.util.Date;

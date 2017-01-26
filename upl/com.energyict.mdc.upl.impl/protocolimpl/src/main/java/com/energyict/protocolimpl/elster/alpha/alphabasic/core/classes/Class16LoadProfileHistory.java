@@ -10,14 +10,14 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
 
 /**
  *

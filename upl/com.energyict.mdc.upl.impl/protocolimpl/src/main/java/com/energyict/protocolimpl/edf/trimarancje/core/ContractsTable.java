@@ -3,11 +3,11 @@
  */
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * @author gna

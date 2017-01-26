@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

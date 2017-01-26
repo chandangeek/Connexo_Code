@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.protocol.ProtocolUtils;
 
 public class LoadProfileCompactArray {
 
@@ -26,7 +26,7 @@ public class LoadProfileCompactArray {
 
 		offset += 5; // skip compact array tag AND TypeDescription
 
-		int length = (int) DLMSUtils.getAXDRLength(data, offset);
+		int length = DLMSUtils.getAXDRLength(data, offset);
 		offset += DLMSUtils.getAXDRLengthOffset(data, offset);
 
 		if ((length % UNSIGNED32_LENGTH) != 0) {
