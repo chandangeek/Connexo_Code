@@ -9,6 +9,8 @@ Ext.define('Fim.view.history.HistoryGrid', {
         'Uni.view.toolbar.PagingBottom'
     ],
     showImportService: false,
+    fromWorkSpace: false,
+
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -17,12 +19,15 @@ Ext.define('Fim.view.history.HistoryGrid', {
                 dataIndex: 'startedOn',
                 flex: 1,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/importservices/importservice/history/occurrence').buildUrl({
+                    var url = me.fromWorkSpace ?
+                        me.router.getRoute('workspace/importhistory/occurrence').buildUrl({
+                            occurrenceId: record.get('id')
+                        }) :
+                        me.router.getRoute('administration/importservices/importservice/history/occurrence').buildUrl({
                             importServiceId: record.get('importServiceId'),
                             occurrenceId: record.get('id')
-                        }),
-                        date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
-                    return '<a href="' + url + '">' + date + '</a>';
+                        });
+                    return value ? '<a href="' + url + '">' + Uni.DateTime.formatDateTimeShort(new Date(value)) + '</a>' : '-';
                 }
             },
             {
@@ -31,12 +36,12 @@ Ext.define('Fim.view.history.HistoryGrid', {
                 flex: 2,
                 hidden: !me.showImportService,
                 renderer: function (value, metaData, record) {
-                    //TODO: add privilege check
                     var url = me.router.getRoute('administration/importservices/importservice').buildUrl({
-                            importServiceId: record.get('importServiceId')
-                        }),
-                        name = value ? value : '-';
-                    return '<a href="' + url + '">' + name + '</a>';
+                        importServiceId: record.get('importServiceId')
+                    });
+                    return Fim.privileges.DataImport.canView()
+                        ? '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>'
+                        : Ext.String.htmlEncode(value);
                 }
             },
             {

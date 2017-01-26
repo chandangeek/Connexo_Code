@@ -13,7 +13,7 @@ Ext.define('Fim.controller.Log', {
     models: [
         'Fim.model.LogFilter',
         'Fim.model.ImportServiceHistory',
-		'Fim.model.ImportServiceDetails'
+        'Fim.model.ImportServiceDetails'
     ],
     refs: [
         {
@@ -43,48 +43,58 @@ Ext.define('Fim.controller.Log', {
         });
     },
 
-    showImportServicesHistoryLog: function (importServiceId, occurrenceId) {
+    showImportServicesHistoryLogWorkspace: function (occurrenceId) {
+        this.showImportServicesHistoryLog(null, occurrenceId, true)
+    },
+
+    showImportServicesHistoryLog: function (importServiceId, occurrenceId, fromWorkSpace) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             filter = router.filter,
             showImportService = (occurrenceId === undefined),
-            importServiceId = router.arguments.importServiceId,
-            occurrenceId = router.arguments.occurrenceId,
             store = me.getStore('Fim.store.Logs'),
-            importServiceModel = me.getModel('Fim.model.ImportServiceDetails'),
             importServiceHistory = me.getModel('Fim.model.ImportServiceHistory'),
             view;
 
         me.setDefaultSort(router.filter);
         store.setFilterModel(router.filter);
         store.getProxy().setUrl(router.arguments);
-        importServiceModel.load(importServiceId, {
-            success: function (record) {
 
-                importServiceHistory.load(occurrenceId, {
-                    success: function (occurrenceTask) {
+        importServiceHistory.load(occurrenceId, {
+            success: function (occurrenceTask) {
 
-                        view = Ext.widget('fim-history-log-setup', {
-                            router: router,
-                            importService: record
-
-                        });
-                        view.down('#mnu-histoty-log #import-service-log-view-link').setText(record.get('name'));
-                        me.getApplication().fireEvent('changecontentevent', view);
-                        me.getHistoryLogViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importServices', 'FIM', 'Import services'));
-
-                        view.down('#frm-history-log-preview').loadRecord(occurrenceTask);
-                        view.down('#run-started-on').setValue(occurrenceTask.get('startedOnDisplay'));
-
-                        me.getApplication().fireEvent('importserviceload', record);
-                        me.setSortingToolbar(filter);
-                    }
+                view = Ext.widget('fim-history-log-setup', {
+                    router: router,
+                    fromWorkSpace: fromWorkSpace,
+                    importServiceId: occurrenceTask.get('importServiceId')
 
                 });
+                me.getApplication().fireEvent('changecontentevent', view);
+
+                Ext.suspendLayouts();
+
+                view.down('#import-history-log-grid-empty-message').setText(
+                    Uni.I18n.translate('importService.log.startedOnNoLogs', 'FIM', '{0} started on {1} did not create any logs',
+                        [occurrenceTask.get('importServiceName'), occurrenceTask.get('startedOnDisplay')])
+                );
+
+                if (!fromWorkSpace) {
+                    view.down('#mnu-histoty-log #import-service-log-view-link').setText(occurrenceTask.get('importServiceName'));
+                    me.getHistoryLogViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importServices', 'FIM', 'Import services'));
+
+                } else {
+                    view.down('#main-panel').setTitle(
+                        Uni.I18n.translate('importService.log.of.occurence', 'FIM', "Log '{0}'", occurrenceTask.get('startedOnDisplay'))
+                    );
+                }
+                view.down('#frm-history-log-preview').loadRecord(occurrenceTask);
+                view.down('#run-started-on').setValue(occurrenceTask.get('startedOnDisplay'));
+
+                me.getApplication().fireEvent('importserviceload', occurrenceTask.get('importServiceName'));
+                me.setSortingToolbar(filter);
+                Ext.resumeLayouts();
             }
         });
-
-
     },
 
     setSortingToolbar: function (filter) {

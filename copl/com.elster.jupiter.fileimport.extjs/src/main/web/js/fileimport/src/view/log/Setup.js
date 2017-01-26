@@ -10,33 +10,38 @@ Ext.define('Fim.view.log.Setup', {
     ],
     importService: null,
     runStartedOn: null,
+    fromWorkSpace: false,
     router: null,
     initComponent: function () {
         var me = this;
 
-        me.side = [
-            {
-                xtype: 'panel',
-                itemId: 'pnl-histoty-log-menu',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'fim-log-menu',
-                        itemId: 'mnu-histoty-log',
-                        router: me.router,
-                        importServiceId: me.importService.get('importServiceId')
-                    }
-                ]
-            }
-        ];
+        if(!me.fromWorkSpace){
+            me.side = [
+                {
+                    xtype: 'panel',
+                    itemId: 'pnl-histoty-log-menu',
+                    ui: 'medium',
+                    items: [
+                        {
+                            xtype: 'fim-log-menu',
+                            itemId: 'mnu-histoty-log',
+                            router: me.router
+                        }
+                    ]
+                }
+            ];
+        }
+
         me.content = {
             xtype: 'panel',
             ui: 'large',
+            itemId: 'main-panel',
             title: Uni.I18n.translate('general.log', 'FIM', 'Log'),
             items: [
                 {
                     xtype: 'fim-history-log-preview',
                     router: me.router,
+                    importServiceId: me.importServiceId,
                     margin: '10 0 20 0'
                 },
                 {
@@ -65,8 +70,8 @@ Ext.define('Fim.view.log.Setup', {
                     },
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('importService.log.startedOnNoLogs', 'FIM', '{0} started on {1} did not create any logs',[me.importService.get('name'),me.runStartedOn])
-                    }
+                        itemId: 'import-history-log-grid-empty-message',
+                   }
                 }
             ]
         };

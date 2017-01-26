@@ -13,6 +13,8 @@ Ext.define('Fim.view.history.History', {
     router: null,
     importServiceId: null,
     showImportService: false,
+    fromWorkSpace: false,
+
     initComponent: function () {
         var me = this;
 
@@ -27,6 +29,7 @@ Ext.define('Fim.view.history.History', {
                             itemId: 'history-view-menu',
                             importServiceId: me.importServiceId,
                             showImportService: me.showImportService,
+                            fromWorkSpace: me.fromWorkSpace,
                             router: me.router
                         }
                     ]
@@ -66,7 +69,8 @@ Ext.define('Fim.view.history.History', {
                         xtype: 'fim-history-grid',
                         itemId: 'fim-history-grid',
                         router: me.router,
-                        showImportService: me.showImportService
+                        showImportService: me.showImportService,
+                        fromWorkSpace: me.fromWorkSpace
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',

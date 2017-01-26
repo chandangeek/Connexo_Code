@@ -117,7 +117,7 @@ Ext.define('Fim.controller.ImportServices', {
                     html: recordDetails.get('statusTooltip')
                 });
 
-                me.getApplication().fireEvent('importserviceload', recordDetails);
+                me.getApplication().fireEvent('importserviceload', recordDetails.get('name'));
 
                 detailsForm.loadRecord(recordDetails);
                 if (recordDetails.get('importerAvailable') && recordDetails.properties() && recordDetails.properties().count()) {
@@ -345,7 +345,7 @@ Ext.define('Fim.controller.ImportServices', {
                 importService.load(importServiceId, {
                     success: function (importServiceRecord) {
                         addImportServiceView.importServiceRecord = importServiceRecord;
-                        me.getApplication().fireEvent('importserviceload', importServiceRecord);
+                        me.getApplication().fireEvent('importserviceload', importServiceRecord.get('name'));
 
                         addImportServiceForm = addImportServiceView.down('#frm-add-import-service');
                         addImportServiceForm.setTitle(Ext.String.format(Uni.I18n.translate('importService.edit', 'FIM', 'Edit \'{0}\''), importServiceRecord.get('name')));

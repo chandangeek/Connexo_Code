@@ -31,16 +31,41 @@ Ext.define('Fim.controller.Main', {
     },
 
     initMenu: function () {
+        if (Fim.privileges.DataImport.canViewHistory() && !Fim.privileges.DataImport.getAdminPrivilege()) { //false in Connexo Admin
+
+            var workspaceMenuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'FIM', 'Workspace'),
+                portal: 'workspace',
+                glyph: 'workspace',
+                index: 30
+            });
+            Uni.store.MenuItems.add(workspaceMenuItem);
+
+            var workspaceImportItem = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.dataExchange', 'FIM', 'Data exchange'),
+                portal: 'workspace',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
+                        href: '#/workspace/importhistory',
+                        route: 'importhistory'
+                    }
+                ]
+            });
+            Uni.store.PortalItems.add(workspaceImportItem);
+        }
+
         if (Fim.privileges.DataImport.canView()) {
-            var menuItem = Ext.create('Uni.model.MenuItem', {
+
+            var administrationMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'FIM', 'Administration'),
                 portal: 'administration',
                 glyph: 'settings',
                 index: 10
             });
+            Uni.store.MenuItems.add(administrationMenuItem);
 
-            Uni.store.MenuItems.add(menuItem);
-            var importItem = Ext.create('Uni.model.PortalItem', {
+            var administrationImportItem = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.dataExchange', 'FIM', 'Data exchange'),
                 portal: 'administration',
                 items: [
@@ -56,10 +81,7 @@ Ext.define('Fim.controller.Main', {
                     }
                 ]
             });
-
-            Uni.store.PortalItems.add(
-                importItem
-            );
+            Uni.store.PortalItems.add(administrationImportItem);
         }
     }
 });

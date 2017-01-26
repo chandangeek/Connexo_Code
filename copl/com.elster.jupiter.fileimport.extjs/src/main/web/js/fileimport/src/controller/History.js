@@ -50,7 +50,11 @@ Ext.define('Fim.controller.History', {
         });
     },
 
-    showImportServicesHistory: function (importServiceId) {
+    showImportServicesHistoryWorkspace: function () {
+        this.showImportServicesHistory(undefined, true);
+    },
+
+    showImportServicesHistory: function (importServiceId, fromWorkSpace) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Fim.store.ImportServicesHistory'),
@@ -66,7 +70,8 @@ Ext.define('Fim.controller.History', {
         view = Ext.widget('fim-import-service-history', {
             router: router,
             importServiceId: importServiceId,
-            showImportService: noSpecificImportService
+            showImportService: noSpecificImportService,
+            fromWorkSpace: fromWorkSpace
         });
 
         me.getApplication().fireEvent('changecontentevent', view);
@@ -80,7 +85,7 @@ Ext.define('Fim.controller.History', {
             importServiceModel.load(importServiceId, {
                 success: function (record) {
                     view.down('#history-view-menu #import-service-view-link').setText(record.get('name'));
-                    me.getApplication().fireEvent('importserviceload', record);
+                    me.getApplication().fireEvent('importserviceload', record.get('name'));
                 }
             });
         }
