@@ -126,7 +126,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     @Override
     public Optional<CimChannel> getCimChannel(ReadingType readingType) {
         if (!getMainReadingType().equals(readingType)) {
-            throw new IllegalArgumentException("Incorrect reading type. This channel supports only " + this.deliverable.getReadingType().getMRID());
+            return Optional.empty();
         }
         return persistedChannel.getCimChannel(readingType);
     }
