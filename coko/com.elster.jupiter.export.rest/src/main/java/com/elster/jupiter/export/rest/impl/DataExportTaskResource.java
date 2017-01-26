@@ -32,6 +32,7 @@ import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
@@ -160,6 +161,7 @@ public class DataExportTaskResource {
     public Response addExportTask(DataExportTaskInfo info, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
+                .setLogLevel(info.logLevelId == null ? TaskLogLevel.WARNING : TaskLogLevel.valueOf(info.logLevelId))
                 .setApplication(getApplicationNameFromCode(appCode))
                 .setDataFormatterFactoryName(info.dataProcessor.name)
                 .setScheduleExpression(getScheduleExpression(info))
@@ -270,6 +272,7 @@ public class DataExportTaskResource {
         ExportTask task = findAndLockExportTask(info);
 
         task.setName(info.name);
+        task.setLogLevel(info.logLevelId == null ? TaskLogLevel.WARNING : TaskLogLevel.valueOf(info.logLevelId));
         task.setScheduleExpression(getScheduleExpression(info));
         task.setNextExecution(info.nextRun);
 

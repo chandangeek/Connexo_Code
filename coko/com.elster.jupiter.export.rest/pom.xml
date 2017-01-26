@@ -183,5 +183,9 @@
             <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+        </dependency>
     </dependencies>
 </project>
