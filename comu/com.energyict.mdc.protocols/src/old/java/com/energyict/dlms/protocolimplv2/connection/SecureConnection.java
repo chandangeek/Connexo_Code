@@ -1,7 +1,6 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;

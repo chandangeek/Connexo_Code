@@ -1,7 +1,6 @@
 package com.energyict.dlms.protocolimplv2;
 
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;

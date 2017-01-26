@@ -1,6 +1,5 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.DLMSUtils;

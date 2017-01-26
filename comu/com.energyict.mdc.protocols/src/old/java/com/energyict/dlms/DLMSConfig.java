@@ -1,6 +1,5 @@
 package com.energyict.dlms;
 
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.NotInObjectListException;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -86,7 +85,7 @@ public final class DLMSConfig {
 	 * For the NTA meters, there has been some changes regarding the A-field.
 	 * Because the Mbus values are stored in the same Profile as the E-meter values, the A field should be '0'(meaning generic).
 	 * But the other party decided to leave this to '1'...
-	 * 
+	 *
 	 * @return the DLMSConfig for the DailyLoadProfile.
 	 */
 	private static final DLMSConfig[] dailyProfile = {
