@@ -38,7 +38,7 @@ public class EnableValidation extends TranslatableServerMicroAction {
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        if(device.getDeviceConfiguration().getValidateOnStore()) {
+        if(!device.getDeviceConfiguration().getValidateOnStore()) {
             device.forValidation().activateValidation(getLastCheckedTimestamp(properties));
         } else {
             device.forValidation().activateValidationOnStorage(getLastCheckedTimestamp((properties)));
