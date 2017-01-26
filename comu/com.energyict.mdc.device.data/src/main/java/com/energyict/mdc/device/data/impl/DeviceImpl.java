@@ -1329,7 +1329,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             throw new NoLifeCycleActiveAt(thesaurus, MessageSeeds.INVALID_SHIPMENT_DATE, koreHelper.getInitialMeterActivationStartDate()
                     .get(), maximumPastEffectiveTimestamp, maximumFutureEffectiveTimestamp);
         }
-        return amrSystem.newMeter(String.valueOf(getId()))
+        return amrSystem.newMeter(String.valueOf(getId()), getName())
                 .setMRID(getmRID())
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
