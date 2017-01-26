@@ -1,13 +1,17 @@
 package com.elster.jupiter.tasks.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskFilterSpecification;
 import com.elster.jupiter.tasks.TaskFinder;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.security.Privileges;
 import com.elster.jupiter.time.TimeService;
@@ -16,6 +20,7 @@ import com.elster.jupiter.users.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -26,10 +31,13 @@ import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by igh on 27/10/2015.
@@ -122,5 +130,14 @@ public class TaskResource {
         return queues;
     }
 
+    @GET
+    @Path("/loglevels")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getLogLevels(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo<String>> logLevels = Arrays.stream(TaskLogLevel.values())
+                .map(logLevel -> new IdWithDisplayValueInfo<>(logLevel.name(), logLevel.getDisplayName(this.thesaurus)))
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("logLevels", logLevels, queryParameters);
+    }
 
 }
