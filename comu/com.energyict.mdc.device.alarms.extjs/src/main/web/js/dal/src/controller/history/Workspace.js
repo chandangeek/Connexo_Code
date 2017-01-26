@@ -16,6 +16,12 @@ Ext.define('Dal.controller.history.Workspace', {
             action: 'showOverview',
             privileges: Dal.privileges.Alarm.viewAdminAlarm,
             items: {
+                bulkaction: {
+                    title: Uni.I18n.translate('general.bulkAction','DAL','Bulk action'),
+                    route: 'bulkaction',
+                    privileges: Dal.privileges.Alarm.viewAdminAlarm,
+                    controller: 'Dal.controller.BulkChangeAlarms'
+                },
                 view: {
                     title: Uni.I18n.translate('general.alarmDetails', 'DAL', 'Alarm details'),
                     route: '{alarmId}',
@@ -29,6 +35,7 @@ Ext.define('Dal.controller.history.Workspace', {
                         }, {single: true});
                         return this;
                     },
+
                     items: {
                         startProcess: {
                             title: Uni.I18n.translate('general.startProcess', 'DAL', 'Start process'),
