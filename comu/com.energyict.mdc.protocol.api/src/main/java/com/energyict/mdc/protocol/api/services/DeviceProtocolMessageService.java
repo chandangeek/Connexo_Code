@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import java.util.Set;
 
 /**
- * OSGI Service wrapper to create an instance of a DeviceProtocol Message object
+ * OSGI Service wrapper to create an instance of a DeviceProtocol Message object.
  *
  * Copyrights EnergyICT
  * Date: 08/11/13
@@ -24,7 +24,7 @@ public interface DeviceProtocolMessageService {
 
     /**
      * Returns all the {@link DeviceMessageCategory message categories}
-     * that are now to this service.
+     * that are known to this service.
      *
      * @return The Set of DeviceMessageCategory
      */
