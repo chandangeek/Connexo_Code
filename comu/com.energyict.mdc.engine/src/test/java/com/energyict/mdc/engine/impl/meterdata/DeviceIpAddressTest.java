@@ -36,7 +36,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testConstructorDoesNotThrowExceptions() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
 
         // Business method
         new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
@@ -46,7 +46,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testIsAlwaysConfiguredOnComTasks() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
         DataCollectionConfiguration comTask = mock(DataCollectionConfiguration.class);
 
@@ -59,7 +59,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testToDeviceCommand() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
@@ -72,7 +72,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testGetDeviceIdentifier() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
@@ -84,7 +84,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testGetIpAddress() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
@@ -96,7 +96,7 @@ public class DeviceIpAddressTest {
 
     @Test
     public void testGetConnectionTypePropertyName() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceIpAddress deviceIpAddress = new DeviceIpAddress(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method

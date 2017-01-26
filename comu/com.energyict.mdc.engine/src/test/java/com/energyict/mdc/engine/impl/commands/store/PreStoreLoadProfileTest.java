@@ -388,8 +388,6 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         // All data should be 'Prestored' on the data logger channel
         assertThat(preStoredLoadProfile.getPreStoredLoadProfiles()).hasSize(1);
         PreStoreLoadProfile.PreStoredLoadProfile singlePreStoredLoadProfile = preStoredLoadProfile.getPreStoredLoadProfiles().get(0);
-        Device device = (Device) singlePreStoredLoadProfile.getDeviceIdentifier().findDevice(); //Downcast to Connexo Device
-        assertThat(device.getId()).isEqualTo(dataLogger.getId());
 
         assertThat(singlePreStoredLoadProfile.getIntervalBlocks()).hasSize(2);
         assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(0).getReadingType().getMRID());

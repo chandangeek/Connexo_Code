@@ -4,6 +4,7 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
@@ -39,6 +40,7 @@ public class SerialPortConnector implements InboundComPortConnector {
     private final HexService hexService;
     private final EventPublisher eventPublisher;
     private final Clock clock;
+    private final DeviceMessageService deviceMessageService;
 
     /**
      * The number of consecutive rings already received.
@@ -46,13 +48,14 @@ public class SerialPortConnector implements InboundComPortConnector {
     private int currentRingCount;
     private ComPortRelatedComChannel comChannel;
 
-    public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService, HexService hexService, EventPublisher eventPublisher, Clock clock) {
+    public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService, HexService hexService, EventPublisher eventPublisher, Clock clock, DeviceMessageService deviceMessageService) {
         super();
         this.comPort = comPort;
         this.serialComponentService = serialComponentService;
         this.hexService = hexService;
         this.eventPublisher = eventPublisher;
         this.clock = clock;
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Override
@@ -63,7 +66,7 @@ public class SerialPortConnector implements InboundComPortConnector {
         waitForNumberOfRings(comChannel, modemComponent);
         acceptCallAndConnect(comChannel, modemComponent);
 
-        this.comChannel = new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.clock, this.hexService, eventPublisher);
+        this.comChannel = new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.clock, this.deviceMessageService, this.hexService, eventPublisher);
         return this.comChannel;
     }
 

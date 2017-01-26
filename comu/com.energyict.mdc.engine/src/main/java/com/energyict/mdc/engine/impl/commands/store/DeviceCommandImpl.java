@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.EngineService;
@@ -27,15 +28,14 @@ import java.util.Optional;
  * code reuse opportunities.
  *
  * @param <E> Event type that will be published once the DeviceCommand is executed
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-23 (09:10)
  */
 public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> implements DeviceCommand, CanProvideDescriptionTitle {
 
-    private ExecutionLogger logger;
     private final ComTaskExecution comTaskExecution;
     private final ServiceProvider serviceProvider;
+    private ExecutionLogger logger;
     private List<Issue> issues = new ArrayList<>();
 
     public DeviceCommandImpl(ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
@@ -69,7 +69,7 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
             if (event.isPresent()) {
                 publish(event.get());
             }
-         } finally {
+        } finally {
             if (logger != null) {
                 logger.executed(this);
             }
@@ -98,7 +98,7 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
         return this.serviceProvider.eventService();
     }
 
-    protected void publish(E event){
+    protected void publish(E event) {
         // event will be null if the execution of the device command did not result in data storage
         if (event != null) {
             EventPublisher publisher = this.serviceProvider.eventPublisher();
@@ -148,9 +148,9 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
      * against the related {@link ComTaskExecution}.
      *
      * @param completionCode the additional completionCode
-     * @param issue the issue that should be logged
+     * @param issue          the issue that should be logged
      */
-    protected void addIssue (CompletionCode completionCode, Issue issue) {
+    protected void addIssue(CompletionCode completionCode, Issue issue) {
         this.issues.add(issue);
         if (logger != null) {
             logger.addIssue(completionCode, issue, this.getComTaskExecution());
@@ -163,6 +163,7 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
         toJournalMessageDescription(builder, serverLogLevel);
         return builder.toString();
     }
+
     // Needs to be overriden by subclasses for which 'data storage' events should be thrown;
     protected Optional<E> newEvent(List<Issue> issues) {
         return Optional.empty();
@@ -186,6 +187,11 @@ public abstract class DeviceCommandImpl<E extends CollectedDataProcessingEvent> 
         @Override
         public Clock clock() {
             return serviceProvider.clock();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
         }
     }
 }

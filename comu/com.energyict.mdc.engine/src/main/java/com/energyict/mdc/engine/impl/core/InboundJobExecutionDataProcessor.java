@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -34,7 +35,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -72,7 +72,7 @@ import java.util.logging.Logger;
  * A logical <i>connect</i> can be skipped as the
  * {@link ComChannel ComChannl}
  * will already be created by the ComPortListener
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/3/13
  * Time: 3:38 PM
@@ -284,7 +284,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
      * Check if data of the given type is already processed.
      *
      * @param alreadyProcessedDataTypes The bitstring containing the already processed data types
-     * @param dataType The byte indicating the dataType
+     * @param dataType                  The byte indicating the dataType
      * @return true if the given data type is already processed
      * false if the given data type was not yet processed
      */
@@ -490,6 +490,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         @Override
         public MeteringService meteringService() {
             return serviceProvider.meteringService();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
         }
     }
 }

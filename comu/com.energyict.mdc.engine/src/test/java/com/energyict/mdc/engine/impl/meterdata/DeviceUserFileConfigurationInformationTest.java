@@ -34,7 +34,7 @@ public class DeviceUserFileConfigurationInformationTest {
 
     @Test
     public void testConstructorDoesNotThrowExceptions() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
 
         // Business method
         new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
@@ -44,7 +44,7 @@ public class DeviceUserFileConfigurationInformationTest {
 
     @Test
     public void testIsNeverConfiguredOnComTasks() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
         DataCollectionConfiguration comTask = mock(DataCollectionConfiguration.class);
 
@@ -57,7 +57,7 @@ public class DeviceUserFileConfigurationInformationTest {
 
     @Test
     public void testToDeviceCommand() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
 
         // Business method
@@ -69,7 +69,7 @@ public class DeviceUserFileConfigurationInformationTest {
 
     @Test
     public void testGetDeviceIdentifier() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
 
         // Business method
@@ -81,7 +81,7 @@ public class DeviceUserFileConfigurationInformationTest {
 
     @Test
     public void testGetFileExtension() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
 
         // Business method
@@ -93,7 +93,7 @@ public class DeviceUserFileConfigurationInformationTest {
 
     @Test
     public void testGetContents() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceUserFileConfigurationInformation deviceIpAddress = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
 
         // Business method

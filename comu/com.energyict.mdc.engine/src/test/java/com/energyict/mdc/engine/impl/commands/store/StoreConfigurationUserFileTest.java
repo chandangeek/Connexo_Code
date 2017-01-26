@@ -40,7 +40,7 @@ public class StoreConfigurationUserFileTest {
 
     @Test
     public void testExecute() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, null, new NoDeviceCommandServices());
         command.logExecutionWith(this.executionLogger);
@@ -56,7 +56,7 @@ public class StoreConfigurationUserFileTest {
 
     @Test
     public void testToString() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, null, new NoDeviceCommandServices());
 

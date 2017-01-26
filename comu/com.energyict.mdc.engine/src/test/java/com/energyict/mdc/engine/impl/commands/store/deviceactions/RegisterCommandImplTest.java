@@ -118,7 +118,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
         OfflineRegister offlineRegister_A = mock(OfflineRegister.class);
         OfflineRegister offlineRegister_B = mock(OfflineRegister.class);
         OfflineRegister offlineRegister_C = mock(OfflineRegister.class);
-        DeviceIdentifier deviceIdentifierById = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifier deviceIdentifierById = new DeviceIdentifierById(DEVICE_ID);
         when(offlineRegister_A.getDeviceIdentifier()).thenReturn(deviceIdentifierById);
         when(offlineRegister_B.getDeviceIdentifier()).thenReturn(deviceIdentifierById);
         when(offlineRegister_C.getDeviceIdentifier()).thenReturn(deviceIdentifierById);
@@ -201,7 +201,7 @@ public class RegisterCommandImplTest extends AbstractComCommandExecuteTest {
 
     private OfflineRegister mockOfflineRegister(long deviceId, String serialNumber, Long registerId, ObisCode obisCode) {
         OfflineRegister offlineRegister = mock(OfflineRegister.class);
-        when(offlineRegister.getDeviceIdentifier()).thenReturn(new DeviceIdentifierById(deviceId, deviceService));
+        when(offlineRegister.getDeviceIdentifier()).thenReturn(new DeviceIdentifierById(deviceId));
         when(offlineRegister.getSerialNumber()).thenReturn(serialNumber);
         when(offlineRegister.getRegisterId()).thenReturn(registerId);
         when(offlineRegister.getObisCode()).thenReturn(obisCode);

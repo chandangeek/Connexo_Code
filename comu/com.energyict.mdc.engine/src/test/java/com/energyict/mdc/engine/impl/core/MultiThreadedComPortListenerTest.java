@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.ComServer;
@@ -23,6 +24,11 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -31,12 +37,6 @@ import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -75,6 +75,8 @@ public class MultiThreadedComPortListenerTest {
     private HexService hexService;
     @Mock
     private SocketService socketService;
+    @Mock
+    private DeviceMessageService deviceMessageService;
     @Mock
     private EventPublisherImpl eventPublisher;
     @Mock
@@ -122,7 +124,9 @@ public class MultiThreadedComPortListenerTest {
                         this.socketService,
                         this.hexService,
                         this.eventPublisher,
-                        this.clock));
+                        this.clock,
+                        this.deviceMessageService
+                ));
         when(this.comPortListenerServiceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
 
         when(this.socketService.newTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
@@ -147,7 +151,9 @@ public class MultiThreadedComPortListenerTest {
                             this.socketService,
                             this.hexService,
                             this.eventPublisher,
-                            this.clock));
+                            this.clock,
+                            this.deviceMessageService
+                    ));
             when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
             multiThreadedComPortListener =
                     new MultiThreadedComPortListener(
@@ -189,7 +195,9 @@ public class MultiThreadedComPortListenerTest {
                             this.socketService,
                             this.hexService,
                             this.eventPublisher,
-                            this.clock));
+                            this.clock,
+                            this.deviceMessageService
+                    ));
             when(serviceProvider.managementBeanFactory()).thenReturn(managementBeanFactory);
             comPortListener =
                     new MultiThreadedComPortListener(
@@ -338,9 +346,9 @@ public class MultiThreadedComPortListenerTest {
             CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
             when(inboundComPortExecutorFactory.
                     create(
-                        any(InboundComPort.class),
-                        any(ComServerDAO.class),
-                        any(DeviceCommandExecutor.class))).
+                            any(InboundComPort.class),
+                            any(ComServerDAO.class),
+                            any(DeviceCommandExecutor.class))).
                     thenReturn(new LatchDrivenInboundComPortExecutor(startLatch, stopLatch));
             ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider = mock(ComChannelBasedComPortListenerImpl.ServiceProvider.class);
             when(serviceProvider.threadFactory()).thenReturn(threadFactory);
@@ -400,9 +408,9 @@ public class MultiThreadedComPortListenerTest {
             CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
             when(inboundComPortExecutorFactory.
                     create(
-                        any(InboundComPort.class),
-                        any(ComServerDAO.class),
-                        any(DeviceCommandExecutor.class))).
+                            any(InboundComPort.class),
+                            any(ComServerDAO.class),
+                            any(DeviceCommandExecutor.class))).
                     thenReturn(new LatchDrivenInboundComPortExecutor(startLatch, stopLatch));
 
             multiThreadedComPortListener = spy(new LatchDrivenMultiThreadedComPortListener(
@@ -444,7 +452,7 @@ public class MultiThreadedComPortListenerTest {
             InboundComPortConnectorFactory inboundComPortConnectorFactory = mock(InboundComPortConnectorFactory.class);
             when(inboundComPortConnectorFactory.connectorFor(inboundComPort)).thenReturn(connector);
             final ComServerDAO comServerDAO = mock(ComServerDAO.class);
-            CountDownLatch startLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1 -1);  // minus one because we mock one
+            CountDownLatch startLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS + 1 - 1);  // minus one because we mock one
             CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS - 1);      // minus one because we mock one
             InboundComPortExecutorFactory inboundComPortExecutorFactory = mock(InboundComPortExecutorFactory.class);
             InboundComPortExecutor inboundComPortExecutor1 = new LatchDrivenInboundComPortExecutor(startLatch, stopLatch);
@@ -453,9 +461,9 @@ public class MultiThreadedComPortListenerTest {
             InboundComPortExecutor inboundComPortExecutor3 = new LatchDrivenInboundComPortExecutor(startLatch, stopLatch);
             when(inboundComPortExecutorFactory.
                     create(
-                        any(InboundComPort.class),
-                        any(ComServerDAO.class),
-                        any(DeviceCommandExecutor.class))).
+                            any(InboundComPort.class),
+                            any(ComServerDAO.class),
+                            any(DeviceCommandExecutor.class))).
                     thenReturn(inboundComPortExecutor1, inboundComPortExecutor2, inboundComPortExecutor3);
             when(this.comPortListenerServiceProvider.comServerDAO()).thenReturn(comServerDAO);
             when(this.comPortListenerServiceProvider.threadFactory()).thenReturn(threadFactory);
@@ -478,7 +486,7 @@ public class MultiThreadedComPortListenerTest {
 
             //Asserts
             verify(multiThreadedComPortListener, times(1)).workerFailed(any(Throwable.class));
-            verify(multiThreadedComPortListener, times(NUMBER_OF_SIMULTANEOUS_CONNECTIONS-1)).workerCompleted();
+            verify(multiThreadedComPortListener, times(NUMBER_OF_SIMULTANEOUS_CONNECTIONS - 1)).workerCompleted();
         } finally {
             if (multiThreadedComPortListener != null) {
                 multiThreadedComPortListener.shutdownImmediate();
@@ -529,7 +537,7 @@ public class MultiThreadedComPortListenerTest {
         }
     }
 
-    private class FixedNumberOfAcceptsComPortConnector implements InboundComPortConnector{
+    private class FixedNumberOfAcceptsComPortConnector implements InboundComPortConnector {
 
         private final InboundComPort comPort;
         private final int amountOfAccepts;
@@ -552,7 +560,7 @@ public class MultiThreadedComPortListenerTest {
                     Thread.currentThread().interrupt();
                 }
             }
-            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, clock, hexService, eventPublisher);
+            return new ComPortRelatedComChannelImpl(new VoidTestComChannel(), this.comPort, clock, deviceMessageService, hexService, eventPublisher);
         }
 
         @Override

@@ -30,7 +30,6 @@ import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
@@ -69,7 +68,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         }
 
         this.groupedDeviceCommand = groupedDeviceCommand;
-        this.basicComCommandBehavior = new BasicComCommandBehavior(this, ComCommandDescriptionTitle.getComCommandDescriptionTitleFor(this.getClass()).getDescription(), getServiceProvider().clock());
+        this.basicComCommandBehavior = new BasicComCommandBehavior(this, ComCommandDescriptionTitle.getComCommandDescriptionTitleFor(this.getClass()).getDescription(), getServiceProvider().clock(), getServiceProvider().deviceMessageService());
     }
 
     private CommandRoot.ServiceProvider getServiceProvider() {

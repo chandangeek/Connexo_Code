@@ -6,6 +6,7 @@ import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -163,6 +164,10 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     public Clock clock() {
         return this.serviceProvider.clock();
+    }
+
+    public DeviceMessageService deviceMessageService() {
+        return this.serviceProvider.deviceMessageService();
     }
 
     public EventPublisher eventPublisher() {
@@ -605,6 +610,8 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         EngineService engineService();
 
+        DeviceMessageService deviceMessageService();
+
     }
 
     private class ConnectionTaskPropertyCache implements ConnectionTaskPropertyProvider {
@@ -643,6 +650,11 @@ public final class ExecutionContext implements JournalEntryFactory {
         public Clock clock() {
             return serviceProvider.clock();
         }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
+        }
     }
 
     private class DeviceCommandServiceProvider implements DeviceCommand.ServiceProvider {
@@ -678,6 +690,11 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         public EventPublisher eventPublisher() {
             return serviceProvider.eventPublisher();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
         }
 
     }

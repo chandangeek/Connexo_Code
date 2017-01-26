@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
@@ -9,8 +8,9 @@ import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTi
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.obis.ObisCode;
 import org.fest.assertions.api.Assertions;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -37,8 +37,8 @@ public class VerifyLoadProfilesCommandImplTest extends AbstractComCommandExecute
         when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(new LoadProfilesTaskOptions());
         VerifyLoadProfilesCommandImpl command = new VerifyLoadProfilesCommandImpl(getGroupedDeviceCommand(), loadProfileCommand);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        CollectedLoadProfileConfiguration config1 = new DeviceLoadProfileConfiguration(ObisCode.fromString("1.1.1.1.1.1"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
-        CollectedLoadProfileConfiguration config2 = new DeviceLoadProfileConfiguration(ObisCode.fromString("2.2.2.2.2.2"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
+        CollectedLoadProfileConfiguration config1 = new DeviceLoadProfileConfiguration(ObisCode.fromString("1.1.1.1.1.1"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        CollectedLoadProfileConfiguration config2 = new DeviceLoadProfileConfiguration(ObisCode.fromString("2.2.2.2.2.2"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String description = command.toJournalMessageDescription(LogLevel.TRACE);
@@ -51,8 +51,8 @@ public class VerifyLoadProfilesCommandImplTest extends AbstractComCommandExecute
         when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(new LoadProfilesTaskOptions());
         VerifyLoadProfilesCommandImpl command = new VerifyLoadProfilesCommandImpl(getGroupedDeviceCommand(), loadProfileCommand);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        CollectedLoadProfileConfiguration config1 = new DeviceLoadProfileConfiguration(ObisCode.fromString("1.1.1.1.1.1"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
-        CollectedLoadProfileConfiguration config2 = new DeviceLoadProfileConfiguration(ObisCode.fromString("2.2.2.2.2.2"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
+        CollectedLoadProfileConfiguration config1 = new DeviceLoadProfileConfiguration(ObisCode.fromString("1.1.1.1.1.1"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        CollectedLoadProfileConfiguration config2 = new DeviceLoadProfileConfiguration(ObisCode.fromString("2.2.2.2.2.2"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String description = command.toJournalMessageDescription(LogLevel.INFO);
@@ -65,8 +65,8 @@ public class VerifyLoadProfilesCommandImplTest extends AbstractComCommandExecute
         when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(new LoadProfilesTaskOptions());
         VerifyLoadProfilesCommandImpl command = new VerifyLoadProfilesCommandImpl(getGroupedDeviceCommand(), loadProfileCommand);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        CollectedLoadProfileConfiguration config1 = new DeviceLoadProfileConfiguration(ObisCode.fromString("1.1.1.1.1.1"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
-        CollectedLoadProfileConfiguration config2 = new DeviceLoadProfileConfiguration(ObisCode.fromString("2.2.2.2.2.2"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
+        CollectedLoadProfileConfiguration config1 = new DeviceLoadProfileConfiguration(ObisCode.fromString("1.1.1.1.1.1"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        CollectedLoadProfileConfiguration config2 = new DeviceLoadProfileConfiguration(ObisCode.fromString("2.2.2.2.2.2"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String description = command.toJournalMessageDescription(LogLevel.ERROR);
@@ -82,8 +82,8 @@ public class VerifyLoadProfilesCommandImplTest extends AbstractComCommandExecute
         when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         VerifyLoadProfilesCommandImpl command = new VerifyLoadProfilesCommandImpl(getGroupedDeviceCommand(), loadProfileCommand);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        CollectedLoadProfileConfiguration config1 = new DeviceLoadProfileConfiguration(ObisCode.fromString("1.1.1.1.1.1"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
-        CollectedLoadProfileConfiguration config2 = new DeviceLoadProfileConfiguration(ObisCode.fromString("2.2.2.2.2.2"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER));
+        CollectedLoadProfileConfiguration config1 = new DeviceLoadProfileConfiguration(ObisCode.fromString("1.1.1.1.1.1"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
+        CollectedLoadProfileConfiguration config2 = new DeviceLoadProfileConfiguration(ObisCode.fromString("2.2.2.2.2.2"), new TestSerialNumberDeviceIdentifier(SERIAL_NUMBER), SERIAL_NUMBER);
         when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.anyList())).thenReturn(Arrays.asList(config1, config2));
         command.doExecute(deviceProtocol, null);
         String journalMessage = command.toJournalMessageDescription(LogLevel.DEBUG);

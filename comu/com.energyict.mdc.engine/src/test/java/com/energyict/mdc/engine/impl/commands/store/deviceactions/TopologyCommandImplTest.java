@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
@@ -56,9 +55,9 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
 
     @Test
     public void doExecuteTest() {
-        DeviceIdentifierById masterDevice = new DeviceIdentifierById(1L, mock(DeviceService.class));
-        DeviceIdentifierById slaveDevice1 = new DeviceIdentifierById(2L, mock(DeviceService.class));
-        DeviceIdentifierById slaveDevice2 = new DeviceIdentifierById(3L, mock(DeviceService.class));
+        DeviceIdentifierById masterDevice = new DeviceIdentifierById(1L);
+        DeviceIdentifierById slaveDevice1 = new DeviceIdentifierById(2L);
+        DeviceIdentifierById slaveDevice2 = new DeviceIdentifierById(3L);
         Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slaveDevice1, slaveDevice2);
 
         Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();

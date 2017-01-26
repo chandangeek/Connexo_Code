@@ -19,6 +19,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -58,7 +59,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -102,6 +102,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
 public class EngineServiceImpl implements ServerEngineService, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMSERVER_USER = "comserver";
+    public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -110,7 +111,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
     private volatile ThreadPrincipalService threadPrincipalService;
-
     private volatile HexService hexService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile IssueService issueService;
@@ -135,12 +135,9 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile UpgradeService upgradeService;
     private volatile AppService appService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
-
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
-
-    public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
 
     public EngineServiceImpl() {
     }
@@ -204,7 +201,20 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Override
-    public DeviceCache newDeviceCache(com.energyict.mdc.device.data.Device device, DeviceProtocolCache deviceProtocolCache) {
+    public Optional<DeviceCache> findDeviceCacheByDeviceIdentifier(DeviceIdentifier deviceIdentifier) {
+        Device device = deviceService
+                .findDeviceByIdentifier(deviceIdentifier)
+                .orElseThrow(() -> new IllegalArgumentException("Device with identifier " + deviceIdentifier.toString() + " does not exist"));
+
+        return dataModel.mapper(DeviceCache.class).getUnique("device", device);
+    }
+
+    @Override
+    public DeviceCache newDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCache deviceProtocolCache) {
+        Device device = deviceService
+                .findDeviceByIdentifier(deviceIdentifier)
+                .orElseThrow(() -> new IllegalArgumentException("Device with identifier " + deviceIdentifier.toString() + " does not exist"));
+
         final DeviceCacheImpl deviceCache = dataModel.getInstance(DeviceCacheImpl.class).initialize(device, deviceProtocolCache);
         deviceCache.save();
         return deviceCache;

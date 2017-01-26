@@ -9,6 +9,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -146,6 +147,8 @@ public class InboundCommunicationHandlerTest {
     private ComSessionBuilder comSessionBuilder;
     @Mock
     private ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder;
+    @Mock
+    private DeviceMessageService deviceMessageService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -687,8 +690,10 @@ public class InboundCommunicationHandlerTest {
                                 mock(ComChannel.class),
                                 this.comPort,
                                 this.clock,
+                                this.deviceMessageService,
                                 this.hexService,
-                                this.eventPublisher),
+                                this.eventPublisher
+                        ),
                         this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;

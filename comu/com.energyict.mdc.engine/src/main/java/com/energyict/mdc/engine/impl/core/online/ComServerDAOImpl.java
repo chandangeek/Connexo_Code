@@ -94,7 +94,6 @@ import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
 import com.energyict.mdc.upl.security.CertificateWrapper;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -111,7 +110,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Currying.use;
@@ -271,11 +269,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName) {
         return getDeviceService()
-                    .findDeviceByIdentifier(deviceIdentifier)
-                    .flatMap(Device::getDeviceProtocolPluggableClass)
-                    .map(DeviceProtocolPluggableClass::getDeviceProtocol)
-                    .map(use(this::getPropertyValueType).with(propertyName))
-                    .orElse(PropertyValueType.UNSUPPORTED);
+                .findDeviceByIdentifier(deviceIdentifier)
+                .flatMap(Device::getDeviceProtocolPluggableClass)
+                .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                .map(use(this::getPropertyValueType).with(propertyName))
+                .orElse(PropertyValueType.UNSUPPORTED);
     }
 
     private PropertyValueType getPropertyValueType(DeviceProtocol deviceProtocol, String propertyName) {
@@ -455,8 +453,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         try {
             new DLMSKeyStoreUserFile(this.getKeyStoreService())
                     .importCertificate(
-                        certificateAlias.getCertificate(),
-                        certificateAlias.getAlias());
+                            certificateAlias.getCertificate(),
+                            certificateAlias.getAlias());
         } catch (CertificateException e) {
             throw new RuntimeException(e);
         }
@@ -906,7 +904,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
-        Device device = (Device) deviceIdentifier.findDevice();
+        Device device = findDevice(deviceIdentifier);
 
         List<OutboundConnectionTask> outboundConnectionTasks = device.getConnectionTasks().stream()
                 .filter(connectionTask -> connectionTask instanceof OutboundConnectionTask)
@@ -1061,18 +1059,18 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private void updateLoadProfile(LoadProfile loadProfile, Instant lastReading) {
         loadProfile
-            .getDevice()
-            .getLoadProfileUpdaterFor(loadProfile)
-            .setLastReadingIfLater(lastReading)
-            .update();
+                .getDevice()
+                .getLoadProfileUpdaterFor(loadProfile)
+                .setLastReadingIfLater(lastReading)
+                .update();
     }
 
     private void updateLogBook(LogBook logBook, Instant lastLogBook) {
         logBook
-            .getDevice()
-            .getLogBookUpdaterFor(logBook)
-            .setLastReadingIfLater(lastLogBook)
-            .update();
+                .getDevice()
+                .getLogBookUpdaterFor(logBook)
+                .setLastReadingIfLater(lastLogBook)
+                .update();
     }
 
     @Override

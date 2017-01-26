@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
@@ -19,7 +18,7 @@ import java.util.Optional;
 
 /**
  * Provides functionality to update the cache of a Device in the database.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 31/08/12
  * Time: 16:22
@@ -41,23 +40,21 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDevi
         DeviceProtocolCache collectedDeviceCache = this.deviceCache.getCollectedDeviceCache();
         if (collectedDeviceCache != null && collectedDeviceCache.contentChanged()) {
             DeviceIdentifier deviceIdentifier = this.deviceCache.getDeviceIdentifier();
-            Device device = (Device) deviceIdentifier.findDevice();  //Downcast to the Connexo Device
-            if (device != null) {
-                Optional<DeviceCache> deviceCache = this.getEngineService().findDeviceCacheByDevice(device);
+            try {
+                Optional<DeviceCache> deviceCache = this.getEngineService().findDeviceCacheByDeviceIdentifier(deviceIdentifier);
                 if (deviceCache.isPresent()) {
                     DeviceCache actualDeviceCache = deviceCache.get();
                     actualDeviceCache.setCacheObject(collectedDeviceCache);
                     actualDeviceCache.update();
+                } else {
+                    this.getEngineService().newDeviceCache(deviceIdentifier, collectedDeviceCache);
                 }
-                else {
-                    this.getEngineService().newDeviceCache(device, collectedDeviceCache);
-                }
-            }
-            else {
+            } catch (IllegalArgumentException e) {
+                //Device could not be found
                 this.addIssue(CompletionCode.ConfigurationWarning,
-                                     this.getIssueService().newWarning(this,
-                                                                MessageSeeds.COLLECTED_DEVICE_CACHE_FOR_UNKNOWN_DEVICE,
-                                                                deviceCache.getDeviceIdentifier()));
+                        this.getIssueService().newWarning(this,
+                                MessageSeeds.COLLECTED_DEVICE_CACHE_FOR_UNKNOWN_DEVICE,
+                                deviceIdentifier));
             }
         }
     }
@@ -73,7 +70,7 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDevi
     }
 
     protected Optional<CollectedDeviceCacheEvent> newEvent(List<Issue> issues) {
-        CollectedDeviceCacheEvent event  =  new CollectedDeviceCacheEvent(new ComServerEventServiceProvider(), deviceCache);
+        CollectedDeviceCacheEvent event = new CollectedDeviceCacheEvent(new ComServerEventServiceProvider(), deviceCache);
         event.addIssues(issues);
         return Optional.of(event);
     }
@@ -82,5 +79,4 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDevi
     public String getDescriptionTitle() {
         return DESCRIPTION_TITLE;
     }
-
 }
