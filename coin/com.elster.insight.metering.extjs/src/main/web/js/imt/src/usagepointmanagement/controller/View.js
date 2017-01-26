@@ -24,7 +24,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.store.Purposes',
         'Imt.usagepointmanagement.store.DataCompletion',
         'Imt.usagepointmanagement.store.Periods',
-        'Imt.usagepointmanagement.store.UsagePointTransitions'
+        'Imt.usagepointmanagement.store.UsagePointTransitions',
+        'Imt.usagepointmanagement.store.MeterRoles'
     ],
 
     models: [

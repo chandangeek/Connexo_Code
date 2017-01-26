@@ -13,8 +13,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
     initComponent: function () {
         var me = this,
             metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
-            meterRolesWithMeters,
-            count;
+            meterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles');
 
         me.items = [
             {
@@ -59,7 +58,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 && me.usagePoint.get('state').stage === 'PRE_OPERATIONAL'
                 && Ext.isEmpty(metrologyConfiguration),
                 renderer: function () {
-                    var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({},{fromLandingPage: true});
+                    var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({}, {fromLandingPage: true});
                     return Uni.I18n.translate('general.label.linkMetrologyConfiguration', 'IMT', '<a href="{0}">Link metrology configuration</a>', url);
                 }
             },
@@ -88,7 +87,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
         me.bbar = [
             {
                 itemId: 'up-metrology-config-more-details-link',
-                ui: 'link',                
+                ui: 'link',
                 text: Uni.I18n.translate('general.metrologyConfiguration.manage', 'IMT', 'Manage metrology configuration'),
                 href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
             }
@@ -96,25 +95,22 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
         me.callParent(arguments);
 
-        if (metrologyConfiguration) {
-            meterRolesWithMeters =  _.filter(metrologyConfiguration.meterRoles, function(role){ return !Ext.isEmpty(role.meter); });
-            count = meterRolesWithMeters.length;
-        }
-
-        Ext.suspendLayouts();
         me.loadPurposes();
-        me.addMeters(meterRolesWithMeters, count);
-
-        // add WhatsGoingOn info to linked meters
-        if (count && count <= 2) {
-            me.loadMeterActivations();
-        }
-        Ext.resumeLayouts(true);
+        me.setLoading();
+        meterRolesStore.getProxy().extraParams = {usagePointId: me.usagePoint.get('name')};
+        meterRolesStore.load({
+            scope: me,
+            callback: function (records) {
+                me.addMeters(records);
+                me.setLoading(false);
+            }
+        });
     },
 
-    addMeters: function (meterRolesWithMeters, count) {
+    addMeters: function (meterRolesWithMeters) {
         var me = this,
             first = true,
+            count = meterRolesWithMeters.length,
             metersContainer = me.down('#up-metrology-config-meters');
 
         if (count && count <= 2) {
@@ -125,10 +121,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                     fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
                     renderer: function () {
                         var result = '',
-                            link = meterRoleWithMeter.url
-                                ? '<a href="' + meterRoleWithMeter.url + '" target="_blank">' + Ext.String.htmlEncode(meterRoleWithMeter.meter) + '</a>'
-                                : Ext.String.htmlEncode(meterRoleWithMeter.meter),
-                            activationTime = meterRoleWithMeter.activationTime;
+                            data = meterRoleWithMeter.getData(),
+                            link = data.url
+                                ? '<a href="' + data.url + '" target="_blank">' + Ext.String.htmlEncode(data.meter) + '</a>'
+                                : Ext.String.htmlEncode(data.meter),
+                            activationTime = data.activationTime;
                         result += link;
 
                         if (activationTime) {
@@ -142,7 +139,9 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 });
                 first = false;
             });
-        } else if (count && count > 2){
+            // add WhatsGoingOn info to linked meters
+            me.loadMeterActivations();
+        } else if (count && count > 2) {
             metersContainer.add({
                 xtype: 'displayfield',
                 labelWidth: 120,
@@ -159,25 +158,27 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
         }
     },
 
-    loadPurposes: function(){
+    loadPurposes: function () {
         var me = this,
             purposesContainer = me.down('#up-metrology-config-purposes'),
             first = true,
             purposes;
-        if(me.usagePoint.get('metrologyConfiguration')){
+
+        Ext.suspendLayouts();
+        if (me.usagePoint.get('metrologyConfiguration')) {
             purposes = me.usagePoint.get('metrologyConfiguration').purposes
         }
 
         if (!Ext.isEmpty(purposes)) {
-            Ext.Array.each(purposes, function(purpose){
-                if(purpose.active){
+            Ext.Array.each(purposes, function (purpose) {
+                if (purpose.active) {
                     purposesContainer.add({
                         xtype: 'displayfield',
                         labelWidth: 120,
                         margin: first ? 0 : '-13 0 0 0',
                         fieldLabel: first ? Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes') : '&nbsp;',
                         value: purpose.name,
-                        renderer: function(value){
+                        renderer: function (value) {
                             var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
                                     + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle')
                                     + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
@@ -192,7 +193,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 }
             });
         }
-        if(first) {
+        if (first) {
             purposesContainer.add({
                 xtype: 'displayfield',
                 labelWidth: 120,
@@ -200,30 +201,31 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 value: '-'
             })
         }
+        Ext.resumeLayouts(true);
     },
 
-    loadMeterActivations: function(){
+    loadMeterActivations: function () {
         var me = this,
             first = true,
             metersContainer = me.down('#up-metrology-config-meters'),
-            store = me.meterActivationsStore,
+            store = Ext.getStore('Imt.usagepointmanagement.store.MeterActivations'),
             usagePointId = me.usagePoint.get('name'),
-            makeWGOTooltip = function(watsGoingOnMeterStatus){
+            makeWGOTooltip = function (watsGoingOnMeterStatus) {
                 var result = '',
                     first = true;
-                if(watsGoingOnMeterStatus.openIssues){
+                if (watsGoingOnMeterStatus.openIssues) {
                     result += Uni.I18n.translate('general.label.openIssues', 'IMT', 'Open issues({0})', watsGoingOnMeterStatus.openIssues);
                     first = false;
                 }
-                if(watsGoingOnMeterStatus.ongoingProcesses){
-                    if(!first){
+                if (watsGoingOnMeterStatus.ongoingProcesses) {
+                    if (!first) {
                         result += '<br>';
                     }
                     first = false;
                     result += Uni.I18n.translate('general.label.ongoingProcesses', 'IMT', 'Ongoing processes({0})', watsGoingOnMeterStatus.ongoingProcesses);
                 }
-                if(watsGoingOnMeterStatus.ongoingServiceCalls){
-                    if(!first){
+                if (watsGoingOnMeterStatus.ongoingServiceCalls) {
+                    if (!first) {
                         result += '<br>';
                     }
                     first = false;
@@ -236,6 +238,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
         store.getProxy().setExtraParam('usagePointId', usagePointId);
         store.load(function () {
+            Ext.suspendLayouts();
                 // replace rendered meters with meters + icon
                 metersContainer.removeAll();
                 store.each(function (meterActivation) {
@@ -270,6 +273,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                         first = false;
                     }
                 });
+            Ext.resumeLayouts(true);
             }
         )
     }
