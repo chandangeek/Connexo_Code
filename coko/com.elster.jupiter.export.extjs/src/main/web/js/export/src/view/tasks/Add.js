@@ -68,6 +68,19 @@ Ext.define('Dxp.view.tasks.Add', {
                             }
                         }
                     },
+                    {
+                        xtype: 'combobox',
+                        fieldLabel: Uni.I18n.translate('general.logLevel', 'DES', 'Log level'),
+                        required: true,
+                        name: 'logLevelId',
+                        width: 500,
+                        itemId: 'dxp-data-export-tasks-add-loglevel',
+                        allowBlank: false,
+                        store: 'Dxp.store.TaskLogLevels',
+                        queryMode: 'local',
+                        displayField: 'displayValue',
+                        valueField: 'id'
+                    },
 
                     {
                         title: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
@@ -477,7 +490,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                         inputValue: true
                                     }
                                 ]
-                            },
+                            }
                         ]
                     },
                     {

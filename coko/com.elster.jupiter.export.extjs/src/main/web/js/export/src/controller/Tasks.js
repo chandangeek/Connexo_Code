@@ -49,7 +49,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.DataSelectors',
         'Dxp.store.UpdateWindows',
         'Dxp.store.UpdateTimeframes',
-        'Dxp.store.SelectedReadingTypes'
+        'Dxp.store.SelectedReadingTypes',
+        'Dxp.store.TaskLogLevels'
     ],
 
     models: [
@@ -150,6 +151,9 @@ Ext.define('Dxp.controller.Tasks', {
     comboBoxValueForAll: -1,
 
     init: function () {
+        var logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+        logLevelsStore.load();
+
         this.control({
             'data-export-tasks-add': {
                 render: this.populateStores
@@ -778,6 +782,7 @@ Ext.define('Dxp.controller.Tasks', {
             updateWindowCombo = view.down('#update-window'),
             timeframeCombo = view.down('#timeFrame'),
             recurrenceTypeCombo = view.down('#recurrence-type'),
+            logLevelCombo = view.down('#dxp-data-export-tasks-add-loglevel'),
             destinationsStore = view.down('#task-destinations-grid').getStore(),
             readingTypesStore = view.down('#readingTypesGridPanel').getStore(),
             eventTypesStore = view.down('#eventTypesGridPanel').getStore();
@@ -833,8 +838,11 @@ Ext.define('Dxp.controller.Tasks', {
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.findRecord('name', 'months'));
             if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                 me.setFormValues(view);
-            } else if (this.getCount() === 1) {
-                dataSelectorCombo.setValue(this.getAt(0).get('name'));
+            } else {
+                logLevelCombo.setValue('WARNING'); // = Default value at creation time
+                if (this.getCount() === 1) {
+                    dataSelectorCombo.setValue(this.getAt(0).get('name'));
+                }
             }
         });
         me.recurrenceEnableDisable();
@@ -886,6 +894,7 @@ Ext.define('Dxp.controller.Tasks', {
         if (Dxp.privileges.DataExport.canUpdateSchedule() && !Dxp.privileges.DataExport.canUpdateFull()) {
             Ext.suspendLayouts();
             view.down('#task-name').setDisabled(true);
+            view.down('#dxp-data-export-tasks-add-loglevel').setDisabled(true);
             view.down('#dxp-data-selector-container').setDisabled(true);
             view.down('#device-group-container').setDisabled(true);
             view.down('#usage-point-group-container').setDisabled(true);
@@ -1844,13 +1853,11 @@ Ext.define('Dxp.controller.Tasks', {
         }
         form.down('#readingTypesFieldContainer').doComponentLayout();
 
-
         var emptyEventTypes = (selectedDataSelector)
             && (selectedDataSelector.get('selectorType') === 'DEFAULT_EVENTS')
             && (page.down('#eventTypesGridPanel').getStore().data.items.length == 0);
         me.validateEventsGrid(emptyEventTypes);
         form.down('#eventTypesFieldContainer').doComponentLayout();
-
 
         var emptyDestinations = page.down('#task-destinations-grid').getStore().data.items.length == 0;
         if (emptyDestinations) {
@@ -1925,6 +1932,7 @@ Ext.define('Dxp.controller.Tasks', {
             }
 
             record.set('name', form.down('#task-name').getValue());
+            record.set('logLevelId', form.down('#dxp-data-export-tasks-add-loglevel').getValue());
 
             startOnDate = moment(form.down('#start-on').getValue()).valueOf();
 
@@ -2228,6 +2236,7 @@ Ext.define('Dxp.controller.Tasks', {
             storeDestinations = [],
             arrReadingTypes = [],
             eventTypes = [];
+
         readingTypesStore.each(function (record) {
             arrReadingTypes.push(record.getData());
         });
@@ -2265,8 +2274,7 @@ Ext.define('Dxp.controller.Tasks', {
             emptyReadingTypesLabel = page.down('#noReadingTypesLabel'),
             destinationsStore = destinationsGrid.getStore(),
             gridStore = readingTypesGrid.getStore(),
-            evenTypesStore = eventTypesGrid.getStore(),
-            formatterStore = page.down('#file-formatter-combo').getStore();
+            evenTypesStore = eventTypesGrid.getStore();
 
         Ext.suspendLayouts();
         gridStore.removeAll();
@@ -2290,7 +2298,6 @@ Ext.define('Dxp.controller.Tasks', {
             readingTypesGrid.show();
         }
 
-
         if (me.eventTypesArray) {
             Ext.each(me.eventTypesArray, function (record) {
                 evenTypesStore.add(record);
@@ -2307,7 +2314,6 @@ Ext.define('Dxp.controller.Tasks', {
             this.getNoEventTypesLabel().hide();
             eventTypesGrid.show();
         }
-
 
         Ext.each(me.destinationsArray, function (record) {
             if (me.destinationIndexToEdit != -1) {
@@ -2339,12 +2345,10 @@ Ext.define('Dxp.controller.Tasks', {
         view.down('#usage-point-group-combo').setValue(formModel.get('readingTypeDataSelector.value.usagePointGroup'));
         view.down('#export-period-combo').setValue(formModel.get('readingTypeDataSelector.value.exportPeriod'));
 
-
         view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
 
         view.down('#data-selector-export-complete').setValue({exportComplete: formModel.get('exportComplete')});
         view.down('#data-selector-validated-data').setValue(formModel.get('validatedDataOption'));
-
 
         view.down('#updated-data-trigger').setValue({exportUpdate: formModel.get('exportUpdate')});
         view.down('#update-window').setValue(formModel.get('updateWindow'));

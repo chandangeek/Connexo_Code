@@ -14,7 +14,9 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
     }),
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+
         me.items = [
             {
                 xtype: 'displayfield',
@@ -22,7 +24,19 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                 name: 'name',
                 labelWidth: 250
             },
-
+            {
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('general.logLevel', 'DES', 'Log level'),
+                name: 'logLevelId',
+                labelWidth: 250,
+                renderer: function(value) {
+                    if (Ext.isEmpty(value)) {
+                        return '-';
+                    }
+                    var storeIndex = logLevelsStore.findExact('id', value);
+                    return storeIndex === -1 ? '-' : logLevelsStore.getAt(storeIndex).get('displayValue');
+                }
+            },
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.schedule', 'DES', 'Schedule'),
