@@ -82,6 +82,7 @@ class MdmAppPrivileges {
                 com.elster.jupiter.estimation.security.Privileges.Constants.RUN_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.VIEW_ESTIMATION_TASK,
                 com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK,
+                com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL,
 
                 // Usage point life cycle
                 com.elster.jupiter.usagepoint.lifecycle.config.Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER,
