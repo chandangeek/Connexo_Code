@@ -15,6 +15,7 @@ Ext.define('Est.privileges.EstimationConfiguration', {
     updateTask:['privilege.update.ScheduleEstimationTask'],
     viewTask: ['privilege.view.ScheduleEstimationTask'],
     administrateTask: ['privilege.administrate.ScheduleEstimationTask'],
+    estimateManual: ['privilege.view.estimateManual'],
     all: function () {
         return Ext.Array.merge(
             Est.privileges.EstimationConfiguration.view,
@@ -23,7 +24,8 @@ Ext.define('Est.privileges.EstimationConfiguration', {
             Est.privileges.EstimationConfiguration.runTask,
             Est.privileges.EstimationConfiguration.updateTask,
             Est.privileges.EstimationConfiguration.viewTask,
-            Est.privileges.EstimationConfiguration.administrateTask
+            Est.privileges.EstimationConfiguration.administrateTask,
+            Est.privileges.EstimationConfiguration.estimateManual
         );
     },
     canView: function () {
@@ -37,5 +39,8 @@ Ext.define('Est.privileges.EstimationConfiguration', {
     },
     canUpdate:function(){
         return Uni.Auth.checkPrivileges(Est.privileges.EstimationConfiguration.updateTask);
+    },
+    canEstimate: function () {
+        return Uni.Auth.checkPrivileges(Est.privileges.EstimationConfiguration.estimateManual);
     }
 });
