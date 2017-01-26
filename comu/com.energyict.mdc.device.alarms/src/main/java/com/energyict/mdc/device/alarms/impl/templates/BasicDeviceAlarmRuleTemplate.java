@@ -2,6 +2,7 @@ package com.energyict.mdc.device.alarms.impl.templates;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -241,18 +242,22 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                     .findFirst().map(found -> (Boolean) found.getValue());
             Optional<Boolean> downUrgencyOnClear = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(DOWN_URGENCY_ON_CLEAR))
                     .findFirst().map(found -> (Boolean) found.getValue());
-            if (clearingEvents.isPresent() && ((DeviceAlarmEvent) event).isClearing(clearingEvents.get()) && !alarm.isStatusCleared()) {
-                alarm.setClearedStatus();
+            if (clearingEvents.isPresent() && ((DeviceAlarmEvent) event).isClearing(clearingEvents.get())) {
+                if(!alarm.isStatusCleared()) {
+                    alarm.setClearedStatus();
+                }
                 if (downUrgencyOnClear.isPresent() && downUrgencyOnClear.get()) {
-                    if (!alarm.getPriority().lowerUrgency()) {
+                    alarm.setPriority(Priority.get(alarm.getPriority().lowerUrgency(), alarm.getPriority().getImpact()));
+                    /*if (!alarm.getPriority().lowerUrgency()) {
                         LOG.log(Level.SEVERE, "Urgency is minimum [" + alarm.getPriority().getUrgency() +"]. Unable to decrement anymore");
-                    }
+                    }*/
                 }
             }
-            if (upUrgencyOnRaise.isPresent() && upUrgencyOnRaise.get()) {
-                if (!alarm.getPriority().increaseUrgency()) {
+            else if (upUrgencyOnRaise.isPresent() && upUrgencyOnRaise.get() && !((DeviceAlarmEvent) event).isClearing(clearingEvents.get())) {
+                alarm.setPriority(Priority.get(alarm.getPriority().increaseUrgency(), alarm.getPriority().getImpact()));
+               /* if (!alarm.getPriority().increaseUrgency()) {
                     LOG.log(Level.SEVERE, "Urgency is maximum [" + alarm.getPriority().getUrgency() +"]. Unable to increment anymore");
-                }
+                }*/
             }
             alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent) event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
             return alarm;
