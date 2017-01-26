@@ -95,6 +95,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
 
     loadProperties: function(combo, selectedRecords) {
         var editPage = this.getComPortPoolEditPage();
+        editPage.down('#protocolDetectionDetails').setVisible(selectedRecords[0].properties().count() > 0);
         if(this.isEdit && !Ext.isEmpty(this.editRecord) && this.selectedEqualsRecord(selectedRecords[0])) {
             editPage.down('property-form').loadRecord(this.editRecord);
         } else {
