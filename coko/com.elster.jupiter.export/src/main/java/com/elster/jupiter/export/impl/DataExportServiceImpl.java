@@ -5,6 +5,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
@@ -45,6 +46,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -424,6 +426,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Override
     public Optional<IDataExportOccurrence> findDataExportOccurrence(TaskOccurrence occurrence) {
         return dataModel.query(IDataExportOccurrence.class, IExportTask.class).select(EQUAL.compare("taskOccurrence", occurrence)).stream().findFirst();
+    }
+
+    @Override
+    public Optional<DataExportOccurrence> findDataExportOccurrence(long occurrenceId) {
+        return dataModel.stream(DataExportOccurrence.class).join(TaskOccurrence.class)
+                .filter(Where.where("taskOccurrence.id").isEqualTo(occurrenceId)).findFirst();
     }
 
     @Override
