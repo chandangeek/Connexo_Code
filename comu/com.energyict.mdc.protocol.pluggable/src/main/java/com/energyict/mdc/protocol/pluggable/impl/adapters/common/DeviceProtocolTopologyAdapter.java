@@ -42,11 +42,11 @@ public class DeviceProtocolTopologyAdapter implements DeviceTopologySupport {
     @Override
     public CollectedTopology getDeviceTopology() {
         CollectedTopology deviceTopology = this.collectedDataFactory.createCollectedTopology(deviceIdentifier);
-        deviceTopology.setFailureInformation(ResultType.NotSupported, getIssue(deviceIdentifier.findDevice(), MessageSeeds.DEVICE_TOPOLOGY_NOT_SUPPORTED_BY_ADAPTER));
+        deviceTopology.setFailureInformation(ResultType.NotSupported, getIssue(deviceIdentifier, MessageSeeds.DEVICE_TOPOLOGY_NOT_SUPPORTED_BY_ADAPTER));
         return deviceTopology;
     }
 
-    private Issue getIssue(Object source, MessageSeed description, Object... arguments){
+    private Issue getIssue(Object source, MessageSeed description, Object... arguments) {
         return this.issueService.newWarning(source, description, arguments);
     }
 
