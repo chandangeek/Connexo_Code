@@ -16,10 +16,7 @@ import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialectProperties;
 import com.energyict.protocolimplv2.abnt.AbntTranslationKeys;
 import com.energyict.protocolimplv2.ace4000.ACE4000Properties;
 import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.AbstractSMSServletBasedInboundDeviceProtocol;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol;
 import com.energyict.protocolimplv2.elster.garnet.GarnetTranslationKeys;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import org.osgi.service.component.annotations.Component;
 
@@ -79,23 +76,37 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                    Stream.of(CtrInboundDeviceProtocol.TranslationKeys.values()),
                     Stream.of(EiWebPlusDialectProperties.TranslationKeys.values()),
-                    Stream.of(SecurityPropertySpecName.values()),
-                    Stream.of(DeviceProtocolDialectName.values()),
-                    Stream.of(DlmsProperties.TranslationKeys.values()),
-                    Stream.of(AbstractSMSServletBasedInboundDeviceProtocol.TranslationKeys.values()),
+                    Stream.of(SecurityPropertySpecName.values()).map(ConnexoTranslationKeyAdapter::new),
                     Stream.of(CustomPropertySetTranslationKeys.values()),
                     Stream.of(AbntTranslationKeys.values()),
                     Stream.of(CTRTranslationKeys .values()),
                     Stream.of(GarnetTranslationKeys.values()),
                     Stream.of(CommonV2TranslationKeys.values()),
-                    Stream.of(DlmsTranslationKeys.values()),
-                    Stream.of(MTU155TranslationKeys.values()),
                     Stream.of(ACE4000Properties.TranslationKeys.values()),
-                    Stream.of(com.energyict.protocols.mdc.services.impl.TranslationKeys.values()))
+                    Stream.of(TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Adapter between UPL TranslationKey and Connexo TranslationKey.
+     */
+    private static class ConnexoTranslationKeyAdapter implements com.elster.jupiter.nls.TranslationKey {
+        private final com.energyict.mdc.upl.nls.TranslationKey actual;
+
+        ConnexoTranslationKeyAdapter(com.energyict.mdc.upl.nls.TranslationKey actual) {
+            this.actual = actual;
+        }
+
+        @Override
+        public String getKey() {
+            return this.actual.getKey();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return this.actual.getDefaultFormat();
+        }
+    }
 }

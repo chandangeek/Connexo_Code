@@ -23,7 +23,7 @@ public enum MessageSeeds implements MessageSeed {
     GENERIC_JAVA_REFLECTION_ERROR(214, "genericJavaReflectionError", "Unable to create an instance of the class {0}", Level.SEVERE),
     UNSUPPORTED_LEGACY_PROTOCOL_TYPE(215, "unsupportedLegacyProtocolType", "The legacy protocol class {0} is not or no longer supported", Level.SEVERE),
     UNKNOWN_DEVICE_SECURITY_SUPPORT_CLASS(216, "unknownDeviceSecuritySupportClass", "The DeviceSecuritySupport class '{0}' is not known on the classpath", Level.SEVERE),
-    UNKNOWN_DEVICE_MESSAGE_CONVERTER_CLASS(217, "unknownDeviceMessageConverterClass", "The DeviceSecuritySupport class '{0}' is not known on the classpath", Level.SEVERE),
+    DEVICE_MESSAGE_CONVERTER_CREATION_FAILURE(217, "deviceMessageConverterCreationFailure", "Failure to create instance of DeviceSecuritySupport class '{0}'", Level.SEVERE),
     NOT_CONFIGURED_FOR_INBOUND_COMMUNICATION(218, "deviceNotConfiguredForInboundCommunication", "Device '{0}' is not configured for inbound communication", Level.SEVERE),
     DUPLICATE_FOUND(219, "duplicateFound", "A duplicate '{0}' was found when a unique result was expected for '{1}'", Level.SEVERE),
     GENERAL_PARSE_ERROR(220, "generalParseError", "A general parsing error occured\\: {0}", Level.SEVERE),
