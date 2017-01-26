@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 
@@ -61,10 +62,7 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
      * @param deviceIdentifier the serialNumber of the master of this <code>LoadProfile</code>
      */
     public DeviceLoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier deviceIdentifier, String meterSerialNumber) {
-        this.obisCode = obisCode;
-        this.deviceIdentifier = deviceIdentifier;
-        this.supportedByMeter = true;
-        this.meterSerialNumber = meterSerialNumber;
+        this(obisCode, deviceIdentifier, meterSerialNumber, true);
     }
 
     /**
@@ -77,8 +75,8 @@ public class DeviceLoadProfileConfiguration extends CollectedDeviceData implemen
     public DeviceLoadProfileConfiguration(ObisCode obisCode, DeviceIdentifier deviceIdentifier, String meterSerialNumber, boolean supported) {
         this.obisCode = obisCode;
         this.deviceIdentifier = deviceIdentifier;
-        this.supportedByMeter = supported;
         this.meterSerialNumber = meterSerialNumber;
+        this.supportedByMeter = supported;
     }
 
     /**
