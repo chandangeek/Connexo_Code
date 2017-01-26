@@ -270,11 +270,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
     }
 
     private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = property;
-        valueBean.operator = operator;
-        valueBean.values = Arrays.asList(values);
-        return valueBean;
+        return new SearchablePropertyValue.ValueBean(property, operator,Arrays.asList(values));
     }
 
     private ReadingTypeTemplate getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate defaultReadingTypeTemplate) {
