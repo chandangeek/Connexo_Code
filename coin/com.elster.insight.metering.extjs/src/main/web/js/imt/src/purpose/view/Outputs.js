@@ -31,7 +31,7 @@ Ext.define('Imt.purpose.view.Outputs', {
                     {
                         xtype: 'uni-button-action',
                         itemId: 'purpose-actions-button',
-                        privileges: Imt.privileges.UsagePoint.canAdministrate,
+                        privileges: Cfg.privileges.Validation.canRun() || Est.privileges.EstimationConfiguration.canEstimate(),
                         menu: {
                             xtype: 'purpose-actions-menu',
                             itemId: 'purpose-actions-menu'
