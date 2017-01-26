@@ -235,10 +235,20 @@ public interface DeviceType extends HasId, HasName {
 
     void update();
 
+    /**
+     * Return a list of all known defined key accessor types on this device type
+     * @return
+     */
     List<KeyAccessorType> getKeyAccessorTypes();
 
-    KeyAccessorType.Builder addKeyAccessor(String name, KeyType keyType);
-
+    /**
+     * Creates a new KeyAccessorType for the device type
+     * @param name The KeyAccessorType name. This name identifies the function of the key (or whatever value) on the
+     * device. It will be the link between shipment import and the key accessors
+     * @param keyType description of the key (or whatever value) stored
+     * @return The newly created KeyAccessorType
+     */
+    KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType);
 
     interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);

@@ -289,7 +289,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public KeyAccessorType.Builder addKeyAccessor(String name, KeyType keyType) {
+    public KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType) {
         return new KeyAccessorTypeBuilder(name, keyType);
     }
 
