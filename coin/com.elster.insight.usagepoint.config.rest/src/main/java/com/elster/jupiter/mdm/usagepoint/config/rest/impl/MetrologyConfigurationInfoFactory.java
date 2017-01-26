@@ -37,7 +37,12 @@ public class MetrologyConfigurationInfoFactory {
         info.serviceCategory = asInfo(metrologyConfiguration.getServiceCategory());
         info.version = metrologyConfiguration.getVersion();
         info.meterRoles = metrologyConfiguration.getMeterRoles().stream().map(this::asInfo).collect(Collectors.toList());
-        info.purposes = metrologyConfiguration.getContracts().stream().map(this::asInfo).collect(Collectors.toList());
+        info.purposes = metrologyConfiguration.getContracts()
+                .stream()
+                .sorted((a, b) -> Boolean.compare(a.isMandatory(), b.isMandatory()))
+                .sorted((a, b) -> a.getMetrologyPurpose().getName().compareTo(b.getMetrologyPurpose().getName()))
+                .map(this::asInfo)
+                .collect(Collectors.toList());
         info.usagePointRequirements = metrologyConfiguration.getUsagePointRequirements()
                 .stream()
                 .map(requirement -> SearchCriteriaVisualizationInfo.from(requirement.getSearchableProperty(), requirement.toValueBean()))
