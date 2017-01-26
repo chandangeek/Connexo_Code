@@ -2,11 +2,6 @@ package com.elster.jupiter.pki.impl;
 
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.util.Checks;
-
-import java.security.Provider;
-import java.security.Security;
-import java.util.Optional;
 
 /**
  * Created by bvn on 1/18/17.
@@ -15,58 +10,72 @@ public class KeyTypeImpl implements KeyType {
     private long id;
     private String name;
     private CryptographicType cryptographicType;
-    private String keyAlgorithm;
-    private String provider;
+    private String algorithm;
+    private Integer keySize;
+    private String curve;
+
+    enum Fields {
+        NAME("name"),
+        CRYPTOGRAPHIC_TYPE("cryptographicType"),
+        ALGORITHM("algorithm"),
+        KEY_SIZE("keySize"),
+        CURVE("curve"),
+        ;
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
 
     public long getId() {
         return id;
     }
 
-    /**
-     * The name for a KeyType is intended to allow easy identification of a type. It does not need to match on other value.
-     * The name needs to be unique
-     * @return The KeyType name
-     */
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * The cryptographic type identifies the actual stored value. This can be a X509Certificate with or without private
-     * key, or a symmetric key.
-     * @return
-     */
+    @Override
     public CryptographicType getCryptographicType() {
         return cryptographicType;
     }
 
-    /**
-     * Identifier of the algorithm to generate a new value or reconstruct current value, e.g. for a symmetric key: "AES/CBC/PKCS5Padding/128", or
-     * for an EC keypair: "EC/prime192v1/ECDSA"
-     *
-     * @return
-     */
-    public String getKeyAlgorithm() {
-        return keyAlgorithm;
+    @Override
+    public String getAlgorithm() {
+        return algorithm;
     }
 
-    public void setKeyAlgorithm(String keyAlgorithm) {
-        this.keyAlgorithm = keyAlgorithm;
+    public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
     }
 
-    /**
-     * The provider of the cryptographic algorithm, by default Connexo will install providers BouncyCastle and java default providers.
-     * If no provider is entered, no explicit provider will be used for manipulation of the contained cryptographic value.
-     */
-    public Optional<Provider> getProvider() {
-        return Checks.is(provider).emptyOrOnlyWhiteSpace()?Optional.empty():Optional.of(Security.getProvider(provider));
+    @Override
+    public Integer getKeySize() {
+        return keySize;
     }
 
-    public void setProvider(Provider provider) {
-        this.provider = provider.getName();
+    public void setKeySize(Integer keySize) {
+        this.keySize = keySize;
+    }
+
+    @Override
+    public String getCurve() {
+        return curve;
+    }
+
+    public void setCurve(String curve) {
+        this.curve = curve;
     }
 }

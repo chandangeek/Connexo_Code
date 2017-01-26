@@ -6,5 +6,7 @@ package com.elster.jupiter.pki;
 public enum CryptographicType {
     Certificate,
     CertificateWithPrivateKey,
-    SymmetricKey
+    SymmetricKey,
+    Passphrase,
+    AsymmetricKey
 }
