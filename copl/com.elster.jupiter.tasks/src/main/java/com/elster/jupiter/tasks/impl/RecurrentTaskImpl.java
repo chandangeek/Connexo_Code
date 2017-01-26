@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
@@ -51,6 +52,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String destination;
     private Instant lastRun;
     private transient DestinationSpec destinationSpec;
+    private TaskLogLevel logLevel;
 
     private final Clock clock;
     private final ScheduleExpressionParser scheduleExpressionParser;
@@ -75,9 +77,10 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.jsonService = jsonService;
         // for persistence
         this.clock = clock;
+        this.logLevel = TaskLogLevel.WARNING;
     }
 
-    RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
+    RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, TaskLogLevel logLevel) {
         this.application = application;
         this.destinationSpec = destinationSpec;
         this.destination = destinationSpec.getName();
@@ -85,11 +88,12 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.cronString = scheduleExpression.encoded();
         this.name = name;
         this.scheduleExpression = scheduleExpression;
+        this.logLevel = logLevel;
         return this;
     }
 
-    static RecurrentTaskImpl from(DataModel dataModel, String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
-        return dataModel.getInstance(RecurrentTaskImpl.class).init(application, name, scheduleExpression, destinationSpec, payload);
+    static RecurrentTaskImpl from(DataModel dataModel, String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, TaskLogLevel logLevel) {
+        return dataModel.getInstance(RecurrentTaskImpl.class).init(application, name, scheduleExpression, destinationSpec, payload, logLevel);
     }
 
     @Override
@@ -324,4 +328,11 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.save();
     }
 
+    public void setLogLevel(TaskLogLevel newLevel) {
+        this.logLevel = newLevel;
+    }
+
+    public TaskLogLevel getLogLevel() {
+        return logLevel;
+    }
 }

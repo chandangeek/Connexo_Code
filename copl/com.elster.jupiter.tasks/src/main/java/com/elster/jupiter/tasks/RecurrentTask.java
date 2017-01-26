@@ -1,11 +1,12 @@
 package com.elster.jupiter.tasks;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -69,4 +70,8 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
      * @since v2.0
      */
     Optional<RecurrentTask> getVersionAt(Instant time);
+
+    void setLogLevel(TaskLogLevel level);
+
+    public TaskLogLevel getLogLevel();
 }

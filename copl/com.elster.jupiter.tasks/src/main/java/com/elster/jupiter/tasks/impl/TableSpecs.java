@@ -37,6 +37,7 @@ enum TableSpecs {
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
             table.unique("TSK_UK_RECURRENTTASK").on(applicationColumn, nameColumn).upTo(Version.version(10,2)).add();
             table.unique("TSK_UK_RECURRENTTASK").on(applicationColumn, nameColumn, destination).since(Version.version(10,2)).add();
+            table.column("LOGLEVEL").number().conversion(ColumnConversion.NUMBER2ENUM).map("logLevel").since(Version.version(10,3)).add();
         }
     },
     TSK_TASK_OCCURRENCE {

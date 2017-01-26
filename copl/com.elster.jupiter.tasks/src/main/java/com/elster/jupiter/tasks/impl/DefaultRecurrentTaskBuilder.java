@@ -9,6 +9,7 @@ import com.elster.jupiter.tasks.RecurrentTaskBuilder.RecurrentTaskBuilderFinishe
 import com.elster.jupiter.tasks.RecurrentTaskBuilder.RecurrentTaskBuilderNameSetter;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder.RecurrentTaskBuilderPayloadSetter;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder.RecurrentTaskBuilderScheduleSetter;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
@@ -31,6 +32,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
     private boolean scheduleImmediately;
     private Instant firstExecution;
     private final DataModel dataModel;
+    private TaskLogLevel logLevel = TaskLogLevel.WARNING;
 
     @Override
     public RecurrentTaskBuilderNameSetter setApplication(String application) {
@@ -88,8 +90,14 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
     }
 
     @Override
+    public RecurrentTaskBuilderFinisher setLogLevel(TaskLogLevel level) {
+        logLevel = level;
+        return this;
+    }
+
+    @Override
     public RecurrentTask build() {
-        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, application, name, scheduleExpression, destination, payload);
+        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, application, name, scheduleExpression, destination, payload, logLevel);
         if (firstExecution != null) {
             recurrentTask.setNextExecution(firstExecution);
         } else if (scheduleImmediately) {
