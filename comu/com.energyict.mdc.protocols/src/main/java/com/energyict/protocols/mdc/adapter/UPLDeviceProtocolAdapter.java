@@ -34,11 +34,12 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.LogBookReader;
 import com.energyict.protocols.mdc.adapter.cps.SecurityCustomPropertySetNameDetective;
 import com.energyict.protocols.mdc.adapter.cps.UnableToCreateCustomPropertySet;
 import com.energyict.protocols.mdc.adapter.cps.UnableToLoadCustomPropertySetClass;
+
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -237,7 +238,7 @@ public class UPLDeviceProtocolAdapter extends AbstractUPLProtocolAdapter impleme
     }
 
     @Override
-    public List<? extends DeviceProtocolDialect> getDeviceProtocolDialects() {
+    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return deviceProtocol.getDeviceProtocolDialects().stream().map(dialect -> new UPLDeviceProtocolDialectAdapter(dialect, injector)).collect(Collectors.toList());
     }
 
