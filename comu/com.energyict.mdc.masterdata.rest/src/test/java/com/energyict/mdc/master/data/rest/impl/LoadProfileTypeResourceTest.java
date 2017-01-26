@@ -55,8 +55,8 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     @Test
     public void testIntervalsList() throws Exception {
         List<Object> intervals = target("/loadprofiles/intervals").request().get(List.class);
-        assertThat(intervals).hasSize(7);
-        assertThat(((Map) intervals.get(0)).get("name")).isEqualTo("5 minutes");
+        assertThat(intervals).hasSize(16);
+        assertThat(((Map) intervals.get(0)).get("name")).isEqualTo("1 minute");
     }
 
     @Test
