@@ -15,6 +15,7 @@ import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.impl.channels.TranslationKeys;
 import com.energyict.protocols.mdc.adapter.UPLConnectionTypeAdapter;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -45,9 +46,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionTypeServiceImpl implements ConnectionTypeService, TranslationKeyProvider {
 
     private static final Map<String, InstanceFactory> uplFactories = new ConcurrentHashMap<>();
+
     private volatile PropertySpecService propertySpecService;
-    private Injector injector;
     private volatile Thesaurus thesaurus;
+
+    private Injector injector;
 
     // Need default constructor for OSGi framework
     public ConnectionTypeServiceImpl() {

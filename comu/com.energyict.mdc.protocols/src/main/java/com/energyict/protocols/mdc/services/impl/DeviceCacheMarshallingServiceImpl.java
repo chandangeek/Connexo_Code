@@ -61,13 +61,12 @@ public class DeviceCacheMarshallingServiceImpl implements DeviceCacheMarshalling
     }
 
     private static class WrappingException extends RuntimeException {
-        public WrappingException(Throwable cause) {
+        WrappingException(Throwable cause) {
             super(cause);
         }
     }
 
-    private JAXBContext getJaxbContext(Class<?> aClass) throws JAXBException, ClassNotFoundException {
-
+    private JAXBContext getJaxbContext(Class<?> aClass) throws JAXBException {
         try {
             return jaxbContextCache.computeIfAbsent(aClass, (clazz) -> {
                 try {

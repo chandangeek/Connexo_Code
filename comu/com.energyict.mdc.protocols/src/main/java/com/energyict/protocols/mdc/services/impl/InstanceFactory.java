@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
+import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 
 /**
  * Copyrights EnergyICT
@@ -10,6 +10,6 @@ import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
  */
 public interface InstanceFactory {
 
-    Object newInstance() throws UnableToCreateConnectionType;
+    Object newInstance() throws UnableToCreateProtocolInstance;
 
 }

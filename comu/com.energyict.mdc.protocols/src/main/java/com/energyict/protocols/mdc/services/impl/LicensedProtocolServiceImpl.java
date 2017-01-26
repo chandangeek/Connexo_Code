@@ -39,7 +39,6 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public List<LicensedProtocol> getAllLicensedProtocols(License license) {
         List<LicensedProtocol> allLicensedProtocols = new ArrayList<>();
@@ -192,7 +191,6 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         }
 
         private class AllProtocolsAreCoveredChecker implements ProtocolCheck {
-
             @Override
             public boolean isCovered(String className) {
                 return allProtocols;
@@ -200,7 +198,6 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         }
 
         private class FamilyChecker implements ProtocolCheck {
-
             @Override
             public boolean isCovered(String className) {
                 Set<Integer> protocolFamilies = getProtocolFamilies(className);
@@ -210,7 +207,6 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
         }
 
         private class ProtocolClassChecker implements ProtocolCheck {
-
             @Override
             public boolean isCovered(String className) {
                 LicensedProtocol licensedProtocol = getLicensedProtocol(className);
@@ -218,34 +214,5 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
             }
         }
 
-        private class NotAvailableLicensedProtocol implements LicensedProtocol {
-
-            private String className;
-
-            private NotAvailableLicensedProtocol(String className) {
-                super();
-                this.className = className;
-            }
-
-            @Override
-            public int getCode() {
-                return 0;
-            }
-
-            @Override
-            public String getClassName() {
-                return this.className;
-            }
-
-            @Override
-            public Set<ProtocolFamily> getFamilies() {
-                return new HashSet<>(0);
-            }
-
-            @Override
-            public String getName() {
-                return this.className;
-            }
-        }
     }
 }

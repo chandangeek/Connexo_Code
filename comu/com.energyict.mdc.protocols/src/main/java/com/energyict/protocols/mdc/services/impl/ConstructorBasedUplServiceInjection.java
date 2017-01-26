@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
+import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 import com.energyict.mdc.upl.Services;
 
 import java.lang.reflect.Constructor;
@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  * @author khe
  * @since 23/01/2017 - 10:47
  */
-public class ConstructorBasedUplServiceInjection implements InstanceFactory, Comparable<ConstructorBasedUplServiceInjection> {
+class ConstructorBasedUplServiceInjection implements InstanceFactory, Comparable<ConstructorBasedUplServiceInjection> {
     private final Constructor constructor;
 
     private ConstructorBasedUplServiceInjection(Constructor constructor) {
@@ -24,7 +24,7 @@ public class ConstructorBasedUplServiceInjection implements InstanceFactory, Com
         try {
             return from(Class.forName(className));
         } catch (ClassNotFoundException e) {
-            throw new UnableToCreateConnectionType(e, className);
+            throw new UnableToCreateProtocolInstance(e, className);
         }
     }
 
@@ -43,11 +43,11 @@ public class ConstructorBasedUplServiceInjection implements InstanceFactory, Com
     }
 
     @Override
-    public Object newInstance() throws UnableToCreateConnectionType {
+    public Object newInstance() throws UnableToCreateProtocolInstance {
         try {
             return this.constructor.newInstance(this.constructorArguments());
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new UnableToCreateConnectionType(e, this.constructor.getDeclaringClass().getName());
+            throw new UnableToCreateProtocolInstance(e, this.constructor.getDeclaringClass().getName());
         }
     }
 
@@ -62,7 +62,7 @@ public class ConstructorBasedUplServiceInjection implements InstanceFactory, Com
         try {
             return Services.serviceOfType(parameterType);
         } catch (Services.UnknownServiceType e) {
-            throw new UnableToCreateConnectionType(e, constructor.getDeclaringClass().getName());
+            throw new UnableToCreateProtocolInstance(e, constructor.getDeclaringClass().getName());
         }
     }
 }
