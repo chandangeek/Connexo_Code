@@ -28,13 +28,8 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+
 import org.fest.assertions.core.Condition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -42,6 +37,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -113,7 +115,7 @@ public class SmartMeterProtocolMessageAdapterTest {
     @Test
     public void testKnownMeterProtocol() {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
-        new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
 
         // all is safe if no errors occur
     }
@@ -122,7 +124,7 @@ public class SmartMeterProtocolMessageAdapterTest {
     public void testUnKnownMeterProtocol() {
         SmartMeterProtocol meterProtocol = mock(SmartMeterProtocol.class, withSettings().extraInterfaces(MessageProtocol.class));
         try {
-            new SmartMeterProtocolMessageAdapter(meterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+            new SmartMeterProtocolMessageAdapter(meterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
         } catch (DeviceProtocolAdapterCodingExceptions e) {
             assertThat(e.getMessageSeed().equals(MessageSeeds.NON_EXISTING_MAP_ELEMENT));
             throw e;
@@ -133,7 +135,7 @@ public class SmartMeterProtocolMessageAdapterTest {
     @Test(expected = DeviceProtocolAdapterCodingExceptions.class)
     public void testUnKnownLegacyMessageConverterClass() {
         SmartMeterProtocol meterProtocol = new SecondSimpleTestSmartMeterProtocol();
-        new SmartMeterProtocolMessageAdapter(meterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        new SmartMeterProtocolMessageAdapter(meterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
 
         // should have gotten the exception
     }
@@ -141,7 +143,7 @@ public class SmartMeterProtocolMessageAdapterTest {
     @Test
     public void testNotALegacyClass() {
         SmartMeterProtocol meterProtocol = new ThirdSimpleTestSmartMeterProtocol();
-        final SmartMeterProtocolMessageAdapter protocolMessageAdapter = new SmartMeterProtocolMessageAdapter(meterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        final SmartMeterProtocolMessageAdapter protocolMessageAdapter = new SmartMeterProtocolMessageAdapter(meterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
 
         assertThat(protocolMessageAdapter.executePendingMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);
         assertThat(protocolMessageAdapter.updateSentMessages(Collections.<OfflineDeviceMessage>emptyList())).isInstanceOf(CollectedMessageList.class);
@@ -153,7 +155,7 @@ public class SmartMeterProtocolMessageAdapterTest {
     @Test
     public void testGetSupportedMessages() {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
 
         // business method
         List<DeviceMessageSpec> supportedMessages = messageAdapter.getSupportedMessages();
@@ -165,7 +167,7 @@ public class SmartMeterProtocolMessageAdapterTest {
     @Test
     public void formatTest() {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
         PropertySpec mockPropertySpec = mock(PropertySpec.class);
         Calendar simpleCodeTable = mock(Calendar.class);
         Date simpleDate = new Date();
@@ -182,7 +184,7 @@ public class SmartMeterProtocolMessageAdapterTest {
     @Test
     public void testOnlyUpdateSentMessages() throws IOException {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
 
         // business method
@@ -195,7 +197,7 @@ public class SmartMeterProtocolMessageAdapterTest {
     @Test
     public void testOnlyExecutePending() throws IOException {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
-        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
 
         // business method
@@ -209,7 +211,7 @@ public class SmartMeterProtocolMessageAdapterTest {
     public void testDelegationToMessageProtocol() throws IOException {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
         simpleTestMeterProtocol.setQueryMessageResultExecutors(Arrays.asList(getNewSuccessMessageResultExecutor()));
-        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
 
         // business method
@@ -227,7 +229,7 @@ public class SmartMeterProtocolMessageAdapterTest {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
         simpleTestMeterProtocol.setQueryMessageResultExecutors(Arrays.asList(getNewSuccessMessageResultExecutor()));
         simpleTestMeterProtocol.setApplyMessageResultExecutor(getNewIOExceptionMessageResultExecutor());
-        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
 
         // business method
@@ -246,7 +248,7 @@ public class SmartMeterProtocolMessageAdapterTest {
         SimpleTestSmartMeterProtocol simpleTestMeterProtocol = new SimpleTestSmartMeterProtocol();
         simpleTestMeterProtocol.setQueryMessageResultExecutors(Arrays.asList(getNewSuccessMessageResultExecutor(), getNewIOExceptionMessageResultExecutor(), getNewSuccessMessageResultExecutor()));
         simpleTestMeterProtocol.setApplyMessageResultExecutor(getNewSuccessMessageResultExecutor());
-        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, this.dataModel, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
+        SmartMeterProtocolMessageAdapter messageAdapter = new SmartMeterProtocolMessageAdapter(simpleTestMeterProtocol, new MessageAdapterMappingFactoryImpl(this.dataModel), this.protocolPluggableService, this.inMemoryPersistence.getIssueService(), this.collectedDataFactory, this.deviceMessageSpecificationService);
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessage offlineDeviceMessage3 = mock(OfflineDeviceMessage.class);

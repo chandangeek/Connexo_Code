@@ -127,7 +127,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
      */
     private DeviceProtocol checkForProtocolWrappers(Object protocol) {
         if (protocol instanceof SmartMeterProtocol) {
-            return new SmartMeterProtocolAdapterImpl((SmartMeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory, meteringService, this.getThesaurus(), deviceMessageSpecificationService);
+            return new SmartMeterProtocolAdapterImpl((SmartMeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory, meteringService, identificationService, this.getThesaurus(), deviceMessageSpecificationService);
         } else if (protocol instanceof MeterProtocol) {
             return new MeterProtocolAdapterImpl((MeterProtocol) protocol, this.propertySpecService, this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.dataModel, issueService, collectedDataFactory, identificationService, this.getThesaurus(), deviceMessageSpecificationService);
         } else {

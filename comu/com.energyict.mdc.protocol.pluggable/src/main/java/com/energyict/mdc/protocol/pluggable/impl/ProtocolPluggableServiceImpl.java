@@ -1021,6 +1021,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
 
         @Override
+        public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier, String meterSerialNumber) {
+            return this.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, deviceIdentifier, meterSerialNumber);
+        }
+
+        @Override
         public CollectedDeviceInfo createCollectedDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
             return this.getCollectedDataFactory().createCollectedDeviceDialectProperty(deviceIdentifier, propertyName, propertyValue);
         }

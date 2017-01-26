@@ -209,7 +209,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
 
         if (!DeviceMessageSupport.class.isAssignableFrom(this.meterProtocol.getClass())) {
-            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.getDataModel(), this.messageAdapterMappingFactory, this.getProtocolPluggableService(), this.issueService, this.collectedDataFactory, this.deviceMessageSpecificationService);
+            this.meterProtocolMessageAdapter = new MeterProtocolMessageAdapter(meterProtocol, this.messageAdapterMappingFactory, this.getProtocolPluggableService(), this.issueService, this.collectedDataFactory, this.deviceMessageSpecificationService);
         } else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
         }
@@ -251,9 +251,6 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
         this.propertiesAdapter.copyProperties(comChannel.getProperties());
-        if (this.meterProtocolMessageAdapter != null) {
-            this.meterProtocolMessageAdapter.setSerialNumber(this.offlineDevice.getSerialNumber());
-        }
     }
 
     @Override
