@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.exceptions;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
+import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 
 /**
  * Coding or setup exceptions which can occur in the adapter classes.
@@ -36,14 +37,14 @@ public final class DeviceProtocolAdapterCodingExceptions extends ComServerRuntim
 
     /**
      * Constructs a new DeviceProtocolAdapterCodingExceptions to represent an error produced
-     * by the java reflection layer when an attempt was made to create a new instance of a LegacyMessageConverter
+     * by the java reflection layer when an attempt was made to create a new instance of a LegacyMessageConverter.
      *
-     * @param classNotFound    The ClassNotFoundException that wraps the java reflection layer exception
-     * @param noClassFoundName the name of the class that was not found on the classPath
+     * @param cause The actual failure
+     * @param className the name of the class for which instance creation failed
      * @return The CodingException
      */
-    public static DeviceProtocolAdapterCodingExceptions unKnownDeviceMessageConverterClass(MessageSeed messageSeed, ClassNotFoundException classNotFound, String noClassFoundName) {
-        return new DeviceProtocolAdapterCodingExceptions(classNotFound.getCause(), messageSeed, noClassFoundName);
+    public static DeviceProtocolAdapterCodingExceptions deviceMessageConverterClassCreationFailure(MessageSeed messageSeed, UnableToCreateProtocolInstance cause, String className) {
+        return new DeviceProtocolAdapterCodingExceptions(cause.getCause(), messageSeed, className);
     }
 
     /**
