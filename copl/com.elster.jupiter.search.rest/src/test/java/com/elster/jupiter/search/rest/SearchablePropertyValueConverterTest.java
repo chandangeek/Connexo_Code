@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.LongNode;
@@ -17,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ public class SearchablePropertyValueConverterTest {
     @Test(expected = LocalizedFieldValidationException.class)
     public void testApplyForNodeWithoutOperator(){
         ObjectNode node = new ObjectNode(null);
-        node.set(SearchablePropertyValueConverter.OPERATOR_FIELD, TextNode.valueOf(SearchablePropertyOperator.GREATER_THAN.code()));
+        node.set(SearchablePropertyValueConverter.OPERATOR_FIELD, TextNode.valueOf(""));
         testInstance().apply(node);
     }
 
@@ -58,7 +58,7 @@ public class SearchablePropertyValueConverterTest {
         testInstance().apply(node);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = LocalizedFieldValidationException.class)
     public void testApplyForNodeWithUnknownOperator(){
         ObjectNode node = new ObjectNode(null);
         node.set(SearchablePropertyValueConverter.OPERATOR_FIELD, TextNode.valueOf("++"));
@@ -73,9 +73,9 @@ public class SearchablePropertyValueConverterTest {
         node.set(SearchablePropertyValueConverter.CRITERIA_FIELD, TextNode.valueOf(userInput));
 
         SearchablePropertyValue.ValueBean propertyValue = testInstance().apply(node);
-        assertThat(propertyValue.operator).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
-        assertThat(propertyValue.values).hasSize(1);
-        assertThat(propertyValue.values).containsExactly(userInput);
+        assertThat(propertyValue.getOperator()).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
+        assertThat(propertyValue.getValues()).hasSize(1);
+        assertThat(propertyValue.getValues()).containsExactly(userInput);
     }
 
     @Test
@@ -85,9 +85,9 @@ public class SearchablePropertyValueConverterTest {
         node.set(SearchablePropertyValueConverter.CRITERIA_FIELD, LongNode.valueOf(42L));
 
         SearchablePropertyValue.ValueBean propertyValue = testInstance().apply(node);
-        assertThat(propertyValue.operator).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
-        assertThat(propertyValue.values).hasSize(1);
-        assertThat(propertyValue.values).containsExactly("42");
+        assertThat(propertyValue.getOperator()).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
+        assertThat(propertyValue.getValues()).hasSize(1);
+        assertThat(propertyValue.getValues()).containsExactly("42");
     }
 
     @Test
@@ -99,9 +99,9 @@ public class SearchablePropertyValueConverterTest {
         node.set(SearchablePropertyValueConverter.CRITERIA_FIELD, complexCriteria);
 
         SearchablePropertyValue.ValueBean propertyValue = testInstance().apply(node);
-        assertThat(propertyValue.operator).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
-        assertThat(propertyValue.values).hasSize(1);
-        assertThat((String) propertyValue.values.get(0)).contains("answer", "42!");
+        assertThat(propertyValue.getOperator()).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
+        assertThat(propertyValue.getValues()).hasSize(1);
+        assertThat((String) propertyValue.getValues().get(0)).contains("answer", "42!");
     }
 
     @Test
@@ -115,9 +115,9 @@ public class SearchablePropertyValueConverterTest {
         node.set(SearchablePropertyValueConverter.CRITERIA_FIELD, criteriaNode);
 
         SearchablePropertyValue.ValueBean propertyValue = testInstance().apply(node);
-        assertThat(propertyValue.operator).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
-        assertThat(propertyValue.values).hasSize(2);
-        assertThat(propertyValue.values).containsExactly(userInput1, userInput2);
+        assertThat(propertyValue.getOperator()).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
+        assertThat(propertyValue.getValues()).hasSize(2);
+        assertThat(propertyValue.getValues()).containsExactly(userInput1, userInput2);
     }
 
     @Test
@@ -129,9 +129,9 @@ public class SearchablePropertyValueConverterTest {
         node.set(SearchablePropertyValueConverter.CRITERIA_FIELD, criteriaNode);
 
         SearchablePropertyValue.ValueBean propertyValue = testInstance().apply(node);
-        assertThat(propertyValue.operator).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
-        assertThat(propertyValue.values).hasSize(2);
-        assertThat(propertyValue.values).containsExactly("42", "17");
+        assertThat(propertyValue.getOperator()).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
+        assertThat(propertyValue.getValues()).hasSize(2);
+        assertThat(propertyValue.getValues()).containsExactly("42", "17");
     }
 
     @Test
@@ -147,10 +147,10 @@ public class SearchablePropertyValueConverterTest {
         node.set(SearchablePropertyValueConverter.CRITERIA_FIELD, criteriaNode);
 
         SearchablePropertyValue.ValueBean propertyValue = testInstance().apply(node);
-        assertThat(propertyValue.operator).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
-        assertThat(propertyValue.values).hasSize(2);
-        assertThat((String) propertyValue.values.get(0)).contains("answer", "42!");
-        assertThat((String) propertyValue.values.get(0)).contains("bla-bla", "17");
+        assertThat(propertyValue.getOperator()).isEqualTo(SearchablePropertyOperator.GREATER_THAN);
+        assertThat(propertyValue.getValues()).hasSize(2);
+        assertThat((String) propertyValue.getValues().get(0)).contains("answer", "42!");
+        assertThat((String) propertyValue.getValues().get(0)).contains("bla-bla", "17");
     }
 
     @Test
@@ -158,12 +158,9 @@ public class SearchablePropertyValueConverterTest {
         when(propertySpec.getName()).thenReturn("propertyName");
         when(propertySpec.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(propertySpec);
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.operator = SearchablePropertyOperator.EQUAL;
-        valueBean.values = Arrays.asList("one", "two", "three");
-        searchablePropertyValue.setValueBean(valueBean);
+        searchablePropertyValue.setValueBean(new SearchablePropertyValue.ValueBean(null, SearchablePropertyOperator.EQUAL, "one", "two", "three"));
 
-        String jsonFilter = SearchablePropertyValueConverter.convert(Arrays.asList(searchablePropertyValue));
+        String jsonFilter = SearchablePropertyValueConverter.convert(Collections.singletonList(searchablePropertyValue));
 
         JsonModel model = JsonModel.model(jsonFilter);
         assertThat(model.<List<?>>get("$.")).hasSize(1);
@@ -179,10 +176,8 @@ public class SearchablePropertyValueConverterTest {
         when(propertySpec.getName()).thenReturn("propertyName");
         when(propertySpec.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(propertySpec);
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.operator = SearchablePropertyOperator.NOT_EQUAL;
-        valueBean.values = Arrays.asList("one");
-        searchablePropertyValue.setValueBean(valueBean);
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean(null, SearchablePropertyOperator.NOT_EQUAL, "one");
+        searchablePropertyValue.setValueBean(new SearchablePropertyValue.ValueBean(null, SearchablePropertyOperator.NOT_EQUAL, "one"));
 
         String jsonFilter = SearchablePropertyValueConverter.convert(Arrays.asList(searchablePropertyValue));
 
@@ -200,10 +195,7 @@ public class SearchablePropertyValueConverterTest {
         when(propertySpec.getName()).thenReturn("propertyName");
         when(propertySpec.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.SINGLE);
         SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(propertySpec);
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.operator = SearchablePropertyOperator.BETWEEN;
-        valueBean.values = Arrays.asList("one", "two");
-        searchablePropertyValue.setValueBean(valueBean);
+        searchablePropertyValue.setValueBean(new SearchablePropertyValue.ValueBean(null, SearchablePropertyOperator.BETWEEN, "one", "two"));
 
         String jsonFilter = SearchablePropertyValueConverter.convert(Arrays.asList(searchablePropertyValue));
 
@@ -221,10 +213,7 @@ public class SearchablePropertyValueConverterTest {
         when(propertySpec.getName()).thenReturn("propertyName");
         when(propertySpec.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.SINGLE);
         SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(propertySpec);
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.operator = SearchablePropertyOperator.EQUAL;
-        valueBean.values = Arrays.asList("one");
-        searchablePropertyValue.setValueBean(valueBean);
+        searchablePropertyValue.setValueBean(new SearchablePropertyValue.ValueBean(null, SearchablePropertyOperator.EQUAL, "one"));
 
         String jsonFilter = SearchablePropertyValueConverter.convert(Arrays.asList(searchablePropertyValue));
 

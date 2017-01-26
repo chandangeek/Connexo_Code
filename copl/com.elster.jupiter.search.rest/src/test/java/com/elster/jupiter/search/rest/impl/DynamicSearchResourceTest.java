@@ -163,10 +163,12 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         assertThat(model.<Integer>get("$.total")).isEqualTo(3);
         assertThat(model.<List>get("$.properties")).hasSize(3);
         assertThat(model.<String>get("$.properties[0].name")).isEqualTo("mRID");
-        assertThat(model.<Boolean>get("$.properties[0].affectsAvailableDomainProperties")).isEqualTo(false);
+        assertThat(model.<Boolean>get("$.properties[0].affectsAvailableDomainProperties")).isFalse();
         assertThat(model.<String>get("$.properties[0].group.id")).isEqualTo("Abc");
         assertThat(model.<String>get("$.properties[0].group.displayValue")).isEqualTo("Group abc");
         assertThat(model.<String>get("$.properties[0].selectionMode")).isEqualTo("multiple");
+        assertThat(model.<Boolean>get("$.properties[0].allowsIsDefined")).isFalse();
+        assertThat(model.<Boolean>get("$.properties[0].allowsIsUndefined")).isFalse();
         assertThat(model.<String>get("$.properties[0].visibility")).isEqualTo("sticky");
         assertThat(model.<List>get("$.properties[0].constraints")).hasSize(0);
         assertThat(model.<Object>get("$.properties[0].link")).isNotNull();
