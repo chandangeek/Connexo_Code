@@ -24,6 +24,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateAlias;
+
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -60,7 +61,12 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
 
     @Override
     public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, String meterSerialNumber) {
-        return new DeviceLoadProfileConfiguration(profileObisCode, this.identificationService.createDeviceIdentifierBySerialNumber(meterSerialNumber), meterSerialNumber);
+        return this.createCollectedLoadProfileConfiguration(profileObisCode, this.identificationService.createDeviceIdentifierBySerialNumber(meterSerialNumber), meterSerialNumber);
+    }
+
+    @Override
+    public CollectedLoadProfileConfiguration createCollectedLoadProfileConfiguration(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier, String meterSerialNumber) {
+        return new DeviceLoadProfileConfiguration(profileObisCode, deviceIdentifier, meterSerialNumber);
     }
 
     @Override
