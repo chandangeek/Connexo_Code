@@ -94,22 +94,22 @@ public final class Priority implements Comparable<Priority>, Cloneable {
         return urgency < 1 || impact < 1;
     }
 
-    public boolean increaseUrgency() {
+    public int increaseUrgency() {
 
         if (!isHighest()) {
-            ++this.urgency;
-            return true;
+           return ++this.urgency;
+
         } else {
-            return false;
+            return 50;
         }
     }
 
-    public boolean lowerUrgency() {
+    public int lowerUrgency() {
         if (!isLowest()) {
-            --this.urgency;
-            return true;
+            return --this.urgency;
+
         } else {
-            return false;
+            return 1;
         }
     }
 
