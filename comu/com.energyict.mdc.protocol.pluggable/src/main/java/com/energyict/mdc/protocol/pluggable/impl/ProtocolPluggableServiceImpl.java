@@ -50,7 +50,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
-import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
+import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -777,7 +777,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             } else {
                 LOGGER.log(Level.FINE, this::allConnectionTypeServiceClassNames);
             }
-            throw new UnableToCreateConnectionType(throwable, javaClassName);
+            throw new UnableToCreateProtocolInstance(throwable, javaClassName);
         }
     }
 
