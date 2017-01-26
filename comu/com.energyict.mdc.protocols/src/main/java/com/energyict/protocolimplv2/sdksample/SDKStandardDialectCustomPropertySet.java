@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 import test.com.energyict.protocolimplv2.sdksample.SDKStandardDeviceProtocolDialectProperties;
 
@@ -19,7 +20,7 @@ import javax.inject.Inject;
 class SDKStandardDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKStandardDialectProperties> {
 
     @Inject
-    public SDKStandardDialectCustomPropertySet(Thesaurus thesaurus) {
+    SDKStandardDialectCustomPropertySet(Thesaurus thesaurus) {
         super(thesaurus);
     }
 
