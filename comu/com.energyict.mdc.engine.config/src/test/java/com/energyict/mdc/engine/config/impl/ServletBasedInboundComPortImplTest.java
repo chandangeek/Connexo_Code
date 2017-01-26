@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.sql.SQLException;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -633,7 +634,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
 
     private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
-        return getEngineModelService().newInboundComPortPool("comPortPool"+comPortPoolIndex++, ComPortType.SERVLET, inboundDeviceProtocolPluggableClass);
+        return getEngineModelService().newInboundComPortPool("comPortPool"+comPortPoolIndex++, ComPortType.SERVLET, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
     }
 
     private ServletBasedInboundComPort createSimpleComPort() {

@@ -164,6 +164,25 @@ public enum TableSpecs {
                     .map("comPortPool").reverseMap("comPortPoolMembers").composition()
                     .add();
         }
+    },
+    MDC_COMPORTPOOLPROPS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ComPortPoolPropertyImpl> table = dataModel.addTable(name(), ComPortPoolPropertyImpl.class).since(version(10, 3));
+            table.map(ComPortPoolPropertyImpl.class);
+            Column comPortPool = table.column("COMPORTPOOL").number().notNull().add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("VALUE").varChar().notNull().map("value").add();
+            table.addAuditColumns();
+            table.foreignKey("FK_MDC_COMPORTPOOL")
+                    .on(comPortPool)
+                    .references(MDC_COMPORTPOOL.name())
+                    .map("comPortPool")
+                    .reverseMap("properties")
+                    .composition()
+                    .add();
+            table.primaryKey("PK_MDC_COMPORTPOOLPROPS").on(comPortPool, name).add();
+        }
     };
 
     abstract void addTo(DataModel component);

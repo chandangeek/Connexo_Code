@@ -21,6 +21,7 @@ import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -56,7 +57,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool(null, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool(null, ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.update();
         // See expected constraint violation rule
@@ -101,11 +102,11 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT_POOL+"}", property = "name")
     public void testUpdateWithSameName() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Test for duplication", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Test for duplication", ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.update();
         // Business method
-        inboundComPortPool = getEngineModelService().newInboundComPortPool("Test for duplication", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        inboundComPortPool = getEngineModelService().newInboundComPortPool("Test for duplication", ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.update();
         // Expecting a DuplicateException
@@ -117,7 +118,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
         comPortPool.makeObsolete();
         // Business method
-        InboundComPortPool notADuplicate = getEngineModelService().newInboundComPortPool(comPortPool.getName(), ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        InboundComPortPool notADuplicate = getEngineModelService().newInboundComPortPool(comPortPool.getName(), ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         notADuplicate.setDescription(DESCRIPTION);
         notADuplicate.update();
 
@@ -305,7 +306,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortType")
     public void testCreateWithoutComPortType() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, null, inboundDeviceProtocolPluggableClass);
+        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, null, inboundDeviceProtocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.update();
         // Expecting InvalidValueException because the ComPortType is not set
@@ -340,7 +341,8 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
 
     private int comPortPoolIndex=1;
     private InboundComPortPool newInboundComPortPoolWithoutViolations() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
+        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, ComPortType.TCP, inboundDeviceProtocolPluggableClass, Collections
+                .emptyMap());
         inboundComPortPool.setDescription(DESCRIPTION);
         inboundComPortPool.update();
         return inboundComPortPool;

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.config;
 
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 
 import java.util.List;
@@ -18,14 +19,14 @@ public interface InboundComPortPool extends ComPortPool {
      *
      * @return The list of InboundComPorts
      */
-    public List<InboundComPort> getComPorts();
+    List<InboundComPort> getComPorts();
 
     /**
      * Gets the {@link InboundDeviceProtocolPluggableClass}.
      *
      * @return The discovery pluggable class
      */
-    public InboundDeviceProtocolPluggableClass getDiscoveryProtocolPluggableClass();
+    InboundDeviceProtocolPluggableClass getDiscoveryProtocolPluggableClass();
 
     /**
      * Sets the {@link InboundDeviceProtocolPluggableClass}.
@@ -34,6 +35,23 @@ public interface InboundComPortPool extends ComPortPool {
      *
      * @param inboundDeviceProtocolPluggableClass The InboundDeviceProtocolPluggableClass
      */
-    public void setDiscoveryProtocolPluggableClass(InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass);
+    void setDiscoveryProtocolPluggableClass(InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass);
 
+    /**
+     * Getrs the values of the properties of the inbound discovery protocol belonging to this pool
+     *
+     * @return List of ComPortPoolProperties
+     */
+    List<ComPortPoolProperty> getProperties();
+
+    /**
+     * Sets the value of a property of the inbound discovery protocol
+     * @param key the name of the property
+     * @param value the value of the property
+     */
+    void setProperty(String key, Object value);
+
+    void clearProperties();
+
+    TypedProperties getTypedProperties();
 }
