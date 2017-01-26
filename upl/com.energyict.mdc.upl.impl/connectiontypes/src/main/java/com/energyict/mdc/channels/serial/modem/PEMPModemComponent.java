@@ -1,9 +1,9 @@
 package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.mdc.channels.serial.SerialComChannelImpl;
-import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.io.ModemException;
 
 import java.time.temporal.ChronoUnit;
 

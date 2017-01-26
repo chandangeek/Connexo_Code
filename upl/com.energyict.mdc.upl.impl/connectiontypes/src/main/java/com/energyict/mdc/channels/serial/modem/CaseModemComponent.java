@@ -2,9 +2,9 @@ package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
-import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.io.ModemException;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -307,12 +307,12 @@ public class CaseModemComponent implements ModemComponent {
      * Exception values which can occur during communication with the modem.
      */
     public enum ExceptionAnswers {
-        ERROR_CALL_ABORTED(CALL_ABORTED, com.energyict.mdc.io.ModemException.DialErrorType.MODEM_CALL_ABORTED);
+        ERROR_CALL_ABORTED(CALL_ABORTED, com.energyict.mdc.upl.io.ModemException.DialErrorType.MODEM_CALL_ABORTED);
 
         private final String error;
-        private final com.energyict.mdc.io.ModemException.DialErrorType dialErrorType;
+        private final com.energyict.mdc.upl.io.ModemException.DialErrorType dialErrorType;
 
-        ExceptionAnswers(String error, com.energyict.mdc.io.ModemException.DialErrorType dialErrorType) {
+        ExceptionAnswers(String error, com.energyict.mdc.upl.io.ModemException.DialErrorType dialErrorType) {
             this.error = error;
             this.dialErrorType = dialErrorType;
         }
@@ -321,7 +321,7 @@ public class CaseModemComponent implements ModemComponent {
             return error;
         }
 
-        public com.energyict.mdc.io.ModemException.DialErrorType getDialErrorType() {
+        public com.energyict.mdc.upl.io.ModemException.DialErrorType getDialErrorType() {
             return dialErrorType;
         }
     }
