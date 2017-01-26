@@ -87,13 +87,13 @@ public class DevicesForConfigChangeSearchFactoryTest {
         assertThat(devicesForConfigChangeSearch.searchItems.values()).haveExactly(1, new Condition<SearchablePropertyValue.ValueBean>(){
             @Override
             public boolean matches(SearchablePropertyValue.ValueBean value) {
-                return value.values.containsAll(Arrays.asList("1001", "1002")) && value.propertyName.equals("deviceConfiguration");
+                return value.getValues().containsAll(Arrays.asList("1001", "1002")) && value.getPropertyName().equals("deviceConfiguration");
             }
         });
         assertThat(devicesForConfigChangeSearch.searchItems.values()).haveExactly(1, new Condition<SearchablePropertyValue.ValueBean>(){
             @Override
             public boolean matches(SearchablePropertyValue.ValueBean value) {
-                return value.values.containsAll(Arrays.asList("1001")) && value.propertyName.equals("deviceType");
+                return value.getValues().containsAll(Arrays.asList("1001")) && value.getPropertyName().equals("deviceType");
             }
         });
 

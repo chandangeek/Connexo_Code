@@ -587,14 +587,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceTypeProperty.getName()).thenReturn("deviceType");
         when(deviceTypeProperty.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
         when(searchDomain.getProperties()).thenReturn(Arrays.asList(mridProperty, deviceTypeProperty));
-        SearchablePropertyValue.ValueBean mridBean = new SearchablePropertyValue.ValueBean();
-        mridBean.propertyName = "name";
-        mridBean.operator = SearchablePropertyOperator.EQUAL;
-        mridBean.values = Collections.singletonList("DAO*");
-        SearchablePropertyValue.ValueBean deviceTypeBean = new SearchablePropertyValue.ValueBean();
-        deviceTypeBean.propertyName = "deviceType";
-        deviceTypeBean.operator = SearchablePropertyOperator.EQUAL;
-        deviceTypeBean.values = Arrays.asList("1", "2", "3");
+        SearchablePropertyValue.ValueBean mridBean = new SearchablePropertyValue.ValueBean("name", SearchablePropertyOperator.EQUAL, Collections.singletonList("DAO*"));
+        SearchablePropertyValue.ValueBean deviceTypeBean = new SearchablePropertyValue.ValueBean("deviceType", SearchablePropertyOperator.EQUAL, "1", "2", "3");
         when(searchDomain.getPropertiesValues(Matchers.any(Function.class)))
                 .thenReturn(Arrays.asList(
                         new SearchablePropertyValue(mridProperty, mridBean),
@@ -633,10 +627,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         SearchableProperty serialNumberProperty = mock(SearchableProperty.class);
         when(serialNumberProperty.getName()).thenReturn("serialNumber");
         when(searchDomain.getProperties()).thenReturn(Collections.singletonList(serialNumberProperty));
-        SearchablePropertyValue.ValueBean serialNumberBean = new SearchablePropertyValue.ValueBean();
-        serialNumberBean.propertyName = "serialNumber";
-        serialNumberBean.operator = SearchablePropertyOperator.EQUAL;
-        serialNumberBean.values = Collections.singletonList("*001");
+        SearchablePropertyValue.ValueBean serialNumberBean = new SearchablePropertyValue.ValueBean("serialNumber", SearchablePropertyOperator.EQUAL, "*001");
         when(searchDomain.getPropertiesValues(Matchers.any(Function.class))).thenReturn(Collections.singletonList(new SearchablePropertyValue(serialNumberProperty, serialNumberBean)));
         MessageBuilder builder = mock(MessageBuilder.class);
         when(destinationSpec.get().message(anyString())).thenReturn(builder);
@@ -653,8 +644,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         System.out.println(stringArgumentCaptor.getValue());
         assertThat(jsonModel.<String>get("$.action")).isEqualTo("Remove");
         assertThat(jsonModel.<List>get("$.deviceIds")).isNull();
-        assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.propertyName")).isEqualTo(serialNumberBean.propertyName);
-        assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.operator")).isEqualTo(serialNumberBean.operator.name());
+        assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.propertyName")).isEqualTo(serialNumberBean.getPropertyName());
+        assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.operator")).isEqualTo(serialNumberBean.getOperator().name());
         assertThat(jsonModel.<String>get("$.filter.properties.serialNumber.values[0]")).isEqualTo("*001");
         assertThat(jsonModel.<List<Integer>>get("$.scheduleIds")).containsOnly(1);
     }

@@ -236,9 +236,9 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         verify(meteringGroupService).createQueryEndDeviceGroup(captor.capture());
         SearchablePropertyValue searchablePropertyValue = captor.getValue();
         assertThat(searchablePropertyValue.getProperty()).isEqualTo(nameSearchableProperty);
-        assertThat(searchablePropertyValue.getValueBean().propertyName).isEqualTo("name");
-        assertThat(searchablePropertyValue.getValueBean().operator).isEqualTo(SearchablePropertyOperator.EQUAL);
-        assertThat(searchablePropertyValue.getValueBean().values).containsExactly("*");
+        assertThat(searchablePropertyValue.getValueBean().getPropertyName()).isEqualTo("name");
+        assertThat(searchablePropertyValue.getValueBean().getOperator()).isEqualTo(SearchablePropertyOperator.EQUAL);
+        assertThat(searchablePropertyValue.getValueBean().getValues()).containsExactly("*");
         verify(builder).setName(info.name);
         verify(builder).setMRID("MDC:" + info.name);
         verify(builder).setSearchDomain(searchDomain);

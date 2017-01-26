@@ -282,7 +282,7 @@ public class DeviceGroupResource {
                 try {
                     searchablePropertyValue.addAsCondition(searchBuilder);
                 } catch (InvalidValueException e) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.SEARCHABLE_PROPERTY_INVALID_VALUE, "filter." + searchablePropertyValue.getValueBean().propertyName);
+                    throw new LocalizedFieldValidationException(MessageSeeds.SEARCHABLE_PROPERTY_INVALID_VALUE, "filter." + searchablePropertyValue.getValueBean().getPropertyName());
                 }
             });
             deviceIds = searchBuilder.toFinder().stream().map(HasId::getId);
