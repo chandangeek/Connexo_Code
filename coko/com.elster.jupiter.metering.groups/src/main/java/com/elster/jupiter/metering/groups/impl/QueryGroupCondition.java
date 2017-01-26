@@ -78,11 +78,7 @@ abstract class QueryGroupCondition {
     }
 
     SearchablePropertyValue.ValueBean toValueBean() {
-        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-        valueBean.propertyName = searchableProperty;
-        valueBean.operator = operator;
-        valueBean.values = conditionValues.stream().map(QueryGroupConditionValue::getValue).collect(Collectors.toList());
-        return valueBean;
+        return new SearchablePropertyValue.ValueBean(searchableProperty, operator, conditionValues.stream().map(QueryGroupConditionValue::getValue).collect(Collectors.toList()));
     }
 
     String getSearchableProperty() {
