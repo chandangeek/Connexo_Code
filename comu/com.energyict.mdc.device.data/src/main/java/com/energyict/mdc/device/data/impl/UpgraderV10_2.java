@@ -6,8 +6,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
@@ -83,14 +83,6 @@ class UpgraderV10_2 implements Upgrader {
                     device.getChannels().forEach(channel -> device.findOrCreateKoreChannel(start, channel));
                     device.getRegisters().forEach(register -> device.findOrCreateKoreChannel(start, register));
                 });
-    }
-
-    private void execute(Statement statement, String sql) {
-        try {
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
     }
 
     private void upgradeSubscriberSpecs() {

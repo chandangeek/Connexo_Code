@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -55,6 +56,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -302,6 +304,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new UserModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
+                    new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new OrmModule(),
@@ -381,7 +384,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(MetrologyConfigurationService.class),
                                 injector.getInstance(ServiceCallService.class),
                                 injector.getInstance(ThreadPrincipalService.class),
-                                injector.getInstance(LockService.class));
+                                injector.getInstance(LockService.class),
+                                injector.getInstance(DataVaultService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }

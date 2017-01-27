@@ -740,7 +740,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.update();
     }
 
-    boolean isActive() {
+    @Override
+    public boolean isActive() {
         return this.status.equals(ConnectionTaskLifecycleStatus.ACTIVE);
     }
 

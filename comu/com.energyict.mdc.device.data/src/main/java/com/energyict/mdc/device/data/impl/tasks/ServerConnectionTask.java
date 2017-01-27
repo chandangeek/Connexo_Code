@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 
@@ -37,5 +38,21 @@ public interface ServerConnectionTask<CPPT extends ComPortPool, PCTT extends Par
      * as part of the delete of the {@link com.energyict.mdc.device.data.Device}.
      */
     void notifyDelete ();
+
+    /**
+     * Notifies this OutboundConnectionTask that one of its
+     * {@link ComTaskExecution}s was rescheduled.
+     *
+     * @param comTask The ScheduledComTask that was rescheduled
+     */
+    void scheduledComTaskRescheduled(ComTaskExecution comTask);
+
+    /**
+     * Notifies this OutboundConnectionTask that the priority
+     * of one of its {@link ComTaskExecution}s changed.
+     *
+     * @param comTask The ScheduledComTask whose priority changed
+     */
+    void scheduledComTaskChangedPriority(ComTaskExecution comTask);
 
 }

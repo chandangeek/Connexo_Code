@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Encrypter;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -95,7 +96,7 @@ import static com.elster.jupiter.orm.Version.version;
 public enum TableSpecs {
 
     DDC_BATCH {
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<Batch> table = dataModel.addTable(name(), Batch.class);
             table.map(BatchImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -107,7 +108,7 @@ public enum TableSpecs {
     },
     DDC_DEVICE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<Device> table = dataModel.addTable(name(), Device.class).alsoReferredToAs(BaseDevice.class);
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
@@ -155,7 +156,7 @@ public enum TableSpecs {
 
     DDC_DEVICEPROTOCOLPROPERTY {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<DeviceProtocolProperty> table = dataModel.addTable(name(), DeviceProtocolProperty.class);
             table.map(DeviceProtocolPropertyImpl.class);
             Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
@@ -176,7 +177,7 @@ public enum TableSpecs {
 
     DDC_LOADPROFILE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<LoadProfile> table = dataModel.addTable(name(), LoadProfile.class).alsoReferredToAs(BaseLoadProfile.class);
             table.map(LoadProfileImpl.class);
             Column id = table.addAutoIdColumn();
@@ -203,7 +204,7 @@ public enum TableSpecs {
 
     DDC_LOGBOOK {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<LogBook> table = dataModel.addTable(name(), LogBook.class);
             table.map(LogBookImpl.class);
             Column id = table.addAutoIdColumn();
@@ -227,7 +228,7 @@ public enum TableSpecs {
 
     DDC_CONNECTIONTASK {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ConnectionTask> table = dataModel.addTable(name(), ConnectionTask.class).alsoReferredToAs(ConnectionProvider.class);
             table.map(ConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
@@ -300,7 +301,7 @@ public enum TableSpecs {
 
     DDC_PROTOCOLDIALECTPROPS {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class).alsoReferredToAs(DeviceProtocolDialectPropertyProvider.class);
             table.map(ProtocolDialectPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
@@ -330,7 +331,7 @@ public enum TableSpecs {
 
     DDC_COMTASKEXEC {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ComTaskExecution> table = dataModel.addTable(name(), ComTaskExecution.class);
             table.map(ComTaskExecutionImpl.class);
             Column id = table.addAutoIdColumn();
@@ -399,7 +400,7 @@ public enum TableSpecs {
 
     DDC_COMSESSION {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ComSession> table = dataModel.addTable(name(), ComSession.class);
             table.map(ComSessionImpl.class);
             Column id = table.addAutoIdColumn();
@@ -444,7 +445,7 @@ public enum TableSpecs {
     },
     ADD_LAST_SESSION_TO_CONNECTION_TASK {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<?> table = dataModel.getTable(DDC_CONNECTIONTASK.name());
             Column lastSession = table.column("LASTSESSION").number().add();
             table.column("LASTSESSIONSUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName()).add();
@@ -458,7 +459,7 @@ public enum TableSpecs {
     },
     DDC_COMTASKEXECSESSION {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ComTaskExecutionSession> table = dataModel.addTable(name(), ComTaskExecutionSession.class);
             table.map(ComTaskExecutionSessionImpl.class);
             Column id = table.addAutoIdColumn();
@@ -507,7 +508,7 @@ public enum TableSpecs {
     },
     ADD_LAST_SESSION_TO_COM_TASK_EXECUTION {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<?> table = dataModel.getTable(DDC_COMTASKEXEC.name());
             Column lastSession = table.column("LASTSESSION").number().add();
             table.column("LASTSESS_HIGHESTPRIOCOMPLCODE").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE.fieldName()).add();
@@ -521,7 +522,7 @@ public enum TableSpecs {
     },
     DDC_COMTASKEXECJOURNALENTRY {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ComTaskExecutionJournalEntry> table = dataModel.addTable(name(), ComTaskExecutionJournalEntry.class);
             table.map(ComTaskExecutionJournalEntryImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
@@ -547,7 +548,7 @@ public enum TableSpecs {
     },
     DDC_COMSESSIONJOURNALENTRY {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ComSessionJournalEntry> table = dataModel.addTable(name(), ComSessionJournalEntry.class);
             table.map(ComSessionJournalEntryImpl.class);
             Column id = table.addAutoIdColumn();
@@ -571,7 +572,7 @@ public enum TableSpecs {
 
     DDC_DATA_COLLECTION_KPI {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<DataCollectionKpi> table = dataModel.addTable(name(), DataCollectionKpi.class);
             table.map(DataCollectionKpiImpl.class);
             Column id = table.addAutoIdColumn();
@@ -614,7 +615,7 @@ public enum TableSpecs {
 
     DDC_DEVICEMESSAGE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<DeviceMessage> table = dataModel.addTable(name(), DeviceMessage.class);
             table.map(DeviceMessageImpl.class);
             Column id = table.addAutoIdColumn();
@@ -633,6 +634,7 @@ public enum TableSpecs {
             table.column("RELEASEDATE").number().map(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("SENTDATE").number().map(DeviceMessageImpl.Fields.SENTDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("CREATEUSERNAME").varChar(80).notNull().map(DeviceMessageImpl.Fields.CREATEDBYUSER.fieldName()).since(version(10, 2)).installValue("'install/upgrade'").add();
+            table.addMessageAuthenticationCodeColumn(encrypter).since(version(10, 3));
             table.primaryKey("PK_DDC_DEVICEMESSAGE").on(id).add();
             table.foreignKey("FK_DDC_DEVMESSAGE_DEV")
                     .on(device).references(DDC_DEVICE.name())
@@ -643,7 +645,7 @@ public enum TableSpecs {
 
     DDC_DEVICEMESSAGEATTR {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<DeviceMessageAttribute> table = dataModel.addTable(name(), DeviceMessageAttribute.class);
             table.map(DeviceMessageAttributeImpl.class);
             Column id = table.addAutoIdColumn();
@@ -678,7 +680,7 @@ public enum TableSpecs {
 
     DDC_DEVICEESTACTIVATION {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<DeviceEstimation> table = dataModel.addTable(name(), DeviceEstimation.class);
             table.upTo(version(10, 2));
             table.map(DeviceImpl.DeviceEstimationImpl.class);
@@ -697,7 +699,7 @@ public enum TableSpecs {
 
     DDC_DEVICEESTRULESETACTIVATION {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<DeviceEstimationRuleSetActivation> table = dataModel.addTable(name(), DeviceEstimationRuleSetActivation.class);
             table.map(DeviceEstimationRuleSetActivationImpl.class);
 
@@ -732,7 +734,7 @@ public enum TableSpecs {
     },
 
     DDC_DEVICEINBATCH {
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<DeviceInBatch> table = dataModel.addTable(name(), DeviceInBatch.class);
             table.map(DeviceInBatch.class);
             table.upTo(version(10, 2));
@@ -747,7 +749,7 @@ public enum TableSpecs {
 
     DDC_CONFIGCHANGEREQUEST {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             final Table<DeviceConfigChangeRequest> table = dataModel.addTable(name(), DeviceConfigChangeRequest.class);
             table.map(DeviceConfigChangeRequestImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -766,7 +768,7 @@ public enum TableSpecs {
 
     DDC_CONFIGCHANGEINACTION {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             final Table<DeviceConfigChangeInAction> table = dataModel.addTable(name(), DeviceConfigChangeInAction.class);
             table.map(DeviceConfigChangeInActionImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -796,7 +798,7 @@ public enum TableSpecs {
 
     DDC_BREAKER_STATUS {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ActivatedBreakerStatus> table = dataModel.addTable(name(), ActivatedBreakerStatus.class);
             table.since(version(10, 2));
             table.map(ActivatedBreakerStatusImpl.class);
@@ -818,7 +820,7 @@ public enum TableSpecs {
 
     DDC_PASSIVE_CALENDAR {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<PassiveCalendar> table = dataModel.addTable(name(), PassiveCalendar.class);
             table.map(PassiveCalendarImpl.class);
             table.since(version(10, 2));
@@ -844,7 +846,7 @@ public enum TableSpecs {
     },
     ADD_DDC_PASSIVE_CALENDAR_TO_DEVICE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<?> table = dataModel.getTable(DDC_DEVICE.name());
             Column passiveCalendar = table.column("PASSIVE_CAL").number().conversion(NUMBER2LONG).add();
             passiveCalendar.since(version(10, 2));
@@ -865,7 +867,7 @@ public enum TableSpecs {
 
     DDC_ACTIVE_CALENDAR {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ActiveEffectiveCalendar> table = dataModel.addTable(name(), ActiveEffectiveCalendar.class);
             table.since(version(10, 2));
             table.map(ActiveEffectiveCalendarImpl.class);
@@ -895,7 +897,7 @@ public enum TableSpecs {
 
     DDC_OVERRULEDOBISCODE {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ReadingTypeObisCodeUsage> table = dataModel.addTable(name(), ReadingTypeObisCodeUsage.class);
             table.since(version(10, 2));
             table.map(ReadingTypeObisCodeUsageImpl.class);
@@ -921,7 +923,7 @@ public enum TableSpecs {
     },
     DDC_COMTASKEXEC_TRIGGERS {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<ComTaskExecutionTrigger> table = dataModel.addTable(name(), ComTaskExecutionTrigger.class);
             table.since(version(10, 2));
             table.map(ComTaskExecutionTriggerImpl.class);
@@ -945,6 +947,6 @@ public enum TableSpecs {
         }
     };
 
-    abstract void addTo(DataModel component);
+    abstract void addTo(DataModel component, Encrypter encrypter);
 
 }
