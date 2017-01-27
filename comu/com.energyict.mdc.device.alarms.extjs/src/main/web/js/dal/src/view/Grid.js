@@ -27,6 +27,12 @@ Ext.define('Dal.view.Grid', {
                 }
             },
             {
+                itemId: 'alarms-grid-priority',
+                header: Uni.I18n.translate('general.priority', 'DAL', 'Priority'),
+                dataIndex: 'priority',
+                flex: 1
+            },
+            {
                 itemId: 'alarms-grid-due-date',
                 header: Uni.I18n.translate('general.title.dueDate', 'DAL', 'Due date'),
                 dataIndex: 'dueDate',

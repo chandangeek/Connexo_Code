@@ -1,12 +1,7 @@
 Ext.define('Dal.model.Alarm', {
     extend: 'Uni.model.Version',
     requires: [
-        //    'Isu.model.IssueReason',
-        //    'Isu.model.IssueStatus',
-        //     'Isu.model.Device',
-        //     'Isu.model.IssueAssignee',
-        'Isu.model.IssueComment',
-        //    'Isu.model.IssueAction'
+        'Isu.model.IssueComment'
     ],
     fields: [
         {
@@ -72,6 +67,21 @@ Ext.define('Dal.model.Alarm', {
         },
         {name: 'urgency', persist: false, mapping: 'priority.urgency'},
         {name: 'impact', persist: false, mapping: 'priority.impact'},
+        {
+            name: 'priority',
+            persist: false,
+            convert: function (value, rec) {
+                var impact = value.impact,
+                    urgency = value.urgency,
+                    priority = (impact + urgency) / 10;
+                priority = (priority <= 2) ? Uni.I18n.translate('priority.veryLow', 'DAL', 'Very low ({0})') :
+                    (priority <= 4) ? Uni.I18n.translate('priority.low', 'DAL', 'Low ({0})') :
+                        (priority <= 6) ? Uni.I18n.translate('priority.medium', 'DAL', 'Medium ({0})') :
+                            (priority <= 8) ? Uni.I18n.translate('priority.high', 'DAL', 'High ({0})') :
+                                Uni.I18n.translate('priority.veryHigh', 'DAL', 'Very high ({0})');
+                return Ext.String.format(priority, impact + urgency);
+            }
+        },
         {name: 'deviceMRID', type: 'auto'},
         {
             name: 'location',

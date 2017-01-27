@@ -105,7 +105,7 @@ Ext.define('Dal.controller.Alarms', {
                 callback: function (records) {
                     queryString.myopenalarms = undefined;
                     queryString.userAssignee = records[0].getId();
-                    queryString.sort = ['dueDate'];
+                    queryString.sort = ['-priority'];
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                 }
             });
@@ -121,17 +121,17 @@ Ext.define('Dal.controller.Alarms', {
                         queryString.workGroupAssignee = decoded.workgroups.length == 0 ? [-1] : decoded.workgroups.map(function (wg) {
                             return wg.id;
                         });
-                        queryString.sort = ['dueDate'];
+                        queryString.sort = ['-priority'];
                         window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                     }
                 }
             });
         } else if (!queryString.userAssignee && !queryString.myworkgroupalarms && !queryString.status) {
             queryString.status = ['status.open', 'status.in.progress'];
-            queryString.sort = ['dueDate'];
+            queryString.sort = ['-priority'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else if (!queryString.sort) {
-            queryString.sort = ['dueDate'];
+            queryString.sort = ['-priority'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
             me.getStore('Isu.store.Clipboard').set('latest-issues-filter', queryString);

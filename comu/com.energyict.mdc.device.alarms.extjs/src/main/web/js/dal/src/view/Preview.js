@@ -162,6 +162,12 @@ Ext.define('Dal.view.Preview', {
                         }
                     },
                     {
+                        xtype: 'displayfield',
+                        itemId: 'alarm-priority',
+                        fieldLabel: Uni.I18n.translate('general.title.priority', 'DAL', 'Priority'),
+                        name: 'priority'
+                    },
+                    {
                         xtype: me.fieldxtype,
                         itemId: 'alarm-workgroup',
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'DAL', 'Workgroup'),
