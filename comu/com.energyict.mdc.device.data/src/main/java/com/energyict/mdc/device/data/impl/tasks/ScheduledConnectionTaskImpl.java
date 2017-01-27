@@ -258,8 +258,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if(this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
             calledByComtaskExecution = true;
+            if(comTask.getNextExecutionTimestamp() == null) {
+                updateNextExecutionTimeStampBasedOnComTask();
+            } else {
+                this.schedule(comTask.getNextExecutionTimestamp().minusMillis(1));
+            }
+        }else {
+            this.schedule(comTask.getNextExecutionTimestamp());
         }
-        this.schedule(comTask.getNextExecutionTimestamp());
     }
 
     @Override
@@ -308,6 +314,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             this.schedule(this.calculateNextPlannedExecutionTimestamp());
             updatedFields.add(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName());
             updatedFields.add(ConnectionTaskFields.PRIORITY.fieldName());
+        } else {
+            updateNextExecutionTimeStampBasedOnComTask();
         }
     }
 
@@ -337,21 +345,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             }
         }
     }
-//
-//    @Override
-//    protected boolean doWeNeedToRetryTheConnectionTask() {
-//        if (!(getLastSuccessIndicator().isPresent() && getLastSuccessIndicator().get().equals(ComSession.SuccessIndicator.SetupError))
-//                && getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
-//            Condition condition =
-//                    where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull().
-//                            and(comTaskNotExecutingCondition()).
-//                            and(comTaskIsRetrying()).
-//                            and(connectionTaskIsThisOne());
-//            return !this.getDataModel().mapper(ComTaskExecution.class).select(condition).isEmpty();
-//        } else {
-//            return super.doWeNeedToRetryTheConnectionTask();
-//        }
-//    }
 
     private Condition comTaskNotExecutingCondition() {
         return where(ComTaskExecutionFields.COMPORT.fieldName()).isNull();
