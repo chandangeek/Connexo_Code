@@ -76,6 +76,11 @@ Ext.define('Idv.view.DetailForm', {
                         }
                     },
                     {
+                        itemId: 'data-validation-issue-detail-priority',
+                        fieldLabel: Uni.I18n.translate('general.title.priority', 'IDV', 'Priority'),
+                        name: 'priority'
+                    },
+                    {
                         itemId: 'data-validation-issue-detail-workgroup',
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'IDV', 'Workgroup'),
                         name: 'workGroupAssignee',
