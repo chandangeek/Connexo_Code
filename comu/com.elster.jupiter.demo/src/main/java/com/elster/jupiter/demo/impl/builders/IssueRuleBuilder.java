@@ -3,7 +3,6 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
-import com.elster.jupiter.fsm.impl.StateImpl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -17,11 +16,13 @@ import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTempla
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +42,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private final IssueCreationService issueCreationService;
     private final IssueService issueService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private String type;
     private String reason;
@@ -49,11 +51,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private Priority priority;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     public IssueRuleBuilder withType(String type) {
@@ -149,22 +152,21 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EVENTTYPE,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
-           /* properties.put(
-                    BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodes(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
-            properties.put(
-                    BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodes(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
-            */
             properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
             properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
-            properties.put(
+           /* properties.put(
                     BasicDeviceAlarmRuleTemplate.DEVICE_TYPES,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES).get().getValueFactory().fromStringValue("0"));
+            */
+            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES, getOneRandomeviceType());
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EIS_CODES,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EIS_CODES).get().getValueFactory().fromStringValue("1"));
-            properties.put(
+            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE, getAllDeviceStates());
+            /* properties.put(
                     BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE).get().getValueFactory().fromStringValue("18"));
+            */
             properties.put(
                     BasicDeviceAlarmRuleTemplate.LOG_ON_SAME_ALARM, true);
             properties.put(
@@ -205,32 +207,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return listValue;
     }
 
-    private String getRandomEventCodes(String eventType) {
-        if (eventType.equals(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS)) {
-            return Stream.of(EndDeviceEventTypeMapping.values())
-                    .limit(30)
-                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
-                        Collections.shuffle(collected);
-                        return collected.stream();
-                    }))
-                    .limit(10)
-                    .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
-                    .collect(Collectors.joining(","));
-        } else {
-            return Stream.of(EndDeviceEventTypeMapping.values())
-                    .skip(30)
-                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
-                        Collections.shuffle(collected);
-                        return collected.stream();
-                    }))
-                    .limit(10)
-                    .map(EndDeviceEventTypeMapping::getEndDeviceEventTypeMRID)
-                    .collect(Collectors.joining(","));
-        }
-    }
-
-
-    private List<HasName> getRandomEventCodeList (String eventType) {
+    private List<HasName> getRandomEventCodeList(String eventType) {
         List<String> rawList;
         List<HasName> listValue = new ArrayList<>();
         if (eventType.equals(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS)) {
@@ -265,4 +242,47 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return listValue;
     }
 
+    private List<HasIdAndName> getAllDeviceStates() {
+        List<HasIdAndName> listValue = new ArrayList<>();
+        deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().find()
+                .stream().map(lifecycle ->  lifecycle.getFiniteStateMachine().getStates())
+                .flatMap(Collection::stream)
+                .forEach(value -> listValue.add(new HasIdAndName() {
+                            @Override
+                            public Object getId() {
+                                return value.getId();
+                            }
+
+                            @Override
+                            public String getName() {
+                                return value.getName();
+                            }
+                        })
+        );
+        return listValue;
+    }
+
+
+    private List<HasIdAndName> getOneRandomeviceType() {
+        List<HasIdAndName> listValue = new ArrayList<>();
+        deviceConfigurationService.findAllDeviceTypes().find()
+                .stream()
+                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                    Collections.shuffle(collected);
+                    return collected.stream();
+                }))
+                .limit(1).forEach(value -> listValue.add(new HasIdAndName() {
+                    @Override
+                    public Object getId() {
+                        return value.getId();
+                    }
+
+                    @Override
+                    public String getName() {
+                        return value.getName();
+                    }
+                })
+        );
+        return listValue;
+    }
 }
