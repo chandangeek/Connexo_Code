@@ -6,6 +6,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link DeviceIdentifier} interface,
@@ -71,15 +74,21 @@ public class CTRPhoneNumberDeviceIdentifier implements FindMultipleDevices {
         }
 
         @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("phoneNumber", "connectionTypeClass", "propertyName"));
+        }
+
+        @Override
         public Object getValue(String role) {
-            if ("phoneNumber".equals(role)) {
-                return phoneNumber;
-            } else if ("propertyName".equals(role)) {
-                return PHONE_NUMBER_PROPERTY_NAME;
-            } else if ("connectionTypeClass".equals(role)) {
-                return InboundProximusSmsConnectionType.class;
-            } else {
-                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            switch (role) {
+                case "phoneNumber":
+                    return phoneNumber;
+                case "propertyName":
+                    return PHONE_NUMBER_PROPERTY_NAME;
+                case "connectionTypeClass":
+                    return InboundProximusSmsConnectionType.class;
+                default:
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }
         }
 

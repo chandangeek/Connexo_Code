@@ -6,6 +6,9 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -72,6 +75,11 @@ public class RegisterIdentifierById implements RegisterIdentifier {
         @Override
         public String getTypeName() {
             return "DatabaseId";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Collections.singletonList("databaseValue"));
         }
 
         @Override

@@ -7,6 +7,10 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Implementation of a {@link RegisterIdentifier} that uniquely identifies an Register based on the ObisCode
@@ -75,6 +79,11 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         }
 
         @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("device", "obisCode"));
+        }
+
+        @Override
         public Object getValue(String role) {
             switch (role) {
                 case "device": {
@@ -101,6 +110,11 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
         @Override
         public String getTypeName() {
             return "Null";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return Collections.emptySet();
         }
 
         @Override

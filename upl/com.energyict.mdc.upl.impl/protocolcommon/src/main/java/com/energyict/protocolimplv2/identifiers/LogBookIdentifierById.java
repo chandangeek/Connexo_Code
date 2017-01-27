@@ -6,6 +6,9 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -76,6 +79,11 @@ public class LogBookIdentifierById implements LogBookIdentifier {
         @Override
         public String getTypeName() {
             return "DatabaseId";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Collections.singletonList("databaserValue"));
         }
 
         @Override

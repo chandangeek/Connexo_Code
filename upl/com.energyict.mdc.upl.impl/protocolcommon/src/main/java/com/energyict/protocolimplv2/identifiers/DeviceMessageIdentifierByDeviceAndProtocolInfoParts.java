@@ -7,6 +7,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
@@ -88,6 +91,11 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
         }
 
         @Override
+        public Set<String> getRoles() {
+            return Collections.emptySet();
+        }
+
+        @Override
         public Object getValue(String role) {
             throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
         }
@@ -97,6 +105,11 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
         @Override
         public String getTypeName() {
             return "DeviceIdentifierAndProtocolInfoParts";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("device", "protocolInfo"));
         }
 
         @Override

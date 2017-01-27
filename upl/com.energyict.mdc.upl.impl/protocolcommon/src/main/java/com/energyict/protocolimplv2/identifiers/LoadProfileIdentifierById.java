@@ -6,6 +6,9 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Implementation of a {@link LoadProfileIdentifier} that uniquely identifies a {@link com.energyict.mdw.core.LoadProfile}
@@ -59,6 +62,11 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
         @Override
         public String getTypeName() {
             return "DatabaseId";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Collections.singletonList("databaseValue"));
         }
 
         @Override
