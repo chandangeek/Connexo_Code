@@ -52,7 +52,11 @@ public class MetrologyConfigurationInfoFactory {
 
     public MetrologyConfigurationInfo asDetailedInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
         MetrologyConfigurationInfo info = asInfo(metrologyConfiguration);
-        info.metrologyContracts = metrologyConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
+        info.metrologyContracts = metrologyConfiguration.getContracts()
+                .stream()
+                .sorted((a, b) -> Boolean.compare(a.isMandatory(), b.isMandatory()))
+                .sorted((a, b) -> a.getMetrologyPurpose().getName().compareTo(b.getMetrologyPurpose().getName()))
+                .map(this::asDetailedInfo).collect(Collectors.toList());
         info.customPropertySets = metrologyConfiguration.getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
