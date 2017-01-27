@@ -1,5 +1,7 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
+import java.util.Set;
+
 /**
  * Introspects identifier type information.
  * This was designed with a maximum backwards/forwards compatibility
@@ -20,6 +22,14 @@ public interface Introspector {
      * @return The name of the identifier type
      */
     String getTypeName();
+
+    /**
+     * Gets the different role that are supported by this Introspector.
+     *
+     * @return The Set of roles
+     * @see #getValue(String)
+     */
+    Set<String> getRoles();
 
     /**
      * Gets the value of the part of the identifier that matches the specified role.
