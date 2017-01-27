@@ -65,15 +65,15 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
     private Optional<T> getReading() {
         if (this.persistedReadingRecord != null) {
             return Optional.of(this.persistedReadingRecord);
-        } else if (this.calculatedReadingRecord != null) {
-            return Optional.of(this.calculatedReadingRecord);
-        } else {
-            return Optional.empty();
         }
+        if (this.calculatedReadingRecord != null) {
+            return Optional.of(this.calculatedReadingRecord);
+        }
+        return Optional.empty();
     }
 
     public Optional<BigDecimal> getCalculatedValue() {
-        return this.calculatedReadingRecord != null ? Optional.of(this.calculatedReadingRecord.getValue()) : Optional.empty();
+        return Optional.ofNullable(this.calculatedReadingRecord).map(T::getValue);
     }
 
     public boolean isChannelValidationActive() {
