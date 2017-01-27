@@ -271,11 +271,10 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         } else if (readingQuality == ESTIMATED_EDITED) {
             readingQualityValue = ReadingQuality.DERIVED_INDETERMINISTIC;
         }
-        if (readingQualityValue != null) {
-            return Optional.of(newAggregatedReadingQuality(new ReadingQualityType(readingQualityValue.getCode())));
-        } else {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(readingQualityValue)
+                .map(ReadingQuality::getCode)
+                .map(ReadingQualityType::new)
+                .map(this::newAggregatedReadingQuality);
     }
 
     private AggregatedReadingQualityImpl newAggregatedReadingQuality(ReadingQualityType readingQualityType) {

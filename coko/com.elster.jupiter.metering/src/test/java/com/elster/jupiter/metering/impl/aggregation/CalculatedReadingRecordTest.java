@@ -280,11 +280,6 @@ public class CalculatedReadingRecordTest {
         assertThat(may.getSourceChannelSet().getSourceChannelIds()).containsOnly(1001L);
     }
 
-    @Test
-    public void test() {
-
-    }
-
     private CalculatedReadingRecord testInstance() {
         return this.newTestInstance();
     }
