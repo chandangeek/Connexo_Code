@@ -62,14 +62,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
                 dataIndex: 'workgroup',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    var result = '';
-                    if (!Ext.isEmpty(value)) {
-                        result = '<span class="icon-users" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.workgroup', 'BPM', 'Workgroup') + '"></span> ';
-                        result += Ext.String.htmlEncode(value);
-                    } else {
-                        result = '-'
-                    }
-                    return result;
+                    return value ? Ext.String.htmlEncode(value) : Uni.I18n.translate('general.unassigned', 'BPM', 'Unassigned');
                 }
             },
             {
@@ -77,14 +70,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
                 dataIndex: 'actualOwner',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    var result = '';
-                    if (!Ext.isEmpty(value)) {
-                        result = '<span class="icon-user" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.user', 'BPM', 'User') + '"></span> ';
-                        result += Ext.String.htmlEncode(value);
-                    } else {
-                        result = '-'
-                    }
-                    return result;
+                    return value ? Ext.String.htmlEncode(value) : Uni.I18n.translate('general.unassigned', 'BPM', 'Unassigned');
                 }
             },
             {
