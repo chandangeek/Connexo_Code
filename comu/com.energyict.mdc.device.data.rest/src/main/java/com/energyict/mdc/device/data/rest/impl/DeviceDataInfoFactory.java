@@ -14,6 +14,7 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.energyict.mdc.common.impl.ObisCodeAnalyzer;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -392,7 +393,7 @@ public class DeviceDataInfoFactory {
         registerInfo.readingType = readingTypeInfoFactory.from(register.getReadingType());
         registerInfo.obisCode = registerSpec.getDeviceObisCode();
         registerInfo.overruledObisCode = register.getDeviceObisCode();
-        registerInfo.obisCodeDescription = register.getDeviceObisCode().getDescription();
+        registerInfo.obisCodeDescription = new ObisCodeAnalyzer(register.getDeviceObisCode()).getDescription();
         registerInfo.isCumulative = register.getReadingType().isCumulative();
         registerInfo.deviceName = device.getName();
         registerInfo.version = device.getVersion();

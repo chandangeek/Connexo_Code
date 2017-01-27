@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -124,7 +125,7 @@ public class LoadProfileResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response updateLoadProfile(LoadProfileInfo info, @PathParam("name") String name, @PathParam("lpid") long loadProfileId) {
         LoadProfile loadProfile = doGetLoadProfile(name, loadProfileId);
-        Optional<Instant> lastReading = loadProfile.getLastReading();
+        Optional<Instant> lastReading = Optional.ofNullable(loadProfile.getLastReading()).map(Date::toInstant);
         if (!lastReading.isPresent() || lastReading.get().compareTo(info.lastReading) != 0) {
             loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile).setLastReading(info.lastReading).update();
         }
