@@ -24,6 +24,9 @@ class MeterBuilderImpl implements MeterBuilder {
     private Location location;
     private SpatialCoordinates spatialCoordinates;
     private Instant receivedDate;
+    private String manufacturer;
+    private String modelNbr;
+    private String modelVersion;
 
     MeterBuilderImpl(AmrSystem amrSystem, Provider<MeterImpl> meterFactory, String amrId, String name) {
         this.amrSystem = amrSystem;
@@ -42,6 +45,9 @@ class MeterBuilderImpl implements MeterBuilder {
         meter.setLocation(location);
         meter.setSpatialCoordinates(spatialCoordinates);
         meter.getLifecycleDates().setReceivedDate(receivedDate);
+        meter.setManufacturer(manufacturer);
+        meter.setModelNumber(modelNbr);
+        meter.setModelVersion(modelVersion);
         meter.doSave();
         return meter;
     }
@@ -85,6 +91,24 @@ class MeterBuilderImpl implements MeterBuilder {
     @Override
     public MeterBuilder setReceivedDate(Instant receivedDate) {
         this.receivedDate = receivedDate;
+        return this;
+    }
+
+    @Override
+    public MeterBuilder setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+        return this;
+    }
+
+    @Override
+    public MeterBuilder setModelNumber(String modelNbr) {
+        this.modelNbr = modelNbr;
+        return this;
+    }
+
+    @Override
+    public MeterBuilder setModelVersion(String modelVersion) {
+        this.modelVersion = modelVersion;
         return this;
     }
 

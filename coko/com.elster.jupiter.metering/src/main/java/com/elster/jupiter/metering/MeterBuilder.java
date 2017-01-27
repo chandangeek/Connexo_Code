@@ -29,6 +29,12 @@ public interface MeterBuilder {
 
     MeterBuilder setReceivedDate(Instant receivedDate);
 
+    MeterBuilder setManufacturer(String manufacturer);
+
+    MeterBuilder setModelNumber(String modelNumber);
+
+    MeterBuilder setModelVersion(String modelVersion);
+
     LocationBuilder newLocationBuilder();
 
 }
