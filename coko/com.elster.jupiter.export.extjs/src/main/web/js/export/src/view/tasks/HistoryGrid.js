@@ -4,6 +4,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
     store: 'Dxp.store.DataExportTasksHistory',
     router: null,
     showExportTask: true,
+    fromWorkspace: false,
 
     requires: [
         'Uni.grid.column.Action',
@@ -22,7 +23,10 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence').buildUrl({taskId: record.get("taskId"), occurrenceId: record.get('id')}),
+                    var url = me.fromWorkspace ?
+                            me.router.getRoute('workspace/exporthistory/occurrence').buildUrl({occurrenceId: record.get('id')}) :
+                            me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence')
+                                .buildUrl({taskId: record.get("taskId"), occurrenceId: record.get('id')}),
                         date = value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                     return '<a href="' + url + '">' + date + '</a>';
                 }

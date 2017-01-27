@@ -383,7 +383,7 @@ Ext.define('Dxp.controller.Tasks', {
         });
     },
 
-    showDataExportTaskHistory: function (currentTaskId) {
+    showDataExportTaskHistory: function (currentTaskId, fromWorkspace) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Dxp.store.DataExportTasksHistory'),
@@ -396,7 +396,8 @@ Ext.define('Dxp.controller.Tasks', {
         view = Ext.widget('data-export-tasks-history', {
             router: router,
             taskId: currentTaskId,
-            showExportTask: !noSpecificExportTask
+            showExportTask: !noSpecificExportTask,
+            fromWorkspace: fromWorkspace
         });
 
         me.getApplication().fireEvent('changecontentevent', view);

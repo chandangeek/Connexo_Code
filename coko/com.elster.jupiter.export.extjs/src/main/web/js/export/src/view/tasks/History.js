@@ -14,6 +14,7 @@ Ext.define('Dxp.view.tasks.History', {
     router: null,
     taskId: null,
     showExportTask: true,
+    fromWorkspace: false,
 
     initComponent: function () {
         var me = this;
@@ -47,6 +48,7 @@ Ext.define('Dxp.view.tasks.History', {
                         xtype: 'dxp-tasks-history-grid',
                         itemId: 'data-export-history-grid',
                         showExportTask: me.showExportTask,
+                        fromWorkspace: me.fromWorkspace,
                         router: me.router
                     },
                     emptyComponent: {
