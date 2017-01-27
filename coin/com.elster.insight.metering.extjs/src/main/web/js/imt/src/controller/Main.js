@@ -56,7 +56,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointlifecycle.controller.UsagePointLifeCycles',
         'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
         'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
-        'Imt.usagepointmanagement.controller.UsagePointTransitionExecute'
+        'Imt.usagepointmanagement.controller.UsagePointTransitionExecute',
+        'Imt.rulemetrologyconfiguration.controller.MetrologyConfigurationPurposes'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',

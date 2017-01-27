@@ -576,6 +576,13 @@ Ext.define('Imt.controller.History', {
                             }
                         }
                     }
+                },
+                'rulesets/overview/metrologyconfigurationpurposes': {
+                    title: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                    route: 'validation/rulesets/{ruleSetId}/metrologyconfigurationpurposes',
+                    controller: 'Imt.rulemetrologyconfiguration.controller.MetrologyConfigurationPurposes',
+                    action: 'showMetrologyConfigurationPurposes',
+                    privileges: Imt.privileges.MetrologyConfig.viewValidation
                 }
             }
         },
