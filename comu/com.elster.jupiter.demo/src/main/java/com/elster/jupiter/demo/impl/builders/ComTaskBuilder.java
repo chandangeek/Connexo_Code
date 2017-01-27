@@ -5,6 +5,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -88,9 +90,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
             comTask.createRegistersTask().registerGroups(registerGroups).add();
         }
         if (topologyActions != null) {
-            for (TopologyAction topologyAction : topologyActions) {
-                comTask.createTopologyTask(topologyAction);
-            }
+            topologyActions.forEach(comTask::createTopologyTask);
         }
         if (clocks != null) {
             for (Clock clock : clocks) {

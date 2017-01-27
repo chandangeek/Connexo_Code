@@ -28,7 +28,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
