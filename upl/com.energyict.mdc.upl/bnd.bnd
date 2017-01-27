@@ -34,4 +34,6 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.dialer.serialserviceprovider,\
                 com.energyict.obis,\
                 com.energyict.protocol,\
-                com.energyict.protocol.meteridentification
+                com.energyict.protocol.exceptions,\
+                com.energyict.protocol.meteridentification,\
+                com.energyict.protocol.tools
