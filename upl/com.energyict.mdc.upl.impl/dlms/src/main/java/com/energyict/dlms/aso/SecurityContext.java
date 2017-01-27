@@ -366,16 +366,16 @@ public class SecurityContext {
      * The signature is either 64 bytes or 96 bytes based on the suite that is used.
      */
     public byte[] applyGeneralSigning(byte[] securedRequest) throws UnsupportedException {
-        return applyGeneralSigning(securedRequest, null);
+        return applyGeneralSigning(securedRequest, null, new byte[]{(byte) 0x00}, new byte[]{(byte) 0x00});
     }
 
     /**
      * Wrap the given APDU (can already by secured) in a new general-signing APDU.
      * The signature is either 64 bytes or 96 bytes based on the suite that is used.
      */
-    public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve) throws UnsupportedException {
+    public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve, byte[] dateTime, byte[] otherInfo) throws UnsupportedException {
         ECDSASignatureImpl ecdsaSignature;
-        if(eccCurve == null){
+        if (eccCurve == null) {
             ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
         } else {
             ecdsaSignature = new ECDSASignatureImpl(eccCurve);
@@ -559,8 +559,7 @@ public class SecurityContext {
     /**
      * Structure: transaction-id, client system title, server system title, date-time, other info, key-info
      */
-    private byte[] createGeneralCipheringHeader() {
-
+    private byte[] createGeneralCipheringHeader(byte[] dateTime, byte[] otherInfo) {
         //TODO replace epoch by transaction-id and treat it as invokeid??
         return ProtocolTools.concatByteArrays(
                 new byte[]{(byte) TRANSACTION_ID_LENGTH},
@@ -569,10 +568,18 @@ public class SecurityContext {
                 getSystemTitle(),
                 new byte[]{(byte) getResponseSystemTitle().length},
                 getResponseSystemTitle(),
-                new byte[]{(byte) 0x00},        //No datetime
-                new byte[]{(byte) 0x00}         //No other-info
+                dateTime,
+                otherInfo
         );
     }
+
+    /**
+     * Structure: transaction-id, client system title, server system title, date-time, other info, key-info
+     */
+    private byte[] createGeneralCipheringHeader() {
+        return createGeneralCipheringHeader(new byte[]{(byte) 0x00}, new byte[]{(byte) 0x00});
+    }
+
 
     public byte[] getTransactionId() {
         if (transactionId == null) {
@@ -1324,7 +1331,7 @@ public class SecurityContext {
                 case AUTHENTICATION:
                     return getAuthenticatedRequestBytes(plainText);
                 case DIGITAL_SIGNATURE:
-                    return ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, applyGeneralSigning(plainText, ECCCurve.P256_SHA256));
+                    return ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, applyGeneralSigning(plainText, ECCCurve.P256_SHA256, new byte[]{(byte) 0x01, (byte) 0x00}, new byte[]{(byte) 0x01, (byte) 0x00}));
                 case ENCRYPTION:
                     return getEncryptedRequestBytes(plainText);
                 case NO_PROTECTION:

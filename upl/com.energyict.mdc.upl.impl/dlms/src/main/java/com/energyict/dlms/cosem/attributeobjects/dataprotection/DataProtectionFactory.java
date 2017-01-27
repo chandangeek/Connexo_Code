@@ -245,10 +245,17 @@ public class DataProtectionFactory {
         OctetString transactionID = OctetString.fromByteArray(securityContext.getTransactionId());
         OctetString originatorSystemTitle = OctetString.fromByteArray(securityContext.getSystemTitle());
         OctetString recipientSystemTitle = OctetString.fromByteArray(securityContext.getResponseSystemTitle());
-        OctetString otherInformation = OctetString.fromByteArray(new byte[]{});//no other info
+        OctetString otherInformation = OctetString.fromByteArray(new byte[]{0,0,0,0,0,0,0,0});//no other info
         Structure keyInfo = new Structure();
         if(protectionType.getId() != ProtectionType.DIGITAL_SIGNATURE.getId()){
             keyInfo = getKeyInfo(securityContext, generalCipheringKeyType);
+        } else { //construct dummy keyInfo
+            TypeEnum key_info_type = new TypeEnum(1);
+            TypeEnum kek_id = new TypeEnum(0);
+            OctetString key_ciphered_data = new OctetString(new byte[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+            Structure wrapped_key_info_options = new Structure(kek_id, key_ciphered_data);
+            keyInfo.addDataType(key_info_type);
+            keyInfo.addDataType(wrapped_key_info_options);
         }
 
         Structure protectionOptions = DataProtectionFactory.createProtectionOptions(transactionID, originatorSystemTitle, recipientSystemTitle, otherInformation, keyInfo);
