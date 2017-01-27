@@ -25,6 +25,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
 import com.energyict.mdc.device.data.DeviceService;
@@ -63,6 +64,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DCR";
 
+    private volatile ObisCodeDescriptor obisCodeDescriptor;
     private volatile MasterDataService masterDataService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -124,6 +126,11 @@ public class DeviceConfigurationApplication extends Application implements Messa
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setObisCodeDescriptor(ObisCodeDescriptor obisCodeDescriptor) {
+        this.obisCodeDescriptor = obisCodeDescriptor;
     }
 
     @Reference
@@ -274,6 +281,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
 
         @Override
         protected void configure() {
+            bind(obisCodeDescriptor).to(ObisCodeDescriptor.class);
             bind(masterDataService).to(MasterDataService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
