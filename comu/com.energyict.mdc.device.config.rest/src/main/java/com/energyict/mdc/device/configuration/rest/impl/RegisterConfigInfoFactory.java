@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.common.impl.ObisCodeAnalyzer;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
@@ -28,7 +29,7 @@ public class RegisterConfigInfoFactory {
         info.readingType = readingTypeInfoFactory.from(registerSpec.getRegisterType().getReadingType());
         info.obisCode = registerSpec.getObisCode();
         info.overruledObisCode = registerSpec.getDeviceObisCode();
-        info.obisCodeDescription = registerSpec.getObisCode().getDescription();
+        info.obisCodeDescription = new ObisCodeAnalyzer(registerSpec.getObisCode()).getDescription();
         info.asText = registerSpec.isTextual();
         info.collectedReadingType = readingTypeInfoFactory.from(registerSpec.getReadingType());
         info.version = registerSpec.getVersion();
@@ -40,8 +41,8 @@ public class RegisterConfigInfoFactory {
         if (info.useMultiplier) {
             info.calculatedReadingType = readingTypeInfoFactory.from(registerSpec.getCalculatedReadingType().get());
         }
-        multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> info.possibleCalculatedReadingTypes.add(readingTypeInfoFactory
-                .from(readingTypeConsumer)));
+        multipliedCalculatedRegisterTypes
+                .forEach(readingTypeConsumer -> info.possibleCalculatedReadingTypes.add(readingTypeInfoFactory.from(readingTypeConsumer)));
         return info;
     }
 
@@ -53,16 +54,18 @@ public class RegisterConfigInfoFactory {
         info.readingType = readingTypeInfoFactory.from(registerSpec.getRegisterType().getReadingType());
         info.obisCode = registerSpec.getObisCode();
         info.overruledObisCode = registerSpec.getDeviceObisCode();
-        info.obisCodeDescription = registerSpec.getObisCode().getDescription();
+        info.obisCodeDescription = new ObisCodeAnalyzer(registerSpec.getObisCode()).getDescription();
         info.asText = registerSpec.isTextual();
         info.collectedReadingType = readingTypeInfoFactory.from(registerSpec.getReadingType());
         info.version = registerSpec.getVersion();
-        info.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration()
-                .getId(), registerSpec.getDeviceConfiguration().getVersion());
+        info.parent =
+                new VersionInfo<>(
+                    registerSpec.getDeviceConfiguration().getId(),
+                    registerSpec.getDeviceConfiguration().getVersion());
         info.numberOfFractionDigits = null;
         info.overflow = null;
-        multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> info.possibleCalculatedReadingTypes.add(readingTypeInfoFactory
-                .from(readingTypeConsumer)));
+        multipliedCalculatedRegisterTypes
+                .forEach(readingTypeConsumer -> info.possibleCalculatedReadingTypes.add(readingTypeInfoFactory.from(readingTypeConsumer)));
         return info;
     }
 
