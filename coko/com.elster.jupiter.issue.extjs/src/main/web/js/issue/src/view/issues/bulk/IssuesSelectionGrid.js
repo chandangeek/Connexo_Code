@@ -50,22 +50,7 @@ Ext.define('Isu.view.issues.bulk.IssuesSelectionGrid', {
                 dataIndex: 'workGroupAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    var result;
-
-                    if (!Ext.isEmpty(value) && value.hasOwnProperty('id')) {
-                        result = '';
-
-                        result += '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="';
-                        result += Uni.I18n.translate('assignee.tooltip.workgroup', 'ISU', 'Workgroup');
-                        result += '"></span>';
-
-                        if (value.name) {
-                            result += Ext.String.htmlEncode(value.name);
-                        }
-                    } else {
-                        result = '-'
-                    }
-                    return result || this.columns[colIndex].emptyText;
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                 }
             },
             {
@@ -74,23 +59,7 @@ Ext.define('Isu.view.issues.bulk.IssuesSelectionGrid', {
                 dataIndex: 'userAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    var result
-
-                    if (value && value.hasOwnProperty('id')) {
-                        var result = '';
-
-                        result += '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="';
-                        result += Uni.I18n.translate('assignee.tooltip.USER', 'ISU', 'User');
-                        result += '"></span>';
-
-                        if (value.name) {
-                            result += Ext.String.htmlEncode(value.name);
-                        }
-                    } else {
-                        result = '-';
-                    }
-
-                    return result || this.columns[colIndex].emptyText;
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                 }
             }
         ]

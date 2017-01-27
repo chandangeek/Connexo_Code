@@ -136,6 +136,11 @@ Ext.define('Isu.view.issues.Preview', {
                         }
                     },
                     {
+                        itemId: 'issue-preview-priority',
+                        fieldLabel: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority'),
+                        name: 'priority'
+                    },
+                    {
                         xtype: 'filter-display',
                         itemId: 'issue-preview-workgroup',
                         fieldLabel: Uni.I18n.translate('general.workgroup', 'ISU', 'Workgroup'),

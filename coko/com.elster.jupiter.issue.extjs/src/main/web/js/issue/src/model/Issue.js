@@ -31,6 +31,21 @@ Ext.define('Isu.model.Issue', {
         {name: 'reason_name', persist: false, mapping: 'reason.name'},
         {name: 'urgency', persist: false, mapping: 'priority.urgency'},
         {name: 'impact', persist: false, mapping: 'priority.impact'},
+        {
+            name: 'priority',
+            persist: false,
+            convert: function (value, rec) {
+                var impact = value.impact,
+                    urgency = value.urgency,
+                    priority = (impact + urgency) / 10;
+                priority = (priority <= 2) ? Uni.I18n.translate('priority.veryLow', 'ISU', 'Very low ({0})') :
+                    (priority <= 4) ? Uni.I18n.translate('priority.low', 'ISU', 'Low ({0})') :
+                        (priority <= 6) ? Uni.I18n.translate('priority.medium', 'ISU', 'Medium ({0})') :
+                            (priority <= 8) ? Uni.I18n.translate('priority.high', 'ISU', 'High ({0})') :
+                                Uni.I18n.translate('priority.veryHigh', 'ISU', 'Very high ({0})');
+                return Ext.String.format(priority, impact + urgency);
+            }
+        },
         {name: 'status_name', persist: false, mapping: 'status.name'},
         {name: 'device_name', persist: false, mapping: 'device.name'},
         {name: 'workgroup_name', persist: false, mapping: 'workGroupAssignee.name'},
