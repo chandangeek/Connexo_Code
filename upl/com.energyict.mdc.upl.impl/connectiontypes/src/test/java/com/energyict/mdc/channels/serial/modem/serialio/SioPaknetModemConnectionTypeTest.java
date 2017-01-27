@@ -1,7 +1,6 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
 import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
@@ -12,6 +11,7 @@ import com.energyict.mdc.channels.serial.modem.AbstractPaknetModemProperties;
 import com.energyict.mdc.channels.serial.modem.PaknetModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
 import com.energyict.mdc.io.ModemException;
+import com.energyict.mdc.io.SerialComponentFactory;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
@@ -32,7 +32,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;

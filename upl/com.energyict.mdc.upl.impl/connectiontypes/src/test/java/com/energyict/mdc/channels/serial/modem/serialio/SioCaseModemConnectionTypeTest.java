@@ -1,7 +1,6 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
 import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
@@ -12,6 +11,7 @@ import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
 import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
 import com.energyict.mdc.channels.serial.modem.TypedPaknetModemProperties;
+import com.energyict.mdc.io.SerialComponentFactory;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link SioCaseModemConnectionType} component
- * 
+ *
  * @author sva
  * @since 30/04/13 - 14:43
  */
