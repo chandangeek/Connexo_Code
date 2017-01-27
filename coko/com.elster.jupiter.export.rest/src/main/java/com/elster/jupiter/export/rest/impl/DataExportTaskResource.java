@@ -517,7 +517,7 @@ public class DataExportTaskResource {
     }
 
     @GET
-    @Path("/history/{occurrenceId}")
+    @Path("/history/{occurrenceId}/logs")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public DataExportOccurrenceLogInfos getDataExportLogByOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
@@ -534,6 +534,14 @@ public class DataExportTaskResource {
         }
 
         return new DataExportOccurrenceLogInfos();
+    }
+
+    @GET
+    @Path("/history/{occurrenceId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
+    public DataExportTaskHistoryInfo getDataExportOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
+        return dataExportTaskHistoryInfoFactory.asInfo(findDataExportOccurrenceOrThrowException(occurrenceId));
     }
 
     private ExportTask findTaskOrThrowException(long id, String appCode) {
@@ -636,5 +644,10 @@ public class DataExportTaskResource {
 
     private DataExportOccurrence fetchDataExportOccurrence(long id, ExportTask task) {
         return task.getOccurrence(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private DataExportOccurrence findDataExportOccurrenceOrThrowException(long occurrenceId) {
+        return dataExportService.findDataExportOccurrence(occurrenceId)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 }
