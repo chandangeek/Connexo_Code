@@ -2,14 +2,32 @@
 -dsannotations: *
 Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.upl.cache,\
+                com.energyict.mdc.upl.crypto,\
+                com.energyict.mdc.upl.io,\
+                com.energyict.mdc.upl.issue,\
+                com.energyict.mdc.upl.messages,\
+                com.energyict.mdc.upl.messages.legacy,\
                 com.energyict.mdc.upl.meterdata,\
+                com.energyict.mdc.upl.meterdata.identifiers,\
+                com.energyict.mdc.upl.migration,\
                 com.energyict.mdc.upl.nls,\
                 com.energyict.mdc.upl.offline,\
                 com.energyict.mdc.upl.properties,\
                 com.energyict.mdc.upl.security,\
                 com.energyict.mdc.upl.tasks,\
                 com.energyict.mdc.upl.tasks.support,\
+                com.energyict.mdc.channels,\
+                com.energyict.mdc.io,\
+                com.energyict.mdc.ports,\
+                com.energyict.mdc.protocol,\
                 com.energyict.cbo,\
+                com.energyict.channels.serial,\
+                com.energyict.channels.serial.direct.rxtx,\
+                com.energyict.channels.serial.direct.serialio,\
+                com.energyict.channels.serial.modem,\
+                com.energyict.channels.serial.modem.postdialcommand,\
+                com.energyict.channels.ip.socket,\
+                com.energyict.channels.ip.diagrams,\
                 com.energyict.cim,\
                 com.energyict.dialer.connection,\
                 com.energyict.dialer.core,\

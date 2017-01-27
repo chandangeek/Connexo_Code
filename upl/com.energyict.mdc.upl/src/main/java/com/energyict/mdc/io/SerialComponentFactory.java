@@ -1,4 +1,4 @@
-package com.energyict.mdc;
+package com.energyict.mdc.io;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
