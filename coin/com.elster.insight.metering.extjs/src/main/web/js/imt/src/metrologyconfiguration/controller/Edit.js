@@ -350,6 +350,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         var me = this,
             configuration = field.findRecordByValue(newValue),
             wizard = me.getWizard(),
+            stepNumber = 1,
             buttons = wizard.getDockedComponent('define-metrology-configuration-wizard-buttons'),
             nextBtn = buttons.down('[action=step-next]'),
             addBtn = buttons.down('[action=add]'),
