@@ -6,6 +6,8 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
@@ -18,16 +20,20 @@ public abstract class AbstractDeviceAlarmTemplate implements CreationRuleTemplat
     protected volatile DeviceAlarmService deviceAlarmService;
     protected volatile PropertySpecService propertySpecService;
     protected volatile Thesaurus thesaurus;
+    protected volatile DeviceConfigurationService deviceConfigurationService;
+    protected volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     
     public AbstractDeviceAlarmTemplate() {
     }
 
     @Inject
-    protected AbstractDeviceAlarmTemplate(IssueService issueService, DeviceAlarmService deviceAlarmService, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    protected AbstractDeviceAlarmTemplate(IssueService issueService, DeviceAlarmService deviceAlarmService, Thesaurus thesaurus, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.issueService = issueService;
         this.deviceAlarmService = deviceAlarmService;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
     
     public Thesaurus getThesaurus() {
@@ -58,5 +64,13 @@ public abstract class AbstractDeviceAlarmTemplate implements CreationRuleTemplat
 
     protected void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 }

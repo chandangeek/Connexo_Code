@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -154,40 +155,16 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         return inputEventTypeList;
     }
 
-
-    public int computeOccurenceCount(int ruleId, String range, String logOnSameAlarm, List<String> triggeringEndDeviceEventTypes, List<String> clearingEndDeviceEventTypes, String deviceTypes, String eisCodes) {
-
-        if (clearingEndDeviceEventTypes.contains(this.getEventTypeMrid())) {
-            if (Integer.parseInt(logOnSameAlarm) == 1 &&
-                    // issueService.getIssueCreationService().findCreationRuleById(Long.parseLong(ruleId)).isPresent() &&
-                    issueService.findOpenIssuesForDevice(getDevice().getName()).find().stream().filter(issue -> issue.getRule().getId() == ruleId).findAny().isPresent()) {
-                return Integer.MAX_VALUE;
-            } else {
-                return -1;
-            }
+    public boolean hasAssociatedDeviceLifecycleState(String avaliableDeviceLifecycleState) {
+        long deviceStateId = getDevice().getState().getId();
+        Optional<String> foundAssociatedState = Arrays.asList(avaliableDeviceLifecycleState.split(","))
+                .stream().collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream))
+                .filter(state -> Long.parseLong(state) == deviceStateId).findFirst();
+        if(foundAssociatedState.isPresent()){
+            return true;
+        }else{
+            return false;
         }
-        List<EndDeviceEventRecord> loggedEvents = getDevice().getLogBooks().stream()
-                .map(logBook -> logBook.getEndDeviceEvents(Range.closed(Instant.ofEpochMilli(Instant.now().toEpochMilli() - Long.valueOf(range)), Instant.now())))
-                .flatMap(Collection::stream).collect(Collectors.toList());
-        List<String> currentList = loggedEvents.stream().map(event -> event.getEventType().getMRID())
-                .collect(Collectors.toList());
-        List<String> currentEISCodeList = loggedEvents.stream()
-                .filter(event -> event.getEventType().getMRID().equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID()))
-                .map(EndDeviceEventRecord::getType)
-                .collect(Collectors.toList());
-        List<String> eisCodesList = Arrays.asList(eisCodes.split(",")).stream().collect(Collectors.toList());
-        return currentList.stream()
-                .filter(triggeringEndDeviceEventTypes::contains)
-                .filter(eventTypes -> !eventTypes.equals(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID()))
-                .collect(Collectors.toList()).size() +
-                currentEISCodeList.stream()
-                        .filter(eisCodesList::contains)
-                        .collect(Collectors.toList()).size();
-    }
-
-
-    public long getAssociatedDeviceLifecycleState() {
-        return getDevice().getState().getId();
     }
 
     public String getEISCode() {

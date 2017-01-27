@@ -109,6 +109,10 @@
             <artifactId>fsm</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.lifecycle.config</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.json</artifactId>
         </dependency>
@@ -222,11 +226,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.scheduling</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
