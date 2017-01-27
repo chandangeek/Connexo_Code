@@ -1,33 +1,32 @@
 package com.energyict.mdc.common.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+
 /**
  * @author Koen
  */
-public class ObisCodeFieldValue {
+class ObisCodeFieldValue {
 
-    private int code;
-    private StringBuilder descriptionBuilder;
+    private final Thesaurus thesaurus;
+    private final int code;
+    private final StringBuilder descriptionBuilder;
 
-    public ObisCodeFieldValue(int code, String description) {
+    ObisCodeFieldValue(int code, TranslationKey descriptionKey, Thesaurus thesaurus) {
+        this(code, thesaurus.getFormat(descriptionKey).format(code), thesaurus);
+    }
+
+    ObisCodeFieldValue(int code, String description, Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
         this.code = code;
         this.descriptionBuilder = new StringBuilder(description);
     }
 
-    /**
-     * Getter for property code.
-     *
-     * @return Value of property code.
-     */
-    public int getCode() {
+    int getCode() {
         return code;
     }
 
-    /**
-     * Getter for property description.
-     *
-     * @return Value of property description.
-     */
-    public java.lang.String getDescription() {
+    String getDescription() {
         return this.descriptionBuilder.toString();
     }
 
@@ -35,8 +34,16 @@ public class ObisCodeFieldValue {
         return getDescription();
     }
 
-    public void add2Description(String toAdd) {
-        this.descriptionBuilder.append(toAdd);
+    void add2Description(TranslationKey descriptionKey) {
+        this.descriptionBuilder.append(this.thesaurus.getFormat(descriptionKey).format(code));
+    }
+
+    void add2Description(TranslationKey descriptionKey, int code) {
+        this.descriptionBuilder.append(this.thesaurus.getFormat(descriptionKey).format(code));
+    }
+
+    void addSpaceDescription() {
+        this.descriptionBuilder.append(" ");
     }
 
 }
