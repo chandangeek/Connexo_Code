@@ -71,9 +71,22 @@ public class InstallerImpl implements FullInstaller {
     private final DataModel dataModel;
     private final BundleContext bundleContext;
     private final InstallerV10_2Impl installerV10_2;
+    private final PrivilegesProviderV10_3 installerV10_3;
 
     @Inject
-    public InstallerImpl(BundleContext bundleContext, DataModel dataModel, ServerMeteringService meteringService, TimeService timeService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, MessageService messageService, Clock clock, MeteringDataModelServiceImpl meteringDataModelService, InstallerV10_2Impl installerV10_2) {
+    public InstallerImpl(BundleContext bundleContext,
+                         DataModel dataModel,
+                         ServerMeteringService meteringService,
+                         TimeService timeService,
+                         IdsService idsService,
+                         PartyService partyService,
+                         UserService userService,
+                         EventService eventService,
+                         MessageService messageService,
+                         Clock clock,
+                         MeteringDataModelServiceImpl meteringDataModelService,
+                         InstallerV10_2Impl installerV10_2,
+                         PrivilegesProviderV10_3 installerV10_3) {
         this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
@@ -84,6 +97,7 @@ public class InstallerImpl implements FullInstaller {
         this.eventService = eventService;
         this.messageService = messageService;
         this.installerV10_2 = installerV10_2;
+        this.installerV10_3 = installerV10_3;
         this.createAllReadingTypes = meteringDataModelService.isCreateAllReadingTypes();
         this.requiredReadingTypes = meteringDataModelService.getRequiredReadingTypes();
         this.clock = clock;
@@ -172,6 +186,7 @@ public class InstallerImpl implements FullInstaller {
                 logger
         );
         userService.addModulePrivileges(installerV10_2);
+        userService.addModulePrivileges(installerV10_3);
     }
 
     private void createEventTypes() {

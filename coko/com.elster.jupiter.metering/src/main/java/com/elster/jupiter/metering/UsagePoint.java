@@ -5,6 +5,8 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
@@ -24,6 +26,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface UsagePoint extends HasId, IdentifiedObject {
@@ -143,14 +146,28 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     /**
      * Applies the specified {@link UsagePointMetrologyConfiguration} to this UsagePoint
      * from the specified instant in time onward.
-     * Note that this may produce errors when e.g. the requirements
-     * of the MetrologyConfiguration are not met by the Meter(s) that is/are
+     * Note that this may produce errors when e.g. the requirements of required {@link MetrologyContract}
+     * of the {@link UsagePointMetrologyConfiguration} are not met by the Meter(s) that is/are
      * linked to this UsagePoint from that instant in time onward.
      *
      * @param metrologyConfiguration The UsagePointMetrologyConfiguration
      * @param when The instant in time
      */
     void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when);
+
+    /**
+     * Applies the specified metrology configuration as
+     * {@link UsagePoint#apply(com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration, java.time.Instant)}
+     * with extra possibility to activate optional purposes at the same time.
+     * All the {@link ReadingTypeRequirement}s of mandatory and optional but activated {@link MetrologyContract}s
+     * will be checked to be provided by linked meters from that instant in time onward.
+     *
+     * @param metrologyConfiguration The UsagePointMetrologyConfiguration
+     * @param when The instant in time
+     * @param optionalContractsToActivate The set of optional purposes of target metrology configuration to be activated on the usage point
+     * @see #apply(com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration, java.time.Instant)
+     */
+    void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when, Set<MetrologyContract> optionalContractsToActivate);
 
     void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end);
 
@@ -285,4 +302,18 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     }
 
     ZoneId getZoneId();
+
+    /**
+     * Makes this UsagePoint obsolete.
+     * This UsagePoint will no longer show up in queries
+     * except the one that is looking for a UsagePoint by its database id or mrid.
+     */
+    void makeObsolete();
+
+    /**
+     * The Instant in time when this UsagePoint was made obsolete.
+     *
+     * @return The instant in time or {@code Optional.empty()} if this UsagePoint is not obsolete
+     */
+    Optional<Instant> getObsoleteTime();
 }

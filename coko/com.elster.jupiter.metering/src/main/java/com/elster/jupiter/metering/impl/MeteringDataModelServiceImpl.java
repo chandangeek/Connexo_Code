@@ -53,6 +53,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -114,6 +115,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private volatile LicenseService licenseService;
     private volatile UpgradeService upgradeService;
     private volatile TimeService timeService;
+    private volatile Publisher publisher;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     private List<HeadEndInterface> headEndInterfaces = new CopyOnWriteArrayList<>();
@@ -144,7 +146,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                         PartyService partyService, Clock clock, UserService userService, EventService eventService, NlsService nlsService,
                                         MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
-                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService, TimeService timeService,
+                                        LicenseService licenseService, UpgradeService upgradeService, OrmService ormService, TimeService timeService, Publisher publisher,
                                         UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         setIdsService(idsService);
         setQueryService(queryService);
@@ -163,6 +165,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         setUpgradeService(upgradeService);
         setTimeService(timeService);
         setOrmService(ormService);
+        setPublisher(publisher);
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
 
         this.createAllReadingTypes = createAllReadingTypes;
@@ -241,6 +244,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(ServerDataAggregationService.class).toInstance((ServerDataAggregationService) dataAggregationService);
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
                 bind(TimeService.class).toInstance(timeService);
+                bind(Publisher.class).toInstance(publisher);
             }
         });
     }
@@ -485,6 +489,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Thesaurus myThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus cboThesaurus = nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN);
         this.thesaurus = myThesaurus.join(cboThesaurus);
+    }
+
+    @Reference(name = "thePublisher")
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
     }
 
     @Reference

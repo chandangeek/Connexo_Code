@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -13,10 +14,11 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -29,19 +31,24 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class AggregatedChannelImpl implements ChannelContract {
+public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
     private final DataAggregationService dataAggregationService;
 
     private ChannelContract persistedChannel;
     private ReadingTypeDeliverable deliverable;
-    private EffectiveMetrologyContractOnUsagePoint effectiveMetrologyContract;
+    private UsagePoint usagePoint;
+    private MetrologyContract metrologyContract;
+    private ChannelsContainer channelsContainer;
 
     @Inject
     public AggregatedChannelImpl(DataAggregationService dataAggregationService) {
@@ -50,10 +57,14 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     public AggregatedChannelImpl init(ChannelContract channel,
                                       ReadingTypeDeliverable deliverable,
-                                      EffectiveMetrologyContractOnUsagePoint effectiveMetrologyContract) {
+                                      UsagePoint usagePoint,
+                                      MetrologyContract metrologyContract,
+                                      ChannelsContainer channelsContainer) {
         this.persistedChannel = channel;
         this.deliverable = deliverable;
-        this.effectiveMetrologyContract = effectiveMetrologyContract;
+        this.usagePoint = usagePoint;
+        this.metrologyContract = metrologyContract;
+        this.channelsContainer = channelsContainer;
         return this;
     }
 
@@ -122,7 +133,11 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
-        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
+        Map<Instant, IntervalReadingRecord> readings = getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
+        readings.putAll(persistedChannel.getIntervalReadings(interval).stream()
+                .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
+                        .identity())));
+        return new ArrayList<>(readings.values());
     }
 
     @Override
@@ -134,8 +149,12 @@ public class AggregatedChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<BaseReadingRecord> getReadings(Range<Instant> interval) {
-        return getReadings(interval, BaseReadingRecord.class::cast);
+    public List<ReadingRecord> getRegisterReadings(Range<Instant> interval) {
+        Map<Instant, ReadingRecord> readings = getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
+        readings.putAll(persistedChannel.getRegisterReadings(interval).stream()
+                .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
+                        .identity())));
+        return new ArrayList<>(readings.values());
     }
 
     @Override
@@ -146,21 +165,29 @@ public class AggregatedChannelImpl implements ChannelContract {
         return getReadings(interval);
     }
 
-    private <T extends BaseReadingRecord> List<T> getReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
-        // TODO  merge records with edited/estimated/deleted records which are stored in persistedChannel
-        return this.dataAggregationService.calculate(
-                this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
-                this.effectiveMetrologyContract.getMetrologyContract(),
-                interval)
-                    .getCalculatedDataFor(this.deliverable)
-                        .stream()
-                        .map(mapper::apply)
-                        .collect(Collectors.toList());
+    @Override
+    public List<BaseReadingRecord> getReadings(Range<Instant> interval) {
+        Map<Instant, BaseReadingRecord> readings = getCalculatedReadings(interval, BaseReadingRecord.class::cast);
+        readings.putAll(persistedChannel.getReadings(interval).stream()
+                .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
+                        .identity())));
+        return new ArrayList<>(readings.values());
     }
 
-    @Override
-    public List<ReadingRecord> getRegisterReadings(Range<Instant> interval) {
-        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
+    private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
+        if(usagePoint.getEffectiveMetrologyConfigurations(interval).stream().anyMatch(emc -> emc.getMetrologyConfiguration().getContracts().contains(metrologyContract))) {
+            return this.dataAggregationService.calculate(
+                    usagePoint,
+                    metrologyContract,
+                    interval)
+                    .getCalculatedDataFor(this.deliverable)
+                    .stream()
+                    .map(mapper::apply)
+                    .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
+                            .identity()));
+        } else {
+            return new HashMap<>();
+        }
     }
 
     @Override
@@ -210,27 +237,24 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     @Override
     public void editReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
-        // TODO store/edit readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.editReadings(system, readings);
+        persistedChannel.editReadings(system, readings);
     }
 
     @Override
     public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
-        // TODO store/edit readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.confirmReadings(system, readings);
+        persistedChannel.confirmReadings(system, readings);
     }
 
     @Override
     public void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings) {
-        // TODO remove readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.removeReadings(system, readings);
+        persistedChannel.removeReadings(system, readings);
     }
 
     @Override
     public Instant getFirstDateTime() {
         Instant persistedChannelFirstDateTime = this.persistedChannel.getFirstDateTime();
-        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
-                this.effectiveMetrologyContract.getMetrologyContract(), this.effectiveMetrologyContract.getRange());
+        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.usagePoint,
+                this.metrologyContract, this.channelsContainer.getRange());
         if (!calculatedMetrologyContractData.isEmpty()) {
             List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
             if (!deliverableData.isEmpty()) {
@@ -244,8 +268,8 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public Instant getLastDateTime() {
         Instant persistedChannelLastDateTime = this.persistedChannel.getLastDateTime();
-        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
-                this.effectiveMetrologyContract.getMetrologyContract(), this.effectiveMetrologyContract.getRange());
+        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.usagePoint,
+                this.metrologyContract, this.channelsContainer.getRange());
         if (!calculatedMetrologyContractData.isEmpty()) {
             List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
             if (!deliverableData.isEmpty()) {
@@ -311,6 +335,28 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public List<IReadingType> getReadingTypes() {
         return persistedChannel.getReadingTypes();
+    }
+
+    @Override
+    public List<IntervalReadingRecord> getPersistedIntervalReadings(Range<Instant> interval) {
+        return persistedChannel.getIntervalReadings(interval);
+    }
+
+    @Override
+    public List<IntervalReadingRecord> getCalculatedIntervalReadings(Range<Instant> interval) {
+        return new ArrayList<>(getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record))
+                .values());
+    }
+
+    @Override
+    public List<ReadingRecord> getPersistedRegisterReadings(Range<Instant> interval) {
+        return persistedChannel.getRegisterReadings(interval);
+    }
+
+    @Override
+    public List<ReadingRecord> getCalculatedRegisterReadings(Range<Instant> interval) {
+        return new ArrayList<>(getCalculatedReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record))
+                .values());
     }
 
     private static class CalculatedReadingRecordImpl implements IntervalReadingRecord, ReadingRecord {

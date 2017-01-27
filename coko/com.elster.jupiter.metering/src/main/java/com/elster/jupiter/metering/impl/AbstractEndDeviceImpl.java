@@ -397,6 +397,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     public void makeObsolete() {
         this.obsoleteTime = this.clock.instant();
         this.dataModel.update(this, "obsoleteTime");
+        eventService.postEvent(EventType.METER_DELETED.topic(), this);
     }
 
     @Override

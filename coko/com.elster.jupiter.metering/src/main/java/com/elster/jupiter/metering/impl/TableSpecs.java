@@ -300,10 +300,13 @@ public enum TableSpecs {
                     .since(version(10, 2))
                     .add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
+            Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).since(version(10, 3)).add();
             table.addAuditColumns();
+
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
-            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).since(version(10, 2, 1)).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn).during(Range.closedOpen(version(10, 2, 1), version(10, 3))).add();
+            table.unique("MTR_U_USAGEPOINTNAME").on(nameColumn, obsoleteTime).since(version(10, 3)).add();
             table.foreignKey("FK_MTR_USAGEPOINTSERVICECAT")
                     .on(serviceKindColumn)
                     .references(ServiceCategory.class)
@@ -733,7 +736,17 @@ public enum TableSpecs {
                     .map(MetrologyConfigurationImpl.Fields.STATUS.fieldName())
                     .notNull()
                     .add();
-            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
+            Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name())
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2ENUMPLUSONE)
+                    .add();
+            Column obsoleteTime = table.column(MetrologyConfigurationImpl.Fields.OBSOLETETIME.name())
+                    .number()
+                    .map(MetrologyConfigurationImpl.Fields.OBSOLETETIME.fieldName())
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .since(version(10, 3))
+                    .add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_METROLOGYCONFIG").on(id).add();
             table.foreignKey("FK_MTR_METROLOGYCONFIG2SERVCAT")
@@ -741,7 +754,8 @@ public enum TableSpecs {
                     .on(serviceCategoryColumn)
                     .map(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.fieldName())
                     .add();
-            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name).add();
+            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name).upTo(version(10, 3)).add();
+            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name, obsoleteTime).since(version(10, 3)).add();
         }
     },
     MTR_M_CONFIG_CPS_USAGES {
@@ -1154,6 +1168,7 @@ public enum TableSpecs {
             table.map(ReadingTypeTemplateImpl.class);
             table.since(version(10, 2));
             table.setJournalTableName("MTR_RT_TEMPLATE_JRNL");
+            table.cache();
 
             Column idColumn = table.addAutoIdColumn();
             table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
@@ -1165,6 +1180,12 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2ENUM)
                     .map(ReadingTypeTemplateImpl.Fields.DEFAULT_TEMPLATE.fieldName())
+                    .add();
+            table.column(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.name())
+                    .varChar(NAME_LENGTH)
+                    .conversion(CHAR2ENUM)
+                    .since(version(10,3))
+                    .map(ReadingTypeTemplateImpl.Fields.EQUIDISTANT.fieldName())
                     .add();
             table.addAuditColumns();
 
@@ -1267,6 +1288,7 @@ public enum TableSpecs {
                     .column(ReadingTypeRequirementImpl.Fields.TEMPLATE.name())
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
+                    .map(ReadingTypeRequirementImpl.Fields.TEMPLATE.fieldName())
                     .add();
             Column readingTypeColumn = table
                     .column(ReadingTypeRequirementImpl.Fields.READING_TYPE.name())
@@ -1286,7 +1308,7 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_REQUIREMENT_TO_TPL")
                     .references(ReadingTypeTemplate.class)
                     .on(templateColumn)
-                    .map(ReadingTypeRequirementImpl.Fields.TEMPLATE.fieldName())
+                    .map("readingTypeTemplate")
                     .add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_RT")
                     .references(ReadingType.class)
@@ -1485,6 +1507,13 @@ public enum TableSpecs {
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
+            table.column(ReadingTypeDeliverableImpl.Fields.DELIVERABLE_TYPE.name())
+                    .map(ReadingTypeDeliverableImpl.Fields.DELIVERABLE_TYPE.fieldName())
+                    .number()
+                    .since(version(10, 3))
+                    .installValue("2")
+                    .notNull()
+                    .conversion(NUMBER2ENUMPLUSONE).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_DELIVERABLE").on(idColumn).add();
@@ -1660,7 +1689,11 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar2(80 char)");
             Column meterActivationColumn = table.column("METER_ACTIVATION").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .upTo(version(10, 3))
+                    .add();
 
             table.addAuditColumns();
 
@@ -1671,15 +1704,33 @@ public enum TableSpecs {
                     .references(MeterActivation.class)
                     .map("meterActivation")
                     .reverseMap("channelsContainer")
-                    .composition()
                     .add();
-            table.unique("MTR_CH_CONTAINER_EF_CONTR_UK").on(effectiveMetrologyContractColumn).add();
+            table.unique("MTR_CH_CONTAINER_EF_CONTR_UK")
+                    .on(effectiveMetrologyContractColumn)
+                    .upTo(version(10, 3))
+                    .add();
             table.foreignKey("MTR_CH_CONTAINER_2_EF_CONTR")
+                    .upTo(version(10, 3))
                     .on(effectiveMetrologyContractColumn)
                     .references(EffectiveMetrologyContractOnUsagePoint.class)
                     .map(MetrologyContractChannelsContainerImpl.Fields.EFFECTIVE_CONTRACT.fieldName())
                     .reverseMap(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER.fieldName())
                     .composition()
+                    .add();
+        }
+    },
+    ADD_MTR_EFFECTIVE_CONTRACT_CHANNEL_CONTAINER {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<?> table = dataModel.getTable(MTR_EFFECTIVE_CONTRACT.name());
+            Column channelContainerColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER
+                    .name()).number().conversion(ColumnConversion.NUMBER2LONG).since(version(10, 3)).add();
+            table.foreignKey("MTR_EF_CONTR_2_CH_CONTAINER")
+                    .since(version(10, 3))
+                    .on(channelContainerColumn)
+                    .references(MTR_CHANNEL_CONTAINER.name())
+                    .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER.fieldName())
+                    .reverseMap(MetrologyContractChannelsContainerImpl.Fields.EFFECTIVE_CONTRACT.fieldName())
                     .add();
         }
     },

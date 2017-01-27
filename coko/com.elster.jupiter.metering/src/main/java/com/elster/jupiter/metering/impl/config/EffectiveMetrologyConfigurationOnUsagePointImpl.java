@@ -1,9 +1,15 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -15,8 +21,11 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
@@ -87,6 +96,9 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
             throw new IllegalArgumentException();
         }
         this.interval = this.interval.withEnd(closingDate);
+        if(interval.toClosedRange().isEmpty()){
+            effectiveContracts.clear();
+        }
         this.dataModel.update(this);
     }
 
@@ -109,12 +121,70 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .findAny();
     }
 
+    @Override
+    public Optional<AggregatedChannel> getAggregatedChannel(MetrologyContract metrologyContract, ReadingType readingType) {
+        return effectiveContracts.stream()
+                .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
+                .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
+                .map(channelsContainer -> channelsContainer.getChannel(readingType))
+                .filter(channel -> channel.isPresent() && channel.get() instanceof AggregatedChannel)
+                .map(Optional::get)
+                .map(AggregatedChannel.class::cast)
+                .findAny();
+    }
+
+    @Override
+    public Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract, Instant when) {
+        return effectiveContracts.stream()
+                .filter(effectiveContract -> effectiveContract.getMetrologyContract()
+                        .equals(metrologyContract) && effectiveContract.isEffectiveAt(when))
+                .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
+                .findAny();
+    }
+
     public void createEffectiveMetrologyContracts() {
-        getMetrologyConfiguration().getContracts()
-                .stream()
+        this.createEffectiveMetrologyContracts(Collections.emptySet());
+    }
+
+    public void createEffectiveMetrologyContracts(Set<MetrologyContract> optionalContractsToCreate) {
+        getMetrologyConfiguration().getContracts().stream()
                 .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                .forEach(metrologyContract -> this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
-                        .init(this, metrologyContract)));
+                .filter(metrologyContract -> metrologyContract.isMandatory() || optionalContractsToCreate.contains(metrologyContract))
+                .map(metrologyContract -> dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class).init(this, metrologyContract))
+                .forEach(this.effectiveContracts::add);
+    }
+
+    @Override
+    public void activateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when) {
+        this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
+                .init(this, metrologyContract, Range.atLeast(when)));
+    }
+
+    @Override
+    public void deactivateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when) {
+        this.effectiveContracts
+                .stream()
+                .filter(effectiveMetrologyContract -> !effectiveMetrologyContract.getMetrologyContract().isMandatory())
+                .filter(effectiveMetrologyContract -> effectiveMetrologyContract.getMetrologyContract()
+                        .equals(metrologyContract))
+                .filter(effectiveMetrologyContract -> !effectiveMetrologyContract.getRange().hasUpperBound())
+                .findFirst()
+                .ifPresent(effectiveMetrologyContract -> effectiveMetrologyContract.close(when));
+    }
+
+    @Override
+    public List<ReadingTypeRequirement> getReadingTypeRequirements() {
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+        this.effectiveContracts
+                .stream()
+                .filter(emct -> !emct.getRange().isEmpty())
+                .map(EffectiveMetrologyContractOnUsagePoint::getMetrologyContract)
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+        return requirementsCollector.getReadingTypeRequirements();
     }
 
     @Override

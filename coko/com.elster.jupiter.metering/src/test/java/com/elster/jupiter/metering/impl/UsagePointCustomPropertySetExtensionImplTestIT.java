@@ -36,6 +36,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -130,6 +131,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
             newPrivileges.addAll(((User) principal).getPrivileges());
         }
         when(newCurrentUser.getPrivileges()).thenReturn(newPrivileges);
+        when(newCurrentUser.getPrivileges(anyString())).thenReturn(newPrivileges);
         inMemoryBootstrapModule.getThreadPrincipalService().set(newCurrentUser);
         return newPrivileges;
     }

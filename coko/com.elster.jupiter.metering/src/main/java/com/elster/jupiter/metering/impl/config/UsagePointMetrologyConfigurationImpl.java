@@ -13,12 +13,15 @@ import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.Pair;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,8 +40,8 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
     private List<UsagePointRequirement> usagePointRequirements = new ArrayList<>();
 
     @Inject
-    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain, SearchService searchService) {
-        super(metrologyConfigurationService, eventService, customPropertySetService);
+    UsagePointMetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain, SearchService searchService, Clock clock, Publisher publisher) {
+        super(dataModel, metrologyConfigurationService, eventService, customPropertySetService, clock, publisher);
         this.searchDomain = searchService.findDomain(searchDomain.getId()).get();
     }
 
@@ -176,8 +179,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
     public void validateMeterCapabilities(List<Pair<MeterRole, Meter>> meters) {
         List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements();
         boolean hasUnsatisfiedReadingTypeRequirements = false;
-        UnsatisfiedReadingTypeRequirements ex = new UnsatisfiedReadingTypeRequirements(getMetrologyConfigurationService()
-                .getThesaurus(), this);
+        UnsatisfiedReadingTypeRequirements ex = new UnsatisfiedReadingTypeRequirements(getMetrologyConfigurationService().getThesaurus());
         for (Pair<MeterRole, Meter> pair : meters) {
             List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(this, mandatoryReadingTypeRequirements, pair);
             if (!unmatchedRequirements.isEmpty()) {

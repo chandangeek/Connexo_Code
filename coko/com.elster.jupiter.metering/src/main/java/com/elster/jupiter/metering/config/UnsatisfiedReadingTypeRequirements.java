@@ -10,23 +10,26 @@ import java.util.List;
 import java.util.Map;
 
 public class UnsatisfiedReadingTypeRequirements extends LocalizedException {
-    private Map<MeterRole, List<ReadingTypeRequirement>> failedRequirementsMap;
+    private Map<MeterRole, List<ReadingTypeRequirement>> unsatisfiedRequirements;
 
-    public UnsatisfiedReadingTypeRequirements(Thesaurus thesaurus,
-                                              UsagePointMetrologyConfiguration metrologyConfiguration) {
+    @Deprecated
+    public UnsatisfiedReadingTypeRequirements(Thesaurus thesaurus, UsagePointMetrologyConfiguration metrologyConfiguration) {
+        super(thesaurus, MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
+    }
 
+    public UnsatisfiedReadingTypeRequirements(Thesaurus thesaurus) {
         super(thesaurus, MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
     }
 
     public UnsatisfiedReadingTypeRequirements addUnsatisfiedReadingTypeRequirements(MeterRole meterRole, List<ReadingTypeRequirement> readingTypeRequirements) {
-        if (failedRequirementsMap == null) {
-            failedRequirementsMap = new HashMap<>();
+        if (unsatisfiedRequirements == null) {
+            unsatisfiedRequirements = new HashMap<>();
         }
-        this.failedRequirementsMap.put(meterRole, readingTypeRequirements);
+        this.unsatisfiedRequirements.put(meterRole, readingTypeRequirements);
         return this;
     }
 
     public Map<MeterRole, List<ReadingTypeRequirement>> getFailedRequirements() {
-        return Collections.unmodifiableMap(failedRequirementsMap);
+        return Collections.unmodifiableMap(unsatisfiedRequirements);
     }
 }

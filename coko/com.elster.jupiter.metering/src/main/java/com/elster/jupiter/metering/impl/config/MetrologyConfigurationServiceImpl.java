@@ -35,7 +35,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.conditions.Where;
 
 import java.util.Collections;
 import java.util.List;
@@ -104,7 +103,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
-        return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("id", id);
+        return this.getDataModel().mapper(MetrologyConfiguration.class).getOptional(id);
     }
 
     @Override
@@ -120,19 +119,21 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(String name) {
-        return this.getDataModel().mapper(MetrologyConfiguration.class).getUnique("name", name);
+        return this.getDataModel().mapper(MetrologyConfiguration.class)
+                .getUnique(MetrologyConfigurationImpl.Fields.NAME.fieldName(), name, MetrologyConfigurationImpl.Fields.OBSOLETETIME.fieldName(), null);
     }
 
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
-        return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel(), MetrologyContract.class, ReadingTypeDeliverable.class, Formula.class, ReadingTypeRequirement.class)
+        return DefaultFinder.of(MetrologyConfiguration.class, where(MetrologyConfigurationImpl.Fields.OBSOLETETIME.fieldName()).isNull(),
+                this.getDataModel(), MetrologyContract.class, ReadingTypeDeliverable.class, Formula.class, ReadingTypeRequirement.class)
                 .defaultSortColumn("lower(mc.name)")
                 .find();
     }
 
     @Override
     public boolean isInUse(MetrologyConfiguration metrologyConfiguration) {
-        Condition condition = Where.where("metrologyConfiguration").isEqualTo(metrologyConfiguration);
+        Condition condition = where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("interval").isEffective());
         List<EffectiveMetrologyConfigurationOnUsagePoint> atLeastOneUsagePoint = this.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class)
                 .select(condition, new Order[0], false, new String[0], 1, 1);
@@ -186,6 +187,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public Optional<ReadingTypeTemplate> findReadingTypeTemplate(String name) {
         return getDataModel().mapper(ReadingTypeTemplate.class).getUnique(ReadingTypeTemplateImpl.Fields.NAME.fieldName(), name);
+    }
+
+    @Override
+    public Optional<ReadingTypeTemplate> findReadingTypeTemplate(long id) {
+        return getDataModel().mapper(ReadingTypeTemplate.class).getOptional(id);
     }
 
     @Override

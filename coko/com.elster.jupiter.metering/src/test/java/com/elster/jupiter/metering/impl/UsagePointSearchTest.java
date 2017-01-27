@@ -90,7 +90,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -105,7 +104,7 @@ public class UsagePointSearchTest {
     private static MeteringService meteringService;
     private static UsagePointSearchDomain usagePointSearchDomain;
     private static PropertySpecService propertySpecService;
-    private static Thesaurus thesaurus;
+    private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private static SearchMonitor dummyMonitor;
 
     private static class MockModule extends AbstractModule {
@@ -161,10 +160,7 @@ public class UsagePointSearchTest {
             createDefaultUsagePointLifeCycle();
             context.commit();
         }
-        thesaurus = mock(Thesaurus.class, RETURNS_DEEP_STUBS);
         ArgumentCaptor<TranslationKey> translationKeyCaptor = ArgumentCaptor.forClass(TranslationKey.class);
-        when(thesaurus.getFormat(translationKeyCaptor.capture()).format())
-                .thenAnswer(invocation -> translationKeyCaptor.getValue().getDefaultFormat());
         dummyMonitor = mock(SearchMonitor.class);
         ExecutionTimer timer = mock(ExecutionTimer.class);
         doAnswer(invocation -> ((Callable)invocation.getArguments()[0]).call()).when(timer).time(any(Callable.class));
@@ -193,7 +189,6 @@ public class UsagePointSearchTest {
                 .setName("EnergyICT")
                 .create();
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP_0", Instant.EPOCH).withServiceLocation(location).create();
-        usagePoint.setServiceLocation(location);
         ElectricityDetailImpl detail = (ElectricityDetailImpl) serviceCategory.newUsagePointDetail(usagePoint, Instant.now());
         detail.setRatedPower(Unit.WATT.amount(BigDecimal.valueOf(1000), 3));
         usagePoint.addDetail(detail);

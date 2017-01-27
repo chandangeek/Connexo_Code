@@ -28,11 +28,14 @@ public enum DefaultReadingTypeTemplate {
     GAS_TEMPERATURE(TemplateTranslation.GAS_TEMPERATURE),
     GAS_PRESSURE(TemplateTranslation.GAS_PRESSURE),
     GAS_FLOW(TemplateTranslation.GAS_FLOW),
+    GAS_FLOW_BILLING(TemplateTranslation.GAS_FLOW_BILLING),
     GAS_NORMALIZED_FLOW(TemplateTranslation.GAS_NORMALIZED_FLOW),
     GAS_CONVERSION_FACTOR(TemplateTranslation.GAS_CONVERSION_FACTOR),
     WATER_VOLUME(TemplateTranslation.WATER_VOLUME),
     WATER_VOLUME_BACKFLOW(TemplateTranslation.WATER_VOLUME_BACKFLOW),
-    WATER_FLOW(TemplateTranslation.WATER_FLOW),;
+    WATER_FLOW(TemplateTranslation.WATER_FLOW),
+    BULK_A_PLUS(TemplateTranslation.BULK_A_PLUS),
+    BATTERY_STATUS(TemplateTranslation.BATTERY_STATUS),;
 
     DefaultReadingTypeTemplate(TemplateTranslation nameTranslation) {
         this.nameTranslation = nameTranslation;
@@ -70,11 +73,14 @@ public enum DefaultReadingTypeTemplate {
         GAS_TEMPERATURE("reading.type.template.gas_temperature", "Gas temperature"),
         GAS_PRESSURE("reading.type.template.gas_pressure", "Gas pressure"),
         GAS_FLOW("reading.type.template.gas_flow", "Gas flow"),
+        GAS_FLOW_BILLING("reading.type.template.gas_flow_irregular", "Gas flow irregular"),
         GAS_NORMALIZED_FLOW("reading.type.template.gas_normalized_flow", "Gas normalized flow"),
         GAS_CONVERSION_FACTOR("reading.type.template.gas_conversion_factor", "Gas conversion factor"),
         WATER_VOLUME("reading.type.template.water_volume", "Water volume"),
         WATER_VOLUME_BACKFLOW("reading.type.template.water_volume_backflow", "Water volume backflow"),
-        WATER_FLOW("reading.type.template.water_flow", "Water flow"),;
+        WATER_FLOW("reading.type.template.water_flow", "Water flow"),
+        BULK_A_PLUS("reading.type.template.bulk_a_plus", "Bulk A+"),
+        BATTERY_STATUS("reading.type.template.battery_status", "Battery Status"),;
 
         TemplateTranslation(String key, String defaultFormat) {
             this.key = key;

@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -38,15 +39,16 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
-import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDate;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
+import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
@@ -94,6 +96,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -104,6 +107,7 @@ import static com.elster.jupiter.util.streams.Currying.test;
 
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_MRID + "}")
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGE_POINT_NAME + "}")
+@AllRequiredCustomPropertySetsHaveValues(groups = {Save.Update.class})
 public class UsagePointImpl implements UsagePoint {
     // persistent fields
     @SuppressWarnings("unused")
@@ -114,9 +118,10 @@ public class UsagePointImpl implements UsagePoint {
     private String description;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceLocationString;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String mRID;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
@@ -144,6 +149,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
+    private Instant obsoleteTime;
     private long location;
     private SpatialCoordinates spatialCoordinates;
 
@@ -380,6 +386,11 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
+    /**
+     * This method will not work if there are meter activations, channel containers and channels linked
+     * We keep this method for physical deletion in the future.
+     *
+     **/
     @Override
     public void delete() {
         this.removeMetrologyConfigurationCustomPropertySetValues();
@@ -387,14 +398,12 @@ public class UsagePointImpl implements UsagePoint {
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
         dataModel.remove(this);
-        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
     }
 
     private void removeMetrologyConfigurations() {
         Iterator<EffectiveMetrologyConfigurationOnUsagePoint> iterator = this.metrologyConfigurations.iterator();
         while (iterator.hasNext()) {
-            EffectiveMetrologyConfigurationOnUsagePointImpl mc = (EffectiveMetrologyConfigurationOnUsagePointImpl) iterator
-                    .next();
+            EffectiveMetrologyConfigurationOnUsagePointImpl mc = (EffectiveMetrologyConfigurationOnUsagePointImpl) iterator.next();
             mc.prepareDelete();
             iterator.remove();
         }
@@ -481,6 +490,7 @@ public class UsagePointImpl implements UsagePoint {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getRange().contains(when))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint.class::cast)
                 .findFirst();
     }
 
@@ -489,6 +499,7 @@ public class UsagePointImpl implements UsagePoint {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getStart().equals(start))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint.class::cast)
                 .findFirst();
     }
 
@@ -497,6 +508,7 @@ public class UsagePointImpl implements UsagePoint {
         return this.metrologyConfigurations.stream()
                 .filter(notEmpty())
                 .filter(emc -> emc.getRange().contains(clock.instant()))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint.class::cast)
                 .findFirst();
     }
 
@@ -516,50 +528,83 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
-        this.apply(metrologyConfiguration, when, null);
+        this.apply(metrologyConfiguration, when, (Instant) null);
     }
 
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
-        Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
+        this.apply(metrologyConfiguration, Collections.emptySet(), start, end);
+    }
+
+    @Override
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when, Set<MetrologyContract> optionalContractsToActivate) {
+        this.apply(metrologyConfiguration, optionalContractsToActivate, when, null);
+    }
+
+    private void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Instant start, Instant end) {
         UsagePointStage.Key usagePointStage = this.getState().getStage().getKey();
         if (usagePointStage != UsagePointStage.Key.PRE_OPERATIONAL) {
             throw UsagePointManagementException.incorrectStage(thesaurus);
         }
-        Long startDate = start.toEpochMilli();
-        Long endDate = end != null ? end.toEpochMilli() : null;
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.getEffectiveMetrologyConfigurations()
-                .stream()
-                .sorted((m1, m2) -> -m1.getStart().compareTo(m2.getStart()))
-                .findFirst();
-        if (latest.isPresent()) {
-            Instant latestStartDate = latest.get().getStart();
-            Instant latestEndDate = latest.get().getEnd();
+        validateEffectiveMetrologyConfigurationInterval(start, end);
+        validateAndClosePreviousMetrologyConfigurationIfExists(start);
+        Range<Instant> effectiveInterval = end != null ? Range.closedOpen(start, end) : Range.atLeast(start);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration =
+                createEffectiveMetrologyConfigurationWithContracts(metrologyConfiguration, optionalContractsToActivate, effectiveInterval);
+        this.metrologyConfigurations.add(effectiveMetrologyConfiguration);
+        activateMetersOnMetrologyConfiguration(this.getMeterActivations(start));
+    }
 
-            if (latestEndDate != null) {
-                if (start.isBefore(latestEndDate)) {
-                    throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
-                }
+    private void activateMetersOnMetrologyConfiguration(List<MeterActivation> meterActivations) {
+        UsagePointMeterActivator linker = this.linkMeters().withFormValidation(UsagePointMeterActivator.FormValidation.DEFINE_METROLOGY_CONFIGURATION);
 
-            } else {
-                if (start.isBefore(latestStartDate) || start.equals(latestStartDate)) {
-                    throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
-                }
-                latest.get().close(start);
-            }
+        meterActivations.stream()
+                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getEnd()==null)
+                .forEach(meterActivation -> linker.activate(meterActivation.getMeter().get(), meterActivation.getMeterRole().get()));
+
+        linker.complete();
+    }
+
+    private void validateEffectiveMetrologyConfigurationInterval(Instant start, Instant end) {
+        if (end != null && (end.isBefore(start) || end.equals(start))) {
+            throw new UnsatisfiedMetrologyConfigurationEndDate(thesaurus);
         }
-        basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
+    }
+
+    private void validateAndClosePreviousMetrologyConfigurationIfExists(Instant newStartDate) {
+        getEffectiveMetrologyConfigurations().stream()
+                .sorted(Comparator.comparing(EffectiveMetrologyConfigurationOnUsagePoint::getStart).reversed())
+                .findFirst()
+                .ifPresent(effectiveMetrologyConfiguration -> {
+                    validateOverlappingWithLatestMetrologyConfiguration(effectiveMetrologyConfiguration, newStartDate);
+                    if (effectiveMetrologyConfiguration.getEnd() == null) {
+                        effectiveMetrologyConfiguration.close(newStartDate);
+                    }
+                });
+    }
+
+    private void validateOverlappingWithLatestMetrologyConfiguration(EffectiveMetrologyConfigurationOnUsagePoint latestEffectiveMetrologyConfiguration, Instant nextStartDate) {
+        Instant latestStartDate = latestEffectiveMetrologyConfiguration.getStart();
+        Instant latestEndDate = latestEffectiveMetrologyConfiguration.getEnd();
+
+        if (nextStartDate.isBefore(latestStartDate) || nextStartDate.equals(latestStartDate)) {
+            throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
+        }
+        if (latestEndDate != null && nextStartDate.isBefore(latestEndDate)) {
+            throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
+        }
+    }
+
+    private EffectiveMetrologyConfigurationOnUsagePointImpl createEffectiveMetrologyConfigurationWithContracts(UsagePointMetrologyConfiguration metrologyConfiguration, Set<MetrologyContract> optionalContractsToActivate, Range<Instant> effectiveInterval) {
         EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate)));
-        effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
-        this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
-        this.update();
+                .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(effectiveInterval));
+        effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts(optionalContractsToActivate);
+        return effectiveMetrologyConfigurationOnUsagePoint;
     }
 
     @Override
     public void updateWithInterval(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationVersion, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
-
         Instant startTimeOfCurrent = this.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getStart)
                 .orElse(null);
@@ -571,7 +616,7 @@ public class UsagePointImpl implements UsagePoint {
         this.getEffectiveMetrologyConfigurations()
                 .stream()
                 .filter(v -> !v.getStart().equals(metrologyConfigurationVersion.getStart()))
-                .forEach(each -> checkOverlapsOfEffectiveMetrologyConfiguations(each, start, end));
+                .forEach(each -> checkOverlapsOfEffectiveMetrologyConfigurations(each, start, end));
 
         metrologyConfigurationVersion.close(metrologyConfigurationVersion.getStart());
         Long endDate;
@@ -583,14 +628,13 @@ public class UsagePointImpl implements UsagePoint {
         basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
         EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(start
-                        .toEpochMilli(), endDate)));
+                .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), endDate)));
         effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
         this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
         this.update();
     }
 
-    private void checkOverlapsOfEffectiveMetrologyConfiguations(EffectiveMetrologyConfigurationOnUsagePoint each, Instant start, Instant end) {
+    private void checkOverlapsOfEffectiveMetrologyConfigurations(EffectiveMetrologyConfigurationOnUsagePoint each, Instant start, Instant end) {
         if (each.isEffectiveAt(start)) {
             if (each.getEnd() != null) {
                 throw new OverlapsOnMetrologyConfigurationVersionStart(thesaurus);
@@ -606,7 +650,7 @@ public class UsagePointImpl implements UsagePoint {
 
     private void basicCheckEffectiveMetrologyConfiguration(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
         if (end != null && (end.isBefore(start) || end.equals(start))) {
-            throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
+            throw new UnsatisfiedMetrologyConfigurationEndDate(thesaurus);
         }
         Range<Instant> range;
         if (end == null) {
@@ -1026,6 +1070,7 @@ public class UsagePointImpl implements UsagePoint {
     public List<MeterActivation> getMeterActivations(Instant when) {
         return this.meterActivations
                 .stream()
+                .filter(meterActivation -> !meterActivation.getInterval().toClosedRange().isEmpty())
                 .filter(meterActivation -> meterActivation.isEffectiveAt(when))
                 .sorted(Comparator.comparing(MeterActivation::getStart))
                 .collect(Collectors.toList());
@@ -1232,5 +1277,19 @@ public class UsagePointImpl implements UsagePoint {
 
     private Optional<Location> findLocation(long id) {
         return dataModel.mapper(Location.class).getOptional(id);
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.obsoleteTime = this.clock.instant();
+        this.dataModel.update(this, "obsoleteTime");
+        this.getEffectiveMetrologyConfiguration(this.obsoleteTime)
+                .ifPresent(efmc -> efmc.close(this.obsoleteTime));
+        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteTime() {
+        return Optional.ofNullable(this.obsoleteTime);
     }
 }

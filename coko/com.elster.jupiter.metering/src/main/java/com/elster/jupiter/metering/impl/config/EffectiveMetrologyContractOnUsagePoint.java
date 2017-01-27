@@ -9,15 +9,20 @@ import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
+
 /**
  * Models the effective relationship between
  * {@link UsagePoint} and {@link MetrologyContract} mediated with {@link EffectiveMetrologyConfigurationOnUsagePoint}.
  */
 @ProviderType
 public interface EffectiveMetrologyContractOnUsagePoint extends HasId, Effectivity {
+
     EffectiveMetrologyConfigurationOnUsagePoint getMetrologyConfigurationOnUsagePoint();
 
     MetrologyContract getMetrologyContract();
 
     ChannelsContainer getChannelsContainer();
+
+    void close(Instant closingDate);
 }
