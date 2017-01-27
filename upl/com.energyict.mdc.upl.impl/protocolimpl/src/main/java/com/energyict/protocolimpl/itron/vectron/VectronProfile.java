@@ -105,7 +105,9 @@ public class VectronProfile {
         getLogger().info("BuildIntervalData, lastReading:"+lastReading.toString());
 
         // wait to request profile data until 20 seconds before or 10 seconds after crossboundary to avoid unsynchronized table read!
+        if(vectron.waitUntilTimeValid()) {
         waitUntilTimeValid(10,20);
+        }
         // Get current meter calendar time to calculate last interval close timestamp
 
         long start = new Date().getTime();
@@ -282,7 +284,7 @@ public class VectronProfile {
             offset2IntervalBoundary = seconds%profileInterval;
             if ((offset2IntervalBoundary<secondsAfterIntervalClose) || (offset2IntervalBoundary>(profileInterval-secondsBeforeIntervalClose))) {
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(vectron.getWaitingTime()*1000);
                 } catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
                     throw ConnectionCommunicationException.communicationInterruptedException(e);
