@@ -5,7 +5,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.rest.FirmwareApplication;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.util.logging.Level;
