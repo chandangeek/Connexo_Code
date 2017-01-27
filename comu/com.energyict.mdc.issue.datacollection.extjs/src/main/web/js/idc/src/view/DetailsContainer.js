@@ -64,6 +64,11 @@ Ext.define('Idc.view.DetailsContainer', {
                         }
                     },
                     {
+                        itemId: 'data-collection-issue-detail-priority',
+                        fieldLabel: Uni.I18n.translate('general.title.priority', 'IDC', 'Priority'),
+                        name: 'priority'
+                    },
+                    {
                         itemId: 'data-collection-issue-detail-workgroup',
                         fieldLabel: Uni.I18n.translate('general.title.workgroup', 'IDC', 'Workgroup'),
                         name: 'workGroupAssignee',
