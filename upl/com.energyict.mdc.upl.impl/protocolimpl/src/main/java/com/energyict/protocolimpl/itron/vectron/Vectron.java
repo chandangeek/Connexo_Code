@@ -29,10 +29,14 @@ import java.util.logging.Logger;
  */
 public class Vectron extends SchlumbergerProtocol {
     
+    public static final String WAIT_UNTIL_TIME_VALID = "waitUntilTimeValid";
+    public static final String WAITING_TIME = "waitingTime";
     private BasePagesFactory basePagesFactory=null;
     RegisterFactory registerFactory=null;
     private VectronProfile vectronProfile=null;
     boolean allowClockSet;
+    boolean waitUntilTimeValid;
+    private int waitingTime = 5;
 
     public Vectron() {
     }
@@ -68,11 +72,15 @@ public class Vectron extends SchlumbergerProtocol {
     protected void doTheDoValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         allowClockSet = Integer.parseInt(properties.getProperty("AllowClockSet","0").trim()) == 1;
         setDelayAfterConnect(Integer.parseInt(properties.getProperty("DelayAfterConnect","2000").trim()));
+        waitUntilTimeValid = Integer.parseInt(properties.getProperty(WAIT_UNTIL_TIME_VALID,"1")) == 1;
+        waitingTime = Integer.parseInt(properties.getProperty(WAITING_TIME,"5").trim());
     }
     
     protected List doTheDoGetOptionalKeys() {
         List list = new ArrayList();
         list.add("AllowClockSet");
+        list.add(WAIT_UNTIL_TIME_VALID);
+        list.add(WAITING_TIME);
         return list;
     }
     
@@ -100,7 +108,7 @@ public class Vectron extends SchlumbergerProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2017-01-27 13:23:41 +0200 (Fr, 27 Jan 2017)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
@@ -265,4 +273,11 @@ public class Vectron extends SchlumbergerProtocol {
         this.vectronProfile = vectronProfile;
     }
     
+    public boolean waitUntilTimeValid() {
+        return waitUntilTimeValid;
+    }
+
+    public long getWaitingTime() {
+        return waitingTime;
+    }
 } // public class Fulcrum extends SchlumbergerProtocol
