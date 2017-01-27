@@ -179,7 +179,7 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink, Seria
     @Override
     public String getSerialNumber() {
         try {
-            return getDataDefinitionFactory().getMeterIDS().getFullSerialNumber();
+            return getDataDefinitionFactory().getMeterIDS().getFullSerialNumber().trim();
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getMiniDLMSConnection().getMaxRetries() + 1);
         }

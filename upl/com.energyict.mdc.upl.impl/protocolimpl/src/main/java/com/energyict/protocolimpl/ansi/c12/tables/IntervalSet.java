@@ -145,7 +145,7 @@ public class IntervalSet {
             case 4: // skipped interval due to protocolcommon state
                 return IntervalStateBits.MISSING;
             case 5: // interval contains test mode data
-                return IntervalStateBits.OTHER;
+                return IntervalStateBits.TEST;
             default:    
                 return IntervalStateBits.OTHER;
         } 

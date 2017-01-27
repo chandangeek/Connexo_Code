@@ -75,8 +75,8 @@ public class EventLogCodes {
         map.put(new Integer(0x7B),new EventLogCodeMapping("Time Changed",MeterEvent.SETCLOCK));
         map.put(new Integer(0x7C),new EventLogCodeMapping("Register Reading Changed",MeterEvent.OTHER));
         map.put(new Integer(0x7D),new EventLogCodeMapping("A/D Programmed or Re-Cal.",MeterEvent.OTHER));
-        map.put(new Integer(0x7E),new EventLogCodeMapping("Test Mode Initiated",MeterEvent.OTHER));
-        map.put(new Integer(0x7F),new EventLogCodeMapping("Test Mode Exited",MeterEvent.OTHER));
+        map.put(new Integer(0x7E),new EventLogCodeMapping("Test Mode Initiated",MeterEvent.TEST_MODE_START));
+        map.put(new Integer(0x7F),new EventLogCodeMapping("Test Mode Exited",MeterEvent.TEST_MODE_STOP));
         map.put(new Integer(0x80),new EventLogCodeMapping("Day Light Savings Time",MeterEvent.OTHER));
         map.put(new Integer(0x81),new EventLogCodeMapping("Recorder Time Sync.",MeterEvent.OTHER));
         map.put(new Integer(0x82),new EventLogCodeMapping("TOU Season Change",MeterEvent.OTHER));
