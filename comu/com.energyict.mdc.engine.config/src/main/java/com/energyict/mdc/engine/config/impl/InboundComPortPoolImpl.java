@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.engine.config.IComPortPoolProperty;
+import com.energyict.mdc.engine.config.ComPortPoolProperty;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
@@ -81,7 +81,7 @@ public final class InboundComPortPoolImpl extends ComPortPoolImpl implements Inb
     }
 
     @Override
-    public List<IComPortPoolProperty> getProperties() {
+    public List<ComPortPoolProperty> getProperties() {
         return Collections.unmodifiableList(properties);
     }
 

@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.IComPortPoolProperty;
+import com.energyict.mdc.engine.config.ComPortPoolProperty;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 
 import com.elster.jupiter.orm.associations.Reference;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @ComportPoolPropertyMustHaveSpec(groups = {Save.Create.class, Save.Update.class})
 @ComportPoolPropertyValueHasCorrectType(groups = {Save.Create.class, Save.Update.class})
-public class ComPortPoolPropertyImpl implements IComPortPoolProperty {
+public class ComPortPoolPropertyImpl implements ComPortPoolProperty {
 
     private final DataModel dataModel;
 

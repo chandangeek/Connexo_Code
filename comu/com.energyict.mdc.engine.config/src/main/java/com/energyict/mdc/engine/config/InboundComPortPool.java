@@ -42,7 +42,7 @@ public interface InboundComPortPool extends ComPortPool {
      *
      * @return List of ComPortPoolProperties
      */
-    List<IComPortPoolProperty> getProperties();
+    List<ComPortPoolProperty> getProperties();
 
     /**
      * Sets the value of a property of the inbound discovery protocol
