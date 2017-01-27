@@ -3,20 +3,20 @@ package com.energyict.mdc.engine.impl;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.upl.ObjectMapperService;
 
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.AnnotationIntrospector;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.DeserializationContext;
-import org.codehaus.jackson.map.JsonDeserializer;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.codehaus.jackson.map.deser.std.UntypedObjectDeserializer;
-import org.codehaus.jackson.map.introspect.JacksonAnnotationIntrospector;
-import org.codehaus.jackson.map.module.SimpleModule;
-import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -59,19 +59,18 @@ public class ObjectMapperServiceImpl implements ObjectMapperService {
         ObjectMapper mapper = new ObjectMapper();
         AnnotationIntrospector jacksonAnnotationIntrospector = new JacksonAnnotationIntrospector();
         AnnotationIntrospector jaxbAnnotationIntrospector = new JaxbAnnotationIntrospector();
-        AnnotationIntrospector introspector = new AnnotationIntrospector.Pair(jacksonAnnotationIntrospector, jaxbAnnotationIntrospector);
+        AnnotationIntrospector introspector = AnnotationIntrospector.pair(jacksonAnnotationIntrospector, jaxbAnnotationIntrospector);
 
         // Serialization config
-        mapper.setSerializationConfig(mapper.getSerializationConfig().withAnnotationIntrospector(jaxbAnnotationIntrospector));
-        mapper.setSerializationConfig(mapper.getSerializationConfig().with(SerializationConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS));
-        mapper.setSerializationConfig(mapper.getSerializationConfig().without(SerializationConfig.Feature.AUTO_DETECT_GETTERS));
-        mapper.setSerializationConfig(mapper.getSerializationConfig().without(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS));
-        mapper.setSerializationConfig(mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_NULL));
+        mapper.setAnnotationIntrospector(jaxbAnnotationIntrospector);
+        mapper.configure(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS, true);
+        mapper.configure(MapperFeature.AUTO_DETECT_GETTERS, true);
+        mapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, true);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         // Deserialization config
-        mapper.setDeserializationConfig(mapper.getDeserializationConfig().withAnnotationIntrospector(introspector));
-        mapper.setDeserializationConfig(mapper.getDeserializationConfig().without(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS));
-        mapper.setDeserializationConfig(mapper.getDeserializationConfig().with(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT));
+        mapper.setAnnotationIntrospector(introspector);
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
 
         // Registered modules
         SimpleModule typedPropertiesDeserializerModule = new SimpleModule("TypedPropertiesDeserializerModule", new Version(1, 0, 0, null));
