@@ -135,6 +135,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 emptyText: ' '
             },
             {
+                header: Uni.I18n.translate('device.channelData.lastUpdate', 'MDC', 'Last update'),
+                dataIndex: 'reportedDateTime',
+                flex: 0.5,
+                renderer: function(value){
+                    var date = new Date(value);
+                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 itemId: 'channel-data-grid-action-column',
                 menu: {
