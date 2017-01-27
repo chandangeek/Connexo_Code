@@ -11,7 +11,6 @@ import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -72,7 +71,7 @@ public class EncryptionDeviceAccessLevelResource {
                 .stream()
                 .filter(lvl -> lvl.getId() == encryptionDeviceAccessLevelId)
                 .findFirst()
-                .map(UPLEncryptionLevelAdapter::new)
+                .map(this.protocolPluggableService::adapt)
                 .map(lvl -> encryptionDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ENC_DEVICE_ACCESS_LEVEL));
     }
@@ -102,7 +101,7 @@ public class EncryptionDeviceAccessLevelResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_PROTOCOL));
         List<DeviceAccessLevelInfo> infos = ListPager.of(pluggableClass.getDeviceProtocol().getEncryptionAccessLevels()).from(queryParameters)
                 .stream()
-                .map(UPLEncryptionLevelAdapter::new)
+                .map(this.protocolPluggableService::adapt)
                 .map(lvl -> encryptionDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
 

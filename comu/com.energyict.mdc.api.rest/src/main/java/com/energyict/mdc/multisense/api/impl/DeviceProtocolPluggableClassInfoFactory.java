@@ -5,15 +5,15 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,12 +24,16 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
 
     private final Provider<AuthenticationDeviceAccessLevelInfoFactory> authenticationDeviceAccessLevelInfoFactoryProvider;
     private final Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactoryProvider;
+    private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public DeviceProtocolPluggableClassInfoFactory(Provider<AuthenticationDeviceAccessLevelInfoFactory> authenticationDeviceAccessLevelInfoFactory,
-                                                   Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactory) {
+    public DeviceProtocolPluggableClassInfoFactory(
+            ProtocolPluggableService protocolPluggableService,
+            Provider<AuthenticationDeviceAccessLevelInfoFactory> authenticationDeviceAccessLevelInfoFactory,
+            Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactory) {
         this.authenticationDeviceAccessLevelInfoFactoryProvider = authenticationDeviceAccessLevelInfoFactory;
         this.encryptionDeviceAccessLevelInfoFactoryProvider = encryptionDeviceAccessLevelInfoFactory;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     public DeviceProtocolPluggableClassInfo from(DeviceProtocolPluggableClass deviceProtocolPluggableClass, UriInfo uriInfo, Collection<String> fields) {
@@ -40,7 +44,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
 
     public LinkInfo asLink(DeviceProtocolPluggableClass deviceProtocolPluggableClass, Relation relation, UriInfo uriInfo) {
         DeviceProtocolPluggableClassInfo info = new DeviceProtocolPluggableClassInfo();
-        copySelectedFields(info,deviceProtocolPluggableClass,uriInfo, Arrays.asList("id"));
+        copySelectedFields(info,deviceProtocolPluggableClass,uriInfo, Collections.singletonList("id"));
         info.link = link(deviceProtocolPluggableClass,relation,uriInfo);
         return info;
     }
@@ -76,7 +80,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                     .getDeviceProtocol()
                     .getAuthenticationAccessLevels()
                     .stream()
-                    .map(UPLAuthenticationLevelAdapter::new)
+                    .map(this.protocolPluggableService::adapt)
                     .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
                     .map(aal -> authenticationDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, aal, Relation.REF_RELATION, uriInfo))
                     .collect(toList())
@@ -86,7 +90,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                     .getDeviceProtocol()
                     .getEncryptionAccessLevels()
                     .stream()
-                    .map(UPLAuthenticationLevelAdapter::new)
+                    .map(this.protocolPluggableService::adapt)
                     .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
                     .map(eal -> encryptionDeviceAccessLevelInfoFactoryProvider.get().asLink(deviceProtocolPluggableClass, eal, Relation.REF_RELATION, uriInfo))
                     .collect(toList())

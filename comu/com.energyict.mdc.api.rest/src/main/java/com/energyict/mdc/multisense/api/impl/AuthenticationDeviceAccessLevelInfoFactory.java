@@ -49,8 +49,7 @@ public class AuthenticationDeviceAccessLevelInfoFactory extends SelectableFieldF
                 build(protocolPluggableClass.getId(), deviceAccessLevel.getId());
     }
 
-
-    public DeviceAccessLevelInfo from(DeviceProtocolPluggableClass pluggableClass, DeviceAccessLevel authenticationDeviceAccessLevel, UriInfo uriInfo, Collection<String> fields) {
+    public DeviceAccessLevelInfo from(DeviceProtocolPluggableClass pluggableClass, DeviceAccessLevel authenticationDeviceAccessLevel, UriInfo uriInfo, List<String> fields) {
         DeviceAccessLevelInfo info = new DeviceAccessLevelInfo();
         copySelectedFields(info, Pair.of(pluggableClass,authenticationDeviceAccessLevel), uriInfo, fields);
         return info;
@@ -65,7 +64,7 @@ public class AuthenticationDeviceAccessLevelInfoFactory extends SelectableFieldF
         map.put("link", ((deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.link = link(pair.getFirst(), pair.getLast(), Relation.REF_SELF, uriInfo)));
         return map;
     }
-    
+
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder().
                 path(AuthenticationDeviceAccessLevelResource.class).
