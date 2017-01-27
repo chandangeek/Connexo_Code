@@ -17,17 +17,17 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.upl.tasks,\
                 com.energyict.mdc.upl.tasks.support,\
                 com.energyict.mdc.channels,\
+                com.energyict.mdc.channels.serial,\
+                com.energyict.mdc.channels.serial.direct.rxtx,\
+                com.energyict.mdc.channels.serial.direct.serialio,\
+                com.energyict.mdc.channels.serial.modem,\
+                com.energyict.mdc.channels.serial.modem.postdialcommand,\
+                com.energyict.mdc.channels.ip.socket,\
+                com.energyict.mdc.channels.ip.diagrams,\
                 com.energyict.mdc.io,\
                 com.energyict.mdc.ports,\
                 com.energyict.mdc.protocol,\
                 com.energyict.cbo,\
-                com.energyict.channels.serial,\
-                com.energyict.channels.serial.direct.rxtx,\
-                com.energyict.channels.serial.direct.serialio,\
-                com.energyict.channels.serial.modem,\
-                com.energyict.channels.serial.modem.postdialcommand,\
-                com.energyict.channels.ip.socket,\
-                com.energyict.channels.ip.diagrams,\
                 com.energyict.cim,\
                 com.energyict.dialer.connection,\
                 com.energyict.dialer.core,\
