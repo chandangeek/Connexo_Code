@@ -1,6 +1,6 @@
 package com.energyict.mdc.upl.meterdata.identifiers;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.io.Serializable;
