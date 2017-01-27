@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.config;
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface ComPortPoolProperty {
+public interface IComPortPoolProperty {
     /**
      * Gets the name of the property for which a value is held.
      *
@@ -19,7 +19,7 @@ public interface ComPortPoolProperty {
     Object getValue();
 
     /**
-     * Gets the {@link ComPortPool} that owns this {@link ComPortPoolProperty}
+     * Gets the {@link ComPortPool} that owns this {@link IComPortPoolProperty}
      *
      * @return The ComPortPool
      */
