@@ -5673,7 +5673,7 @@ DDR;REST;TimeError;Zeitfehler;
 DDR;REST;ConnectionError;Verbindungsfehler;
 DDR;REST;UnexpectedError;Unerwarteter Fehler;
 DDR;REST;IOError;I/O-Fehler;
-DDR;REST;DeviceMessageStatus.REVOKED;Widerrufen;
+DDR;REST;DeviceMessageStatus.CANCELED;Widerrufen;
 DDR;REST;DeviceMessageStatus.CONFIRMED;Bestätigt;
 DDR;REST;DeviceMessageStatus.FAILED;Fehlgeschlagen;
 DDR;REST;DeviceMessageStatus.INDOUBT;Zweifelhaft;
