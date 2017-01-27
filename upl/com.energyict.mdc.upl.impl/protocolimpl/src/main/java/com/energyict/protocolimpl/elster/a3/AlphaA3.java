@@ -84,6 +84,7 @@ import java.util.logging.Logger;
 // changed
 public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, SerialNumberSupport {
 
+    public static final String PACKET_SIZE = "PacketSize";
     public static String SECURITY_MODE = "SecurityMode";
 	public static String CALLED_AP_TITLE = "CalledAPTitle";
     public static String SECURITY_KEY = "SecurityKey";
@@ -107,6 +108,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
     protected String calledAPTitle;
     protected String securityKey;
     protected int controlToggleBitMode;
+    protected int packetSize;
 
     /** Creates a new instance of AlphaA3 */
     public AlphaA3() {
@@ -168,7 +170,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
             String pw=null;
             if (getInfoTypePassword()!=null)
                pw = new String(ParseUtils.extendWithChar0(getInfoTypePassword().getBytes(), 20));
-            getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII);
+            getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_ASCII, packetSize);
         }
         else {
             if ((getInfoTypeSecurityLevel()!=2) && ((getInfoTypePassword()==null) || (getInfoTypePassword().compareTo("")==0)))
@@ -176,7 +178,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
             String pw=null;
             if (getInfoTypePassword()!=null)
                pw = new String(ParseUtils.extendWithBinary0(getInfoTypePassword().getBytes(), 20));
-            getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY);
+            getPSEMServiceFactory().logOn(c12UserId,c12User,pw,getInfoTypeSecurityLevel(),PSEMServiceFactory.PASSWORD_BINARY, packetSize);
         }
         
         //getManufacturerProcedureFactory().snapShotData();
@@ -208,6 +210,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
             }
         }
         this.controlToggleBitMode = Integer.parseInt(properties.getProperty("FrameControlToggleBitMode", "1"));
+        this.packetSize = Integer.parseInt(properties.getProperty(PACKET_SIZE, "80"));
     }
 
     protected List doGetOptionalKeys() {
@@ -221,7 +224,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
         result.add(SECURITY_KEY);
         result.add(SECURITY_MODE);
         result.add("FrameControlToggleBitMode");
-        
+        result.add(PACKET_SIZE);
+
         return result;
     }
     

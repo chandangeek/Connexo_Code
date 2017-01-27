@@ -229,12 +229,15 @@ public class PSEMServiceFactory {
     private void setTableId(int tableId) {
         this.tableId = tableId;
     }
-    
     public void logOn(int c12UserId, String c12User, String password, int securityLevel, int passwordFormat) throws IOException {
+        logOn(c12UserId, c12User, password, securityLevel, passwordFormat, 80);
+    }
+
+    public void logOn(int c12UserId, String c12User, String password, int securityLevel, int passwordFormat, int packetSize) throws IOException {
     	if (c1222) {
-    		logOnC1222(c12UserId, c12User, password, securityLevel, passwordFormat, 80, 3);
+    		logOnC1222(c12UserId, c12User, password, securityLevel, passwordFormat, packetSize, 3);
         } else {
-    		logOn(c12UserId, c12User, password, securityLevel, passwordFormat, 80, 3);
+    		logOn(c12UserId, c12User, password, securityLevel, passwordFormat, packetSize, 3);
         }
     }
 
