@@ -19,10 +19,14 @@ import java.util.Optional;
  * Time: 10:42
  * Author: khe
  */
-public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class NoSecuritySupport extends AbstractSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final int NO_SECURITY_SUPPORT_ID = 0;
     private static final String authenticationTranslationKeyConstant = "NoSecuritySupport.authenticationlevel.";
+
+    public NoSecuritySupport() {
+        super(null);        //No property specs here
+    }
 
     @Override
     public List<PropertySpec> getSecurityProperties() {

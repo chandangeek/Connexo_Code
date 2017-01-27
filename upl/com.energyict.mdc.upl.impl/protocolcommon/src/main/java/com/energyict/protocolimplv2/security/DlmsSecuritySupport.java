@@ -25,7 +25,7 @@ import java.util.Optional;
  * Date: 10/01/13
  * Time: 16:39
  */
-public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class DlmsSecuritySupport  extends AbstractSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
@@ -35,10 +35,8 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
-    private final PropertySpecService propertySpecService;
-
     public DlmsSecuritySupport(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     protected PropertySpecService getPropertySpecService() {

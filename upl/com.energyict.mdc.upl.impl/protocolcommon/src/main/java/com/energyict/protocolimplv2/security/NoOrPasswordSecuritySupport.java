@@ -26,13 +26,12 @@ import java.util.List;
  * Date: 21/01/13
  * Time: 14:41
  */
-public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class NoOrPasswordSecuritySupport extends AbstractSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String authenticationTranslationKeyConstant = "NoOrPasswordSecuritySupport.authenticationlevel.";
-    private final PropertySpecService propertySpecService;
 
     public NoOrPasswordSecuritySupport(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     public PropertySpecService getPropertySpecService() {

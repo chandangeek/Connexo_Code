@@ -24,15 +24,13 @@ import java.util.List;
  * Date: 14/01/13
  * Time: 9:28
  */
-public class PasswordWithUserIdentificationSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final int STANDARD_AUTH_DEVICE_ACCESS_LEVEL = 10;
     private static final int STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL = 20;
 
-    private final PropertySpecService propertySpecService;
-
     public PasswordWithUserIdentificationSecuritySupport(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

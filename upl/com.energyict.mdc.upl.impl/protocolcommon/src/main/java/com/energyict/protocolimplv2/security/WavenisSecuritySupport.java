@@ -22,17 +22,15 @@ import java.util.List;
  * Date: 11/01/13
  * Time: 16:13
  */
-public class WavenisSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class WavenisSecuritySupport extends AbstractSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     public static final String ENCRYPTION_KEY_PROPERTY_NAME = "WavenisEncryptionKey";
     private static final String authenticationTranslationKeyConstant = "WavenisSecuritySupport.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "WavenisSecuritySupport.encryptionlevel.";
 
-    private final PropertySpecService propertySpecService;
-
     public WavenisSecuritySupport(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

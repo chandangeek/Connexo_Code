@@ -19,17 +19,15 @@ import java.util.List;
  * @author khe
  * @since 28/01/2016 - 17:39
  */
-public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecurityCapabilities {
+public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport implements AdvancedDeviceProtocolSecurityCapabilities {
 
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private static final String REQUEST_SECURITY_TRANSLATION_CONSTANT = "DlmsSecuritySuite1And2Support.request.security.";
     private static final String RESPONSE_SECURITY_TRANSLATION_CONSTANT = "DlmsSecuritySuite1And2Support.responses.security.";
     private static final String SECURITY_SUITE_TRANSLATION_KEY_CONSTANT = "security.suite.";
 
-    private final PropertySpecService propertySpecService;
-
     public DlmsSecuritySuite1And2Support(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override
@@ -62,14 +60,14 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
     @Override
     public List<RequestSecurityLevel> getRequestSecurityLevels() {
         return Arrays.asList(
-                    new NoSecurityForRequests(),
-                    new RequestsAuthenticated(),
-                    new RequestsEncrypted(),
-                    new RequestsEncryptedAndAuthenticated(),
-                    new RequestsSigned(),
-                    new RequestsAuthenticatedAndSigned(),
-                    new RequestsEncryptedAndSigned(),
-                    new RequestsEncryptedAndAuthenticatedAndSigned());
+                new NoSecurityForRequests(),
+                new RequestsAuthenticated(),
+                new RequestsEncrypted(),
+                new RequestsEncryptedAndAuthenticated(),
+                new RequestsSigned(),
+                new RequestsAuthenticatedAndSigned(),
+                new RequestsEncryptedAndSigned(),
+                new RequestsEncryptedAndAuthenticatedAndSigned());
     }
 
     /**
@@ -78,14 +76,14 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
     @Override
     public List<ResponseSecurityLevel> getResponseSecurityLevels() {
         return Arrays.asList(
-                    new NoSecurityForResponses(),
-                    new ResponsesAuthenticated(),
-                    new ResponsesEncrypted(),
-                    new ResponsesEncryptedAndAuthenticated(),
-                    new ResponsesSigned(),
-                    new ResponsesAuthenticatedAndSigned(),
-                    new ResponsesEncryptedAndSigned(),
-                    new ResponsesEncryptedAndAuthenticatedAndSigned());
+                new NoSecurityForResponses(),
+                new ResponsesAuthenticated(),
+                new ResponsesEncrypted(),
+                new ResponsesEncryptedAndAuthenticated(),
+                new ResponsesSigned(),
+                new ResponsesAuthenticatedAndSigned(),
+                new ResponsesEncryptedAndSigned(),
+                new ResponsesEncryptedAndAuthenticatedAndSigned());
     }
 
     /**
@@ -799,7 +797,7 @@ public class DlmsSecuritySuite1And2Support implements AdvancedDeviceProtocolSecu
     /**
      * An authentication level specifying that ECDSA (digital signature) will be used
      * to authenticate ourselves with the device.
-     * <p/>
+     * <p>
      * For the digital signing, the following general properties are additionally used:
      * - our private signing key
      * - our signing certificate

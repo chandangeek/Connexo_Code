@@ -22,15 +22,14 @@ import java.util.List;
  * Date: 21/01/13
  * Time: 11:10
  */
-public class IEC1107SecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class IEC1107SecuritySupport extends AbstractSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     public static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DEFAULT_SECURITY_LEVEL_VALUE = "1";
     private static final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
-    private final PropertySpecService propertySpecService;
 
     public IEC1107SecuritySupport(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

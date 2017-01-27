@@ -8,7 +8,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.math.BigDecimal;
@@ -26,7 +25,7 @@ import java.util.List;
  * @author khe
  * @since 5/03/2015 - 11:49
  */
-public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class CryptoDlmsSecuritySupport extends AbstractSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     /* Legacy property names*/
     private static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
@@ -35,10 +34,8 @@ public class CryptoDlmsSecuritySupport implements LegacyDeviceProtocolSecurityCa
     private static final String HEX_PASSWORD_LEGACY_PROPERTY_NAME = "HexPassword";
     private static final String CRYPTOSERVER_LEGACY_PROPERTY_NAME = "CryptoServer";
 
-    private final PropertySpecService propertySpecService;
-
     public CryptoDlmsSecuritySupport(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

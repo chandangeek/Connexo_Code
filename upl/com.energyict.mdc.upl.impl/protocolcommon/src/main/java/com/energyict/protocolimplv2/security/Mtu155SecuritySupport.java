@@ -21,7 +21,7 @@ import java.util.Optional;
  * Date: 28/05/13
  * Time: 10:51
  */
-public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class Mtu155SecuritySupport extends AbstractSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String KEY_T_LEGACY_PROPERTY = "KeyT";
@@ -30,10 +30,8 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     private static final String AUTHENTICATION_TRANSLATION_KEY_CONSTANT = "Mtu155SecuritySupport.authenticationlevel.";
     private static final String ENCRYPTION_TRANSLATION_KEY_CONSTANT = "Mtu155SecuritySupport.encryptionlevel.";
 
-    private final PropertySpecService propertySpecService;
-
     public Mtu155SecuritySupport(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

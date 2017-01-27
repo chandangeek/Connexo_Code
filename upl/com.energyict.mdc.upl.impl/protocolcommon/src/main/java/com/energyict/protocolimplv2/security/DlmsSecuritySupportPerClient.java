@@ -1,16 +1,15 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.cbo.Password;
-import com.energyict.cpo.MdwToUplPropertySpecAdapter;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dynamicattributes.EncryptedStringFactory;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -27,162 +26,147 @@ import java.util.stream.Stream;
  * Date: 18/06/13
  * Time: 15:02
  */
-public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupportPerClient.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupportPerClient.encryptionlevel.";
-
     private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
     private static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
 
+    public DlmsSecuritySupportPerClient(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     private PropertySpec getEncryptionKeyPublicPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyDataPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyExtDataPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyManagementPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyFirmwarePropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyManufacturerPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyPublicPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyDataPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyExtDataPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyManagementPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyFirmwarePropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyManufacturerPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordPublicPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.PASSWORD_PUBLIC.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.PASSWORD_PUBLIC.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordDataPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.PASSWORD_DATA.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.PASSWORD_DATA.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordExtDataPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.PASSWORD_EXT_DATA.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.PASSWORD_EXT_DATA.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordManagementPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordFirmwarePropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.PASSWORD_FIRMWARE.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.PASSWORD_FIRMWARE.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordManufacturerPropertySpec() {
-        return PropertySpecBuilder
-                .forClass(String.class, new EncryptedStringFactory())
-                .name(SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString())
+        return UPLPropertySpecFactory
+                .specBuilder(SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString(), true, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyDataPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyExtDataPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyFirmwarePropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManagementPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManufacturerPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyPublicPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyDataPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyExtDataPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyFirmwarePropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManagementPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManufacturerPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyPublicPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getPasswordDataPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getPasswordExtDataPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getPasswordFirmwarePropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getPasswordManagementPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getPasswordManufacturerPropertySpec()),
-                MdwToUplPropertySpecAdapter.adapt(getPasswordPublicPropertySpec())
+                getAuthenticationKeyDataPropertySpec(),
+                getAuthenticationKeyExtDataPropertySpec(),
+                getAuthenticationKeyFirmwarePropertySpec(),
+                getAuthenticationKeyManagementPropertySpec(),
+                getAuthenticationKeyManufacturerPropertySpec(),
+                getAuthenticationKeyPublicPropertySpec(),
+                getEncryptionKeyDataPropertySpec(),
+                getEncryptionKeyExtDataPropertySpec(),
+                getEncryptionKeyFirmwarePropertySpec(),
+                getEncryptionKeyManagementPropertySpec(),
+                getEncryptionKeyManufacturerPropertySpec(),
+                getEncryptionKeyPublicPropertySpec(),
+                getPasswordDataPropertySpec(),
+                getPasswordExtDataPropertySpec(),
+                getPasswordFirmwarePropertySpec(),
+                getPasswordManagementPropertySpec(),
+                getPasswordManufacturerPropertySpec(),
+                getPasswordPublicPropertySpec()
         );
     }
 
@@ -264,7 +248,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
     @Override
     public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        TypedProperties typedProperties = TypedProperties.empty();
+        TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             convertToProperPassword(deviceProtocolSecurityPropertySet, typedProperties);
@@ -327,17 +311,13 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
             }
         }
         if (notFound) {
-            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
         }
     }
 
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
-        return this.convertFromTypedProperties((TypedProperties) typedProperties);
-    }
-
-    private DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
-        String securityLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
+        String securityLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME);
         if (securityLevelProperty == null) {
             securityLevelProperty = "0:0";
         }
@@ -348,7 +328,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         final int authenticationLevelPropertyValue = AuthenticationAccessLevelIds.getAuthenticationAccessLevelForClientMacAndOriginalAccessLevel(clientMacAddressValue, getAuthenticationLevel(securityLevelProperty));
         final int encryptionLevelPropertyValue = EncryptionAccessLevelIds.getEncryptionAccessLevelForClientMacAndOriginalAccessLevel(clientMacAddressValue, getEncryptionLevel(securityLevelProperty));
-        final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
+        final TypedProperties securityRelatedTypedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationLevelPropertyValue, getAuthenticationAccessLevels()));
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionLevelPropertyValue, getEncryptionAccessLevels()));
 
@@ -726,7 +706,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordPublicPropertySpec()));
+            return Collections.singletonList(getPasswordPublicPropertySpec());
         }
     }
 
@@ -739,7 +719,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordDataPropertySpec()));
+            return Collections.singletonList(getPasswordDataPropertySpec());
         }
     }
 
@@ -752,7 +732,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordExtDataPropertySpec()));
+            return Collections.singletonList(getPasswordExtDataPropertySpec());
         }
     }
 
@@ -765,7 +745,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordManagementPropertySpec()));
+            return Collections.singletonList(getPasswordManagementPropertySpec());
         }
     }
 
@@ -778,7 +758,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordFirmwarePropertySpec()));
+            return Collections.singletonList(getPasswordFirmwarePropertySpec());
         }
     }
 
@@ -791,7 +771,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordManufacturerPropertySpec()));
+            return Collections.singletonList(getPasswordManufacturerPropertySpec());
         }
     }
 
@@ -804,7 +784,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordPublicPropertySpec()));
+            return Collections.singletonList(getPasswordPublicPropertySpec());
         }
     }
 
@@ -817,7 +797,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordDataPropertySpec()));
+            return Collections.singletonList(getPasswordDataPropertySpec());
         }
     }
 
@@ -830,7 +810,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordExtDataPropertySpec()));
+            return Collections.singletonList(getPasswordExtDataPropertySpec());
         }
     }
 
@@ -843,7 +823,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordManagementPropertySpec()));
+            return Collections.singletonList(getPasswordManagementPropertySpec());
         }
     }
 
@@ -856,7 +836,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordFirmwarePropertySpec()));
+            return Collections.singletonList(getPasswordFirmwarePropertySpec());
         }
     }
 
@@ -869,7 +849,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordManufacturerPropertySpec()));
+            return Collections.singletonList(getPasswordManufacturerPropertySpec());
         }
     }
 
@@ -882,7 +862,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordPublicPropertySpec()));
+            return Collections.singletonList(getPasswordPublicPropertySpec());
         }
     }
 
@@ -895,7 +875,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordDataPropertySpec()));
+            return Collections.singletonList(getPasswordDataPropertySpec());
         }
     }
 
@@ -908,7 +888,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordExtDataPropertySpec()));
+            return Collections.singletonList(getPasswordExtDataPropertySpec());
         }
     }
 
@@ -921,7 +901,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordManagementPropertySpec()));
+            return Collections.singletonList(getPasswordManagementPropertySpec());
         }
     }
 
@@ -934,7 +914,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordFirmwarePropertySpec()));
+            return Collections.singletonList(getPasswordFirmwarePropertySpec());
         }
     }
 
@@ -947,7 +927,7 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(MdwToUplPropertySpecAdapter.adapt(getPasswordManufacturerPropertySpec()));
+            return Collections.singletonList(getPasswordManufacturerPropertySpec());
         }
     }
 
@@ -961,9 +941,9 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getPasswordPublicPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyPublicPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyPublicPropertySpec()));
+                    getPasswordPublicPropertySpec(),
+                    getEncryptionKeyPublicPropertySpec(),
+                    getAuthenticationKeyPublicPropertySpec());
         }
     }
 
@@ -977,9 +957,9 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getPasswordDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyDataPropertySpec()));
+                    getPasswordDataPropertySpec(),
+                    getEncryptionKeyDataPropertySpec(),
+                    getAuthenticationKeyDataPropertySpec());
         }
     }
 
@@ -993,9 +973,9 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getPasswordExtDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyExtDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyExtDataPropertySpec()));
+                    getPasswordExtDataPropertySpec(),
+                    getEncryptionKeyExtDataPropertySpec(),
+                    getAuthenticationKeyExtDataPropertySpec());
         }
     }
 
@@ -1009,9 +989,9 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getPasswordManagementPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManagementPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManagementPropertySpec()));
+                    getPasswordManagementPropertySpec(),
+                    getEncryptionKeyManagementPropertySpec(),
+                    getAuthenticationKeyManagementPropertySpec());
         }
     }
 
@@ -1025,9 +1005,9 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getPasswordFirmwarePropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyFirmwarePropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyFirmwarePropertySpec()));
+                    getPasswordFirmwarePropertySpec(),
+                    getEncryptionKeyFirmwarePropertySpec(),
+                    getAuthenticationKeyFirmwarePropertySpec());
         }
     }
 
@@ -1041,9 +1021,9 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getPasswordManufacturerPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManufacturerPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManufacturerPropertySpec()));
+                    getPasswordManufacturerPropertySpec(),
+                    getEncryptionKeyManufacturerPropertySpec(),
+                    getAuthenticationKeyManufacturerPropertySpec());
         }
     }
 
@@ -1126,8 +1106,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyPublicPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyPublicPropertySpec())
+                    getEncryptionKeyPublicPropertySpec(),
+                    getAuthenticationKeyPublicPropertySpec()
             );
         }
     }
@@ -1142,8 +1122,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyDataPropertySpec())
+                    getEncryptionKeyDataPropertySpec(),
+                    getAuthenticationKeyDataPropertySpec()
             );
         }
     }
@@ -1158,8 +1138,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyExtDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyExtDataPropertySpec())
+                    getEncryptionKeyExtDataPropertySpec(),
+                    getAuthenticationKeyExtDataPropertySpec()
             );
         }
     }
@@ -1174,8 +1154,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManagementPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManagementPropertySpec())
+                    getEncryptionKeyManagementPropertySpec(),
+                    getAuthenticationKeyManagementPropertySpec()
             );
         }
     }
@@ -1190,8 +1170,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyFirmwarePropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyFirmwarePropertySpec())
+                    getEncryptionKeyFirmwarePropertySpec(),
+                    getAuthenticationKeyFirmwarePropertySpec()
             );
         }
     }
@@ -1206,8 +1186,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManufacturerPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManufacturerPropertySpec())
+                    getEncryptionKeyManufacturerPropertySpec(),
+                    getAuthenticationKeyManufacturerPropertySpec()
             );
         }
     }
@@ -1222,8 +1202,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyPublicPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyPublicPropertySpec())
+                    getEncryptionKeyPublicPropertySpec(),
+                    getAuthenticationKeyPublicPropertySpec()
             );
         }
     }
@@ -1238,8 +1218,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyDataPropertySpec())
+                    getEncryptionKeyDataPropertySpec(),
+                    getAuthenticationKeyDataPropertySpec()
             );
         }
     }
@@ -1254,8 +1234,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyExtDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyExtDataPropertySpec())
+                    getEncryptionKeyExtDataPropertySpec(),
+                    getAuthenticationKeyExtDataPropertySpec()
             );
         }
     }
@@ -1270,8 +1250,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManagementPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManagementPropertySpec())
+                    getEncryptionKeyManagementPropertySpec(),
+                    getAuthenticationKeyManagementPropertySpec()
             );
         }
     }
@@ -1286,8 +1266,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyFirmwarePropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyFirmwarePropertySpec())
+                    getEncryptionKeyFirmwarePropertySpec(),
+                    getAuthenticationKeyFirmwarePropertySpec()
             );
         }
     }
@@ -1302,8 +1282,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManufacturerPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManufacturerPropertySpec())
+                    getEncryptionKeyManufacturerPropertySpec(),
+                    getAuthenticationKeyManufacturerPropertySpec()
             );
         }
     }
@@ -1318,8 +1298,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyPublicPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyPublicPropertySpec())
+                    getEncryptionKeyPublicPropertySpec(),
+                    getAuthenticationKeyPublicPropertySpec()
             );
         }
     }
@@ -1334,8 +1314,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyDataPropertySpec())
+                    getEncryptionKeyDataPropertySpec(),
+                    getAuthenticationKeyDataPropertySpec()
             );
         }
     }
@@ -1350,8 +1330,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyExtDataPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyExtDataPropertySpec())
+                    getEncryptionKeyExtDataPropertySpec(),
+                    getAuthenticationKeyExtDataPropertySpec()
             );
         }
     }
@@ -1366,8 +1346,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManagementPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManagementPropertySpec())
+                    getEncryptionKeyManagementPropertySpec(),
+                    getAuthenticationKeyManagementPropertySpec()
             );
         }
     }
@@ -1382,8 +1362,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyFirmwarePropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyFirmwarePropertySpec())
+                    getEncryptionKeyFirmwarePropertySpec(),
+                    getAuthenticationKeyFirmwarePropertySpec()
             );
         }
     }
@@ -1398,8 +1378,8 @@ public class DlmsSecuritySupportPerClient implements LegacyDeviceProtocolSecurit
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    MdwToUplPropertySpecAdapter.adapt(getEncryptionKeyManufacturerPropertySpec()),
-                    MdwToUplPropertySpecAdapter.adapt(getAuthenticationKeyManufacturerPropertySpec())
+                    getEncryptionKeyManufacturerPropertySpec(),
+                    getAuthenticationKeyManufacturerPropertySpec()
             );
         }
     }
