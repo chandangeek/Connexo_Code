@@ -326,7 +326,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
 
     /* The protocol version */
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2017-01-27 11:25:59 +0200 (Fr, 27 Jan 2017)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
