@@ -6,6 +6,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.obis.ObisCode;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -54,6 +57,11 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
         @Override
         public String getTypeName() {
             return "Actual";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("actual", "databaseValue"));
         }
 
         @Override

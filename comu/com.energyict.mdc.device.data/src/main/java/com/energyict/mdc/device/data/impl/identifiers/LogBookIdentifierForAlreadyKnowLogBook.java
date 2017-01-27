@@ -7,6 +7,9 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents a LogBookIdentifier for a LogBook that is already know (should not be fetched anymore)
@@ -42,6 +45,11 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
         @Override
         public String getTypeName() {
             return "Actual";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("actual", "databaseValue"));
         }
 
         @Override

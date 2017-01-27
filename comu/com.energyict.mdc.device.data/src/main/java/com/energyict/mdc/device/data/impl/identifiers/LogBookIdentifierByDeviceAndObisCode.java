@@ -7,6 +7,9 @@ import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link LogBookIdentifier} interface
@@ -66,6 +69,11 @@ public class LogBookIdentifierByDeviceAndObisCode implements LogBookIdentifier {
         @Override
         public String getTypeName() {
             return "DeviceIdentifierAndObisCode";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("device", "obisCode"));
         }
 
         @Override

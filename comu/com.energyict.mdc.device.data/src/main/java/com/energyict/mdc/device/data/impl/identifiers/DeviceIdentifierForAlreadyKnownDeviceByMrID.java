@@ -4,6 +4,9 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This is a DeviceIdentifier that uniquely identifies a Device which you have given in the Constructor.
@@ -66,6 +69,11 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
         @Override
         public String getTypeName() {
             return "Actual";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("actual", "mRID"));
         }
 
         @Override

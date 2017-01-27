@@ -5,6 +5,10 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.obis.ObisCode;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Copyrights EnergyICT
  *
@@ -33,6 +37,11 @@ public class RegisterIdentifierByAlreadyKnownRegister implements RegisterIdentif
         @Override
         public String getTypeName() {
             return "Actual";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Collections.singletonList("actual"));
         }
 
         @Override

@@ -5,6 +5,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Provides an implementation for the DeviceIdentifier interface,
@@ -48,6 +51,11 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
         @Override
         public String getTypeName() {
             return "PropertyBased";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("propertyName", "propertyValue"));
         }
 
         @Override

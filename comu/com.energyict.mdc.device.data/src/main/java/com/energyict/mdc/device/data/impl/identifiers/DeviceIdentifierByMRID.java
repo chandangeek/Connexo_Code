@@ -3,6 +3,9 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier} interface
@@ -61,6 +64,11 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier {
         @Override
         public String getTypeName() {
             return "mRID";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Collections.singletonList("databaseValue"));
         }
 
         @Override

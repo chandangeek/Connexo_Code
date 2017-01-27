@@ -3,6 +3,10 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
  * based on the ID of the DeviceMessage
@@ -50,6 +54,11 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
         @Override
         public String getTypeName() {
             return "Actual";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("actual", "databaseValue"));
         }
 
         @Override
