@@ -2,7 +2,6 @@ package com.energyict.protocols.impl.channels.serial.modem.serialio;
 
 import com.energyict.mdc.DefaultSerialComponentFactory;
 import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.FlowControl;
@@ -18,6 +17,7 @@ import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
 import com.energyict.mdc.common.TimeDuration;
 import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.engine.model.ComPort;
+import com.energyict.mdc.io.SerialComponentFactory;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
