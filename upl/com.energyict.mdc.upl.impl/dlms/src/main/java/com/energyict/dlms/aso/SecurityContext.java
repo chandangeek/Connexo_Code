@@ -380,7 +380,7 @@ public class SecurityContext {
         } else {
             ecdsaSignature = new ECDSASignatureImpl(eccCurve);
         }
-        byte[] generalCipheringHeader = createGeneralCipheringHeader();
+        byte[] generalCipheringHeader = createGeneralCipheringHeader(dateTime, otherInfo);
         PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
 
         byte[] signature = ecdsaSignature.sign(ProtocolTools.concatByteArrays(generalCipheringHeader, securedRequest), clientPrivateSigningKey);

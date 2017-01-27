@@ -26,6 +26,6 @@ public class T210DConfigurationSupport extends AM130ConfigurationSupport {
      * The private key of the client (the ComServer) used for digital signature (ECDSA)
      */
     private PropertySpec clientPrivateSigningKeyPropertySpec() {
-        return PropertySpecFactory.stringPropertySpec(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        return PropertySpecFactory.privateKeyAliasPropertySpec(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
     }
 }
