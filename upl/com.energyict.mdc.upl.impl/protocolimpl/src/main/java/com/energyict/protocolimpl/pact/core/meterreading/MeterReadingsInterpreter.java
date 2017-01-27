@@ -6,12 +6,10 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
@@ -21,6 +19,7 @@ import com.energyict.protocolimpl.pact.core.survey.ascii.AsciiSurvey;
 import com.energyict.protocolimpl.pact.core.survey.binary.BinarySurvey;
 import com.energyict.protocolimpl.pact.core.survey.discrete.DiscreteSurvey;
 import com.energyict.protocolimpl.pact.core.survey.link.LinkSurvey;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

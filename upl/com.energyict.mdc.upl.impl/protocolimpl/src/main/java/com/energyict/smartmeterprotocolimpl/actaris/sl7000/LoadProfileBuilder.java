@@ -1,7 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
@@ -16,6 +14,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -23,8 +22,8 @@ import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

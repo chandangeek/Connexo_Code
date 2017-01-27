@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 public class EK2xxEvents {
 

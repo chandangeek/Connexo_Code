@@ -10,11 +10,10 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 
@@ -363,7 +362,7 @@ public class Datalink6205641 {
 //                event = T1_TIMEOUT;
 //            } // if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0)
 
-            if (((long) (System.currentTimeMillis() - safetyTimeout)) > 0) {
+            if (System.currentTimeMillis() - safetyTimeout > 0) {
                 throw new ConnectionException("Datalink6205641, stateMachine, Safety timeout",connection.getTIMEOUT_ERROR());
             } // if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0)
 

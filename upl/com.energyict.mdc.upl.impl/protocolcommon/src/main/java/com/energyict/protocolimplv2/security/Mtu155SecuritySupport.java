@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -10,7 +9,6 @@ import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.upl.security.SecurityProperty;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
@@ -194,8 +192,7 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     }
 
     private PropertySpec encryptionkeyPropertySpec(SecurityPropertySpecName name) {
-        return Services
-                .propertySpecService()
+        return propertySpecService
                 .encryptedStringSpec()
                 .named(name.toString(), name.toString())
                 .describedAs("Description for " + name.toString())

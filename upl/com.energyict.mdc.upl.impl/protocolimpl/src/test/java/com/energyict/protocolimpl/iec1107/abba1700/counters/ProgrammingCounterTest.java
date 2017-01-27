@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba1700.counters;
 
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.abba1700.ABBA1700;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import org.junit.Test;
 
 import java.io.IOException;

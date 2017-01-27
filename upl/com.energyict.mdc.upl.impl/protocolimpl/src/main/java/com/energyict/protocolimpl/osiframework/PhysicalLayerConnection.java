@@ -6,12 +6,11 @@
 
 package com.energyict.protocolimpl.osiframework;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import serialio.xmodemapi.XGet;
 
 import java.io.ByteArrayInputStream;
@@ -127,7 +126,7 @@ public class PhysicalLayerConnection {
                 else break;
             }
 
-            if (((long) (System.currentTimeMillis() - echoTimeout)) > 0) {
+            if (System.currentTimeMillis() - echoTimeout > 0) {
                 throw new ConnectionException("Connection, waitForEcho(), timeout waiting for character echo!",TIMEOUT_ERROR);
             }
         } // while(true)
@@ -140,7 +139,7 @@ public class PhysicalLayerConnection {
             if ((kar = readIn()) != -1) {
                 emptyBufferTimeout = System.currentTimeMillis() + delay;
             }
-            if (((long) (System.currentTimeMillis() - emptyBufferTimeout)) > 0) {
+            if (System.currentTimeMillis() - emptyBufferTimeout > 0) {
                 break;
             }
         } // while(true)

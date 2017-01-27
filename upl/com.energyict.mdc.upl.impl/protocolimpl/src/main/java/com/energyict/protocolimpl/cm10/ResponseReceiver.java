@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class ResponseReceiver {
     }
     
     private int getTable(int cm10Id) {
-    	return (int) (cm10Id & 0x0F);
+    	return cm10Id & 0x0F;
     }
 
 
@@ -89,7 +89,7 @@ public class ResponseReceiver {
         			}
         			else {
         				//log("CM10Id = " + ProtocolUtils.outputHexString(kar));
-        				int blockIdentifier = (int) (kar & 0x60);
+        				int blockIdentifier = kar & 0x60;
         				isLastFrame = ((blockIdentifier == 32) || (blockIdentifier == 96));
         				//log("blockIdentifier = " + blockIdentifier + ", isLastFrame = " + isLastFrame);
         				state = WAIT_FOR_BLOCK_SIZE;
@@ -132,7 +132,7 @@ public class ResponseReceiver {
         			if (currentBlockByteCount < blockSize)
         				resultDataArrayOutputStream.write((byte)kar);
         			else {
-        				checkCrc((int) kar, allDataArrayOutputStream, blockSize);
+        				checkCrc(kar, allDataArrayOutputStream, blockSize);
             			if (isLastFrame) {
             				byte[] data = resultDataArrayOutputStream.toByteArray();
             				Response response = new Response(ProtocolUtils.getSubArray2(data, 0, data.length));
@@ -151,7 +151,7 @@ public class ResponseReceiver {
         		}
         	}
         	if (command != null) {
-	        	if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+	        	if (System.currentTimeMillis() - protocolTimeout > 0) {
 	                throw new ProtocolConnectionException(
 	                		"receiveResponse() response timeout error",
 	                		cm10Connection.getTimeoutError());
@@ -169,7 +169,7 @@ public class ResponseReceiver {
 		int size = dataForCrcCalculation.length;
 		int crcCalculated = 0;
 		for (int i = 0; i < size; i++) {
-			crcCalculated = crcCalculated + (int) (dataForCrcCalculation[i] & 0xFF); //make it unsigned!
+			crcCalculated = crcCalculated + (dataForCrcCalculation[i] & 0xFF); //make it unsigned!
 			//log("1) crcCalculated intermediate: " + crcCalculated + ", " + (int) dataForCrcCalculation[i] + ", " + ProtocolUtils.outputHexString((dataForCrcCalculation[i] & 0xFF)));
 		}
 		crcCalculated = 256 - (crcCalculated % 256);

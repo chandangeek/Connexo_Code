@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.dlms.g3.profile;
 
 import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 public class G3LoadProfileEntry {
 
@@ -140,7 +140,7 @@ public class G3LoadProfileEntry {
 
         private final int reason;
 
-        private DateTimeReason(int reason) {
+        DateTimeReason(int reason) {
             this.reason = reason;
         }
 

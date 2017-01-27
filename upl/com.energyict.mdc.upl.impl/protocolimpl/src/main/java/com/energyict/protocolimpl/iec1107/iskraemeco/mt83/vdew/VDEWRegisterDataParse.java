@@ -5,14 +5,13 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.MT83;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -403,14 +402,12 @@ abstract public class VDEWRegisterDataParse {
     } // private String findUnitAcronym(byte[] rawdata)
 
     private boolean hasUnitDefined() {
-       if (getUnit() == null) return false;
-       else return true;
+        return getUnit() != null;
     }
 
     private boolean hasAcronym(byte[] rawdata) {
         String str = new String(rawdata);
-        if (str.indexOf("*") == -1) return false;
-        else return true;
+        return str.indexOf("*") != -1;
     }
 
     private String findValue(byte[] rawdata) {

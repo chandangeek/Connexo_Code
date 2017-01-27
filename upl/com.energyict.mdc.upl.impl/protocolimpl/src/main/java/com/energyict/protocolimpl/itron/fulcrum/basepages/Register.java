@@ -12,7 +12,7 @@ package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

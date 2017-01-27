@@ -2,7 +2,6 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -19,10 +18,9 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
     public static final String SERVER_LOG_LEVER_PROPERTY = "ServerLogLevel";
     public static final String PORT_LOG_LEVEL_PROPERTY = "PortLogLevel";
     public static final String DEFAULT_LOG_LEVEL = "INFO";
-    private final PropertySpecService propertySpecService;
 
     public EiWebPlusDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

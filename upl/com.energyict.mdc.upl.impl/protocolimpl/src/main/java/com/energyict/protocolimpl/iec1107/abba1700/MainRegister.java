@@ -6,14 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.math.BigDecimal;
-import java.io.IOException;
-
 import com.energyict.cbo.Quantity;
-import com.energyict.protocol.ProtocolUtils;
 /**
  *
  * @author  Koen

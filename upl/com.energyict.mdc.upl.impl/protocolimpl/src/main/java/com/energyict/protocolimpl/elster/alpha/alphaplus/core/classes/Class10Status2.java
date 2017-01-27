@@ -11,9 +11,8 @@
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 
 /**

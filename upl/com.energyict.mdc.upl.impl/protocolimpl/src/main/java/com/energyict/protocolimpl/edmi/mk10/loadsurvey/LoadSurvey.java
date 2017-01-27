@@ -11,10 +11,10 @@
 package com.energyict.protocolimpl.edmi.mk10.loadsurvey;
 
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk10.core.SurveyChannelTypeParser;
 import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

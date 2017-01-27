@@ -1,13 +1,12 @@
 package com.energyict.dlms;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestPreparationConsumer;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestPreparationHandler;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.io.NestedIOException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -134,7 +133,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
         ByteArrayOutputStream resultArrayOutputStream = new ByteArrayOutputStream();
 
         interFrameTimeout = System.currentTimeMillis() + this.timeout;
-        protocolTimeout = System.currentTimeMillis() + this.TIMEOUT;
+        protocolTimeout = System.currentTimeMillis() + TIMEOUT;
 
         resultArrayOutputStream.reset();
         copyEchoBuffer();
@@ -158,7 +157,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
                         } else {
                             wpdu.setVersion(wpdu.getVersion() * 256 + kar);
                             count = 0;
-                            if (wpdu.getVersion() == this.WRAPPER_VERSION) {
+                            if (wpdu.getVersion() == WRAPPER_VERSION) {
                                 state = State.STATE_HEADER_SOURCE;
                             } else {
                                 logger.warning("Received WPDU with wrong WPDU version! " +
@@ -434,7 +433,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection, Retry
         private byte[] data;
 
         public WPDU(int source, int destination, byte[] data) {
-            this.version = TCPIPConnection.this.WRAPPER_VERSION;
+            this.version = WRAPPER_VERSION;
             this.source = source;
             this.destination = destination;
             this.data = data;

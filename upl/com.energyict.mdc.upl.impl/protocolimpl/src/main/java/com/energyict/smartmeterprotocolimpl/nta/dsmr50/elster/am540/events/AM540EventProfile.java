@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.DSMR40EventProfile;

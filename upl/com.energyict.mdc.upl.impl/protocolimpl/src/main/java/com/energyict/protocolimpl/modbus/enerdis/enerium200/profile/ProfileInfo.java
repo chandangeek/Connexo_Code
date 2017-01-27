@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -81,7 +80,7 @@ public class ProfileInfo {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ProfileInfo:\n");
         for (int i = 0; i < profileEntries.size(); i++) {
-			strBuff.append(" " + ((ProfileInfoEntry)profileEntries.get(i)).toString());
+			strBuff.append(" " + profileEntries.get(i).toString());
 		}
 
         return strBuff.toString();

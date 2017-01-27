@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.instromet.v555.tables;
 
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v555.CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

@@ -3,6 +3,11 @@
  */
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -15,17 +20,10 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.ContactorController;
@@ -33,6 +31,7 @@ import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GasRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Date;
@@ -80,7 +79,7 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Mon Jan 2 11:14:35 2017 +0100 $";
     }
 
 	@Override

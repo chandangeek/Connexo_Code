@@ -3,10 +3,10 @@
  */
 package com.energyict.protocolimpl.modbus.socomec.countis.ci;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.util.Calendar;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 
 
 /**

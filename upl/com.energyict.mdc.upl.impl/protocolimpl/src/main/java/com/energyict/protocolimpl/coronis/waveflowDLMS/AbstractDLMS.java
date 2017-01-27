@@ -1,5 +1,9 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -10,16 +14,10 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -31,6 +29,7 @@ import com.energyict.protocolimpl.coronis.core.ProtocolLink;
 import com.energyict.protocolimpl.coronis.core.RegisterCache;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -355,7 +354,7 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
     }
 
     @Override

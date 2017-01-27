@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -82,7 +82,7 @@ public class Transport6205651 {
         long safetytimeout = System.currentTimeMillis() + TIMEOUT; // 5 min
         while(tsduReceived == null) {
             connection.getDatalink6205641().respond();
-            if (((long) (System.currentTimeMillis() - safetytimeout)) > 0) {
+            if (System.currentTimeMillis() - safetytimeout > 0) {
                 throw new ConnectionException("Transport6205651, respond() safetytimeout timeout error "+(TIMEOUT/1000)+" sec.",connection.getTIMEOUT_ERROR());
             }
         }
@@ -214,7 +214,7 @@ public class Transport6205651 {
                 errorNr = e.getErrorNr();
             }
             
-            if (((long) (System.currentTimeMillis() - safetyTimeout)) > 0) {
+            if (System.currentTimeMillis() - safetyTimeout > 0) {
                 throw new ConnectionException("Transport6205641, stateMachine, Safety timeout",connection.getTIMEOUT_ERROR());
             } // if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0)
             

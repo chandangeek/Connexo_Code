@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.instromet.v555.tables;
 
+import com.energyict.protocolimpl.instromet.connection.Response;
+import com.energyict.protocolimpl.instromet.v555.CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.instromet.connection.Response;
-import com.energyict.protocolimpl.instromet.v555.CommandFactory;
 
 public class CorrectorInformationTable extends AbstractTable {
 	

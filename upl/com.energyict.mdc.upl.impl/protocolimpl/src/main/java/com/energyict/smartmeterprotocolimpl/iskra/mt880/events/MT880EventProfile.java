@@ -4,7 +4,7 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880;
 
 import java.io.IOException;

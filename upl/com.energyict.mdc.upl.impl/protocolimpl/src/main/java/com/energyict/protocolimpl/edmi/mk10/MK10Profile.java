@@ -10,18 +10,16 @@
 
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk10.eventsurvey.Event;
 import com.energyict.protocolimpl.edmi.mk10.eventsurvey.EventSurvey;
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.LoadSurvey;
 import com.energyict.protocolimpl.edmi.mk10.loadsurvey.LoadSurveyData;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,7 +68,7 @@ public class MK10Profile {
 		return getLoadSurvey().getNrOfChannels() - 1;
 	}
 
-	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		ProfileData profileData=new ProfileData();
 
 		if (DEBUG>=1) {

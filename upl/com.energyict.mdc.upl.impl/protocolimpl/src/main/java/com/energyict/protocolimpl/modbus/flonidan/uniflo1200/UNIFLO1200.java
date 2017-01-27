@@ -7,17 +7,15 @@
 
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -30,6 +28,7 @@ import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200P
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

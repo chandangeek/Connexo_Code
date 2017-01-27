@@ -2,11 +2,11 @@ package com.energyict.protocolimpl.iec1107.emh.nxt4;
 
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

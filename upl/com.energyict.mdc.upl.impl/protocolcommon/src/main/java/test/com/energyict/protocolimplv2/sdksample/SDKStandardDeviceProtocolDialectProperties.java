@@ -1,8 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -11,7 +10,7 @@ import java.util.List;
 
 /**
  * A standard set of properties
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 5/02/13
  * Time: 15:02
@@ -22,6 +21,10 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
      * This value holds the name of the Property that will do something
      */
     public final String doSomeThingPropertyName = "DoSomeThing";
+
+    public SDKStandardDeviceProtocolDialectProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
 
     @Override
     public String getDeviceProtocolDialectName() {
@@ -39,8 +42,7 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
     }
 
     private PropertySpec getDoSomeThingPropertySpec() {
-        return Services
-                .propertySpecService()
+        return propertySpecService
                 .booleanSpec()
                 .named(doSomeThingPropertyName, doSomeThingPropertyName)
                 .describedAs("Description for " + doSomeThingPropertyName)

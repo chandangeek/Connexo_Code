@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.HashMap;

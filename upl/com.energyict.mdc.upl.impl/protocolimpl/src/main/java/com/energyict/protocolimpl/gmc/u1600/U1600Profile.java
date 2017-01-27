@@ -7,16 +7,15 @@
 package com.energyict.protocolimpl.gmc.u1600;
 
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.gmc.base.EclConnection;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class U1600Profile {
 
 
 
-    public ProfileData getProfileData(Date from, Date to) throws IOException,ProtocolConnectionException {
+    public ProfileData getProfileData(Date from, Date to) throws IOException {
 
         previousDate=null;
 
@@ -152,8 +151,7 @@ public class U1600Profile {
      * @param TI_Stop Endperiode
      */
     // 27.10.00 RW
-    private ProfileData getPeriods(Calendar ti_Start, Calendar ti_Stop, long iPeriods, long iMaxPeriods, int profileInterval, int iCountChannels, int startChannel)  throws IOException ,
-            NestedIOException, ProtocolConnectionException {
+    private ProfileData getPeriods(Calendar ti_Start, Calendar ti_Stop, long iPeriods, long iMaxPeriods, int profileInterval, int iCountChannels, int startChannel)  throws IOException {
         ProfileData profileData = new ProfileData();
         IntervalData savedIntervalData=null;
         IntervalData intervalData=null;
@@ -189,7 +187,7 @@ public class U1600Profile {
             u1600.getEclConnection().sendRawCommandFrame(strDate, iGetPeriods, iCountChannels, startChannel);
             byBuf = u1600.getEclConnection().receiveRawDataFrame();
             /* Datum- und Zeitwerte setzen */
-            telegram = u1600.getEclConnection().bufferToString(byBuf,0,byBuf.length);
+            telegram = EclConnection.bufferToString(byBuf,0,byBuf.length);
             /* check Startmark */
             if((byBuf[0] != 0x0D) || (byBuf[1] != 0x0A))
                 throw new ProtocolConnectionException("Wrong Profil Frame");
@@ -285,7 +283,7 @@ public class U1600Profile {
         int i;
         double current;
         for (i=0;i<currentCount;i++) {
-            current = ((Number)currentIntervalData.get(i)).doubleValue()+((Number)cumulatedIntervalData.get(i)).doubleValue();
+            current = currentIntervalData.get(i).doubleValue()+ cumulatedIntervalData.get(i).doubleValue();
             intervalData.addValue(new Double(current));
         }
         return intervalData;
@@ -300,7 +298,7 @@ public class U1600Profile {
      * @param Flags, Zusatzinformationen f r die Datenbank
      */
     // 28.09.00 RW
-    private IntervalData  evaluateOnePeriod(Calendar ti_Start, Calendar ti_Stop,String telegram, long flags, int iNumChannels)throws IOException, NestedIOException, ProtocolConnectionException{
+    private IntervalData  evaluateOnePeriod(Calendar ti_Start, Calendar ti_Stop,String telegram, long flags, int iNumChannels)throws IOException {
 
         //if (DEBUG>=1) System.out.println("KV_DEBUG> "+ti_Start.getTime()+", "+ti_Stop.getTime()+", 0x"+Long.toHexString(flags)+", "+telegram+", "+iNumChannels);
 

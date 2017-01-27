@@ -1,14 +1,13 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
+import com.energyict.protocol.MeterEvent;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
 
 class Table4 {
 
@@ -60,7 +59,7 @@ class Table4 {
 	    Iterator it = eventsMap.values().iterator();
 		List result = new ArrayList();
 	    while (it.hasNext()) 
-	        result.add((MeterEvent) it.next());
+	        result.add(it.next());
 		return result;
     }
      

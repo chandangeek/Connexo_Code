@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.cm10;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
   
 public class CommandFactory {
 	

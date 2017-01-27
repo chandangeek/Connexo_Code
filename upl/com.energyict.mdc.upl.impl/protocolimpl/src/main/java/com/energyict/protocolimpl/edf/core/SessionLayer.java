@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.edf.core;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *
@@ -148,11 +148,8 @@ public class SessionLayer {
 		if ((type == SPDU_TYPE_EOD) && (comm == SPDU_TYPE_DAT)) {
 			return true;
 		}
-		if ((type == SPDU_TYPE_WTM) && (comm == SPDU_TYPE_WTM)) {
-			return true;
-		}
+		return (type == SPDU_TYPE_WTM) && (comm == SPDU_TYPE_WTM);
 
-		return false;
 	}
 
 	private boolean checkId(byte[] spdu) throws IOException {
@@ -337,7 +334,7 @@ public class SessionLayer {
 		case STATE_TEST_TYPE: {
 			if ((this.type == SPDU_TYPE_XID) && checkId(this.spdu)) {
 				connectConfirmation();
-				init_Timer(this.TPA);
+				init_Timer(TPA);
 				this.state = STATE_WAIT_COMM;
 			}
 			else if ((this.type == SPDU_TYPE_XID) && !checkId(this.spdu)) {
@@ -360,7 +357,7 @@ public class SessionLayer {
 				this.state = STATE_TEST_SIZE;
 			}
 			else if ((this.type == SPDU_TYPE_WTM)  && !this.endTMA) {
-				init_Timer(this.TPA);
+				init_Timer(TPA);
 				this.state = STATE_WAIT_COMM;
 			}
 			else if ((this.type == SPDU_TYPE_WTM)  && this.endTMA) {
@@ -380,14 +377,14 @@ public class SessionLayer {
 			}
 			else if (((this.type == SPDU_TYPE_DAT) && (this.lgPacket > this.lgReceive)) || ((this.type == SPDU_TYPE_EOD) && (this.lgReceive!=0))) {
 				store_error(ES_R5F, -1);
-				stop_timer(this.TMA);
+				stop_timer(TMA);
 				this.layerManager.getDatalinkLayer().dlAbort();
 				abortIndication();
 				this.state = STATE_STOPPED;
 			}
 			else if ((this.type == SPDU_TYPE_EOD) && (this.lgReceive==0)) {
 				readConfirmation(this.spdu);
-				init_Timer(this.TPA);
+				init_Timer(TPA);
 				this.state = STATE_WAIT_COMM;
 			}
 		} break; // STATE_TEST_TYPE
@@ -398,26 +395,26 @@ public class SessionLayer {
 
 			case EVENT_TIMER_EXPIRED: {
 
-				if ((this.timeoutTimerId == this.TPA) && (this.type != SPDU_TYPE_WTM)) {
+				if ((this.timeoutTimerId == TPA) && (this.type != SPDU_TYPE_WTM)) {
 					this.comm = SPDU_TYPE_WTM;
 					store_error(-1,this.comm);
 					this.layerManager.getDatalinkLayer().dlRequestSendData(new byte[]{SPDU_TYPE_WTM});
-					init_Timer(this.TMA);
+					init_Timer(TMA);
 					this.state = STATE_MUST_REC_DL_SEND_OK;
 				}
-				else if ((this.timeoutTimerId == this.TPA) && (this.type == SPDU_TYPE_WTM)) {
+				else if ((this.timeoutTimerId == TPA) && (this.type == SPDU_TYPE_WTM)) {
 					this.layerManager.getDatalinkLayer().dlRequestSendData(new byte[]{SPDU_TYPE_WTM});
 					this.state = STATE_MUST_REC_DL_SEND_OK;
 				}
-				else if (this.timeoutTimerId == this.TMA) {
+				else if (this.timeoutTimerId == TMA) {
 					this.endTMA = true;
 				}
 			} break; // EVENT_TIMER_EXPIRED
 
 			case EVENT_READ_REQUEST: {
-				stop_timer(this.TPA);
+				stop_timer(TPA);
 				this.endTMA=false;
-				stop_timer(this.TMA);
+				stop_timer(TMA);
 				this.rMsg = this.ssdu;
 				this.lgReceive=this.lg;
 				this.comm=SPDU_TYPE_ENQ;
@@ -428,9 +425,9 @@ public class SessionLayer {
 
 			case EVENT_WRITE_REQUEST: {
 				if (this.mstId != 0) {
-					stop_timer(this.TPA);
+					stop_timer(TPA);
 					this.endTMA=false;
-					stop_timer(this.TMA);
+					stop_timer(TMA);
 					this.sMsg = this.ssdu;
 					this.lgSend=this.sMsg.length;
 					store_error(-1,SPDU_TYPE_REC);

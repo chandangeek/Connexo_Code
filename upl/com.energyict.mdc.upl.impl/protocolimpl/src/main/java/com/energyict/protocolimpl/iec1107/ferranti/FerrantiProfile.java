@@ -6,6 +6,17 @@
 
 package com.energyict.protocolimpl.iec1107.ferranti;
 
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,17 +27,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 /**
  *
  * @author  Koen

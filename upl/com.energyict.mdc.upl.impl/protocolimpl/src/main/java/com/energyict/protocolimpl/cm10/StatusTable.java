@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.cm10;
 
-import java.io.IOException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.ProtocolUtils;
+import java.io.IOException;
 
 public class StatusTable {
 	

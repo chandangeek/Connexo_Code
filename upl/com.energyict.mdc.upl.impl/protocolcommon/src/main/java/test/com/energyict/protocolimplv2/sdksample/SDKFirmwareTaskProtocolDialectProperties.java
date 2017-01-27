@@ -1,7 +1,7 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cpo.MdwToUplPropertySpecAdapter;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -20,6 +20,10 @@ public class SDKFirmwareTaskProtocolDialectProperties extends AbstractDeviceProt
     public static final String activeCommunicationFirmwareVersion = "activeCommunicationFirmwareVersion";
     public static final String passiveCommunicationFirmwareVersion = "passiveCommunicationFirmwareVersion";
 
+    public SDKFirmwareTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_FIRMWARE.getName();
@@ -33,9 +37,10 @@ public class SDKFirmwareTaskProtocolDialectProperties extends AbstractDeviceProt
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.stringPropertySpec(activeMeterFirmwareVersion)),
-                MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.stringPropertySpec(passiveMeterFirmwareVersion)),
-                MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.stringPropertySpec(activeCommunicationFirmwareVersion)),
-                MdwToUplPropertySpecAdapter.adapt(PropertySpecFactory.stringPropertySpec(passiveCommunicationFirmwareVersion)));
+                UPLPropertySpecFactory.specBuilder(activeMeterFirmwareVersion, false, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(passiveMeterFirmwareVersion, false, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(activeCommunicationFirmwareVersion, false, propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(passiveCommunicationFirmwareVersion, false, propertySpecService::stringSpec).finish()
+        );
     }
 }

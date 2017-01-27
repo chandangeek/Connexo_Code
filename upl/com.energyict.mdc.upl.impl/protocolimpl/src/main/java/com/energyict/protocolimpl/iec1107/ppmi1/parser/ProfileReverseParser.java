@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.parser;
 
+import com.energyict.protocolimpl.iec1107.ppmi1.Profile;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ppmi1.Profile;
 
 /** @author fbo */
 
@@ -145,7 +145,7 @@ public class ProfileReverseParser {
 	}
 
 	public interface Assembler {
-		abstract void workOn(ByteAssembly a) throws IOException;
+		void workOn(ByteAssembly a) throws IOException;
 	}
 
 	class FFAssembler implements Assembler {

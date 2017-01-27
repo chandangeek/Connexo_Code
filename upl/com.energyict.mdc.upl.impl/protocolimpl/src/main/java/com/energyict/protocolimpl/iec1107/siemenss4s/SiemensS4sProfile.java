@@ -1,5 +1,15 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sIntegrationPeriod;
+import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
+import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sRegisterConfig;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,16 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sIntegrationPeriod;
-import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
-import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sRegisterConfig;
 
 /**
  * An object that handles the collecting and parsing of profileData.
@@ -51,7 +51,7 @@ public class SiemensS4sProfile {
 	 * @throws ConnectionException
 	 * @throws IOException
 	 */
-	public int getProfileInterval() throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+	public int getProfileInterval() throws IOException {
 		return getIntegrationPeriodObject().getInterval();
 	}
 	
@@ -62,7 +62,7 @@ public class SiemensS4sProfile {
 	 * @throws ConnectionException
 	 * @throws IOException
 	 */
-	private S4sIntegrationPeriod getIntegrationPeriodObject() throws FlagIEC1107ConnectionException, ConnectionException, IOException{
+	private S4sIntegrationPeriod getIntegrationPeriodObject() throws IOException{
 		if(this.integrationPeriodObject == null){	// lazy init because we only want to read it once
 			this.integrationPeriodObject = getObjectFactory().getIntegrationPeriodObject();
 		}
@@ -87,7 +87,7 @@ public class SiemensS4sProfile {
 	 * @throws ConnectionException
 	 * @throws IOException
 	 */
-	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+	public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
 		List channelInfos = getChannelInfos();
 		SiemensS4sProfileRecorder pRecorder = new SiemensS4sProfileRecorder(getProfileInterval());
 		if(channelInfos.size() != 0){
@@ -116,7 +116,7 @@ public class SiemensS4sProfile {
 		return pRecorder.getProfileData();
 	}
 	
-	public List getChannelInfos() throws FlagIEC1107ConnectionException, ConnectionException, IOException{
+	public List getChannelInfos() throws IOException{
 		byte[] allChannelInfos = getObjectFactory().getAllChannelInfosRawData();
 		return getChannelInfos(allChannelInfos);
 	}
@@ -129,7 +129,7 @@ public class SiemensS4sProfile {
 	 * @throws ConnectionException
 	 * @throws IOException
 	 */
-	protected List getChannelInfos(byte[] allChannelInfos) throws FlagIEC1107ConnectionException, ConnectionException, IOException {
+	protected List getChannelInfos(byte[] allChannelInfos) throws IOException {
 		
 		List channelInfos = new ArrayList();
 		
@@ -174,7 +174,7 @@ public class SiemensS4sProfile {
 	 * @throws ConnectionException
 	 * @throws IOException
 	 */
-	private int decreaseMemoryPointer(int offsetPointer) throws FlagIEC1107ConnectionException, ConnectionException, IOException{
+	private int decreaseMemoryPointer(int offsetPointer) throws IOException{
 		
 		// Check if you have a buffer OverFlow
 		if((offsetPointer > getObjectFactory().getProfilePointerObject().getCurrentPointer()) &&

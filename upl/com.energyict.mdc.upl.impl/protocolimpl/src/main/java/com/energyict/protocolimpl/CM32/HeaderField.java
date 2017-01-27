@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.CM32;
 
-import java.util.Date;
-
 import com.energyict.cbo.ApplicationException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.util.Date;
 
 public class HeaderField {
 

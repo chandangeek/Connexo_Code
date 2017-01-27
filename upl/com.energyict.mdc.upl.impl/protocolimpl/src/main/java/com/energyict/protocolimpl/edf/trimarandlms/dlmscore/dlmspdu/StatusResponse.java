@@ -11,10 +11,9 @@
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.ConfirmedRespAPSE;
 import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.StatusIdentify;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *

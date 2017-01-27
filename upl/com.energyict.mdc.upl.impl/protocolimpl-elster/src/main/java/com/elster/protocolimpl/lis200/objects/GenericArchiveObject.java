@@ -3,11 +3,10 @@
  */
 package com.elster.protocolimpl.lis200.objects;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.elster.protocolimpl.lis200.commands.ReadArchiveCommand;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;

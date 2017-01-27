@@ -6,13 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.util.*;
-import java.io.*;
-import java.math.BigDecimal;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 /**
  *
  * @author  Koen

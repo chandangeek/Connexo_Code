@@ -1,15 +1,14 @@
 package com.elster.protocolimpl.lis200;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySelectionMode;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecPossibleValues;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.Collections;
 import java.util.List;

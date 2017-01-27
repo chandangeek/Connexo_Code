@@ -6,9 +6,8 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -48,7 +47,7 @@ public class ProfileStatus extends AbstractCommand {
                ", currentBlockStart="+currentBlockStart;
     }
     
-    public void build() throws ConnectionException, IOException {
+    public void build() throws IOException {
         // retrieve profileStatus
         byte[] data = ez7CommandFactory.getEz7().getEz7Connection().sendCommand(COMMAND);
         parse(data);

@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.PactUtils;
 /**
  *
  * @author  Koen
@@ -42,7 +42,7 @@ public class TimeDateMD extends MeterReadingsBlockImpl {
         setRegId(ProtocolUtils.byte2int(getData()[1]));
         setRegIdEnergyIndex(getRegId()>>5);
         setRegIdRegisterNumber(getRegId()&0x1F);
-        long val = (long)ProtocolUtils.getLongLE(getData(),2,3);
+        long val = ProtocolUtils.getLongLE(getData(),2,3);
         if (val == 0xFFFFFF) {
 			setCurrentTime(null);
 		} else {

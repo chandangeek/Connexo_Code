@@ -1,8 +1,10 @@
 package com.energyict.protocolimpl.coronis.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 abstract class AbstractEscapeCommand {
 

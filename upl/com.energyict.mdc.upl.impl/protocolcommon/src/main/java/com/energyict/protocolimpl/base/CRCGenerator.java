@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 
 /**
@@ -174,7 +174,7 @@ static private final int[] CRC16={
         crc = 0xFFFF;       // Inital CRC should be set to 0xFFFF 
         for ( i = 0; i < size; i++ ) {
             int val = (int)buf[i] & 0xFF;
-            crc = (int)((crc << 8) ^ CRC16[ ((crc >> 8) ^ val) & 0xff ])&0xffff; // Forward
+            crc = ((crc << 8) ^ CRC16[ ((crc >> 8) ^ val) & 0xff ]) &0xffff; // Forward
         }
 
         return ( crc );
@@ -296,7 +296,7 @@ static private final int[] CRC16={
         int olddata;
         for (int t=0;t<len;t++ ) {
             int val = ((int)data[t]&0xff);
-            crc^=((int)(val << 8)&0xFFFF);
+            crc^=(val << 8 &0xFFFF);
             for (int i=0;i<8;i++) {
                 olddata = crc & 0x8000;
                 crc = (crc << 1)&0xffff;

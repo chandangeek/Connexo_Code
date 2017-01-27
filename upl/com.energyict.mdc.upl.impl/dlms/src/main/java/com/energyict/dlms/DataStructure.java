@@ -11,8 +11,7 @@
 package com.energyict.dlms;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -68,22 +67,14 @@ public class DataStructure implements Serializable {
         if (this.element[index] == null) {
             return false;
         }
-        if (this.element[index] instanceof OctetString) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.element[index] instanceof OctetString;
     }
 
     public boolean isStructure(int index) {
         if (this.element[index] == null) {
             return false;
         }
-        if (this.element[index] instanceof DataStructure) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.element[index] instanceof DataStructure;
     }
 
     public boolean isFloat(int index) {
@@ -95,33 +86,21 @@ public class DataStructure implements Serializable {
         if (this.element[index] == null) {
             return false;
         }
-        if (this.element[index].getClass().getName().compareTo("java.lang.Integer") == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.element[index].getClass().getName().compareTo("java.lang.Integer") == 0;
     }
 
     public boolean isLong(int index) {
         if (this.element[index] == null) {
             return false;
         }
-        if (this.element[index].getClass().getName().compareTo("java.lang.Long") == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.element[index].getClass().getName().compareTo("java.lang.Long") == 0;
     }
 
     public boolean isString(int index) {
         if (this.element[index] == null) {
             return false;
         }
-        if (this.element[index].getClass().getName().compareTo("java.lang.String") == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.element[index].getClass().getName().compareTo("java.lang.String") == 0;
     }
 
     public long getValue(int index) {

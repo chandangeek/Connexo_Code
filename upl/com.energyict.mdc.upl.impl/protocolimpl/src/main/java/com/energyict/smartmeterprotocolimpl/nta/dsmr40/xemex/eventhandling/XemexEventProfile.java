@@ -5,7 +5,7 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.MbusControlLog;

@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

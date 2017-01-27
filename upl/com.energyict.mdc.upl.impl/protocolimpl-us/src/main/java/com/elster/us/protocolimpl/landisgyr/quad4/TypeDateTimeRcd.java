@@ -1,6 +1,6 @@
 package com.elster.us.protocolimpl.landisgyr.quad4;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.Calendar;
 import java.util.Date;

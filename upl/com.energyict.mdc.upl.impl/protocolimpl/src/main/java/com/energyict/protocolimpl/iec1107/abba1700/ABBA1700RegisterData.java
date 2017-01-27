@@ -6,11 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.PhaseFailureCounter;
@@ -20,6 +18,7 @@ import com.energyict.protocolimpl.iec1107.abba1700.counters.PowerDownCounter2;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.ProgrammingCounter;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.ReverseRunCounter;
 import com.energyict.protocolimpl.iec1107.abba1700.counters.ReverseRunCounter2;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

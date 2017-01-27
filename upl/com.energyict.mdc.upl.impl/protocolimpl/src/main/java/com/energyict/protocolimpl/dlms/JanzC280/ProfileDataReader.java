@@ -11,10 +11,10 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.JanzC280.events.GeneralEventLog;
 import com.energyict.protocolimpl.dlms.JanzC280.events.QualityEventLog;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

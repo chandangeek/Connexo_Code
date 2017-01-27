@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet.common;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.elster.garnet.exception.ParsingException;
 
 import java.io.IOException;

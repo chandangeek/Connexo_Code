@@ -10,17 +10,15 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -35,6 +33,7 @@ import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
 import com.energyict.protocolimpl.edf.trimaranplus.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimaranplus.core.VDEType;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -170,7 +169,7 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:24:26 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
     }
 
     @Override

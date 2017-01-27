@@ -1,8 +1,8 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cpo.MdwToUplPropertySpecAdapter;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -19,6 +19,10 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     public static final String slaveOneSerialNumberPropertyName = "SlaveOneSerialNumber";
     public static final String slaveTwoSerialNumberPropertyName = "SlaveTwoSerialNumber";
 
+    public SDKTopologyTaskProtocolDialectProperties(PropertySpecService propertySpecService) {
+        super(propertySpecService);
+    }
+
     @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_TOPOLOGY_DIALECT_NAME.getName();
@@ -32,15 +36,15 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                MdwToUplPropertySpecAdapter.adapt(getSlaveOneSerialNumber()),
-                MdwToUplPropertySpecAdapter.adapt(getSlaveTwoSerialNumber()));
+                getSlaveOneSerialNumber(),
+                getSlaveTwoSerialNumber());
     }
 
     private PropertySpec getSlaveOneSerialNumber() {
-        return PropertySpecFactory.stringPropertySpec(slaveOneSerialNumberPropertyName);
+        return UPLPropertySpecFactory.specBuilder(slaveOneSerialNumberPropertyName, false, propertySpecService::stringSpec).finish();
     }
 
     public PropertySpec getSlaveTwoSerialNumber() {
-        return PropertySpecFactory.stringPropertySpec(slaveTwoSerialNumberPropertyName);
+        return UPLPropertySpecFactory.specBuilder(slaveTwoSerialNumberPropertyName, false, propertySpecService::stringSpec).finish();
     }
 }

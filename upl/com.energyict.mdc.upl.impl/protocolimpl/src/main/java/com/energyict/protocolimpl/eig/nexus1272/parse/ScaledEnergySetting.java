@@ -1,14 +1,14 @@
 package com.energyict.protocolimpl.eig.nexus1272.parse;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.eig.nexus1272.NexusProtocolConnection;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
 import com.energyict.protocolimpl.eig.nexus1272.command.NexusCommandFactory;
 import com.energyict.protocolimpl.eig.nexus1272.command.ReadCommand;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class ScaledEnergySetting {
 
@@ -44,7 +44,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("varh");
@@ -59,7 +59,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			case 2:
 				getSES = NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
@@ -68,7 +68,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("varh");
@@ -83,7 +83,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			}
 			break;
@@ -96,7 +96,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("Wh");
@@ -111,7 +111,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			case 5:
 				getSES = NexusCommandFactory.getFactory().getReadSingleRegisterCommand();
@@ -120,7 +120,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("Wh");
@@ -135,7 +135,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			}
 			break;
@@ -148,7 +148,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("Wh");
@@ -163,7 +163,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			}
 			break;
@@ -176,7 +176,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("Wh");
@@ -191,7 +191,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			}
 			break;
@@ -203,7 +203,7 @@ public class ScaledEnergySetting {
 				outputStream.write(getSES.build());
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("varh");
@@ -218,7 +218,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			}
 			break;
@@ -231,7 +231,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("varh");
@@ -246,7 +246,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			}
 			break;
@@ -270,7 +270,7 @@ public class ScaledEnergySetting {
 //				System.out.println(ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07))));
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("varh");
@@ -285,7 +285,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			case 2:
 				//Negative varh (Q34)
@@ -295,7 +295,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("varh");
@@ -310,7 +310,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			
 			default:
@@ -327,7 +327,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("Wh");
@@ -342,7 +342,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			case 5:
 				//Negative Wh (Q23)
@@ -352,7 +352,7 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				case 0:
 					unit = Unit.get("Wh");
@@ -367,7 +367,7 @@ public class ScaledEnergySetting {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			default:
 				throw new IOException("Could not load scaled energy settings for line " + line + " and point " + point);
@@ -383,12 +383,12 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			case 1:
 				//Pulse Accumulation, Input 2
@@ -398,12 +398,12 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			case 2:
 				//Pulse Accumulation, Input 3
@@ -413,12 +413,12 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			case 3:
 				//Pulse Accumulation, Input 4
@@ -428,12 +428,12 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			case 4:
 				//Pulse Accumulation, Input 5
@@ -443,12 +443,12 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			case 5:
 				//Pulse Accumulation, Input 6
@@ -458,12 +458,12 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			case 6:
 				//Pulse Accumulation, Input 7
@@ -473,12 +473,12 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[0]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[0]>>3&0x03));
 				switch (unitCode) {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[0]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[0]>>5&0x07));
 				break;
 			case 7:
 				//Pulse Accumulation, Input 8
@@ -488,12 +488,12 @@ public class ScaledEnergySetting {
 				resp = connection.receiveWriteResponse(getSES).toByteArray();
 				
 				numDecimalPlaces = ProtocolUtils.byte2int((byte) (resp[1]&0x07));
-				unitCode = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>3&0x03)));
+				unitCode = ProtocolUtils.byte2int((byte) (resp[1]>>3&0x03));
 				switch (unitCode) {
 				default:
 					unit = Unit.getUndefined();
 				}
-				numDigits = ProtocolUtils.byte2int((byte) ((byte) (resp[1]>>5&0x07)));
+				numDigits = ProtocolUtils.byte2int((byte) (resp[1]>>5&0x07));
 				break;
 			default:
 				throw new IOException("Could not load scaled energy settings for line " + line + " and point " + point);

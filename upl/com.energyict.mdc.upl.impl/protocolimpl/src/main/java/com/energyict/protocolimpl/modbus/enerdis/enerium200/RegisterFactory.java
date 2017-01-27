@@ -10,11 +10,9 @@
 
 package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
@@ -30,6 +28,7 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Non_Signed_1
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.SignedParser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Signed_1_10000_Parser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.Signed_1_100_Parser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

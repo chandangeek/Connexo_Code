@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk10.core;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 
 /**

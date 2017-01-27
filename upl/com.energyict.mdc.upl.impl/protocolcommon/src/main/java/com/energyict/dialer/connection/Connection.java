@@ -6,12 +6,11 @@
 
 package com.energyict.dialer.connection;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import serialio.xmodemapi.XGet;

@@ -6,9 +6,9 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870CIField;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.TimeZone;
@@ -45,7 +45,7 @@ public class ApplicationData {
     }
 
     public AbstractCIField buildAbstractCIFieldObject(TimeZone timeZone) throws IOException {
-        AbstractCIField obj=null;;
+        AbstractCIField obj=null;
         switch(getCIField()) {
 
             case 0x72: {

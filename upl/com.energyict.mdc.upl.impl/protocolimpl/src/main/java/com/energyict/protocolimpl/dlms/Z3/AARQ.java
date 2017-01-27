@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.dlms.Z3;
 
-import java.io.IOException;
-
 import com.energyict.dlms.DLMSConnection;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 public class AARQ {
 	
@@ -167,7 +167,7 @@ public class AARQ {
             aarq[t++] = aarq2[i];
         }
         
-        aarq[4] = (byte)(((int)aarq.length&0xFF)-5); // Total length of frame - headerlength
+        aarq[4] = (byte)((aarq.length &0xFF)-5); // Total length of frame - headerlength
 		return aarq;
 	}
 	

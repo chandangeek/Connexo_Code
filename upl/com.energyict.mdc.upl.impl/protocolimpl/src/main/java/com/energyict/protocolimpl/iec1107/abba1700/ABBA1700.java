@@ -1,5 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba1700;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -13,12 +18,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
@@ -27,7 +26,6 @@ import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
@@ -43,6 +41,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

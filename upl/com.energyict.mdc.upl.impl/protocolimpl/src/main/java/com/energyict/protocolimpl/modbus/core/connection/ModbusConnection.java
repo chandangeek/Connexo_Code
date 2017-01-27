@@ -10,13 +10,11 @@
 
 package com.energyict.protocolimpl.modbus.core.connection;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.ConnectionRS485;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
@@ -24,6 +22,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCode;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -192,7 +191,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
 
                     if (DEBUG >= 2) {
                         System.out.print(",0x");
-                        ProtocolUtils.outputHex(((int) kar));
+                        ProtocolUtils.outputHex(kar);
                     }
 
                     allDataArrayOutputStream.write(kar); // accumulate frame
@@ -296,7 +295,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
             }
 
             // in case of a response timeout
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveDataLength() response timeout error", TIMEOUT_ERROR);
             }
 
@@ -344,7 +343,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
 
                     if (DEBUG >= 2) {
                         System.out.print(",0x");
-                        ProtocolUtils.outputHex(((int) kar));
+                        ProtocolUtils.outputHex(kar);
                     }
 
                     allDataArrayOutputStream.write(kar); // accumulate frame
@@ -402,7 +401,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
 
             // frame received, check validity
             if (state != STATE_WAIT_FOR_ADDRESS) {
-                if (((long) (System.currentTimeMillis() - interframe)) > 0) {
+                if (System.currentTimeMillis() - interframe > 0) {
                     byte[] data = allDataArrayOutputStream.toByteArray();
                     if (data.length <= 2) {
                         throw new ProtocolConnectionException("receiveDataModbus() PROTOCOL Error", PROTOCOL_ERROR);
@@ -427,7 +426,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
             } // if (state != STATE_WAIT_FOR_ADDRESS)
 
             // in case of a response timeout
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("receiveDataModbus() response timeout error", TIMEOUT_ERROR);
             }
 
@@ -466,7 +465,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      * @throws IOException
      * @throws ProtocolConnectionException
      */
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         if (strID != null) {
             setAddress(Integer.parseInt(strID));
         } else {

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -64,40 +64,20 @@ public class TrimaranDataStructure implements Serializable {
     }
     
     public boolean isOctetString(int index) {
-        if (element[index] instanceof TrimaranOctetString) {
-			return true;
-		} else {
-			return false;
-		}
+        return element[index] instanceof TrimaranOctetString;
     }
     
     public boolean isStructure(int index) {
-        if (element[index] instanceof TrimaranDataStructure) {
-			return true;
-		} else {
-			return false;
-		}
+        return element[index] instanceof TrimaranDataStructure;
     }
     public boolean isInteger(int index) {
-        if (element[index].getClass().getName().compareTo("java.lang.Integer") == 0) {
-			return true;
-		} else {
-			return false;
-		}
+        return element[index].getClass().getName().compareTo("java.lang.Integer") == 0;
     }
     public boolean isLong(int index) {
-        if (element[index].getClass().getName().compareTo("java.lang.Long") == 0) {
-			return true;
-		} else {
-			return false;
-		}
+        return element[index].getClass().getName().compareTo("java.lang.Long") == 0;
     }
     public boolean isString(int index) {
-        if (element[index].getClass().getName().compareTo("java.lang.String") == 0) {
-			return true;
-		} else {
-			return false;
-		}
+        return element[index].getClass().getName().compareTo("java.lang.String") == 0;
     }
     
     public TrimaranDataStructure(int iNROfEntries) {
@@ -108,7 +88,7 @@ public class TrimaranDataStructure implements Serializable {
         if (isLong(index)) {
 			return getLong(index);
 		} else if (isInteger(index)) {
-			return ((int)getInteger(index)& 0xffffffff);
+			return (getInteger(index) & 0xffffffff);
 		} else {
 			return 0;
 		}

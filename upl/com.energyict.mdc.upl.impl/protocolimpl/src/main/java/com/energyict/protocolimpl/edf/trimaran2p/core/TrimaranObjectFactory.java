@@ -3,13 +3,13 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
+import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
+import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P;
-import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 
 /**
  * @author gna

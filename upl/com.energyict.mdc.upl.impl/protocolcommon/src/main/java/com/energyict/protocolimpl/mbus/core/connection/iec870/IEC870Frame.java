@@ -6,8 +6,8 @@
 
 package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.mbus.core.ApplicationData;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.TimeZone;
@@ -103,11 +103,11 @@ public class IEC870Frame {
     int nrOfDevices;
 
     /** Creates a new instance of IEC870Frame */
-    public IEC870Frame(byte[] data) throws IEC870ConnectionException,IOException {
+    public IEC870Frame(byte[] data) throws IOException {
     	this(data,1);
     } // public IEC870Frame(byte[] data)
     
-    public IEC870Frame(byte[] data,int nrOfDevices) throws IEC870ConnectionException,IOException {
+    public IEC870Frame(byte[] data,int nrOfDevices) throws IOException {
     	this.nrOfDevices=nrOfDevices;
         this.data=data;
         asdu=null;
@@ -285,7 +285,7 @@ public class IEC870Frame {
         return strbuff.toString();
     }
     
-    private void buildVariableLengthFrame(byte[] data) throws IEC870ConnectionException,IOException {
+    private void buildVariableLengthFrame(byte[] data) throws IOException {
         length = ProtocolUtils.getByte2Int(data,1);
         control = ProtocolUtils.getByte2Int(data,4);
         address = ProtocolUtils.getInt(data,5,1);
@@ -294,7 +294,7 @@ public class IEC870Frame {
         
     } // private void buildVariableLengthFrame(byte[] data)
     
-    private void buildFixedLengthFrame(byte[] data) throws IEC870ConnectionException,IOException {
+    private void buildFixedLengthFrame(byte[] data) throws IOException {
         length = 2;
         control = ProtocolUtils.getByte2Int(data,1);
         address = ProtocolUtils.getInt(data,2,1);

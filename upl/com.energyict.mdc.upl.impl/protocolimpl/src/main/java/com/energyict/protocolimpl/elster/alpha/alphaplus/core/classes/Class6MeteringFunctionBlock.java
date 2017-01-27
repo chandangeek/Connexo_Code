@@ -10,14 +10,9 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+import java.io.IOException;
 
 
 /**

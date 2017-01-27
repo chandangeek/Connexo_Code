@@ -7,9 +7,8 @@
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.HashMap;

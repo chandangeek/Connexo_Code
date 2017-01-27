@@ -9,13 +9,11 @@
  */
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
- 
-import java.util.*;
-import java.io.*;
 
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.cbo.TimeZoneManager;
 import com.energyict.protocolimpl.base.DataParser;
+
+import java.io.IOException;
+import java.util.Date;
 /**
  *
  * @author Koen

@@ -1,11 +1,10 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

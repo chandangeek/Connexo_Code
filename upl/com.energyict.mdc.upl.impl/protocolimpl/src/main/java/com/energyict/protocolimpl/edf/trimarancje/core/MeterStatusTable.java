@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *

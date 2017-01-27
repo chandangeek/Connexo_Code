@@ -6,6 +6,22 @@
 
 package com.energyict.protocolimpl.iec1107.abba1350;
 
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWProfileHeader;
+import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,22 +31,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.DataParser;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWProfileHeader;
-import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 
 /**
  *
@@ -115,7 +115,7 @@ public class ABBA1350Profile extends VDEWProfile {
 	    Iterator it = eventsMap.values().iterator();
 		List result = new ArrayList();
 	    while (it.hasNext()) {
-			result.add((MeterEvent) it.next());
+			result.add(it.next());
 		}
 		return result;
     }
@@ -176,7 +176,7 @@ public class ABBA1350Profile extends VDEWProfile {
      * @see VDEWProfile#getMeterEvent(Date, long, String)
      */
     protected MeterEvent getMeterEvent(Date date, int logcode, String msg) {
-        return new MeterEvent(date,getMeterEvent(logcode),(int)logcode);
+        return new MeterEvent(date,getMeterEvent(logcode), logcode);
     }
     
     private int getMeterEvent(int logcode){
@@ -259,7 +259,7 @@ public class ABBA1350Profile extends VDEWProfile {
     } 
 
     private String mapEvent2Message(int deviceCode) {
-    	switch((int)deviceCode) {
+    	switch(deviceCode) {
     	case FATAL_DEVICE_ERROR:            return "Fatal device error";
     	case RUNNING_RESERVE_EXHAUSTED:     return "Running reserve exhaused";
     	case DISTURBED_MEASURE:             return "Measuring value disturbed";
@@ -342,7 +342,7 @@ public class ABBA1350Profile extends VDEWProfile {
                    eiCode = 0;
                    for (t=0;t<8;t++) {
                       if ((bStatus & (byte)(0x01<<t)) != 0) {
-                           eiCode |= mapStatus2IntervalStateBits((int)(bStatus&(byte)(0x01<<t))&0xFF);
+                           eiCode |= mapStatus2IntervalStateBits(bStatus&(byte)(0x01<<t) &0xFF);
                       }
                    }
 
@@ -671,9 +671,9 @@ public class ABBA1350Profile extends VDEWProfile {
 						System.out.println("Interval data added: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2));
 					}
     			} else {
-    				intervalData.addValue((val1.add(val2)).divide(new BigDecimal((int)2), BigDecimal.ROUND_HALF_UP));
+    				intervalData.addValue((val1.add(val2)).divide(new BigDecimal(2), BigDecimal.ROUND_HALF_UP));
     				if (DEBUG >= 1) {
-						System.out.println("Interval data divided: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2).divide(new BigDecimal((int)2), BigDecimal.ROUND_HALF_UP));
+						System.out.println("Interval data divided: val1: " + val1 + " val2: " + val2 + " Result: " + val1.add(val2).divide(new BigDecimal(2), BigDecimal.ROUND_HALF_UP));
 					}
     			} 
     		}

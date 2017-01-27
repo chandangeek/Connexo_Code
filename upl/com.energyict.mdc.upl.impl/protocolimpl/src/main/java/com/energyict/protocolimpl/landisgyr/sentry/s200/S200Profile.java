@@ -15,10 +15,10 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.landisgyr.sentry.s200.core.DataDumpFactory;
 import com.energyict.protocolimpl.landisgyr.sentry.s200.core.S200EventsFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

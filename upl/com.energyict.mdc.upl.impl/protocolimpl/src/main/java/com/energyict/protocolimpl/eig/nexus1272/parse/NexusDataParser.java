@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.eig.nexus1272.parse;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

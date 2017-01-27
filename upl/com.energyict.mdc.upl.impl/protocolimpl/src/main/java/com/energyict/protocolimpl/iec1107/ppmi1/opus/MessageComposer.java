@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
-import java.io.ByteArrayOutputStream;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.ByteArrayOutputStream;
 
 class MessageComposer {
 

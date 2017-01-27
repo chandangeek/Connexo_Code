@@ -10,22 +10,22 @@
 
 package com.energyict.protocolimpl.edmi.mk6;
 
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.edmi.mk6.loadsurvey.ExtensionFactory;
+import com.energyict.protocolimpl.edmi.mk6.loadsurvey.LoadSurvey;
+import com.energyict.protocolimpl.edmi.mk6.loadsurvey.LoadSurveyData;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edmi.mk6.loadsurvey.ExtensionFactory;
-import com.energyict.protocolimpl.edmi.mk6.loadsurvey.LoadSurvey;
-import com.energyict.protocolimpl.edmi.mk6.loadsurvey.LoadSurveyData;
 
 /**
  *

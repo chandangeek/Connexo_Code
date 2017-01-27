@@ -9,7 +9,7 @@
  */
 
 package com.energyict.protocolimpl.ansi.c12.tables;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 /**
  *
  * @author Koen

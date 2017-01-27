@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

@@ -4,11 +4,10 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.ProtocolExceptionReference;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CTRDeviceProtocolCache;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;

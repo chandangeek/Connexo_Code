@@ -11,8 +11,7 @@
 package com.energyict.protocolimpl.edmi.mk6.core;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.math.BigDecimal;
 import java.util.Calendar;

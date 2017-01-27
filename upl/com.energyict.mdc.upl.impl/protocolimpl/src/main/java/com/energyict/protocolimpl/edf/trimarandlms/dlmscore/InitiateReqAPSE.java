@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.dlmscore;
 
+import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.InitiateResponse;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.InitiateResponse;
 
 /**
  *

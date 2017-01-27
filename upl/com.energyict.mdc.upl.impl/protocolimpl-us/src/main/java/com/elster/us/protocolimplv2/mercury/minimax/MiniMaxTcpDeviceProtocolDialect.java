@@ -3,8 +3,8 @@ package com.elster.us.protocolimplv2.mercury.minimax;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -17,7 +17,7 @@ import java.util.List;
  * @author khe
  * @since 16/10/12 (113:25)
  */
-public class MiniMaxTcpDeviceProtocolDialect implements DeviceProtocolDialect {
+public class MiniMaxTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect implements DeviceProtocolDialect {
 
     public static final String RETRIES = "Retries";
     public static final String TIMEOUT = "Timeout";
@@ -26,10 +26,8 @@ public class MiniMaxTcpDeviceProtocolDialect implements DeviceProtocolDialect {
     public static final long DEFAULT_TCP_TIMEOUT = 30;
     public static final int DEFAULT_ROUND_TRIP_CORRECTION = 0;
 
-    private final PropertySpecService propertySpecService;
-
     public MiniMaxTcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

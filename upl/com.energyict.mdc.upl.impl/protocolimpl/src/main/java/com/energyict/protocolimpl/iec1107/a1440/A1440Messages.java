@@ -16,12 +16,11 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
-
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ContactorController;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

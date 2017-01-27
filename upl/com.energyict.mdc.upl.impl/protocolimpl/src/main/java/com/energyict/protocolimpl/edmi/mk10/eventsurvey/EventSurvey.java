@@ -10,6 +10,11 @@
 
 package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 
+import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
+import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
+import com.energyict.protocolimpl.edmi.mk10.core.DateTimeBuilder;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,11 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
-import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
-import com.energyict.protocolimpl.edmi.mk10.core.DateTimeBuilder;
 /**
  *
  * @author koen
@@ -72,7 +72,7 @@ public class EventSurvey {
 				farc = this.getCommandFactory().getFileAccessReadCommand(lognr + 2, firstentry, 0xFFFF);
 				firstentry = farc.getStartRecord() + farc.getNumberOfRecords();
 				eventset[lognr].addAll(getEventData(farc.getData(), lognr));
-			};
+			}
 		}
 	}
 

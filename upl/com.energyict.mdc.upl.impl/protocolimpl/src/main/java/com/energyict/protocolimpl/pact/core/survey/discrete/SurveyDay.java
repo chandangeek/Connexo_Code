@@ -8,9 +8,9 @@ package com.energyict.protocolimpl.pact.core.survey.discrete;
 
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.pact.core.common.EnergyTypeCode;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

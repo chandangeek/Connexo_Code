@@ -10,10 +10,9 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

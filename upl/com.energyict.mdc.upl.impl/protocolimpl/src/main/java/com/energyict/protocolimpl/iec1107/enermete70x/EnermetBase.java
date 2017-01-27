@@ -6,15 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
@@ -23,6 +21,7 @@ import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

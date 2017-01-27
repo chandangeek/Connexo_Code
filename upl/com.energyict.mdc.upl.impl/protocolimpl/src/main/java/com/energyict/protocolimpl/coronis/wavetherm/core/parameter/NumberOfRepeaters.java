@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.wavetherm.core.parameter;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

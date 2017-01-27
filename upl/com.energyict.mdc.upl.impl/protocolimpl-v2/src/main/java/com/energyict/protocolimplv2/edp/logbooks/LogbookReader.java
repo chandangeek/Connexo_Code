@@ -1,16 +1,15 @@
 package com.energyict.protocolimplv2.edp.logbooks;
 
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
-
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.NotInObjectListException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.io.IOException;

@@ -17,8 +17,8 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -592,8 +592,8 @@ public class CourbeCharge {
 
 		intervalData = new IntervalData(new Date(cal.getTime().getTime()),0,0,tariff);
 		intervalData.addEiStatus(IntervalStateBits.OTHER);
-		Iterator it0 = ((IntervalData)intervals[0]).getValuesIterator();
-		Iterator it1 = ((IntervalData)intervals[1]).getValuesIterator();
+		Iterator it0 = intervals[0].getValuesIterator();
+		Iterator it1 = intervals[1].getValuesIterator();
 		while(it0.hasNext()){
 			intervalData.addValue(new Integer(((IntervalValue)it0.next()).getNumber().intValue() + ((IntervalValue)it1.next()).getNumber().intValue()));
 		}

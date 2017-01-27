@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

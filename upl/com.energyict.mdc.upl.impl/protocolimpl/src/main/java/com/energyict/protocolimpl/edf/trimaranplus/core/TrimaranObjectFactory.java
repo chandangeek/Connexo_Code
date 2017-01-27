@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
+import com.energyict.protocolimpl.edf.trimaranplus.TrimaranPlus;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.edf.trimaranplus.TrimaranPlus;
 
 /**
  *

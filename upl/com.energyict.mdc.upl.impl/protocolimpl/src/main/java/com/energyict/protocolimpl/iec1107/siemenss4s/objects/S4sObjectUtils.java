@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
-import java.io.IOException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.ProtocolUtils;
+import java.io.IOException;
 
 /**
  * Useful utils for operations with the S4s data
@@ -73,11 +73,7 @@ public class S4sObjectUtils {
 	 * @throws IOException - if it's invalid Hex data
 	 */
 	public static boolean itsActuallyADateIntervalRecord(byte[] recordData) throws IOException{
-		if((ProtocolUtils.hex2nibble(recordData[recordData.length-4])&0x01) == 1){
-			return true;
-		} else {
-			return false;
-		}
+		return (ProtocolUtils.hex2nibble(recordData[recordData.length - 4]) & 0x01) == 1;
 	}
 	
 	public static byte[] hexStringToByteArray(String str){

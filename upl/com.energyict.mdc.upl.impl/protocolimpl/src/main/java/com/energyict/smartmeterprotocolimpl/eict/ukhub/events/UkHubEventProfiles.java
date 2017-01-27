@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.events;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;

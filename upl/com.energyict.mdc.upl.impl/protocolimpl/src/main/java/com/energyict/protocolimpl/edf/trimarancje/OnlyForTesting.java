@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.edf.trimarancje;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,8 +19,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  *

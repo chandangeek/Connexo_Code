@@ -11,7 +11,7 @@
 package com.energyict.protocolimpl.edmi.mk6.core;
 
 import com.energyict.dialer.connection.Connection;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *

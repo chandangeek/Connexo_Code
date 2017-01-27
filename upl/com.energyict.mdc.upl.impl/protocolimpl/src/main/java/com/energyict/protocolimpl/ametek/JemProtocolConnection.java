@@ -10,16 +10,15 @@
 
 package com.energyict.protocolimpl.ametek;
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,7 +83,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
         logger.info("call connection class disconnectMAC(...)");
     }
 
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         logger.info("call connection class connectMAC(...)");
         return null;
     }
@@ -148,7 +147,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
 
                 if (DEBUG >= 2) {
                     System.out.print(",0x");
-                    ProtocolUtils.outputHex(((int) kar));
+                    ProtocolUtils.outputHex(kar);
                 }
                 switch (state) {
 
@@ -233,7 +232,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
                 } // switch(state)
             } // if ((kar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+            if (System.currentTimeMillis() - interFrameTimeout > 0) {
                 throw new ProtocolConnectionException("receiveResponse() interframe timeout error", TIMEOUT_ERROR);
             }
         } // while(true)
@@ -244,11 +243,7 @@ public class JemProtocolConnection extends Connection implements ProtocolConnect
         byte b1 = in[in.length - 2];
         byte b2 = in[in.length - 1];
 
-        if (b1 == check[0] && b2 == check[1]) {
-            return true;
-        } else {
-            return false;
-        }
+        return b1 == check[0] && b2 == check[1];
     }
 
     protected byte[] getCheckSumBytes(byte[] send, int length) {

@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.util.Random;
 
 /**
  *

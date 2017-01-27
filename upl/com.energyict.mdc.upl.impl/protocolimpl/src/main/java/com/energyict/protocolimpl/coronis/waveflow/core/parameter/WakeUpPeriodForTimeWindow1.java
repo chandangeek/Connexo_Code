@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.core.parameter;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

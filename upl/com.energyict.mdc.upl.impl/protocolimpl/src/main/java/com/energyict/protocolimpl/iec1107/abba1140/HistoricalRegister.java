@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import java.util.TimeZone;
 
 /** @author fbo */

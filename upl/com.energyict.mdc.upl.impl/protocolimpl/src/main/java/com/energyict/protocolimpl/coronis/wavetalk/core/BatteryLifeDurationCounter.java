@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.coronis.wavetalk.core;
 
 import com.energyict.mdc.upl.UnsupportedException;
-
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

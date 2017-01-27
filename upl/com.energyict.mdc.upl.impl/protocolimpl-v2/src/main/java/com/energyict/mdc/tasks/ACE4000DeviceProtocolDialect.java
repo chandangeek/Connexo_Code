@@ -2,7 +2,6 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -28,10 +27,8 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal("30000");
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal("3");
 
-    private final PropertySpecService propertySpecService;
-
     public ACE4000DeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override

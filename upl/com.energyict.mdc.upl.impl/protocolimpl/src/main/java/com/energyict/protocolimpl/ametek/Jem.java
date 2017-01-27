@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.ametek;
 
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
@@ -12,19 +13,17 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -11,9 +11,8 @@
 package com.energyict.protocolimpl.edmi.mk6.command;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.edmi.mk6.core.DateTimeBuilder;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.Date;
 

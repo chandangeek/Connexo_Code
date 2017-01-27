@@ -2,9 +2,9 @@ package com.energyict.protocolimpl.instromet.v555.tables;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v555.CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -124,10 +124,7 @@ public class LoggingConfigurationTable extends AbstractTable {
 	
 	protected boolean isFloatingPoint(int index) { // zero based index!
 		int code = ((Integer) codes.get(index)).intValue();
-		if ((code == PRESSURE) || (code == TEMPERATURE) || (code == CF))
-			return true;
-		else
-			return false;
+		return (code == PRESSURE) || (code == TEMPERATURE) || (code == CF);
 	}
 	
 	protected Unit getUnit(int value) throws IOException {

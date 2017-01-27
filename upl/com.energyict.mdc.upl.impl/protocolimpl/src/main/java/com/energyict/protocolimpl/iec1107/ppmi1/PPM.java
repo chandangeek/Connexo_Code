@@ -6,6 +6,11 @@
 
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
@@ -13,16 +18,9 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
@@ -35,6 +33,7 @@ import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusConnection;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

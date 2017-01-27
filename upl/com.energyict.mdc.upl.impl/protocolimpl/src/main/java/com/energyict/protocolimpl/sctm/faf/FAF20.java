@@ -7,14 +7,13 @@
 package com.energyict.protocolimpl.sctm.faf;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.metcom.BufferStructure;
 import com.energyict.protocolimpl.metcom.Metcom3FAF;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 
@@ -38,7 +37,7 @@ public class FAF20 extends Metcom3FAF implements RegisterProtocol {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+        return "$Date: Fri Nov 4 11:12:01 2016 +0100 $";
     }
 
     @Override

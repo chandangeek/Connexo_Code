@@ -6,6 +6,15 @@
  */
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.events;
 
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200EventDataParser;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
+import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,15 +22,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200EventDataParser;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.UNIFLO1200Profile;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
-import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 
 /**
  * @author jme
@@ -104,7 +104,7 @@ public class UNIFLO1200EventData {
 	    Iterator it = eventsMap.values().iterator();
 		List result = new ArrayList();
 	    while (it.hasNext()) 
-	        result.add((MeterEvent) it.next());
+	        result.add(it.next());
 		return result;
     }
 

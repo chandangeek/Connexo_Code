@@ -2,7 +2,6 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
@@ -28,10 +27,8 @@ public class GatewayTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
 
     public static final int DEFAULT_TCP_TIMEOUT = 30;
 
-    private final PropertySpecService propertySpecService;
-
     public GatewayTcpDeviceProtocolDialect(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(propertySpecService);
     }
 
     @Override
@@ -65,14 +62,14 @@ public class GatewayTcpDeviceProtocolDialect extends AbstractDeviceProtocolDiale
         return this.bigDecimalSpec(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
     }
 
-    private PropertySpec bigDecimalSpec (String name, BigDecimal defaultValue) {
+    private PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue) {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
-    private PropertySpec durationSpec (String name, Duration defaultValue) {
+    private PropertySpec durationSpec(String name, Duration defaultValue) {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, this.propertySpecService::durationSpec)
                 .setDefaultValue(defaultValue)

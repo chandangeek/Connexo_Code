@@ -8,12 +8,11 @@
 
 package com.energyict.dlms.axrdencoding;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -46,7 +45,7 @@ public class OctetString extends AbstractDataType {
             throw new ProtocolException("OctetString, invalid identifier " + berEncodedData[workingOffset]);
         }
         workingOffset++;
-        size = (int) DLMSUtils.getAXDRLength(berEncodedData, workingOffset);
+        size = DLMSUtils.getAXDRLength(berEncodedData, workingOffset);
         workingOffset += DLMSUtils.getAXDRLengthOffset(berEncodedData, workingOffset);
         octetStr = ProtocolUtils.getSubArray2(berEncodedData, workingOffset, size);
         workingOffset += size;

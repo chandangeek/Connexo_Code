@@ -7,8 +7,6 @@
 package com.energyict.protocolimpl.iec870.datawatt;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec870.CP56Time2a;
 import com.energyict.protocolimpl.iec870.IEC870ASDU;
 import com.energyict.protocolimpl.iec870.IEC870Connection;
@@ -16,6 +14,7 @@ import com.energyict.protocolimpl.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.iec870.IEC870InformationObject;
 import com.energyict.protocolimpl.iec870.IEC870TransmissionCause;
 import com.energyict.protocolimpl.iec870.IEC870TypeIdentification;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -329,7 +328,7 @@ public class ApplicationFunction {
             System.out.println("****************************** printIntegratedTotalsList ******************************");
         Iterator it = list.iterator();
         while(it.hasNext()) {
-            System.out.println(((IntegratedTotal)it.next()).toString());
+            System.out.println(it.next().toString());
         }
     }
     private void printMeasuredNormValuesList(List list) {
@@ -337,7 +336,7 @@ public class ApplicationFunction {
             System.out.println("****************************** printMeasuredNormValuesList ******************************");
         Iterator it = list.iterator();
         while(it.hasNext()) {
-            System.out.println(((MeasuredNormValue)it.next()).toString());
+            System.out.println(it.next().toString());
         }
     }
     private void printSinglePointInfosList(List list) {
@@ -345,7 +344,7 @@ public class ApplicationFunction {
             System.out.println("****************************** printSinglePointInfosList ******************************");
         Iterator it = list.iterator();
         while(it.hasNext()) {
-            System.out.println(((SinglePointInfo)it.next()).toString());
+            System.out.println(it.next().toString());
         }
     }
 

@@ -1,5 +1,10 @@
 package com.energyict.protocolimpl.iec1107.emh.nxt4;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -13,19 +18,12 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
@@ -35,6 +33,7 @@ import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -355,7 +354,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-04-10 12:16:12 +0200 (Fri, 10 Apr 2015) $";
+        return "$Date: Thu Dec 29 12:02:33 2016 +0100 $";
     }
 
     @Override

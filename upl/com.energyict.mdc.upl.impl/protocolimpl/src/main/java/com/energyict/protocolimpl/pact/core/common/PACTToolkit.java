@@ -6,6 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,8 +15,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
 
 /**
  * 

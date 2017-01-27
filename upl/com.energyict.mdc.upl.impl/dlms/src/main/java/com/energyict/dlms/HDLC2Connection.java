@@ -1,12 +1,11 @@
 package com.energyict.dlms;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -504,7 +503,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
                             break;
                     }
                 }
-                if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+                if (System.currentTimeMillis() - lMSTimeout > 0) {
                     return HDLC_TIMEOUT;
                 }
             }
@@ -533,7 +532,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
                 }
                 switch (bCurrentState) {
                     case WAIT_FOR_START_FLAG:
-                        switch ((byte) inewKar) {
+                        switch (inewKar) {
                             case HDLC_FLAG:
                                 sRXCount = 0;
                                 bCurrentState = WAIT_FOR_FRAME_FORMAT;
@@ -542,10 +541,10 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
                         break;
 
                     case WAIT_FOR_FRAME_FORMAT:
-                        if ((sRXCount == 0) && ((byte) inewKar == HDLC_FLAG)) {
+                        if ((sRXCount == 0) && (inewKar == HDLC_FLAG)) {
                             break;
                         }
-                        byteReceiveBuffer[sRXCount++] = (byte) inewKar;
+                        byteReceiveBuffer[sRXCount++] = inewKar;
                         if (sRXCount >= 2) {
                             sLength = getLength(byteReceiveBuffer);
                             bCurrentState = WAIT_FOR_DATA;
@@ -553,7 +552,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
                         break;
 
                     case WAIT_FOR_DATA:
-                        byteReceiveBuffer[sRXCount++] = (byte) inewKar;
+                        byteReceiveBuffer[sRXCount++] = inewKar;
                         if (sRXCount > sLength) {
                             return checkCRC(byteReceiveBuffer, sRXCount);
                         }

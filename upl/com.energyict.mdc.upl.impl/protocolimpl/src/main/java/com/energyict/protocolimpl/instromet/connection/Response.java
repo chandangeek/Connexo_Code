@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.instromet.connection;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 public class Response {
     

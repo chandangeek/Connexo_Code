@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
-import java.io.IOException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.ProtocolUtils;
+import java.io.IOException;
 
 public class ConfigureReadRegister extends Register {
 

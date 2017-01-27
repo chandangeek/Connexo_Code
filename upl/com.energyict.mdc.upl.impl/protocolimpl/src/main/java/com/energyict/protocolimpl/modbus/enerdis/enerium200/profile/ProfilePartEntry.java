@@ -1,11 +1,10 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.profile;
 
 import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDateParser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.Date;
 

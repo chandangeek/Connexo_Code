@@ -1,21 +1,21 @@
 package com.energyict.protocolimpl.iec1107.unilog;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /*
 * Structure of the response data
@@ -128,8 +128,8 @@ public class UnilogProfile extends VDEWProfile {
         Calendar c = ProtocolUtils.initCalendar(dst == 0x01, t );
         
         
-        c.set(Calendar.YEAR, (int) ( 2000 + (int) ProtocolUtils.bcd2byte( data, 1 + offset)));
-        c.set(Calendar.MONTH, (int) ((int) ProtocolUtils.bcd2byte(data, 3 + offset) - 1));
+        c.set(Calendar.YEAR, 2000 + (int) ProtocolUtils.bcd2byte( data, 1 + offset));
+        c.set(Calendar.MONTH, (int) ProtocolUtils.bcd2byte(data, 3 + offset) - 1);
         c.set(Calendar.DAY_OF_MONTH, (int) ProtocolUtils.bcd2byte(data, 5 + offset));
         c.set(Calendar.HOUR_OF_DAY, (int) ProtocolUtils.bcd2byte(data,  7 + offset));
         c.set(Calendar.MINUTE, (int) ProtocolUtils.bcd2byte(data, 9 + offset));

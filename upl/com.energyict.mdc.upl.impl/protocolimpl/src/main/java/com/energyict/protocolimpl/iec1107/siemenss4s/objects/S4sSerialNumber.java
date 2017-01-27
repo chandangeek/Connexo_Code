@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.objects;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  * Contains the serialNumber of the device

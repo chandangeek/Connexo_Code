@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.instromet.v555.tables;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.instromet.connection.Response;
 import com.energyict.protocolimpl.instromet.v555.CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 public class CountersTable extends AbstractTable {
 	
@@ -27,7 +27,6 @@ public class CountersTable extends AbstractTable {
 			Float.intBitsToFloat(unCorrectedRemainder)));
 		correctedVolume = new BigDecimal(corrected).add(new BigDecimal(
 				Float.intBitsToFloat(correctedRemainder)));
-		;
 	}
 	
 	public int getTableType() {

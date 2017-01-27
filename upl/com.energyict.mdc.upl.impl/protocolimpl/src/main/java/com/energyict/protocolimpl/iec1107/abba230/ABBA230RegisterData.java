@@ -1,10 +1,8 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.BatteryVoltageLowEventLog;
@@ -32,6 +30,7 @@ import com.energyict.protocolimpl.iec1107.abba230.eventlogs.ReverserunEventLog;
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.TerminalCoverEventLog;
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.TransientEventLog;
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.UnderVoltageEventLog;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;

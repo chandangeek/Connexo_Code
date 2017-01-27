@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s.security;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  * 

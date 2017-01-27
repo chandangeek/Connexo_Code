@@ -26,18 +26,6 @@
  */
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -66,13 +54,23 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
+import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
@@ -82,6 +80,7 @@ import com.energyict.protocolimpl.dlms.actarissl7000.Logbook;
 import com.energyict.protocolimpl.dlms.actarissl7000.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.actarissl7000.StoredValuesImpl;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -6,21 +6,21 @@
 
 package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -124,18 +124,18 @@ public class Unigas300Profile extends VDEWProfile {
        int dst;
        dst = ProtocolUtils.hex2nibble(data[iOffset]);
        Calendar calendar = ProtocolUtils.initCalendar(dst==0x01, getProtocolLink().getTimeZone());
-       calendar.set(calendar.YEAR,(int)(2000+(int)ProtocolUtils.bcd2byte(data,1+iOffset)));
-       calendar.set(calendar.MONTH,(int)((int)ProtocolUtils.bcd2byte(data,3+iOffset)-1));
-       calendar.set(calendar.DAY_OF_MONTH,(int)ProtocolUtils.bcd2byte(data,5+iOffset));
-       calendar.set(calendar.HOUR_OF_DAY,(int)ProtocolUtils.bcd2byte(data,7+iOffset));
-       calendar.set(calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,9+iOffset));
+       calendar.set(Calendar.YEAR, 2000+(int)ProtocolUtils.bcd2byte(data,1+iOffset));
+       calendar.set(Calendar.MONTH, (int)ProtocolUtils.bcd2byte(data,3+iOffset)-1);
+       calendar.set(Calendar.DAY_OF_MONTH,(int)ProtocolUtils.bcd2byte(data,5+iOffset));
+       calendar.set(Calendar.HOUR_OF_DAY,(int)ProtocolUtils.bcd2byte(data,7+iOffset));
+       calendar.set(Calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,9+iOffset));
        // KV 25032004
        int seconds = (int)ProtocolUtils.bcd2byte(data,11+iOffset);       
        if (seconds != 0) {
 		getProtocolLink().getLogger().severe ("Unigas300Profile, parseDateTime, seconds != 0 ("+seconds+")");
 	}
-       calendar.set(calendar.SECOND,0); //(int)ProtocolUtils.bcd2byte(data,11+iOffset));
-       calendar.set(calendar.MILLISECOND,0);
+       calendar.set(Calendar.SECOND,0); //(int)ProtocolUtils.bcd2byte(data,11+iOffset));
+       calendar.set(Calendar.MILLISECOND,0);
        return calendar;
     }
     
@@ -253,7 +253,7 @@ public class Unigas300Profile extends VDEWProfile {
 					intervalData.addStatus(IntervalData.CORRUPTED);
 				}
                    profileData.addInterval(intervalData);
-                   calendar.add(calendar.MINUTE,bInterval);
+                   calendar.add(Calendar.MINUTE,bInterval);
                    i= gotoNextCR(responseData,i+1);
                 }
                 if (i>=responseData.length) {

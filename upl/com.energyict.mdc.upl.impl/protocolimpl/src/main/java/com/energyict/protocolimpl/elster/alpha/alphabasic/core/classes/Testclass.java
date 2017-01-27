@@ -10,10 +10,8 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import com.energyict.protocolimpl.iec1107.ppm.parser.ByteAssembly;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.ProtocolUtils;
+import java.io.IOException;
+import java.util.TimeZone;
 
 /**
  *

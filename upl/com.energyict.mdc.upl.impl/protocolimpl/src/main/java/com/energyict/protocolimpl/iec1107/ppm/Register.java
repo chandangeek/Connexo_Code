@@ -1,17 +1,15 @@
 package com.energyict.protocolimpl.iec1107.ppm;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ppm.parser.HistoricalDataParser;
 import com.energyict.protocolimpl.iec1107.ppm.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.iec1107.ppm.register.MainRegister;
 import com.energyict.protocolimpl.iec1107.ppm.register.MaximumDemand;
 import com.energyict.protocolimpl.iec1107.ppm.register.ScalingFactor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -130,13 +128,13 @@ public class Register {
 	/* ________ ______ */
 
 	protected void writeRegister(String value)
-			throws FlagIEC1107ConnectionException, IOException {
+			throws IOException {
 		this.value = null;
 		getDataIdentityFactory().setDataIdentity(getDataID(), value);
 	}
 
 	protected void writeRegister(Object object)
-			throws FlagIEC1107ConnectionException, IOException {
+			throws IOException {
 		this.value = null;
 		getDataIdentityFactory()
 				.setDataIdentity(getDataID(), buildData(object));

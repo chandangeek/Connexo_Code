@@ -1,5 +1,18 @@
 package com.energyict.protocolimpl.dlms.idis;
 
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
@@ -14,25 +27,10 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -41,6 +39,7 @@ import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
 import com.energyict.protocolimpl.dlms.idis.registers.IDISStoredValues;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -301,7 +300,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Mon Jan 2 11:14:35 2017 +0100 $";
     }
 
     @Override

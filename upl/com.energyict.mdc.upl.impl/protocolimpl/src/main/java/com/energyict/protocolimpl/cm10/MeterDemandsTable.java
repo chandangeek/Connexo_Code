@@ -1,20 +1,15 @@
 package com.energyict.protocolimpl.cm10;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class MeterDemandsTable {
 	

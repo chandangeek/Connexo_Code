@@ -1,8 +1,5 @@
 package com.energyict.dlms.aso;
 
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -21,12 +18,14 @@ import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.KDF;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdw.core.ECCCurve;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.io.ByteArrayOutputStream;

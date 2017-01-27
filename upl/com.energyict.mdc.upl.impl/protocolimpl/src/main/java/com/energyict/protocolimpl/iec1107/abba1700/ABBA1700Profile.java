@@ -13,16 +13,14 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -407,7 +405,7 @@ public class ABBA1700Profile {
     private void addIntervalValues(IntervalData currentIntervalData, IntervalData previousIntervalData) {
         IntervalData tempIntervalData = new IntervalData(previousIntervalData.getEndTime());
         for (int i = 0 ; i < previousIntervalData.getIntervalValues().size() ; i++) {
-            int current = ((Number)currentIntervalData.get(i)).intValue() + ((Number)previousIntervalData.get(i)).intValue();
+            int current = currentIntervalData.get(i).intValue() + previousIntervalData.get(i).intValue();
             tempIntervalData.addValue(new Integer(current));
         }
         previousIntervalData.setIntervalValues(tempIntervalData.getIntervalValues());
@@ -423,42 +421,42 @@ public class ABBA1700Profile {
 
                case ABBA1700ProfileEntry.POWERDOWN:
                     profileData.addEvent(new MeterEvent(ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime(),
-                                                       (int)MeterEvent.POWERDOWN,
-                                                       (int)ABBA1700ProfileEntry.POWERDOWN));
+                            MeterEvent.POWERDOWN,
+                            ABBA1700ProfileEntry.POWERDOWN));
                    break;
 
                case ABBA1700ProfileEntry.POWERUP:
                     profileData.addEvent(new MeterEvent(ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime(),
-                                                       (int)MeterEvent.POWERUP,
-                                                       (int)ABBA1700ProfileEntry.POWERUP));
+                            MeterEvent.POWERUP,
+                            ABBA1700ProfileEntry.POWERUP));
                     break;
                case ABBA1700ProfileEntry.DAYLIGHTSAVING:
                     profileData.addEvent(new MeterEvent(ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime(),
-                                                       (int)MeterEvent.SETCLOCK,
-                                                       (int)ABBA1700ProfileEntry.DAYLIGHTSAVING));
+                            MeterEvent.SETCLOCK,
+                            ABBA1700ProfileEntry.DAYLIGHTSAVING));
                     break;
                case ABBA1700ProfileEntry.FORCEDENDOFDEMAND:
                     profileData.addEvent(new MeterEvent(ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime(),
-                                                       (int)MeterEvent.OTHER,
-                                                       (int)ABBA1700ProfileEntry.FORCEDENDOFDEMAND));
+                            MeterEvent.OTHER,
+                            ABBA1700ProfileEntry.FORCEDENDOFDEMAND));
                     break;
                case ABBA1700ProfileEntry.TIMECHANGE:
                     profileData.addEvent(new MeterEvent(ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime(),
-                                                       (int)MeterEvent.SETCLOCK,
-                                                       (int)ABBA1700ProfileEntry.TIMECHANGE));
+                            MeterEvent.SETCLOCK,
+                            ABBA1700ProfileEntry.TIMECHANGE));
                     break;
                case ABBA1700ProfileEntry.LOADPROFILECLEARED:
                     profileData.addEvent(new MeterEvent(ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime(),
-                                                       (int)MeterEvent.CLEAR_DATA,
-                                                       (int)ABBA1700ProfileEntry.LOADPROFILECLEARED));
+                            MeterEvent.CLEAR_DATA,
+                            ABBA1700ProfileEntry.LOADPROFILECLEARED));
                     break;
                default:profileData.addEvent(new MeterEvent(ProtocolUtils.getCalendar(timeZone,profileEntry.getTime()).getTime(),
-                                                       (int)MeterEvent.OTHER, (int)profileEntry.getType()));
+                       MeterEvent.OTHER, profileEntry.getType()));
            } // switch (profileEntry.getType())
        }
     }
 
-    private Calendar saveInProfile(ProfileData profileData, ABBA1700ProfileEntry profileEntryResult, Calendar calendar, int integrationTime) throws UnsupportedException, IOException {
+    private Calendar saveInProfile(ProfileData profileData, ABBA1700ProfileEntry profileEntryResult, Calendar calendar, int integrationTime) throws IOException {
        for (int index = 0 ; index < profileEntryResult.getNrOfIntervals() ; index++) {
           IntervalData result=null;
           // if external data and first value of external data, add it to the last intervaldata entry
@@ -520,7 +518,7 @@ public class ABBA1700Profile {
     private static final int PHASE_FAILURE=0x40;
 
 
-    private IntervalData getIntervalData(ProfileData profileData, long[] values, int status, Calendar calendar) throws UnsupportedException, IOException {
+    private IntervalData getIntervalData(ProfileData profileData, long[] values, int status, Calendar calendar) throws IOException {
         // Add interval data...
         IntervalData intervalData = new IntervalData(new Date(calendar.getTime().getTime()));
 

@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.cm10;
 
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import com.energyict.protocol.ProtocolUtils;
 
 public class PowerFailDetailsTable {
 	

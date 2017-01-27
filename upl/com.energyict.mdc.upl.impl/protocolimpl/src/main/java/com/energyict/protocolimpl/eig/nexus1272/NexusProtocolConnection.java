@@ -1,17 +1,16 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
 
-import com.energyict.mdc.io.NestedIOException;
-
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.eig.nexus1272.command.Command;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,9 +83,11 @@ public class NexusProtocolConnection extends Connection implements ProtocolConne
 
 	private final long TIMEOUT = 8000;
 
-	public enum RESPONSE_STATES {BUILD_TID, BUILD_PID, BUILD_LEN, BUILD_UID, BUILD_FC, HANDLE_READ_RESPONSE, HANDLE_WRITE_RESPONSE, CHECK_COMPLETE};
-	public enum READ_RESPONSE_STATES {BUILD_BC, BUILD_DATA};
-	public enum WRITE_RESPONSE_STATES{BUILD_SA, BUILD_DATA};
+	public enum RESPONSE_STATES {BUILD_TID, BUILD_PID, BUILD_LEN, BUILD_UID, BUILD_FC, HANDLE_READ_RESPONSE, HANDLE_WRITE_RESPONSE, CHECK_COMPLETE}
+
+	public enum READ_RESPONSE_STATES {BUILD_BC, BUILD_DATA}
+
+	public enum WRITE_RESPONSE_STATES{BUILD_SA, BUILD_DATA}
 
 	public ByteArrayOutputStream receiveWriteResponse(Command c) throws ConnectionException, NestedIOException {
 		byte[] transId = new byte[2];

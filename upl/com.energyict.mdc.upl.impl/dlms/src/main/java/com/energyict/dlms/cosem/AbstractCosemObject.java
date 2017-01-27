@@ -5,8 +5,6 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.AdaptorConnection;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -32,9 +30,10 @@ import com.energyict.dlms.cosem.generalblocktransfer.GeneralBlockTransferHandler
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.upl.Services;
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -32,11 +34,9 @@ public class AbntProperties implements HasDynamicProperties {
     public static final Duration DEFAULT_FORCED_DELAY = Duration.ofMillis(50);
     public static final Duration DEFAULT_DELAY_AFTER_ERROR = Duration.ofMillis(100);
     private static final BigDecimal DEFAULT_READER_SERIAL_NUMBER = new BigDecimal(1);
-
+    private final PropertySpecService propertySpecService;
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
-
-    private final PropertySpecService propertySpecService;
 
     public AbntProperties(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -150,12 +150,11 @@ public class AbntProperties implements HasDynamicProperties {
     }
 
     private PropertySpec timeZonePropertySpec() {
-        return Services
-                    .propertySpecService()
-                    .timeZoneSpec()
-                    .named(TIMEZONE, TIMEZONE)
-                    .describedAs("Description for " + TIMEZONE)
-                    .finish();
+        return propertySpecService
+                .timeZoneSpec()
+                .named(TIMEZONE, TIMEZONE)
+                .describedAs("Description for " + TIMEZONE)
+                .finish();
     }
 
     private PropertySpec readerSerialNumberPropertySpec() {

@@ -1,8 +1,11 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 public class XdlmsAse {
 

@@ -6,11 +6,11 @@
 
 package com.energyict.protocolimpl.pact.core.meterreading;
 
+import com.energyict.protocolimpl.pact.core.common.PactUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.util.Date;
 import java.util.TimeZone;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.pact.core.common.PactUtils;
 
 /**
  *

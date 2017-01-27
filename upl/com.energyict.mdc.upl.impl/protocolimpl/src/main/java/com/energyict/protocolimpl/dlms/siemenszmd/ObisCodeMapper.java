@@ -6,19 +6,18 @@
 
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.DLMSZMD;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigInteger;

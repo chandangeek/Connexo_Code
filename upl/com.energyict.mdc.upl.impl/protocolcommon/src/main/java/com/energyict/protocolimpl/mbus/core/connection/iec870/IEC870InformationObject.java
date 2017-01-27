@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

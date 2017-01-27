@@ -1,5 +1,15 @@
 package com.energyict.protocolimpl.iec1107.ppmi1.opus;
 
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
+import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
+import com.energyict.protocolimpl.iec1107.ppmi1.RegisterFactory;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileStatus;
+import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -7,16 +17,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.iec1107.ppmi1.PPM;
-import com.energyict.protocolimpl.iec1107.ppmi1.PPMUtils;
-import com.energyict.protocolimpl.iec1107.ppmi1.RegisterFactory;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileStatus;
-import com.energyict.protocolimpl.iec1107.ppmi1.register.ScalingFactor;
 
 /** @author fbo */
 

@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
-import java.io.IOException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *

@@ -8,8 +8,8 @@ package com.energyict.dlms;
 
 import com.energyict.cbo.Utils;
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -391,7 +391,7 @@ public class DataContainer implements Serializable {
                             throw DataParseException.generalParseException(ioException);
 						}
 
-						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
+						LevelNROfElements[iLevel] = DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
 
@@ -405,7 +405,7 @@ public class DataContainer implements Serializable {
                             IOException ioException = new IOException("Max printlevel exceeds!");
                             throw DataParseException.generalParseException(ioException);
                         }
-						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
+						LevelNROfElements[iLevel] = DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
 
@@ -431,7 +431,7 @@ public class DataContainer implements Serializable {
 					{
 						int t,s;
 						i++;
-						t = (int)DLMSUtils.getAXDRLength(responseData,i);
+						t = DLMSUtils.getAXDRLength(responseData,i);
 						byte[] array = new byte[t];
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
 						for (s=0;s<t;s++) {
@@ -479,7 +479,7 @@ public class DataContainer implements Serializable {
 					{
 						int t,s;
 						i++;
-						t = (int)DLMSUtils.getAXDRLength(responseData,i);
+						t = DLMSUtils.getAXDRLength(responseData,i);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
 
 						// calc nr of bytes

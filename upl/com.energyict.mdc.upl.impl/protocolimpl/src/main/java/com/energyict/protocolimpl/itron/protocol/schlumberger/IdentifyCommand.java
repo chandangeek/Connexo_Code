@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

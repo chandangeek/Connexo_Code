@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.ansi.c12;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -265,7 +265,7 @@ public class C1222ResponseParms
 			{
 				result.append(".");
 				number += myByte;
-				result.append((long)number);
+				result.append(number);
 				number = 0;
 			}
 			else

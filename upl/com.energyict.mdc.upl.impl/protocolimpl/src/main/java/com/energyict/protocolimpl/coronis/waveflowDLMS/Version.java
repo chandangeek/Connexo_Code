@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.mdc.upl.UnsupportedException;
-
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

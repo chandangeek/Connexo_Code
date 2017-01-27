@@ -1,17 +1,15 @@
 package com.energyict.protocolimpl.eig.nexus1272;
 
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -29,6 +27,7 @@ import com.energyict.protocolimpl.eig.nexus1272.parse.NexusDataParser;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySetting;
 import com.energyict.protocolimpl.eig.nexus1272.parse.ScaledEnergySettingFactory;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,7 +43,6 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     private OutputStream outputStream;
 
     private List<LinePoint> masterlpMap = new ArrayList<>();
-    ;
     private List<LinePoint> mtrlpMap = null;
     private List<LinePoint> chnlpMap = new ArrayList<>();
     private long start;
@@ -171,7 +169,7 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:13 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
     }
 
     @Override

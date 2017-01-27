@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,12 +59,12 @@ public class ABBA1700DataIdentity {
     }
     
 
-    protected void writeRawRegister(String dataID, String value) throws FlagIEC1107ConnectionException,IOException {
+    protected void writeRawRegister(String dataID, String value) throws IOException {
         dowriteRawRegister(dataID,value);
         resetRegdata();
     }
     
-    private void dowriteRawRegister(String dataID, String value) throws FlagIEC1107ConnectionException,IOException {
+    private void dowriteRawRegister(String dataID, String value) throws IOException {
         String data = dataID+"001("+value+")";
         String retVal = getABBA1700DataIdentityFactory().getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrameAndReturn(FlagIEC1107Connection.WRITE1,data.getBytes());
         if ((retVal != null) && (retVal.indexOf("ERR") != -1)) 
@@ -73,7 +73,7 @@ public class ABBA1700DataIdentity {
     
     // streaming...
     // read register in the meter if not cached
-    public byte[] readRawRegisterStream(String dataID, boolean cached, int nrOfBlocks) throws FlagIEC1107ConnectionException,IOException {
+    public byte[] readRawRegisterStream(String dataID, boolean cached, int nrOfBlocks) throws IOException {
        if (getSets() != 1) 
            throw new IOException("ABBA1700DataIdentity, readRawRegisterStream, error nr of sets != 1 !!!, use of method not allowed"); 
        if ((!cached) || (dataBlocks[0] == null)) {
@@ -175,7 +175,7 @@ public class ABBA1700DataIdentity {
             }
             data.write(ba);
 
-            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+            if (System.currentTimeMillis() - timeout > 0) {
                 timeout = System.currentTimeMillis() + AUTHENTICATE_REARM; // arm again...
                 getABBA1700DataIdentityFactory().getProtocolLink().getFlagIEC1107Connection().authenticate();
             }

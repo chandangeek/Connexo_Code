@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.CM32;
 
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 public class ResponseReceiver {
 	
@@ -124,7 +124,7 @@ public class ResponseReceiver {
         			if (currentBlockByteCount < blockSize)
         				resultDataArrayOutputStream.write(kar);
         			else {
-        				checkCrc((int) kar, allDataArrayOutputStream);
+        				checkCrc(kar, allDataArrayOutputStream);
             			if (isLastFrame) {
             				byte[] data = resultDataArrayOutputStream.toByteArray();
             				Response response = new Response(ProtocolUtils.getSubArray2(data, 0, data.length));
@@ -140,7 +140,7 @@ public class ResponseReceiver {
         		}
         	}
         	if (command != null) {
-	        	if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+	        	if (System.currentTimeMillis() - protocolTimeout > 0) {
 	                throw new ProtocolConnectionException(
 	                		"receiveResponse() response timeout error", 
 	                		cm32Connection.getTimeoutError());
@@ -175,7 +175,7 @@ public class ResponseReceiver {
 	
 	protected void handleCM10Id(byte value) {
 		log("CM10Id = " + value);
-		int blockIdentifier = (int) (value & 0x60);
+		int blockIdentifier = value & 0x60;
 		this.isLastFrame = ((blockIdentifier == 64) || (blockIdentifier == 96));
 		log("blockIdentifier = " + blockIdentifier + ", isLastFrame = " + isLastFrame);
 	}

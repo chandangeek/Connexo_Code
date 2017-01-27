@@ -2,10 +2,10 @@ package com.energyict.protocolimpl.iec1107.ppm;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ppm.opus.OpusProfileParser;
 import com.energyict.protocolimpl.iec1107.ppm.parser.ProfileParser;
 import com.energyict.protocolimpl.iec1107.ppm.parser.ProfileReverseParser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

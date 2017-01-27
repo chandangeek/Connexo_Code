@@ -1,9 +1,9 @@
 package test.com.energyict.protocolimplv2.coronis.common.escapecommands;
 
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.coronis.core.EscapeCommandException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 import test.com.energyict.protocolimplv2.coronis.common.WaveFlowConnect;
 import test.com.energyict.protocolimplv2.coronis.common.WaveflowProtocolUtils;
 

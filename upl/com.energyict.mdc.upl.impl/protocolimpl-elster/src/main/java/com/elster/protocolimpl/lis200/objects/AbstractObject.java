@@ -5,8 +5,8 @@ package com.elster.protocolimpl.lis200.objects;
 
 import com.elster.protocolimpl.lis200.commands.ReadCommand;
 import com.elster.protocolimpl.lis200.commands.WriteCommand;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 

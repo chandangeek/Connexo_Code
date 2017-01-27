@@ -5,21 +5,20 @@
 
 package com.energyict.protocolimpl.iec1107.iskraemeco.mt83;
 
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ProtocolChannel;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.VDEWLogbook;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.VDEWProfile;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -184,23 +183,23 @@ public class MT83Profile extends VDEWProfile {
     private Calendar parseDateTime(byte[] data,int iOffset) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
         calendar.clear();
-        calendar.set(calendar.YEAR,(int)(2000+(int)ProtocolUtils.bcd2byte(data,0+iOffset)));
-        calendar.set(calendar.MONTH,(int)((int)ProtocolUtils.bcd2byte(data,2+iOffset)-1));
-        calendar.set(calendar.DAY_OF_MONTH,(int)ProtocolUtils.bcd2byte(data,4+iOffset));
-        calendar.set(calendar.HOUR_OF_DAY,(int)ProtocolUtils.bcd2byte(data,6+iOffset));
-        calendar.set(calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,8+iOffset));
+        calendar.set(Calendar.YEAR, 2000+(int)ProtocolUtils.bcd2byte(data,0+iOffset));
+        calendar.set(Calendar.MONTH, (int)ProtocolUtils.bcd2byte(data,2+iOffset)-1);
+        calendar.set(Calendar.DAY_OF_MONTH,(int)ProtocolUtils.bcd2byte(data,4+iOffset));
+        calendar.set(Calendar.HOUR_OF_DAY,(int)ProtocolUtils.bcd2byte(data,6+iOffset));
+        calendar.set(Calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,8+iOffset));
         return calendar;
     }
 
     private Calendar parseLogbookDateTime(byte[] data,int iOffset) throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(getProtocolLink().getTimeZone());
         calendar.clear();
-        calendar.set(calendar.YEAR,(int)(2000+(int)ProtocolUtils.bcd2byte(data,0+iOffset)));
-        calendar.set(calendar.MONTH,(int)((int)ProtocolUtils.bcd2byte(data,2+iOffset)-1));
-        calendar.set(calendar.DAY_OF_MONTH,(int)ProtocolUtils.bcd2byte(data,4+iOffset));
-        calendar.set(calendar.HOUR_OF_DAY,(int)ProtocolUtils.bcd2byte(data,6+iOffset));
-        calendar.set(calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,8+iOffset));
-        calendar.set(calendar.SECOND,(int)ProtocolUtils.bcd2byte(data,10+iOffset));
+        calendar.set(Calendar.YEAR, 2000+(int)ProtocolUtils.bcd2byte(data,0+iOffset));
+        calendar.set(Calendar.MONTH, (int)ProtocolUtils.bcd2byte(data,2+iOffset)-1);
+        calendar.set(Calendar.DAY_OF_MONTH,(int)ProtocolUtils.bcd2byte(data,4+iOffset));
+        calendar.set(Calendar.HOUR_OF_DAY,(int)ProtocolUtils.bcd2byte(data,6+iOffset));
+        calendar.set(Calendar.MINUTE,(int)ProtocolUtils.bcd2byte(data,8+iOffset));
+        calendar.set(Calendar.SECOND,(int)ProtocolUtils.bcd2byte(data,10+iOffset));
         return calendar;
     }
 
@@ -280,7 +279,7 @@ public class MT83Profile extends VDEWProfile {
 
                         i=gotoNextOpenBracket(responseData,i+1);
                         // set channel unit
-                        ((ChannelInfo)profileData.getChannel(t)).setUnit(Unit.get(parseFindString(responseData,i)));
+                        profileData.getChannel(t).setUnit(Unit.get(parseFindString(responseData,i)));
                     }
 
                     verifyChannelMap(new ProtocolChannelMap(channels));
@@ -300,7 +299,7 @@ public class MT83Profile extends VDEWProfile {
                     }
                     intervalData.addStatus(eiStatus);
                     profileData.addInterval(intervalData);
-                    calendar.add(calendar.MINUTE,bInterval);
+                    calendar.add(Calendar.MINUTE,bInterval);
                     i= gotoNextCR(responseData,i+1);
                     eiStatus=0;
                 }
@@ -365,7 +364,7 @@ public class MT83Profile extends VDEWProfile {
 	    Iterator it = eventsMap.values().iterator();
 		List result = new ArrayList();
 	    while (it.hasNext())
-	        result.add((MeterEvent) it.next());
+	        result.add(it.next());
 		return result;
     }
 

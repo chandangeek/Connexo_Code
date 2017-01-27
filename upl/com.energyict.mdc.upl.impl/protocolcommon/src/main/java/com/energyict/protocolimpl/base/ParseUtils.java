@@ -7,9 +7,8 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -147,7 +146,7 @@ public class ParseUtils {
 
         // calc normalized value
         for (int i=0;i<fpBitsRight;i++) {
-           lF = (double)(lF)/2;
+           lF = lF /2;
            if ((temp & (decimal >> i)) != 0) {
 			val+=lF;
 		}
@@ -334,17 +333,13 @@ public class ParseUtils {
     }
 
     public static boolean isOnIntervalBoundary(Calendar cal, int profileInterval) {
-        if ((cal.getTime().getTime()%(profileInterval*1000)) == 0) {
-			return true;
-		} else {
-			return false;
-		}
+        return (cal.getTime().getTime() % (profileInterval * 1000)) == 0;
     }
 
     public static void addIntervalValues(IntervalData intervalData,IntervalData intervalData2Add) {
         IntervalData tempIntervalData = new IntervalData(intervalData.getEndTime());
         for (int i = 0 ; i < intervalData.getIntervalValues().size() ; i++) {
-            int current = ((Number)intervalData2Add.get(i)).intValue() + ((Number)intervalData.get(i)).intValue();
+            int current = intervalData2Add.get(i).intValue() + intervalData.get(i).intValue();
             tempIntervalData.addValue(new Integer(current));
         }
         intervalData.setIntervalValues(tempIntervalData.getIntervalValues());
@@ -543,8 +538,8 @@ public class ParseUtils {
     	int arrayLength = nrOfBCDDigits/2+nrOfBCDDigits%2;
     	byte[] data = new byte[arrayLength];
     	for (int i=0;i<arrayLength;i++) {
-        	long modulo = (long)Double.valueOf(Math.pow(100,arrayLength-i)).longValue();
-        	long divide = (long)Double.valueOf(Math.pow(100,(arrayLength-1)-i)).longValue();
+        	long modulo = Double.valueOf(Math.pow(100,arrayLength-i)).longValue();
+        	long divide = Double.valueOf(Math.pow(100,(arrayLength-1)-i)).longValue();
         	long val2 = (val % modulo) / divide;
     		data[i] = ProtocolUtils.hex2BCD((byte)val2);
     	}
@@ -554,8 +549,8 @@ public class ParseUtils {
     	int arrayLength = nrOfBCDDigits/2+nrOfBCDDigits%2;
     	byte[] data = new byte[arrayLength];
     	for (int i=0;i<arrayLength;i++) {
-        	long modulo = (long)Double.valueOf(Math.pow(100,i+1)).longValue();
-        	long divide = (long)Double.valueOf(Math.pow(100,i)).longValue();
+        	long modulo = Double.valueOf(Math.pow(100,i+1)).longValue();
+        	long divide = Double.valueOf(Math.pow(100,i)).longValue();
         	long val2 = (val % modulo) / divide;
     		data[i] = ProtocolUtils.hex2BCD((byte)val2);
     	}

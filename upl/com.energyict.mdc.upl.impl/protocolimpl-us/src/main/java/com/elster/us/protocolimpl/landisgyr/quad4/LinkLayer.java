@@ -2,9 +2,9 @@ package com.elster.us.protocolimpl.landisgyr.quad4;
 
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
