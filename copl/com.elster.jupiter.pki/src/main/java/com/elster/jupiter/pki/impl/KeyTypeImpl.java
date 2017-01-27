@@ -1,17 +1,30 @@
 package com.elster.jupiter.pki.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
+
+import javax.inject.Inject;
+import javax.validation.constraints.Size;
 
 /**
  * Created by bvn on 1/18/17.
  */
 public class KeyTypeImpl implements KeyType {
+    private final DataModel dataModel;
+
     private long id;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
     private CryptographicType cryptographicType;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String algorithm;
     private Integer keySize;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String curve;
 
     enum Fields {
@@ -31,6 +44,11 @@ public class KeyTypeImpl implements KeyType {
         String fieldName() {
             return javaFieldName;
         }
+    }
+
+    @Inject
+    public KeyTypeImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     public long getId() {
@@ -77,5 +95,9 @@ public class KeyTypeImpl implements KeyType {
 
     public void setCurve(String curve) {
         this.curve = curve;
+    }
+
+    public void save() {
+        Save.action(id).save(dataModel, this);
     }
 }
