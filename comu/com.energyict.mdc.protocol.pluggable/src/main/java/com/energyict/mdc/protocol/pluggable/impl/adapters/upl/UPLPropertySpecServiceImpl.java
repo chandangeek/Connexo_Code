@@ -7,7 +7,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.LocalTimeFactory;
-import com.energyict.mdc.pluggable.impl.IntegerFactory;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.pluggable.impl.ServerProtocolPluggableService;
 import com.energyict.mdc.upl.Services;
