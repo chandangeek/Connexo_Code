@@ -9,8 +9,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -184,7 +182,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private TypedProperties properties(Device device) {
-        return device.getProperties();
+        return com.energyict.mdc.common.TypedProperties.empty();
     }
 
     @Override
@@ -383,11 +381,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
 
         @Override
         public String name() {
-            if (this.actual instanceof SingleComTaskComTaskExecution) {
-                return ((SingleComTaskComTaskExecution) this.actual).getComTask().getName();
-            } else {
-                return ((ScheduledComTaskExecution) this.actual).getComSchedule().getName();
-            }
+            return this.actual.getComTask().getName();
         }
 
         @Override

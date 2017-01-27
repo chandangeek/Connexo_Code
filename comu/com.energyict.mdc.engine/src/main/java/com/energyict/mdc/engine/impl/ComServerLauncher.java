@@ -10,7 +10,11 @@ import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -291,6 +295,26 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public DeviceService deviceService() {
             return serviceProvider.deviceService();
+        }
+
+        @Override
+        public RegisterService registerService() {
+            return serviceProvider.registerService();
+        }
+
+        @Override
+        public LoadProfileService loadProfileService() {
+            return serviceProvider.loadProfileService();
+        }
+
+        @Override
+        public LogBookService logBookService() {
+            return serviceProvider.logBookService();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
         }
 
         @Override

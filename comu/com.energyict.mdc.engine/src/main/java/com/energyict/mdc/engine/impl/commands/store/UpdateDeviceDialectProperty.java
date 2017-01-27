@@ -4,6 +4,7 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.PropertyValueType;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceDialectProperty;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -41,7 +42,7 @@ public class UpdateDeviceDialectProperty extends DeviceCommandImpl {
             if (valueType.equals(PropertyValueType.UNSUPPORTED)) {
                 addIssueToExecutionLogger(
                         CompletionCode.ConfigurationError,
-                        this.getIssueService().newProblem(this, "protocolPropertyUnsupportedType", deviceIdentifier, propertyValue.getClass().getSimpleName())
+                        this.getIssueService().newProblem(this, MessageSeeds.UNSUPPORTED_PROTOCOL_PROPERTY_TYPE, deviceIdentifier, propertyValue.getClass().getSimpleName())
                 );
                 return;
             }
@@ -52,14 +53,14 @@ public class UpdateDeviceDialectProperty extends DeviceCommandImpl {
             } catch (ClassCastException e) {
                 addIssueToExecutionLogger(
                         CompletionCode.ConfigurationError,
-                        this.getIssueService().newProblem(this, "protocolPropertyIncompatibleValue", deviceIdentifier, propertyValue.getClass().getSimpleName(), valueType.getValueTypeClass().getSimpleName())
+                        this.getIssueService().newProblem(this, MessageSeeds.INCOMPATIBLE_PROTOCOL_PROPERTY_VALUE, deviceIdentifier, propertyValue.getClass().getSimpleName(), valueType.getValueTypeClass().getSimpleName())
                 );
                 return;
             }
         } else {
             addIssueToExecutionLogger(
                     CompletionCode.ConfigurationWarning,
-                    this.getIssueService().newWarning(this, "collectedDeviceProtocolPropertyForUnknownDevice", deviceIdentifier)
+                    this.getIssueService().newWarning(this, MessageSeeds.UNKNOWN_DEVICE, deviceIdentifier)
             );
         }
     }

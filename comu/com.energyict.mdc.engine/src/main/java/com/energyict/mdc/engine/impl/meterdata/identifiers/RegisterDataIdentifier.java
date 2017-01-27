@@ -2,7 +2,12 @@ package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Implementation of a {@link RegisterIdentifier} that uniquely identifies an {@link com.energyict.mdc.upl.meterdata.Register} based on the ObisCode
@@ -44,6 +49,11 @@ public class RegisterDataIdentifier implements RegisterIdentifier {
         @Override
         public String getTypeName() {
             return "DeviceIdentifierAndObisCode";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("device", "obisCode", "deviceObisCode"));
         }
 
         @Override

@@ -77,7 +77,10 @@ public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.Messa
     COMMAND_FAILED_DUE_TO_CONNECTION_RELATED_ISSUE(5062, "commandFailedDueToConnectionRelatedIssue", "Communication task failed due to connection related error: {0}"),
     NOT_EXECUTED_DUE_TO_BASIC_CHECK_FAILURE(5063, "notExecutedDueToBasicCheckFailure", "Communication task will be rescheduled due to the failure of the BasicCheck task"),
     LOAD_PROFILE_CONFIGURATION_MISMATCH(5064, "loadProfileConfigDoesNotMatchCollectedData", "Collected load profile data for {0} doesn''t match the configured load profile interval ''{1}''"),
-    MAC_CHECK_FAILURE(5065, "macCheckFailure", "Failed to execute command due to message authentication check failure.")
+    MAC_CHECK_FAILURE(5065, "macCheckFailure", "Failed to execute command due to message authentication check failure."),
+    UNSUPPORTED_PROTOCOL_PROPERTY_TYPE(5066, "protocolPropertyUnsupportedType", "Unsupported protocol property type"),
+    INCOMPATIBLE_PROTOCOL_PROPERTY_VALUE(5067, "protocolPropertyIncompatibleValue", "Value of protocol property is not compatible with the type definition"),
+    UNKNOWN_DEVICE(5068, "collectedDeviceProtocolPropertyForUnknownDevice", "Protocol property for unknown device")
     ;
 
     private final int number;

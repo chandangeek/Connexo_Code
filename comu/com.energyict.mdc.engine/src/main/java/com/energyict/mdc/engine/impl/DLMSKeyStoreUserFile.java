@@ -57,7 +57,11 @@ public class DLMSKeyStoreUserFile {
         return findOrCreateDLMSStore(KEY, KEY_STORE_NAME, KEY_STORE_EXTENSION).forReading(PARAMETERS);
     }
 
-    private PersistentKeyStore findOrCreateDLMSTrustStore() {
+    public KeyStore findOrCreateDLMSTrustStore() {
+        return this.doFindOrCreateDLMSTrustStore().forReading(PARAMETERS);
+    }
+
+    private PersistentKeyStore doFindOrCreateDLMSTrustStore() {
         return findOrCreateDLMSStore(TRUST, TRUST_STORE_NAME, TRUST_STORE_EXTENSION);
     }
 
@@ -89,7 +93,7 @@ public class DLMSKeyStoreUserFile {
             X509Certificate x509Certificate = (X509Certificate) certificate;
             x509Certificate.checkValidity();
 
-            PersistentKeyStore persistentKeyStore = findOrCreateDLMSTrustStore();
+            PersistentKeyStore persistentKeyStore = this.doFindOrCreateDLMSTrustStore();
             KeyStore trustStore = persistentKeyStore.forReading(PARAMETERS);
 
             //Find the subject CN of the given certificate
@@ -141,7 +145,7 @@ public class DLMSKeyStoreUserFile {
     /**
      * A new root CA certificate should be self signed
      */
-    private void validateRootCACertificate(X509Certificate certificate) throws KeyStoreException, NoSuchAlgorithmException, CertificateEncodingException, SignatureException, InvalidKeyException {
+    private void validateRootCACertificate(X509Certificate certificate) throws NoSuchAlgorithmException, CertificateEncodingException, SignatureException, InvalidKeyException {
         Signature signingImpl = Signature.getInstance(certificate.getSigAlgName());
         signingImpl.initVerify(certificate);
         signingImpl.update(certificate.getTBSCertificate());

@@ -8,9 +8,11 @@ import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +46,14 @@ public class MeterDataStorageEvent extends AbstractCollectedDataProcessingEventI
         return super.getLogLevel();
     }
 
+    private <T> int size(Collection<T> nullable) {
+        if (nullable == null) {
+            return 0;
+        } else {
+            return nullable.size();
+        }
+    }
+
     protected void addPayload(JSONWriter writer) throws JSONException {
        writer.key("meterDataStorage");
        writer.object();
@@ -56,9 +66,9 @@ public class MeterDataStorageEvent extends AbstractCollectedDataProcessingEventI
                 if (meterReading != null) {
                     writer.object();
                     writer.key("deviceIdentifier").value(identifier.toString());
-                    writer.key("endDeviceEvents").value(meterReading.getEvents() != null ? meterReading.getEvents().size() : 0);
-                    writer.key("readings").value(meterReading.getReadings() != null ? meterReading.getReadings().size() : 0);
-                    writer.key("intervalBlocks").value(meterReading.getIntervalBlocks() != null ? meterReading.getIntervalBlocks().size() : 0);
+                    writer.key("endDeviceEvents").value(this.size(meterReading.getEvents()));
+                    writer.key("readings").value(this.size(meterReading.getReadings()));
+                    writer.key("intervalBlocks").value(this.size(meterReading.getIntervalBlocks()));
                     writer.endObject();
                 }
             }

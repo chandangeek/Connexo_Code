@@ -10,11 +10,13 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -69,7 +71,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     public void logOnAllLoggerHandlers(String info, Level level) {
-
         //TODO see if you can fix this. We keep getting the set on a 'completed' comSession
         attachAllExtraHandlersToLogger();
         logger.log(level, info);
@@ -91,10 +92,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         for (Handler handler : loggerExtraHandlers) {
             logger.removeHandler(handler);
         }
-    }
-
-    public void addLoggerExtraHandler(Handler publisher) {
-        this.loggerExtraHandlers.add(publisher);
     }
 
     @Override

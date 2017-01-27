@@ -28,7 +28,7 @@ import java.util.Optional;
  */
 public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorageEvent> implements MeterDataStoreCommand {
 
-    private final Map<String, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
+    private final Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
     private final Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
     private final Map<LogBookIdentifier, Instant> lastLogBooks = new HashMap<>();
 
@@ -39,7 +39,7 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
     @Override
     protected final void doExecute(ComServerDAO comServerDAO) {
         try {
-            for (Map.Entry<String, Pair<DeviceIdentifier, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
+            for (Map.Entry<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
                 comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
             }
 
@@ -61,13 +61,13 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
 
     @Override
     public void addIntervalReadings(DeviceIdentifier deviceIdentifier, List<IntervalBlock> intervalBlocks) {
-        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier.getIdentifier());
+        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier);
         if (meterReadingsEntry != null) {
             meterReadingsEntry.getLast().addAllIntervalBlocks(intervalBlocks);
         } else {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addAllIntervalBlocks(intervalBlocks);
-            this.meterReadings.put(deviceIdentifier.getIdentifier(), Pair.of(deviceIdentifier, meterReading));
+            this.meterReadings.put(deviceIdentifier, Pair.of(deviceIdentifier, meterReading));
         }
     }
 
@@ -81,25 +81,25 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
 
     @Override
     public void addReadings(DeviceIdentifier deviceIdentifier, List<Reading> registerReadings) {
-        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier.getIdentifier());
+        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier);
         if (meterReadingsEntry != null) {
             meterReadingsEntry.getLast().addAllReadings(registerReadings);
         } else {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addAllReadings(registerReadings);
-            this.meterReadings.put(deviceIdentifier.getIdentifier(), Pair.of(deviceIdentifier, meterReading));
+            this.meterReadings.put(deviceIdentifier, Pair.of(deviceIdentifier, meterReading));
         }
     }
 
     @Override
     public void addEventReadings(DeviceIdentifier deviceIdentifier, List<EndDeviceEvent> endDeviceEvents) {
-        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier.getIdentifier());
+        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier);
         if (meterReadingsEntry != null) {
             meterReadingsEntry.getLast().addAllEndDeviceEvents(endDeviceEvents);
         } else {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addAllEndDeviceEvents(endDeviceEvents);
-            this.meterReadings.put(deviceIdentifier.getIdentifier(), Pair.of(deviceIdentifier, meterReading));
+            this.meterReadings.put(deviceIdentifier, Pair.of(deviceIdentifier, meterReading));
         }
     }
 
@@ -111,7 +111,7 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
         }
     }
 
-    public Map<String, Pair<DeviceIdentifier, MeterReadingImpl>> getMeterReadings(){
+    public Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> getMeterReadings(){
         return this.meterReadings;
     }
 

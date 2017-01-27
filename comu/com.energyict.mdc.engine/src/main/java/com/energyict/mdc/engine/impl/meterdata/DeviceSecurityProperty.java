@@ -35,7 +35,7 @@ public class DeviceSecurityProperty extends CollectedDeviceData implements Colle
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new UpdateDeviceSecurityProperty(this, getComTaskExecution());
+        return new UpdateDeviceSecurityProperty(this, getComTaskExecution(), serviceProvider);
     }
 
     @Override
