@@ -51,6 +51,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -225,6 +227,7 @@ public class MetrologyConfigurationResource {
             metrologyContractInfo.estimationRuleSets = estimationRuleSetInfos;
             metrologyContractInfos.add(metrologyContractInfo);
         }
+        Collections.sort(metrologyContractInfos, (MetrologyContractInfo a, MetrologyContractInfo b) -> a.name.compareTo(b.name));
         return PagedInfoList.fromCompleteList("contracts", metrologyContractInfos, queryParameters);
     }
 
