@@ -45,6 +45,7 @@ import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -99,6 +100,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
 
     private volatile MasterDataService masterDataService;
 
+    private volatile ObisCodeDescriptor obisCodeDescriptor;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
@@ -193,6 +195,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Reference
+    public void setObisCodeDescriptor(ObisCodeDescriptor obisCodeDescriptor) {
+        this.obisCodeDescriptor = obisCodeDescriptor;
     }
 
     @Reference
@@ -506,6 +513,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
 
         @Override
         protected void configure() {
+            bind(obisCodeDescriptor).to(ObisCodeDescriptor.class);
             bind(masterDataService).to(MasterDataService.class);
             bind(connectionTaskService).to(ConnectionTaskService.class);
             bind(deviceService).to(DeviceService.class);
