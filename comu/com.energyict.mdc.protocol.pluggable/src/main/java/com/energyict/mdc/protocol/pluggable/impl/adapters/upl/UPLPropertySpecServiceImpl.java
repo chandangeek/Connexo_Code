@@ -1,14 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.dynamic.LocalTimeFactory;
-import com.energyict.mdc.dynamic.impl.EncryptedStringFactory;
 import com.energyict.mdc.pluggable.impl.IntegerFactory;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.pluggable.impl.ServerProtocolPluggableService;
@@ -50,7 +48,6 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class UPLPropertySpecServiceImpl implements PropertySpecService {
     private volatile com.energyict.mdc.dynamic.PropertySpecService actual;
-    private volatile DataVaultService dataVaultService;
     private volatile ServerProtocolPluggableService protocolPluggableService;
 
     // For OSGi framework
@@ -60,21 +57,15 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
     // For testing purposes
     @Inject
-    public UPLPropertySpecServiceImpl(com.energyict.mdc.dynamic.PropertySpecService propertySpecService, DataVaultService dataVaultService, ServerProtocolPluggableService protocolPluggableService) {
+    public UPLPropertySpecServiceImpl(com.energyict.mdc.dynamic.PropertySpecService propertySpecService, ServerProtocolPluggableService protocolPluggableService) {
         this();
         this.setActualPropertySpecService(propertySpecService);
-        this.setDataVaultService(dataVaultService);
         this.setProtocolPluggableService(protocolPluggableService);
     }
 
     @Reference
     public void setActualPropertySpecService(com.energyict.mdc.dynamic.PropertySpecService actual) {
         this.actual = actual;
-    }
-
-    @Reference
-    public void setDataVaultService(DataVaultService dataVaultService) {
-        this.dataVaultService = dataVaultService;
     }
 
     @Reference
@@ -119,7 +110,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpecBuilderWizard.NlsOptions<String> encryptedStringSpec() {
-        return new NlsOptionsAdapter<>(this.actual.specForValuesOf(new EncryptedStringFactory(this.dataVaultService)), this.protocolPluggableService.protocolsThesaurus());
+        return new NlsOptionsAdapter<>(this.actual.encryptedStringSpec(), this.protocolPluggableService.protocolsThesaurus());
     }
 
     @Override
