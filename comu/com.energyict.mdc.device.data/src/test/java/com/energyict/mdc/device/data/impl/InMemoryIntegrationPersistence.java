@@ -53,6 +53,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -280,7 +281,8 @@ public class InMemoryIntegrationPersistence {
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new UsagePointLifeCycleConfigurationModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);

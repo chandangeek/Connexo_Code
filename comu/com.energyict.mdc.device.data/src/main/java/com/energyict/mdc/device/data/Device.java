@@ -483,6 +483,15 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setConnectionTaskForComTaskExecutions(ConnectionTask connectionTask);
 
+    String getManufacturer();
+    void setManufacturer(String manufacturer);
+
+    String getModelNumber();
+    void setModelNumber(String modelNumber);
+
+    String getModelVersion();
+    void setModelVersion(String modelVersion);
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */

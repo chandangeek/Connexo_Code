@@ -288,6 +288,98 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void createWithManufactorerTest() {
+        String manufacturer = "TheManufacturer";
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        device.setManufacturer(manufacturer);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getManufacturer()).isEqualTo(manufacturer);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateManufactorer() {
+        String manufacturer = "TheManufacturer";
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        device.setManufacturer(manufacturer);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        reloadedDevice.setManufacturer(manufacturer+"2");
+        reloadedDevice.save();
+
+        Device reloadedDevice2 = getReloadedDevice(device);
+        assertThat(reloadedDevice2.getManufacturer()).isEqualTo(manufacturer+"2");
+    }
+    @Test
+    @Transactional
+    public void createWithModelNumberTest() {
+        String modelNbr = "TheModelNbr";
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        device.setModelNumber(modelNbr);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getModelNumber()).isEqualTo(modelNbr);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateModelNumber() {
+        String modelNbr = "TheModelNbr";
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        device.setModelNumber(modelNbr);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        reloadedDevice.setModelNumber(modelNbr+"2");
+        reloadedDevice.save();
+
+        Device reloadedDevice2 = getReloadedDevice(device);
+        assertThat(reloadedDevice2.getModelNumber()).isEqualTo(modelNbr+"2");
+    }
+
+    @Test
+    @Transactional
+    public void createWithModelVersionTest() {
+        String modelVersion = "TheModelVersion";
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        device.setModelNumber(modelVersion);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+
+        assertThat(reloadedDevice.getModelNumber()).isEqualTo(modelVersion);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateModelVersion() {
+        String modelVersion = "TheModelVersion";
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
+        device.setModelNumber(modelVersion);
+        device.save();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        reloadedDevice.setModelVersion(modelVersion+"2");
+        reloadedDevice.save();
+
+        Device reloadedDevice2 = getReloadedDevice(device);
+        assertThat(reloadedDevice2.getModelVersion()).isEqualTo(modelVersion+"2");
+    }
+
+    @Test
+    @Transactional
     public void testUpdateName() {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME, Instant.now());
 

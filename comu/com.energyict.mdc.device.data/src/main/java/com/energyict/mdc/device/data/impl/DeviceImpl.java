@@ -501,14 +501,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void setLocation(Location location) {
-        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
-        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, deviceService, readingTypeUtilService, eventService);
-        if (!currentKoreUpdater.isPresent()) {
-            syncsWithKore.add(koreUpdater);
-        } else {
-            koreUpdater = currentKoreUpdater.get();
-        }
-        koreUpdater.setLocation(location);
+        findOrCreateKoreUpdater().setLocation(location);
     }
 
     @Override
@@ -535,8 +528,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Optional<Location> getUpdatedLocation() {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
-            SyncDeviceWithKoreForSimpleUpdate simpleKoreUpdater = currentKoreUpdater.get();
-            return simpleKoreUpdater.getLocation();
+            return currentKoreUpdater.get().getLocation();
         }
         return Optional.empty();
     }
@@ -819,6 +811,67 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    //  All 'EndDevice' fields
+    private SyncDeviceWithKoreForSimpleUpdate findOrCreateKoreUpdater(){
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, deviceService, readingTypeUtilService, eventService);
+        if (!currentKoreUpdater.isPresent()) {
+            syncsWithKore.add(koreUpdater);
+            return koreUpdater;
+        } else {
+            return currentKoreUpdater.get();
+        }
+    }
+
+
+    @Override
+    public String getManufacturer() {
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        if (currentKoreUpdater.isPresent()) {
+            return currentKoreUpdater.get().getManufacturer();
+        }else if (meter.isPresent()) {
+            return meter.get().getManufacturer();
+        }
+        return null;
+    }
+
+    @Override
+    public void setManufacturer(String manufacturer) {
+        findOrCreateKoreUpdater().setManufacturer(manufacturer);
+    }
+
+    @Override
+    public String getModelNumber() {
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        if (currentKoreUpdater.isPresent()) {
+            currentKoreUpdater.get().getModelNumber();
+        }else if (meter.isPresent()) {
+            return meter.get().getModelNumber();
+        }
+        return null;
+    }
+
+    @Override
+    public void setModelNumber(String modelNumber) {
+        findOrCreateKoreUpdater().setModelNumber(modelNumber);
+    }
+
+    @Override
+    public String getModelVersion() {
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        if (currentKoreUpdater.isPresent()) {
+            return currentKoreUpdater.get().getModelVersion();
+        }else if (meter.isPresent()) {
+            return meter.get().getModelVersion();
+        }
+        return null;
+    }
+
+    @Override
+    public void setModelVersion(String modelVersion) {
+        findOrCreateKoreUpdater().setModelVersion(modelVersion);
     }
 
     @Override
@@ -1316,6 +1369,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
                 .setReceivedDate(koreHelper.getInitialMeterActivationStartDate().get()) // date should be present
+                .setManufacturer(getManufacturer())
+                .setModelNumber(getModelNumber())
+                .setModelVersion(getModelVersion())
                 .create();
     }
 
