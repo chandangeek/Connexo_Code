@@ -42,11 +42,11 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval',
-                renderer: function (interval, metaData, record) {                    
+                renderer: function (interval, metaData, record) {
                     var text = interval.end
                             ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
                             : '-';
-                    
+
                     return text + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
                 },
                 flex: 1
@@ -140,7 +140,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         if (record.get('estimatedByRule') && !record.isModified('value')) {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
         } else if (record.get('isConfirmed') && !record.isModified('value')) {
-            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;"></span>';
+            icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
         }
         return value + icon;
     }

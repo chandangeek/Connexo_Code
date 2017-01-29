@@ -1,6 +1,5 @@
 Ext.define('Imt.usagepointmanagement.model.MeterRole', {
     extend: 'Ext.data.Model',
-    requires: [],
     fields: [
         {
             name: 'name',
