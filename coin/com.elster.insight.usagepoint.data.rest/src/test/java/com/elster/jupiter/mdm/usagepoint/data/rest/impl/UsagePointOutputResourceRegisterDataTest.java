@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -349,7 +348,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testGetRegisterOutputDataFromCalculatedReading() throws Exception {
-        Range<Instant> interval = Range.openClosed(readingTimeStamp1, readingTimeStamp1);
+        Range<Instant> interval = Range.openClosed(readingTimeStamp1, readingTimeStamp2);
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
         when(channel.getPersistedRegisterReadings(interval)).thenReturn(Collections.emptyList());
         when(channel.getCalculatedRegisterReadings(interval)).thenReturn(Collections.singletonList(readingRecord1));
@@ -361,19 +360,19 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
         // Business method
         String json = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData")
-                .queryParam("filter", buildFilter(readingTimeStamp1, readingTimeStamp1)).request().get(String.class);
+                .queryParam("filter", buildFilter(readingTimeStamp1, readingTimeStamp2)).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List<?>>get("$.registerData")).hasSize(1);
         assertThat(jsonModel.<List<?>>get("$.registerData[0].readingQualities")).hasSize(2);
-        assertThat(jsonModel.<List<String>>get("$.registerData[0].readingQualities[*].cimCode")).contains("2.5.258", "2.7.0");
+        assertThat(jsonModel.<List<String>>get("$.registerData[0].readingQualities[*].cimCode")).containsOnly("2.5.258", "2.7.0");
     }
 
     @Test
     public void testGetRegisterOutputDataFromPersistedReading() throws Exception {
-        Range<Instant> interval = Range.openClosed(readingTimeStamp1, readingTimeStamp1);
+        Range<Instant> interval = Range.openClosed(readingTimeStamp1, readingTimeStamp2);
         when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
         when(channel.getPersistedRegisterReadings(interval)).thenReturn(Collections.singletonList(readingRecord1));
         when(channel.getCalculatedRegisterReadings(interval)).thenReturn(Collections.emptyList());
@@ -390,14 +389,14 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
         // Business method
         String json = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData")
-                .queryParam("filter", buildFilter(readingTimeStamp1, readingTimeStamp1)).request().get(String.class);
+                .queryParam("filter", buildFilter(readingTimeStamp1, readingTimeStamp2)).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List<?>>get("$.registerData")).hasSize(1);
         assertThat(jsonModel.<List<?>>get("$.registerData[0].readingQualities")).hasSize(2);
-        assertThat(jsonModel.<List<String>>get("$.registerData[0].readingQualities[*].cimCode")).contains("3.5.258", "3.7.0");
+        assertThat(jsonModel.<List<String>>get("$.registerData[0].readingQualities[*].cimCode")).containsOnly("3.5.258", "3.7.0");
     }
 
     private ReadingQuality mockReadingQuality(ReadingQualityType type) {

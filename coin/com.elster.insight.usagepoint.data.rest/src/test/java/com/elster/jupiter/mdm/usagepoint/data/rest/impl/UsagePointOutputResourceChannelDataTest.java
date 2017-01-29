@@ -448,7 +448,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<Long>get("$.channelData[0].reportedDateTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<String>get("$.channelData[0].value")).isEqualTo("1");
         assertThat(jsonModel.<List<?>>get("$.channelData[0].readingQualities")).hasSize(2);
-        assertThat(jsonModel.<List<String>>get("$.channelData[0].readingQualities[*].cimCode")).contains("2.7.0", "2.5.258");
+        assertThat(jsonModel.<List<String>>get("$.channelData[0].readingQualities[*].cimCode")).containsOnly("2.7.0", "2.5.258");
     }
 
     @Test
@@ -481,7 +481,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<Long>get("$.channelData[0].reportedDateTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<String>get("$.channelData[0].value")).isEqualTo("1");
         assertThat(jsonModel.<List<?>>get("$.channelData[0].readingQualities")).hasSize(2);
-        assertThat(jsonModel.<List<String>>get("$.channelData[0].readingQualities[*].cimCode")).contains("3.7.0", "3.5.258");
+        assertThat(jsonModel.<List<String>>get("$.channelData[0].readingQualities[*].cimCode")).containsOnly("3.7.0", "3.5.258");
     }
 
     private ReadingQuality mockReadingQuality(ReadingQualityType type) {
