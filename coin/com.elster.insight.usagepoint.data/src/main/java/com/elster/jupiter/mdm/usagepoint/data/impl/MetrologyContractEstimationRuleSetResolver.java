@@ -36,15 +36,14 @@ public class MetrologyContractEstimationRuleSetResolver implements EstimationRes
     @Override
     public List<EstimationRuleSet> resolve(ChannelsContainer channelsContainer) {
         if (channelsContainer.getUsagePoint().isPresent()) {
-            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = channelsContainer
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = channelsContainer
                     .getUsagePoint()
                     .get()
-                    .getCurrentEffectiveMetrologyConfiguration()
-                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
+                    .getCurrentEffectiveMetrologyConfiguration();
             if (metrologyConfiguration.isPresent()) {
-                return DecoratedStream.decorate(metrologyConfiguration.get().getContracts().stream())
-                        .flatMap(contract -> this.usagePointConfigurationService.getEstimationRuleSets(contract)
-                                .stream())
+                return DecoratedStream.decorate(metrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream())
+                        .filter(metrologyContract -> channelsContainer.equals(metrologyConfiguration.get().getChannelsContainer(metrologyContract).orElse(null)))
+                        .flatMap(contract -> this.usagePointConfigurationService.getEstimationRuleSets(contract).stream())
                         .distinct(EstimationRuleSet::getId)
                         .collect(Collectors.toList());
             }
