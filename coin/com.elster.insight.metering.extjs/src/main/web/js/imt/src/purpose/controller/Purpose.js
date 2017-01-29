@@ -365,11 +365,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         }
 
         purpose.set('validationInfo', {lastChecked: lastChecked});
-        me.doOperation(purpose, {
-            usagePointId: usagePoint.get('name'),
-            upVersion: usagePoint.get('version'),
-            action: 'validate'
-        }, confWindow, Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'));
+        me.doOperation(purpose, usagePoint, confWindow, Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'), 'validate');
     },
 
     estimatePurpose: function (purpose) {
@@ -410,11 +406,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             }])
         });
 
-        me.doOperation(purpose, {
-            usagePointId: usagePoint.get('name'),
-            upVersion: usagePoint.get('version'),
-            action: 'estimate'
-        }, confirmationWindow, Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'));
+        me.doOperation(purpose, usagePoint, confirmationWindow, Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'), 'estimate');
     },
 
     onTooLongOperation: function (purpose, confirmationWindow, errorMessageConfig) {
@@ -441,16 +433,15 @@ Ext.define('Imt.purpose.controller.Purpose', {
         Ext.resumeLayouts(true);
     },
 
-    doOperation: function (purpose, extraParams, confirmationWindow, successMessage) {
+    doOperation: function (purpose, usagePoint, confirmationWindow, successMessage, action) {
         var me = this,
             purposePage = me.getPurposePage();
 
-        purpose.getProxy().extraParams = extraParams;
-        purpose.save({
+        purpose[action](usagePoint, {
             isNotEdit: true,
             notHandleTimeout: true,
-            callback: function (record, operation, success) {
-                if (operation.response.status) {
+            callback: function (options, success, response) {
+                if (response.status) {
                     confirmationWindow.close();
                 }
                 if (purposePage.rendered && success) {
