@@ -378,6 +378,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(EstimationHelper.class).to(EstimationHelper.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+            bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
