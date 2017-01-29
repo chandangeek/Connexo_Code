@@ -408,6 +408,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(usagePointLifeCycleService).to(UsagePointLifeCycleService.class);
             bind(meteringTranslationService).to(MeteringTranslationService.class);
             bind(ReadingQualityInfoFactory.class).to(ReadingQualityInfoFactory.class);
+            bind(EstimationTaskInfoFactory.class).to(EstimationTaskInfoFactory.class);
         }
     }
 }

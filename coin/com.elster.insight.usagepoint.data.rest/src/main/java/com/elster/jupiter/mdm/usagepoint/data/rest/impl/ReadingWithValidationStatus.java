@@ -73,7 +73,7 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
     }
 
     public Optional<BigDecimal> getCalculatedValue() {
-        return this.calculatedReadingRecord != null ? Optional.of(this.calculatedReadingRecord.getValue()) : Optional.empty();
+        return this.calculatedReadingRecord != null ? Optional.ofNullable(this.calculatedReadingRecord.getValue()) : Optional.empty();
     }
 
     public boolean isChannelValidationActive() {

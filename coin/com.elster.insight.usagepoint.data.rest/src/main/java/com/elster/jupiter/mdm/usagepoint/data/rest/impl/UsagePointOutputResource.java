@@ -16,14 +16,12 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -54,7 +52,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -97,8 +94,7 @@ public class UsagePointOutputResource {
     private final EstimationService estimationService;
     private final MeteringService meteringService;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
-    private final Thesaurus thesaurus;
-    private final MetrologyConfigurationService metrologyConfigurationService;
+    private final EstimationTaskInfoFactory estimationTaskInfoFactory;
 
     private static final String INTERVAL_START = "intervalStart";
     private static final String INTERVAL_END = "intervalEnd";
@@ -117,8 +113,7 @@ public class UsagePointOutputResource {
                              EstimationService estimationService,
                              MeteringService meteringService,
                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
-                             Thesaurus thesaurus,
-                             MetrologyConfigurationService metrologyConfigurationService) {
+                             EstimationTaskInfoFactory estimationTaskInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.estimationHelper = estimationHelper;
@@ -133,8 +128,7 @@ public class UsagePointOutputResource {
         this.estimationService = estimationService;
         this.meteringService = meteringService;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
-        this.thesaurus = thesaurus;
-        this.metrologyConfigurationService = metrologyConfigurationService;
+        this.estimationTaskInfoFactory = estimationTaskInfoFactory;
     }
 
     @GET
@@ -163,6 +157,7 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryFilter filter,
                                                        @BeanParam JsonQueryParameters queryParameters) {
+        List<OutputInfo> outputInfoList = new ArrayList<>();
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
@@ -173,20 +168,19 @@ public class UsagePointOutputResource {
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_RELATIVEPERIOD_FOR_ID, periodId))
                     .getOpenClosedInterval(ZonedDateTime.ofInstant(now, clock.getZone()));
             Range<Instant> upToNow = Range.atMost(now);
-            if (interval.isConnected(upToNow)) {
-                if (!interval.intersection(upToNow).isEmpty()) {
-                    List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
-                            .stream()
-                            .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract,
-                                    getUsagePointAdjustedDataRange(usagePoint, interval.intersection(upToNow)).orElse(Range.openClosed(now, now))))
-                            .sorted(Comparator.comparing(info -> info.name))
-                            .collect(Collectors.toList());
-                    return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
-                }
+            if (!interval.isConnected(upToNow)) {
+                throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
+            } else if (!interval.intersection(upToNow).isEmpty()) {
+                outputInfoList = metrologyContract.getDeliverables()
+                        .stream()
+                        .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract,
+                                getUsagePointAdjustedDataRange(usagePoint, interval.intersection(upToNow)).orElse(Range.openClosed(now, now))))
+                        .sorted(Comparator.comparing(info -> info.name))
+                        .collect(Collectors.toList());
             }
-            throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
+            return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
         } else {
-            List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
+            outputInfoList = metrologyContract.getDeliverables()
                     .stream()
                     .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, null))
                     .sorted(Comparator.comparing(info -> info.name))
@@ -593,33 +587,36 @@ public class UsagePointOutputResource {
     }
 
     @PUT
-    @Path("/{purposeId}")
-    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL, com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL})
+    @Path("/{purposeId}/validate")
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response validateOrEstimateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, @QueryParam("upVersion") long upVersion,
-                                                        @QueryParam("action") @DefaultValue("") String action, PurposeInfo purposeInfo) {
-        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, upVersion);
+    public Response validateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
         usagePoint.update();
-        switch (action) {
-            case "validate":
-                effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
-                        .ifPresent(channelsContainer ->
-                                validationService.validate(
-                                        new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
-                                        purposeInfo.validationInfo.lastChecked));
-                break;
-            case "estimate":
-                effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
-                        .ifPresent(channelsContainer ->
-                                estimationService.estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange()));
-                break;
-            default:
-                throw exceptionFactory.newException(MessageSeeds.WRONG_ACTION_SPECIFIED);
-        }
+        effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
+                .ifPresent(channelsContainer ->
+                        validationService.validate(
+                                new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer, metrologyContract),
+                                purposeInfo.validationInfo.lastChecked));
+        return Response.status(Response.Status.OK).build();
+    }
 
+    @PUT
+    @Path("/{purposeId}/estimate")
+    @RolesAllowed({com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response estimateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+        usagePoint.update();
+        effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
+                .ifPresent(channelsContainer ->
+                        estimationService.estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange()));
         return Response.status(Response.Status.OK).build();
     }
 
@@ -672,14 +669,14 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
         List<DataValidationTask> validationTasks = validationService.findValidationTasks()
                 .stream()
-                .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose().get().getId() == metrologyContract.getMetrologyPurpose().getId())
+                .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
                 .collect(Collectors.toList());
 
         List<DataValidationTaskInfo> dataValidationTasks = validationTasks
                 .stream()
                 .map(DataValidationTask::getUsagePointGroup)
                 .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Functions.asStream())
                 .distinct()
                 .filter(usagePointGroup -> isMember(usagePoint, usagePointGroup))
                 .flatMap(usagePointGroup -> validationTasks.stream()
@@ -702,10 +699,10 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
         List<EstimationTask> estimationTasks = estimationService.findEstimationTasks(QualityCodeSystem.MDM)
                 .stream()
-                .filter(task -> task.getMetrologyPurpose().get().getId() == metrologyContract.getMetrologyPurpose().getId())
+                .filter(task -> task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
                 .collect(Collectors.toList());
 
-        List<EstimationTaskInfo> dataEstimationTasks = estimationTasks
+        List<EstimationTaskShortInfo> dataEstimationTasks = estimationTasks
                 .stream()
                 .map(EstimationTask::getUsagePointGroup)
                 .filter(Optional::isPresent)
@@ -716,7 +713,7 @@ public class UsagePointOutputResource {
                         .filter(estimationTask -> estimationTask.getUsagePointGroup()
                                 .filter(usagePointGroup::equals)
                                 .isPresent()))
-                .map(estimationTask -> new EstimationTaskInfo(estimationTask, thesaurus, timeService))
+                .map(estimationTaskInfoFactory::asInfo)
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("dataEstimationTasks", dataEstimationTasks, queryParameters);
