@@ -126,6 +126,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
     formatColumn: function (v, metaData, record) {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
+            estimatedByRule = record.get('estimatedByRule'),
             icon = '';
 
         if (status === 'notValidated') {
@@ -137,8 +138,13 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             icon = '<span class="icon-flag5" style="margin-left:10px; color:red; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
         }
-        if (record.get('estimatedByRule') && !record.isModified('value')) {
-            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
+        if (!Ext.isEmpty(estimatedByRule) && !record.isModified('value')) {
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
+                + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
+                    estimatedByRule.application.name,
+                    Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
+                    Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
+                ], false) + '"></span>';
         } else if (record.get('isConfirmed') && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';

@@ -257,8 +257,8 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                             field.hide();
                         }
                         return valueToRender;
-                    } else if (value.estimatedByRule) {
-                        return this.getEstimatedByRule(value.estimatedByRule);
+                    } else if (!Ext.isEmpty(rec.get('estimatedByRule'))) {
+                        return this.getEstimatedByRule(rec.get('estimatedByRule'));
                     } else {
                         field.hide();
                     }
