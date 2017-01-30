@@ -46,7 +46,7 @@ Ext.define('Isu.view.issues.Preview', {
                 items: [
                     {
                         itemId: 'issue-id',
-                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'ISU', 'Id'),
+                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'ISU', 'ID'),
                         name: 'issueId'
                     },
                     {
@@ -134,6 +134,11 @@ Ext.define('Isu.view.issues.Preview', {
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateShort(value) : '-';
                         }
+                    },
+                    {
+                        itemId: 'issue-preview-priority',
+                        fieldLabel: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority'),
+                        name: 'priority'
                     },
                     {
                         xtype: 'filter-display',
