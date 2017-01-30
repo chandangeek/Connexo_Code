@@ -585,7 +585,7 @@ Ext.define('Imt.controller.History', {
                     privileges: Imt.privileges.MetrologyConfig.viewValidation,
                     items: {
                         add: {
-                            title: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                            title: Uni.I18n.translate('general.addMetrologyConfigurationPurposes', 'IMT', 'Add metrology configuration purposes'),
                             route: 'add',
                             controller: 'Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes',
                             action: 'showAddMetrologyConfigurationPurposes',
