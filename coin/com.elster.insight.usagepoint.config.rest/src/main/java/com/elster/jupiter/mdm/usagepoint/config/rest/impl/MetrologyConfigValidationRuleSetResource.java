@@ -91,7 +91,7 @@ public class MetrologyConfigValidationRuleSetResource {
                 .stream()
                 .flatMap(metrologyConfiguration -> metrologyConfiguration.getContracts().stream())
                 .flatMap(metrologyContract -> getAvailablePurposes(metrologyContract, validationRuleSet).stream())
-                .sorted((a, b) -> a.metrologyConfigurationInfo.name.compareTo(b.metrologyConfigurationInfo.name))
+                .sorted((a, b) -> a.getMetrologyConfigurationInfo().name.compareTo(b.getMetrologyConfigurationInfo().name))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", availableOutputs, queryParameters);

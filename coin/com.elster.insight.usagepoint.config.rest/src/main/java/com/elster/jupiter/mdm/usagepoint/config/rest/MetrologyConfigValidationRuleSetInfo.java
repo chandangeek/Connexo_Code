@@ -6,11 +6,11 @@ import java.util.List;
 
 public class MetrologyConfigValidationRuleSetInfo {
 
-    public IdWithNameInfo metrologyConfigurationInfo;
-    public boolean isActive;
-    public String purpose;
-    public List<OutputMatchesInfo> outputs;
-    public long metrologyContractId;
+    private IdWithNameInfo metrologyConfigurationInfo;
+    private boolean isActive;
+    private String purpose;
+    private List<OutputMatchesInfo> outputs;
+    private long metrologyContractId;
 
     public void setMetrologyConfigurationInfo(IdWithNameInfo metrologyConfigurationInfo) {
         this.metrologyConfigurationInfo = metrologyConfigurationInfo;
@@ -30,5 +30,25 @@ public class MetrologyConfigValidationRuleSetInfo {
 
     public void setMetrologyContractId(long metrologyContractId) {
         this.metrologyContractId = metrologyContractId;
+    }
+
+    public IdWithNameInfo getMetrologyConfigurationInfo() {
+        return metrologyConfigurationInfo;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public List<OutputMatchesInfo> getOutputs() {
+        return outputs;
+    }
+
+    public long getMetrologyContractId() {
+        return metrologyContractId;
     }
 }
