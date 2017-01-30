@@ -7,7 +7,6 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -78,7 +77,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     @Reference
-    public void setDeviceService(ServerDeviceService deviceService) {
+    public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 

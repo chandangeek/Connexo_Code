@@ -74,6 +74,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -94,6 +95,7 @@ import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
 import com.energyict.mdc.upl.security.CertificateWrapper;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -1212,6 +1214,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         Thesaurus thesaurus();
 
+        ProtocolPluggableService protocolPluggableService();
+
         EngineConfigurationService engineConfigurationService();
 
         ConnectionTaskService connectionTaskService();
@@ -1250,6 +1254,11 @@ public class ComServerDAOImpl implements ComServerDAO {
         @Override
         public Thesaurus thesaurus() {
             return serviceProvider.thesaurus();
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return serviceProvider.protocolPluggableService();
         }
 
         @Override

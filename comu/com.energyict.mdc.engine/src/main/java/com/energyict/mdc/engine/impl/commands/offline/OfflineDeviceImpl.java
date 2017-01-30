@@ -21,7 +21,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -291,10 +291,10 @@ public class OfflineDeviceImpl implements OfflineDevice {
             OfflineDevice offlineDevice = new OfflineDeviceImpl(downstreamRtu, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), serviceProvider);
             offlineSlaves.add(offlineDevice);
 
-            List<UPLOfflineDeviceAdapter> slaveDevices = offlineDevice
+            List<OfflineDevice> slaveDevices = offlineDevice
                     .getAllSlaveDevices()
                     .stream()
-                    .map(UPLOfflineDeviceAdapter::new)
+                    .map(this.serviceProvider.protocolPluggableService()::adapt)
                     .collect(Collectors.toList());
 
             offlineSlaves.addAll(slaveDevices);
@@ -600,6 +600,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
     public interface ServiceProvider {
 
         Thesaurus thesaurus();
+
+        ProtocolPluggableService protocolPluggableService();
 
         TopologyService topologyService();
 

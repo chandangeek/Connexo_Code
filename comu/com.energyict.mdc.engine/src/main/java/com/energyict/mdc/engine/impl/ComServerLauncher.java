@@ -41,6 +41,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.Services;
 
 import java.io.FileInputStream;
@@ -270,6 +271,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public Clock clock() {
             return serviceProvider.clock();
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return serviceProvider.protocolPluggableService();
         }
 
         @Override
