@@ -521,19 +521,10 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public DataExportOccurrenceLogInfos getDataExportLogByOccurrence(@PathParam("occurrenceId") long occurrenceId, @BeanParam JsonQueryParameters queryParameters) {
-        Optional<DataExportOccurrence> foundOccurrence = dataExportService.findDataExportOccurrence(occurrenceId);
-
-        if (foundOccurrence.isPresent()) {
-            DataExportOccurrence dataExportOccurrence = foundOccurrence.get();
-            LogEntryFinder finder = dataExportOccurrence.getLogsFinder()
-                    .setStart(queryParameters.getStart().orElse(0))
-                    .setLimit(queryParameters.getLimit().orElse(0) + 1);
-            List<? extends LogEntry> occurrences = finder.find();
-
-            return new DataExportOccurrenceLogInfos(occurrences, thesaurus);
-        }
-
-        return new DataExportOccurrenceLogInfos();
+        return new DataExportOccurrenceLogInfos(findDataExportOccurrenceOrThrowException(occurrenceId).getLogsFinder()
+                .setStart(queryParameters.getStart().orElse(0))
+                .setLimit(queryParameters.getLimit().orElse(0) + 1)
+                .find(), thesaurus);
     }
 
     @GET

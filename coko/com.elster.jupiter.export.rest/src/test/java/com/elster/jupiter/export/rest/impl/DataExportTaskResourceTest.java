@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -663,13 +664,33 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(logEntryFinder.setLimit(anyInt())).thenReturn(logEntryFinder);
         when(logEntryFinder.find()).thenReturn(Collections.emptyList());
 
-        Response response = target("/dataexporttask/history/" + occurrenceId).request().get();
+        Response response = target("/dataexporttask/history/" + occurrenceId + "/logs").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(dataExportService).findDataExportOccurrence(anyLong());
         verify(occurrence).getLogsFinder();
         verify(logEntryFinder).setStart(anyInt());
         verify(logEntryFinder).setLimit(anyInt());
+    }
+
+    @Test
+    public void testGetDataExportOccurrence() {
+        long occurrenceId = 13L;
+        DataExportOccurrence dataExportOccurrence = mock(DataExportOccurrence.class);
+        History<ExportTask> history = new History<>(Collections.emptyList(), null);
+        when(dataExportService.findDataExportOccurrence(anyLong())).thenReturn(Optional.of(dataExportOccurrence));
+        when(dataExportOccurrence.getTask()).thenReturn(exportTask);
+        when(exportTask.getHistory()).thenReturn(history);
+        when(exportTask.getStandardDataSelectorConfig(Instant.EPOCH)).thenReturn(Optional.empty());
+        when(exportTask.getScheduleExpression(Instant.EPOCH)).thenReturn(Optional.empty());
+        when(dataExportOccurrence.getId()).thenReturn(13L);
+        when(dataExportOccurrence.getStartDate()).thenReturn(Optional.of(Instant.EPOCH));
+        when(dataExportOccurrence.getEndDate()).thenReturn(Optional.of(Instant.EPOCH));
+        when(dataExportOccurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.empty());
+
+        Response response = target("/dataexporttask/history/" + occurrenceId).request().get();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     private ReadingTypeDataExportItem mockExportItem(DataExportOccurrence dataExportOccurrence, IdentifiedObject domainObject, Instant lastRun) {
