@@ -1,8 +1,9 @@
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.time.TimeDuration;
+
 import aQute.bnd.annotation.ConsumerType;
 
-import java.time.Duration;
 import java.util.Optional;
 
 /**
@@ -16,6 +17,12 @@ import java.util.Optional;
  */
 @ConsumerType
 public interface KeyAccessorType {
+
+    /**
+     * The KeyAccessorType system assigned id
+     */
+    long getId();
+
     /**
      * This name will identify a key for a certain purpose. E.g. the Shipment file will map keys to KeyAccessorType by
      * name, that is, the keys from the shipment file will be labelled, the label matches the name of a KeyAccessor.
@@ -34,8 +41,8 @@ public interface KeyAccessorType {
      * do not contain a validity period by themselves. The validity will determine the frequency for key renewal.
      * @param duration The period for which a (symmetric key) crypto entity will be valid, after which renewal is required.
      */
-    void setDuration(Duration duration);
-    Optional<Duration> getDuration();
+    void setDuration(TimeDuration duration);
+    Optional<TimeDuration> getDuration();
 
 
     /**
@@ -47,7 +54,7 @@ public interface KeyAccessorType {
 
     interface Builder {
         Builder description(String description);
-        Builder duration(Duration duration);
+        Builder duration(TimeDuration duration);
         KeyAccessorType add();
     }
 }

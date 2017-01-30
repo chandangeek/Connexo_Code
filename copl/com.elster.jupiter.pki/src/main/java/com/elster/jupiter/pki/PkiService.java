@@ -4,12 +4,13 @@ import com.elster.jupiter.domain.util.Finder;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.Optional;
+
 /**
  * This is the main interface towards the PKI bundle. It provides access for the main PKI procedures.
- * Created by bvn on 1/26/17.
  */
 @ProviderType
-public interface PKIService {
+public interface PkiService {
 
     String COMPONENTNAME = "PKI";
 
@@ -35,10 +36,18 @@ public interface PKIService {
      * @param name The name given to this key type. The name will be a unique identifier.
      * @return A builder guiding you through the creation of an asymmetric key definition
      */
-    PKIService.AsyncBuilder addAsymmetricKeyType(String name);
+    PkiService.AsyncBuilder addAsymmetricKeyType(String name);
 
-    PKIService.AsyncBuilder addCertificateWithPrivateKeyType(String name); // TODO Fix
+    PkiService.AsyncBuilder addCertificateWithPrivateKeyType(String name); // TODO Fix
     KeyType addCertificateType(String name); // TODO fix
+
+    /**
+     * Get an existing KeyType by name.
+     * Returns Optional.empty() if not found
+     * @param name The KpiType's name. The name is a unique identifier.
+     * @return The KpiType if present, empty otherwise.
+     */
+    Optional<KeyType> getKeyType(String name);
 
     public interface AsyncBuilder {
         AsyncKeySizeBuilder RSA();

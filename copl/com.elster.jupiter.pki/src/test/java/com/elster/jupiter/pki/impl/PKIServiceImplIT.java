@@ -34,10 +34,10 @@ public class PKIServiceImplIT {
     @Test
     @Transactional
     public void findCreateSymmetricKey() {
-        KeyType keyType = pkiInMemoryPersistence.getPkiService().addSymmetricKeyType("GUAK", "AES", 1024);
+        KeyType keyType = pkiInMemoryPersistence.getPkiService().addSymmetricKeyType("AES128", "AES", 1024);
         List<KeyType> keyTypes = pkiInMemoryPersistence.getPkiService().findAllKeyTypes().find();
         assertThat(keyTypes).hasSize(1);
-        assertThat(keyTypes.get(0).getName()).isEqualTo("GUAK");
+        assertThat(keyTypes.get(0).getName()).isEqualTo("AES128");
         assertThat(keyTypes.get(0).getAlgorithm()).isEqualTo("AES");
         assertThat(keyTypes.get(0).getKeySize()).isEqualTo(1024);
         assertThat(keyTypes.get(0).getCurve()).isNull();

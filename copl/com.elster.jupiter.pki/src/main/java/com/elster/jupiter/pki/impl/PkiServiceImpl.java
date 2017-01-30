@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.KeyType;
-import com.elster.jupiter.pki.PKIService;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 
@@ -20,15 +20,16 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Collections;
+import java.util.Optional;
 
 /**
  * Created by bvn on 1/26/17.
  */
 @Component(name="PkiService",
-        service = PKIService.class,
-        property = "name=" + PKIService.COMPONENTNAME,
+        service = PkiService.class,
+        property = "name=" + PkiService.COMPONENTNAME,
         immediate = true)
-public class PKIServiceImpl implements PKIService {
+public class PkiServiceImpl implements PkiService {
 
 
     private DataModel dataModel;
@@ -36,14 +37,14 @@ public class PKIServiceImpl implements PKIService {
     private Thesaurus thesaurus;
 
     @Inject
-    public PKIServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService) {
+    public PkiServiceImpl(OrmService ormService, UpgradeService upgradeService, NlsService nlsService) {
         this.setOrmService(ormService);
         this.setUpgradeService(upgradeService);
         this.setNlsService(nlsService);
         this.activate();
     }
 
-    public PKIServiceImpl() {
+    public PkiServiceImpl() {
 
     }
 
@@ -73,7 +74,7 @@ public class PKIServiceImpl implements PKIService {
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("Pulse", PKIService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", PkiService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 //        initPrivileges();
     }
 
@@ -108,12 +109,17 @@ public class PKIServiceImpl implements PKIService {
 
     @Override
     public AsyncBuilder addCertificateWithPrivateKeyType(String name) {
-        return null;
+        return null; // TODO complete
     }
 
     @Override
     public KeyType addCertificateType(String name) {
-        return null;
+        return null; // TODO complete
+    }
+
+    @Override
+    public Optional<KeyType> getKeyType(String name) {
+        return this.getDataModel().mapper(KeyType.class).getUnique("name", name);
     }
 
     @Override

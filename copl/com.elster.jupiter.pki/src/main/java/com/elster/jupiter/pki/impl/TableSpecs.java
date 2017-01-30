@@ -21,8 +21,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<KeyType> table = dataModel.addTable(this.name(), KeyType.class);
             table.map(KeyTypeImpl.class);
-            Column id = table.addAutoIdColumn();
-            Column name = table.column("NAME").varChar().notNull().map(KeyTypeImpl.Fields.NAME.fieldName()).add();
+            Column id = table.addAutoIdColumn().since(Version.version(10,3));
+            Column name = table.column("NAME").varChar().notNull().map(KeyTypeImpl.Fields.NAME.fieldName()).since(Version.version(10,3)).add();
             table.column("ALGORITHM").varChar().map(KeyTypeImpl.Fields.ALGORITHM.fieldName()).since(Version.version(10,3)).add();
             table.column("CURVE").varChar().map(KeyTypeImpl.Fields.CURVE.fieldName()).since(Version.version(10,3)).add();
             table.column("KEYSIZE").number().conversion(NUMBER2INT).map(KeyTypeImpl.Fields.KEY_SIZE.fieldName()).since(Version.version(10,3)).add();
