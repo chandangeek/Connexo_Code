@@ -171,10 +171,10 @@ public class UsagePointOutputResource {
             if (!interval.isConnected(upToNow)) {
                 throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
             } else if (!interval.intersection(upToNow).isEmpty()) {
+                Range<Instant> adjustedInterval = getUsagePointAdjustedDataRange(usagePoint, interval.intersection(upToNow)).orElse(Range.openClosed(now, now));
                 outputInfoList = metrologyContract.getDeliverables()
                         .stream()
-                        .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract,
-                                getUsagePointAdjustedDataRange(usagePoint, interval.intersection(upToNow)).orElse(Range.openClosed(now, now))))
+                        .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, adjustedInterval))
                         .sorted(Comparator.comparing(info -> info.name))
                         .collect(Collectors.toList());
             }

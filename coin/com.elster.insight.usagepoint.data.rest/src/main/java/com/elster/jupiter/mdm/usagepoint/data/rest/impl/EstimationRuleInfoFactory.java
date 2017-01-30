@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
@@ -24,7 +25,7 @@ public class EstimationRuleInfoFactory {
     }
 
     public EstimationRuleInfo createEstimationRuleInfo(Collection<? extends ReadingQuality> readingQualities) {
-        if (readingQualities.stream().map(ReadingQualityRecord.class::cast).noneMatch(ReadingQualityRecord::isSuspect)) {
+        if (readingQualities.stream().map(ReadingQuality::getType).noneMatch(ReadingQualityType::isSuspect)) {
             Optional<ReadingQualityRecord> readingQualityRecordOptional = readingQualities.stream()
                     .map(ReadingQualityRecord.class::cast)
                     .filter(ReadingQualityRecord::hasEstimatedCategory)
