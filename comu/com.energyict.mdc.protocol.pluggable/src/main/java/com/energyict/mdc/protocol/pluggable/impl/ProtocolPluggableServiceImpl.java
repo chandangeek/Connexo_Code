@@ -38,6 +38,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
@@ -71,6 +72,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
@@ -852,6 +854,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     @Override
     public com.energyict.mdc.upl.messages.DeviceMessageSpec adapt(DeviceMessageSpec connexoSpec) {
         return new ConnexoDeviceMessageSpecAdapter(connexoSpec);
+    }
+
+    @Override
+    public OfflineDevice adapt(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice) {
+        return new UPLOfflineDeviceAdapter(offlineDevice);
     }
 
     private Module getModule() {
