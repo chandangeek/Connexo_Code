@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -25,6 +26,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -91,6 +93,23 @@ public class MetrologyConfigValidationRuleSetResource {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", availableOutputs, queryParameters);
+    }
+
+    @PUT
+    @Path("/{validationRuleSetId}/purposes/add")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Transactional
+    public Response linkMetrologyPurposeToValidationRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId, int[] metrologyContractIds, @BeanParam JsonQueryParameters queryParameters) {
+        ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetId)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        Arrays.stream(metrologyContractIds).forEach(metrologyContractId -> {
+            MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(metrologyContractId)
+                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+            usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
+        });
+
+        return Response.status(Response.Status.OK).build();
     }
 
     private List<MetrologyConfigValidationRuleSetInfo> getAvailablePurposes(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
