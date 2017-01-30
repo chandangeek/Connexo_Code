@@ -1,6 +1,6 @@
 Ext.define('Imt.usagepointmanagement.view.transitionexecute.TransitionDateField', {
     extend: 'Ext.form.RadioGroup',
-    alias: 'widget.transition-date-field',    
+    alias: 'widget.transition-date-field',
     groupName: 'default',
     columns: 1,
     required: true,

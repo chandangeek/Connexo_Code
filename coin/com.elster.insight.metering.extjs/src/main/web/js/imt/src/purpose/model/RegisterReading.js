@@ -7,6 +7,7 @@ Ext.define('Imt.purpose.model.RegisterReading', {
         {name: 'timeStamp', type: 'auto', useNull: true},
         {name: 'type', type: 'auto'},
         {name: 'validationResult', type: 'auto', useNull: true, persist: false},
+        {name: 'dataValidated', type: 'auto'},
         {name: 'validationRules', type: 'auto', useNull: true, persist: false},
         {name: 'isConfirmed', type: 'auto'},
         {name: 'calculatedValue', type: 'auto'},

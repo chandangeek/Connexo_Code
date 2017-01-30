@@ -5,7 +5,7 @@ Ext.define('Imt.usagepointlifecycletransitions.model.UsagePointLifeCycleTransiti
         'name',
         'fromState',
         'toState',
-        'privileges',        
+        'privileges',
         {name: 'microActions', defaultValue: null},
         {name: 'microChecks', defaultValue: null},
         {
@@ -23,7 +23,7 @@ Ext.define('Imt.usagepointlifecycletransitions.model.UsagePointLifeCycleTransiti
             mapping: function (data) {
                 if (data.toState) {
                     return data.toState.name;
-                }                
+                }
             }
         }
     ],

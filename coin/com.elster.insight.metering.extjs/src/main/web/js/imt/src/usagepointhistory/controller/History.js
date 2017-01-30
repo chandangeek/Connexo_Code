@@ -82,7 +82,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
             lifeCycleAndStateStore = me.getStore('Imt.usagepointhistory.store.LifeCycleAndState'),
             attributeSetModel = Ext.ModelManager.getModel('Imt.customattributesonvaluesobjects.model.AttributeSetOnUsagePoint'),
             calendarStore = me.getStore('Imt.usagepointmanagement.store.CalendarHistory'),
-            usagePointId = router.arguments.usagePointId,
+            usagePointId = decodeURIComponent(router.arguments.usagePointId),
             customAttributeSetId = newCard.customAttributeSetId,
             cardView,
             onVersionsStoreLoad,
@@ -102,7 +102,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                 padding: 0
             });
         }
-        if (!customAttributeSetId) {
+        else if (!customAttributeSetId) {
             if (router.queryParams.customAttributeSetId) {
                 delete router.queryParams.customAttributeSetId;
                 url = router.getRoute().buildUrl(router.arguments, router.queryParams);

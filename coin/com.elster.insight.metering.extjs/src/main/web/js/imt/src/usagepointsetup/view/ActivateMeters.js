@@ -36,7 +36,7 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
         me.content = [{
             xtype: 'panel',
             itemId: 'usage-point-edit-meters',
-            title: Uni.I18n.translate('usagePoint.setMeters.editMeters', 'IMT', 'Edit Meters'),
+            title: Uni.I18n.translate('general.linkMeters', 'IMT', 'Link meters'),
             ui: 'large',
             layout: {},
             items: [

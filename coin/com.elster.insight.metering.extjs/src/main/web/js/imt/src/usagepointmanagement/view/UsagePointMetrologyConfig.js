@@ -12,7 +12,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
     initComponent: function () {
         var me = this,
-            metrologyConfiguration = me.usagePoint.get('metrologyConfiguration');
+            metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
+            meterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles');
 
         me.items = [
             {
@@ -57,7 +58,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 && me.usagePoint.get('state').stage === 'PRE_OPERATIONAL'
                 && Ext.isEmpty(metrologyConfiguration),
                 renderer: function () {
-                    var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({},{fromLandingPage: true});
+                    var url = me.router.getRoute('usagepoints/view/definemetrology').buildUrl({}, {fromLandingPage: true});
                     return Uni.I18n.translate('general.label.linkMetrologyConfiguration', 'IMT', '<a href="{0}">Link metrology configuration</a>', url);
                 }
             },
@@ -74,7 +75,8 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 fieldLabel: ' ',
                 privileges: me.usagePoint.get('state').stage === 'PRE_OPERATIONAL'
                 && !Ext.isEmpty(metrologyConfiguration)
-                && !Ext.isEmpty(metrologyConfiguration.meterRoles),
+                && !Ext.isEmpty(metrologyConfiguration.meterRoles)
+                && Imt.privileges.UsagePoint.canAdministrate(),
                 htmlEncode: false,
                 renderer: function () {
                     var url = me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl({}, {fromLandingPage: true});
@@ -86,7 +88,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
         me.bbar = [
             {
                 itemId: 'up-metrology-config-more-details-link',
-                ui: 'link',                
+                ui: 'link',
                 text: Uni.I18n.translate('general.metrologyConfiguration.manage', 'IMT', 'Manage metrology configuration'),
                 href: me.router.getRoute('usagepoints/view/metrologyconfiguration').buildUrl()
             }
@@ -94,38 +96,90 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
 
         me.callParent(arguments);
 
-        me.performWidget();
-    },
-
-
-    performWidget: function(){
-        var me = this;
-
-        Ext.suspendLayouts();
-        me.loadMeterActivations();
         me.loadPurposes();
-        Ext.resumeLayouts(true);
+        me.setLoading();
+        meterRolesStore.getProxy().extraParams = {usagePointId: me.usagePoint.get('name')};
+        meterRolesStore.load({
+            scope: me,
+            callback: function (records) {
+                me.addMeters(records);
+                me.setLoading(false);
+            }
+        });
     },
 
-    loadPurposes: function(){
+    addMeters: function (meterRolesWithMeters) {
         var me = this,
-            purposesContainer = me.down('#up-metrology-config-meters'),
+            first = true,
+            count = meterRolesWithMeters.length,
+            metersContainer = me.down('#up-metrology-config-meters');
+
+        if (count && count <= 2) {
+            Ext.Array.each(meterRolesWithMeters, function (meterRoleWithMeter) {
+                metersContainer.add({
+                    xtype: 'displayfield',
+                    labelWidth: 120,
+                    fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
+                    renderer: function () {
+                        var result = '',
+                            data = meterRoleWithMeter.getData(),
+                            link = data.url
+                                ? '<a href="' + data.url + '" target="_blank">' + Ext.String.htmlEncode(data.meter) + '</a>'
+                                : Ext.String.htmlEncode(data.meter),
+                            activationTime = data.activationTime;
+                        result += link;
+
+                        if (activationTime) {
+                            result += '<br><span style="font-size: 90%">'
+                                + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
+                                + '</span>';
+                        }
+
+                        return result;
+                    }
+                });
+                first = false;
+            });
+            // add WhatsGoingOn info to linked meters
+            me.loadMeterActivations();
+        } else if (count && count > 2) {
+            metersContainer.add({
+                xtype: 'displayfield',
+                labelWidth: 120,
+                fieldLabel: Uni.I18n.translate('general.label.countedMeters', 'IMT', '{0} meters', count),
+                value: '-'
+            });
+        } else if (!count) {
+            metersContainer.add({
+                xtype: 'displayfield',
+                labelWidth: 120,
+                fieldLabel: Uni.I18n.translate('general.label.meters', 'IMT', 'Meters'),
+                value: '-'
+            });
+        }
+    },
+
+    loadPurposes: function () {
+        var me = this,
+            purposesContainer = me.down('#up-metrology-config-purposes'),
             first = true,
             purposes;
-        if(me.usagePoint.get('metrologyConfiguration')){
+
+        Ext.suspendLayouts();
+        if (me.usagePoint.get('metrologyConfiguration')) {
             purposes = me.usagePoint.get('metrologyConfiguration').purposes
         }
 
         if (!Ext.isEmpty(purposes)) {
-            Ext.Array.each(purposes, function(purpose){
-                if(purpose.active){
+            Ext.Array.each(purposes, function (purpose) {
+                if (purpose.active) {
                     purposesContainer.add({
                         xtype: 'displayfield',
                         labelWidth: 120,
                         margin: first ? 0 : '-13 0 0 0',
                         fieldLabel: first ? Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes') : '&nbsp;',
                         value: purpose.name,
-                        renderer: function(value){
+                        renderer: function (value) {
                             var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
                                     + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle')
                                     + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
@@ -140,7 +194,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 }
             });
         }
-        if(first) {
+        if (first) {
             purposesContainer.add({
                 xtype: 'displayfield',
                 labelWidth: 120,
@@ -148,30 +202,31 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                 value: '-'
             })
         }
+        Ext.resumeLayouts(true);
     },
 
-    loadMeterActivations: function(){
+    loadMeterActivations: function () {
         var me = this,
             first = true,
             metersContainer = me.down('#up-metrology-config-meters'),
-            store = me.meterActivationsStore,
+            store = Ext.getStore('Imt.usagepointmanagement.store.MeterActivations'),
             usagePointId = me.usagePoint.get('name'),
-            makeWGOTooltip = function(watsGoingOnMeterStatus){
+            makeWGOTooltip = function (watsGoingOnMeterStatus) {
                 var result = '',
                     first = true;
-                if(watsGoingOnMeterStatus.openIssues){
+                if (watsGoingOnMeterStatus.openIssues) {
                     result += Uni.I18n.translate('general.label.openIssues', 'IMT', 'Open issues({0})', watsGoingOnMeterStatus.openIssues);
                     first = false;
                 }
-                if(watsGoingOnMeterStatus.ongoingProcesses){
-                    if(!first){
+                if (watsGoingOnMeterStatus.ongoingProcesses) {
+                    if (!first) {
                         result += '<br>';
                     }
                     first = false;
                     result += Uni.I18n.translate('general.label.ongoingProcesses', 'IMT', 'Ongoing processes({0})', watsGoingOnMeterStatus.ongoingProcesses);
                 }
-                if(watsGoingOnMeterStatus.ongoingServiceCalls){
-                    if(!first){
+                if (watsGoingOnMeterStatus.ongoingServiceCalls) {
+                    if (!first) {
                         result += '<br>';
                     }
                     first = false;
@@ -183,63 +238,44 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             };
 
         store.getProxy().setExtraParam('usagePointId', usagePointId);
-        store.load({
-            callback: function(){
-                store.filter(function(item){
-                    if(item.get('meter')){
-                        return item;
+        store.load(function () {
+            Ext.suspendLayouts();
+                // replace rendered meters with meters + icon
+                metersContainer.removeAll();
+                store.each(function (meterActivation) {
+                    if (meterActivation.get('meter')) {
+                        metersContainer.add({
+                            xtype: 'displayfield',
+                            labelWidth: 120,
+                            fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
+                            value: meterActivation.get('meter'),
+                            renderer: function (value) {
+                                var result = '',
+                                    gotConfig = makeWGOTooltip(value.watsGoingOnMeterStatus),
+                                    tooltip = gotConfig.result,
+                                    icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
+                                        + 'icon-warning2'
+                                        + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                                        + tooltip
+                                        + '"></i>',
+                                    link = value.url ? '<a href="' + value.url + '" target="_blank">' + Ext.String.htmlEncode(value.name) + '</a>' : Ext.String.htmlEncode(value.name),
+                                    activationTime = meterActivation.get('meterRole').activationTime;
+                                result += gotConfig.status ? link + icon : link;
+
+                                if (activationTime) {
+                                    result += '<br><span style="font-size: 90%">'
+                                        + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
+                                        + '</span>';
+                                }
+
+                                return result;
+                            }
+                        });
+                        first = false;
                     }
                 });
-                var count = store.getCount();
-                if (count && count <= 2) {
-                    store.each(function (meterActivation) {
-                        if(meterActivation.get('meter')){
-                            metersContainer.add({
-                                xtype: 'displayfield',
-                                labelWidth: 120,
-                                fieldLabel: first ? Uni.I18n.translate('general.meters', 'IMT', 'Meters') : '&nbsp;',
-                                value: meterActivation.get('meter'),
-                                renderer: function (value) {
-                                    var result = '',
-                                        gotConfig = makeWGOTooltip(value.watsGoingOnMeterStatus),
-                                        tooltip = gotConfig.result,
-                                        icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
-                                            + 'icon-warning2'
-                                            + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
-                                            + tooltip
-                                            + '"></i>',
-                                        link = value.url ? '<a href="' + value.url + '" target="_blank">' + Ext.String.htmlEncode(value.name) + '</a>' : Ext.String.htmlEncode(value.name),
-                                        activationTime = meterActivation.get('meterRole').activationTime;
-                                    result += gotConfig.status ? link + icon : link;
-
-                                    if (activationTime) {
-                                        result += '<br><span style="font-size: 90%">'
-                                            + Uni.I18n.translate('general.fromDate.lc', 'IMT', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(activationTime))], false)
-                                            + '</span>';
-                                    }
-
-                                    return result;
-                                }
-                            });
-                            first = false;
-                        }
-                    });
-                } else if (count && count > 2){
-                    metersContainer.add({
-                        xtype: 'displayfield',
-                        labelWidth: 120,
-                        fieldLabel: Uni.I18n.translate('general.label.countedMeters', 'IMT', '{0} meters', count),
-                        value: '-'
-                    });
-                } else if (!count) {
-                    metersContainer.add({
-                        xtype: 'displayfield',
-                        labelWidth: 120,
-                        fieldLabel: Uni.I18n.translate('general.label.meters', 'IMT', 'Meters'),
-                        value: '-'
-                    });
-                }
+            Ext.resumeLayouts(true);
             }
-        })
+        )
     }
 });
