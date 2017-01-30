@@ -46,7 +46,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 flex: 1,
                 renderer: function(value){
                     var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
                 }
             },
             {
