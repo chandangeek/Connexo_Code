@@ -37,7 +37,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -127,7 +126,6 @@ public class AdapterDeviceProtocolDialectTest {
                 new DataVaultModule(),
                 new IssuesModule(),
                 new PluggableModule(),
-                new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new ProtocolPluggableModule(),
