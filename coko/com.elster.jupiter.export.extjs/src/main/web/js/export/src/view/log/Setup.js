@@ -9,23 +9,27 @@ Ext.define('Dxp.view.log.Setup', {
     ],
     task: null,
     runStartedOn: null,
+    fromWorkspace: false,
     router: null,
     initComponent: function () {
         var me = this;
 
-        me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'dxp-log-menu',
-                        itemId: 'log-view-menu',
-                        router: me.router
-                    }
-                ]
-            }
-        ];
+        if(!me.fromWorkspace){
+            me.side = [
+                {
+                    xtype: 'panel',
+                    ui: 'medium',
+                    items: [
+                        {
+                            xtype: 'dxp-log-menu',
+                            itemId: 'log-view-menu',
+                            router: me.router
+                        }
+                    ]
+                }
+            ];
+        }
+
         me.content = {
             xtype: 'panel',
             ui: 'large',
@@ -34,6 +38,7 @@ Ext.define('Dxp.view.log.Setup', {
                 {
                     xtype: 'dxp-log-preview',
                     router: me.router,
+                    taskId: me.task.get('id'),
                     margin: '10 0 20 0'
                 },
                 {

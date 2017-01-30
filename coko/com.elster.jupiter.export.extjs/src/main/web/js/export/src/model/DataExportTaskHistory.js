@@ -271,6 +271,14 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'task',
             getterName: 'getTask'
         }
-    ]
+    ],
+
+    proxy: {
+        type: 'rest',
+        url: '/api/export/dataexporttask/history',
+        reader: {
+            type: 'json'
+        }
+    }
 
 });

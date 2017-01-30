@@ -118,7 +118,7 @@ Ext.define('Dxp.controller.history.Export', {
             }
         },
         workspace: {
-            title: Uni.I18n.translate('title.workspace','DES','Workspace'),
+            title: Uni.I18n.translate('title.workspace', 'DES', 'Workspace'),
             route: 'workspace',
             disabled: true,
             items: {
@@ -127,6 +127,10 @@ Ext.define('Dxp.controller.history.Export', {
                     route: 'exporthistory',
                     controller: 'Dxp.controller.Tasks',
                     action: 'showDataExportTaskHistory',
+                    params: {
+                        currentTaskId: undefined,
+                        fromWorkspace: true
+                    },
                     filter: 'Dxp.model.HistoryFilter',
                     privileges: Dxp.privileges.DataExport.view,
                     items: {
@@ -135,7 +139,7 @@ Ext.define('Dxp.controller.history.Export', {
                             route: '{occurrenceId}',
                             controller: 'Dxp.controller.Log',
                             privileges: Dxp.privileges.DataExport.view,
-                            action: 'showLog'
+                            action: 'showLogWorkspace'
                         }
                     }
                 }

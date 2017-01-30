@@ -23,6 +23,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
+
                     var url = me.fromWorkspace ?
                             me.router.getRoute('workspace/exporthistory/occurrence').buildUrl({occurrenceId: record.get('id')}) :
                             me.router.getRoute('administration/dataexporttasks/dataexporttask/history/occurrence')
