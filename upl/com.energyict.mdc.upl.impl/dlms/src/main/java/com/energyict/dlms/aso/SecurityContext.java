@@ -362,28 +362,33 @@ public class SecurityContext {
     }
 
     /**
-     * Wrap the given APDU (can already by secured) in a new general-signing APDU.
+     * Wrap the given APDU (can already be secured) in a new general-signing APDU.
      * The signature is either 64 bytes or 96 bytes based on the suite that is used.
      */
     public byte[] applyGeneralSigning(byte[] securedRequest) throws UnsupportedException {
-        return applyGeneralSigning(securedRequest, null, new byte[]{(byte) 0x00}, new byte[]{(byte) 0x00});
+        byte[] dateTime = new byte[]{(byte) 0x00};
+        byte[] otherInfo = new byte[]{(byte) 0x00};
+        return applyGeneralSigning(securedRequest, null, dateTime, otherInfo, false);
     }
 
     /**
-     * Wrap the given APDU (can already by secured) in a new general-signing APDU.
+     * Wrap the given APDU (can already be secured) in a new general-signing APDU.
      * The signature is either 64 bytes or 96 bytes based on the suite that is used.
      */
-    public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve, byte[] dateTime, byte[] otherInfo) throws UnsupportedException {
+    public byte[] applyGeneralSigning(byte[] securedRequest, ECCCurve eccCurve, byte[] dateTime, byte[] otherInfo, boolean includeRequestLength) throws UnsupportedException {
         ECDSASignatureImpl ecdsaSignature;
         if (eccCurve == null) {
             ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
         } else {
             ecdsaSignature = new ECDSASignatureImpl(eccCurve);
         }
-        byte[] generalCipheringHeader = createGeneralCipheringHeader(dateTime, otherInfo);
         PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
 
-        byte[] signature = ecdsaSignature.sign(ProtocolTools.concatByteArrays(generalCipheringHeader, securedRequest), clientPrivateSigningKey);
+        byte[] generalCipheringHeader = createGeneralCipheringHeader(dateTime, otherInfo);
+        byte[] requestData = includeRequestLength ? ProtocolTools.concatByteArrays(DLMSUtils.getAXDRLengthEncoding(securedRequest.length), securedRequest) : securedRequest;
+        byte[] dataToSign = ProtocolTools.concatByteArrays(generalCipheringHeader, requestData);
+        byte[] signature = ecdsaSignature.sign(dataToSign, clientPrivateSigningKey);
+
 
         return ProtocolTools.concatByteArrays(
                 generalCipheringHeader,
@@ -1331,15 +1336,16 @@ public class SecurityContext {
                 case AUTHENTICATION:
                     return getAuthenticatedRequestBytes(plainText);
                 case DIGITAL_SIGNATURE:
-                    return ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, applyGeneralSigning(plainText, ECCCurve.P256_SHA256, new byte[]{(byte) 0x01, (byte) 0x00}, new byte[]{(byte) 0x01, (byte) 0x00}));
+                    byte[] dummyDateTime = new byte[]{(byte) 0x01, (byte) 0x00};
+                    byte[] dummyOtherInfo = new byte[]{(byte) 0x01, (byte) 0x00};
+                    return ParseUtils.concatArray(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, applyGeneralSigning(plainText, ECCCurve.P256_SHA256, dummyDateTime, dummyOtherInfo, true));
                 case ENCRYPTION:
                     return getEncryptedRequestBytes(plainText);
                 case NO_PROTECTION:
                     return plainText;
             }
         } finally {
-            //TODO: see if we should increase FC
-//            incFrameCounter();
+            //TODO: see if we should do something special in here
         }
         return new byte[]{};
     }
