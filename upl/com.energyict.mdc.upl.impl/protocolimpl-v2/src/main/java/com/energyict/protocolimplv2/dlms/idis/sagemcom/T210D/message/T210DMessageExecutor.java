@@ -408,11 +408,12 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         List<String> executionMinutes = new ArrayList<>();
         for(String minute: executionMinutesForEachHour.trim().split(",")){
             try {
-                int m = Integer.parseInt(minute);
+                String min = minute.trim();
+                int m = Integer.parseInt(min);
                 if (m < 0 || m > 59){
                     throw new NumberFormatException();
                 }
-                executionMinutes.add(minute);
+                executionMinutes.add(min);
             } catch (NumberFormatException e){
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 String msg = "The value: "+ minute +" is not a valid minute in an hour. Valid values are between 0 and 59 " + e.getMessage();
@@ -460,11 +461,12 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     */
     private void installSlave(Array mbusSearchResult, ObisCode mbusPortReferenceObis) throws IOException {
         for(AbstractDataType mbusSearchResultEntry: mbusSearchResult){
-            String entry = mbusSearchResultEntry.getOctetString().stringValue();
-            String serialNumber = entry.substring(0, 8);
-            String manufacturerId = entry.substring(8, 12);
-            String version = entry.substring(12, 14);
-            String deviceType = entry.substring(14, 16);
+            byte[] entry = mbusSearchResultEntry.getOctetString().getOctetStr();
+            String serialNumber = ProtocolTools.getHexStringFromBytes(ProtocolTools.reverseByteArray(ProtocolTools.getSubArray(entry, 0, 4)), "");
+            String manufacturerId = ProtocolTools.getHexStringFromBytes(ProtocolTools.reverseByteArray(ProtocolTools.getSubArray(entry, 4, 6)), "");
+            String version = ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(entry, 6, 7), "");
+            String deviceType = ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(entry, 7, 8), "");
+
 
             for (int channel = 1; channel <= getMaxMBusSlaves(); channel++) {//Check the available 4 channels, install the slave meter on a free channel client.
                 ObisCode obisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);   //Find the right MBus client object
@@ -473,6 +475,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
                     mbusClient.setMBusPortReference(OctetString.fromObisCode(mbusPortReferenceObis));
                     mbusClient.setIdentificationNumber(new Unsigned32(Integer.parseInt(serialNumber, 16)));
                     mbusClient.setManufacturerID(new Unsigned16(Integer.parseInt(manufacturerId, 16)));
+                    mbusClient.setVersion(Integer.parseInt(version, 16));
                     mbusClient.setDeviceType(new Unsigned8(Integer.parseInt(deviceType, 16)));
                     //install MBus device
                     mbusClient.invoke(1, new Unsigned8(1).getBEREncodedByteArray());
@@ -487,7 +490,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
 
     private MBusClient getMbusClientForVersion(String version, ObisCode obisCode) throws NotInObjectListException {
         try {
-            return getCosemObjectFactory().getMbusClient(obisCode, Integer.parseInt(version));
+            return getCosemObjectFactory().getMbusClient(obisCode, Integer.parseInt(version, 16));
         } catch (NotInObjectListException e) {
             setNotInObjectListMessage(collectedMessage, obisCode.toString(), pendingMessage, e);
             throw e;
@@ -496,8 +499,19 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
 
     private Array getMbusSearchResult(ObisCode searchResultObis) throws IOException {
         Array mbusSearchResult = null;
+        Array mbusFilteredSearchResult = new Array();
         try {
             mbusSearchResult = getCosemObjectFactory().getData(searchResultObis).getValueAttr().getArray();
+            for(AbstractDataType mbusSearchResultEntry: mbusSearchResult) {
+                byte[] entry = mbusSearchResultEntry.getOctetString().getOctetStr();
+                String serialNumber = ProtocolTools.getHexStringFromBytes(ProtocolTools.reverseByteArray(ProtocolTools.getSubArray(entry, 0, 4)), "");
+                if(!serialNumber.equalsIgnoreCase("FFFFFFFF")){
+                    mbusFilteredSearchResult.addDataType(mbusSearchResultEntry);
+                }
+            }
+            if(mbusFilteredSearchResult.nrOfDataTypes() == 0){
+                throw new ProtocolException("Did not found any slave device in the wireless mBus search result");
+            }
         } catch (NotInObjectListException e) {
             setNotInObjectListMessage(collectedMessage, searchResultObis.toString(), pendingMessage, e);
             throw e;
@@ -506,7 +520,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
             throw e;
         }
-        return mbusSearchResult;
+        return mbusFilteredSearchResult;
     }
 
     private void scanWiredMBusDevices() throws IOException {
