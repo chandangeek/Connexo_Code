@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.security.CertificateAlias;
 
 import com.energyict.obis.ObisCode;
 
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 /**
@@ -48,6 +49,8 @@ public interface CollectedDataFactory {
     CollectedMessage createCollectedMessageWithUpdateSecurityProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue);
 
     CollectedMessage createCollectedMessageWithUpdateGeneralProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue);
+
+    CollectedCertificateWrapper createCollectedCertificateWrapper(X509Certificate x509Certificate);
 
     /**
      * Only to be used for sub-CA and root-CA certificates.
