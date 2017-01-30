@@ -54,8 +54,8 @@ public class MetrologyConfigValidationRuleSetResource {
         List<MetrologyConfigValidationRuleSetInfo> infos = new ArrayList<>();
         if (foundValidationRuleSet.isPresent()) {
             ValidationRuleSet ruleSet = foundValidationRuleSet.get();
-            List<MetrologyContract> contracts = usagePointConfigurationService.getMetrologyContractsLinkedToValidationRuleSet(ruleSet);
-            contracts.forEach(contract -> infos.add(getMetrologyConfigurationInfo(contract, ruleSet)));
+            usagePointConfigurationService.getMetrologyContractsLinkedToValidationRuleSet(ruleSet)
+                    .forEach(contract -> infos.add(getMetrologyConfigurationInfo(contract, ruleSet)));
         } else {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -90,6 +90,7 @@ public class MetrologyConfigValidationRuleSetResource {
                 .stream()
                 .flatMap(metrologyConfiguration -> metrologyConfiguration.getContracts().stream())
                 .flatMap(metrologyContract -> getAvailablePurposes(metrologyContract, validationRuleSet).stream())
+                .sorted((a, b) -> a.metrologyConfigurationInfo.name.compareTo(b.metrologyConfigurationInfo.name))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", availableOutputs, queryParameters);
@@ -100,7 +101,7 @@ public class MetrologyConfigValidationRuleSetResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
-    public Response linkMetrologyPurposeToValidationRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId, int[] metrologyContractIds, @BeanParam JsonQueryParameters queryParameters) {
+    public Response linkMetrologyPurposeToValidationRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId, long[] metrologyContractIds, @BeanParam JsonQueryParameters queryParameters) {
         ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         Arrays.stream(metrologyContractIds).forEach(metrologyContractId -> {
