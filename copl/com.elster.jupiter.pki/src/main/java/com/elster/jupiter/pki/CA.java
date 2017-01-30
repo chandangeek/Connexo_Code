@@ -3,7 +3,7 @@ package com.elster.jupiter.pki;
 import com.elster.jupiter.pki.impl.CertificateSearchFilter;
 
 import aQute.bnd.annotation.ConsumerType;
-import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.asn1.pkcs.CertificationRequest;
 
 import java.security.cert.CRLReason;
 import java.security.cert.X509CRL;
@@ -27,7 +27,7 @@ public interface CA {
      * @return A signed X509 certificate
      * @throws Exception if signing was refused or failed.
      */
-    Optional<X509Certificate> generateCertificate(SigningParameters signingAuthorithy, PKCS10CertificationRequest pkcs10);
+    Optional<X509Certificate> generateCertificate(SigningParameters signingAuthorithy, CertificationRequest pkcs10);
 
     /**
      * revokes a certificate as defined by issuer and serial number with the provided reason.
