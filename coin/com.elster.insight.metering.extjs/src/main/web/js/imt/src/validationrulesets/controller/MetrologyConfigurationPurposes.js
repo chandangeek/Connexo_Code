@@ -59,7 +59,7 @@ Ext.define('Imt.validationrulesets.controller.MetrologyConfigurationPurposes', {
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading();
-        me.getModel('Cfg.model.ValidationRuleSet').load(id, {
+        me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {
             success: function (record) {
                 app.fireEvent('loadRuleSet', record);
                 me.getModel('Imt.validationrulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);

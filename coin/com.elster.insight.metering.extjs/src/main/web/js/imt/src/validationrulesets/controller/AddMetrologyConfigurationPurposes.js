@@ -41,7 +41,7 @@ Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes'
             availableToAddPurposesStore = me.getStore('Imt.validationrulesets.store.MetrologyConfigurationPurposesToAdd');
 
         mainView.setLoading();
-        me.getModel('Cfg.model.ValidationRuleSet').load(id, {
+        me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {
             success: function (record) {
                 app.fireEvent('loadRuleSet', record);
                 app.fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
