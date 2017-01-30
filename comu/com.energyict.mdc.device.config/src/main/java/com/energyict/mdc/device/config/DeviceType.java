@@ -250,7 +250,13 @@ public interface DeviceType extends HasId, HasName {
      */
     KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType);
 
-    interface DeviceTypeBuilder {
+    /**
+     * removes the KeyAccessorType from the DeviceType
+     * @param keyAccessorType
+     */
+    void removeKeyAccessorType(KeyAccessorType keyAccessorType);
+
+        interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);
 
         DeviceTypeBuilder withLoadProfileTypes(List<LoadProfileType> loadProfileTypes);

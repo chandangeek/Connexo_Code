@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -67,7 +68,6 @@ import javax.validation.constraints.Size;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -290,16 +290,25 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType) {
-        return new KeyAccessorTypeBuilder(name, keyType);
+        return new KeyAccessorTypeBuilder(name, keyType, this);
+    }
+
+    @Override
+    public void removeKeyAccessorType(KeyAccessorType keyAccessorType) {
+        Optional<KeyAccessorType> keyAccessorTypeOptional = getKeyAccessorTypes().stream()
+                .filter(kat -> kat.getId() == keyAccessorType.getId())
+                .findAny();
+        keyAccessorTypeOptional.ifPresent(this.keyAccessors::remove);
     }
 
     private class KeyAccessorTypeBuilder implements KeyAccessorType.Builder {
         private final KeyAccessorTypeImpl underConstruction;
 
-        private KeyAccessorTypeBuilder(String name, KeyType keyType) {
+        private KeyAccessorTypeBuilder(String name, KeyType keyType, DeviceTypeImpl deviceType) {
             underConstruction = new KeyAccessorTypeImpl();
             underConstruction.setName(name);
             underConstruction.setKeyType(keyType);
+            underConstruction.setDeviceType(deviceType);
         }
 
         @Override
@@ -309,7 +318,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         @Override
-        public KeyAccessorType.Builder duration(Duration duration) {
+        public KeyAccessorType.Builder duration(TimeDuration duration) {
             underConstruction.setDuration(duration);
             return this;
         }

@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.AllowedCalendar;
@@ -74,7 +75,6 @@ public enum TableSpecs {
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeImpl.Fields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
             table.column("DEVICEUSAGETYPE").number().conversion(ColumnConversion.NUMBER2INT).map("deviceUsageTypeId").add();
             table.column("DEVICETYPEPURPOSE").number().notNull().conversion(NUMBER2ENUM).map(DeviceTypeImpl.Fields.DEVICETYPEPURPOSE.fieldName()).since(version(10, 2)).installValue("0").add();
-            table.column("KEYACCESSOR").number().notNull().map(DeviceTypeImpl.Fields.KEY_ACCESSOR_TYPE.fieldName()).since(version(10, 2)).add();
             table.column("FILEMNGMTENABLED")
                     .number()
                     .notNull()
@@ -89,23 +89,46 @@ public enum TableSpecs {
         }
     },
 
-    DTC_KEYACCESSOR {
+    DTC_KEYACCESSORTYPE {
         @Override
         void addTo(DataModel dataModel) {
             Table<KeyAccessorType> table = dataModel.addTable(name(), KeyAccessorType.class);
             table.map(KeyAccessorTypeImpl.class);
             Column id = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar().notNull().map(KeyAccessorTypeImpl.Fields.NAME.fieldName()).add();
-            Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
-            table.column("DESCRIPTION").varChar().map(KeyAccessorTypeImpl.Fields.DESCRIPTION.fieldName()).add();
-            table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE")
+            table.column("NAME")
+                    .varChar()
+                    .notNull()
+                    .map(KeyAccessorTypeImpl.Fields.NAME.fieldName())
+                    .since(Version.version(10,3))
+                    .add();
+            Column deviceType = table.column("DEVICETYPEID")
+                    .number()
+                    .notNull()
+                    .since(Version.version(10,3))
+                    .add();
+            table.column("DESCRIPTION")
+                    .varChar()
+                    .map(KeyAccessorTypeImpl.Fields.DESCRIPTION.fieldName())
+                    .since(Version.version(10,3))
+                    .add();
+            table.column("DURATION").number()
+                    .conversion(NUMBER2INT)
+                    .map(KeyAccessorTypeImpl.Fields.DURATION.fieldName()+".count")
+                    .since(Version.version(10,3))
+                    .add();
+            table.column("DURATIONCODE").number()
+                    .conversion(NUMBER2INT)
+                    .map(KeyAccessorTypeImpl.Fields.DURATION.fieldName()+".timeUnitCode")
+                    .since(Version.version(10,3))
+                    .add();
+            table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
                     .on(deviceType)
                     .references(DTC_DEVICETYPE.name())
                     .map(KeyAccessorTypeImpl.Fields.DEVICETYPE.fieldName())
-                    .reverseMap("deviceConfigurations")
+                    .reverseMap(DeviceTypeImpl.Fields.KEY_ACCESSOR_TYPE.fieldName())
                     .composition()
                     .add();
-            table.primaryKey("PK_DTC_KAYACCESSOR").on(id).add();
+            table.primaryKey("PK_DTC_KEYACCESSOR").on(id).add();
         }
     },
 

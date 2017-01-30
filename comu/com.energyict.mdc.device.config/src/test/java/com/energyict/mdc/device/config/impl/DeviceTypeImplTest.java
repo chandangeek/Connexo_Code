@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
@@ -949,6 +950,17 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
 
         // Asserts
         AssertionsForClassTypes.assertThat(inMemoryPersistence.getDeviceConfigurationService().findDeviceType(deviceTypeId)).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void addKeyAccessorType() throws Exception {
+        inMemoryPersistence.getPkiService().addSymmetricKeyType("AES128", "AES", 128);
+        Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES128");
+        assertThat(this.deviceType.getKeyAccessorTypes()).isEmpty();
+        this.deviceType.addKeyAccessorType("GUAK", aes128.get()).description("general use AK").duration(TimeDuration.days(365)).add();
+        assertThat(this.deviceType.getKeyAccessorTypes()).hasSize(1);
+        assertThat(this.deviceType.getKeyAccessorTypes().get(0).getName()).isEqualTo("GUAK");
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {

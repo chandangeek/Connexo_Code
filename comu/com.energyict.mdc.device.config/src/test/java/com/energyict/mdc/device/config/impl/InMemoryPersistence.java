@@ -29,6 +29,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -82,7 +84,6 @@ import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,6 +123,7 @@ public class InMemoryPersistence {
     private CalendarService calendarService;
     private PluggableService pluggableService;
     private CustomPropertySetService customPropertySetService;
+    private PkiService pkiService;
 
     private boolean mockProtocolPluggableService;
     private ProtocolPluggableService protocolPluggableService;
@@ -177,6 +179,7 @@ public class InMemoryPersistence {
             this.calendarService = injector.getInstance(CalendarService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.pluggableService = this.injector.getInstance(PluggableService.class);
+            this.pkiService = this.injector.getInstance(PkiService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
@@ -203,6 +206,7 @@ public class InMemoryPersistence {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new PkiModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(
@@ -405,6 +409,10 @@ public class InMemoryPersistence {
 
     public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
         return deviceLifeCycleConfigurationService;
+    }
+
+    public PkiService getPkiService() {
+        return pkiService;
     }
 
     private class MockModule extends AbstractModule {

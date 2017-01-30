@@ -1,18 +1,25 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 
-import java.time.Duration;
+import javax.validation.constraints.Size;
 import java.util.Optional;
 
 public class KeyAccessorTypeImpl implements KeyAccessorType {
     private long id;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    private Duration duration;
+    private TimeDuration duration;
     private Reference<KeyType> keyType = Reference.empty();
     private Reference<DeviceType> deviceType = Reference.empty();
 
@@ -50,7 +57,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
     }
 
     @Override
-    public Optional<Duration> getDuration() {
+    public Optional<TimeDuration> getDuration() {
         return duration==null?Optional.empty():Optional.of(duration);
     }
 
@@ -73,7 +80,15 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
     }
 
     @Override
-    public void setDuration(Duration duration) {
+    public void setDuration(TimeDuration duration) {
         this.duration = duration;
+    }
+
+    public Optional<DeviceType> getDeviceType() {
+        return deviceType.getOptional();
+    }
+
+    public void setDeviceType(DeviceType deviceType) {
+        this.deviceType.set(deviceType);
     }
 }
