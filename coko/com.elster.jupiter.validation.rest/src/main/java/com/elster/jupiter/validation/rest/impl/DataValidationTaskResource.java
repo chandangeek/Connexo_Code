@@ -14,6 +14,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.logging.LogEntry;
@@ -24,7 +25,6 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
-import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationOccurrenceLogInfos;
 import com.elster.jupiter.validation.rest.DataValidationTaskHistoryInfo;
@@ -99,6 +99,7 @@ public class DataValidationTaskResource {
                                              @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         DataValidationTaskBuilder builder = validationService.newTaskBuilder()
                 .setName(info.name)
+                .setLogLevel(info.logLevelId == null ? TaskLogLevel.WARNING : TaskLogLevel.valueOf(info.logLevelId))
                 .setQualityCodeSystem(getQualityCodeSystemForApplication(applicationName))
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun);
@@ -164,6 +165,7 @@ public class DataValidationTaskResource {
         info.id = dataValidationTaskId;
         DataValidationTask task = findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName));
         task.setName(info.name);
+        task.setLogLevel(info.logLevelId == null ? TaskLogLevel.WARNING : TaskLogLevel.valueOf(info.logLevelId));
         task.setScheduleExpression(getScheduleExpression(info));
         if (info.deviceGroup != null) {
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));

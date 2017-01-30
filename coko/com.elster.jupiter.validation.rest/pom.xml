@@ -115,6 +115,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+        </dependency>
 
         <!-- TEST -->
         <dependency>
@@ -124,11 +128,6 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>tasks</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

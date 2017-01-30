@@ -8,7 +8,7 @@ public class DataValidationTaskMinimalInfo {
 
     public long id;
     public String name;
+    public String logLevelId;
     public PeriodicalExpressionInfo schedule;
     public Instant nextRun;
-
 }

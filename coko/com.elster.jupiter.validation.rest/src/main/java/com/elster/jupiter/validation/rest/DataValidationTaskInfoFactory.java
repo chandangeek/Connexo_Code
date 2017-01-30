@@ -1,10 +1,10 @@
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -49,6 +49,8 @@ public class DataValidationTaskInfoFactory {
     private void populate(DataValidationTaskMinimalInfo info, DataValidationTask dataValidationTask) {
         info.id = dataValidationTask.getId();
         info.name = dataValidationTask.getName();
+        TaskLogLevel taskLogLevel = dataValidationTask.getLogLevel() != null ? dataValidationTask.getLogLevel() : TaskLogLevel.WARNING;
+        info.logLevelId = taskLogLevel.name();
         info.nextRun = dataValidationTask.getNextExecution();
         ScheduleExpression scheduleExpression = dataValidationTask.getScheduleExpression();
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {
