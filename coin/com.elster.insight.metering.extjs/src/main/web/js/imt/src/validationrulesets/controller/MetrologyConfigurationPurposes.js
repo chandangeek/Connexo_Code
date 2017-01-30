@@ -1,4 +1,4 @@
-Ext.define('Imt.rulemetrologyconfiguration.controller.MetrologyConfigurationPurposes', {
+Ext.define('Imt.validationrulesets.controller.MetrologyConfigurationPurposes', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -6,16 +6,16 @@ Ext.define('Imt.rulemetrologyconfiguration.controller.MetrologyConfigurationPurp
     ],
 
     views: [
-        'Imt.rulemetrologyconfiguration.view.MetrologyConfigurationPurposes',
+        'Imt.validationrulesets.view.MetrologyConfigurationPurposes',
         'Uni.view.window.Confirmation'
     ],
 
     stores: [
-        'Imt.rulemetrologyconfiguration.store.MetrologyConfigurationPurposes'
+        'Imt.validationrulesets.store.MetrologyConfigurationPurposes'
     ],
 
     models: [
-        'Imt.rulemetrologyconfiguration.model.MetrologyConfigurationPurpose'
+        'Imt.validationrulesets.model.MetrologyConfigurationPurpose'
     ],
 
     refs: [
@@ -55,8 +55,8 @@ Ext.define('Imt.rulemetrologyconfiguration.controller.MetrologyConfigurationPurp
     showMetrologyConfigurationPurposes: function (ruleSetId) {
         var me = this;
 
-        me.getModel('Imt.rulemetrologyconfiguration.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
-        me.getStore('Imt.rulemetrologyconfiguration.store.MetrologyConfigurationPurposes').getProxy().setExtraParam('ruleSetId', ruleSetId);
+        me.getModel('Imt.validationrulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
+        me.getStore('Imt.validationrulesets.store.MetrologyConfigurationPurposes').getProxy().setExtraParam('ruleSetId', ruleSetId);
         me.getApplication().fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
             itemId: 'metrology-configuration-purposes',
             router: me.getController('Uni.controller.history.Router'),

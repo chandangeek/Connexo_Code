@@ -1,10 +1,10 @@
-Ext.define('Imt.rulemetrologyconfiguration.view.MetrologyConfigurationPurposesGrid', {
+Ext.define('Imt.validationrulesets.view.MetrologyConfigurationPurposesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.metrology-configuration-purposes-grid',
     requires: [
         'Uni.grid.column.RemoveAction'
     ],
-    store: 'Imt.rulemetrologyconfiguration.store.MetrologyConfigurationPurposes',
+    store: 'Imt.validationrulesets.store.MetrologyConfigurationPurposes',
     router: null,
 
     initComponent: function () {
@@ -57,6 +57,9 @@ Ext.define('Imt.rulemetrologyconfiguration.view.MetrologyConfigurationPurposesGr
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addMetrologyConfigurationPurposes', 'IMT', 'Add metrology configuration purposes'),
+                        href: me.router
+                            .getRoute('administration/rulesets/overview/metrologyconfigurationpurposes/add')
+                            .buildUrl(),
                         action: 'addMetrologyConfigurationPurposes',
                         itemId: 'grid-add-metrology-configuration-purposes-button',
                         privileges: Imt.privileges.MetrologyConfig.adminValidation

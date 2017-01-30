@@ -434,7 +434,7 @@ Ext.define('Imt.controller.History', {
                     route: 'servicecategories',
                     controller: 'Imt.servicecategories.controller.ServiceCategories',
                     action: 'showOverview',
-                    privileges: Imt.privileges.ServiceCategory.view
+                    privileges: Imt.privileges.MetrologyConfig.canView() || Imt.privileges.MetrologyConfig.canAdministrate()
                 },
                 usagepointlifecycles: {
                     title: Uni.I18n.translate('general.usagePointLifeCycles', 'IMT', 'Usage point life cycles'),
@@ -580,9 +580,18 @@ Ext.define('Imt.controller.History', {
                 'rulesets/overview/metrologyconfigurationpurposes': {
                     title: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
                     route: 'validation/rulesets/{ruleSetId}/metrologyconfigurationpurposes',
-                    controller: 'Imt.rulemetrologyconfiguration.controller.MetrologyConfigurationPurposes',
+                    controller: 'Imt.validationrulesets.controller.MetrologyConfigurationPurposes',
                     action: 'showMetrologyConfigurationPurposes',
-                    privileges: Imt.privileges.MetrologyConfig.viewValidation
+                    privileges: Imt.privileges.MetrologyConfig.viewValidation,
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                            route: 'add',
+                            controller: 'Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes',
+                            action: 'showAddMetrologyConfigurationPurposes',
+                            privileges: Imt.privileges.MetrologyConfig.adminValidation
+                        }
+                    }
                 }
             }
         },

@@ -1,11 +1,11 @@
-Ext.define('Imt.rulemetrologyconfiguration.view.MetrologyConfigurationPurposes', {
+Ext.define('Imt.validationrulesets.view.MetrologyConfigurationPurposes', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.metrology-configuration-purposes',
     requires: [
         'Cfg.view.validation.RuleSetSubMenu',
-        'Imt.rulemetrologyconfiguration.view.MetrologyConfigurationPurposesGrid',
-        'Imt.rulemetrologyconfiguration.view.MetrologyConfigurationPurposeDetails',
-        'Imt.rulemetrologyconfiguration.view.MetrologyConfigurationPurposeActionMenu',
+        'Imt.validationrulesets.view.MetrologyConfigurationPurposesGrid',
+        'Imt.validationrulesets.view.MetrologyConfigurationPurposeDetails',
+        'Imt.validationrulesets.view.MetrologyConfigurationPurposeActionMenu',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
     router: null,
@@ -39,6 +39,9 @@ Ext.define('Imt.rulemetrologyconfiguration.view.MetrologyConfigurationPurposes',
                             {
                                 text: Uni.I18n.translate('general.addMetrologyConfigurationPurposes', 'IMT', 'Add metrology configuration purposes'),
                                 action: 'addMetrologyConfigurationPurposes',
+                                href: me.router
+                                    .getRoute('administration/rulesets/overview/metrologyconfigurationpurposes/add')
+                                    .buildUrl(),
                                 itemId: 'empty-msg-add-metrology-configuration-purposes-button',
                                 privileges: Imt.privileges.MetrologyConfig.adminValidation
                             }
