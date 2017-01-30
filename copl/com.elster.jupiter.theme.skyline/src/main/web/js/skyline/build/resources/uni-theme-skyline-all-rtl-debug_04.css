@@ -7288,6 +7288,16 @@ div.x-form-spinner-down {
   font-size: 11px;
 }
 
+/* line 6, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo {
+  width: 100%;
+}
+
+/* line 8, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo .x-form-trigger-wrap {
+  width: 100% !important;
+}
+
 /* line 7, ../../sass/src/form/field/Base.scss */
 .x-form-field {
   border-radius: 3px;
@@ -14869,6 +14879,16 @@ div.x-form-spinner-down {
   font-size: 11px;
 }
 
+/* line 6, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo {
+  width: 100%;
+}
+
+/* line 8, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo .x-form-trigger-wrap {
+  width: 100% !important;
+}
+
 /* line 1, ../../sass/src/picker/Date.scss */
 .x-datepicker {
   border-color: #70bb51;
@@ -18130,52 +18150,4 @@ a.x-datepicker-date:hover {
 .x-tab-bar-medium-left:after {
   display: none;
   content: "x-slicer:stretch:right";
-}
-
-/*</if slicer>*/
-/* */
-/*<if slicer>*/
-/* line 78, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/slicer.scss */
-.x-tab-bar-medium-right:after {
-  display: none;
-  content: "x-slicer:stretch:left";
-}
-
-/*</if slicer>*/
-/* */
-/* line 137, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-tab-small-top {
-  -moz-border-radius-topleft: 3px;
-  -webkit-border-top-left-radius: 3px;
-  border-top-left-radius: 3px;
-  -moz-border-radius-topright: 3px;
-  -webkit-border-top-right-radius: 3px;
-  border-top-right-radius: 3px;
-  -moz-border-radius-bottomright: 0;
-  -webkit-border-bottom-right-radius: 0;
-  border-bottom-right-radius: 0;
-  -moz-border-radius-bottomleft: 0;
-  -webkit-border-bottom-left-radius: 0;
-  border-bottom-left-radius: 0;
-  padding: 8px 12px 7px 12px;
-  border-width: 0 0 0 0;
-  border-style: solid;
-  background-color: #92c0d3;
-}
-
-/* line 187, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-tab-small-top-mc {
-  background-color: #92c0d3;
-}
-
-/* line 234, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-nbr .x-tab-small-top {
-  padding: 0 !important;
-  border-width: 0 !important;
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  -ms-border-radius: 0px;
-  -o-border-radius: 0px;
-  border-radius: 0px;
-  background-color: transparent;
 }
