@@ -563,22 +563,6 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
         }
     }
 
-    public static void main(String[] args) {
-        int p = SECONDS_PER_MINUTE;
-        int i = Integer.MAX_VALUE / 2;
-        int lower = 0;
-        int upper = Integer.MAX_VALUE;
-        while (i != lower) {
-            if (overflow(i, p)) {
-                upper = i;
-            } else {
-                lower = i;
-            }
-            i = (lower + upper) / 2;
-        }
-        System.out.println(i + " " + i*p + " " + (i+1)*p);
-    }
-
     public static boolean overflow(int a, int b) {
         try {
             int p = Math.multiplyExact(a, b);
