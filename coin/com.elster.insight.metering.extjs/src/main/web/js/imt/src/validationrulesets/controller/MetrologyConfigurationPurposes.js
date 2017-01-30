@@ -94,8 +94,8 @@ Ext.define('Imt.validationrulesets.controller.MetrologyConfigurationPurposes', {
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.removeConfirmation.title', 'IMT', "Remove 'Purpose {0} of metrology configuration {1}'?",
-                [record.get('purpose').name, record.get('metrologyConfigurationInfo').name]),
+            title: Uni.I18n.translate('general.removex', 'IMT', "Remove '{0}'?",
+                record.get('purpose')),
             msg: Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.removeConfirmation.msg', 'IMT', 'The validation rule set will no longer be available on this purpose of the metrology configuration.'),
             fn: remove
         });
