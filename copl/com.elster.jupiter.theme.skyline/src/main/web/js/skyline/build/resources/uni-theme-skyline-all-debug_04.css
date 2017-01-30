@@ -9962,30 +9962,57 @@ div.x-form-spinner-down {
   background-position: center;
 }
 
-/* line 11, ../../sass/src/window/Confirmation.scss */
+/* line 7, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window .x-dlg-icon {
   font-size: 22px;
   color: #eb5642;
 }
-/* line 17, ../../sass/src/window/Confirmation.scss */
+/* line 13, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] .x-header-text {
   font-weight: bold;
   font-size: 16px;
   color: #eb5642;
 }
-/* line 23, ../../sass/src/window/Confirmation.scss */
+/* line 19, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] .x-form-display-field {
   margin-top: 16px;
   color: #686868;
 }
-/* line 28, ../../sass/src/window/Confirmation.scss */
+/* line 24, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px;
 }
 
-/* line 34, ../../sass/src/window/Confirmation.scss */
+/* line 7, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window-green .x-dlg-icon {
+  font-size: 22px;
+  color: #70bb51;
+}
+/* line 13, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window-green *[class*='x-window-'] .x-header-text {
+  font-weight: bold;
+  font-size: 16px;
+  color: #70bb51;
+}
+/* line 19, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window-green *[class*='x-window-'] .x-form-display-field {
+  margin-top: 16px;
+  color: #686868;
+}
+/* line 24, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window-green *[class*='x-window-'] *[class*='x-message-box-'] {
+  background-position: 12px 4px;
+}
+
+/* line 44, ../../sass/src/window/Confirmation.scss */
 .confirmation-window .x-panel-body {
   color: #eb5642;
+  padding: 0 0 15px 65px;
+}
+
+/* line 48, ../../sass/src/window/Confirmation.scss */
+.confirmation-window-green .x-panel-body {
+  color: #70bb51;
   padding: 0 0 15px 65px;
 }
 

@@ -7288,16 +7288,6 @@ div.x-form-spinner-down {
   font-size: 11px;
 }
 
-/* line 6, ../../sass/src/form/field/Combobox.scss */
-.stretchy-combo {
-  width: 100%;
-}
-
-/* line 8, ../../sass/src/form/field/Combobox.scss */
-.stretchy-combo .x-form-trigger-wrap {
-  width: 100% !important;
-}
-
 /* line 7, ../../sass/src/form/field/Base.scss */
 .x-form-field {
   border-radius: 3px;
@@ -14576,30 +14566,57 @@ div.x-form-spinner-down {
   background-position: center;
 }
 
-/* line 11, ../../sass/src/window/Confirmation.scss */
+/* line 7, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window .x-dlg-icon {
   font-size: 22px;
   color: #eb5642;
 }
-/* line 17, ../../sass/src/window/Confirmation.scss */
+/* line 13, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] .x-header-text {
   font-weight: bold;
   font-size: 16px;
   color: #eb5642;
 }
-/* line 23, ../../sass/src/window/Confirmation.scss */
+/* line 19, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] .x-form-display-field {
   margin-top: 16px;
   color: #686868;
 }
-/* line 28, ../../sass/src/window/Confirmation.scss */
+/* line 24, ../../sass/src/window/Confirmation.scss */
 .uni-confirmation-window *[class*='x-window-'] *[class*='x-message-box-'] {
   background-position: 12px 4px;
 }
 
-/* line 34, ../../sass/src/window/Confirmation.scss */
+/* line 7, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window-green .x-dlg-icon {
+  font-size: 22px;
+  color: #70bb51;
+}
+/* line 13, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window-green *[class*='x-window-'] .x-header-text {
+  font-weight: bold;
+  font-size: 16px;
+  color: #70bb51;
+}
+/* line 19, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window-green *[class*='x-window-'] .x-form-display-field {
+  margin-top: 16px;
+  color: #686868;
+}
+/* line 24, ../../sass/src/window/Confirmation.scss */
+.uni-confirmation-window-green *[class*='x-window-'] *[class*='x-message-box-'] {
+  background-position: 12px 4px;
+}
+
+/* line 44, ../../sass/src/window/Confirmation.scss */
 .confirmation-window .x-panel-body {
   color: #eb5642;
+  padding: 0 0 15px 65px;
+}
+
+/* line 48, ../../sass/src/window/Confirmation.scss */
+.confirmation-window-green .x-panel-body {
+  color: #70bb51;
   padding: 0 0 15px 65px;
 }
 
@@ -14850,16 +14867,6 @@ div.x-form-spinner-down {
 .combo-limit-notification {
   color: #828282;
   font-size: 11px;
-}
-
-/* line 6, ../../sass/src/form/field/Combobox.scss */
-.stretchy-combo {
-  width: 100%;
-}
-
-/* line 8, ../../sass/src/form/field/Combobox.scss */
-.stretchy-combo .x-form-trigger-wrap {
-  width: 100% !important;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */
@@ -18171,9 +18178,4 @@ a.x-datepicker-date:hover {
   -o-border-radius: 0px;
   border-radius: 0px;
   background-color: transparent;
-}
-
-/* line 249, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-tab-small-top-frameInfo {
-  font-family: th-3-3-0-0-0-0-0-0-8-12-7-12;
 }
