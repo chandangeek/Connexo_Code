@@ -30,13 +30,13 @@ import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.util.time.Never;
 
@@ -334,6 +334,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         ExportTask exportTask = dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(NAME)
+                .setLogLevel(TaskLogLevel.TRACE)
                 .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setDataFormatterFactoryName(FORMATTER)
@@ -381,6 +382,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         ExportTask exportTask = dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(NAME)
+                .setLogLevel(TaskLogLevel.TRACE)
                 .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .selectingEventTypes()
@@ -650,6 +652,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         return dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(name)
+                .setLogLevel(TaskLogLevel.TRACE)
                 .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .selectingMeterReadings()
