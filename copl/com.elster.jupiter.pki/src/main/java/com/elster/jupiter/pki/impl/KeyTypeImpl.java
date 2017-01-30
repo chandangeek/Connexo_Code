@@ -10,9 +10,6 @@ import com.elster.jupiter.pki.KeyType;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 
-/**
- * Created by bvn on 1/18/17.
- */
 public class KeyTypeImpl implements KeyType {
     private final DataModel dataModel;
 
@@ -84,7 +81,7 @@ public class KeyTypeImpl implements KeyType {
         return keySize;
     }
 
-    public void setKeySize(Integer keySize) {
+    public void setKeySize(int keySize) {
         this.keySize = keySize;
     }
 
