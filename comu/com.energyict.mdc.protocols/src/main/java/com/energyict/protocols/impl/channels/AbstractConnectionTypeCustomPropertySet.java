@@ -7,6 +7,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -45,7 +46,7 @@ public abstract class AbstractConnectionTypeCustomPropertySet {
     /**
      * The connection type implementation, from the 9.1 protocol code
      */
-    public abstract com.energyict.mdc.io.ConnectionType getConnectionTypeSupport();
+    public abstract com.energyict.mdc.upl.io.ConnectionType getConnectionTypeSupport();
 
     /**
      * Return the property specs that were provided by the connection type impl of the 9.1 protocol code

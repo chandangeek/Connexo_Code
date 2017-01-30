@@ -131,7 +131,7 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService, Transla
 
     @Override
     public ConnectionType createConnectionType(String javaClassName) {
-        com.energyict.mdc.io.ConnectionType uplConnectionType = (com.energyict.mdc.io.ConnectionType) uplFactories
+        com.energyict.mdc.upl.io.ConnectionType uplConnectionType = (com.energyict.mdc.upl.io.ConnectionType) uplFactories
                 .computeIfAbsent(javaClassName, ConstructorBasedUplServiceInjection::from)
                 .newInstance();
 

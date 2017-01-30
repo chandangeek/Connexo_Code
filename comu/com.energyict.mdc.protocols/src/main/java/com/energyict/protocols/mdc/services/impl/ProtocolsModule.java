@@ -3,6 +3,7 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.energyict.mdc.io.impl.SocketServiceImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecificationServiceImpl;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -12,6 +13,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.upl.io.SocketService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.google.inject.AbstractModule;
@@ -34,6 +36,7 @@ public class ProtocolsModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(PropertySpecService.class);
 
+        bind(SocketService.class).to(SocketServiceImpl.class).in(Scopes.SINGLETON);
         bind(ConnectionTypeService.class).to(ConnectionTypeServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceProtocolMessageService.class).to(DeviceProtocolMessageServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceProtocolSecurityService.class).to(DeviceProtocolSecurityServiceImpl.class).in(Scopes.SINGLETON);

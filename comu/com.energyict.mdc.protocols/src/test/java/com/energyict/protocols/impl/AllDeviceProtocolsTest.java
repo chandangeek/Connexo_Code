@@ -17,8 +17,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.io.serial.SerialComponentService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
@@ -134,7 +133,6 @@ public class AllDeviceProtocolsTest {
                 Guice.createInjector(
                         new MockModule(),
                         this.bootstrapModule,
-                        new MdcIOModule(),
                         new ProtocolsModule());
         this.deviceProtocolService = injector.getInstance(DeviceProtocolService.class);
     }

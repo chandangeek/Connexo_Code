@@ -37,9 +37,9 @@ public class UPLConnectionTypeAdapter implements ServerConnectionType {
     private static ConnectionTypeCustomPropertySetNameDetective connectionTypeCustomPropertySetNameDetective;
 
     private final Injector injector;
-    private final com.energyict.mdc.io.ConnectionType uplConnectionType;
+    private final com.energyict.mdc.upl.io.ConnectionType uplConnectionType;
 
-    public UPLConnectionTypeAdapter(com.energyict.mdc.io.ConnectionType uplConnectionType, Injector injector) {
+    public UPLConnectionTypeAdapter(com.energyict.mdc.upl.io.ConnectionType uplConnectionType, Injector injector) {
         this.uplConnectionType = uplConnectionType;
         this.injector = injector;
     }

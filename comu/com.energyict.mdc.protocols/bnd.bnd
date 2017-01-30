@@ -3,4 +3,8 @@
 
 Export-Package: com.energyict.protocols.naming
 Private-Package:  \
-    com.energyict.protocols.mdc.*
+    com.energyict.protocols.mdc.io.impl,\
+    com.energyict.mdc.protocol.api.impl.device.messages,\
+    com.energyict.mdc.protocolimplv2.*,\
+    com.energyict.mdc.protocols.impl.channels.*,\
+    com.energyict.mdc.protocols.mdc.*
