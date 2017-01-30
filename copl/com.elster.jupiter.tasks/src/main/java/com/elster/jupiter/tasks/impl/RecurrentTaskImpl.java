@@ -329,8 +329,9 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     public void setLogLevel(TaskLogLevel newLevel) {
-        this.logLevel = newLevel;
+        if (newLevel == null) return;
 
+        this.logLevel = newLevel;
         Level level2Apply = Level.WARNING;
         switch(newLevel) {
             case ERROR:         level2Apply = Level.SEVERE;     break;
