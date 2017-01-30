@@ -56,8 +56,6 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
-import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleModule;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;

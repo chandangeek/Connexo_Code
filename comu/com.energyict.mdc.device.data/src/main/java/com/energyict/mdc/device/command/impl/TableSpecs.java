@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.command.impl;
 
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.dualcontrol.Monitor;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
