@@ -59,7 +59,6 @@ import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurati
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -104,20 +103,13 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -129,6 +121,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -202,7 +203,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new TasksModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
-                new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new IssuesModule(),

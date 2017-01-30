@@ -42,9 +42,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -62,7 +62,6 @@ import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurati
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -86,6 +85,15 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Optional;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -95,14 +103,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
 
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
@@ -199,7 +199,6 @@ public class SecurityPropertySetImplCrudIT {
                     new SearchModule(),
                     new TaskModule(),
                     new DeviceConfigurationModule(),
-                    new MdcIOModule(),
                     new EngineModelModule(),
                     new IssuesModule(),
                     new BasicPropertiesModule(),
