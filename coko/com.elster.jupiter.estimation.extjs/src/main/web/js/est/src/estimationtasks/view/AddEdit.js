@@ -3,7 +3,8 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
     requires: [
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
-        'Est.estimationtasks.view.DataSourcesContainer'
+        'Est.estimationtasks.view.DataSourcesContainer',
+        'Dxp.store.TaskLogLevels'
     ],
     alias: 'widget.estimationtasks-addedit',
 
@@ -47,6 +48,19 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                 field.focus(false, 200);
                             }
                         }
+                    },
+                    {
+                        xtype: 'combobox',
+                        fieldLabel: Uni.I18n.translate('general.logLevel', 'EST', 'Log level'),
+                        required: true,
+                        name: 'logLevelId',
+                        width: 500,
+                        itemId: 'est-tasks-add-loglevel',
+                        allowBlank: false,
+                        store: 'Dxp.store.TaskLogLevels',
+                        queryMode: 'local',
+                        displayField: 'displayValue',
+                        valueField: 'id'
                     },
                     {
                         title: Uni.I18n.translate('estimationtasks.general.dataSources', 'EST', 'Data sources'),

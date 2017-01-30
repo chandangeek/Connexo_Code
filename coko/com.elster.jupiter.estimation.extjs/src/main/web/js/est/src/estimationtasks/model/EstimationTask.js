@@ -14,6 +14,11 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
         {name: 'nextRun', type: 'number', useNull: true},
         {name: 'lastRun', type: 'number', useNull: true},
         {
+            name: 'logLevelId',
+            type: 'string',
+            useNull: true
+        },
+        {
             name: 'deviceGroup_name',
             persist: false,
             mapping: function (data) {

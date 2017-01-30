@@ -6,7 +6,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     stores: [
         'Est.estimationtasks.store.DeviceGroups',
         'Est.estimationtasks.store.UsagePointGroups',
-        'Est.estimationtasks.store.DaysWeeksMonths'
+        'Est.estimationtasks.store.DaysWeeksMonths',
+        'Dxp.store.TaskLogLevels'
     ],
 
     views: [
@@ -27,6 +28,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     taskId: null,
 
     init: function () {
+        var logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+        logLevelsStore.load();
         this.control({
             'estimationtasks-addedit #add-button': {
                 click: this.createEstimationTask
@@ -55,6 +58,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         });
 
         me.getRecurrenceTypeCombo().setValue(me.getRecurrenceTypeCombo().store.getAt(2));
+        widget.down('#est-tasks-add-loglevel').setValue('WARNING'); // = Default value at creation time
         me.recurrenceEnableDisable();
         Ext.resumeLayouts(true);
     },
@@ -73,6 +77,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             newEstimationTask.beginEdit();
 
             newEstimationTask.set('name', newEstimationTaskDto.name);
+            newEstimationTask.set('logLevelId', newEstimationTaskDto.logLevelId);
             newEstimationTask.set('application', appName);
             newEstimationTask.set('active', true);
             newEstimationTask.set('lastEstimationOccurrence', null);
@@ -90,8 +95,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                     });
                 } break;
             }
-
-
 
             if (newEstimationTaskDto.recurrence) {
                 var startOnDate = moment(newEstimationTaskDto.startOn).valueOf(),
