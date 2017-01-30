@@ -7,10 +7,10 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 import com.energyict.mdc.upl.io.ConnectionCommunicationException;
+import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.issue.Problem;
 
 import com.energyict.protocol.exceptions.ConnectionException;

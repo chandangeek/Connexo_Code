@@ -36,7 +36,6 @@ public class ObjectMapperServiceImpl implements ObjectMapperService {
 
         String TYPE_ATTRIBUTE = "type";
 
-
         Class classForName(String className) throws ClassNotFoundException;
 
         /**

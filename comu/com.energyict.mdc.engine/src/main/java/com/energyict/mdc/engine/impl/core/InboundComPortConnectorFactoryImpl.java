@@ -10,9 +10,9 @@ import com.energyict.mdc.engine.impl.core.inbound.SerialPortConnector;
 import com.energyict.mdc.engine.impl.core.inbound.TCPPortConnector;
 import com.energyict.mdc.engine.impl.core.inbound.UDPPortConnector;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.io.SocketService;
 
 import java.time.Clock;
 

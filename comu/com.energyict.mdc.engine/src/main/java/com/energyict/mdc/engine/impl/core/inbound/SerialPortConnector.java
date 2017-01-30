@@ -4,6 +4,7 @@ import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -13,13 +14,13 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.ModemException;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SerialPortException;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.io.SerialPortException;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -107,10 +108,10 @@ public class SerialPortConnector implements InboundComPortConnector {
         ModemComponent atModemComponent = this.serialComponentService.newModemComponent(
                 "",
                 "",
-                comPort.getConnectTimeout(),
-                comPort.getDelayAfterConnect(),
-                comPort.getDelayBeforeSend(),
-                comPort.getAtCommandTimeout(),
+                Temporals.toTemporalAmount(comPort.getConnectTimeout()),
+                Temporals.toTemporalAmount(comPort.getDelayAfterConnect()),
+                Temporals.toTemporalAmount(comPort.getDelayBeforeSend()),
+                Temporals.toTemporalAmount(comPort.getAtCommandTimeout()),
                 comPort.getAtCommandTry(),
                 comPort.getModemInitStrings(),
                 comPort.getGlobalModemInitStrings(),

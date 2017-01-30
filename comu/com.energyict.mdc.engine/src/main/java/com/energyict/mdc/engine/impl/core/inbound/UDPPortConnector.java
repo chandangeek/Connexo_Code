@@ -8,10 +8,10 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.InboundCommunicationException;
-import com.energyict.mdc.io.InboundUdpSession;
-import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.upl.io.InboundUdpSession;
+import com.energyict.mdc.upl.io.SocketService;
 
 import java.time.Clock;
 
