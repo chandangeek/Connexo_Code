@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.CertificateWrapper;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -64,15 +65,15 @@ public enum PropertyValueType {
         }
     },
 
-    CERTIFICATE_WRAPPER_ID {
+    CERTIFICATE_WRAPPER {
         @Override
         public Class getValueTypeClass() {
-            return CertificateWrapperId.class;
+            return CertificateWrapper.class;
         }
 
         @Override
         public Object doConvertValue(Object value) throws ClassCastException {
-            throw new ClassCastException("Not possible to convert [" + value + "] from class " + value.getClass() + " into a CertificateWrapperId.");
+            throw new ClassCastException("Not possible to convert [" + value + "] from class " + value.getClass() + " into a CertificateWrapper.");
         }
     },
 

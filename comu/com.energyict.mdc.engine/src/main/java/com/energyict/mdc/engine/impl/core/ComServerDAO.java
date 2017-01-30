@@ -24,6 +24,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
@@ -38,6 +39,7 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -404,9 +406,9 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     /**
      * Add the given server end-device certificate as a certificate wrapper.
-     * Returns the database ID of the created {@link CertificateWrapper}
+     * Returns the database ID of the created {@link com.energyict.mdc.upl.security.CertificateWrapper}
      */
-    int addEndDeviceCertificate(CertificateWrapperId certificateWrapperId);
+    long addEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper);
 
     /**
      * Updates the gateway device of the Device device

@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
@@ -29,6 +30,7 @@ import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.util.List;
 
@@ -131,6 +133,11 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Override
     public CollectedMessage createCollectedMessageWithUpdateGeneralProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue) {
         return new DeviceProtocolMessageWithCollectedGeneralProperty(deviceIdentifier, messageIdentifier, propertyName, propertyValue);
+    }
+
+    @Override
+    public CollectedCertificateWrapper createCollectedCertificateWrapper(X509Certificate x509Certificate) {
+        return new CollectedCertificateWrapperImpl(x509Certificate);
     }
 
     @Override

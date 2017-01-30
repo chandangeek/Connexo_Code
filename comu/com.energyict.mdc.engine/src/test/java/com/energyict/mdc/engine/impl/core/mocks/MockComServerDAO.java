@@ -28,6 +28,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
@@ -42,6 +43,7 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
+
 import com.google.common.collect.Range;
 
 import java.sql.SQLException;
@@ -517,7 +519,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public int addEndDeviceCertificate(CertificateWrapperId certificateWrapperId) {
+    public long addEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper) {
         return 0;
     }
 

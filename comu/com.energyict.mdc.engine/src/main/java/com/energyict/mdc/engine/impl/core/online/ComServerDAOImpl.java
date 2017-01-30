@@ -79,6 +79,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
@@ -94,7 +95,6 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
-import com.energyict.mdc.upl.security.CertificateWrapper;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -435,12 +435,9 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (propertyValue instanceof CertificateAlias) {
             // If the property value is of type CertificateAlias, add the given certificate in the DLMS key store, under the given alias.
             this.doAddCACertificate((CertificateAlias) propertyValue);
-        } else if (propertyValue instanceof CertificateWrapperId) {
-            /* If the property value is of type CertificateWrapperId, add the given certificate in the trust store.
-             * The id of the created {@link CertificateWrapper} will be set as property value on the device. */
-            CertificateWrapperId certificateWrapperId = (CertificateWrapperId) propertyValue;
-            int id = this.doAddEndDeviceCertificate(certificateWrapperId);
-            certificateWrapperId.setId(id);
+        } else if (propertyValue instanceof CollectedCertificateWrapper) {
+            // If the property value is a CollectedCertificateWrapper then add the certificate in the trust store.
+            this.doAddEndDeviceCertificate((CollectedCertificateWrapper) propertyValue);
         }
     }
 
@@ -464,17 +461,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public int addEndDeviceCertificate(final CertificateWrapperId certificateWrapperId) {
-        return this.executeTransaction(() -> this.doAddEndDeviceCertificate(certificateWrapperId));
+    public long addEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper) {
+        return this.executeTransaction(() -> this.doAddEndDeviceCertificate(collectedCertificateWrapper));
     }
 
-    private int doAddEndDeviceCertificate(CertificateWrapperId certificateWrapperId) {
-        CertificateWrapperShadow certificateWrapperShadow = certificateWrapperId.createCertificateWrapperShadow();
-        if (certificateWrapperShadow != null) {
-            CertificateWrapper certificateWrapper = MeteringWarehouse.getCurrent().getCertificateWrapperFactory().create(certificateWrapperShadow);
-            return certificateWrapper.getId();
-        }
-        return 0;
+    private long doAddEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper) {
+        // Todo: wait for PKI feature (CXO-3603) to be implemented and merged into this branch
+        throw new UnsupportedOperationException("Waiting for implementation of the PKI feature (CXO-3603)");
     }
 
     @Override
