@@ -4,7 +4,8 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
 
     requires: [        
         'Uni.form.field.Duration',
-        'Cfg.view.validationtask.DataSourcesPreviewContainer'
+        'Cfg.view.validationtask.DataSourcesPreviewContainer',
+        'Dxp.store.TaskLogLevels'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -14,7 +15,8 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
     appName: null,
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
 
         me.items = [
             {
@@ -22,6 +24,19 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                 name: 'name',
                 labelWidth: 250
+            },
+            {
+                xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('general.logLevel', 'CFG', 'Log level'),
+                name: 'logLevelId',
+                labelWidth: 250,
+                renderer: function(value) {
+                    if (Ext.isEmpty(value)) {
+                        return '-';
+                    }
+                    var storeIndex = logLevelsStore.findExact('id', value);
+                    return storeIndex === -1 ? '-' : logLevelsStore.getAt(storeIndex).get('displayValue');
+                }
             },
             {
                 xtype: 'cfg-data-sources-preview-container'

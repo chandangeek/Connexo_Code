@@ -23,7 +23,8 @@ Ext.define('Cfg.controller.Tasks', {
         'Cfg.store.ValidationTasks',
         'Cfg.store.ValidationTasksHistory',
         'Cfg.store.MetrologyContracts',
-        'Cfg.store.MetrologyConfigurations'
+        'Cfg.store.MetrologyConfigurations',
+        'Dxp.store.TaskLogLevels'
     ],
 
     models: [
@@ -74,6 +75,8 @@ Ext.define('Cfg.controller.Tasks', {
     INSIGHT_KEY: 'MdmApp',
 
     init: function () {
+        var logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+        logLevelsStore.load();
         this.control({
             'cfg-validation-tasks-add #rgr-validation-tasks-recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
@@ -231,6 +234,7 @@ Ext.define('Cfg.controller.Tasks', {
         me.taskId = null;
         me.fromEdit = false;
         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
+        view.down('#cfg-validation-task-add-loglevel').setValue('WARNING'); // = Default value at creation time
         me.recurrenceEnableDisable();
     },
 
@@ -515,6 +519,7 @@ Ext.define('Cfg.controller.Tasks', {
         }
 
         record.set('name', form.down('#txt-task-name').getValue());
+        record.set('logLevelId', form.down('#cfg-validation-task-add-loglevel').getValue());
 
         if (dataSourcesContainer) {
             dataSourcesContainer.setDataSourcesToRecord(record);

@@ -35,6 +35,13 @@ Ext.define('Cfg.model.ValidationTaskHistory', {
             }
         },
         {
+            name: 'logLevelId',
+            persist:false,
+            mapping:  function (data) {
+                return data.task.logLevelId;
+            }
+        },
+        {
             name: 'statusOnDate',
             persist: false,
             mapping: function (data) {

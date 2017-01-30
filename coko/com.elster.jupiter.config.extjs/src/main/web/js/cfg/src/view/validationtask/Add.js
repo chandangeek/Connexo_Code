@@ -4,7 +4,8 @@ Ext.define('Cfg.view.validationtask.Add', {
     requires: [
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
-        'Cfg.view.validationtask.DataSourcesContainer'
+        'Cfg.view.validationtask.DataSourcesContainer',
+        'Dxp.store.TaskLogLevels'
     ],
 
     edit: false,
@@ -47,6 +48,19 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 field.focus(false, 200);
                             }
                         }
+                    },
+                    {
+                        xtype: 'combobox',
+                        fieldLabel: Uni.I18n.translate('general.logLevel', 'CFG', 'Log level'),
+                        required: true,
+                        name: 'logLevelId',
+                        width: 500,
+                        itemId: 'cfg-validation-task-add-loglevel',
+                        allowBlank: false,
+                        store: 'Dxp.store.TaskLogLevels',
+                        queryMode: 'local',
+                        displayField: 'displayValue',
+                        valueField: 'id'
                     },
                     {
                         title: Uni.I18n.translate('validationTasks.general.dataSources', 'CFG', 'Data sources'),
