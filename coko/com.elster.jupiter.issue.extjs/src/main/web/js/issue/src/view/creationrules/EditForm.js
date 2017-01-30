@@ -147,7 +147,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         itemId: 'priority-urgency',
                         width: 92,
                         name: 'priority.urgency',
-                        value: 1,
+                        value: 25,
                         minValue: 1,
                         maxValue: 50,
                         listeners: {
@@ -165,7 +165,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         width: 157,
                         name: 'priority.impact',
                         fieldLabel: Uni.I18n.translate('general.impact', 'ISU', 'Impact'),
-                        value: 1,
+                        value: 5,
                         minValue: 1,
                         maxValue: 50,
                         margin: '0 0 0 20',
@@ -370,9 +370,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
             me.down('[name=priority.urgency]').setValue(priority.urgency);
             me.down('[name=priority.impact]').setValue(priority.impact);
         }
-        else {
-            labelPriority.setText(2 + ' - ' + Uni.I18n.translate('issue.priority.veryLow', 'ISU', 'Very low'));
-        }
+        me.changePriority();
 
         if (dueIn.number) {
             me.down('#dueDateTrigger').setValue({dueDate: true});
@@ -553,7 +551,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high');
 
 
-        labelPriority.setText(priorityValue + ' - ' + priorityLabel);
+        labelPriority.setText(priorityLabel + ' (' + priorityValue +')');
 
     },
     numberFieldValidation: function (field) {
