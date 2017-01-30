@@ -33,9 +33,9 @@ public class DataExportUIInstaller implements TranslationKeyProvider {
 
     @Activate
     public void activate(BundleContext context) {
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\repo\\connexo\\coko\\com.elster.jupiter.export.extjs\\src\\main\\web\\js\\export", new FileResolver());
+        // HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\repo\\connexo\\coko\\com.elster.jupiter.export.extjs\\src\\main\\web\\js\\export", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
