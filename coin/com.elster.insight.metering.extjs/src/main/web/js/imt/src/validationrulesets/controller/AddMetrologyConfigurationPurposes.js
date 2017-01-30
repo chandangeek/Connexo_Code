@@ -60,7 +60,7 @@ Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes'
 
         mainView.setLoading();
         Ext.Ajax.request({
-            method: 'POST',
+            method: 'PUT',
             url: Ext.String.format('/api/ucr/validationruleset/{0}/purposes/add', router.arguments.ruleSetId),
             jsonData: formatData(),
             success: onSuccessAdd,
@@ -69,7 +69,7 @@ Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes'
 
         function formatData() {
             return _.map(records, function (record) {
-                return {id: record.getId()};
+                return record.getId();
             });
         }
 
