@@ -84,7 +84,6 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -107,18 +106,10 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -133,6 +124,16 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.assertj.core.api.Assertions;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -219,7 +220,6 @@ public class ComSessionCrudIT {
                     new ProtocolApiModule(),
                     new KpiModule(),
                     new TasksModule(),
-                    new MdcIOModule(),
                     new EngineModelModule(),
                     new ProtocolPluggableModule(),
                     new ValidationModule(),

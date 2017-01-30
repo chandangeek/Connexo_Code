@@ -53,11 +53,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
-import com.elster.jupiter.users.GrantPrivilege;
-import com.elster.jupiter.users.Group;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.usagepoint.lifecycle.impl.UsagePointLifeCycleModule;
+import com.elster.jupiter.users.GrantPrivilege;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -102,7 +102,6 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -139,7 +138,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Properties;
@@ -283,7 +281,6 @@ public class InMemoryIntegrationPersistence {
                 new TimeModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
-                new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
