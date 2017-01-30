@@ -79,6 +79,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLEnc
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
@@ -114,6 +115,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1043,6 +1045,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         @Override
         public CollectedMessage createCollectedMessageWithUpdateGeneralProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue) {
             return this.getCollectedDataFactory().createCollectedMessageWithUpdateGeneralProperty(deviceIdentifier, messageIdentifier, propertyName, propertyValue);
+        }
+
+        @Override
+        public CollectedCertificateWrapper createCollectedCertificateWrapper(X509Certificate x509Certificate) {
+            return this.getCollectedDataFactory().createCollectedCertificateWrapper(x509Certificate);
         }
 
         @Override
