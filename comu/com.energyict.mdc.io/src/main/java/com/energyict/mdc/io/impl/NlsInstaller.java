@@ -5,7 +5,7 @@ import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.upl.io.SerialComponentService;
 
 import org.osgi.service.component.annotations.Component;
 
