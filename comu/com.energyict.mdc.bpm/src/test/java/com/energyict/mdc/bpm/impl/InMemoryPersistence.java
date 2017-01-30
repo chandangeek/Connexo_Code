@@ -42,9 +42,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -66,7 +66,6 @@ import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -93,7 +92,6 @@ import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,7 +102,6 @@ import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Provides initialization services that is typically used by classes that focus
@@ -159,7 +156,6 @@ public class InMemoryPersistence {
                 new IssueModule(),
                 new BasicPropertiesModule(),
                 new FirmwareModule(),
-                new MdcIOModule(),
                 new MeteringGroupsModule(),
                 new PartyModule(),
                 new IdsModule(),
@@ -185,7 +181,6 @@ public class InMemoryPersistence {
                 new TopologyModule(),
                 new EngineModule(),
                 new EngineModelModule(),
-                new MdcIOModule(),
                 new SearchModule(),
                 new BpmModule(),
                 new CalendarModule()
