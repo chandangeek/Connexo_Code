@@ -172,11 +172,20 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         return new ArrayList<>(calculatedReadings.values());
     }
 
-    private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedReadings(Range<Instant> interval, Function<BaseReadingRecord, T> readingRecordMapper) {
-        CalculatedMetrologyContractData metrologyContractData = this.dataAggregationService.calculate(usagePoint, metrologyContract, interval);
-        return metrologyContractData.getCalculatedDataFor(this.deliverable).stream()
-                .map(readingRecordMapper::apply)
-                .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
+    private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
+        if(usagePoint.getEffectiveMetrologyConfigurations(interval).stream().anyMatch(emc -> emc.getMetrologyConfiguration().getContracts().contains(metrologyContract))) {
+            return this.dataAggregationService.calculate(
+                    usagePoint,
+                    metrologyContract,
+                    interval)
+                    .getCalculatedDataFor(this.deliverable)
+                    .stream()
+                    .map(mapper::apply)
+                    .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
+                            .identity()));
+        } else {
+            return new HashMap<>();
+        }
     }
 
     @Override
