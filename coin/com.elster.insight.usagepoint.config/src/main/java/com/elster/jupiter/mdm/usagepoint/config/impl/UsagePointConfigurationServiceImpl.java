@@ -304,6 +304,16 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .isEmpty();
     }
 
+    @Override
+    public List<MetrologyContract> getMetrologyContractsLinkedToValidationRuleSet(ValidationRuleSet validationRuleSet) {
+        return this.dataModel
+                .query(MetrologyContractValidationRuleSetUsage.class, MetrologyContract.class)
+                .select(where("validationRuleSet").isEqualTo(validationRuleSet))
+                .stream()
+                .map(MetrologyContractValidationRuleSetUsage::getMetrologyContract)
+                .collect(Collectors.toList());
+    }
+
     private long getLastRuleSetPosition(MetrologyContract metrologyContract) {
         return this.dataModel
                 .query(MetrologyContractEstimationRuleSetUsage.class)

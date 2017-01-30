@@ -88,4 +88,10 @@ public interface UsagePointConfigurationService {
     boolean isLinkableEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet, List<EstimationRuleSet> linkedEstimationRuleSets);
 
     boolean isEstimationRuleSetInUse(EstimationRuleSet ruleset);
+
+    /**
+     * @return list of {@link MetrologyContract} linked to specified validation rule set
+     * @param validationRuleSet Validation rule set
+     */
+    List<MetrologyContract> getMetrologyContractsLinkedToValidationRuleSet(ValidationRuleSet validationRuleSet);
 }
