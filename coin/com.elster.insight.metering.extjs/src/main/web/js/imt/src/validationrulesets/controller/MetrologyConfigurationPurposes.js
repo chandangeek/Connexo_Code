@@ -15,7 +15,8 @@ Ext.define('Imt.validationrulesets.controller.MetrologyConfigurationPurposes', {
     ],
 
     models: [
-        'Imt.validationrulesets.model.MetrologyConfigurationPurpose'
+        'Imt.validationrulesets.model.MetrologyConfigurationPurpose',
+        'Cfg.model.ValidationRuleSet'
     ],
 
     refs: [
@@ -53,15 +54,26 @@ Ext.define('Imt.validationrulesets.controller.MetrologyConfigurationPurposes', {
     },
 
     showMetrologyConfigurationPurposes: function (ruleSetId) {
-        var me = this;
+        var me = this,
+            app = me.getApplication(),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
-        me.getModel('Imt.validationrulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
-        me.getStore('Imt.validationrulesets.store.MetrologyConfigurationPurposes').getProxy().setExtraParam('ruleSetId', ruleSetId);
-        me.getApplication().fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
-            itemId: 'metrology-configuration-purposes',
-            router: me.getController('Uni.controller.history.Router'),
-            ruleSetId: ruleSetId
-        }));
+        mainView.setLoading();
+        me.getModel('Cfg.model.ValidationRuleSet').load(id, {
+            success: function (record) {
+                app.fireEvent('loadRuleSet', record);
+                me.getModel('Imt.validationrulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
+                me.getStore('Imt.validationrulesets.store.MetrologyConfigurationPurposes').getProxy().setExtraParam('ruleSetId', ruleSetId);
+                app.fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
+                    itemId: 'metrology-configuration-purposes',
+                    router: me.getController('Uni.controller.history.Router'),
+                    ruleSetId: ruleSetId
+                }));
+            },
+            callback: function () {
+                mainView.setLoading(false);
+            }
+        });
     },
 
     showPreview: function (selectionModel, record) {

@@ -13,6 +13,10 @@ Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes'
         'Imt.validationrulesets.store.MetrologyConfigurationPurposesToAdd'
     ],
 
+    models: [
+        'Cfg.model.ValidationRuleSet'
+    ],
+
     refs: [
         {ref: 'previewPanel', selector: '#add-metrology-configuration-purposes #metrology-configuration-purpose-preview'}
     ],
@@ -32,15 +36,26 @@ Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes'
 
     showAddMetrologyConfigurationPurposes: function (ruleSetId) {
         var me = this,
+            app = me.getApplication(),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             availableToAddPurposesStore = me.getStore('Imt.validationrulesets.store.MetrologyConfigurationPurposesToAdd');
 
-        me.getApplication().fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
-            itemId: 'add-metrology-configuration-purposes',
-            router: me.getController('Uni.controller.history.Router'),
-            ruleSetId: ruleSetId
-        }));
-        availableToAddPurposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
-        availableToAddPurposesStore.load();
+        mainView.setLoading();
+        me.getModel('Cfg.model.ValidationRuleSet').load(id, {
+            success: function (record) {
+                app.fireEvent('loadRuleSet', record);
+                app.fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
+                    itemId: 'add-metrology-configuration-purposes',
+                    router: me.getController('Uni.controller.history.Router'),
+                    ruleSetId: ruleSetId
+                }));
+                availableToAddPurposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
+                availableToAddPurposesStore.load();
+            },
+            callback: function () {
+                mainView.setLoading(false);
+            }
+        });
     },
 
     showPreview: function (selectionModel, record) {
