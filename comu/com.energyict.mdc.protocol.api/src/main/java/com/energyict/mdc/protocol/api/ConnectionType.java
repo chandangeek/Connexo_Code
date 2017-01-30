@@ -6,6 +6,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.Collections;
@@ -20,7 +21,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (16:16)
  */
-public interface ConnectionType extends Pluggable, com.energyict.mdc.io.ConnectionType {
+public interface ConnectionType extends Pluggable, com.energyict.mdc.upl.io.ConnectionType {
 
     /**
      * Returns the {@link CustomPropertySet} that provides the storage area
