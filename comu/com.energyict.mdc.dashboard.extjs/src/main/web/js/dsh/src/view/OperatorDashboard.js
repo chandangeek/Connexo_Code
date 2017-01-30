@@ -221,7 +221,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                         },
                         {
                             name: 'processInstancesId',
-                            label: Uni.I18n.translate('widget.myWorkList.property.processInstancesId', 'DSH', 'Process Id')
+                            label: Uni.I18n.translate('widget.myWorkList.property.processInstancesId', 'DSH', 'Process ID')
                         },
                         {
                             name: 'processName',
