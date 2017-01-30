@@ -1,4 +1,4 @@
-package com.energyict.mdc.io;
+package com.energyict.mdc.upl.io;
 
 import com.energyict.mdc.protocol.ComChannel;
 

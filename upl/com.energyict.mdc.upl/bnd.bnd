@@ -25,6 +25,7 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.channels.ip.socket,\
                 com.energyict.mdc.channels.ip.diagrams,\
                 com.energyict.mdc.io,\
+                com.energyict.mdc.io.serial,\
                 com.energyict.mdc.ports,\
                 com.energyict.mdc.protocol,\
                 com.energyict.cbo,\

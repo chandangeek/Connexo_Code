@@ -1,8 +1,8 @@
 package com.energyict.mdc.upl;
 
-import com.energyict.mdc.io.UPLSocketService;
 import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
+import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;

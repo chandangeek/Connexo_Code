@@ -1,8 +1,9 @@
 package com.energyict.mdc.channels.serial.direct.serialio;
 
-import Serialio.SerialPort;
 import com.energyict.mdc.channels.serial.SignalController;
-import com.energyict.mdc.io.SerialPortException;
+import com.energyict.mdc.upl.io.SerialPortException;
+
+import Serialio.SerialPort;
 
 import java.io.IOException;
 

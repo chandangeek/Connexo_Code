@@ -1,9 +1,9 @@
 package com.energyict.mdc.channels.ip.datagrams;
 
-import com.energyict.mdc.io.InboundUdpSession;
-import com.energyict.mdc.io.UPLSocketService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.io.ConnectionSetupException;
+import com.energyict.mdc.upl.io.InboundUdpSession;
+import com.energyict.mdc.upl.io.UPLSocketService;
 
 import java.io.IOException;
 import java.io.PipedOutputStream;

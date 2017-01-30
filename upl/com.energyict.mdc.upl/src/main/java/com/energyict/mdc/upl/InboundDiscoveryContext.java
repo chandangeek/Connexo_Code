@@ -2,6 +2,7 @@ package com.energyict.mdc.upl;
 
 import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -82,7 +83,7 @@ public interface InboundDiscoveryContext {
     X509Service getX509Service();
 
     /**
-     * Gets the {@link TypedProperties} of the {@link com.energyict.mdc.io.ConnectionType}
+     * Gets the {@link TypedProperties} of the {@link ConnectionType}
      * that is currently in use in this context.
      *
      * @param deviceIdentifier The object that uniquely identifies the Device

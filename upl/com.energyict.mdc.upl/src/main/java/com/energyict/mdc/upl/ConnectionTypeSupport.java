@@ -1,6 +1,6 @@
 package com.energyict.mdc.upl;
 
-import com.energyict.mdc.io.ConnectionType;
+import com.energyict.mdc.upl.io.ConnectionType;
 
 import java.util.List;
 
