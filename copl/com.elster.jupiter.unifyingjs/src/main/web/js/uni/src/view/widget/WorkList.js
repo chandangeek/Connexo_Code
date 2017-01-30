@@ -8,9 +8,6 @@ Ext.define('Uni.view.widget.WorkList', {
     header: {
         ui: 'small'
     },
-    //overflowY: 'auto',
-
-    //minHeight: 150,
     workListTypesStore: null,
 
     initComponent: function () {
@@ -22,7 +19,7 @@ Ext.define('Uni.view.widget.WorkList', {
                 itemSelector: 'a.x-btn.flag-toggle',
 
                 tpl: new Ext.XTemplate(
-                    '<table style="margin: 5px 0 10px 0; table-layout: fixed; width: 100%;">',
+                    '<table style="margin: 5px 0px 10px 5px; table-layout: fixed; width: 100%;">',
                     '<tpl for=".">',
                     '<tr id="{id}" class="issue">',
                     '<td height="25" width="20" data-qtip="{iconTooltip}">',
@@ -64,6 +61,7 @@ Ext.define('Uni.view.widget.WorkList', {
         };
         me.bbar = {
             xtype: 'container',
+            style: 'margin: 0px 0px 0px -5px',
             itemId: 'docked-links-container'
         };
         me.callParent(arguments);
@@ -141,7 +139,7 @@ Ext.define('Uni.view.widget.WorkList', {
 
         Ext.Array.each(responseObject.items, function (item) {
             itemsData.push({
-                title: item.name,
+                title: item[workItem.get('workItem').titleProperty],
                 tooltip: me.getTooltip(workItem, item),
                 href: me.getHref(workItem, item),
                 icon: me.getIcon(workItem, item),
@@ -164,7 +162,7 @@ Ext.define('Uni.view.widget.WorkList', {
             {
                 xtype: 'label',
                 itemId: 'lbl-top-most',
-                style: 'font-weight: normal;',
+                style: 'font-weight: normal; margin: 0px 0px 0px 5px',
                 text: responseObject.total == 0 ?
                     workItem.get('workItem').topZeroLabel :
                     Ext.String.format(workItem.get('workItem').topLabel, responseObject.total)
@@ -189,6 +187,7 @@ Ext.define('Uni.view.widget.WorkList', {
                 itemId: 'lnk-workgroup-link',
                 text: Ext.String.format(me.configuration.myWorkgroupsLabel, responseObject.totalWorkGroupAssigned),
                 ui: 'link',
+
                 href: workItem.get('workItem').myWorkgroupsLink
             }
         ]);
@@ -221,6 +220,15 @@ Ext.define('Uni.view.widget.WorkList', {
                         Uni.I18n.translate('bpm.task.priority.low', 'UNI', 'Low')
                 tooltip += '<tr><td><b>' + label + ':</b></td>';
                 tooltip += '<td>' + priority + '</td></tr>';
+            } else if (type == 'alarmOrIssuePriority') {
+                var priority = item[name] / 10;
+                priority = (priority <= 2) ? Uni.I18n.translate('bpm.task.priority.veryLow', 'UNI', 'Very low') :
+                    (priority <= 4) ? Uni.I18n.translate('bpm.task.priority.low', 'UNI', 'Low') :
+                    (priority <= 6) ? Uni.I18n.translate('bpm.task.priority.medium', 'UNI', 'Medium') :
+                    (priority <= 8) ? Uni.I18n.translate('bpm.task.priority.high', 'UNI', 'High') :
+                        Uni.I18n.translate('bpm.task.priority.veryHigh', 'UNI', 'Very high')
+                tooltip += '<tr><td><b>' + label + ':</b></td>';
+                tooltip += '<td>' + priority + '</td></tr>';
             }
         });
         tooltip += '</table>';
@@ -229,7 +237,8 @@ Ext.define('Uni.view.widget.WorkList', {
 
     getHref: function (workItem, item) {
         var me = this,
-            args = {};
+            args = {},
+            queryParams = {};
 
         Ext.Array.each(workItem.get('workItem').routeArguments, function (routeArgument) {
             var name = routeArgument.name,
@@ -237,7 +246,13 @@ Ext.define('Uni.view.widget.WorkList', {
 
             args[name] = item[property];
         });
-        return me.router.getRoute(workItem.get('workItem').itemRoute).buildUrl(args)
+        Ext.Array.each(workItem.get('workItem').queryParams, function (queryParam) {
+            var name = queryParam.name,
+                value = queryParam.value;
+
+            queryParams[name] = value;
+        });
+        return me.router.getRoute(workItem.get('workItem').itemRoute).buildUrl(args, queryParams)
     },
 
     getIcon: function (workItem, item) {
@@ -245,10 +260,19 @@ Ext.define('Uni.view.widget.WorkList', {
             userProperty = workItem.get('workItem').userProperty,
             workgroupProperty = workItem.get('workItem').workgroupProperty;
 
-        if (item[userProperty].length > 0) {
-            return 'icon-user';
+        if ((workItem.get('workItem').type == 'alarms') || (workItem.get('workItem').type == 'issues')) {
+            if (item[userProperty] && item[userProperty].name) {
+                return 'icon-user';
+            }
+            return 'icon-users';
         }
-        return 'icon-users';
+        else {
+            if ((item[userProperty] && item[userProperty].length > 0) || (typeof(item['userAssignee']) == 'object')) {
+                return 'icon-user';
+            }
+
+            return 'icon-users';
+        }
     },
 
     getIconTooltip: function (workItem, item) {
@@ -256,9 +280,17 @@ Ext.define('Uni.view.widget.WorkList', {
             userProperty = workItem.get('workItem').userProperty,
             workgroupProperty = workItem.get('workItem').workgroupProperty;
 
-        if (item[userProperty].length > 0) {
-            return Uni.I18n.translate('bpm.task.user', 'UNI', 'User');
+        if ((workItem.get('workItem').type == 'alarms') || (workItem.get('workItem').type == 'issues')) {
+            if (item[userProperty] && item[userProperty].name) {
+                return Uni.I18n.translate('bpm.task.user', 'UNI', 'User');
+            }
+            return Uni.I18n.translate('bpm.task.workgroup', 'UNI', 'Workgroup');
         }
-        return Uni.I18n.translate('bpm.task.workgroup', 'UNI', 'Workgroup');
+        else {
+            if ((item[userProperty] && item[userProperty].length > 0) || (typeof(item['userAssignee']) == 'object')) {
+                return Uni.I18n.translate('bpm.task.user', 'UNI', 'User');
+            }
+            return Uni.I18n.translate('bpm.task.workgroup', 'UNI', 'Workgroup');
+        }
     }
 });

@@ -45,6 +45,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 items: [
                     {
                         xtype: 'combobox',
+                        itemId: 'uni-whatsgoingon-combo',
                         value: 'all',
                         store: healthTypeStore,
                         displayField: 'displayValue',
@@ -68,6 +69,9 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
     buildWidget: function (type) {
         var me = this;
+        if (Ext.isEmpty(type) && !Ext.isEmpty(me.down('#uni-whatsgoingon-combo'))) {
+            type = me.down('#uni-whatsgoingon-combo').getValue();
+        }
         me.store = Ext.getStore(me.store) || Ext.create(me.store);
         if (this.type === 'device') {
             me.store.setProxy({
@@ -94,6 +98,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         }
         me.store.load({
             callback: function(){
+                me.setLoading(false);
                 me.store.clearFilter();
                 if (me.down('tabpanel')) {
                     me.down('tabpanel').removeAll();
