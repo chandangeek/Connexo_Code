@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DlmsSession;

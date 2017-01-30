@@ -3,8 +3,8 @@
  */
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Array;

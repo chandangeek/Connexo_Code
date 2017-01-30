@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.AS300P.messaging;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import com.energyict.dlms.DlmsSession;

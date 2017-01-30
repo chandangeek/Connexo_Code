@@ -1,15 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -21,6 +13,7 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -44,6 +37,14 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CommunicationException;

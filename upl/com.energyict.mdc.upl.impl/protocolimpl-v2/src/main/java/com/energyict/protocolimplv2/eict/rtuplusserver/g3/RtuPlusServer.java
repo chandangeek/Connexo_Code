@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -13,6 +12,7 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;

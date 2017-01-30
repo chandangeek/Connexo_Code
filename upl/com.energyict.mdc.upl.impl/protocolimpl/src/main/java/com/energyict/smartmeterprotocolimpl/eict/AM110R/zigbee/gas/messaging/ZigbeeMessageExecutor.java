@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.messaging;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 
 import com.energyict.dlms.DlmsSession;

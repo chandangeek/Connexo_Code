@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;

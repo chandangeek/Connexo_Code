@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -11,6 +10,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.MessageProtocol;

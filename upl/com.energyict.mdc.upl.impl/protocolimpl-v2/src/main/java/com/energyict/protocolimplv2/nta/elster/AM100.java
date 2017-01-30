@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
-import com.energyict.mdc.io.ConnectionType;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;

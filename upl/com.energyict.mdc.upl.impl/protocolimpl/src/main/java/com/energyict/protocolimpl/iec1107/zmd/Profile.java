@@ -1,8 +1,9 @@
 
 package com.energyict.protocolimpl.iec1107.zmd;
 
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;

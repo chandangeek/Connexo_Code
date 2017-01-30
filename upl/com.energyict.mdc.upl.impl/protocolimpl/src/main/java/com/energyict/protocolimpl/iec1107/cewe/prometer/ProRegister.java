@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Quantity;

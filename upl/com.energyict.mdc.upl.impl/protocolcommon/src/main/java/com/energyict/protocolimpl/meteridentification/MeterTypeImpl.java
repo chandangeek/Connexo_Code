@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.meteridentification;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.ProtocolImplFactory;

@@ -4,6 +4,7 @@ import com.energyict.mdc.channels.VoidComChannel;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.io.ConnectionType;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
@@ -11,7 +12,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * Abstract implementation of the {@link com.energyict.mdc.io.ConnectionType} interface
+ * Abstract implementation of the {@link ConnectionType} interface
  * specific for inbound SMS communication.
  *
  * @author sva

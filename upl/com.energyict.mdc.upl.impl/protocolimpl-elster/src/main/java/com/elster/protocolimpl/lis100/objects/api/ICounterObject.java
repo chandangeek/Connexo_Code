@@ -1,6 +1,6 @@
 package com.elster.protocolimpl.lis100.objects.api;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.energyict.dialer.connection.ConnectionException;
 

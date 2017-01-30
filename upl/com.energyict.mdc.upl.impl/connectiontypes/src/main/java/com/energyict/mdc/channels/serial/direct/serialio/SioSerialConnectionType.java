@@ -5,16 +5,18 @@ import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType} interface for Serial communication.
+ * Provides an implementation for the {@link ConnectionType} interface for Serial communication.
  * <p>
  * Copyrights EnergyICT
  * Date: 17/08/12

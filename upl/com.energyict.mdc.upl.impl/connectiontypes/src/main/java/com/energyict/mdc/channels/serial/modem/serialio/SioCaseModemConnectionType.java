@@ -7,6 +7,7 @@ import com.energyict.mdc.channels.serial.modem.CaseModemComponent;
 import com.energyict.mdc.channels.serial.modem.TypedCaseModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.io.ModemException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType} interface
+ * Provides an implementation for the {@link ConnectionType} interface
  * for Serial Case communication, using the Sio library.
  * </p>
  * @author sva

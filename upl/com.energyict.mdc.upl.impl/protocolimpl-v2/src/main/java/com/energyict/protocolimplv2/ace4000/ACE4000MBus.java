@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;

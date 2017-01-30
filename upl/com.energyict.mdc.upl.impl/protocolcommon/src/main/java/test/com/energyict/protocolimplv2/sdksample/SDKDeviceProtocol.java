@@ -1,6 +1,5 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -9,6 +8,7 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -35,6 +35,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;

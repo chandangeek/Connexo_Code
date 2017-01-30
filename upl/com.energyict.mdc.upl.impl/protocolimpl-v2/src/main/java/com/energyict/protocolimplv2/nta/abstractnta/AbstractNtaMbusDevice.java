@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
-import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;

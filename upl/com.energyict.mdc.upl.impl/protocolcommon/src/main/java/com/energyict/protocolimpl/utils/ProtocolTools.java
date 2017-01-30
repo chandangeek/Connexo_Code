@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.cpo.Environment;
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
+
+import com.energyict.cpo.Environment;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;

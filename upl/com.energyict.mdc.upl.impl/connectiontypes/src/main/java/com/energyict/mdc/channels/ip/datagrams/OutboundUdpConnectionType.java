@@ -3,8 +3,10 @@ package com.energyict.mdc.channels.ip.datagrams;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType} interface for UDP.
+ * Provides an implementation for the {@link ConnectionType} interface for UDP.
  * <p>
  * Copyrights EnergyICT
  * Date: 9/11/12

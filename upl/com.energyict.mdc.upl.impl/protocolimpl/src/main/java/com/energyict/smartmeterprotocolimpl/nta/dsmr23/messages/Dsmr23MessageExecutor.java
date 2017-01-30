@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;

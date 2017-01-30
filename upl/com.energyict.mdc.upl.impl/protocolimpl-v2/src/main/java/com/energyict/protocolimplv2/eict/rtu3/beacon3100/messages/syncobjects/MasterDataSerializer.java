@@ -26,7 +26,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.StringWriter;

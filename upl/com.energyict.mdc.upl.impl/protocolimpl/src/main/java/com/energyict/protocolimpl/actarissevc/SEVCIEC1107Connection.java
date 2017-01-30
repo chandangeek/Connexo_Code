@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.actarissevc;
 
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 

@@ -6,8 +6,8 @@
 
 package com.energyict.dialer.coreimpl;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.RuntimeEnvironment;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -1,7 +1,7 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.elster.us.protocolimplv2.mercury.minimax.frame.RequestFrame;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.ResponseFrame;

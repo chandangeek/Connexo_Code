@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.inbound.dlms;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.dlms.aso.SimpleApplicationServiceObject;
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.protocol.inbound.general.InboundConnection;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.properties.PropertySpec;

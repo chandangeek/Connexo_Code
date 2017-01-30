@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.prime.messaging.tariff;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 

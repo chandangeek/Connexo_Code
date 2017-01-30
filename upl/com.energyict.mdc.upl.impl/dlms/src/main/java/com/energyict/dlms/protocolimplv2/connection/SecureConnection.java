@@ -1,5 +1,8 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -13,8 +16,6 @@ import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationConsumer;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationHandler;
-import com.energyict.mdc.io.NestedIOException;
-import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 

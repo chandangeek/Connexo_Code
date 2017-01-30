@@ -14,7 +14,9 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 
@@ -30,7 +32,7 @@ import java.net.Socket;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (15:19)
  */
-public abstract class ConnectionTypeImpl implements com.energyict.mdc.io.ConnectionType {
+public abstract class ConnectionTypeImpl implements ConnectionType {
 
     private TypedProperties properties = TypedProperties.empty();
 
