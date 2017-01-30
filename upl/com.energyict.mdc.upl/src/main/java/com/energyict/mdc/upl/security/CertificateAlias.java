@@ -1,5 +1,8 @@
 package com.energyict.mdc.upl.security;
 
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+
 /**
  * Models a certificate alias as a String.
  * <p>
@@ -9,4 +12,5 @@ package com.energyict.mdc.upl.security;
  */
 public interface CertificateAlias {
     String getAlias();
+    Certificate getCertificate() throws CertificateException;
 }
