@@ -107,7 +107,7 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                                     },
                                     {
                                         name: 'processInstancesId',
-                                        label: Uni.I18n.translate('widget.myWorkList.property.processInstancesId', 'IMT', 'Process Id')
+                                        label: Uni.I18n.translate('widget.myWorkList.property.processInstancesId', 'IMT', 'Process ID')
                                     },
                                     {
                                         name: 'processName',
