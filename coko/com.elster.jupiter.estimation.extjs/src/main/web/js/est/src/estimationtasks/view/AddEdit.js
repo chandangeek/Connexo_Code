@@ -209,6 +209,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                     },
                                     {
                                         itemId: 'period',
+                                        margin: '5 0 0 0',
                                         boxLabel: Uni.I18n.translate('estimationtasks.general.period', 'EST', 'Period'),
                                         inputValue: true,
                                         listeners: {
@@ -223,7 +224,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                 itemId: 'estimation-period-values',
                                 xtype: 'fieldcontainer',
                                 name: 'estimationPeriodValues',
-                                margin: '30 0 10 0',
+                                margin: '27 0 10 0',
                                 layout: 'hbox',
                                 items: [
                                     {
