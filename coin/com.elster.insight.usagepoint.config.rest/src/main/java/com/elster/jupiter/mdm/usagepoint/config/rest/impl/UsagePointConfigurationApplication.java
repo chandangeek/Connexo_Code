@@ -58,7 +58,8 @@ public class UsagePointConfigurationApplication extends Application implements T
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                MetrologyConfigurationResource.class
+                MetrologyConfigurationResource.class,
+                MetrologyConfigValidationRuleSetResource.class
         );
     }
 
