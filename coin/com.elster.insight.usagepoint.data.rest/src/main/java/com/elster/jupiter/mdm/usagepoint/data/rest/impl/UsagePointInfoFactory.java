@@ -39,6 +39,8 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -79,6 +81,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile UsagePointLifeCycleStateInfoFactory stateInfoFactory;
     private volatile UsagePointLifeCycleInfoFactory lifeCycleInfoFactory;
+    private volatile UsagePointLifeCycleService usagePointLifeCycleService;
 
     public UsagePointInfoFactory() {
     }
@@ -96,7 +99,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
                                  PropertyValueInfoService propertyValueInfoService,
                                  UsagePointLifeCycleStateInfoFactory stateInfoFactory,
-                                 UsagePointLifeCycleInfoFactory lifeCycleInfoFactory) {
+                                 UsagePointLifeCycleInfoFactory lifeCycleInfoFactory, UsagePointLifeCycleService usagePointLifeCycleService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
@@ -111,6 +114,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.propertyValueInfoService = propertyValueInfoService;
         this.stateInfoFactory = stateInfoFactory;
         this.lifeCycleInfoFactory = lifeCycleInfoFactory;
+        this.usagePointLifeCycleService = usagePointLifeCycleService;
         activate();
     }
 
@@ -239,6 +243,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         addLocationInfo(info, usagePoint);
         info.state = this.stateInfoFactory.from(usagePoint.getState());
         info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getState().getLifeCycle());
+        info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
         return info;
     }
 
@@ -380,7 +385,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return builder;
     }
 
-    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
+    public List<MeterActivationInfo> getMetersOnUsagePointWithMetrologyConfigurationInfo(UsagePoint usagePoint, String authorization) {
         Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
         usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
@@ -407,13 +412,50 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                             meterActivationInfo.meter.mRID = meter.getMRID();
                             meterActivationInfo.meter.name = meter.getName();
                             meterActivationInfo.meter.version = meter.getVersion();
-                            meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
+                            meterActivationInfo.meter.watsGoingOnMeterStatus = authorization != null ? getWhatsGoingOnMeterStatus(meter, authorization) : null;
                             meterActivationInfo.meter.url = meter.getHeadEndInterface()
                                     .flatMap(he -> he.getURLForEndDevice(meter))
                                     .map(URL::toString)
                                     .orElse(null);
                         });
                     }
+                    return meterActivationInfo;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint) {
+        return this.getMetersOnUsagePointInfo(usagePoint, null);
+    }
+
+    public List<MeterActivationInfo> getMetersOnUsagePointFullInfo(UsagePoint usagePoint, String authorization) {
+        return this.getMetersOnUsagePointInfo(usagePoint, authorization);
+    }
+
+    private List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
+        if(usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()){
+            return getMetersOnUsagePointWithMetrologyConfigurationInfo(usagePoint, authorization);
+        }
+        return usagePoint.getMeterActivations(clock.instant())
+                .stream()
+                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeter().isPresent())
+                .map(meterActivation -> {
+                    MeterActivationInfo meterActivationInfo = new MeterActivationInfo();
+                    meterActivationInfo.meterRole = new MeterRoleInfo(meterActivation.getMeterRole().get());
+                    meterActivationInfo.id = meterActivation.getId();
+                    meterActivationInfo.meterRole.activationTime = meterActivation.getStart();
+                    meterActivation.getMeter().ifPresent(meter -> {
+                        meterActivationInfo.meter = new MeterInfo();
+                        meterActivationInfo.meter.id = meter.getId();
+                        meterActivationInfo.meter.mRID = meter.getMRID();
+                        meterActivationInfo.meter.name = meter.getName();
+                        meterActivationInfo.meter.version = meter.getVersion();
+                        meterActivationInfo.meter.watsGoingOnMeterStatus = authorization != null ? getWhatsGoingOnMeterStatus(meter, authorization) : null;
+                        meterActivationInfo.meter.url = meter.getHeadEndInterface()
+                                .flatMap(he -> he.getURLForEndDevice(meter))
+                                .map(URL::toString)
+                                .orElse(null);
+                    });
                     return meterActivationInfo;
                 })
                 .collect(Collectors.toList());

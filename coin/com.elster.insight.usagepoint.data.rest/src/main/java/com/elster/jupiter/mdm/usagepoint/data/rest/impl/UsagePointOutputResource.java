@@ -176,7 +176,7 @@ public class UsagePointOutputResource {
                 ValidationEvaluator evaluator = validationService.getEvaluator();
                 ReadingWithValidationStatus.Builder builder = ReadingWithValidationStatus.builder(
                         channel,
-                        validationStatusFactory.isValidationActive(effectiveMetrologyConfiguration, metrologyContract),
+                        validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
                 Map<Instant, ReadingWithValidationStatus<IntervalReadingRecord>> preFilledChannelDataMap = channel.toList(requestedInterval)
                         .stream()
@@ -388,7 +388,7 @@ public class UsagePointOutputResource {
 
                 ReadingWithValidationStatus.Builder builder = ReadingWithValidationStatus.builder(
                         channel,
-                        validationStatusFactory.isValidationActive(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract),
+                        validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
 
 
@@ -468,7 +468,7 @@ public class UsagePointOutputResource {
 
         ReadingWithValidationStatus<ReadingRecord> readingWithValidationStatus = ReadingWithValidationStatus.builder(
                 channel,
-                validationStatusFactory.isValidationActive(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract),
+                validationStatusFactory.isValidationActive(metrologyContract, Collections.singletonList(channel)),
                 validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)))
                 .from(ZonedDateTime.ofInstant(requestedTime, clock.getZone()));
 
@@ -612,7 +612,6 @@ public class UsagePointOutputResource {
         effectiveMC.activateOptionalMetrologyContract(metrologyContract, clock.instant());
         return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
     }
-
 
     @PUT
     @Path("/{contractId}/deactivate")
