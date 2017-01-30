@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -184,7 +183,7 @@ public class ResourceHelper {
         return metrologyConfigurationService
                 .findLinkableMetrologyConfigurations(usagePoint)
                 .stream()
-                .filter(mc -> !mc.getCustomPropertySets().stream().noneMatch(RegisteredCustomPropertySet::isEditableByCurrentUser))
+                .filter(mc -> !mc.getCustomPropertySets().stream().anyMatch(cas -> !cas.isEditableByCurrentUser()))
                 .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
                         .stream()
                         .sorted(Comparator.comparing(rcps -> rcps.getCustomPropertySet()
