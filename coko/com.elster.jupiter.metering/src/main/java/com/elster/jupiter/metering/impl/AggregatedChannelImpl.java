@@ -34,9 +34,11 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -176,12 +178,14 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
         if(usagePoint.getEffectiveMetrologyConfigurations(interval).stream().anyMatch(emc -> emc.getMetrologyConfiguration().getContracts().contains(metrologyContract))) {
+            Set<Instant> readingTimeStamps = new HashSet<>(this.toList(interval));
             return this.dataAggregationService.calculate(
                     usagePoint,
                     metrologyContract,
                     interval)
                     .getCalculatedDataFor(this.deliverable)
                     .stream()
+                    .filter(readingRecord -> readingTimeStamps.contains(readingRecord.getTimeStamp()))
                     .map(mapper::apply)
                     .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
                             .identity()));
