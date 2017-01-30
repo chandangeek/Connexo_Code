@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -89,14 +90,14 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationTask == null) {
-            validationTask = setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC), ID);
+            validationTask = setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC, TaskLogLevel.INFORMATION), ID);
         }
         return validationTask;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC), ID);
+        return setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC, TaskLogLevel.INFORMATION), ID);
     }
 
     @Override
@@ -126,7 +127,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         when(taskService.newBuilder()).thenReturn(taskBuilder);
         when(recurrentTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(recurrentTask.getName()).thenReturn("testname");
-
+        when(recurrentTask.getLogLevel()).thenReturn(TaskLogLevel.INFORMATION);
 
         doNothing().when(recurrentTask).setNextExecution(any(Instant.class));
         doNothing().when(recurrentTask).save();
@@ -141,6 +142,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     public void testPersist() {
         DataValidationTaskImpl testPersistDataValidationTask = newTask();
         testPersistDataValidationTask.setName("testname");
+        testPersistDataValidationTask.setLogLevel(TaskLogLevel.TRACE);
         testPersistDataValidationTask.setEndDeviceGroup(endDeviceGroup);
         testPersistDataValidationTask.doSave();
         verify(dataModel).persist(testPersistDataValidationTask);

@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
@@ -24,6 +25,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     private UsagePointGroup usagePointGroup;
     private ValidationService dataValidationService;
     private QualityCodeSystem qualityCodeSystem;
+    private TaskLogLevel logLevel;
 
     public DataValidationTaskBuilderImpl(DataModel dataModel, ValidationService dataValidationService) {
         this.dataModel = dataModel;
@@ -75,8 +77,14 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     }
 
     @Override
+    public DataValidationTaskBuilder setLogLevel(TaskLogLevel logLevel) {
+        this.logLevel = logLevel;
+        return this;
+    }
+
+    @Override
     public DataValidationTask create() {
-        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, qualityCodeSystem);
+        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, qualityCodeSystem, logLevel);
         task.setScheduleImmediately(scheduleImmediately);
         task.setScheduleExpression(scheduleExpression);
         task.setEndDeviceGroup(endDeviceGroup);

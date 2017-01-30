@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,6 +13,7 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -59,6 +59,7 @@ final class DataValidationTaskImpl implements DataValidationTask {
     private String userName;
     private final Thesaurus thesaurus;
     private transient Instant nextExecution;
+    private transient TaskLogLevel logLevel;
 
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
@@ -81,15 +82,17 @@ final class DataValidationTaskImpl implements DataValidationTask {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.destinationSpecProvider = destinationSpecProvider;
+        this.logLevel = TaskLogLevel.WARNING;
     }
 
-    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
-        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, qualityCodeSystem);
+    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem, TaskLogLevel logLevel) {
+        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, qualityCodeSystem, logLevel);
     }
 
-    DataValidationTaskImpl init(String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
+    DataValidationTaskImpl init(String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem, TaskLogLevel logLevel) {
         this.nextExecution = nextExecution;
         this.name = name.trim();
+        this.logLevel = logLevel;
         this.qualityCodeSystem = qualityCodeSystem;
         return this;
     }
@@ -292,6 +295,7 @@ final class DataValidationTaskImpl implements DataValidationTask {
                 if (!recurrentTask.get().getName().equals(this.name)) {
                     recurrentTask.get().setName(name);
                 }
+                recurrentTask.get().setLogLevel(this.logLevel);
                 recurrentTask.get().save();
             } else {
                 persistRecurrentTask();
@@ -322,7 +326,9 @@ final class DataValidationTaskImpl implements DataValidationTask {
                 .setDestination(destinationSpecProvider.get())
                 .setPayLoad(getName())
                 .scheduleImmediately(scheduleImmediately)
-                .setFirstExecution(nextExecution).build();
+                .setFirstExecution(nextExecution)
+                .setLogLevel(logLevel)
+                .build();
         recurrentTask.set(task);
     }
 
@@ -373,5 +379,20 @@ final class DataValidationTaskImpl implements DataValidationTask {
 
     void setRecurrentTask(RecurrentTask task) {
         this.recurrentTask.set(task);
+    }
+
+    public RecurrentTask getRecurrentTask() {
+        return recurrentTask.get();
+    }
+
+    public TaskLogLevel getLogLevel() {
+        return recurrentTask.isPresent() ? this.getRecurrentTask().getLogLevel() : logLevel;
+    }
+
+    public void setLogLevel(TaskLogLevel newLevel) {
+        this.logLevel = newLevel;
+        if (recurrentTask.isPresent()) {
+            recurrentTaskDirty = true;
+        }
     }
 }
