@@ -62,12 +62,12 @@ Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes'
         Ext.Ajax.request({
             method: 'POST',
             url: Ext.String.format('/api/ucr/validationruleset/{0}/purposes/add', router.arguments.ruleSetId),
-            jsonData: formatData(records),
+            jsonData: formatData(),
             success: onSuccessAdd,
             callback: addCallback
         });
 
-        function formatData(records) {
+        function formatData() {
             return _.map(records, function (record) {
                 return {id: record.getId()};
             });
