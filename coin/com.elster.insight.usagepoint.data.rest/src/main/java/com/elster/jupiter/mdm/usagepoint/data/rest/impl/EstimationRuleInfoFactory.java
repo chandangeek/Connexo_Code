@@ -3,7 +3,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
@@ -25,17 +24,14 @@ public class EstimationRuleInfoFactory {
     }
 
     public EstimationRuleInfo createEstimationRuleInfo(Collection<? extends ReadingQuality> readingQualities) {
-        if (readingQualities.stream().map(ReadingQuality::getType).noneMatch(ReadingQualityType::isSuspect)) {
-            Optional<ReadingQualityRecord> readingQualityRecordOptional = readingQualities.stream()
-                    .map(ReadingQualityRecord.class::cast)
-                    .filter(ReadingQualityRecord::hasEstimatedCategory)
-                    .findFirst();
-            return readingQualityRecordOptional
-                    .flatMap(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()))
-                    .map(estimationRule -> asInfo(estimationRule, readingQualityRecordOptional.get()))
-                    .orElse(null);
-        }
-        return null;
+        Optional<ReadingQualityRecord> readingQualityRecord = readingQualities.stream()
+                .map(ReadingQualityRecord.class::cast)
+                .filter(ReadingQualityRecord::hasEstimatedCategory)
+                .findFirst();
+        return readingQualityRecord
+                .flatMap(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()))
+                .map(estimationRule -> asInfo(estimationRule, readingQualityRecord.get()))
+                .orElse(null);
     }
 
     private EstimationRuleInfo asInfo(EstimationRule estimationRule, ReadingQualityRecord readingQualityRecord) {

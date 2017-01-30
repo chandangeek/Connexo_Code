@@ -669,6 +669,7 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
         List<DataValidationTask> validationTasks = validationService.findValidationTasks()
                 .stream()
+                .filter(task -> task.getMetrologyPurpose().isPresent())
                 .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM) && task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
                 .collect(Collectors.toList());
 
@@ -699,6 +700,7 @@ public class UsagePointOutputResource {
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(usagePoint, contractId);
         List<EstimationTask> estimationTasks = estimationService.findEstimationTasks(QualityCodeSystem.MDM)
                 .stream()
+                .filter(estimationTask -> estimationTask.getMetrologyPurpose().isPresent())
                 .filter(task -> task.getMetrologyPurpose().get().equals(metrologyContract.getMetrologyPurpose()))
                 .collect(Collectors.toList());
 
@@ -706,7 +708,7 @@ public class UsagePointOutputResource {
                 .stream()
                 .map(EstimationTask::getUsagePointGroup)
                 .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Functions.asStream())
                 .distinct()
                 .filter(usagePointGroup -> isMember(usagePoint, usagePointGroup))
                 .flatMap(usagePointGroup -> estimationTasks.stream()

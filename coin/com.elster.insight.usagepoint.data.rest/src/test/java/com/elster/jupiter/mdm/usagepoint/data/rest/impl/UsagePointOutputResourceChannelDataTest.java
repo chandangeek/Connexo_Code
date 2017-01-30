@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -445,8 +444,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel.getCalculatedIntervalReadings(interval)).thenReturn(Collections.singletonList(reading));
         when(channel.getPersistedIntervalReadings(interval)).thenReturn(Collections.emptyList());
         doReturn(Arrays.asList(
-                mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC)),
-                mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))
+                mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC)),
+                mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))
         )).when(reading).getReadingQualities();
 
         // Business method
@@ -477,9 +476,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                 .thenReturn(Collections.singletonList(dataValidationStatus));
 
         doReturn(Arrays.asList(
-                mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC)),
-                mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT)),
-                mockReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.VALIDATED))// 3.0.1 should be filtered out
+                mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC)),
+                mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT)),
+                mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.VALIDATED))// 3.0.1 should be filtered out
         )).when(dataValidationStatus).getReadingQualities();
 
         // Business method
@@ -497,10 +496,10 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<List<String>>get("$.channelData[0].readingQualities[*].cimCode")).containsOnly("3.7.0", "3.5.258");
     }
 
-    private ReadingQuality mockReadingQuality(ReadingQualityType type) {
-        ReadingQuality readingQuality = mock(ReadingQuality.class);
-        when(readingQuality.getType()).thenReturn(type);
-        return readingQuality;
+    private ReadingQualityRecord mockReadingQualityRecord(ReadingQualityType type) {
+        ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
+        when(readingQualityRecord.getType()).thenReturn(type);
+        return readingQualityRecord;
     }
 
     @Test
