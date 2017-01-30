@@ -27,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -124,12 +125,13 @@ public class MetrologyConfigValidationRuleSetResource {
     }
 
     private List<OutputMatchesInfo> getMatchedOutputs(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
-        List<OutputMatchesInfo> matches = new ArrayList<>();
+        List<OutputMatchesInfo> foundMatches = new ArrayList<>();
         validationRuleSet.getRules().stream().flatMap(rule -> rule.getReadingTypes().stream())
                 .forEach(readingType -> metrologyContract.getDeliverables().forEach(deliverable ->
-                        matches.add(new OutputMatchesInfo(deliverable.getName(), deliverable.getReadingType()
+                        foundMatches.add(new OutputMatchesInfo(deliverable.getName(), deliverable.getReadingType()
                                 .equals(readingType)))));
-        return matches;
+        Collections.sort(foundMatches, (a,b) -> Boolean.compare(b.isMatched, a.isMatched));
+        return foundMatches;
     }
 
     private MetrologyConfigValidationRuleSetInfo getMetrologyConfigurationInfo(MetrologyContract contract, ValidationRuleSet ruleSet) {
