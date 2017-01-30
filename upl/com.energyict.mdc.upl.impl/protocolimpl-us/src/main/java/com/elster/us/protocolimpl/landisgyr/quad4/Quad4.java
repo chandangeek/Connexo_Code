@@ -132,7 +132,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             // implementation for Imserv: serialnumber = unit_id1
             if (!readUnit1SerialNumber) {
                 TableAddress ta = new TableAddress(this, 2, 19);
-                return ta.readString(11);
+                return ta.readString(11).trim();
             } else {
                 TableAddress ta = new TableAddress(this, 2, 0);
                 byte[] values = ta.readBytes(4);
@@ -359,7 +359,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#connect()
      */
     public void connect() throws IOException {
@@ -391,7 +391,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
      */
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -406,7 +406,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -417,7 +417,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
@@ -426,9 +426,9 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     }
 
-    /* 
+    /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
      */
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -441,7 +441,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -450,7 +450,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -458,7 +458,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
     }
 
     /**
-     * @throws IOException
+     * @throws java.io.IOException
      */
     void doExtendedLogging() throws IOException {
         if ("1".equals(pExtendedLogging)) {
@@ -476,7 +476,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
             strBuff.append(String.valueOf((char) ProtocolUtils.convertHexLSB(bKar)));
             strBuff.append(String.valueOf((char) ProtocolUtils.convertHexMSB(bKar)));
         }
-        return strBuff.toString();
+        return strBuff.toString().trim();
     }
 
     public String getProtocolVersion() {
@@ -507,7 +507,7 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
      * Send the time delta in milliseconds.
      * (non-Javadoc)
      *
-     * @see MeterProtocol#setTime()
+     * @see com.energyict.protocol.MeterProtocol#setTime()
      */
     public void setTime() throws IOException {
 
