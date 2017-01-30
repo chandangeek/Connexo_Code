@@ -17,7 +17,7 @@ Ext.define('Idc.view.DetailsContainer', {
                 items: [
                     {
                         itemId: 'data-collection-issue-id',
-                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'IDC', 'Id'),
+                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'IDC', 'ID'),
                         name: 'issueId'
                     },
                     {
