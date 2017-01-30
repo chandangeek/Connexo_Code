@@ -6,7 +6,8 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
         'Uni.property.form.Property',
         'Uni.form.field.Duration',
         'Uni.property.form.GroupedPropertyForm',
-        'Dxp.view.tasks.DestinationsField'
+        'Dxp.view.tasks.DestinationsField',
+        'Dxp.store.TaskLogLevels'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
