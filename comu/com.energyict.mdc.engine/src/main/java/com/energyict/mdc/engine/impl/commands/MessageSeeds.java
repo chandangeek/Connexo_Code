@@ -48,7 +48,7 @@ public enum MessageSeeds implements MessageSeed {
     INBOUND_DATA_RESPONSE_FAILURE(5031, "MDC.inbound.data.response.failure", "Failed to store to provide a proper result to the device"),
     INBOUND_DATA_PROCESSOR_ERROR(5032, "MDC.inbound.data.processor.error", "Failed to execute the inbound device storage commands"),
     INBOUND_DUPLICATE_SERIALNUMBER_FAILURE(5033, "MDC.inbound.data.duplicate.serialnumber", "Failed to process the inbound request because multiple devices were found with the same serialnumber ''{0}''"),
-    CONFIG_SERIAL_NUMBER_MISMATCH(5034, "serialNumberMismatch", "SerialNumber mismatch; meter has {0}, while {1} is configured in EIServer"),
+    CONFIG_SERIAL_NUMBER_MISMATCH(5034, "serialNumberMismatch", "SerialNumber mismatch; meter has {0}, while {1} is configured in system"),
     UNSUPPORTED_DISCOVERY_RESULT_TYPE(5035, "unsupportedDiscoveryResultType", "Discovery Result type {0} is unknown, not supported or no longer supported"),
     MAXIMUM_TIME_DIFFERENCE_EXCEEDED(5036, "maxTimeDiffExceeded", "Time difference exceeds the configured maximum: The time difference ({0}) is larger than the configured allowed maximum ({1})"),
     INCORRECT_NUMBER_OF_COMTASKS(5037, "incorrectNbrOfComTasks", "Incorrect number of PreparedComTaskExecutions. Expected {0} but got {1}"),
