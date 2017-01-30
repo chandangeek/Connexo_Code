@@ -607,6 +607,11 @@ public class InboundCommunicationHandler {
         }
 
         @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return serviceProvider.protocolPluggableService();
+        }
+
+        @Override
         public TopologyService topologyService() {
             return serviceProvider.topologyService();
         }

@@ -375,6 +375,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                             deviceMessage,
                             deviceProtocolPluggableClass.get().getDeviceProtocol(),
                             this.serviceProvider.identificationService(),
+                            this.serviceProvider.protocolPluggableService(),
                             new OfflineDeviceImpl(device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider())
                     )
             );
@@ -768,6 +769,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                                 deviceMessage,
                                 device.getDeviceProtocolPluggableClass().get().getDeviceProtocol(),
                                 serviceProvider.identificationService(),
+                                serviceProvider.protocolPluggableService(),
                                 new OfflineDeviceImpl(device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider())
                         ));
                     }

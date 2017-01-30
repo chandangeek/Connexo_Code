@@ -524,6 +524,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
                 deviceMessage,
                 ((Device) deviceMessage.getDevice()).getDeviceProtocolPluggableClass().get().getDeviceProtocol(),  //Downcast to CXO Device
                 serviceProvider.identificationService(),
+                serviceProvider.protocolPluggableService(),
                 this);
     }
 

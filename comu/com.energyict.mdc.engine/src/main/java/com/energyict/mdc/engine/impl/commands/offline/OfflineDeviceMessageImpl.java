@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -35,6 +35,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private final DeviceProtocol deviceProtocol;
     private final OfflineDevice offlineDevice;
     private IdentificationService identificationService;
+    private ProtocolPluggableService protocolPluggableService;
     private DeviceMessageSpec specification;
     private DeviceMessageStatus deviceMessageStatus;
     private DeviceMessageId deviceMessageId;
@@ -57,10 +58,11 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
         this.offlineDevice = null;
     }
 
-    public OfflineDeviceMessageImpl(DeviceMessage deviceMessage, DeviceProtocol deviceProtocol, IdentificationService identificationService, OfflineDevice offlineDevice) {
+    public OfflineDeviceMessageImpl(DeviceMessage deviceMessage, DeviceProtocol deviceProtocol, IdentificationService identificationService, ProtocolPluggableService protocolPluggableService, OfflineDevice offlineDevice) {
         this.deviceMessage = deviceMessage;
         this.deviceProtocol = deviceProtocol;
         this.identificationService = identificationService;
+        this.protocolPluggableService = protocolPluggableService;
         this.offlineDevice = offlineDevice;
         goOffline();
     }
@@ -69,7 +71,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
         Device device = ((Device) this.deviceMessage.getDevice());      //Downcast to Connexo Device
 
         this.deviceMessageId = this.deviceMessage.getDeviceMessageId();
-        this.specification = new ConnexoDeviceMessageSpecAdapter(this.deviceMessage.getSpecification());
+        this.specification = this.protocolPluggableService.adapt(this.deviceMessage.getSpecification());
         this.deviceId = device.getId();
         this.deviceSerialNumber = device.getSerialNumber();
         this.releaseDate = this.deviceMessage.getReleaseDate();
@@ -89,7 +91,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
     private void getOfflineDeviceMessageAttributes(List<DeviceMessageAttribute> attributes) {
         this.deviceMessageAttributes = new ArrayList<>(attributes.size());
-        this.deviceMessageAttributes.addAll(attributes.stream().map(attribute -> new OfflineDeviceMessageAttributeImpl(attribute, this, offlineDevice, deviceProtocol)).collect(Collectors.toList()));
+        this.deviceMessageAttributes.addAll(attributes.stream().map(attribute -> new OfflineDeviceMessageAttributeImpl(attribute, this, offlineDevice, deviceProtocol, this.protocolPluggableService)).collect(Collectors.toList()));
     }
 
     @Override
