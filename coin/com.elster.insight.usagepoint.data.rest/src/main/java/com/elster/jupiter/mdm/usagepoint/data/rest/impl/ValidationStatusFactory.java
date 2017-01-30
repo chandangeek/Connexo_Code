@@ -142,7 +142,7 @@ public class ValidationStatusFactory {
         return rulesCount.entrySet()
                 .stream()
                 .map(this::getEstimationRuleWithNumberSimpleInfo)
-                .sorted(Comparator.comparing(estimationRuleInfo -> estimationRuleInfo.key.displayName))
+                .sorted(Comparator.comparing(estimationRuleInfo -> estimationRuleInfo.key.estimatorName))
                 .collect(Collectors.toSet());
     }
 
@@ -173,7 +173,7 @@ public class ValidationStatusFactory {
         EstimationRuleInfoWithNumber info = new EstimationRuleInfoWithNumber();
         info.key = new EstimationRuleInfo();
         info.key.id = estimationRuleWithNumberEntry.getKey().getId();
-        info.key.displayName = estimationRuleWithNumberEntry.getKey().getDisplayName();
+        info.key.estimatorName = estimationRuleWithNumberEntry.getKey().getDisplayName();
         info.key.ruleSetId = estimationRuleWithNumberEntry.getKey().getRuleSet().getId();
         info.value = estimationRuleWithNumberEntry.getValue();
         return info;

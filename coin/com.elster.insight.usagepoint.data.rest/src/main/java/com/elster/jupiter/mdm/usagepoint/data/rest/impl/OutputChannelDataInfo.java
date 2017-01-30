@@ -49,7 +49,7 @@ public class OutputChannelDataInfo {
 
     public List<ReadingQualityInfo> readingQualities;
 
-    public EstimationRuleInfo estimatedByRule;
+    public EstimationQuantityInfo estimatedByRule;
 
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());

@@ -8,7 +8,6 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.Optional;
 
 public class EstimationRuleInfoFactory {
 
@@ -23,19 +22,17 @@ public class EstimationRuleInfoFactory {
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
-    public EstimationRuleInfo createEstimationRuleInfo(Collection<? extends ReadingQuality> readingQualities) {
-        Optional<ReadingQualityRecord> readingQualityRecord = readingQualities.stream()
+    public EstimationQuantityInfo createEstimationRuleInfo(Collection<? extends ReadingQuality> readingQualities) {
+        return readingQualities.stream()
                 .map(ReadingQualityRecord.class::cast)
                 .filter(ReadingQualityRecord::hasEstimatedCategory)
-                .findFirst();
-        return readingQualityRecord
-                .flatMap(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()))
-                .map(estimationRule -> asInfo(estimationRule, readingQualityRecord.get()))
+                .findFirst()
+                .flatMap(readingQualityRecord -> estimationService.findEstimationRuleByQualityType(readingQualityRecord.getType()).map(rule -> asInfo(rule, readingQualityRecord)))
                 .orElse(null);
     }
 
-    private EstimationRuleInfo asInfo(EstimationRule estimationRule, ReadingQualityRecord readingQualityRecord) {
-        EstimationRuleInfo info = new EstimationRuleInfo();
+    private EstimationQuantityInfo asInfo(EstimationRule estimationRule, ReadingQualityRecord readingQualityRecord) {
+        EstimationQuantityInfo info = new EstimationQuantityInfo();
         info.id = estimationRule.getId();
         info.ruleSetId = estimationRule.getRuleSet().getId();
         info.deleted = estimationRule.isObsolete();
