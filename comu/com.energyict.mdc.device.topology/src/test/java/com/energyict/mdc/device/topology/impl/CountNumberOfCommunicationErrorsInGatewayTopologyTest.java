@@ -62,7 +62,6 @@ import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurati
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -81,15 +80,10 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLProper
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -100,6 +94,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -174,7 +175,6 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new KpiModule(),
                 new TaskModule(),
                 new TasksModule(),
-                new MdcIOModule(),
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new ValidationModule(),
