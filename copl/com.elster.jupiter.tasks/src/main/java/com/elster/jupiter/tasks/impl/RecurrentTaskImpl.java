@@ -77,7 +77,7 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.jsonService = jsonService;
         // for persistence
         this.clock = clock;
-        this.logLevel = TaskLogLevel.WARNING;
+        this.setLogLevel(TaskLogLevel.WARNING);
     }
 
     RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, TaskLogLevel logLevel) {
@@ -88,7 +88,7 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.cronString = scheduleExpression.encoded();
         this.name = name;
         this.scheduleExpression = scheduleExpression;
-        this.logLevel = logLevel;
+        this.setLogLevel(logLevel);
         return this;
     }
 
@@ -330,6 +330,16 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     public void setLogLevel(TaskLogLevel newLevel) {
         this.logLevel = newLevel;
+
+        Level level2Apply = Level.WARNING;
+        switch(newLevel) {
+            case ERROR:         level2Apply = Level.SEVERE;     break;
+            case WARNING:       level2Apply = Level.WARNING;    break;
+            case INFORMATION:   level2Apply = Level.INFO;       break;
+            case DEBUG:         level2Apply = Level.FINE;       break;
+            case TRACE:         level2Apply = Level.FINEST;     break;
+        }
+        LOGGER.setLevel(level2Apply);
     }
 
     public TaskLogLevel getLogLevel() {
