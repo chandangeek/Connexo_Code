@@ -9,15 +9,15 @@ import com.energyict.protocol.MeterEvent;
 class TypeHistoryMessageRcd {
 
     private static TreeMap codes = new TreeMap();
-    
+
     private int id;
     private String description;
     private int eiCode;
-    
+
     static TypeHistoryMessageRcd get( int id ){
         return (TypeHistoryMessageRcd)codes.get( new Integer( id) );
     }
-    
+
     private static void put( int id, String description, int eiCode ){
         Integer iId = new Integer(id);
         TypeHistoryMessageRcd hm = new TypeHistoryMessageRcd( );
@@ -26,7 +26,7 @@ class TypeHistoryMessageRcd {
         hm.eiCode = eiCode;
         codes.put( iId, hm );
     }
-    
+
     private static void put( int id, String description ){
         Integer iId = new Integer(id);
         TypeHistoryMessageRcd hm = new TypeHistoryMessageRcd( );
@@ -34,7 +34,7 @@ class TypeHistoryMessageRcd {
         hm.description = description;
         codes.put( iId, hm );
     }
-    
+
     /** Default EiCode is OTHER */
     static {
         //put(0x00, "No Event Recorded" );
@@ -109,13 +109,13 @@ class TypeHistoryMessageRcd {
         put(0x4E, "Load relay closed" );
         put(0x4F, "Load relay opened" );
         put(0x50, "Message print not available" );
-        put(0x51, "Battery Low" ); 
+        put(0x51, "Battery Low" );
         put(0x52, "EEPROM Read" );
         put(0x53, "EEPROM Written" );
         put(0x54, "RAM chip 0 error", MeterEvent.HARDWARE_ERROR );
-        put(0x55, "RAM chip 1 error", MeterEvent.HARDWARE_ERROR ); 
+        put(0x55, "RAM chip 1 error", MeterEvent.HARDWARE_ERROR );
         put(0x56, "RAM chip 2 error", MeterEvent.HARDWARE_ERROR );
-        put(0x57, "RAM chip 3 error", MeterEvent.HARDWARE_ERROR ); 
+        put(0x57, "RAM chip 3 error", MeterEvent.HARDWARE_ERROR );
         put(0x58, "Relay 1 Closed" );
         put(0x59, "Relay 2 Closed" );
         put(0x5A, "Relay 3 Closed" );
@@ -125,9 +125,9 @@ class TypeHistoryMessageRcd {
         put(0x5E, "Relay 3 Opened" );
         put(0x5F, "Relay 4 Opened" );
         put(0x60, "SMD cold started", MeterEvent.POWERUP);
-        put(0x61, "No Modem" );      
-        put(0x62, "Test mode started" );
-        put(0x63, "Test mode ended" );
+        put(0x61, "No Modem" );
+        put(0x62, "Test mode started", MeterEvent.TEST_MODE_START );
+        put(0x63, "Test mode ended", MeterEvent.TEST_MODE_STOP );
         put(0x64, "Low Speed Bus Error" );
         put(0x65, "Modem Failure" );
         put(0x66, "Primary CL" );
@@ -211,19 +211,19 @@ class TypeHistoryMessageRcd {
     int getEiCode() {
         return eiCode;
     }
-    
+
     public String toString(){
-        return "HistoryMessage [" + Integer.toHexString(id) + ", " + description + " " + this.eiCode + "]"; 
+        return "HistoryMessage [" + Integer.toHexString(id) + ", " + description + " " + this.eiCode + "]";
     }
-    
+
     public static void main( String [] args ) {
         Iterator i = codes.values().iterator();
-        
+
         while( i.hasNext( ) ) {
             TypeHistoryMessageRcd rcd = (TypeHistoryMessageRcd)i.next();
             String dscr = new MeterEvent( new Date(), rcd.getEiCode() ).toString();
             System.out.println( dscr + "\t" + rcd.getEiCode() + "\t0x" + Integer.toHexString(rcd.id) +  "\t" + rcd.getDescription() );
         }
     }
-    
+
 }
