@@ -32,6 +32,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -173,19 +174,19 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
-        if(usagePoint.getEffectiveMetrologyConfigurations(interval).stream().anyMatch(emc -> emc.getMetrologyConfiguration().getContracts().contains(metrologyContract))) {
-            return this.dataAggregationService.calculate(
-                    usagePoint,
-                    metrologyContract,
-                    interval)
-                    .getCalculatedDataFor(this.deliverable)
-                    .stream()
+        if (isMetrologyConfigurationActive(interval)) {
+            return this.dataAggregationService.calculate(usagePoint, metrologyContract, interval)
+                    .getCalculatedDataFor(this.deliverable).stream()
                     .map(mapper::apply)
-                    .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
-                            .identity()));
+                    .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
         } else {
-            return new HashMap<>();
+            return Collections.emptyMap();
         }
+    }
+
+    private boolean isMetrologyConfigurationActive(Range<Instant> interval) {
+        return usagePoint.getEffectiveMetrologyConfigurations(interval).stream()
+                .anyMatch(emc -> emc.getMetrologyConfiguration().getContracts().contains(metrologyContract));
     }
 
     @Override
