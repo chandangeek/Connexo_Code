@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.dxp-tasks-history-preview-form',

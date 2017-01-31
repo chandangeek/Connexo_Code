@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.tasks.AddDestination', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.data-export-add-destination',
