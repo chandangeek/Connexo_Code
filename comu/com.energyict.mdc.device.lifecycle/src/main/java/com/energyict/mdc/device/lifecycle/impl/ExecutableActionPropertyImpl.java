@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 
 /**
  * Provides a general purpose implementation for the {@link ExecutableActionProperty} interface.

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -5,7 +9,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 

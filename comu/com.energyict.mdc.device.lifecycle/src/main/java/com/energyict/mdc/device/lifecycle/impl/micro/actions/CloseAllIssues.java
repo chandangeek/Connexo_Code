@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -7,20 +11,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Provides an implementation for the {@link ServerMicroAction} interface
- * that will close all communication and validation issues on a device with the status <i>Won't fix</i>.
- *
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#CLOSE_ALL_ISSUES}
- * Copyrights EnergyICT
- * Date: 23/06/15
- * Time: 15:45
- */
 public class CloseAllIssues extends TranslatableServerMicroAction {
 
     private final IssueService issueService;

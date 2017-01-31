@@ -1,14 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
 
 import java.time.Instant;
 import java.util.Collections;
