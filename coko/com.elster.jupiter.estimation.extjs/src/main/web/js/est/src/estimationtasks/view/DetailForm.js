@@ -4,12 +4,12 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
 
     requires: [
         'Uni.form.field.Duration',
-        'Dxp.store.TaskLogLevels'
+        'Uni.store.TaskLogLevels'
     ],
 
     initComponent: function () {
         var me = this,
-            logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+            logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
 
         me.items = [
             {

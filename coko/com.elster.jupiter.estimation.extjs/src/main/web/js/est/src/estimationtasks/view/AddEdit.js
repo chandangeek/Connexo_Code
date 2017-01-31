@@ -4,7 +4,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
         'Est.estimationtasks.view.DataSourcesContainer',
-        'Dxp.store.TaskLogLevels'
+        'Uni.store.TaskLogLevels'
     ],
     alias: 'widget.estimationtasks-addedit',
 
@@ -57,7 +57,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                         width: 500,
                         itemId: 'est-tasks-add-loglevel',
                         allowBlank: false,
-                        store: 'Dxp.store.TaskLogLevels',
+                        store: 'Uni.store.TaskLogLevels',
                         queryMode: 'local',
                         displayField: 'displayValue',
                         valueField: 'id'

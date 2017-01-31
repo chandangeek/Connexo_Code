@@ -7,7 +7,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         'Est.estimationtasks.store.DeviceGroups',
         'Est.estimationtasks.store.UsagePointGroups',
         'Est.estimationtasks.store.DaysWeeksMonths',
-        'Dxp.store.TaskLogLevels'
+        'Uni.store.TaskLogLevels'
     ],
 
     views: [
@@ -28,7 +28,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     taskId: null,
 
     init: function () {
-        var logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+        var logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
         logLevelsStore.load();
         this.control({
             'estimationtasks-addedit #add-button': {
