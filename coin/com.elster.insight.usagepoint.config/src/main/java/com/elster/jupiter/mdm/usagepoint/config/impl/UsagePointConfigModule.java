@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -8,6 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 

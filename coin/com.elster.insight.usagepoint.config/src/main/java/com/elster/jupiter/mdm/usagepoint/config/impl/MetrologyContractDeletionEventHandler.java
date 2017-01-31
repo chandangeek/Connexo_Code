@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -6,7 +10,6 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
