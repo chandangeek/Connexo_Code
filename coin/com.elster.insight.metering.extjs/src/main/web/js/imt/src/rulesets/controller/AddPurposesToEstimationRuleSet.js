@@ -78,7 +78,7 @@ Ext.define('Imt.rulesets.controller.AddPurposesToEstimationRuleSet', {
         mainView.setLoading();
         Ext.Ajax.request({
             method: 'PUT',
-            url: Ext.String.format('/api/ucr/estimationruleset/{0}/purposes/add', router.arguments.ruleSetId),
+            url: Ext.String.format('/api/ucr/estimationrulesets/{0}/purposes/add', router.arguments.ruleSetId),
             jsonData: formatData(),
             success: onSuccessAdd,
             callback: addCallback

@@ -78,7 +78,7 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
         mainView.setLoading();
         Ext.Ajax.request({
             method: 'PUT',
-            url: Ext.String.format('/api/ucr/validationruleset/{0}/purposes/add', router.arguments.ruleSetId),
+            url: Ext.String.format('/api/ucr/validationrulesets/{0}/purposes/add', router.arguments.ruleSetId),
             jsonData: formatData(),
             success: onSuccessAdd,
             callback: addCallback

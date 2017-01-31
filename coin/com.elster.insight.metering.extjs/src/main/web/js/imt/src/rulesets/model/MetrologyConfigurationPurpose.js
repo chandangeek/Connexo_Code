@@ -4,7 +4,7 @@ Ext.define('Imt.rulesets.model.MetrologyConfigurationPurpose', {
     idProperty: 'metrologyContractId',
     proxy: {
         type: 'rest',
-        url: '/api/ucr/validationruleset/{ruleSetId}/purposes',
+        url: '/api/ucr/validationrulesets/{ruleSetId}/purposes',
         reader: {
             type: 'json'
         }

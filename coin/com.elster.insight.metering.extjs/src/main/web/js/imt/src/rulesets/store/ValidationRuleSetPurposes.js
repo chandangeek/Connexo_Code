@@ -3,7 +3,7 @@ Ext.define('Imt.rulesets.store.ValidationRuleSetPurposes', {
     model: 'Imt.rulesets.model.MetrologyConfigurationPurpose',
     proxy: {
         type: 'rest',
-        url: '/api/ucr/validationruleset/{ruleSetId}/purposes',
+        url: '/api/ucr/validationrulesets/{ruleSetId}/purposes',
         reader: {
             type: 'json',
             root: 'purposes'

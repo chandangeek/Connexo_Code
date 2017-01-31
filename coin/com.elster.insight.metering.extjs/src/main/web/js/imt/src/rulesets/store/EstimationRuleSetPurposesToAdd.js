@@ -3,7 +3,7 @@ Ext.define('Imt.rulesets.store.EstimationRuleSetPurposesToAdd', {
     model: 'Imt.rulesets.model.MetrologyConfigurationPurpose',
     proxy: {
         type: 'rest',
-        url: '/api/ucr/estimationruleset/{ruleSetId}/purposes/overview',
+        url: '/api/ucr/estimationrulesets/{ruleSetId}/purposes/overview',
         pageParam: false,
         startParam: false,
         limitParam: false,

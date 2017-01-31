@@ -3,7 +3,7 @@ Ext.define('Imt.rulesets.store.ValidationRuleSetPurposesToAdd', {
     model: 'Imt.rulesets.model.MetrologyConfigurationPurpose',
     proxy: {
         type: 'rest',
-        url: '/api/ucr/validationruleset/{ruleSetId}/purposes/overview',
+        url: '/api/ucr/validationrulesets/{ruleSetId}/purposes/overview',
         pageParam: false,
         startParam: false,
         limitParam: false,
