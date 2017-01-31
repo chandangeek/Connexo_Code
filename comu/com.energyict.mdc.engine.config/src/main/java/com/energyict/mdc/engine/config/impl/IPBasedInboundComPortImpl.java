@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -6,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.IPBasedInboundComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
+
 import javax.validation.Payload;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

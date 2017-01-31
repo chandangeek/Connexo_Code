@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -18,6 +22,7 @@ import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ComPortType;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;

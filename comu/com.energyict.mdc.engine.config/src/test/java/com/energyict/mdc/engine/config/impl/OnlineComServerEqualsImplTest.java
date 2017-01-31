@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
 import com.energyict.mdc.engine.config.ComServer;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.10.15
- * Time: 10:51
- */
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
 @RunWith(MockitoJUnitRunner.class)
 public class OnlineComServerEqualsImplTest extends AbstractComServerEqualsContractTest {
 

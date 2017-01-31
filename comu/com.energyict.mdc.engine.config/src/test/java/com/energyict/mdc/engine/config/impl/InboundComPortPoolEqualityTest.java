@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
@@ -7,20 +11,17 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.engine.config.ComPortPoolMember;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.inject.Provider;
+
+import java.util.Collections;
+
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Collections;
-
 import static org.fest.reflect.core.Reflection.field;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.10.15
- * Time: 14:40
- */
 @RunWith(MockitoJUnitRunner.class)
 public class InboundComPortPoolEqualityTest extends EqualsContractTest {
 
