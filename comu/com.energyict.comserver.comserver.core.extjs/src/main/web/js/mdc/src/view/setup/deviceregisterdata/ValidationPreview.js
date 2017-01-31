@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.deviceregisterreportpreview-validation',

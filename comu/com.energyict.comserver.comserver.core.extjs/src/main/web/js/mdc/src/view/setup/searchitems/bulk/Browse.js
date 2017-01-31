@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.searchitems.bulk.Browse', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.searchitems-bulk-browse',

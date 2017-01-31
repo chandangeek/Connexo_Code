@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.validation.AddRuleSets', {
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'validation-add-rulesets',
