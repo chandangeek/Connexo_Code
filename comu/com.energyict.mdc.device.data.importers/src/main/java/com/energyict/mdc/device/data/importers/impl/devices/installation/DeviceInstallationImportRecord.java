@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
