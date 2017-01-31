@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -53,13 +57,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
-/**
- * Tests the {@link SmartMeterProtocolMessageAdapter} component.
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/03/13
- * Time: 9:50
- */
 @RunWith(MockitoJUnitRunner.class)
 public class SmartMeterProtocolMessageAdapterTest {
 

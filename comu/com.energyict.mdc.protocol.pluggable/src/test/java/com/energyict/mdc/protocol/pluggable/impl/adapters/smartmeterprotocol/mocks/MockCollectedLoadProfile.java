@@ -1,6 +1,8 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.google.common.collect.Range;
+package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
@@ -9,6 +11,8 @@ import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.ArrayList;

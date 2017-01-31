@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.orm.DataMapper;
@@ -7,11 +11,6 @@ import javax.inject.Inject;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/04/13
- * Time: 11:19
- */
 public class MessageAdapterMappingFactoryImpl implements MessageAdapterMappingFactory {
 
     private Map<String, String> cache;

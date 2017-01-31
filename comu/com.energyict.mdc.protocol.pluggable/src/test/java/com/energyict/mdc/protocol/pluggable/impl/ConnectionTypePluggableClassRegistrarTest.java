@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.transaction.TransactionService;
@@ -8,8 +12,8 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockOutboundConnectionType;
 
 import java.util.Collections;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

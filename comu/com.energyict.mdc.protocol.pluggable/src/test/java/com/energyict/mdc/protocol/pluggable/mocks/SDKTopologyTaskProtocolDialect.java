@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -7,11 +11,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/05/13
- * Time: 9:59
- */
 public class SDKTopologyTaskProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final String slaveOneSerialNumberPropertyName = "SlaveOneSerialNumber";

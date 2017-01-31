@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import javax.inject.Inject;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/04/13
- * Time: 15:42
- */
 public class SecuritySupportAdapterMappingImpl implements SecuritySupportAdapterMapping {
 
     private String deviceProtocolJavaClassName;

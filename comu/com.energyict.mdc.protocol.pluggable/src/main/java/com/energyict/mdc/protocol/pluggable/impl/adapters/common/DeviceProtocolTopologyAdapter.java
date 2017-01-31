@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -10,8 +15,6 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
-
-import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Adapter between a {@link MeterProtocol MeterProtocol} or

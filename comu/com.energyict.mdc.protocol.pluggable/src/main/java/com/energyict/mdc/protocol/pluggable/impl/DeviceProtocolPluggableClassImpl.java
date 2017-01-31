@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -36,18 +40,6 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Defines a PluggableClass based on a {@link DeviceProtocol}.
- * <p/>
- * We are responsible for wrapping the given Pluggable with a correct Adapter
- * ({@link com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter} or
- * {@link SmartMeterProtocolAdapterImpl})
- * or a correct cast to {@link DeviceProtocol}.
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/07/12
- * Time: 9:00
- */
 @HasValidProperties(groups = { Save.Update.class, Save.Create.class })
 public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrapper<DeviceProtocol> implements DeviceProtocolPluggableClass {
 

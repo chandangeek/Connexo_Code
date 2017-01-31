@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
@@ -7,13 +11,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Adapter object to wrap the cache from a legacy protocol to a new {@link DeviceProtocolCache}.
- * <p/>
- * Copyrights EnergyICT
- * Date: 31/08/12
- * Time: 14:35
- */
 @XmlRootElement(name = "DeviceProtocolCacheAdapter")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {

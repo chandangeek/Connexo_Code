@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -7,13 +11,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
 import java.util.Optional;
 
-/**
- * A dialect related to LoadProfiles.
- *
- * Copyrights EnergyICT
- * Date: 5/02/13
- * Time: 15:46
- */
 public class SDKLoadProfileProtocolDialect extends AbstractDeviceProtocolDialect {
 
     private final PropertySpecService propertySpecService;

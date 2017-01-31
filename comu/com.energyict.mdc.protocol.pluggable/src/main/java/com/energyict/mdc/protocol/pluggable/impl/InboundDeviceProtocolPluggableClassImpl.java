@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -11,16 +15,8 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
-
 import java.util.List;
 
-/**
- * Defines a PluggableClass based on a {@link InboundDeviceProtocol}.
- * <p/>
- * Copyrights EnergyICT
- * Date: 5/11/12
- * Time: 10:15
- */
 public final class InboundDeviceProtocolPluggableClassImpl extends PluggableClassWrapper<InboundDeviceProtocol> implements InboundDeviceProtocolPluggableClass {
 
     private final ProtocolPluggableService protocolPluggableService;

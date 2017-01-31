@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -20,14 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Abstract class for implementing the {@link DeviceSecuritySupport} interface
- * for legacy protocols.
- * <p/>
- * Copyrights EnergyICT
- * Date: 14/01/13
- * Time: 14:47
- */
 public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements DeviceSecuritySupport {
 
     private DeviceProtocolSecurityCapabilities legacySecuritySupport;

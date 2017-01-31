@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -69,13 +73,6 @@ import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link AdapterDeviceProtocolDialect} component.
- * <p>
- * Copyrights EnergyICT
- * Date: 9/10/12
- * Time: 15:59
- */
 @RunWith(MockitoJUnitRunner.class)
 public class AdapterDeviceProtocolDialectTest {
 

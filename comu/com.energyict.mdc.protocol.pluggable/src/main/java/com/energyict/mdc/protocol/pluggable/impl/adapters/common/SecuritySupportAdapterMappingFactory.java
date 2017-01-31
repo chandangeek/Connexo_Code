@@ -1,12 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-/**
- * Provides factory services for {@link SecuritySupportAdapterMapping}.
- *
- * Copyrights EnergyICT
- * Date: 12/04/13
- * Time: 11:03
- */
 public interface SecuritySupportAdapterMappingFactory {
 
     /**

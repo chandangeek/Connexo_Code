@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -25,13 +29,6 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Simple class representing a MeterProtocol. Is only used for testing.
- * <p/>
- * Copyrights EnergyICT
- * Date: 15/01/13
- * Time: 10:13
- */
 public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol {
 
     @Override

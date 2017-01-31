@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.common.TypedProperties;
 
-/**
- * Serves as an Adapter for property related functionality
- * <p/>
- * Copyrights EnergyICT
- * Date: 22/01/13
- * Time: 14:27
- */
 public class PropertiesAdapter {
 
     private final TypedProperties properties = TypedProperties.empty();

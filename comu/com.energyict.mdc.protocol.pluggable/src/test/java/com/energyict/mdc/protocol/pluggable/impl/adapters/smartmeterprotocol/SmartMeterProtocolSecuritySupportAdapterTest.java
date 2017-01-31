@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.orm.DataModel;
@@ -21,13 +25,15 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDevic
 
 import java.sql.SQLException;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -37,13 +43,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests for the {@link SmartMeterProtocolSecuritySupportAdapter} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 15/01/13
- * Time: 12:00
- */
 @RunWith(MockitoJUnitRunner.class)
 public class SmartMeterProtocolSecuritySupportAdapterTest {
 

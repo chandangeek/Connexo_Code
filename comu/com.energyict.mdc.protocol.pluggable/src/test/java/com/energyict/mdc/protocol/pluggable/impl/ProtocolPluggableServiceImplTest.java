@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -37,8 +41,10 @@ import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistrati
 
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;

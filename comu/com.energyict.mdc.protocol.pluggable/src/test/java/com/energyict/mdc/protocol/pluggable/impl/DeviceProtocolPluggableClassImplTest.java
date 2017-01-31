@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -70,8 +74,11 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -81,13 +88,6 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Test the {@link DeviceProtocolPluggableClassImpl} component.
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/07/12
- * Time: 11:39
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceProtocolPluggableClassImplTest {
 

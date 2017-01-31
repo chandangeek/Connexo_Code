@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.orm.DataModel;
@@ -30,14 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Abstract class for implementing the {@link DeviceMessageSupport}
- * for legacy protocols.
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/03/13
- * Time: 11:27
- */
 public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMessageSupport{
 
     private static final int UPDATE_SENT_MASK = 0b0001;

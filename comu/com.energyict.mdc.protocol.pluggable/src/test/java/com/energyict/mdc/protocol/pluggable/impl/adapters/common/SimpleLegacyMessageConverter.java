@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -13,13 +17,6 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * Simple test class to correctly perform tests on the adapters
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/03/13
- * Time: 9:52
- */
 public class SimpleLegacyMessageConverter implements LegacyMessageConverter {
 
     public static final String calendarFormattingResult = "ThisIsTheCalendarFormattingResult";
