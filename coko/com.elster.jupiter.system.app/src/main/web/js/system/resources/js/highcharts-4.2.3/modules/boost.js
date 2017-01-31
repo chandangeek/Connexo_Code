@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 (function (c) {
     typeof module === "object" && module.exports ? module.exports = c : c(Highcharts)
 })(function (c) {
