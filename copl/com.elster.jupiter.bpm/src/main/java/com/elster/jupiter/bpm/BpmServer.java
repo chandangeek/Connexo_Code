@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.bpm;
 
 import aQute.bnd.annotation.ProviderType;
 
-/**
- * Copyrights EnergyICT
- * Date: 23/09/2014
- * Time: 10:25
- */
 @ProviderType
 public interface BpmServer {
 
