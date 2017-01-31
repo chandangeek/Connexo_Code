@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -5,8 +9,8 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;

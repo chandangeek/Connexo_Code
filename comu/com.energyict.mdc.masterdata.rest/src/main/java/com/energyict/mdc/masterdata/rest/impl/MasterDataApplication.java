@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.license.License;
@@ -19,6 +23,7 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;

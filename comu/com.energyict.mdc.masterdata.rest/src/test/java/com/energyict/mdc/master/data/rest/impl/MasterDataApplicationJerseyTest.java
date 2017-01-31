@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.master.data.rest.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
@@ -10,12 +14,10 @@ import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.impl.MasterDataApplication;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
+import org.mockito.Mock;
 
 public class MasterDataApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 

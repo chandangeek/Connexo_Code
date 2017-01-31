@@ -1,15 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.master.data.rest.impl;
 
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.rest.LogBookTypeInfo;
-import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
