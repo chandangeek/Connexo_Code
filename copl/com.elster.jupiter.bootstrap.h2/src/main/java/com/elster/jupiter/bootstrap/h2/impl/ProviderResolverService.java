@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.bootstrap.h2.impl;
 
 import com.google.common.collect.ImmutableList;
