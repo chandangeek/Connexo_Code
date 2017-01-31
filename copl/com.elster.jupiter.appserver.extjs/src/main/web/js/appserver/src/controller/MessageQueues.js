@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Apr.controller.MessageQueues',{
     extend: 'Ext.app.Controller',
     requires: [
