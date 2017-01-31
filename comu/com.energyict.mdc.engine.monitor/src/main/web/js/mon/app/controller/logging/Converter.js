@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('CSMonitor.controller.logging.Converter', {
     extend: 'CSMonitor.controller.history.Converter',
 

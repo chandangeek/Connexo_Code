@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('CSMonitor.view.ServerDetails', {
     extend: 'Ext.panel.Panel',
     requires: ['Ext.layout.container.Column'],

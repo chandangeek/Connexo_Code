@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // For the moment, this class is no longer used
 // I keep it as a place holder for future Date util functions
 Ext.define('CSMonitor.util.DateUtils', {
