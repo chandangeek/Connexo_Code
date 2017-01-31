@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
   <OCD description="Rest Whiteboard" name="Rest Whiteboard" id="com.elster.jupiter.rest.whiteboard">       
     <AD name="debug"  id="debug" required="true" type="Boolean" default="false" description="If true adds a Logging Filter"/>
