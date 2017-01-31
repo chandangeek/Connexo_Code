@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 if (!('boxShadow' in document.body.style)) {
     document.body.setAttribute('class', 'noBoxShadow');
 }
