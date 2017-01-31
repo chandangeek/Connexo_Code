@@ -26,7 +26,8 @@ Ext.define('Ddv.view.validations.Filter', {
                 itemId: 'validations-topfilter-between',
                 text: Uni.I18n.translate('validations.filter.period', 'DDV', 'Period'),
                 defaultFromDate: me.filterDefault.from,
-                defaultToDate: me.filterDefault.to
+                defaultToDate: me.filterDefault.to,
+                withoutTime: true
             },
             {
                 type: 'numeric',
