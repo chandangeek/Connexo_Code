@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.partners.jbpm.extension;
 
 import org.drools.core.util.StringUtils;

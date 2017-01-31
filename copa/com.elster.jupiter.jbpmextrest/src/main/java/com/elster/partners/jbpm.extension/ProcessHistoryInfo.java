@@ -1,10 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.partners.jbpm.extension;
 
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
 
 public class ProcessHistoryInfo {
 

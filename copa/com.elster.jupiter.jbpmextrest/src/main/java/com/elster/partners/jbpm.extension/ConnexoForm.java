@@ -1,10 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.partners.jbpm.extension;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.kie.api.task.model.Status;
 
-import javax.xml.bind.annotation.*;
-import java.util.HashMap;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.List;
 import java.util.Map;
 
