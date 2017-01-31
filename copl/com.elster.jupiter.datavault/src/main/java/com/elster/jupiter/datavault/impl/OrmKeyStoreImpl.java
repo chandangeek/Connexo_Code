@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -6,13 +10,6 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 
-/**
- * Copyrights EnergyICT
- *
- * Enables data vault functionality by providing a Java key store from a UserFile
- *
- * @since 10/4/12 10:48 AM
- */
 class OrmKeyStoreImpl {
 
     private final DataModel dataModel;

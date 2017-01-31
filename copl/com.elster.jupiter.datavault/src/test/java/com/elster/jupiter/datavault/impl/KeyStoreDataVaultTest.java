@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.nls.NlsService;
@@ -19,11 +23,6 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- *
- * @since 10/1/12 2:21 PM
- */
 @RunWith(MockitoJUnitRunner.class)
 public class KeyStoreDataVaultTest {
 
