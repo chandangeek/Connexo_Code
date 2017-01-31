@@ -40,7 +40,7 @@ public class IDISProfileDataReader {
 
     private static final ObisCode QUARTER_HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.2.0.255");
-    private static final ObisCode BILLING_LOAD_PROFILE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
+    private static final ObisCode BILLING_LOAD_PROFILE_OBISCODE = ObisCode.fromString("0.0.98.1.0.255");
     private static final ObisCode OBISCODE_MBUS_LOAD_PROFILE = ObisCode.fromString("0.x.24.3.0.255");
 
     private static final ObisCode OBISCODE_NR_OF_POWER_FAILURES = ObisCode.fromString("0.0.96.7.9.255");
