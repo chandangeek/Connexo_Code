@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.app.impl;
 
 import com.elster.jupiter.appserver.AppService;
@@ -29,7 +33,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
