@@ -48,7 +48,7 @@ public class Mx382ProfileDataReader extends IDISProfileDataReader {
     }
 
     @Override
-    protected boolean hasStatusInformation() {
+    protected boolean hasStatusInformation(ObisCode correctedLoadProfileObisCode) {
         return false;
     }
 }
