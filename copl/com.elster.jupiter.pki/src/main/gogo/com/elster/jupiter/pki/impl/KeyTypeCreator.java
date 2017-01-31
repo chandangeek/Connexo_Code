@@ -4,7 +4,7 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 
 /**
- * Created by bvn on 1/31/17.
+ * Interface to facilitate creation of KeyTypes from enum
  */
 public interface KeyTypeCreator {
     public String getName();
