@@ -1,11 +1,14 @@
-package com.energyict.mdc.device.config.exceptions;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.List;
 import java.util.stream.Collectors;

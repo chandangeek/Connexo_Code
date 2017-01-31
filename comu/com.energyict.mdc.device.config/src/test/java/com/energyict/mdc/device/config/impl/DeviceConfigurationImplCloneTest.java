@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -29,11 +33,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 08/07/15
- * Time: 10:29
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigurationImplCloneTest extends PersistenceTest {
 

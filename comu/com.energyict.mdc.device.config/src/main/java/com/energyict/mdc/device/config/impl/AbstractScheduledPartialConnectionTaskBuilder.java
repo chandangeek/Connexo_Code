@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -10,11 +14,6 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 
-/**
- * Copyrights EnergyICT
- * Date: 13/03/14
- * Time: 15:12
- */
 abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends PartialOutboundConnectionTaskImpl> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialOutboundConnectionTaskBuilder<S, U> {
 
     private final SchedulingService schedulingService;

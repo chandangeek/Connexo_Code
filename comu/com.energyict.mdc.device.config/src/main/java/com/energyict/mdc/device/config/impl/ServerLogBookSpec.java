@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LogBookSpec;
 
-/**
- * Copyrights EnergyICT
- * Date: 13/07/15
- * Time: 11:21
- */
 public interface ServerLogBookSpec extends LogBookSpec{
 
     /**

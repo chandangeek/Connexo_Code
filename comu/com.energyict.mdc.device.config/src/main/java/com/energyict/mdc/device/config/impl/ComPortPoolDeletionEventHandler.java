@@ -1,21 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/03/2014
- * Time: 10:37
- */
 @Component(name="com.energyict.mdc.device.config.delete.comportpool.eventhandler", service = TopicHandler.class, immediate = true)
 @SuppressWarnings("unused")
 public class ComPortPoolDeletionEventHandler implements TopicHandler {

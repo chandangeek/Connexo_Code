@@ -1,11 +1,13 @@
-package com.energyict.mdc.device.config;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

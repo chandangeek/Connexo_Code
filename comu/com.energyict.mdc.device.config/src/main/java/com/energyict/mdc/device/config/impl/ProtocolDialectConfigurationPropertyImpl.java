@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -10,11 +14,6 @@ import com.energyict.mdc.device.config.events.EventType;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/03/14
- * Time: 16:43
- */
 @SizeForDynamicAttributeName(max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
 class ProtocolDialectConfigurationPropertyImpl implements ProtocolDialectConfigurationProperty {
 

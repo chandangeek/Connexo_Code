@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Query;
@@ -11,14 +15,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 
 import java.util.List;
 
-/**
- * LinkableConfigResolver implementation that determines the DeviceConfigurations entirely by delegating to a literal SQL query.
- * This implementation was made as a performance improvement over puzzling the result together in code.
- * <p/>
- * Copyrights EnergyICT
- * Date: 25/07/2014
- * Time: 14:14
- */
 @LiteralSql
 public class LinkableConfigResolverBySql implements LinkableConfigResolver {
 

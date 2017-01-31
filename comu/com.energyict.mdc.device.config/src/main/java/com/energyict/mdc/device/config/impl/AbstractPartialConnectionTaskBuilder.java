@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -9,11 +13,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 13/03/14
- * Time: 15:03
- */
 abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U extends PartialConnectionTaskImpl> implements PartialConnectionTaskBuilder<S, T, U> {
 
     final S myself;

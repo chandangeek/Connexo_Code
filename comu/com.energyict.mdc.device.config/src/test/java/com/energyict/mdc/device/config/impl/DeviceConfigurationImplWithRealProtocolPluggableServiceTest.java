@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -19,13 +23,6 @@ import org.junit.rules.TestRule;
 
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link DeviceConfigurationImpl} component.
- * <p>
- * Copyrights EnergyICT
- * Date: 20/02/14
- * Time: 10:21
- */
 public class DeviceConfigurationImplWithRealProtocolPluggableServiceTest extends PersistenceWithRealProtocolPluggableServiceTest {
 
     private static final String DEVICE_TYPE_NAME = "DeviceConfigWRPPSTestType";
