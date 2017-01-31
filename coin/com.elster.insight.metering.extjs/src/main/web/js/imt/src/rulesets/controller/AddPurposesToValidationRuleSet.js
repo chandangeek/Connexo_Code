@@ -18,14 +18,14 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
     ],
 
     refs: [
-        {ref: 'previewPanel', selector: '#add-metrology-configuration-purposes #metrology-configuration-purpose-preview'}
+        {ref: 'previewPanel', selector: '#add-purposes-to-validation-rule-set #metrology-configuration-purpose-preview'}
     ],
 
     init: function () {
         var me = this;
 
         me.control({
-            '#add-metrology-configuration-purposes #add-metrology-configuration-purposes-grid': {
+            '#add-purposes-to-validation-rule-set #add-metrology-configuration-purposes-grid': {
                 select: me.showPreview,
                 addSelected: me.addPurposesToRuleSet
             }
@@ -44,7 +44,7 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
             success: function (record) {
                 app.fireEvent('loadRuleSet', record);
                 app.fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
-                    itemId: 'add-metrology-configuration-purposes',
+                    itemId: 'add-purposes-to-validation-rule-set',
                     sideMenu: 'ruleSetSubMenu',
                     router: router,
                     cancelHref: router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes').buildUrl(),
