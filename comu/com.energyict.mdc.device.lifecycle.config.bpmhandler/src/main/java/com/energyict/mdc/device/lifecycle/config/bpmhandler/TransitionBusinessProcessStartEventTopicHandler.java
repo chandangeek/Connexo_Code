@@ -1,10 +1,14 @@
-package com.energyict.mdc.device.lifecycle.config.bpmhandler;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
+package com.energyict.mdc.device.lifecycle.config.bpmhandler;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
+
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

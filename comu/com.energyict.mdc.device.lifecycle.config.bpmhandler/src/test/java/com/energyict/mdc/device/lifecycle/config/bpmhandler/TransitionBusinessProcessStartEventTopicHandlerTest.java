@@ -1,17 +1,20 @@
-package com.energyict.mdc.device.lifecycle.config.bpmhandler;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
+package com.energyict.mdc.device.lifecycle.config.bpmhandler;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.State;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
 
 import java.util.Map;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
