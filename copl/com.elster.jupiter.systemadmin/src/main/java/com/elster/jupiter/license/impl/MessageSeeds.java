@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.license.impl;
 
 import com.elster.jupiter.license.LicenseService;
@@ -5,11 +9,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/03/2014
- * Time: 16:47
- */
 public enum MessageSeeds implements MessageSeed {
     INVALID_LICENSE(0, "invalid.license", "Invalid license file", Level.SEVERE),
     ALREADY_ACTIVE(1, "license.already.active", "License is already active", Level.SEVERE),

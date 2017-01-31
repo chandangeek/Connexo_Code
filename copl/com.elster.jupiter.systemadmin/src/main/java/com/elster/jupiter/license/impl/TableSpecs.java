@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.license.impl;
 
 import com.elster.jupiter.license.License;
@@ -6,11 +10,6 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/04/2014
- * Time: 11:15
- */
 public enum TableSpecs {
     LIC_LICENSE() {
         @Override

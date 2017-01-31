@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.license;
 
 import java.time.Instant;
 
 import java.util.Properties;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/04/2014
- * Time: 17:05
- */
 public interface License {
 
     enum Status {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.license;
 
 import java.util.Optional;
@@ -7,11 +11,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/03/2014
- * Time: 16:21
- */
 public interface LicenseService {
 
     String COMPONENTNAME = "LIC";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.license.impl;
 
 import com.elster.jupiter.license.License;
@@ -26,11 +30,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Properties;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/04/2014
- * Time: 11:17
- */
 public class LicenseImpl implements License {
     private static final String LICENSE_APP_KEY = "license.application.key";
     private static final String LICENSE_CREATION_DATE_KEY = "license.creation.date";
