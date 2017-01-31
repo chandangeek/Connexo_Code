@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
@@ -11,11 +15,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-/**
- * Copyrights EnergyICT
- * Date: 23/09/2015
- * Time: 13:16
- */
 public class CreateG3DemoBoardCommand {
 
     private final DeviceService deviceService;
