@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Apr.view.appservers.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.appservers-preview-form',

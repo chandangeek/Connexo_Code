@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Apr.view.appservers.WebserviceEndpointsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.apr-web-service-endpoints-grid',
