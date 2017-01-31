@@ -42,8 +42,8 @@ Ext.define('Mdc.view.setup.deviceevents.DataGrid', {
             flex: 1
         },
         {
-            header: Uni.I18n.translate('deviceevents.message', 'MDC', 'Message'),
-            dataIndex: 'message',
+            header: Uni.I18n.translate('deviceevents.deviceCode', 'MDC', 'Device code'),
+            dataIndex: 'deviceCode',
             flex: 1,
             renderer: function(value) {
                 return Ext.isEmpty(value) ? '-' : value;
