@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -11,18 +15,6 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-/**
- * Generates:
- * <ul>
- * <li>{@link com.energyict.mdc.masterdata.MeasurementType}s</li>
- * </ul>
- * based on the existing {@link com.elster.jupiter.metering.ReadingType}s
- * in Kore.
- * <p>
- * Copyrights EnergyICT
- * Date: 24/02/14
- * Time: 10:18
- */
 public class MasterDataGenerator {
 
     private static final Logger LOGGER = Logger.getLogger(MasterDataGenerator.class.getName());

@@ -1,13 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/15/14
- * Time: 9:53 AM
- */
+import aQute.bnd.annotation.ProviderType;
+
 @ProviderType
 public interface ChannelType extends MeasurementType {
 

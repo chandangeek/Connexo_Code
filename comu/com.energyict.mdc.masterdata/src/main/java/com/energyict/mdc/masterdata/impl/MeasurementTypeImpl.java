@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -15,6 +19,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;
@@ -26,11 +31,6 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/15/14
- * Time: 9:56 AM
- */
 @UniqueReadingType(groups = { Save.Create.class, Save.Update.class })
 public abstract class MeasurementTypeImpl extends PersistentIdObject<MeasurementType> implements MeasurementType, PersistenceAware {
 

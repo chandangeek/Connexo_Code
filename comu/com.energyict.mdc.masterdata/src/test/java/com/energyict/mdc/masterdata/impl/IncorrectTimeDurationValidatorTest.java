@@ -1,15 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.time.TimeDuration;
-
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
+import javax.validation.ConstraintValidatorContext;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.validation.ConstraintValidatorContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 

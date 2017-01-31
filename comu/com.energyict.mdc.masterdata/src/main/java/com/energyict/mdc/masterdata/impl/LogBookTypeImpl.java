@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -14,13 +18,6 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-/**
- * Provides an implementation for the {@link LogBookType} interface.
- *
- * Copyrights EnergyICT
- * Date: 24/10/12
- * Time: 10:35
- */
 public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
 
     enum Fields {

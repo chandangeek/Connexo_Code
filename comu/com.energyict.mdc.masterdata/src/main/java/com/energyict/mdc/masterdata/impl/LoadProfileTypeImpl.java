@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.cbo.Commodity;
@@ -34,13 +38,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Provides an implementation for the {@link LoadProfileType} interface.
- *
- * Copyrights EnergyICT
- * Date: 11-jan-2011
- * Time: 16:05:54
- */
 public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType, PersistenceAware {
 
     enum Fields {

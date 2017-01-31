@@ -1,20 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ObisCode;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.HasName;
 
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 11-jan-2011
- * Time: 15:55:54
- */
 @ProviderType
 public interface LoadProfileType extends HasId, HasName {
 

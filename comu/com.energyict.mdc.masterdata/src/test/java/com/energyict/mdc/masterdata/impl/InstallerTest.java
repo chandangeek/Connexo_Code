@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -18,13 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the installer component amongst others
- *
- * Copyrights EnergyICT
- * Date: 24/02/14
- * Time: 11:54
- */
 public class InstallerTest {
 
     private static InMemoryPersistence inMemoryPersistence;

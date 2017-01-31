@@ -1,12 +1,16 @@
-package com.energyict.mdc.masterdata.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 

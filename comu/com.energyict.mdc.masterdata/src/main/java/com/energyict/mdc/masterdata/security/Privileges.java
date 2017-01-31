@@ -1,9 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.masterdata.security;
 
 /**
  * Created by bvn on 9/22/14.
  */
+
 import com.elster.jupiter.nls.TranslationKey;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
