@@ -1,10 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.bpm.extjs;
 
-import com.elster.jupiter.http.whiteboard.*;
+import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -15,11 +21,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/17/15
- * Time: 4:05 PM
- */
 @Component(name = "com.energyict.mdc.bpm.extjs", service = {TranslationKeyProvider.class},
         property = {"name=" + DbpUiInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
 public class DbpUiInstaller implements TranslationKeyProvider {

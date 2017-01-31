@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dbp.processes.view.ProcessPreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.dbp-process-preview-form',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dbp.processes.view.AddPrivileges', {
     extend: 'Uni.view.grid.SelectionGrid',
     xtype: 'dbp-add-privileges-grid',

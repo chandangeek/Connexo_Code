@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dbp.processes.view.EditProcess', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.dbp-edit-process',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dbp.processes.view.DeviceStatesActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.dbp-device-states-action-menu',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dbp.processes.store.DeviceStates', {
     extend: 'Ext.data.Store',
     model: 'Dbp.processes.model.DeviceState',

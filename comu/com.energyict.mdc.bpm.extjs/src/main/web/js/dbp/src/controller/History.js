@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dbp.controller.History', {
     extend: 'Uni.controller.history.Converter',
     rootToken: 'administration',

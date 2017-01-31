@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dbp.processes.view.ProcessActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.dbp-process-action-menu',
