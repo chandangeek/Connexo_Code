@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.bpm.impl.alarms;
 
 import com.elster.jupiter.nls.TranslationKey;
