@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.readings.Reading;
@@ -5,14 +9,6 @@ import com.elster.jupiter.metering.readings.Reading;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * Our default implementation of a {@link Reading}.
- * A Reading serves as a single reading for ex. a RegisterValue
- *
- * Copyrights EnergyICT
- * Date: 25/11/13
- * Time: 15:16
- */
 public class ReadingImpl extends BaseReadingImpl implements Reading {
 
     private final String mrid;

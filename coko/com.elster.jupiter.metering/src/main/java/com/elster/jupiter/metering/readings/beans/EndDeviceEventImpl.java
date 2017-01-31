@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.cbo.Status;
@@ -7,13 +11,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Our default implementation of an {@link EndDeviceEvent}
- * <p/>
- * Copyrights EnergyICT
- * Date: 25/11/13
- * Time: 15:23
- */
 public class EndDeviceEventImpl implements EndDeviceEvent {
 
     private final Instant eventOccurredDate;
