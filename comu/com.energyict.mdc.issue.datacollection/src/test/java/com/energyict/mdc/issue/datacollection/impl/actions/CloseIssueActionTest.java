@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datacollection.impl.actions;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -26,9 +30,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.issue.datacollection.BaseTest;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
-import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -37,6 +38,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.assertj.core.api.Assertions;
+import org.junit.Before;
+import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
