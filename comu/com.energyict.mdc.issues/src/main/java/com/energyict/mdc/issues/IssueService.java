@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issues;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Provides services to collect {@link Issue}s.

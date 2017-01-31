@@ -1,18 +1,22 @@
-package com.energyict.mdc.issues.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
+package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.issues.Warning;
 
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Locale;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

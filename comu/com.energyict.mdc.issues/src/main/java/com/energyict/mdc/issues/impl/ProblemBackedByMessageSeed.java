@@ -1,9 +1,12 @@
-package com.energyict.mdc.issues.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.issues.Problem;
+package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issues.Problem;
 
 import java.time.Instant;
 
