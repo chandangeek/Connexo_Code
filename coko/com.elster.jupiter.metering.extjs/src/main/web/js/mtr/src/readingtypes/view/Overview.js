@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mtr.readingtypes.view.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.reading-types-setup',

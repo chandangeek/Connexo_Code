@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mtr.readingtypes.view.Preview', {
     extend: 'Ext.form.Panel',
     alias: 'widget.reading-types-preview',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mtr.readingtypes.util.CimCombobox', {
     extend: 'Ext.form.field.ComboBox',
     xtype: 'cimcombobox',

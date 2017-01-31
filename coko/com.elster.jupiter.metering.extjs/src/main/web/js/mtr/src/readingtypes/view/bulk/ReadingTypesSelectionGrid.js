@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mtr.readingtypes.view.bulk.ReadingTypesSelectionGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     xtype: 'reading-types-selection-grid',

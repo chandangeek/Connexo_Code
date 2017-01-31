@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mtr.readingtypes.view.bulk.Step1', {
     extend: 'Ext.panel.Panel',
     xtype: 'reading-types-bulk-step1',
