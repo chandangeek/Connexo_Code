@@ -1,16 +1,16 @@
-package com.elster.jupiter.mdm.usagepoint.config.rest;
+package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import java.util.List;
 
-public class MetrologyConfigValidationRuleSetInfo {
+public class LinkableMetrologyContractInfo {
 
     private IdWithNameInfo metrologyConfigurationInfo;
     private boolean isActive;
     private String purpose;
     private List<OutputMatchesInfo> outputs;
-    private long metrologyContractId;
+    private MetrologyContractInfo metrologyContractInfo;
 
     public void setMetrologyConfigurationInfo(IdWithNameInfo metrologyConfigurationInfo) {
         this.metrologyConfigurationInfo = metrologyConfigurationInfo;
@@ -28,8 +28,8 @@ public class MetrologyConfigValidationRuleSetInfo {
         this.outputs = outputs;
     }
 
-    public void setMetrologyContractId(long metrologyContractId) {
-        this.metrologyContractId = metrologyContractId;
+    public void setMetrologyContractInfo(MetrologyContractInfo metrologyContractInfo) {
+        this.metrologyContractInfo = metrologyContractInfo;
     }
 
     public IdWithNameInfo getMetrologyConfigurationInfo() {
@@ -48,7 +48,7 @@ public class MetrologyConfigValidationRuleSetInfo {
         return outputs;
     }
 
-    public long getMetrologyContractId() {
-        return metrologyContractId;
+    public MetrologyContractInfo getMetrologyContractInfo() {
+        return metrologyContractInfo;
     }
 }

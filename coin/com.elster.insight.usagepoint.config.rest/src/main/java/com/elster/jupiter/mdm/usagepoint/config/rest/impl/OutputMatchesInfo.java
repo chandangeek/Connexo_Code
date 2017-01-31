@@ -1,4 +1,4 @@
-package com.elster.jupiter.mdm.usagepoint.config.rest;
+package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 public class OutputMatchesInfo {
 

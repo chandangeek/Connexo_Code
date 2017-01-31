@@ -1,9 +1,8 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigValidationRuleSetInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.OutputMatchesInfo;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -16,6 +15,7 @@ import com.elster.jupiter.validation.ValidationService;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -25,11 +25,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/validationrulesets")
@@ -38,12 +36,14 @@ public class MetrologyConfigValidationRuleSetResource {
     private final ValidationService validationService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public MetrologyConfigValidationRuleSetResource(ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService, MetrologyConfigurationService metrologyConfigurationService) {
+    public MetrologyConfigValidationRuleSetResource(ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService, MetrologyConfigurationService metrologyConfigurationService, ResourceHelper resourceHelper) {
         this.validationService = validationService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -51,29 +51,25 @@ public class MetrologyConfigValidationRuleSetResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     public PagedInfoList getLinkedMetrologyConfigurationPurposes(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
-        Optional<? extends ValidationRuleSet> foundValidationRuleSet = validationService.getValidationRuleSet(validationRuleSetId);
-        List<MetrologyConfigValidationRuleSetInfo> infos = new ArrayList<>();
-        if (foundValidationRuleSet.isPresent()) {
-            ValidationRuleSet ruleSet = foundValidationRuleSet.get();
-            usagePointConfigurationService.getMetrologyContractsLinkedToValidationRuleSet(ruleSet)
-                    .forEach(contract -> infos.add(getMetrologyConfigurationInfo(contract, ruleSet)));
-        } else {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
+        ValidationRuleSet foundValidationRuleSet = validationService.getValidationRuleSet(validationRuleSetId).orElseThrow(WebApplicationException::new);
+        List<LinkableMetrologyContractInfo> infos = usagePointConfigurationService.getMetrologyContractsLinkedToValidationRuleSet(foundValidationRuleSet)
+                .stream()
+                .map(metrologyContract -> getLinkableMetrologyContractInfo(metrologyContract, foundValidationRuleSet))
+                .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", infos, queryParameters);
     }
 
     @DELETE
-    @Path("/{validationRuleSetId}/purposes/{metrologyContractId}")
+    @Path("/{validationRuleSetId}/purposes/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
-    public Response removeMetrologyConfigurationPurpose(@PathParam("validationRuleSetId") long validationRuleSetId, @PathParam("metrologyContractId") long metrologyContractId, @BeanParam JsonQueryParameters queryParameters) {
+    public Response removeMetrologyConfigurationPurpose(@PathParam("validationRuleSetId") long validationRuleSetId, MetrologyContractInfo metrologyContractInfo, @BeanParam JsonQueryParameters queryParameters) {
         ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(metrologyContractId)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
 
         usagePointConfigurationService.removeValidationRuleSet(metrologyContract, validationRuleSet);
 
@@ -82,16 +78,16 @@ public class MetrologyConfigValidationRuleSetResource {
 
     @GET
     @Path("/{validationRuleSetId}/purposes/overview")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     public PagedInfoList getLinkablePurposes(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
         ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        List<MetrologyConfigValidationRuleSetInfo> linkablePurposes = metrologyConfigurationService.findAllMetrologyConfigurations()
+        List<LinkableMetrologyContractInfo> linkablePurposes = metrologyConfigurationService.findAllMetrologyConfigurations()
                 .stream()
                 .flatMap(metrologyConfiguration -> metrologyConfiguration.getContracts().stream())
-                .flatMap(metrologyContract -> getAvailablePurposes(metrologyContract, validationRuleSet).stream())
-                .sorted((a, b) -> a.getMetrologyConfigurationInfo().name.compareTo(b.getMetrologyConfigurationInfo().name))
+                .filter(metrologyContract -> usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, validationRuleSet, usagePointConfigurationService.getValidationRuleSets(metrologyContract)))
+                .map(metrologyContract ->  getLinkableMetrologyContractInfo(metrologyContract, validationRuleSet))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", linkablePurposes, queryParameters);
@@ -99,49 +95,41 @@ public class MetrologyConfigValidationRuleSetResource {
 
     @PUT
     @Path("/{validationRuleSetId}/purposes/add")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_VALIDATION_ON_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
-    public Response linkMetrologyPurposeToValidationRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId, long[] metrologyContractIds, @BeanParam JsonQueryParameters queryParameters) {
+    public Response linkMetrologyPurposeToValidationRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId, MetrologyContractInfos metrologyContractInfos, @BeanParam JsonQueryParameters queryParameters) {
         ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        Arrays.stream(metrologyContractIds).forEach(metrologyContractId -> {
-            MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(metrologyContractId)
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        metrologyContractInfos.contracts.forEach(metrologyContractInfo -> {
+            MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
             usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
         });
 
         return Response.status(Response.Status.OK).build();
     }
 
-    private List<MetrologyConfigValidationRuleSetInfo> getAvailablePurposes(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
-        List<MetrologyConfigValidationRuleSetInfo> metrologyContracts = new ArrayList<>();
-        if (usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, validationRuleSet, usagePointConfigurationService
-                .getValidationRuleSets(metrologyContract))) {
-            metrologyContracts.add(getMetrologyConfigurationInfo(metrologyContract, validationRuleSet));
-        }
-
-        return metrologyContracts;
-    }
-
     private List<OutputMatchesInfo> getMatchedOutputs(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
-        List<OutputMatchesInfo> foundMatches = new ArrayList<>();
-        validationRuleSet.getRules().stream().flatMap(rule -> rule.getReadingTypes().stream())
-                .forEach(readingType -> metrologyContract.getDeliverables().forEach(deliverable ->
-                        foundMatches.add(new OutputMatchesInfo(deliverable.getName(), deliverable.getReadingType()
-                                .equals(readingType)))));
-        Collections.sort(foundMatches, (a,b) -> Boolean.compare(b.isMatched, a.isMatched));
-        return foundMatches;
+        Set<ReadingType> readingTypes = validationRuleSet.getRules()
+                .stream()
+                .flatMap(rule -> rule.getReadingTypes().stream())
+                .collect(Collectors.toSet());
+        return metrologyContract.getDeliverables()
+                .stream()
+                .map(deliverable -> new OutputMatchesInfo(deliverable.getName(), readingTypes.contains(deliverable.getReadingType())))
+                .sorted(Comparator.comparing((outputMatchesInfo -> !outputMatchesInfo.isMatched)))
+                .collect(Collectors.toList());
     }
 
-    private MetrologyConfigValidationRuleSetInfo getMetrologyConfigurationInfo(MetrologyContract contract, ValidationRuleSet ruleSet) {
-        MetrologyConfigValidationRuleSetInfo info = new MetrologyConfigValidationRuleSetInfo();
+    private LinkableMetrologyContractInfo getLinkableMetrologyContractInfo(MetrologyContract contract, ValidationRuleSet ruleSet) {
+        LinkableMetrologyContractInfo info = new LinkableMetrologyContractInfo();
         info.setMetrologyConfigurationInfo(new IdWithNameInfo(contract.getMetrologyConfiguration().getId(),
                 contract.getMetrologyConfiguration().getName()));
         info.setActive(contract.getMetrologyConfiguration().isActive());
         info.setPurpose(contract.getMetrologyPurpose().getName());
         info.setOutputs(getMatchedOutputs(contract, ruleSet));
-        info.setMetrologyContractId(contract.getId());
+        info.setMetrologyContractInfo(new MetrologyContractInfo(contract));
 
         return info;
     }
