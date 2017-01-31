@@ -6,7 +6,8 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.File;

@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;

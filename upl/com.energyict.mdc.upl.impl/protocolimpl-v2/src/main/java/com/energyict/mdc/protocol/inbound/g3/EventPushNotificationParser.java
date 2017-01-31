@@ -1,10 +1,10 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;

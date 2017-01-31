@@ -1,9 +1,10 @@
 package com.energyict.mdc.channels.sms;
 
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * An implementation of the {@link com.energyict.mdc.io.ConnectionType} interface
+ * An implementation of the {@link ConnectionType} interface
  * specific for inbound SMS communication using Proximus as carrier.
  *
  * @author sva

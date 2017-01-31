@@ -6,10 +6,11 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;

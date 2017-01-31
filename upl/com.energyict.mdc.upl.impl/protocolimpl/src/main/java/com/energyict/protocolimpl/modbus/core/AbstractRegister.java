@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;

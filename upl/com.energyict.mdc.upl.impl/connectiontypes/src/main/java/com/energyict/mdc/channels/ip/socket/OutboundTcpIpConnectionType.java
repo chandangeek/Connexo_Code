@@ -3,7 +3,9 @@ package com.energyict.mdc.channels.ip.socket;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,7 +13,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.io.ConnectionType} interface for TCP/IP.
+ * Provides an implementation for the {@link ConnectionType} interface for TCP/IP.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (14:59)

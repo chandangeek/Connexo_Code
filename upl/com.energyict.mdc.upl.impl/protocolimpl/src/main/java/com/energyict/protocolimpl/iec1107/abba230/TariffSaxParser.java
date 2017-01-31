@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import org.xml.sax.SAXException;
 

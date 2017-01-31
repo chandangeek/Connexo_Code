@@ -6,8 +6,9 @@
 
 package com.energyict.dialer.connection;
 
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;

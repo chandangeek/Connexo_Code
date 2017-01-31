@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Formatter;

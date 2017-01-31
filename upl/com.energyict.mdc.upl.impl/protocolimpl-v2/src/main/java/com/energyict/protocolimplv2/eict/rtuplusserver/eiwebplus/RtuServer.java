@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
-import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.EiWebPlusDialect;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -10,6 +9,7 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;

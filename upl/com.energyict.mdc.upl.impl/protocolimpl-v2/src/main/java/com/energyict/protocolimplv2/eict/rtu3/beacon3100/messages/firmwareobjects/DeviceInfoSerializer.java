@@ -16,7 +16,7 @@ import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.StringWriter;

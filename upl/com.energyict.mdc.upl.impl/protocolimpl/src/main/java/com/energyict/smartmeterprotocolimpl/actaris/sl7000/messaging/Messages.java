@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Formatter;

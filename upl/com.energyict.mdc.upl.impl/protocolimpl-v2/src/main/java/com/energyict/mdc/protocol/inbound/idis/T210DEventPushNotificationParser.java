@@ -1,9 +1,9 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;

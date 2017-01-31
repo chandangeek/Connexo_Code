@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -24,7 +25,6 @@ import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.CertificateAlias;
-import com.energyict.cbo.CertificateWrapperId;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.TimeDuration;
@@ -910,13 +910,15 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         X509Certificate x509Certificate = getSecuritySetup().exportCertificate(SecurityMessage.CertificateEntity.Server.getId(), certificateType.getId(), responseSystemTitle);
 
         String propertyName = "";
-        CertificateWrapperId propertyValue = new CertificateWrapperId(x509Certificate);
+        CollectedCertificateWrapper collectedCertificateWrapper = this.getCollectedDataFactory().createCollectedCertificateWrapper(x509Certificate);
 
         //Server certificate for signing/key agreement is modelled as a security property
         if (SecurityMessage.CertificateType.DigitalSignature.equals(certificateType) || SecurityMessage.CertificateType.KeyAgreement.equals(certificateType)) {
-            propertyName = SecurityMessage.CertificateType.DigitalSignature.equals(certificateType) ?
-                    SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString() :
-                    SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString();
+            if (SecurityMessage.CertificateType.DigitalSignature.equals(certificateType)) {
+                propertyName = SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString();
+            } else {
+                propertyName = SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString();
+            }
 
             //Note that updating the alias security property will also add the given certificate under that alias, to the DLMS key store.
             //If the key store already contains a certificate for that alias, an error is thrown, and the security property will not be updated either.
@@ -924,7 +926,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     new DeviceIdentifierById(getProtocol().getOfflineDevice().getId()),
                     collectedMessage.getMessageIdentifier(),
                     propertyName,
-                    propertyValue);
+                    collectedCertificateWrapper);
 
             //Server certificate for TLS is modelled as a general property
         } else if (SecurityMessage.CertificateType.TLS.equals(certificateType)) {
@@ -936,7 +938,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     new DeviceIdentifierById(getProtocol().getOfflineDevice().getId()),
                     collectedMessage.getMessageIdentifier(),
                     propertyName,
-                    propertyValue);
+                    collectedCertificateWrapper);
         }
 
         String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number'" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";

@@ -6,8 +6,9 @@
 
 package com.energyict.dialer.connection;
 
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.MeterDataReadout;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterId;

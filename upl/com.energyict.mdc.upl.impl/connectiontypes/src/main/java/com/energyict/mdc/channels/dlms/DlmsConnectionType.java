@@ -1,12 +1,12 @@
 package com.energyict.mdc.channels.dlms;
 
 
-import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;

@@ -2,12 +2,13 @@ package com.energyict.mdc.channels.serial.optical.serialio;
 
 import com.energyict.mdc.channels.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Provides an implementation of a {@link com.energyict.mdc.io.ConnectionType} interface
+ * Provides an implementation of a {@link ConnectionType} interface
  * for optical communication using the SerialIO libraries.
  * <p>
  * Copyrights EnergyICT

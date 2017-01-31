@@ -17,15 +17,15 @@ import java.util.StringTokenizer;
  * @author  Koen
  */
 public class RealTimeRW extends AbstractDataReadingCommand {
-    
+
     Date date=null;
     /** Creates a new instance of RealTimeRW */
     public RealTimeRW(DataReadingCommandFactory drcf) {
         super(drcf);
-        
+
     }
-    
-    public void parse(byte[] data, java.util.TimeZone timeZone) throws java.io.IOException {
+
+    public void parse(byte[] data, java.util.TimeZone timeZone) throws IOException {
         data = getDataReadingCommandFactory().getEnermet().getIec1107Connection().parseDataBetweenBrackets(data);
         String str = new String(data);
         StringTokenizer strTok = new StringTokenizer(str,",");
@@ -39,7 +39,7 @@ public class RealTimeRW extends AbstractDataReadingCommand {
         calendar.set(Calendar.SECOND,Integer.parseInt(strTok.nextToken()));
         date = calendar.getTime();
     }
-    
+
     /**
      * Getter for property date.
      * @return Value of property date.
@@ -48,13 +48,13 @@ public class RealTimeRW extends AbstractDataReadingCommand {
         retrieve("RTR");
         return date;
     }
-    
+
     public void setDate(Date date) throws IOException {
         //Calendar calendar = ProtocolUtils.getCalendar(TimeZoneManager.getTimeZone("GMT"));
         Calendar calendar = ProtocolUtils.getCalendar(getDataReadingCommandFactory().getEnermet().getTimeZone());
         calendar.clear();
         calendar.setTime(date);
-        String strDate = 
+        String strDate =
             calendar.get(Calendar.YEAR)+","+
             (calendar.get(Calendar.MONTH)+1)+","+
             calendar.get(Calendar.DAY_OF_MONTH)+","+
@@ -63,6 +63,5 @@ public class RealTimeRW extends AbstractDataReadingCommand {
             calendar.get(Calendar.SECOND);
        write("RTS",strDate);
     }
-    
-    
+
 }

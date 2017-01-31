@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.messaging;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;

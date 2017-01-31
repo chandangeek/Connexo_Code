@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;

@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;

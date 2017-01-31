@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;

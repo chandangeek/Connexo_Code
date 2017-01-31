@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.instromet.connection;
 
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.mdc.io.NestedIOException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;

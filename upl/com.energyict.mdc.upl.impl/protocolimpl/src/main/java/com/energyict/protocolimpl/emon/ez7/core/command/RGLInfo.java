@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;

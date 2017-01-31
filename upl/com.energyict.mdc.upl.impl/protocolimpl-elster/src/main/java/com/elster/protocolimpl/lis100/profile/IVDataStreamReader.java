@@ -1,6 +1,6 @@
 package com.elster.protocolimpl.lis100.profile;
 
-import com.energyict.mdc.io.NestedIOException;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import com.elster.protocolimpl.lis100.Lis100ObjectFactory;
 import com.elster.protocolimpl.lis100.ProtocolLink;
