@@ -1,11 +1,15 @@
-package com.energyict.mdc.tasks.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.tasks.LogBooksTask;
+package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.tasks.LogBooksTask;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

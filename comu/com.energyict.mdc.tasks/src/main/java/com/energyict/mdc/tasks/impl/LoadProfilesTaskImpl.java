@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
@@ -14,7 +18,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.*;
+import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG;
+import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.MASTER_LOAD_PROFILES_FLAG;
+import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 /**
  * Implementation for a {@link com.energyict.mdc.tasks.LoadProfilesTask}

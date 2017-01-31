@@ -1,11 +1,14 @@
-package com.energyict.mdc.tasks.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LogBooksTask;
+package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.LogBooksTask;
 
 import java.util.List;
 import java.util.stream.Collectors;

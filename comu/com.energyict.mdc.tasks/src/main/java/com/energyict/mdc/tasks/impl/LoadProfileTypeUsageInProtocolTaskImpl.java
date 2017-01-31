@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
@@ -7,13 +11,6 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 
 import java.time.Instant;
 
-/**
- * Link table from LoadProfilesTask to LoadProfileType
- *
- * Copyrights EnergyICT
- * Date: 13/05/14
- * Time: 13:29
- */
 public class LoadProfileTypeUsageInProtocolTaskImpl implements LoadProfileTypeUsageInProtocolTask {
 
     enum Fields {

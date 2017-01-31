@@ -1,11 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -24,11 +28,12 @@ import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import org.assertj.core.api.Condition;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+
+import org.assertj.core.api.Condition;
+import org.junit.Test;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;

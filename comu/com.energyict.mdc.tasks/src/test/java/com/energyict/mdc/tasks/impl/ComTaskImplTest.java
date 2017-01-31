@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -12,7 +16,7 @@ import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
+
 import java.util.List;
 import java.util.Optional;
 
