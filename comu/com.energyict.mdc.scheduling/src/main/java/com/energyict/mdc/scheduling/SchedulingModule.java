@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.scheduling;
 
 import com.elster.jupiter.events.EventService;
@@ -6,6 +10,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.energyict.mdc.scheduling.model.impl.SchedulingServiceImpl;
 import com.energyict.mdc.scheduling.model.impl.ServerSchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 

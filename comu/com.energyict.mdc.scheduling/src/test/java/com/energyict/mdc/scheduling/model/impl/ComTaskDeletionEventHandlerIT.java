@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.scheduling.model.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -7,13 +11,14 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
+
+import java.time.Instant;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-
-import java.time.Instant;
 
 /**
  * Integration test for the {@link ComTaskDeletionEventHandler} component.
