@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Wss.view.WebservicesPreviewContainer', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.webservices-preview-container',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Wss.view.Menu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.webservices-menu',
