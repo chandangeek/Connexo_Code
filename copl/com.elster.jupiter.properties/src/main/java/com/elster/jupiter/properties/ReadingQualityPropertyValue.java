@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.properties;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 8/06/2016 - 17:43
- */
 @XmlRootElement
 public class ReadingQualityPropertyValue extends HasIdAndName {
 

@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.properties;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 11:43
- */
 public enum PropertySelectionMode {
     /**
      * Represents <code>null</code> meaning that no selection
