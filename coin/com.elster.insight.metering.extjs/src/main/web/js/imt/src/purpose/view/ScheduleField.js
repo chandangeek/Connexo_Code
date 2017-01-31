@@ -7,6 +7,7 @@ Ext.define('Imt.purpose.view.ScheduleField', {
     ],
     labelAlign: 'top',
     buttonText: Uni.I18n.translate('general.viewSchedule', 'IMT', 'View schedule'),
+    buttonItemId: 'view-button',
     progressbarConfig: {
         xtype: 'progressbar',
         itemId: 'progressbar',
@@ -22,7 +23,7 @@ Ext.define('Imt.purpose.view.ScheduleField', {
         me.store = Ext.getStore(me.store);
         me.items = {
             xtype: 'button',
-            itemId: 'view-button',
+            itemId: me.buttonItemId,
             text: me.buttonText,
             listeners: {
                 click: me.onViewButtonClick,
