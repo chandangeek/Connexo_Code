@@ -14,8 +14,6 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposesGrid', {
         var me = this,
             route = me.router.getRoute('administration/metrologyconfiguration/view');
 
-        me.cancelHref = me.router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes').buildUrl();
-
         me.columns = [
             {
                 header: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),

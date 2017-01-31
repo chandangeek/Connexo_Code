@@ -1,4 +1,4 @@
-Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
+Ext.define('Imt.rulesets.controller.AddPurposesToEstimationRuleSet', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -10,24 +10,22 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
     ],
 
     stores: [
-        'Imt.rulesets.store.ValidationRuleSetPurposesToAdd'
+        'Imt.rulesets.store.EstimationRuleSetPurposesToAdd'
     ],
 
     models: [
-        'Cfg.model.ValidationRuleSet'
+        'Est.estimationrulesets.model.EstimationRuleSet'
     ],
 
     refs: [
-        {ref: 'previewPanel', selector: '#add-metrology-configuration-purposes #metrology-configuration-purpose-preview'}
+        {ref: 'previewPanel', selector: '#add-purposes-to-estimation-rule-set #metrology-configuration-purpose-preview'}
     ],
 
     init: function () {
         var me = this;
 
-        // Imt.rulesets.controller.ValidationRuleSetPurposes should be initialized first
-        me.getController('Imt.rulesets.controller.ValidationRuleSetPurposes');
         me.control({
-            '#add-metrology-configuration-purposes #add-metrology-configuration-purposes-grid': {
+            '#add-purposes-to-estimation-rule-set #add-metrology-configuration-purposes-grid': {
                 select: me.showPreview,
                 addSelected: me.addPurposesToRuleSet
             }
@@ -39,17 +37,17 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            availableToAddPurposesStore = me.getStore('Imt.rulesets.store.ValidationRuleSetPurposesToAdd');
+            availableToAddPurposesStore = me.getStore('Imt.rulesets.store.EstimationRuleSetPurposesToAdd');
 
         mainView.setLoading();
-        me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {
+        me.getModel('Est.estimationrulesets.model.EstimationRuleSet').load(ruleSetId, {
             success: function (record) {
-                app.fireEvent('loadRuleSet', record);
+                app.fireEvent('loadEstimationRuleSet', record);
                 app.fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
-                    itemId: 'add-metrology-configuration-purposes',
-                    sideMenu: 'ruleSetSubMenu',
+                    itemId: 'add-purposes-to-estimation-rule-set',
+                    sideMenu: 'estimation-rule-set-side-menu',
                     router: router,
-                    cancelHref: router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes').buildUrl(),
+                    cancelHref: router.getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes').buildUrl(),
                     purposesStore: availableToAddPurposesStore,
                     ruleSetId: ruleSetId
                 }));
@@ -80,7 +78,7 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
         mainView.setLoading();
         Ext.Ajax.request({
             method: 'PUT',
-            url: Ext.String.format('/api/ucr/validationruleset/{0}/purposes/add', router.arguments.ruleSetId),
+            url: Ext.String.format('/api/ucr/estimationruleset/{0}/purposes/add', router.arguments.ruleSetId),
             jsonData: formatData(),
             success: onSuccessAdd,
             callback: addCallback

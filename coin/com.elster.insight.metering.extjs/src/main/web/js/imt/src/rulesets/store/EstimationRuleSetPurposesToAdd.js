@@ -1,0 +1,15 @@
+Ext.define('Imt.rulesets.store.EstimationRuleSetPurposesToAdd', {
+    extend: 'Ext.data.Store',
+    model: 'Imt.rulesets.model.MetrologyConfigurationPurpose',
+    proxy: {
+        type: 'rest',
+        url: '/api/ucr/estimationruleset/{ruleSetId}/purposes/overview',
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
+        reader: {
+            type: 'json',
+            root: 'purposes'
+        }
+    }
+});

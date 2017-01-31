@@ -3,6 +3,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
     alias: 'widget.add-metrology-configuration-purposes',
     requires: [
         'Cfg.view.validation.RuleSetSubMenu',
+        'Est.main.view.RuleSetSideMenu',
         'Imt.rulesets.view.MetrologyConfigurationPurposeDetails',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.util.FormInfoMessage',
@@ -10,6 +11,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
     ],
     purposesStore: null,
     router: null,
+    cancelHref: null,
     ruleSetId: null,
 
     initComponent: function () {
@@ -34,16 +36,30 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
                             xtype: 'add-metrology-configuration-purposes-grid',
                             itemId: 'add-metrology-configuration-purposes-grid',
                             store: me.purposesStore,
-                            router: me.router
+                            router: me.router,
+                            cancelHref: me.cancelHref
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            itemId: 'no-purposes-to-add-found-panel',
-                            title: Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item', 'IMT', 'No metrology configuration purposes found'),
-                            reasons: [
-                                Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item1', 'IMT', 'No metrology configurations have been added yet.'),
-                                Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item2', 'IMT', 'There are no metrology configuration purposes that have reading types that match the rules in the validation rule set.'),
-                                Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item3', 'IMT', 'Matching metrology configuration purposes exist but you do not have permission to view them.')
+                            xtype: 'container',
+                            items: [
+                                {
+                                    xtype: 'no-items-found-panel',
+                                    itemId: 'no-purposes-to-add-found-panel',
+                                    title: Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item', 'IMT', 'No metrology configuration purposes found'),
+                                    reasons: [
+                                        Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item1', 'IMT', 'No metrology configurations have been added yet.'),
+                                        Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item2', 'IMT', 'There are no metrology configuration purposes that have reading types that match the rules in the validation rule set.'),
+                                        Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item3', 'IMT', 'Matching metrology configuration purposes exist but you do not have permission to view them.')
+                                    ]
+                                },
+                                {
+                                    xtype: 'button',
+                                    itemId: 'cancel-button',
+                                    text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                                    action: 'cancel',
+                                    ui: 'link',
+                                    href: me.cancelHref
+                                }
                             ]
                         },
                         previewComponent: {
@@ -62,9 +78,10 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'ruleSetSubMenu',
+                        xtype: me.sideMenu,
                         itemId: 'stepsMenu',
-                        ruleSetId: me.ruleSetId
+                        ruleSetId: me.ruleSetId,
+                        router: me.router
                     }
                 ]
             }

@@ -592,6 +592,22 @@ Ext.define('Imt.controller.History', {
                             privileges: Imt.privileges.MetrologyConfig.adminValidation
                         }
                     }
+                },
+                'estimationrulesets/estimationruleset/metrologyconfigurationpurposes': {
+                    title: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                    route: 'estimationrulesets/{ruleSetId}/metrologyconfigurationpurposes',
+                    controller: 'Imt.rulesets.controller.EstimationRuleSetPurposes',
+                    action: 'showMetrologyConfigurationPurposes',
+                    privileges: Imt.privileges.MetrologyConfig.canView() || Imt.privileges.MetrologyConfig.canAdministrate(),
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.addMetrologyConfigurationPurposes', 'IMT', 'Add metrology configuration purposes'),
+                            route: 'add',
+                            controller: 'Imt.rulesets.controller.AddPurposesToEstimationRuleSet',
+                            action: 'showAddMetrologyConfigurationPurposes',
+                            privileges: Imt.privileges.MetrologyConfig.adminValidation
+                        }
+                    }
                 }
             }
         },

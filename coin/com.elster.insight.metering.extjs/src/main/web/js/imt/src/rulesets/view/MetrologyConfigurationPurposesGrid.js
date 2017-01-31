@@ -5,6 +5,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
         'Uni.grid.column.RemoveAction'
     ],
     router: null,
+    addLink: null,
 
     initComponent: function () {
         var me = this,
@@ -56,9 +57,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addMetrologyConfigurationPurposes', 'IMT', 'Add metrology configuration purposes'),
-                        href: me.router
-                            .getRoute('administration/rulesets/overview/metrologyconfigurationpurposes/add')
-                            .buildUrl(),
+                        href: me.addLink,
                         action: 'addMetrologyConfigurationPurposes',
                         itemId: 'grid-add-metrology-configuration-purposes-button',
                         privileges: Imt.privileges.MetrologyConfig.adminValidation

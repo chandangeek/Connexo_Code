@@ -1,4 +1,4 @@
-Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
+Ext.define('Imt.rulesets.controller.EstimationRuleSetPurposes', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -11,67 +11,68 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
     ],
 
     stores: [
-        'Imt.rulesets.store.ValidationRuleSetPurposes'
+        'Imt.rulesets.store.EstimationRuleSetPurposes'
     ],
 
     models: [
         'Imt.rulesets.model.MetrologyConfigurationPurpose',
-        'Cfg.model.ValidationRuleSet'
+        'Est.estimationrulesets.model.EstimationRuleSet'
     ],
 
     refs: [
-        {ref: 'previewPanel', selector: '#validation-rule-set-purposes #metrology-configuration-purpose-preview'}
+        {ref: 'previewPanel', selector: '#estimation-rule-set-purposes #metrology-configuration-purpose-preview'}
     ],
 
     init: function () {
         var me = this;
 
         me.control({
-            '#validation-rule-set-purposes #metrology-configuration-purposes-grid': {
+            '#estimation-rule-set-purposes #metrology-configuration-purposes-grid': {
                 select: me.showPreview
             },
-            '#validation-rule-set-purposes #metrology-configuration-purposes-grid uni-actioncolumn-remove': {
+            '#estimation-rule-set-purposes #metrology-configuration-purposes-grid uni-actioncolumn-remove': {
                 remove: me.removePurpose
             },
-            '#validation-rule-set-purposes #metrology-configuration-purpose-action-menu': {
+            '#estimation-rule-set-purposes #metrology-configuration-purpose-action-menu': {
                 click: me.chooseAction
+            },
+            'estimation-rule-set-side-menu': {
+                beforerender: me.onEstimationRuleSetMenuBeforeRender
             }
         });
+    },
 
-        // Cfg.controller.Validation should be initialized first
-        me.getController('Cfg.controller.Validation');
-        me.getApplication().on('validationrulesetmenurender', function (menu) {
-            menu.add(
-                {
-                    text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
-                    itemId: 'metrology-configuration-purposes-link',
-                    href: me.getController('Uni.controller.history.Router')
-                        .getRoute('administration/rulesets/overview/metrologyconfigurationpurposes')
-                        .buildUrl({ruleSetId: menu.ruleSetId})
-                }
-            );
-        });
+    onEstimationRuleSetMenuBeforeRender: function (menu) {
+        var me = this;
+
+        menu.add(
+            {
+                text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                itemId: 'metrology-configuration-purposes-link',
+                href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes').buildUrl()
+            }
+        );
     },
 
     showMetrologyConfigurationPurposes: function (ruleSetId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
-            purposesStore = me.getStore('Imt.rulesets.store.ValidationRuleSetPurposes'),
+            purposesStore = me.getStore('Imt.rulesets.store.EstimationRuleSetPurposes'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading();
-        me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {
+        me.getModel('Est.estimationrulesets.model.EstimationRuleSet').load(ruleSetId, {
             success: function (record) {
-                app.fireEvent('loadRuleSet', record);
+                app.fireEvent('loadEstimationRuleSet', record);
                 me.getModel('Imt.rulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
                 purposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
                 app.fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
-                    itemId: 'validation-rule-set-purposes',
-                    sideMenu: 'ruleSetSubMenu',
+                    itemId: 'estimation-rule-set-purposes',
+                    sideMenu: 'estimation-rule-set-side-menu',
                     purposesStore: purposesStore,
                     router: router,
-                    addLink: router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes/add').buildUrl(),
+                    addLink: router.getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes/add').buildUrl(),
                     ruleSetId: ruleSetId
                 }));
             },
@@ -113,7 +114,7 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removex', 'IMT', "Remove '{0}'?",
                 record.get('purpose')),
-            msg: Uni.I18n.translate('ruleSet.validation.metrologyConfigurationPurposes.removeConfirmation.msg', 'IMT', 'The validation rule set will no longer be available on this purpose of the metrology configuration.'),
+            msg: Uni.I18n.translate('ruleSet.estimation.metrologyConfigurationPurposes.removeConfirmation.msg', 'IMT', 'The estimation rule set will no longer be available on this purpose of the metrology configuration.'),
             fn: remove
         });
 
