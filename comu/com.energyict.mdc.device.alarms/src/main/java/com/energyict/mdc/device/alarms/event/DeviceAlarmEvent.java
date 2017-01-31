@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
@@ -23,14 +25,13 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
-import com.google.common.collect.Range;
 import com.google.inject.Injector;
 
+import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -46,18 +47,23 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final Thesaurus thesaurus;
+    private final TimeService timeService;
+    private final Clock clock;
+
 
     private Device device;
     private Instant timestamp;
     private EventDescription eventDescription;
     private Injector injector;
 
-    public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, Injector injector) {
+    public DeviceAlarmEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
         this.deviceAlarmService = deviceAlarmService;
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.deviceService = deviceService;
         this.thesaurus = thesaurus;
+        this.timeService = timeService;
+        this.clock = clock;
         this.injector = injector;
     }
 
@@ -90,6 +96,10 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         this.timestamp = timestamp;
     }
 
+    public Clock getClock() {
+        return clock;
+    }
+
     public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription, Device device) {
         this.eventDescription = eventDescription;
         if (device != null) {
@@ -100,16 +110,17 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         getEventTimestamp(rawEvent);
     }
 
-    //TODO- use clock, use lists for triggeringEndDeviceEventTypes and deviceTypes
-    public int computeOccurenceCount(int ruleId, String range, String logOnSameAlarm, String triggeringEndDeviceEventTypes, String clearingEndDeviceEventTypes, String deviceTypes, String eisCodes) {
-        List<String> inputTriggeringEventTypeList = getUpdatedEventTypeMrid(Arrays.asList(triggeringEndDeviceEventTypes.split(",")).stream().collect(Collectors.toList()),
-                Arrays.asList(deviceTypes.split(",")).stream().collect(Collectors.toList()));
+    public int computeOccurenceCount(int ruleId, String relativePeriodId, String logOnSameAlarm, String triggeringEndDeviceEventTypes, String clearingEndDeviceEventTypes, String eisCodes) {
+
+        Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriod(Long.parseLong(relativePeriodId));
+        if (!relativePeriod.isPresent()) {
+            return -1;
+        }
+        List<String> inputTriggeringEventTypeList = Arrays.asList(triggeringEndDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
         if (!inputTriggeringEventTypeList.contains(this.getEventTypeMrid())) {
             return -1;
         }
-
-        List<String> inputClearingEventTypeList = getUpdatedEventTypeMrid(Arrays.asList(clearingEndDeviceEventTypes.split(",")).stream().collect(Collectors.toList()),
-                Arrays.asList(deviceTypes.split(",")).stream().collect(Collectors.toList()));
+        List<String> inputClearingEventTypeList = Arrays.asList(clearingEndDeviceEventTypes.split(",")).stream().collect(Collectors.toList());
         if (inputClearingEventTypeList.contains(this.getEventTypeMrid())) {
             if (Integer.parseInt(logOnSameAlarm) == 1 &&
                     // issueService.getIssueCreationService().findCreationRuleById(Long.parseLong(ruleId)).isPresent() &&
@@ -119,9 +130,8 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                 return -1;
             }
         }
-
         List<EndDeviceEventRecord> loggedEvents = getDevice().getLogBooks().stream()
-                .map(logBook -> logBook.getEndDeviceEvents(Range.closed(Instant.ofEpochMilli(Instant.now().toEpochMilli() - Long.valueOf(range)), Instant.now())))
+                .map(logBook -> logBook.getEndDeviceEvents(relativePeriod.get().getClosedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.MIDNIGHT).plusDays(1))))
                 .flatMap(Collection::stream).collect(Collectors.toList());
         List<String> currentList = loggedEvents.stream().map(event -> event.getEventType().getMRID())
                 .collect(Collectors.toList());
@@ -139,37 +149,33 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                         .collect(Collectors.toList()).size();
     }
 
-    private List<String> getUpdatedEventTypeMrid(List<String> endDeviceEventTypes, List<String> deviceTypes) {
-        List<String> inputEventTypeList = new ArrayList<>();
-        if (deviceTypes != null && !deviceTypes.isEmpty()) {
-            for (String devType : deviceTypes) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(devType).append(".");
-                for (String inputEventType : endDeviceEventTypes) {
-                    inputEventTypeList.add(sb.toString() + inputEventType.substring(inputEventType.indexOf(".") + 1));
-                }
-            }
-        } else {
-            inputEventTypeList = endDeviceEventTypes.stream().collect(Collectors.toList());
-        }
-        return inputEventTypeList;
-    }
-
-    public boolean hasAssociatedDeviceLifecycleState(String avaliableDeviceLifecycleState) {
+    public boolean hasAssociatedDeviceLifecycleStateIn(String avaliableDeviceLifecycleState) {
         long deviceStateId = getDevice().getState().getId();
         Optional<String> foundAssociatedState = Arrays.asList(avaliableDeviceLifecycleState.split(","))
                 .stream().collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream))
                 .filter(state -> Long.parseLong(state) == deviceStateId).findFirst();
-        if(foundAssociatedState.isPresent()){
+        if (foundAssociatedState.isPresent()) {
             return true;
-        }else{
+        } else {
+            return false;
+        }
+    }
+
+    public boolean hasAssociatedDeviceTypeIn(String deviceTypes) {
+        long deviceTypeId = getDevice().getDeviceType().getId();
+        Optional<String> foundAssociatedType = Arrays.asList(deviceTypes.split(","))
+                .stream().collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream))
+                .filter(type -> Long.parseLong(type) == deviceTypeId).findFirst();
+        if (foundAssociatedType.isPresent()) {
+            return true;
+        } else {
             return false;
         }
     }
 
     public String getEISCode() {
-        //TODO - update this to code to retrieve EIS code
-        return this.getEventType().contains(".") ? "-1" : this.getEventType();
+        //TODO - update this to code to retrieve protocol code
+        return this.getEventType();
     }
 
     public boolean isClearing(List<String> endDeviceEventTypes) {

@@ -15,7 +15,7 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
-import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -41,7 +41,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +57,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public static final String LOG_ON_SAME_ALARM = NAME + ".logOnSameAlarm";
     public static final String TRIGGERING_EVENTS = NAME + ".triggeringEvents";
     public static final String CLEARING_EVENTS = NAME + ".clearingEvents";
-    //public static final String THRESHOLD_TYPE = NAME + ".tresholdType";
-    //public static final String THRESHOLD_VALUE = NAME + ".tresholdValue";
     public static final String THRESHOLD = NAME + ".threshold";
     public static final String UP_URGENCY_ON_RAISE = NAME + ".upUrgencyOnRaise";
     public static final String DOWN_URGENCY_ON_CLEAR = NAME + ".downUrgencyOnClear";
@@ -70,13 +67,17 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile TimeService timeService;
+    public static final boolean LOG_ON_SAME_ALARM_DEFAULT_VALUE = false;
+    public static final boolean DOWN_URGENCY_ON_CLEAR_DEFAULT_VALUE = false;
+    public static final boolean UP_URGENCY_ON_RAISE_DEFAULT_VALUE = false;
 
     //for OSGI
     public BasicDeviceAlarmRuleTemplate() {
     }
 
     @Inject
-    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
         this();
         setDeviceAlarmService(deviceAlarmService);
         setNlsService(nlsService);
@@ -84,7 +85,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         setPropertySpecService(propertySpecService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-
+        setTimeService(timeService);
         activate();
     }
 
@@ -114,14 +115,17 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
 
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
-        super.setDeviceConfigurationService(deviceConfigurationService);
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        super.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Override
@@ -145,8 +149,9 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "rule \"Basic device alarm rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
-                "\teval( event.computeOccurenceCount(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + LOG_ON_SAME_ALARM + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\", \"@{" + DEVICE_TYPES + "}\", \"@{" + EIS_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
-                "\teval( event.hasAssociatedDeviceLifecycleState(\"@{" + DEVICE_LIFECYCLE_STATE + "}\") == true )\n" +
+                "\teval( event.computeOccurenceCount(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + LOG_ON_SAME_ALARM + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\", \"@{" + EIS_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
+                "\teval( event.hasAssociatedDeviceLifecycleStateIn(\"@{" + DEVICE_LIFECYCLE_STATE + "}\") == true )\n" +
+                "\teval( event.hasAssociatedDeviceTypeIn(\"@{" + DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Processing device alarm based on rule template number @{ruleId}\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM + "});\n" +
@@ -177,6 +182,15 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
         EventTypes eventTypes = new EventTypes(getThesaurus(), DeviceAlarmEventDescription.values());
+        DeviceTypeInfo[] possibleDeviceTypes = deviceConfigurationService.findAllDeviceTypes()
+                .find().stream().map(DeviceTypeInfo::new)
+                .toArray(DeviceTypeInfo[]::new);
+        DeviceLifecycleStatusInfo[] possibleDeviceLifecycleStates = deviceLifeCycleConfigurationService
+                .findAllDeviceLifeCycles().find()
+                .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
+                .flatMap(Collection::stream)
+                .map(DeviceLifecycleStatusInfo::new)
+                .toArray(DeviceLifecycleStatusInfo[]::new);
         builder.add(propertySpecService
                 .specForValuesOf(new EventTypeValueFactory(eventTypes))
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
@@ -190,14 +204,17 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .named(LOG_ON_SAME_ALARM, TranslationKeys.LOG_ON_SAME_ALARM)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                //.markExhaustive()
+                .addValues(true, false)
+                .setDefaultValue(LOG_ON_SAME_ALARM_DEFAULT_VALUE)
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
         builder.add(propertySpecService
-                .longSpec()
+                //.longSpec()
+                .relativePeriodSpec()
                 .named(THRESHOLD, TranslationKeys.EVENT_TEMPORAL_THRESHOLD)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                //.markExhaustive()
+                .setDefaultValue(timeService.getAllRelativePeriod())
                 .finish());
         builder.add(propertySpecService
                 .longSpec()
@@ -210,7 +227,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .specForValuesOf(new AlarmPropertyHasNameInfoValueFactory())
                 .named(TRIGGERING_EVENTS, TranslationKeys.TRIGGERING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
-                .markRequired()
                 .markMultiValued(",")
                 // .markExhaustive()
                 .finish());
@@ -228,12 +244,14 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(",")
-                // .markExhaustive()
+                .addValues(possibleDeviceLifecycleStates)
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new DeviceTypeInfoValueFactory())
                 .named(DEVICE_TYPES, TranslationKeys.DEVICE_TYPES)
                 .fromThesaurus(this.getThesaurus())
+                .addValues(possibleDeviceTypes)
                 .markRequired()
                 .markMultiValued(",")
                 // .markExhaustive()
@@ -249,15 +267,17 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .booleanSpec()
                 .named(UP_URGENCY_ON_RAISE, TranslationKeys.UP_URGENCY_ON_RAISE)
                 .fromThesaurus(this.getThesaurus())
-                .markRequired()
-                // .markExhaustive()
+                .addValues(true, false)
+                .setDefaultValue(UP_URGENCY_ON_RAISE_DEFAULT_VALUE)
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
         builder.add(propertySpecService
                 .booleanSpec()
                 .named(DOWN_URGENCY_ON_CLEAR, TranslationKeys.DOWN_URGENCY_ON_CLEAR)
                 .fromThesaurus(this.getThesaurus())
-                .markRequired()
-                // .markExhaustive()
+                .addValues(true, false)
+                .setDefaultValue(DOWN_URGENCY_ON_CLEAR_DEFAULT_VALUE)
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
         return builder.build();
     }
@@ -391,7 +411,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
 
-
     private class DeviceTypeInfoValueFactory implements ValueFactory<HasIdAndName>, BpmProcessPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
@@ -490,7 +509,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         public HasIdAndName fromStringValue(String stringValue) {
             return deviceLifeCycleConfigurationService
                     .findAllDeviceLifeCycles().find()
-                    .stream().map(lifecycle ->  lifecycle.getFiniteStateMachine().getStates())
+                    .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
                     .flatMap(Collection::stream)
                     .filter(stateValue -> stateValue.getId() == Long.parseLong(stringValue))
                     .findFirst()
@@ -581,7 +600,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return result;
         }
     }
-
 
 
     //TODO - write a check method to avoid number format exceptions

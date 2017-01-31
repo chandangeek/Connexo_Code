@@ -5,6 +5,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
@@ -14,6 +15,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 
@@ -25,8 +27,8 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
 
 
     @Inject
-    public EndDeviceEventCreatedEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, Injector injector) {
-        super(deviceAlarmService, issueService, meteringService, deviceService, thesaurus, injector);
+    public EndDeviceEventCreatedEvent(DeviceAlarmService deviceAlarmService, IssueService issueService, MeteringService meteringService, DeviceService deviceService, Thesaurus thesaurus, TimeService timeService, Clock clock, Injector injector) {
+        super(deviceAlarmService, issueService, meteringService, deviceService, thesaurus, timeService, clock, injector);
     }
 
     @Override
