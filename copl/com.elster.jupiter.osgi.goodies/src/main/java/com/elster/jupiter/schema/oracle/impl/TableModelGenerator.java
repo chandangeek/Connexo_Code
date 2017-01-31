@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.schema.oracle.impl;
 
 import com.elster.jupiter.orm.schema.ExistingColumn;
@@ -9,11 +13,6 @@ import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/04/2014
- * Time: 14:41
- */
 public class TableModelGenerator {
 
     private ExistingTable table;
