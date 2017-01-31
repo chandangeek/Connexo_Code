@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -23,11 +27,6 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/03/2014
- * Time: 10:37
- */
 @Component(name = "com.elster.jupiter.export.enddevicegroup.deletionEventHandler", service = TopicHandler.class, immediate = true)
 public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
 
