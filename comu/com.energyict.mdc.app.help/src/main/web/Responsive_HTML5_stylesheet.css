@@ -1,4 +1,8 @@
-﻿@font-face {
+﻿/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+@font-face {
   font-family: "iconfont";
   src:url("fonts/iconfont.eot");
   src:url("fonts/iconfont.eot?#iefix") format("embedded-opentype"),

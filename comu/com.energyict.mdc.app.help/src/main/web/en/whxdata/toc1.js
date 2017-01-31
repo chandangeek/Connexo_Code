@@ -1,1 +1,5 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Getting started with MultiSense\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/Getting_started_with_MultiSense.htm\"><item name=\"About MultiSense\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/About_MultiSense.htm\" /><book  src=\"toc2.js\"  name=\"Basic functions\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/Basic_functions.htm\" /><book  src=\"toc3.js\"  name=\"Explore MultiSense\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/Explore_MultiSense.htm\" /><item name=\"Quick guide to collect data\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/Quick_guide_to_collect_data.htm\" /><book  src=\"toc4.js\"  name=\"The dashboard\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/The_dashboard.htm\" /><book  src=\"toc5.js\"  name=\"Object landing page\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_Getting_started/Object_landing_page.htm\" /></data>";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 //This list of tags can be extended to add more tags for Show/Hide support
 var gShowHideTagsList = ["div", "a"];
 

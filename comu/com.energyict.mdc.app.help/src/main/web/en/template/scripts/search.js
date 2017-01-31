@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 var gSearchMsgId = "searchMsg";
 var gResultsFoundString = "%1 result(s) found for %2";
 var gSearchResultHtml = "{%LINK_NAME%}\n							\n							<span  class=\"wSearchURL\">{%SEARCH_URL%}</span> \n							 <br />\n							<span  class=\"wSearchContext\">{%SEARCH_SUMMARY%}</span>";

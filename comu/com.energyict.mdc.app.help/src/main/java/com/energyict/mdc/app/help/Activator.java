@@ -1,13 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.app.help;
+
+import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.HttpResource;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-
-import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.HttpResource;
 
 @Component(name = "com.energyict.mdc.app.help", immediate = true)
 public class Activator {

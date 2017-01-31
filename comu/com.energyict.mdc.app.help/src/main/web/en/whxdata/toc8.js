@@ -1,1 +1,5 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Device configuration\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Device_configuration.htm\"><book  src=\"toc9.js\"  name=\"Configure data sources\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_data_sources.htm\" /><book  src=\"toc10.js\"  name=\"Configure devices\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Configure_devices.htm\" /><book  src=\"toc11.js\"  name=\"Custom attributes\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Custom_attributes.htm\" /><book  src=\"toc12.js\"  name=\"Change device configurations\" url=\"000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceConfiguration/Change_device_configurations.htm\" /></data>";

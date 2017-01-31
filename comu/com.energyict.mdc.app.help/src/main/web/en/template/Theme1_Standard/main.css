@@ -1,4 +1,8 @@
-﻿* {
+﻿/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+* {
    -webkit-tap-highlight-color:rgba(0,0,0,0);
    -webkit-tap-highlight-color:transparent;
    outline-style:none;
