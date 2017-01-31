@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.firmwarecampaigns.view.DevicesStatusFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'fwc-firmwarecampaigns-view-devicesStatusFilter',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.devicefirmware.view.Log', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-firmware-log',

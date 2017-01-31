@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.devicefirmware.view.LogPreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.device-firmware-log-preview-form',

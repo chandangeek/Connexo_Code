@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.firmwarecampaigns.view.DeviceActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.firmware-campaigns-device-action-menu',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.view.firmware.field.Radio', {
     extend: 'Ext.form.CheckboxGroup',
     mixins: {

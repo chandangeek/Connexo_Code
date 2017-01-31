@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.devicefirmware.view.form.UploadFieldContainer', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.upload-field-container',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [

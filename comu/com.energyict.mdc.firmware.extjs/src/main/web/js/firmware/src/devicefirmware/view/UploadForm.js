@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.devicefirmware.view.UploadForm', {
     extend: 'Ext.form.Panel',
     xtype: 'device-firmware-upload-form',

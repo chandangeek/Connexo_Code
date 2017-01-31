@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.devicefirmware.view.ActionMenu', {
     extend: 'Ext.menu.Menu',
     xtype: 'device-firmware-action-menu',

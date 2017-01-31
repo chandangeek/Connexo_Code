@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.devicefirmware.model.FirmwareMessage', {
     extend: 'Uni.model.Version',
     requires: [

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fwc.view.firmware.field.File', {
     extend: 'Ext.form.field.File',
     xtype: 'firmware-field-file',

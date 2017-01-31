@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Created by pdo on 6/05/2015.
  * Rendering the Firmware Management Options as an unordered list
