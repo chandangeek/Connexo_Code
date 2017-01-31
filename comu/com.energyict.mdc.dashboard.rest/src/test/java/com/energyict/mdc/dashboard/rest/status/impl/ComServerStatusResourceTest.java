@@ -1,12 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 
+import org.joda.time.DateTimeConstants;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
-import org.joda.time.DateTimeConstants;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

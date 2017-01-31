@@ -1,4 +1,25 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
+
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.users.User;
+import com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupInfo.SelectionInfo;
+import com.energyict.mdc.favorites.FavoriteDeviceGroup;
+
+import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -8,23 +29,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import com.elster.jupiter.users.User;
-import org.junit.Test;
-
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupInfo.SelectionInfo;
-import com.energyict.mdc.favorites.FavoriteDeviceGroup;
-import com.jayway.jsonpath.JsonModel;
 
 public class FavoriteDeviceGroupResourceTest extends DashboardApplicationJerseyTest {
 

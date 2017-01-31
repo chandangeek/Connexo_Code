@@ -1,11 +1,16 @@
-package com.energyict.mdc.dashboard.rest.status.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import java.util.Comparator;
-import java.util.List;
+package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.rest.util.VersionInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.Comparator;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FavoriteDeviceGroupInfo {

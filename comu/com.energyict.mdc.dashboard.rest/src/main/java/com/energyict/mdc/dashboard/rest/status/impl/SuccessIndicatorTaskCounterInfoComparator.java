@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.device.data.tasks.history.ComSession;

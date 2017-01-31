@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,12 +1,15 @@
-package com.energyict.mdc.dashboard.rest.status.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
-import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
+package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
+import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
 
 import java.util.ArrayList;
 import java.util.Collections;

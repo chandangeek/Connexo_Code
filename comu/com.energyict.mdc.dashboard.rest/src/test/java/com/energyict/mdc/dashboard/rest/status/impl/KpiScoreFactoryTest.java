@@ -1,13 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.rest.util.ExceptionFactory;
+
 import com.google.common.collect.Range;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

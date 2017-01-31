@@ -1,12 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import static com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupInfo.byNameComparator;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.users.User;
+import com.energyict.mdc.favorites.FavoriteDeviceGroup;
+import com.energyict.mdc.favorites.FavoritesService;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -20,16 +26,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.favorites.FavoriteDeviceGroup;
-import com.energyict.mdc.favorites.FavoritesService;
+import static com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupInfo.byNameComparator;
 
 @Path("/favoritedevicegroups")
 public class FavoriteDeviceGroupResource {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
@@ -10,13 +14,16 @@ import com.energyict.mdc.dashboard.impl.ComCommandCompletionCodeOverviewImpl;
 import com.energyict.mdc.dashboard.impl.CommunicationTaskHeatMapRowImpl;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+
 import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.Response;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
