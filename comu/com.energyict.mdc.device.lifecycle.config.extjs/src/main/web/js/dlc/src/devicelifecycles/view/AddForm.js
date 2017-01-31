@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dlc.devicelifecycles.view.AddForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.device-life-cycles-add-form',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.state-properties-form',

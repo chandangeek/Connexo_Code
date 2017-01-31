@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dlc.devicelifecycles.store.DeviceLifeCycles', {
     extend: 'Ext.data.Store',
     model: 'Dlc.devicelifecycles.model.DeviceLifeCycle',

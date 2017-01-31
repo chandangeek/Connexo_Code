@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dlc.devicelifecycletransitions.view.ActionsMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.transitions-action-menu',
