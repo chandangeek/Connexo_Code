@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.devtools.persistence.test.rules;
 
 import com.google.common.base.Joiner;
@@ -10,11 +14,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/02/13
- * Time: 15:49
- */
 public class ExpectedConstraintViolationRule implements TestRule {
 
     public ExpectedConstraintViolationRule() {

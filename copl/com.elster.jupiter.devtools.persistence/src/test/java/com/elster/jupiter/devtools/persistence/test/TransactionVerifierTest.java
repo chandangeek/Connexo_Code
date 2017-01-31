@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.devtools.persistence.test;
 
 import com.elster.jupiter.transaction.Transaction;
@@ -15,11 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.verify;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/11/2014
- * Time: 15:09
- */
 @RunWith(MockitoJUnitRunner.class)
 public class TransactionVerifierTest {
 
