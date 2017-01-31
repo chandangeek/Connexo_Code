@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cps.customattributesets.view.EditLevelsWindow', {
     extend: 'Ext.window.Window',
     xtype: 'custom-attribute-set-edit-levels',

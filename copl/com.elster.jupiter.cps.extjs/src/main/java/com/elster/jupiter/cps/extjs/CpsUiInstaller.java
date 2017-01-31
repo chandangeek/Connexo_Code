@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.cps.extjs;
 
 import com.elster.jupiter.http.whiteboard.*;
@@ -15,10 +19,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/29/15
- */
 @Component(name = "com.elster.jupiter.cps.extjs", service = {TranslationKeyProvider.class},
         property = {"name=" + CpsUiInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
 public class CpsUiInstaller implements TranslationKeyProvider{

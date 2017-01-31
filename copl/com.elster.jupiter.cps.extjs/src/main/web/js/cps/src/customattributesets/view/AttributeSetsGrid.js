@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Cps.customattributesets.view.AttributeSetsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.custom-attribute-sets-grid',
