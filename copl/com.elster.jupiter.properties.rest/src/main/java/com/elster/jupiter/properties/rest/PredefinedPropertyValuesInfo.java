@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.properties.rest;
 
 import com.elster.jupiter.properties.PropertySelectionMode;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 11:38
- */
 @XmlRootElement
 public class PredefinedPropertyValuesInfo<T> {
 

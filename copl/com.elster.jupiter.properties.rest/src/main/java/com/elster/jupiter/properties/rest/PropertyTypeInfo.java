@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.properties.rest;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -6,13 +10,6 @@ import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 
-/**
- * Provides additional type information of a specific property.
- *
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 11:40
- */
 @XmlRootElement
 public class PropertyTypeInfo {
 

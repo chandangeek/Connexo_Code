@@ -1,13 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.properties.rest;
 
 
-/**
- * Defines rules/options to validate a String
- * <p/>
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 13:35
- */
 public class StringValidationRules implements PropertyValidationRule {
 
     public static final String HEX_CHARACTERS_REGEX = "[A-Fa-f0-9]";
