@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.kpi.impl;
 
 import com.elster.jupiter.kpi.KpiService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
-/**
- * Copyrights EnergyICT
- * Date: 30/07/2014
- * Time: 9:22
- */
 public class KpiModule extends AbstractModule {
 
     @Override
