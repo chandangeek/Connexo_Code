@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Idv.controller.MainOverview', {
     extend: 'Ext.app.Controller',
 
