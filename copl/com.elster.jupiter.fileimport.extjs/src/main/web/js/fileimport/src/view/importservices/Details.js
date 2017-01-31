@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fim.view.importservices.Details', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.fin-details-import-service',

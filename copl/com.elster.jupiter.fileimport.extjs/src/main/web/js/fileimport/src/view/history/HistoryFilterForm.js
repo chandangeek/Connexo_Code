@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fim.view.history.HistoryFilterForm', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.fim-history-filter-form',

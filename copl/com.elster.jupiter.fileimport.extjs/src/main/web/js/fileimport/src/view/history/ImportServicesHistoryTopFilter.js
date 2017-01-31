@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Fim.view.history.ImportServicesHistoryTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'fim-view-history-importservices-topfilter',
