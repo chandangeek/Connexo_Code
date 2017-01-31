@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Idc.view.MainOverview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.data-collection-main-overview',
