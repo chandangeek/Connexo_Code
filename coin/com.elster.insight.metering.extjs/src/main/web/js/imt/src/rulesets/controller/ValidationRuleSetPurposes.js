@@ -1,4 +1,4 @@
-Ext.define('Imt.validationrulesets.controller.MetrologyConfigurationPurposes', {
+Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -6,16 +6,16 @@ Ext.define('Imt.validationrulesets.controller.MetrologyConfigurationPurposes', {
     ],
 
     views: [
-        'Imt.validationrulesets.view.MetrologyConfigurationPurposes',
+        'Imt.rulesets.view.MetrologyConfigurationPurposes',
         'Uni.view.window.Confirmation'
     ],
 
     stores: [
-        'Imt.validationrulesets.store.MetrologyConfigurationPurposes'
+        'Imt.rulesets.store.MetrologyConfigurationPurposes'
     ],
 
     models: [
-        'Imt.validationrulesets.model.MetrologyConfigurationPurpose',
+        'Imt.rulesets.model.MetrologyConfigurationPurpose',
         'Cfg.model.ValidationRuleSet'
     ],
 
@@ -56,16 +56,18 @@ Ext.define('Imt.validationrulesets.controller.MetrologyConfigurationPurposes', {
     showMetrologyConfigurationPurposes: function (ruleSetId) {
         var me = this,
             app = me.getApplication(),
+            purposesStore = me.getStore('Imt.rulesets.store.MetrologyConfigurationPurposes'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading();
         me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {
             success: function (record) {
                 app.fireEvent('loadRuleSet', record);
-                me.getModel('Imt.validationrulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
-                me.getStore('Imt.validationrulesets.store.MetrologyConfigurationPurposes').getProxy().setExtraParam('ruleSetId', ruleSetId);
+                me.getModel('Imt.rulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
+                purposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
                 app.fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
                     itemId: 'metrology-configuration-purposes',
+                    purposesStore: purposesStore,
                     router: me.getController('Uni.controller.history.Router'),
                     ruleSetId: ruleSetId
                 }));
@@ -116,6 +118,7 @@ Ext.define('Imt.validationrulesets.controller.MetrologyConfigurationPurposes', {
             if (state === 'confirm') {
                 mainView.setLoading();
                 record.destroy({
+                    isNotEdit: true,
                     success: onSuccessRemove,
                     callback: removeCallback
                 });

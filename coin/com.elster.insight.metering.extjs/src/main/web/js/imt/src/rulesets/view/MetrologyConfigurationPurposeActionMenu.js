@@ -1,4 +1,4 @@
-Ext.define('Imt.validationrulesets.view.MetrologyConfigurationPurposeActionMenu', {
+Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposeActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.metrology-configuration-purpose-action-menu',
 

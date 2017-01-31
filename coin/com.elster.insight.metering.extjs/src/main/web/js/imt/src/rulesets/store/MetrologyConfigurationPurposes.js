@@ -1,6 +1,6 @@
-Ext.define('Imt.validationrulesets.store.MetrologyConfigurationPurposes', {
+Ext.define('Imt.rulesets.store.MetrologyConfigurationPurposes', {
     extend: 'Ext.data.Store',
-    model: 'Imt.validationrulesets.model.MetrologyConfigurationPurpose',
+    model: 'Imt.rulesets.model.MetrologyConfigurationPurpose',
     proxy: {
         type: 'rest',
         url: '/api/ucr/validationruleset/{ruleSetId}/purposes',

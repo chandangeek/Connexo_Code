@@ -1,13 +1,14 @@
-Ext.define('Imt.validationrulesets.view.MetrologyConfigurationPurposes', {
+Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposes', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.metrology-configuration-purposes',
     requires: [
         'Cfg.view.validation.RuleSetSubMenu',
-        'Imt.validationrulesets.view.MetrologyConfigurationPurposesGrid',
-        'Imt.validationrulesets.view.MetrologyConfigurationPurposeDetails',
-        'Imt.validationrulesets.view.MetrologyConfigurationPurposeActionMenu',
+        'Imt.rulesets.view.MetrologyConfigurationPurposesGrid',
+        'Imt.rulesets.view.MetrologyConfigurationPurposeDetails',
+        'Imt.rulesets.view.MetrologyConfigurationPurposeActionMenu',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
+    purposesStore: null,
     router: null,
     ruleSetId: null,
 
@@ -26,6 +27,7 @@ Ext.define('Imt.validationrulesets.view.MetrologyConfigurationPurposes', {
                     grid: {
                         xtype: 'metrology-configuration-purposes-grid',
                         itemId: 'metrology-configuration-purposes-grid',
+                        store: me.purposesStore,
                         router: me.router
                     },
                     emptyComponent: {

@@ -1,8 +1,8 @@
-Ext.define('Imt.validationrulesets.view.MetrologyConfigurationPurposeDetails', {
+Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposeDetails', {
     extend: 'Ext.form.Panel',
     alias: 'widget.metrology-configuration-purpose-details',
     requires: [
-        'Imt.validationrulesets.view.fields.Output'
+        'Imt.rulesets.view.fields.Output'
     ],
 
     defaults: {

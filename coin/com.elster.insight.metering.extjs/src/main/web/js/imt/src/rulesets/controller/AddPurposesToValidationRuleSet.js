@@ -1,4 +1,4 @@
-Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes', {
+Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
     extend: 'Ext.app.Controller',
 
     requires: [
@@ -6,11 +6,11 @@ Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes'
     ],
 
     views: [
-        'Imt.validationrulesets.view.AddMetrologyConfigurationPurposes'
+        'Imt.rulesets.view.AddMetrologyConfigurationPurposes'
     ],
 
     stores: [
-        'Imt.validationrulesets.store.MetrologyConfigurationPurposesToAdd'
+        'Imt.rulesets.store.MetrologyConfigurationPurposesToAdd'
     ],
 
     models: [
@@ -24,8 +24,8 @@ Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes'
     init: function () {
         var me = this;
 
-        // Imt.validationrulesets.controller.MetrologyConfigurationPurposes should be initialized first
-        me.getController('Imt.validationrulesets.controller.MetrologyConfigurationPurposes');
+        // Imt.rulesets.controller.ValidationRuleSetPurposes should be initialized first
+        me.getController('Imt.rulesets.controller.ValidationRuleSetPurposes');
         me.control({
             '#add-metrology-configuration-purposes #add-metrology-configuration-purposes-grid': {
                 select: me.showPreview,
@@ -38,7 +38,7 @@ Ext.define('Imt.validationrulesets.controller.AddMetrologyConfigurationPurposes'
         var me = this,
             app = me.getApplication(),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            availableToAddPurposesStore = me.getStore('Imt.validationrulesets.store.MetrologyConfigurationPurposesToAdd');
+            availableToAddPurposesStore = me.getStore('Imt.rulesets.store.MetrologyConfigurationPurposesToAdd');
 
         mainView.setLoading();
         me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {

@@ -1,10 +1,9 @@
-Ext.define('Imt.validationrulesets.view.MetrologyConfigurationPurposesGrid', {
+Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.metrology-configuration-purposes-grid',
     requires: [
         'Uni.grid.column.RemoveAction'
     ],
-    store: 'Imt.validationrulesets.store.MetrologyConfigurationPurposes',
     router: null,
 
     initComponent: function () {

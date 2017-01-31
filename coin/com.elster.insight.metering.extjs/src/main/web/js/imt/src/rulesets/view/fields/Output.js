@@ -1,4 +1,4 @@
-Ext.define('Imt.validationrulesets.view.fields.Output', {
+Ext.define('Imt.rulesets.view.fields.Output', {
     extend: 'Ext.form.field.Display',
     alias: 'widget.output-display',
 

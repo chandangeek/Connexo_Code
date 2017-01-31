@@ -1,12 +1,12 @@
-Ext.define('Imt.validationrulesets.view.AddMetrologyConfigurationPurposes', {
+Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.add-metrology-configuration-purposes',
     requires: [
         'Cfg.view.validation.RuleSetSubMenu',
-        'Imt.validationrulesets.view.MetrologyConfigurationPurposeDetails',
+        'Imt.rulesets.view.MetrologyConfigurationPurposeDetails',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.util.FormInfoMessage',
-        'Imt.validationrulesets.view.AddMetrologyConfigurationPurposesGrid'
+        'Imt.rulesets.view.AddMetrologyConfigurationPurposesGrid'
     ],
     router: null,
     ruleSetId: null,
