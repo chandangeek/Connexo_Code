@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -95,6 +96,7 @@ public class PkiServiceImpl implements PkiService {
         KeyTypeImpl keyType = dataModel.getInstance(KeyTypeImpl.class);
         keyType.setName(name);
         keyType.setAlgorithm(keyAlgorithmName);
+        keyType.setCryptographicType(CryptographicType.SymmetricKey);
         keyType.setKeySize(keySize);
         keyType.save();
         return keyType;
@@ -103,8 +105,7 @@ public class PkiServiceImpl implements PkiService {
     @Override
     public AsyncBuilder addAsymmetricKeyType(String name) {
         KeyTypeImpl instance = dataModel.getInstance(KeyTypeImpl.class);
-        instance.setName(name);
-        return new AsyncBuilderImpl(instance);
+        return new AsyncBuilderImpl(name, instance);
     }
 
     @Override
@@ -130,8 +131,10 @@ public class PkiServiceImpl implements PkiService {
     private class AsyncBuilderImpl implements AsyncBuilder {
         private final KeyTypeImpl underConstruction;
 
-        AsyncBuilderImpl(KeyTypeImpl instance) {
+        AsyncBuilderImpl(String name, KeyTypeImpl instance) {
             this.underConstruction = instance;
+            this.underConstruction.setName(name);
+            this.underConstruction.setCryptographicType(CryptographicType.AsymmetricKey);
         }
 
         @Override

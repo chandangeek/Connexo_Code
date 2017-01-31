@@ -10,13 +10,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 
 public enum TableSpecs {
-    PKI_CERTIFICATES {
-        @Override
-        void addTo(DataModel component) {
-
-        }
-    },
-    PKI_KEYS {
+    PKI_KEYTYPES {
         @Override
         void addTo(DataModel dataModel) {
             Table<KeyType> table = dataModel.addTable(this.name(), KeyType.class);

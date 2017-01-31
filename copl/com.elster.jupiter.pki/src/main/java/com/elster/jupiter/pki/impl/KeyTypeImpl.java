@@ -67,6 +67,10 @@ public class KeyTypeImpl implements KeyType {
         return cryptographicType;
     }
 
+    public void setCryptographicType(CryptographicType cryptographicType) {
+        this.cryptographicType = cryptographicType;
+    }
+
     @Override
     public String getAlgorithm() {
         return algorithm;

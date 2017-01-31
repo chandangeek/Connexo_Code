@@ -3,9 +3,10 @@ package com.elster.jupiter.pki.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyType;
 
-import java.util.List;
+import java.util.Optional;
 
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -33,14 +34,54 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    public void findCreateSymmetricKey() {
-        KeyType keyType = pkiInMemoryPersistence.getPkiService().addSymmetricKeyType("AES128", "AES", 1024);
-        List<KeyType> keyTypes = pkiInMemoryPersistence.getPkiService().findAllKeyTypes().find();
-        assertThat(keyTypes).hasSize(1);
-        assertThat(keyTypes.get(0).getName()).isEqualTo("AES128");
-        assertThat(keyTypes.get(0).getAlgorithm()).isEqualTo("AES");
-        assertThat(keyTypes.get(0).getKeySize()).isEqualTo(1024);
-        assertThat(keyTypes.get(0).getCurve()).isNull();
+    public void testCreateSymmetricKey() {
+        KeyType created = pkiInMemoryPersistence.getPkiService().addSymmetricKeyType("AES128", "AES", 128);
+        Optional<KeyType> keyType = pkiInMemoryPersistence.getPkiService().getKeyType("AES128");
+        assertThat(keyType).isPresent();
+        assertThat(keyType.get().getName()).isEqualTo("AES128");
+        assertThat(keyType.get().getAlgorithm()).isEqualTo("AES");
+        assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.SymmetricKey);
+        assertThat(keyType.get().getKeySize()).isEqualTo(128);
+        assertThat(keyType.get().getCurve()).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateRSAKey() {
+        KeyType created = pkiInMemoryPersistence.getPkiService().addAsymmetricKeyType("RSA2048").RSA().keySize(2048).add();
+        Optional<KeyType> keyType = pkiInMemoryPersistence.getPkiService().getKeyType("RSA2048");
+        assertThat(keyType).isPresent();
+        assertThat(keyType.get().getName()).isEqualTo("RSA2048");
+        assertThat(keyType.get().getAlgorithm()).isEqualTo("RSA");
+        assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.AsymmetricKey);
+        assertThat(keyType.get().getKeySize()).isEqualTo(2048);
+        assertThat(keyType.get().getCurve()).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateDSAKey() {
+        KeyType created = pkiInMemoryPersistence.getPkiService().addAsymmetricKeyType("DSA1024").DSA().keySize(1024).add();
+        Optional<KeyType> keyType = pkiInMemoryPersistence.getPkiService().getKeyType("DSA1024");
+        assertThat(keyType).isPresent();
+        assertThat(keyType.get().getName()).isEqualTo("DSA1024");
+        assertThat(keyType.get().getAlgorithm()).isEqualTo("DSA");
+        assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.AsymmetricKey);
+        assertThat(keyType.get().getKeySize()).isEqualTo(1024);
+        assertThat(keyType.get().getCurve()).isNull();
+    }
+
+    @Test
+    @Transactional
+    public void testCreateECKey() {
+        KeyType created = pkiInMemoryPersistence.getPkiService().addAsymmetricKeyType("NIST P-256").EC().curve("secp256r1").add();
+        Optional<KeyType> keyType = pkiInMemoryPersistence.getPkiService().getKeyType("NIST P-256");
+        assertThat(keyType).isPresent();
+        assertThat(keyType.get().getName()).isEqualTo("NIST P-256");
+        assertThat(keyType.get().getAlgorithm()).isEqualTo("EC");
+        assertThat(keyType.get().getCryptographicType()).isEqualTo(CryptographicType.AsymmetricKey);
+        assertThat(keyType.get().getKeySize()).isEqualTo(0); // CXO-5375, I expect null here
+        assertThat(keyType.get().getCurve()).isEqualTo("secp256r1");
     }
 
 }
