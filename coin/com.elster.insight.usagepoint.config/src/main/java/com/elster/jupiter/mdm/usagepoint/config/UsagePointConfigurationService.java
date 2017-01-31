@@ -94,4 +94,10 @@ public interface UsagePointConfigurationService {
      * @param validationRuleSet Validation rule set
      */
     List<MetrologyContract> getMetrologyContractsLinkedToValidationRuleSet(ValidationRuleSet validationRuleSet);
+
+    /**
+     * @return list of {@link MetrologyContract} linked to specified estimation rule set
+     * @param estimationRuleSet Estimation rule set
+     */
+    List<MetrologyContract> getMetrologyContractsLinkedToEstimationnRuleSet(EstimationRuleSet estimationRuleSet);
 }

@@ -314,6 +314,16 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<MetrologyContract> getMetrologyContractsLinkedToEstimationnRuleSet(EstimationRuleSet estimationRuleSet) {
+        return this.dataModel
+                .query(MetrologyContractEstimationRuleSetUsage.class, MetrologyContract.class)
+                .select(where("estimationRuleSet").isEqualTo(estimationRuleSet))
+                .stream()
+                .map(MetrologyContractEstimationRuleSetUsage::getMetrologyContract)
+                .collect(Collectors.toList());
+    }
+
     private long getLastRuleSetPosition(MetrologyContract metrologyContract) {
         return this.dataModel
                 .query(MetrologyContractEstimationRuleSetUsage.class)
