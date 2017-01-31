@@ -1,16 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.BaseUnit;
-import org.junit.*;
+import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-okt-2010
- * Time: 10:45:43
- */
 public class BaseUnitTest {
 
     @Test

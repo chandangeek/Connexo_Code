@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/08/11
- * Time: 15:44
- */
 public class UnitConversion {
 
     private final BigDecimal multiplier;

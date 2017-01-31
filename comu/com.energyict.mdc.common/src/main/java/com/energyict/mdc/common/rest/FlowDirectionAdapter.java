@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common.rest;
 
 
 import com.elster.jupiter.cbo.FlowDirection;
-import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 
 public class FlowDirectionAdapter extends MapBasedXmlAdapter<FlowDirection> {
 

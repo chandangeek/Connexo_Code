@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.time.TimeDuration;
+
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class TimeDurationAdapter extends XmlAdapter<String, TimeDuration> {

@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.cbo.MetricMultiplier;
-import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 
 public class MetricMultiplierAdapter extends MapBasedXmlAdapter<MetricMultiplier> {
 

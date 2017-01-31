@@ -1,13 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common;
 
-/**
- * Serves as a general exception for all exceptions which occur during the execution
- * of a DeviceProtocol, which are so severe that the framework must take notice of this.
- *
- * Copyrights EnergyICT
- * Date: 13/05/13
- * Time: 11:50
- */
 public class ComServerExecutionException extends RuntimeException {
 
     public ComServerExecutionException() {

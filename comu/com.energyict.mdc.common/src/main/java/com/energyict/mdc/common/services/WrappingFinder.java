@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common.services;
 
 import com.elster.jupiter.domain.util.Finder;
@@ -5,6 +9,7 @@ import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import java.util.List;
 
 /**

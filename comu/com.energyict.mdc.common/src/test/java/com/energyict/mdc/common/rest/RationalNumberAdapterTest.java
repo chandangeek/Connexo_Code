@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.cbo.RationalNumber;
-import org.junit.*;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

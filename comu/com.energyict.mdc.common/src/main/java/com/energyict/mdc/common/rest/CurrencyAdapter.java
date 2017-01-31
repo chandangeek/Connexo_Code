@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.Checks;
-import java.util.Currency;
+
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.Currency;
 
 public class CurrencyAdapter extends XmlAdapter<String, Currency>{
 

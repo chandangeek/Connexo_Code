@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.common;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -5,7 +9,7 @@ import com.energyict.mdc.common.interval.PartialTime;
 
 import java.util.Calendar;
 
-import static com.elster.jupiter.util.Checks.*;
+import static com.elster.jupiter.util.Checks.is;
 
 /**
  * Models a window during which communication with a device is allowed.
