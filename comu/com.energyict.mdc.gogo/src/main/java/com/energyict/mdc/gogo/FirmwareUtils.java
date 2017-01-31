@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.gogo;
 
 import com.elster.jupiter.orm.DataModel;
@@ -37,11 +41,6 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/17/15
- * Time: 2:23 PM
- */
 @Component(name = "com.energyict.mdc.gogo.FirmwareUtils", service = FirmwareUtils.class,
         property = {"osgi.command.scope=mdc.firmware",
                 "osgi.command.function=createFirmwareManagementOptionsFor",

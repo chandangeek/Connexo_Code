@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.gogo;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -13,21 +17,6 @@ import org.osgi.service.component.annotations.Reference;
 import java.time.Clock;
 import java.util.Optional;
 
-/**
- * Gogo command(s) for creating 'Topology data' (populating the database)
- * <ul>functions
- * <li>help: displays the syntax of the available commands</li>
- * <li><ul>topology: generates topology data
- *      <li>gateway =  name of an existing device that will get the role of gateway </li>
- *      <li>nbr of devices = nbr of slave devices to create - for the creation a rondom device type and configuration is used </li>
- *      <li>nbr of levels = the number of hops a slave device can have </li>
- *      </ul>
- * </li>
- * </ul>
- * Copyrights EnergyICT
- * Date: 12/01/2017
- * Time: 15:30
- */
 @Component(name = "com.energyict.mdc.gogo.NetworkTopologyCommands", service = NetworkTopologyCommands.class,
         property = {"osgi.command.scope=mdc.device.topology",
                 "osgi.command.function=help",
