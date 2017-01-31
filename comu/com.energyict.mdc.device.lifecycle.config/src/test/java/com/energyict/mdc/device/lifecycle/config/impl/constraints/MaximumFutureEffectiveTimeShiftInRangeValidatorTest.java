@@ -1,15 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.impl.constraints;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import com.elster.jupiter.time.TimeDuration;
-
 import javax.validation.ConstraintValidatorContext;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

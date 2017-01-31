@@ -1,12 +1,16 @@
-package com.energyict.mdc.device.lifecycle.config.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 

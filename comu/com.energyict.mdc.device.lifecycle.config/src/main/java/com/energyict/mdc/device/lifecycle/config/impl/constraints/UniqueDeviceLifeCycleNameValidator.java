@@ -1,17 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.impl.constraints;
 
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationServiceImpl;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleImpl;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 /**

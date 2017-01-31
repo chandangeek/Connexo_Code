@@ -1,9 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-
-import com.elster.jupiter.nls.TranslationKey;
 
 /**
  * Represents the translation keys for the elements of the default life cycle.

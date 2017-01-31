@@ -1,10 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.impl.constraints;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleImpl;
-
-import com.elster.jupiter.time.TimeDuration;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

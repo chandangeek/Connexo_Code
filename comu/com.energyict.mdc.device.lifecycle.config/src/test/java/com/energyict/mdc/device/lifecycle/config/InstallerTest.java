@@ -1,9 +1,12 @@
-package com.energyict.mdc.device.lifecycle.config;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.lifecycle.config.impl.InMemoryPersistence;
+package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.energyict.mdc.device.lifecycle.config.impl.InMemoryPersistence;
 
 import java.sql.SQLException;
 import java.util.EnumSet;
@@ -11,16 +14,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * 'Out of the box' device life cycle test
- * Copyrights EnergyICT
- * Date: 1/07/2015
- * Time: 10:25
- */
 public class InstallerTest {
 
     private static InMemoryPersistence inMemoryPersistence;

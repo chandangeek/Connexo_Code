@@ -1,9 +1,12 @@
-package com.energyict.mdc.device.lifecycle.config.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import static com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService.EVENT_NAMESPACE;
 

@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.StateTransition;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Extends the building services of {@link DeviceLifeCycleBuilder}

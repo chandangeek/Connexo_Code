@@ -1,13 +1,8 @@
-package com.energyict.mdc.device.lifecycle.config.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
-import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
+package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -17,14 +12,26 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
+import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
+
 import com.google.common.base.Strings;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

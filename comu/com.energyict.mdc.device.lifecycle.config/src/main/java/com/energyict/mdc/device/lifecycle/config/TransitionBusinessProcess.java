@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.fsm.State;
 
 /**
  * Wraps an existing external business process that was designed
