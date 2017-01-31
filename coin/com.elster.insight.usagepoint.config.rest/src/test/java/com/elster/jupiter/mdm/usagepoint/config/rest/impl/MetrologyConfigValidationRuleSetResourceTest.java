@@ -57,7 +57,7 @@ public class MetrologyConfigValidationRuleSetResourceTest extends UsagePointConf
         when(usagePointConfigurationService.getMetrologyContractsLinkedToValidationRuleSet(validationRuleSet))
                 .thenReturn(Collections.singletonList(metrologyContract));
 
-        Response response = target("/validationruleset/" + validationRuleSetId + "/purposes").request().get();
+        Response response = target("/validationrulesets/" + validationRuleSetId + "/purposes").request().get();
 
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -79,7 +79,7 @@ public class MetrologyConfigValidationRuleSetResourceTest extends UsagePointConf
         doReturn(Optional.of(metrologyContract)).when(metrologyConfigurationService)
                 .findMetrologyContract(metrologyContractId);
 
-        Response response = target("/validationruleset/" + validationRuleSetId + "/purposes/" + metrologyContractId).request()
+        Response response = target("/validationrulesets/" + validationRuleSetId + "/purposes/" + metrologyContractId).request()
                 .delete();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -97,7 +97,7 @@ public class MetrologyConfigValidationRuleSetResourceTest extends UsagePointConf
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
         when(usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, validationRuleSet, Collections.singletonList(validationRuleSet))).thenReturn(true);
 
-        Response response = target("/validationruleset/" + validationRuleSetId + "/purposes/overview").request().get();
+        Response response = target("/validationrulesets/" + validationRuleSetId + "/purposes/overview").request().get();
 
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -122,7 +122,7 @@ public class MetrologyConfigValidationRuleSetResourceTest extends UsagePointConf
         doNothing().when(usagePointConfigurationService).addValidationRuleSet(metrologyContract, validationRuleSet);
         long metrologyContractIds[] = {1};
 
-        Response response = target("/validationruleset/" + validationRuleSetId + "/purposes/add").request().put(Entity.entity(metrologyContractIds, MediaType.APPLICATION_JSON_TYPE));
+        Response response = target("/validationrulesets/" + validationRuleSetId + "/purposes/add").request().put(Entity.entity(metrologyContractIds, MediaType.APPLICATION_JSON_TYPE));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(validationService).getValidationRuleSet(validationRuleSetId);
