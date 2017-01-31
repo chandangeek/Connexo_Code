@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -6,11 +10,8 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
 
-import java.util.Collections;
 import java.util.Objects;
 
 public class AuthorizedTransitionActionSimpleEditRequest implements AuthorizedActionChangeRequest {

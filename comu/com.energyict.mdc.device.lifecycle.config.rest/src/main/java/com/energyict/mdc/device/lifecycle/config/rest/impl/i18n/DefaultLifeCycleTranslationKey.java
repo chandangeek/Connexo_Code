@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.rest.impl.i18n;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/06/2015
- * Time: 15:41
- */
 public enum DefaultLifeCycleTranslationKey implements TranslationKey {
     STATE_TRANSITION_EVENT_TYPE_START_COMMISSIONING(DefaultCustomStateTransitionEventType.COMMISSIONING.getSymbol(), "Start commissioning"),
     STATE_TRANSITION_EVENT_TYPE_ACTIVATE(DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Activate"),

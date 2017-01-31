@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -7,16 +11,14 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionBusinessProcessInfoFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/07/2015
- * Time: 10:03
- */
 public class TransitionBusinessProcessResource {
 
     private final FiniteStateMachineService finiteStateMachineService;

@@ -1,5 +1,24 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.rest.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -19,21 +38,6 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckIn
 import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionBusinessProcessInfoFactory;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;

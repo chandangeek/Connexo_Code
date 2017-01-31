@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -54,7 +58,6 @@ import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +68,6 @@ import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Provides initialization services that is typically used by classes that focus

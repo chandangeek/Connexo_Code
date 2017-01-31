@@ -1,20 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
-import com.elster.jupiter.fsm.*;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.rest.DeviceLifeCycleConfigApplicationJerseyTest;
-import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
-import java.util.*;
+import com.jayway.jsonpath.JsonModel;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/07/2015
- * Time: 10:29
- */
 public class TransitionBusinessProcessResourceTest extends DeviceLifeCycleConfigApplicationJerseyTest {
 
     @Test
