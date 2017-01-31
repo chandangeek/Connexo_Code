@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Sct.view.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.servicecalltypes-preview-form',
