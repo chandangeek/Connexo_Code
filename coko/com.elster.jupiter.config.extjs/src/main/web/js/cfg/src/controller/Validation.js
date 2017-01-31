@@ -163,9 +163,6 @@ Ext.define('Cfg.controller.Validation', {
             '#addReadingTypesToRuleSetup #buttonsContainer button[name=add]': {
                 click: this.addReadingTypesToGrid
             },
-            'ruleSetSubMenu': {
-                beforerender: this.onRuleSetMenuBeforeRender
-            },
             'addVersion button[action=editVersionAction]': {
                 click: this.createEditVersion
             },
@@ -187,10 +184,6 @@ Ext.define('Cfg.controller.Validation', {
                 click: this.onAddRuleLinkClicked
             }
         });
-    },
-
-    onRuleSetMenuBeforeRender: function (menu) {
-        this.getApplication().fireEvent('validationrulesetmenurender', menu);
     },
 
     showAddReadingGrid: function () {
