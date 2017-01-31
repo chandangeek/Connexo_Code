@@ -24,8 +24,6 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
     init: function () {
         var me = this;
 
-        // Imt.rulesets.controller.ValidationRuleSetPurposes should be initialized first
-        me.getController('Imt.rulesets.controller.ValidationRuleSetPurposes');
         me.control({
             '#add-metrology-configuration-purposes #add-metrology-configuration-purposes-grid': {
                 select: me.showPreview,

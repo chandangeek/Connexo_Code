@@ -77,12 +77,50 @@ Ext.define('Imt.controller.Main', {
     init: function () {
         this.initHistorians();
         this.initMenu();
+        this.initDynamicMenusListeners();
         this.callParent();
     },
 
     initHistorians: function () {
-        this.getController('Imt.controller.History');
-        this.getController('Imt.controller.Dashboard');
+        var me = this;
+
+        me.getController('Imt.controller.History');
+        me.getController('Imt.controller.Dashboard');
+        me.getController('Cfg.controller.Validation');
+        me.getController('Est.estimationrulesets.controller.EstimationRuleSets');
+    },
+
+    initDynamicMenusListeners: function () {
+        var me = this;
+
+        me.getApplication().on('validationrulesetmenurender', me.onValidationRuleSetMenuBeforeRender, me);
+        me.getApplication().on('estimationRuleSetMenuRender', me.onEstimationRuleSetMenuBeforeRender, me);
+    },
+
+    onValidationRuleSetMenuBeforeRender: function (menu) {
+        var me = this;
+
+        menu.add(
+            {
+                text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                itemId: 'metrology-configuration-purposes-link',
+                href: me.getController('Uni.controller.history.Router')
+                    .getRoute('administration/rulesets/overview/metrologyconfigurationpurposes')
+                    .buildUrl({ruleSetId: menu.ruleSetId})
+            }
+        );
+    },
+
+    onEstimationRuleSetMenuBeforeRender: function (menu) {
+        var me = this;
+
+        menu.add(
+            {
+                text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                itemId: 'metrology-configuration-purposes-link',
+                href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes').buildUrl()
+            }
+        );
     },
 
     initMenu: function () {

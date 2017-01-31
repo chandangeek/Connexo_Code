@@ -37,20 +37,6 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
                 click: me.chooseAction
             }
         });
-
-        // Cfg.controller.Validation should be initialized first
-        me.getController('Cfg.controller.Validation');
-        me.getApplication().on('validationrulesetmenurender', function (menu) {
-            menu.add(
-                {
-                    text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
-                    itemId: 'metrology-configuration-purposes-link',
-                    href: me.getController('Uni.controller.history.Router')
-                        .getRoute('administration/rulesets/overview/metrologyconfigurationpurposes')
-                        .buildUrl({ruleSetId: menu.ruleSetId})
-                }
-            );
-        });
     },
 
     showMetrologyConfigurationPurposes: function (ruleSetId) {

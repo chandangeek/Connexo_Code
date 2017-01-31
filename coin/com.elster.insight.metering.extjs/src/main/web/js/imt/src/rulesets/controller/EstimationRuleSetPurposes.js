@@ -35,23 +35,8 @@ Ext.define('Imt.rulesets.controller.EstimationRuleSetPurposes', {
             },
             '#estimation-rule-set-purposes #metrology-configuration-purpose-action-menu': {
                 click: me.chooseAction
-            },
-            'estimation-rule-set-side-menu': {
-                beforerender: me.onEstimationRuleSetMenuBeforeRender
             }
         });
-    },
-
-    onEstimationRuleSetMenuBeforeRender: function (menu) {
-        var me = this;
-
-        menu.add(
-            {
-                text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
-                itemId: 'metrology-configuration-purposes-link',
-                href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes').buildUrl()
-            }
-        );
     },
 
     showMetrologyConfigurationPurposes: function (ruleSetId) {
