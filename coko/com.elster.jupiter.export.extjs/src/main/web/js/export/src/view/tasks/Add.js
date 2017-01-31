@@ -11,7 +11,8 @@ Ext.define('Dxp.view.tasks.Add', {
         'Uni.grid.column.ReadingType',
         'Uni.grid.column.EventType',
         'Dxp.view.tasks.DestinationsGrid',
-        'Uni.grid.column.RemoveAction'
+        'Uni.grid.column.RemoveAction',
+        'Uni.store.TaskLogLevels'
     ],
 
     edit: false,
@@ -76,7 +77,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         width: 500,
                         itemId: 'dxp-data-export-tasks-add-loglevel',
                         allowBlank: false,
-                        store: 'Dxp.store.TaskLogLevels',
+                        store: 'Uni.store.TaskLogLevels',
                         queryMode: 'local',
                         displayField: 'displayValue',
                         valueField: 'id'

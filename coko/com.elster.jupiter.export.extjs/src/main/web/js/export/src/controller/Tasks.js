@@ -50,7 +50,7 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.UpdateWindows',
         'Dxp.store.UpdateTimeframes',
         'Dxp.store.SelectedReadingTypes',
-        'Dxp.store.TaskLogLevels'
+        'Uni.store.TaskLogLevels'
     ],
 
     models: [
@@ -74,7 +74,6 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.model.DataProcessor',
         'Dxp.model.StandardDataSelector',
         'Dxp.model.Destination'
-
     ],
 
 
@@ -151,7 +150,7 @@ Ext.define('Dxp.controller.Tasks', {
     comboBoxValueForAll: -1,
 
     init: function () {
-        var logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+        var logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
         logLevelsStore.load();
 
         this.control({

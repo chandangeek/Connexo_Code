@@ -7,7 +7,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
         'Uni.form.field.Duration',
         'Uni.property.form.GroupedPropertyForm',
         'Dxp.view.tasks.DestinationsField',
-        'Dxp.store.TaskLogLevels'
+        'Uni.store.TaskLogLevels'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -16,7 +16,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
 
     initComponent: function () {
         var me = this,
-            logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+            logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
 
         me.items = [
             {
