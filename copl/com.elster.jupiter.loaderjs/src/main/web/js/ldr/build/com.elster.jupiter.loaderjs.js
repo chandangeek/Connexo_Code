@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 var Ext = Ext || {};
 Ext._startTime = new Date().getTime();
 (function () {
