@@ -58,6 +58,7 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
                     purposesStore: purposesStore,
                     router: router,
                     addLink: router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes/add').buildUrl(),
+                    adminPrivileges: Imt.privileges.MetrologyConfig.adminValidation,
                     ruleSetId: ruleSetId
                 }));
             },

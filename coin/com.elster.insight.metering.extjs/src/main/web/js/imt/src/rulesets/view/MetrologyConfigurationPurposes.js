@@ -12,6 +12,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposes', {
     purposesStore: null,
     router: null,
     ruleSetId: null,
+    adminPrivileges: null,
     addLink: null,
 
     initComponent: function () {
@@ -31,7 +32,8 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposes', {
                         itemId: 'metrology-configuration-purposes-grid',
                         store: me.purposesStore,
                         router: me.router,
-                        addLink: me.addLink
+                        addLink: me.addLink,
+                        adminPrivileges: me.adminPrivileges
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
@@ -46,7 +48,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposes', {
                                 action: 'addMetrologyConfigurationPurposes',
                                 href: me.addLink,
                                 itemId: 'empty-msg-add-metrology-configuration-purposes-button',
-                                privileges: Imt.privileges.MetrologyConfig.adminValidation
+                                privileges: me.adminPrivileges
                             }
                         ]
                     },

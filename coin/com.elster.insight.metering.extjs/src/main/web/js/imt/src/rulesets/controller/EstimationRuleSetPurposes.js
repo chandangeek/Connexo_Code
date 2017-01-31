@@ -58,6 +58,7 @@ Ext.define('Imt.rulesets.controller.EstimationRuleSetPurposes', {
                     purposesStore: purposesStore,
                     router: router,
                     addLink: router.getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes/add').buildUrl(),
+                    adminPrivileges: Imt.privileges.MetrologyConfig.adminEstimation,
                     ruleSetId: ruleSetId
                 }));
             },

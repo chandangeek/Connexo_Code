@@ -6,6 +6,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
     ],
     router: null,
     addLink: null,
+    adminPrivileges: null,
 
     initComponent: function () {
         var me = this,
@@ -41,7 +42,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
             },
             {
                 xtype: 'uni-actioncolumn-remove',
-                privileges: Imt.privileges.MetrologyConfig.adminValidation
+                privileges: me.adminPrivileges
             }
         ];
 
@@ -60,7 +61,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
                         href: me.addLink,
                         action: 'addMetrologyConfigurationPurposes',
                         itemId: 'grid-add-metrology-configuration-purposes-button',
-                        privileges: Imt.privileges.MetrologyConfig.adminValidation
+                        privileges: me.adminPrivileges
                     }
                 ]
             },
