@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
 <xs:schema xmlns="http://langdale.com.au/2005/Message#" xmlns:a="http://langdale.com.au/2005/Message#"
            xmlns:m="http://iec.ch/TC57/2011/MeterReadings#" xmlns:sawsdl="http://www.w3.org/ns/sawsdl"
            xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://iec.ch/TC57/2011/MeterReadings#"
