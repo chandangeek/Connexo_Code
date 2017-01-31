@@ -1,4 +1,4 @@
-Ext.define('Imt.rulesets.store.MetrologyConfigurationPurposesToAdd', {
+Ext.define('Imt.rulesets.store.ValidationRuleSetPurposesToAdd', {
     extend: 'Ext.data.Store',
     model: 'Imt.rulesets.model.MetrologyConfigurationPurpose',
     proxy: {

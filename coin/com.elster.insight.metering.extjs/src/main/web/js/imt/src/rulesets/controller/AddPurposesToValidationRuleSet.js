@@ -10,7 +10,7 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
     ],
 
     stores: [
-        'Imt.rulesets.store.MetrologyConfigurationPurposesToAdd'
+        'Imt.rulesets.store.ValidationRuleSetPurposesToAdd'
     ],
 
     models: [
@@ -38,7 +38,7 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
         var me = this,
             app = me.getApplication(),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            availableToAddPurposesStore = me.getStore('Imt.rulesets.store.MetrologyConfigurationPurposesToAdd');
+            availableToAddPurposesStore = me.getStore('Imt.rulesets.store.ValidationRuleSetPurposesToAdd');
 
         mainView.setLoading();
         me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {
@@ -47,6 +47,7 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
                 app.fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
                     itemId: 'add-metrology-configuration-purposes',
                     router: me.getController('Uni.controller.history.Router'),
+                    purposesStore: availableToAddPurposesStore,
                     ruleSetId: ruleSetId
                 }));
                 availableToAddPurposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);

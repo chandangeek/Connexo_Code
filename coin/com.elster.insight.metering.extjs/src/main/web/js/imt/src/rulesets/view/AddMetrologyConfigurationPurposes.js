@@ -8,6 +8,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
         'Uni.util.FormInfoMessage',
         'Imt.rulesets.view.AddMetrologyConfigurationPurposesGrid'
     ],
+    purposesStore: null,
     router: null,
     ruleSetId: null,
 
@@ -32,6 +33,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
                         grid: {
                             xtype: 'add-metrology-configuration-purposes-grid',
                             itemId: 'add-metrology-configuration-purposes-grid',
+                            store: me.purposesStore,
                             router: me.router
                         },
                         emptyComponent: {

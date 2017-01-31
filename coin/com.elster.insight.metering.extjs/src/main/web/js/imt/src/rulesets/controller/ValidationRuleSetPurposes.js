@@ -11,7 +11,7 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
     ],
 
     stores: [
-        'Imt.rulesets.store.MetrologyConfigurationPurposes'
+        'Imt.rulesets.store.ValidationRuleSetPurposes'
     ],
 
     models: [
@@ -56,7 +56,7 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
     showMetrologyConfigurationPurposes: function (ruleSetId) {
         var me = this,
             app = me.getApplication(),
-            purposesStore = me.getStore('Imt.rulesets.store.MetrologyConfigurationPurposes'),
+            purposesStore = me.getStore('Imt.rulesets.store.ValidationRuleSetPurposes'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading();

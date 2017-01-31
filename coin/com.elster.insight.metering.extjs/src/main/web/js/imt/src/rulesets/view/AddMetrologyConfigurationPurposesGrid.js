@@ -1,7 +1,6 @@
 Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposesGrid', {
     extend: 'Uni.view.grid.SelectionGridForPreviewContainer',
     alias: 'widget.add-metrology-configuration-purposes-grid',
-    store: 'Imt.rulesets.store.MetrologyConfigurationPurposesToAdd',
     isCheckedFieldName: 'isChecked',
     checkAllButtonPresent: true,
     counterTextFn: function (count) {
