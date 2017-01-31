@@ -1,13 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.favorites.impl;
 
-import java.util.Optional;
+import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.favorites.LabelCategory;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.favorites.LabelCategory;
+import java.util.Optional;
 
 public class UniqueLabelCategoryNameValidator implements ConstraintValidator<UniqueName, LabelCategory> {
 

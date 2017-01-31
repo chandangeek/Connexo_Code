@@ -1,13 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.favorites.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.energyict.mdc.favorites.FavoritesService;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
 
-import com.energyict.mdc.favorites.FavoritesService;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MessageSeedsTest {
 

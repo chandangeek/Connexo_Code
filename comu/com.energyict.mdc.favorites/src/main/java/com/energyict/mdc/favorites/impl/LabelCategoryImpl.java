@@ -1,15 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.favorites.impl;
-
-import java.io.Serializable;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
-
 import com.energyict.mdc.favorites.LabelCategory;
 import com.energyict.mdc.favorites.impl.MessageSeeds.Constants;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_LABEL_CATEGORY + "}")
 public class LabelCategoryImpl implements LabelCategory, Serializable {
