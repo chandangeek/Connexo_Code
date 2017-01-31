@@ -605,7 +605,7 @@ Ext.define('Imt.controller.History', {
                             route: 'add',
                             controller: 'Imt.rulesets.controller.AddPurposesToEstimationRuleSet',
                             action: 'showAddMetrologyConfigurationPurposes',
-                            privileges: Imt.privileges.MetrologyConfig.adminValidation
+                            privileges: Imt.privileges.MetrologyConfig.adminEstimation
                         }
                     }
                 }
