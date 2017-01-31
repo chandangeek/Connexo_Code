@@ -19,7 +19,6 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -76,7 +75,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
  *         JME	|14042009|	Removed channelmap property. The protocol now reads this data from the meter.
  *         JME	|20042009|	Fixed nullpointer exception when there is no profile data.
  */
-public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol,SerialNumberSupport {
+public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, MeterExceptionInfo, RegisterProtocol, MessageProtocol,SerialNumberSupport {
 
     private static final byte DEBUG = 0;
 
@@ -513,7 +512,6 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
      *
      * @throws java.io.IOException
      */
-    @Override
     public void resetDemand() throws IOException {
         mt83Registry.setRegister(MT83Registry.BILLING_RESET_COMMAND, "");
     }

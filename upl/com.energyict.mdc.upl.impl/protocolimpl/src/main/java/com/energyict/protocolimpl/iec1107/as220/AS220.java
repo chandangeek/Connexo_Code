@@ -22,7 +22,6 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.MessageProtocol;
@@ -84,7 +83,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
  * <p/>
  * 19-08-2009 jme > Copied ABBA1350 protocol as base for new AS220 protocol
  */
-public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol, SerialNumberSupport {
+public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, SerialNumberSupport {
 
     private static final int DEBUG = 0;
     private static final String PR_LIMIT_MAX_NR_OF_DAYS = "LimitMaxNrOfDays";
@@ -946,7 +945,6 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return "";
     }
 
-    @Override
     public void resetDemand() throws IOException {
         this.aS220Messages.doDemandReset();
     }

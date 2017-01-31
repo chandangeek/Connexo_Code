@@ -1,8 +1,5 @@
 package com.energyict.messaging;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.HtmlEnabledBusinessException;
-import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -96,13 +93,9 @@ public class FirmwareUpdateMessageBuilder extends AbstractMessageBuilder {
     }
 
     @Override
-	protected String getMessageContent() throws BusinessException {
+	protected String getMessageContent() {
         if ((url == null) && (this.getUserFile() == null)) {
-            throw new HtmlEnabledBusinessException() {
-                public String getHtmlMessage() {
-                    return "<html>URL or user file needed</html>";
-                }
-            };
+            throw new IllegalArgumentException("URL or user file needed");
         }
 
         final StringBuilder builder = new StringBuilder("<").append(MESSAGETAG).append(">");

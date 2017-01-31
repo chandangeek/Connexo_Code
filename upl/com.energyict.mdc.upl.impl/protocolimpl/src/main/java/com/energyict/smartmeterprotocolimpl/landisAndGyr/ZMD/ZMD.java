@@ -33,7 +33,6 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -66,7 +65,7 @@ import java.util.logging.Logger;
  * Date: 13/12/11
  * Time: 16:02
  */
-public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink, SerialNumberSupport {
+public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, ProtocolLink, SerialNumberSupport {
 
     protected String firmwareVersion;
 

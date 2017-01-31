@@ -6,6 +6,12 @@
 
 package com.energyict.protocolimpl.base;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -14,16 +20,7 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.DialinScheduleProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.MeterExceptionInfo;
@@ -64,7 +61,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
  *
  * @author Koen
  */
-public abstract class AbstractProtocol extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, HalfDuplexEnabler, DialinScheduleProtocol, DemandResetProtocol {
+public abstract class AbstractProtocol extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, HalfDuplexEnabler {
 
     protected static final String PROP_TIMEOUT = TIMEOUT.getName();
     protected static final String PROP_RETRIES = RETRIES.getName();
@@ -436,11 +433,6 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     @Override
     public void setPhoneNr(String phoneNr) throws IOException {
         //throw new UnsupportedException();
-    }
-
-    @Override
-    public void resetDemand() throws IOException {
-        throw new UnsupportedException();
     }
 
     @Override

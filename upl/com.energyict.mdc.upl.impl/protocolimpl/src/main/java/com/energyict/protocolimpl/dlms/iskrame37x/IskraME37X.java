@@ -64,7 +64,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
@@ -110,7 +109,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
-public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, DemandResetProtocol, SerialNumberSupport {
+public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, SerialNumberSupport {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
     private static final byte DL_COSEMPDU_DATA_OFFSET = 0x07;
@@ -1058,7 +1057,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         }
     }
 
-    @Override
     public void resetDemand() throws IOException {
         ScriptTable demandResetScriptTable = getCosemObjectFactory().getScriptTable(ObisCode.fromString("0.0.10.0.1.255"));
         demandResetScriptTable.execute(0);

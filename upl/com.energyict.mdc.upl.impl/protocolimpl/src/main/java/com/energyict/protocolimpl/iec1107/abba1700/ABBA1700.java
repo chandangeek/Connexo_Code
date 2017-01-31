@@ -19,7 +19,6 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -72,7 +71,7 @@ import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactor
 /**
  * @author Koen
  */
-public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, DemandResetProtocol, MessageProtocol, SerialNumberSupport { // KV 19012004
+public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol, MessageProtocol, SerialNumberSupport { // KV 19012004
 
     private static final int BREAK_DELAY = 500;
     private static final int BREAK_BAUDRATE = 9600;

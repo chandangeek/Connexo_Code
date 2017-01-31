@@ -2,8 +2,6 @@ package com.energyict.protocolimpl.messaging.messages;
 
 import com.energyict.mdc.io.NestedIOException;
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.cbo.BusinessException;
 import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.messaging.MessageBuilder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -40,9 +38,8 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
      * Create an XML string that matches the format of an {@link FirmwareUpdateMessage}
      *
      * @return The xml string
-     * @throws com.energyict.cbo.BusinessException
      */
-    private String getCustomMessageContent() throws BusinessException {
+    private String getCustomMessageContent() {
         try {
             final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder builder = factory.newDocumentBuilder();
@@ -63,7 +60,7 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
 
             return getXmlWithoutDocType(document);
         } catch (ParserConfigurationException e) {
-            throw new BusinessException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -73,7 +70,7 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
      * @param doc the {@link org.w3c.dom.Document} to converted
      * @return the XML String from the Document
      */
-    private String getXmlWithoutDocType(Document doc) throws BusinessException {
+    private String getXmlWithoutDocType(Document doc) {
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
             try {
@@ -84,10 +81,10 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
                 int index = codeTableXml.indexOf("?>");
                 return (index != -1) ? codeTableXml.substring(index + 2) : codeTableXml;
             } catch (TransformerException e) {
-                throw new BusinessException(e);
+                throw new IllegalArgumentException(e);
             }
         } catch (TransformerConfigurationException e) {
-            throw new BusinessException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 

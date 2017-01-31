@@ -29,7 +29,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.DemandResetProtocol;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -78,7 +77,7 @@ import java.util.logging.Level;
  * KV|10102006|fix to support 64 bit values in load profile
  * @endchanges
  */
-public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProtocol, MessageProtocol, SerialNumberSupport {
+public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol, SerialNumberSupport {
 
     private static final byte DEBUG = 0;
     // Interval List
@@ -408,7 +407,6 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-    @Override
     public void resetDemand() throws IOException {
         GenericInvoke gi = new GenericInvoke(this, new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString("0.0.240.1.0.255").getLN(), (short) 10100, (short) 0)).getBaseName()), 6);
         gi.invoke(new Integer8(0).getBEREncodedByteArray());

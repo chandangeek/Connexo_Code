@@ -6,23 +6,20 @@
 
 package com.energyict.protocolimpl.base;
 
+import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
 import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.DemandResetProtocol;
-import com.energyict.protocol.DialinScheduleProtocol;
 import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MultipleLoadProfileSupport;
 import com.energyict.protocol.ProtocolInstantiator;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.SerialNumber;
-import com.energyict.protocol.SmartMeterProtocol;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,8 +39,6 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
     RegisterProtocol registerProtocol = null;
     SerialNumber serialNumber = null;
     CacheMechanism cacheMechanism = null;
-    DialinScheduleProtocol dialinScheduleProtocol = null;
-    DemandResetProtocol demandResetProtocol = null;
     MultipleLoadProfileSupport multipleLoadProfileSupport = null;
 
     public ProtocolInstantiatorImpl() {
@@ -87,16 +82,6 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
             registerProtocol = (RegisterProtocol) protocolInstance;
         } catch (ClassCastException e) {
             registerProtocol = null;
-        }
-        try {
-            dialinScheduleProtocol = (DialinScheduleProtocol) protocolInstance;
-        } catch (ClassCastException e) {
-            dialinScheduleProtocol = null;
-        }
-        try {
-            demandResetProtocol = (DemandResetProtocol) protocolInstance;
-        } catch (ClassCastException e) {
-            demandResetProtocol = null;
         }
         try {
             serialNumber = (SerialNumber) protocolInstance;
@@ -152,24 +137,8 @@ public class ProtocolInstantiatorImpl implements ProtocolInstantiator {
         return this.bulkRegisterProtocol;
     }
 
-    public DialinScheduleProtocol getDialinScheduleProtocol() {
-        return dialinScheduleProtocol;
-    }
-
-    public DemandResetProtocol getDemandResetProtocol() {
-        return demandResetProtocol;
-    }
-
     public MultipleLoadProfileSupport getMultipleLoadProfileSupport() {
         return this.multipleLoadProfileSupport;
-    }
-
-    public boolean isDialinScheduleProtocolEnabled() {
-        return (getDialinScheduleProtocol() != null);
-    }
-
-    public boolean isDemandResetProtocolEnabled() {
-        return (getDemandResetProtocol() != null);
     }
 
     public boolean isRegisterProtocolEnabled() {
