@@ -1,13 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import java.util.Arrays;
@@ -15,6 +17,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
