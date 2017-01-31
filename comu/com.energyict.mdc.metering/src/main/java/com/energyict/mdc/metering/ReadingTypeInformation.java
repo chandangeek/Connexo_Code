@@ -1,17 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering;
 
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 
-/**
- * Groups an {@link ObisCode}, {@link Unit} and {@link TimeDuration}
- * derived from a {@link com.elster.jupiter.metering.ReadingType}
- *
- * Copyrights EnergyICT
- * Date: 17/01/14
- * Time: 16:08
- */
 public class ReadingTypeInformation {
 
     private final ObisCode obisCode;

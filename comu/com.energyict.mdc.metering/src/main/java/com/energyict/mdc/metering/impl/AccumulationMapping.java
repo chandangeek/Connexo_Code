@@ -1,21 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
 import com.energyict.mdc.metering.impl.matchers.Matcher;
 import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 
-/**
- * The <i>accumulation behavior</i> indicates how the value is represented to accumulate over time.
- * <p/>
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 15:02
- */
 enum AccumulationMapping {
 
     SUMMATION(Accumulation.SUMMATION,

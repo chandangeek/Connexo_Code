@@ -1,19 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.energyict.mdc.common.ObisCode;
+
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Tests the {@link AggregateMapping} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 19/12/13
- * Time: 16:13
- */
 public class AggregateMappingTest {
 
     private final MacroPeriod macroPeriod = MacroPeriod.DAILY;

@@ -1,17 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 
-/**
- * Defines a mapping between an ObisCode + TimeDuration and a CIM MeasuringPeriod(TimeAttribute).
- * This CIM attribute describes a <i>time attribute</i> which is inherent or fundamental to the reading value.
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 15:01
- */
 enum MeasuringPeriodMapping {
 
     ONE_MINUTE(TimeAttribute.MINUTE1, 1),

@@ -1,19 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
+
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Tests the {@link AccumulationMapping} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 19/12/13
- * Time: 14:36
- */
 public class AccumulationMappingTest {
 
     private final TimeDuration timeDuration = TimeDuration.hours(1);

@@ -1,23 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
 import com.energyict.mdc.metering.impl.matchers.Matcher;
 import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 
-/**
- * The <i>MacroPeriod</i> or <i>Time-period of interest</i> is defined by CIM  as follow:
- * <p>
- * The time-period of interest attribute captures an aspect of the data that reflects how it is viewed or captured over a period of time.
- * </p>
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 14:57
- */
 enum MacroPeriodMapping {
 
     BILLINGPERIOD(MacroPeriod.BILLINGPERIOD, Matcher.DONT_CARE, ItemMatcher.itemsDontMatchFor(255), ItemMatcher.itemsDontMatchFor(

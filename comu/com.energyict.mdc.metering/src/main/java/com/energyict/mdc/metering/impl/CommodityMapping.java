@@ -1,15 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Commodity;
 import com.energyict.mdc.common.ObisCode;
 
-/**
- * Defines a mapping between the DLMS ObisCode and a CIM Commodity
- *
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 12:22
- */
 enum CommodityMapping {
 
     ELECTRICITY(1, Commodity.ELECTRICITY_SECONDARY_METERED),

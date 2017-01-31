@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl.matchers;
 
 import com.energyict.mdc.common.BaseUnit;
@@ -6,13 +10,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Matches the unit based on 'flow' or 'volume'
- * <p/>
- * Copyrights EnergyICT
- * Date: 18/12/13
- * Time: 18:18
- */
 public class UnitMatcher implements Matcher<Integer> {
 
     private final Matcher<Integer> realMatcher;

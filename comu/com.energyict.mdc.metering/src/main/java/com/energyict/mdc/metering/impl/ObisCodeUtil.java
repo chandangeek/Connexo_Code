@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.energyict.mdc.common.ObisCode;
@@ -6,13 +10,6 @@ import com.energyict.mdc.metering.impl.matchers.Matcher;
 import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 
-/**
- * Provides helper methods for ObisCode checks
- * <p/>
- * Copyrights EnergyICT
- * Date: 03/12/13
- * Time: 11:54
- */
 class ObisCodeUtil {
 
     private static final int A_FIELD_ELECTRICITY = 1;

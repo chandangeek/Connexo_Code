@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.MeasurementKind;
@@ -10,15 +14,6 @@ import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 import com.energyict.mdc.metering.impl.matchers.UnitMatcher;
 
-/**
- * Defines a mapping between an DLMS COSEM ObisCode and a CIM MeasurementKind
- * <p/>
- * TODO - This is currently a work-in-progress, please complete implementation
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 15:04
- */
 enum MeasurementKindMapping {
 
     CURRENT(MeasurementKind.CURRENT,

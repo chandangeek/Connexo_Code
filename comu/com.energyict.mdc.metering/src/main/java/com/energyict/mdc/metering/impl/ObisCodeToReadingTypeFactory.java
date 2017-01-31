@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -11,26 +15,14 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Unit;
-import java.util.Optional;
 
 import java.util.Currency;
+import java.util.Optional;
 
-/**
- * Provides functionality to create a ReadingTypeCode based on a
- * <ul>
- *     <li>ObisCode</li>
- *     <li>Unit</li>
- *     <li>Interval (TimeDuration)</li>
- * </ul>
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 10:17
- */
 public final class ObisCodeToReadingTypeFactory {
 
     public static final int FIXED_CONSUMPTION_TIER_VALUE = 0;

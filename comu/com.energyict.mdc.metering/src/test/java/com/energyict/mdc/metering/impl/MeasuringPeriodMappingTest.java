@@ -1,19 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
+
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Tests the {@link MeasuringPeriodMapping} component
- *
- * Copyrights EnergyICT
- * Date: 19/12/13
- * Time: 15:34
- */
 public class MeasuringPeriodMappingTest {
 
     private final ObisCode obisCode = ObisCode.fromString("1.0.1.8.0.255");

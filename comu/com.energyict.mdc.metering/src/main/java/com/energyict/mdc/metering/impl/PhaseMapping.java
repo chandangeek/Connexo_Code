@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Phase;
@@ -8,14 +12,6 @@ import com.energyict.mdc.metering.impl.matchers.Matcher;
 import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 
-/**
- * Defines mappings for the metering Phase.
- * Mapping is made by validating the C-D-E field of the ObisCode and matching it to a specific {@link Phase}
- *
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 15:17
- */
 enum PhaseMapping {
 
     VOLTAGE_ALL_PHASES(Phase.PHASEABCN, ItemMatcher.itemMatcherFor(12, 89), Matcher.DONT_CARE, Matcher.DONT_CARE),

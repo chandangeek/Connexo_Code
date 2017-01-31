@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -11,14 +15,6 @@ import com.energyict.mdc.metering.impl.matchers.Matcher;
 import com.energyict.mdc.metering.impl.matchers.Range;
 import com.energyict.mdc.metering.impl.matchers.RangeMatcher;
 
-/**
- * The <i>ReadingTypeUnit</i> is defined as the Unit of Measure.
- * We will combine the mapping with MetricMultiplier so we can do proper conversions.
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 15:28
- */
 enum ReadingTypeUnitMapping {
 
     HOUR(BaseUnit.HOUR, ReadingTypeUnit.HOUR, Matcher.DONT_CARE),

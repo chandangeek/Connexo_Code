@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl.matchers;
 
 import org.junit.Test;
@@ -7,13 +11,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link MultipleItemsMatcher} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 19/12/13
- * Time: 13:14
- */
 public class MultipleItemsMatcherTest {
 
     private static final int MATCH_FIELD = 13;

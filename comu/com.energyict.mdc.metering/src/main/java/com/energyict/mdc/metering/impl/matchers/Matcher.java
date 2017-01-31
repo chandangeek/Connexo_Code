@@ -1,16 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl.matchers;
 
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Matcher can be used to match ObisCode fields.
- * The implementor should call {@link #match(T)} to validate if the given field matches this matcher.
- * <p/>
- * Copyrights EnergyICT
- * Date: 18/12/13
- * Time: 13:11
- */
 public interface Matcher<T> {
 
     /**

@@ -1,18 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl.matchers;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Serves as an <i>Integer</i> matcher.
- * Provide the matcher with a set of integers which will either <i>match</i> or <i>not match</i>.
- * <p/>
- *
- * Copyrights EnergyICT
- * Date: 18/12/13
- * Time: 13:20
- */
 public class ItemMatcher implements Matcher<Integer> {
 
     public static ItemMatcher ELECTRICITY_MATCH = new ItemMatcher(1);

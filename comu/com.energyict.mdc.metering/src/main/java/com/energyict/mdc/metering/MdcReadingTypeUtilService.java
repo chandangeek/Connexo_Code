@@ -1,21 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
-/**
- * Provides converters from ReadingType to ObisCode/Unit/Interval and visa versa
- * <p/>
- * Copyrights EnergyICT
- * Date: 17/02/14
- * Time: 14:30
- */
 @ProviderType
 public interface MdcReadingTypeUtilService {
 

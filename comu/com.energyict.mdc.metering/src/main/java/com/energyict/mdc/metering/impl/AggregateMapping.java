@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
@@ -6,17 +10,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
 import com.energyict.mdc.metering.impl.matchers.Matcher;
 
-/**
- * The <i>Aggregate</i> or <i>Data qualifier</i> is defined by CIM as follow:
- * <p>
- * The data type can be used to describe a salient attribute of the data.
- * This attribute may be used to define a mathematical operation carried out over the period of interest defined by {@link com.elster.jupiter.cbo.MacroPeriod}.
- * </p>
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 14:59
- */
 enum AggregateMapping {
 
     AVERAGE(Aggregate.AVERAGE,

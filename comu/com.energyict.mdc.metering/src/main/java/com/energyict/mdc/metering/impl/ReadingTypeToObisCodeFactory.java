@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.metering.ReadingTypeInformation;
 import com.energyict.mdc.metering.impl.matchers.ItemMatcher;
@@ -14,18 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Provides functionality to convert a ReadingType code to a single
- * <ul>
- * <li>ObisCode</li>
- * <li>Unit</li>
- * <li>Interval (TimeDuration)</li>
- * </ul>
- * <p/>
- * Copyrights EnergyICT
- * Date: 17/01/14
- * Time: 10:49
- */
 public final class ReadingTypeToObisCodeFactory {
 
     private static final int NUMBER_OF_READING_TYPE_ARGUMENTS = 18;

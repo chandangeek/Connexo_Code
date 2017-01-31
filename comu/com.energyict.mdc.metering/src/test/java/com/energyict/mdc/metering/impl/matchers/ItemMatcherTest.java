@@ -1,17 +1,16 @@
-package com.energyict.mdc.metering.impl.matchers;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import org.junit.Test;
+package com.energyict.mdc.metering.impl.matchers;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Test;
+
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/12/13
- * Time: 16:14
- */
 public class ItemMatcherTest {
 
     @Test

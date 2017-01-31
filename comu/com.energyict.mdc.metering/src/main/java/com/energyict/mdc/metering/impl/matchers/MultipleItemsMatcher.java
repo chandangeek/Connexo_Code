@@ -1,21 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl.matchers;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Special case of a compositeMatcher. All matchers should match with the respective given fields.
- * <p/>
- * <b>The <i>ORDER</i> in which the fields are given in {@link #match(Integer...)} should be the same as the order
- * of the matchers that were added through {@link #createMatcherFor(Matcher[])}.
- * Eg. field[0] will be matched with matchers[0], field[1] will be matched with matchers[1], etc...</b>
- * <p/>
- *
- * Copyrights EnergyICT
- * Date: 19/12/13
- * Time: 11:41
- */
 public class MultipleItemsMatcher implements Matcher<Integer[]>{
 
     private List<Matcher<Integer>> matchers = new ArrayList<>();

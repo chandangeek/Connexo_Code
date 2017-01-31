@@ -1,19 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
 import com.elster.jupiter.cbo.FlowDirection;
 import com.energyict.mdc.common.ObisCode;
-import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Test;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 02/12/13
- * Time: 15:26
- */
 public class FlowDirectionMappingTest {
 
     @Test

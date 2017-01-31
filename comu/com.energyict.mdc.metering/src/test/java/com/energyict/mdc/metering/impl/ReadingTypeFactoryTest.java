@@ -1,19 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.metering.impl;
 
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-/**
- * Tests the {@link ObisCodeToReadingTypeFactory} component
- *
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 16:18
- */
 public class ReadingTypeFactoryTest {
 
     private  static final TimeDuration days = TimeDuration.days(1);
