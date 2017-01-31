@@ -48,7 +48,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
                                     title: Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item', 'IMT', 'No metrology configuration purposes found'),
                                     reasons: [
                                         Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item1', 'IMT', 'No metrology configurations have been added yet.'),
-                                        Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item2', 'IMT', 'There are no metrology configuration purposes that have reading types that match the rules in the validation rule set.'),
+                                        Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item2', 'IMT', 'There are no metrology configuration purposes that have reading types that match the rules in the rule set.'),
                                         Uni.I18n.translate('ruleSet.metrologyConfigurationPurposes.empty.list.item3', 'IMT', 'Matching metrology configuration purposes exist but you do not have permission to view them.')
                                     ]
                                 },
