@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.mdc.common.ObisCode;
@@ -45,11 +49,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 14-jul-2011
- * Time: 11:20:34
- */
 public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport {
 
     public static final int ObisCodeBFieldIndex = 1;

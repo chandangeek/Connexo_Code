@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * UnitOfMeasureEntryTable.java
  *
  * Created on 28 november 2005, 14:52

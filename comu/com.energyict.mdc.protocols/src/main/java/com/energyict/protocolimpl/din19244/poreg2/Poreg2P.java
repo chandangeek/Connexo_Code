@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2;
 
 import com.energyict.mdc.common.ObisCode;
@@ -21,11 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 19-apr-2011
- * Time: 14:37:53
- */
 public class Poreg2P extends Poreg {
 
     @Override

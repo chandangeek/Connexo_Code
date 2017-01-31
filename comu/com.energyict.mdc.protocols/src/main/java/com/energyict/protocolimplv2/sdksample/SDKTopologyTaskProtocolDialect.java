@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -11,11 +15,6 @@ import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/05/13
- * Time: 9:59
- */
 public class SDKTopologyTaskProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public static final String slaveOneSerialNumberPropertyName = "SlaveOneSerialNumber";

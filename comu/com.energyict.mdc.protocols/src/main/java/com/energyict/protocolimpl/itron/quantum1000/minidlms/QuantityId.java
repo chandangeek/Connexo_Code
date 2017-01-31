@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * QuantityId.java
  *
  * Created on 13 december 2006, 16:31

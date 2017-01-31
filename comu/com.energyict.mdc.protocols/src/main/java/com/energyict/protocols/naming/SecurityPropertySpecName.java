@@ -1,15 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.naming;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-/**
- * Summarizes all the used SecurityProperty names for our protocol packages.
- * This allows proper visible reuse of security property names.
- *
- * Copyrights EnergyICT
- * Date: 10/01/13
- * Time: 16:43
- */
 public enum SecurityPropertySpecName implements TranslationKey {
 
     PASSWORD("Password", "Password"),

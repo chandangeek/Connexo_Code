@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * FirmwareVersion.java
  *
  * Created on 15 november 2005, 8:51

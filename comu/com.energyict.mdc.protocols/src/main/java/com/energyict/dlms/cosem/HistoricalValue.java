@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * HistoricalValue.java
  *
  * Created on 19 augustus 2004, 15:54
@@ -6,8 +10,9 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.ScalerUnit;
 import com.energyict.mdc.common.Quantity;
+
+import com.energyict.dlms.ScalerUnit;
 
 import java.io.IOException;
 import java.util.Date;

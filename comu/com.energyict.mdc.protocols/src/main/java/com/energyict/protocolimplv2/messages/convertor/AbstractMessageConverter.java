@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -17,11 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 15:05
- */
 public abstract class AbstractMessageConverter implements LegacyMessageConverter {
 
     protected static final String EMPTY_FORMAT = "";

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ScaleFactorTable.java
  *
  * Created on 14 november 2005, 11:44

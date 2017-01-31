@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.siemenss4s.security;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectUtils;
 

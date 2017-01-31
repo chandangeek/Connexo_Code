@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Class14LoadProfileConfiguration.java
  *
  * Created on 13 juli 2005, 16:58

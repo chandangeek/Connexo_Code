@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * OperatingSetUpBasePage.java
  *
  * Created on 12 september 2006, 16:47

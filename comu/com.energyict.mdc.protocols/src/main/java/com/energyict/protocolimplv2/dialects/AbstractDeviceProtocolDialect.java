@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dialects;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -7,11 +11,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- * Date: 13/05/13
- * Time: 8:50
- */
 public abstract class AbstractDeviceProtocolDialect implements DeviceProtocolDialect {
 
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);

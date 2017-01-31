@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Unigas300.java
  *
  * Created on 8 mei 2003, 17:56
@@ -34,11 +38,6 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 6-dec-2010
- * Time: 9:28:03
- */
 public class Unigas300 extends AbstractUnigas300 {
 
     @Override

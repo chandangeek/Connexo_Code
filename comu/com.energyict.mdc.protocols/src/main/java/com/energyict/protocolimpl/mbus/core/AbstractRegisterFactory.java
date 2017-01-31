@@ -1,5 +1,9 @@
 
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AbstractRegisterFactory.java
  *
  * Created on 8 oktober 2007, 13:18
@@ -14,8 +18,8 @@ package com.energyict.protocolimpl.mbus.core;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

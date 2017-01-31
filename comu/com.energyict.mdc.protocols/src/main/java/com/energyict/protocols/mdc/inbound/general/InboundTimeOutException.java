@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general;
 
 import java.io.IOException;
 
-/**
- * Serves as a indication that a TimeOut occurred during inbound Communication
- * 
- * Copyrights EnergyICT
- * Date: 14/05/13
- * Time: 10:26
- */
 public class InboundTimeOutException extends IOException {
 
     public InboundTimeOutException() {

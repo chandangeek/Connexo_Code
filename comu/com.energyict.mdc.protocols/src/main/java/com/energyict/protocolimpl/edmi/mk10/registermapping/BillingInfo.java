@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * BillingInfo.java
  *
  * Created on 27 maart 2006, 10:33

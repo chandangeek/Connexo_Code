@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ApplicationFunction.java
  *
  * Created on 27 March 2006, 08:38

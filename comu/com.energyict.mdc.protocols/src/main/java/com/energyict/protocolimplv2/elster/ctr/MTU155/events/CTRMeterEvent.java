@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.events;
 
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.utils.MeterEventUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
@@ -31,11 +36,6 @@ import java.util.TimeZone;
 import static com.energyict.protocolimpl.utils.ProtocolTools.getHexStringFromBytes;
 import static com.energyict.protocolimpl.utils.ProtocolTools.getIntFromByte;
 
-/**
- * Copyrights EnergyICT
- * Date: 20-okt-2010
- * Time: 11:19:11
- */
 public class CTRMeterEvent {
 
     protected final RequestFactory requestFactory;

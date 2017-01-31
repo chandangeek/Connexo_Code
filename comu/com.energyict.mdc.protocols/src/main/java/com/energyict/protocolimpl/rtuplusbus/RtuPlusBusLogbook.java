@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RtuPlusBusLogbook.java
  *
  * Created on 24 februari 2003, 21:48

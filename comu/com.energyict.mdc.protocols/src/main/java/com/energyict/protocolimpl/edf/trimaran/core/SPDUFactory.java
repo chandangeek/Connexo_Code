@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SPDUFactory.java
  *
  * Created on 19 juni 2006, 16:55

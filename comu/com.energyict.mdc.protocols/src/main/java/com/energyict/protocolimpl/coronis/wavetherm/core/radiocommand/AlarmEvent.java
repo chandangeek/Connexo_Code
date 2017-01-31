@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand;
 
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-mrt-2011
- * Time: 15:47:34
- */
 public class AlarmEvent {
 
     private int sensorNumber;

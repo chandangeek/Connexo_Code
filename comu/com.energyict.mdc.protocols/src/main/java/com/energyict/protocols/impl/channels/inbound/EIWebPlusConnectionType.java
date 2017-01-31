@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.inbound;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -19,13 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Specific ConnectionType used for the EIWeb plus Protocol.
- *
- * Copyrights EnergyICT
- * Date: 13/12/12
- * Time: 15:46
- */
 @XmlRootElement
 public class EIWebPlusConnectionType implements ServerConnectionType {
 

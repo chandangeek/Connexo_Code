@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -8,22 +12,14 @@ import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
 
-/**
- * Creates a MessageEntry based on the "TimeOfUse" xml tag with 2 attributes and 2 values
- * This is the message that can be parsed by protocols that implement the TimeOfUseMessaging interface and use the TimeOfUseMessageBuilder
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 14:59
- */
 public class TimeOfUseMessageEntry implements MessageEntryCreator {
 
     public static final String SEPARATOR = "|";

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ElsterAlphaPlus.java
  *
  * Created on 1 december 2005, 15:11

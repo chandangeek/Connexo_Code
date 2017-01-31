@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -11,11 +15,6 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 14:33
- */
 public class SetMBusEncryptionKeysMessageEntry implements MessageEntryCreator {
 
     private final String openKeyAttributeName;

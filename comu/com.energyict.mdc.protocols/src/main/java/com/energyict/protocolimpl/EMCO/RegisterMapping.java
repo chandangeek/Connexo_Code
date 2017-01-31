@@ -1,17 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.EMCO;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 
-/**
- * RegisterMapping
- * Maps an individual register to an obiscode
- *
- * Copyrights EnergyICT
- * User: sva
- * Date: 21/02/12
- * Time: 9:22
- */
 public class RegisterMapping {
 
     private final ObisCode obisCode;

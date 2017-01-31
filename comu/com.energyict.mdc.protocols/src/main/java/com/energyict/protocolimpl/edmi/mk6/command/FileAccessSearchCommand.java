@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * FileAccessSearchCommand.java
  *
  * Created on 30 maart 2006, 15:33

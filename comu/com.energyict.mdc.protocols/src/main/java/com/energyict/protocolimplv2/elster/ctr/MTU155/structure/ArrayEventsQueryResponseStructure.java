@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -13,11 +17,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Index_Q;
 
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:26:00
- */
 public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResponseStructure> {
 
     public static final int NUMBER_OF_EVENT_RECORDS = 6;

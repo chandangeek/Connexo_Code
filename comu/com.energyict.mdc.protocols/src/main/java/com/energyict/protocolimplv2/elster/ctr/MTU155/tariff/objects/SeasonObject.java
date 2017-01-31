@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
 import com.elster.jupiter.calendar.Period;
@@ -9,11 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/04/11
- * Time: 13:44
- */
 public class SeasonObject implements Serializable {
 
     private String name;

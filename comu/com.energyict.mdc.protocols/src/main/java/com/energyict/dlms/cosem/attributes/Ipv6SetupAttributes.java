@@ -1,16 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributes;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 
-/**
- * Straightforward summation of the IPv6Setup attributes
- *
- * Copyrights EnergyICT
- * Date: 1/6/15
- * Time: 8:30 AM
- */
 public enum Ipv6SetupAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1),

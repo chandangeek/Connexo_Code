@@ -1,15 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.util;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * Use this class as a wrapper for the input stream you'd like to check for modem errors
- * <p/>
- * Copyrights EnergyICT
- * Date: 10/01/12
- * Time: 10:21
- */
 public class CheckedModemInputStream extends InputStreamDecorator {
 
     private final char[] buffer;

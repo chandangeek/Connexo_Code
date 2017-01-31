@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
@@ -10,12 +14,6 @@ import com.energyict.dlms.cosem.attributes.AutoAnswerAttributes;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 11/02/2015 - 15:47
- */
 public class AutoAnswer extends AbstractCosemObject {
 
     static final byte[] LN = new byte[]{0, 0, 2, 2, 0, (byte) 255};

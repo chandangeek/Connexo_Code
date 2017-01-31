@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * InputStreamDecorator.java
  *
  * Created on 6 oktober 2002, 12:32

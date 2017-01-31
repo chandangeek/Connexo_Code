@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
 import com.energyict.mdc.common.ObisCode;
@@ -14,11 +18,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/29/12
- * Time: 8:38 AM
- */
 public class FirmwareUpgrade extends PrimeMessageExecutor {
 
     private static final ObisCode IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.0.44.0.0.255");

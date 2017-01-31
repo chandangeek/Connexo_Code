@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
 import com.energyict.dlms.DLMSAttribute;
@@ -7,10 +11,6 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * @author  sva
- */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
     public static final DLMSAttribute SERIAL_NUMBER = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");

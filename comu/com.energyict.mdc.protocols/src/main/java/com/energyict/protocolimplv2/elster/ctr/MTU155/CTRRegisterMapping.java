@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
-/**
- * Maps a CTR register to an obiscode
- * Copyrights EnergyICT
- * Date: 14-okt-2010
- * Time: 11:44:31
- */
 public class CTRRegisterMapping {
 
     private final ObisCode obisCode;

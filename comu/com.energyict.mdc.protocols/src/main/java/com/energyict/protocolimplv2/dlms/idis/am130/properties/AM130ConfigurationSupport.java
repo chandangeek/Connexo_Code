@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
 
@@ -29,12 +33,6 @@ import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.TIME
 import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.USE_GBT;
 import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 19/12/2014 - 15:53
- */
 public class AM130ConfigurationSupport implements ConfigurationSupport {
 
     public static final String LIMIT_MAX_NR_OF_DAYS_PROPERTY = "LimitMaxNrOfDays";

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CosemObjectFactory.java
  *
  * Created on 18 augustus 2004, 9:26

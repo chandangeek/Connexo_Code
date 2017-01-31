@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -8,14 +12,6 @@ import com.energyict.protocolimpl.din19244.poreg2.core.RegisterGroupID;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Class to read out the level 0 results.
- * These represent the active energy for the connected meters.
- *
- * Copyrights EnergyICT
- * Date: 5-mei-2011
- * Time: 10:52:24
- */
 public class Level0Results extends AbstractRegister {
 
     public Level0Results(Poreg poreg, int registerAddress, int fieldAddress, int numberOfRegisters, int numberOfFields) {

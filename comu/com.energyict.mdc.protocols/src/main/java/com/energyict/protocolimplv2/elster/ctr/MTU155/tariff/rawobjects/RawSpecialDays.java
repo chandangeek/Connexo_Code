@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
@@ -10,11 +14,6 @@ import java.util.List;
 
 import static com.energyict.protocolimpl.utils.ProtocolTools.getHexStringFromBytes;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/04/11
- * Time: 16:41
- */
 public class RawSpecialDays extends AbstractField<RawSpecialDays> {
 
     private static final int SPECIAL_DAYS_COUNT = 15;

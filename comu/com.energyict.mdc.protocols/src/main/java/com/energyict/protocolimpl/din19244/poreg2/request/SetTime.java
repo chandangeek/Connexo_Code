@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -8,13 +12,6 @@ import com.energyict.protocolimpl.din19244.poreg2.core.Response;
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Class to set the device clock
- *
- * Copyrights EnergyICT
- * Date: 9-mei-2011
- * Time: 16:00:34
- */
 public class SetTime extends AbstractRequest {
 
     public SetTime(Poreg poreg) {

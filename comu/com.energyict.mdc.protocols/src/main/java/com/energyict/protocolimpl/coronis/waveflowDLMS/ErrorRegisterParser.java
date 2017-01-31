@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -13,15 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Reads out the error registers (FF, FF1, FF2 and FF3) and generates matching events.
- * This is the same for AS253 and AS1253.
- * <p/>
- * Copyrights EnergyICT
- * Date: 14/05/13
- * Time: 15:58
- * Author: khe
- */
 public class ErrorRegisterParser {
 
     private static final ObisCode errorRegister1 = ObisCode.fromString("1.1.97.97.1.255");

@@ -1,7 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.garnet.common;
 
 
 import com.elster.jupiter.cbo.MessageSeeds;
+import com.energyict.protocols.exception.ProtocolEncryptionException;
+
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.exception.CipheringException;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
@@ -10,7 +16,6 @@ import com.energyict.protocolimplv2.elster.garnet.frame.Frame;
 import com.energyict.protocolimplv2.elster.garnet.frame.RequestFrame;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.Crc;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.FunctionCode;
-import com.energyict.protocols.exception.ProtocolEncryptionException;
 
 /**
  * @author sva

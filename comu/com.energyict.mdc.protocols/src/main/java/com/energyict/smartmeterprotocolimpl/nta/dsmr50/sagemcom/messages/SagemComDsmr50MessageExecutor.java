@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -20,12 +24,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 3/10/2014 - 9:15
- */
 public class SagemComDsmr50MessageExecutor extends Dsmr50MessageExecutor {
 
     public SagemComDsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock, TopologyService topologyService, CalendarService calendarService) {

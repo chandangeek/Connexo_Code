@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -10,11 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
-/**
- * Copyrights EnergyICT
- * Date: 5-okt-2010
- * Time: 16:53:17
- */
 public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
     private final Properties protocolProperties;

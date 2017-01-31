@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -32,14 +36,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Class that holds all DLMS device properties (general, dialect & security related)
- * Based on these properties, a DLMS session and its connection layer can be fully configured.
- *
- * Copyrights EnergyICT
- * Date: 14-jul-2011
- * Time: 11:26:48
- */
 public class DlmsProperties extends BasicDynamicPropertySupport implements DlmsSessionProperties {
 
     public static final String SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";

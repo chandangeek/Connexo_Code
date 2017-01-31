@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * InstantaneousValue.java
  *
  * Created on 30 november 2004, 11:15

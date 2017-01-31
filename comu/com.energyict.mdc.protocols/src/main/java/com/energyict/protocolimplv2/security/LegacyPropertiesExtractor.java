@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -6,11 +10,6 @@ import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @since 4/2/13 12:46 PM
- */
 public class LegacyPropertiesExtractor {
 
     public static TypedProperties getSecurityRelatedProperties(TypedProperties typedProperties, int currentDeviceAccessLevel, List<? extends DeviceAccessLevel> deviceAccessLevels) {

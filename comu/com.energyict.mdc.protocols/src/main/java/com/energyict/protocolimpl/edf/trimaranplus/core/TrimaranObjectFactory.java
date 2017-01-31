@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TrimaranObjectFactory.java
  *
  * Created on 16 februari 2007, 15:19
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edf.trimaranplus.TrimaranPlus;
 
 import java.io.IOException;

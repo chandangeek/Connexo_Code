@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
 import com.energyict.mdc.common.ObisCode;
@@ -10,11 +14,6 @@ import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Copyrights EnergyICT
- * Date: 9-feb-2011
- * Time: 14:57:57
- */
 public class SDKSmartMeterRegister {
 
     private final Register register;

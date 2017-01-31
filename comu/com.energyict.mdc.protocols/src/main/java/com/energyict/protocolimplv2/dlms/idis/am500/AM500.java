@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am500;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -73,13 +77,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-/**
- * This V2 protocol is a port from the old V1 IDIS protocol.
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 19/12/2014 - 10:42
- */
 public class AM500 extends AbstractDlmsProtocol implements DeviceBasicSupport {
 
     protected IDISLogBookFactory idisLogBookFactory = null;

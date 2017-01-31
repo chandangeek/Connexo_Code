@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Copyrights EnergyICT
- * Date: 22-jun-2011
- * Time: 11:47:46
- */
 public enum AssociationSNMethods implements DLMSClassMethods {
 
     READ_BY_LOGICAL_NAME(3, 0x30),

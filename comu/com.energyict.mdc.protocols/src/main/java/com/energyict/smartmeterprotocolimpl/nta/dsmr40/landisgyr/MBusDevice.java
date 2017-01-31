@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -20,14 +24,6 @@ import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Place holder class for the MBus device.
- * Contains the standard DSMR 2.3 MBus messages (connect control and setup)
- * Copyrights EnergyICT
- * Date: 11/03/13
- * Time: 16:04
- * Author: khe
- */
 public class MBusDevice extends AbstractNtaMbusDevice {
 
     @Override

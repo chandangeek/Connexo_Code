@@ -1,10 +1,17 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AssociationLN.java
  *
  * Created on 7 oktober 2004, 10:41
  */
 
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
@@ -17,8 +24,6 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 

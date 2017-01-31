@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.as220;
 
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 17-aug-2010
- * Time: 13:31:08
- */
 public class ProfileLimiter {
 
     private final Date fromDate;

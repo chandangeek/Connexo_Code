@@ -1,13 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.events;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.dlms.DefaultDLMSMeterEventMapper;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/03/12
- * Time: 15:03
- */
 public abstract class G3EventMapper extends DefaultDLMSMeterEventMapper {
 
     protected abstract EventDescription[] getEventDescriptions();

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -5,12 +9,6 @@ import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/10/12
- * Time: 17:35
- * Author: khe
- */
 public interface IncomingAlarmFrameParser {
 
     /**

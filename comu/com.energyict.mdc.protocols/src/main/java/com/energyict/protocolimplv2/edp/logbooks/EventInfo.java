@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp.logbooks;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/02/14
- * Time: 10:15
- * Author: khe
- */
 public class EventInfo {
 
     private final int eisEventCode;

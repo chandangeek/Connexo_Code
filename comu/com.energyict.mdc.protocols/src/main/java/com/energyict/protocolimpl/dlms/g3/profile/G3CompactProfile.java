@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.profile;
+
+import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 

@@ -1,4 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.elgama;
+
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
@@ -12,15 +26,6 @@ import com.energyict.dlms.cosem.CapturedObjectsHelper;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.ClockSettingLog;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.InternalErrorLog;
 import com.energyict.protocolimpl.dlms.elgama.eventlogging.MagneticInfluenceLog;
@@ -44,11 +49,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 23-dec-2010
- * Time: 10:32:24
- */
 public class ProfileChannel {
 
     private static final int END_OF_INTEGRATION_PERIOD = 0x800000;

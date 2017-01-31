@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributes;
 
-import com.energyict.dlms.DLMSAttribute;
 import com.energyict.mdc.common.ObisCode;
+
+import com.energyict.dlms.DLMSAttribute;
 
 /**
  * Interface to provide access to DLMS class <b>Attributes</b> functionality

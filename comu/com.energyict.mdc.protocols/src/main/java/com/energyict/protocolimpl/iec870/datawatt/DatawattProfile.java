@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DatawattProfile.java
  *
  * Created on 2 juli 2003, 13:43

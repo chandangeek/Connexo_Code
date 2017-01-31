@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IMONInformation.java
  *
  * Created on 4 juli 2005, 16:41

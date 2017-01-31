@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -23,16 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides general security <b>capabilities</b> for DeviceProtocols
- * that use a single password and a UserIdentification to do authentication/encryption.<br/>
- * Be aware that the UserIdentification is validated as a string, but can also just
- * contain a numerical value.
- * <p/>
- * Copyrights EnergyICT
- * Date: 14/01/13
- * Time: 9:28
- */
 public class PasswordWithUserIdentificationSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final int STANDARD_AUTH_DEVICE_ACCESS_LEVEL = 10;

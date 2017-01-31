@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -39,16 +43,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * The Abstract NTA Mbus device implements the {@link SmartMeterProtocol} so we can
- * define this as a pluggable class in EIS 9.1.
- * Most of the methods throw an {@link UnsupportedException}, if your subclass wants
- * to use one of these, then simple override them.
- * <p/>
- * Copyrights EnergyICT
- * Date: 15-jul-2011
- * Time: 10:31:14
- */
 public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterProtocol, MessageProtocol {
 
     private final PropertySpecService propertySpecService;

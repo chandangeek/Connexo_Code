@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 16/05/13
- * Time: 14:36
- * Author: khe
- */
 public class MeterEventInfo {
 
     private int eiServerCode;

@@ -1,21 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Custom registers mappers return a register value that describes all the attributes of an abstract COSEM object.
- * Copyrights EnergyICT
- * Date: 15/05/14
- * Time: 15:37
- * Author: khe
- */
 public abstract class CustomRegisterMapping {
 
     protected CosemObjectFactory cosemObjectFactory;

@@ -1,16 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.core;
 
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-/**
- * Class with static methods generating standard Poreg2 frames.
- *
- * Copyrights EnergyICT
- * Date: 26-apr-2011
- * Time: 11:29:43
- */
 public class Poreg2Frame {
 
     private static final int DISCONNECT_LENGTH = 9;

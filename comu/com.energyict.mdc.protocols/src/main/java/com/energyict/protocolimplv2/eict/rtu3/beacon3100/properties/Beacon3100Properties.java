@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,11 +17,6 @@ import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.DlmsProperties;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/10/16
- * Time: 14:30
- */
 public class Beacon3100Properties extends DlmsProperties {
     private Integer securitySuite = null;
 

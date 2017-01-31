@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
@@ -5,16 +9,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
 
 import java.util.Properties;
 
-/**
- * Extension on the Dsmr40SecurityProvider, with extra functionality for immediate key changing.
- * The NEWGlobalKey and NEWAuthenticationKey must contain the original and the wrapped key, comma separated.
- * Wrapped key is necessary to write to the device, original key is necessary to use (after key has been written) in the encryption and decryption of the communication
- * <p/>
- * Copyrights EnergyICT
- * Date: 22/10/12
- * Time: 14:41
- * Author: khe
- */
 public class G3SecurityProvider extends Dsmr40SecurityProvider {
 
     private G3Properties g3Properties;

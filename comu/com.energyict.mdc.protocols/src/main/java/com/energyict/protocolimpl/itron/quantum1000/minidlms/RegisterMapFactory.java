@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RegisterMapFactory.java
  *
  * Created on 9 januari 2007, 16:07
@@ -13,6 +17,7 @@ package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 import com.energyict.protocolimpl.itron.quantum1000.Quantum1000;
 

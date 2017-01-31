@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -31,14 +35,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 
-/**
- * Provides an implementation for the {@link DeviceProtocolSecurityService} interface
- * and registers as a OSGi component.
- * <p/>
- * Copyrights EnergyICT
- * Date: 08/11/13
- * Time: 16:05
- */
 @Component(name = "com.energyict.mdc.service.deviceprotocolsecurity", service = DeviceProtocolSecurityService.class)
 public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurityService {
 

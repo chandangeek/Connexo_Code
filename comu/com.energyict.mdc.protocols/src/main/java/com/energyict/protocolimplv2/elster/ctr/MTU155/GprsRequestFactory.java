@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -72,12 +76,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-/**
- * Copyrights EnergyICT
- * Date: 12-okt-2010
- * Time: 11:04:01
- */
 
 /**
  * Remark on exception handling:

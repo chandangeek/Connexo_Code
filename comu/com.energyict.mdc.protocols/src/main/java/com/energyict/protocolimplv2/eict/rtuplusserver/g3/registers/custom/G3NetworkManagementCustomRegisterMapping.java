@@ -1,22 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
 import com.energyict.dlms.cosem.attributes.G3NetworkManagementAttributes;
 import com.energyict.dlms.cosem.attributes.PLCOFDMType2MACSetupAttribute;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/05/14
- * Time: 15:38
- * Author: khe
- */
 public class G3NetworkManagementCustomRegisterMapping extends CustomRegisterMapping {
 
     private static final ObisCode obisCode = G3NetworkManagement.getDefaultObisCode();

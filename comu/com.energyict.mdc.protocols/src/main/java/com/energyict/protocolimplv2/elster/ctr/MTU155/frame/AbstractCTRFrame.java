@@ -1,17 +1,30 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.frame;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.*;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.*;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Address;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Channel;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Cpa;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Crc;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.FunctionCode;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Profi;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.StructureCode;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.AckStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayEventsQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.RegisterQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECFQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryResponseStructure;
 
-/**
- * Parent class for SMS- and GPRSFrames. Contains shared functionality
- * Copyrights EnergyICT
- * Date: 29-sep-2010
- * Time: 16:46:07
- */
 public class AbstractCTRFrame<T extends AbstractCTRFrame> extends AbstractField<T> implements Frame<T> {
 
     private Address address;

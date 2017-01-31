@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SystemStatus.java
  *
  * Created on 15 juni 2004, 10:19

@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.exception;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-okt-2010
- * Time: 16:50:52
- */
 public class CTRCipheringException extends CTRException {
 
     public CTRCipheringException(String s, Exception e) {

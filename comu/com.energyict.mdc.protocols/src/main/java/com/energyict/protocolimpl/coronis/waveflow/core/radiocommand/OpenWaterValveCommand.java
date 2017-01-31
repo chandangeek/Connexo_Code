@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 1-mrt-2011
- * Time: 16:27:00
- */
 public class OpenWaterValveCommand extends AbstractRadioCommand {
 
     protected OpenWaterValveCommand(WaveFlow waveFlow) {

@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp.logbooks;
 
+import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.LogBookReader;
@@ -7,25 +12,18 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.util.ProtocolUtils;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocolimplv2.edp.CX20009;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/02/14
- * Time: 16:39
- * Author: khe
- */
 public class LogbookReader implements DeviceLogBookSupport {
 
     private final CX20009 protocol;

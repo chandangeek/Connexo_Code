@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * PACTProfile.java
  *
  * Created on 29 maart 2004, 11:07
@@ -6,10 +10,11 @@
 
 package com.energyict.protocolimpl.pact.core.common;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
 import com.energyict.protocolimpl.pact.core.log.LogInterpreter;
 import com.energyict.protocolimpl.pact.core.survey.LoadSurveyInterpreter;
 

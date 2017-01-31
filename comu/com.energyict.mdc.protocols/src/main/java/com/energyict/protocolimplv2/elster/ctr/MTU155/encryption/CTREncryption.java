@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -24,11 +28,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
 
-/**
- * Copyrights EnergyICT
- * Date: 4-okt-2010
- * Time: 14:04:03
- */
 public class CTREncryption {
 
     private Cipher cipher = null;

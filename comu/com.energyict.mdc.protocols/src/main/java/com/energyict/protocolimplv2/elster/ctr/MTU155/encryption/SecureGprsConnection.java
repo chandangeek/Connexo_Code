@@ -1,26 +1,23 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocols.exception.ProtocolEncryptionException;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRCipheringException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.Frame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
-import com.energyict.protocols.exception.ProtocolEncryptionException;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 5-okt-2010
- * Time: 15:02:43
- */
 public class SecureGprsConnection extends GprsConnection {
 
     private Logger logger = null;

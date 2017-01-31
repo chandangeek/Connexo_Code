@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.exceptionhandler;
 
 import com.energyict.mdc.common.NestedIOException;
@@ -13,19 +17,6 @@ import com.energyict.dlms.cosem.ExceptionResponseException;
 
 import java.io.IOException;
 
-/**
- * Handler for any kind of IOException (or one of its subclasses) received from the DLMS framework and its lower connection layers.
- * This can be used for the new V2 protocols.
- * <p/>
- * In general:
- * ExceptionResponseException, ProtocolException or DataAccessResultException mean that the meter has returned something unexpected (e.g. some kind of error code).
- * Other IOExceptions are related to problems with the communication (e.g. timeout, socket closed,... )
- * <p/>
- * Copyrights EnergyICT
- * Date: 25/11/13
- * Time: 14:50
- * Author: khe
- */
 public class DLMSIOExceptionHandler {
 
     /**

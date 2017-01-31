@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
 import com.energyict.mdc.common.ApplicationException;
@@ -16,11 +20,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/05/13
- * Time: 10:18
- */
 public class XmlUtils {
 
     /**

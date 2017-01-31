@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ObisCodeFactory.java
  *
  * Created on 24 maart 2006, 11:15
@@ -13,8 +17,9 @@ package com.energyict.protocolimpl.edmi.mk10.registermapping;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 import com.energyict.protocolimpl.edmi.mk10.command.ReadCommand;
 import com.energyict.protocolimpl.edmi.mk10.core.TOUChannelTypeParser;

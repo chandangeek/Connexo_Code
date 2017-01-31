@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
 import com.energyict.mdc.common.ObisCode;
@@ -40,12 +44,6 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/04/12
- * Time: 11:58
- */
 public class ActivityCalendarController implements com.energyict.protocolimpl.base.ActivityCalendarController {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";

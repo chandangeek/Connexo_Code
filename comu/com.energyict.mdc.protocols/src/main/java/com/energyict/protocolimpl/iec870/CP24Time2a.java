@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CP24Time2a.java
  *
  * Created on 1 juli 2003, 10:30

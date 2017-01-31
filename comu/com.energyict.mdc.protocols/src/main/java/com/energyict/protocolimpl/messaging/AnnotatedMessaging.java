@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.messaging;
 
 import com.energyict.mdc.common.NestedIOException;
@@ -36,11 +40,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/6/12
- * Time: 11:57 PM
- */
 public abstract class AnnotatedMessaging implements MessageProtocol {
 
     private final Class<? extends AnnotatedMessage>[] messages;

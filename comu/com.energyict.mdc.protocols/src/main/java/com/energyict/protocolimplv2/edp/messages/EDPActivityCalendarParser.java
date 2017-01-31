@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp.messages;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -10,15 +14,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Map;
 
-/**
- * This mostly uses the existing ActivityCalendarMessage functionality but changes some details.
- * The names of the seasons and weeks are fixed to 0-based incrementing indexes (instead of their database IDs).
- * <p/>
- * Copyrights EnergyICT
- * Date: 13/02/14
- * Time: 11:51
- * Author: khe
- */
 public class EDPActivityCalendarParser extends ActivityCalendarMessage {
 
     public EDPActivityCalendarParser(Calendar calendar) {

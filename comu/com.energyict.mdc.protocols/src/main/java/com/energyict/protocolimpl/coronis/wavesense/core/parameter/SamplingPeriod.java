@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavesense.core.parameter;
 
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;

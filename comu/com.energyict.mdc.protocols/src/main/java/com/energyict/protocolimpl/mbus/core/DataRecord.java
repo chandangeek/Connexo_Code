@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DataRecord.java
  *
  * Created on 3 oktober 2007, 12:26
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

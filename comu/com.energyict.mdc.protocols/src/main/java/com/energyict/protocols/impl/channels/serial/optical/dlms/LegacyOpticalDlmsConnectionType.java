@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.serial.optical.dlms;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -20,11 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/7/13
- * Time: 1:32 PM
- */
 public class LegacyOpticalDlmsConnectionType extends ConnectionTypeImpl {
 
     private final Thesaurus thesaurus;

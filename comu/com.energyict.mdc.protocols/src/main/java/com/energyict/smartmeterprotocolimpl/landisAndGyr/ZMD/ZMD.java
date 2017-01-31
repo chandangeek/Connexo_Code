@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -57,12 +61,6 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 13/12/11
- * Time: 16:02
- */
 public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtocol, MessageProtocol, ProtocolLink {
 
     @Override

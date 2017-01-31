@@ -1,4 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime.events;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -7,8 +14,6 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocolimpl.dlms.DLMSMeterEventMapper;
 import com.energyict.protocolimpl.dlms.DefaultDLMSMeterEventMapper;
 
@@ -20,11 +25,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/07/11
- * Time: 11:33
- */
 public class PrimeBasicEventLog {
 
     private final ObisCode obisCode;

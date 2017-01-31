@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -7,13 +11,6 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Creates a MessageEntry based on the "DemandReset" xml tag with no additional parameters or values
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 14:33
- */
 public class DemandResetMessageEntry implements MessageEntryCreator {
 
     private static final String DEMAND_RESET = "DemandReset";

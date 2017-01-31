@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Contains functionality to access methods of the ActivityCalendar (independent whether or not shortName or logicalNames are used)
- * <br/>
- * Copyrights EnergyICT<br/>
- * Date: 17-dec-2010<br/>
- * Time: 10:27:39<br/>
- */
 public enum ActivityCalendarMethods implements DLMSClassMethods {
 
     ACTIVATE_PASSIVE_CALENDAR(1, 0x50);

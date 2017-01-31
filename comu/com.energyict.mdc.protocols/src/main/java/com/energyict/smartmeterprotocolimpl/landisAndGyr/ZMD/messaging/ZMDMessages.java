@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
@@ -29,12 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 19/01/12
- * Time: 13:05
- */
 public class ZMDMessages extends ProtocolMessages {
 
     public static String ENABLE_DST = "EnableDST";

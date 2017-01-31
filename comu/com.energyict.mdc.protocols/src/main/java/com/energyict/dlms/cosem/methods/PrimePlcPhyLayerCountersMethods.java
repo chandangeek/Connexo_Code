@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Copyrights EnergyICT
- * Date: 16-aug-2011
- * Time: 13:26:23
- */
 public enum PrimePlcPhyLayerCountersMethods implements DLMSClassMethods {
 
     RESET(1, 0x20);

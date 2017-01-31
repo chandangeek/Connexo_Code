@@ -1,18 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime.events;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-/**
- * Straightforward summary fo the available events.
- * (actually this list comes from the <i>Companion Standard for Communication interfaces [Iberdrola AMM T5 meters]</i>
- * <p/>
- * <br/>
- * Copyrights EnergyICT<br/>
- * Date: 3-dec-2010<br/>
- * Time: 9:07:58<br/>
- */
 public enum PrimeEvents {
 
     /**

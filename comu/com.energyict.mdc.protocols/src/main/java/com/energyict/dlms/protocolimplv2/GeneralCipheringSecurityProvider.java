@@ -1,17 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.protocolimplv2;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
-/**
- * Adds additional functionality to the standard SecurityProvider.
- * Specifically, it supports the use of session keys that are used in general ciphering.
- * <p/>
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 21/01/2016 - 16:06
- */
 public interface GeneralCipheringSecurityProvider extends SecurityProvider {
 
     /**

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.protocolimplv2;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
@@ -11,13 +15,6 @@ import com.energyict.dlms.aso.ConformanceBlock;
 
 import java.util.TimeZone;
 
-/**
- * Contains access to all properties to configure a DLMS session and its connection layers (TCP, HDLC,...)
- * <p>
- * Copyrights EnergyICT
- * Date: 8/02/12
- * Time: 15:08
- */
 public interface DlmsSessionProperties extends HasDynamicProperties, CommunicationSessionProperties {
 
     String CLIENT_PRIVATE_KEY_AGREEMENT_KEY = "ClientPrivateKeyAgreementKey";

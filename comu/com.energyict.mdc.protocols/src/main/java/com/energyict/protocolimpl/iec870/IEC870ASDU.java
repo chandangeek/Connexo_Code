@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IEC870ASDU.java
  *
  * Created on 18 juni 2003, 14:02

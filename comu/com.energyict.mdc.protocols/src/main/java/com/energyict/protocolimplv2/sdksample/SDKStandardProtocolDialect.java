@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -11,13 +15,6 @@ import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.Optional;
 
-/**
- * A standard dialect.
- *
- * Copyrights EnergyICT
- * Date: 5/02/13
- * Time: 15:02
- */
 public class SDKStandardProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public SDKStandardProtocolDialect(Thesaurus thesaurus, PropertySpecService propertySpecService) {

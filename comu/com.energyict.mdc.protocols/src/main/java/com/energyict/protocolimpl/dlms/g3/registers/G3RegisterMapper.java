@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.registers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -17,11 +21,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/03/12
- * Time: 15:25
- */
 public class G3RegisterMapper {
 
     /**

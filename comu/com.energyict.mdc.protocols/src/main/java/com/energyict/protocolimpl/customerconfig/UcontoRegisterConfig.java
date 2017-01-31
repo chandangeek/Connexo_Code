@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * UcontoRegisterConfig.java
  *
  * Created on 4 januari 2005, 17:44

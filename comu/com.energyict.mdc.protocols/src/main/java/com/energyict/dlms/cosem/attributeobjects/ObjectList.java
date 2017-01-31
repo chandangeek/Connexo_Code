@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributeobjects;
 
 import com.energyict.dlms.axrdencoding.Array;
@@ -5,11 +9,6 @@ import com.energyict.dlms.axrdencoding.Array;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/08/11
- * Time: 13:19
- */
 public class ObjectList extends Array {
 
     public ObjectList(byte[] berEncodedData, int offset) throws IOException {

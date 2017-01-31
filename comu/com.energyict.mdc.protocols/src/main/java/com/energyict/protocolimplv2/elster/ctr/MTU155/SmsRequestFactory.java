@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -48,12 +52,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 8/03/12
- * Time: 15:01
- */
 public class SmsRequestFactory implements RequestFactory {
 
     private final SecureSmsConnection connection;

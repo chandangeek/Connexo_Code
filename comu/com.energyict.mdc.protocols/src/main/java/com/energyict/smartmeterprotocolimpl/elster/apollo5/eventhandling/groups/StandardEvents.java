@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.groups;
 
 import com.energyict.dlms.DataContainer;
@@ -5,14 +9,6 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo5.eventhandling.Abstrac
 
 import java.util.TimeZone;
 
-/**
- * Contains all events not recorded in a special event log, e.g. firmware update, end of billing periods,
- * changes of the clock, changes of the configuration, clearing of profiles, all kind of self check errors, ...
- * <br/>
- * Copyrights EnergyICT<br/>
- * Date: 6-dec-2010<br/>
- * Time: 9:32:15<br/>
- */
 public class StandardEvents extends AbstractEvent {
 
     private static final int StandardEventGroup = 1;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TerminateResponse.java
  *
  * Created on 19 oktober 2005, 14:12

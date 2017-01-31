@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AbstractRegisterFactory.java
  *
  * Created on 30 maart 2007, 16:57

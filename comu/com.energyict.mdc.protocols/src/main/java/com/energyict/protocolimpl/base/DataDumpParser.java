@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DataDumpParser.java
  *
  * Created on 24 januari 2005, 14:12

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -50,23 +54,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Place holder protocol for the RTU+Server concentrator.
- * This protocol provides all messages from the old V1 protocol (com.energyict.rtuprotocol.RtuServer)
- * These messages are used to configure the RTU+Server and execute some of its functions.
- * <p/>
- * Note: this protocol does not provide an implementation to execute the messages, nor does it provide any kind of
- * functionality to read out meter data, this is all done by the EIWebPlus servlet. This servlet runs in a separate tomcat, not in the comserver.
- * <p/>
- * In order to create a valid connection task on this concentrator device, it should have a communication port pool (a place holder that is empty) and a connection type EIWebPlusConnectionType.
- * On this connection task, you can then define a connection strategy (read now vs read every X), this configures when the RTU+Server will post its the collected data.
- * Note2: in order to prevent this device from being executed by the comserver, its communication port pool should be a placeholder that is empty (has no ports).
- * <p/>
- * Copyrights EnergyICT
- * Date: 25/03/14
- * Time: 13:40
- * Author: khe
- */
 @SuppressWarnings("unused")
 public class RtuServer implements DeviceProtocol {
 

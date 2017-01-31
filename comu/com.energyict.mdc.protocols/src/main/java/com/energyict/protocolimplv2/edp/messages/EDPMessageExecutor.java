@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp.messages;
 
 import com.energyict.mdc.common.ObisCode;
@@ -44,12 +48,6 @@ import java.util.Scanner;
 import java.util.TimeZone;
 
 
-/**
- * Copyrights EnergyICT
- * Date: 25/02/14
- * Time: 15:09
- * Author: khe
- */
 public class EDPMessageExecutor extends AbstractMessageExecutor {
 
     public static final ObisCode RELAY_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");

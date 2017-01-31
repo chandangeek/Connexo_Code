@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * UNIFLO1200ProfileData.java
  *
@@ -8,6 +12,7 @@ package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofil
 
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200ProfileDataParser;

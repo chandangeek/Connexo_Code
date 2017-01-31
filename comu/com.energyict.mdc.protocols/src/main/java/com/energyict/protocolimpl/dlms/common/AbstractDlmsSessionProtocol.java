@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.common;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -41,11 +45,6 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/03/12
- * Time: 14:50
- */
 public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol implements MessageProtocol, RegisterProtocol {
 
     private DlmsSession session = null;

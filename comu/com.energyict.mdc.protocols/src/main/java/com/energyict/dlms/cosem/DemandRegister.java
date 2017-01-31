@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.Quantity;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.OctetString;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.mdc.common.Quantity;
 
 import java.io.IOException;
 import java.math.BigDecimal;

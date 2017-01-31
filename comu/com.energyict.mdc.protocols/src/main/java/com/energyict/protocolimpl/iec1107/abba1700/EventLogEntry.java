@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EventLogEntry.java
  *
  * Created on 15 juni 2004, 9:02

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Transport6205651.java
  *
  * Created on 14 februari 2007, 15:47

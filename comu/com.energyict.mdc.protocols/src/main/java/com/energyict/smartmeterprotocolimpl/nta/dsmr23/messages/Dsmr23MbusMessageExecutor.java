@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
 import com.energyict.mdc.common.ObisCode;
@@ -48,11 +52,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 18-jul-2011
- * Time: 8:38:27
- */
 public class Dsmr23MbusMessageExecutor extends MessageParser {
 
     private final Clock clock;

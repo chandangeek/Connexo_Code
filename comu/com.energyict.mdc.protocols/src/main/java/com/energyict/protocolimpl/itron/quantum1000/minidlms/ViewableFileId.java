@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ViewableFileId.java
  *
  * Created on 19 december 2006, 11:18

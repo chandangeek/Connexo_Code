@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -12,15 +16,6 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
-/**
- * Generates a message with the contents of an user file.
- * <p/>
- * E.g.: <tag><IncludedFile> (bytes as string) </IncludedFile></tag>
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 16:54
- */
 public class ConfigWithUserFileMessageEntry implements MessageEntryCreator {
 
     private final String tag;

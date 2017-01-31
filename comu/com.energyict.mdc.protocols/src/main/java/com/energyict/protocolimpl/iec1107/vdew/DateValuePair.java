@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DateValuePair.java
  *
  * Created on 21 oktober 2004, 15:52

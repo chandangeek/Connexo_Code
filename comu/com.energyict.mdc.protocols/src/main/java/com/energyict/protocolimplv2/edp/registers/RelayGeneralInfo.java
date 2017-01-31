@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.edp.registers;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/02/14
- * Time: 9:59
- * Author: khe
- */
 public class RelayGeneralInfo {
 
     private static final String NEWLINE = "\n\r";

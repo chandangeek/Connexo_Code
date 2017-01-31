@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
 
 import com.energyict.mdc.common.ObisCode;
@@ -12,12 +16,6 @@ import com.energyict.dlms.cosem.methods.ScheduleManagerMethods;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 17/06/2015 - 13:50
- */
 public class ScheduleManager extends AbstractCosemObject {
 
     private static final ObisCode DEFAULT_OBISCODE = ObisCode.fromString("0.0.128.0.15.255");

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RecordTemplate.java
  *
  * Created on 4 juli 2006, 9:03
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
 
 import java.io.IOException;

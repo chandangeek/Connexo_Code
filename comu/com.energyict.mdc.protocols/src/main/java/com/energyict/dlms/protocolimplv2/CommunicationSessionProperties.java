@@ -1,15 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.protocolimplv2;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 
-/**
- * Contains access to all properties to configure a connection layer (TCP, HDLC,...)
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/02/12
- * Time: 15:08
- */
 public interface CommunicationSessionProperties {
 
     /**

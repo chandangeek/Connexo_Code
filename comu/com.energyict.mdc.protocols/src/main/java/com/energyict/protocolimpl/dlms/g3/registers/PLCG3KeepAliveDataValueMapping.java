@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.registers;
 
 
@@ -15,11 +19,6 @@ import com.energyict.dlms.cosem.Data;
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/03/12
- * Time: 10:01
- */
 public class PLCG3KeepAliveDataValueMapping extends G3Mapping {
 
     public PLCG3KeepAliveDataValueMapping(ObisCode obisCode) {

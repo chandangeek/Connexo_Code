@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IEC870Frame.java
  *
  * Created on 18 juni 2003, 13:57
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.mbus.core.ApplicationData;
 
 import java.io.IOException;

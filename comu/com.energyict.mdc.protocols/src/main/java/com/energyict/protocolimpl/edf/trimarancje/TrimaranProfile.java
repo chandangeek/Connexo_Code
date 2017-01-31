@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TrimeranProfile.java
  *
  * Created on 27 juni 2006, 9:14
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edf.trimarancje;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.edf.trimarancje.core.DemandData;
 
 import java.io.IOException;

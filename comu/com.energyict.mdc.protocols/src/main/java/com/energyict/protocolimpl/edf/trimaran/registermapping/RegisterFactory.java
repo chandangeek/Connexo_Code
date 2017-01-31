@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RegisterFactory.java
  *
  * Created on 27 juni 2006, 11:23
@@ -12,9 +16,10 @@ package com.energyict.protocolimpl.edf.trimaran.registermapping;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edf.trimaran.Trimaran;
 import com.energyict.protocolimpl.edf.trimaran.core.MonthInfoTable;
 

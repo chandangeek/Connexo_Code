@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
 import com.energyict.mdc.common.ApplicationException;
@@ -15,11 +19,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/05/13
- * Time: 10:03
- */
 public class LoadProfileMessageUtils {
 
     private static final String ROOT_TAG = "LoadProfile";

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
 import com.energyict.mdc.common.ObisCode;
@@ -5,11 +9,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/07/11
- * Time: 17:09
- */
 public final class ObisCodeProvider {
 
 

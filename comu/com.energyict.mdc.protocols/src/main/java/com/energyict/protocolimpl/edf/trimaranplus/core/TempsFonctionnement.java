@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * TempsFonctionnement.java
  *
  * Created on 22 februari 2007, 10:35
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
 import com.energyict.mdc.common.Quantity;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 import com.energyict.protocolimpl.edf.trimarandlms.common.DateType;
 

@@ -1,28 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.SixLowPanAdaptationLayerSetupAttribute;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * An instance of this interface class holds the necessary parameters to set up the 6LoWPAN Adaptation layer.
- * <p/>
- * These attributes influence the functional behaviour of an implementation. Implementations may allow changes
- * to their values during normal running, i.e. even after the device start-up sequence has been executed.
- * <p/>
- * Copyrights EnergyICT
- * Date: 20/03/12
- * Time: 9:17
- */
 public class SixLowPanAdaptationLayerSetup extends AbstractCosemObject {
 
     /**

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AbstractDataType.java
  * Created on 17 oktober 2007, 14:19
  * To change this template, choose Tools | Options and locate the template under

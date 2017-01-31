@@ -1,22 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.PrimePlcPhyLayerCountersAttributes;
 import com.energyict.dlms.cosem.methods.PrimePlcPhyLayerCountersMethods;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * An instance of the "PRIME PLC physical layer counters" IC stores counters related to the physical
- * layers exchanges. The objective of these counters is to provide statistical information for
- * management purposes.
- * <p/>
- * Copyrights EnergyICT
- * Date: 6/6/12
- * Time: 9:05 AM
- */
 public class PrimePlcPhyLayerCounters extends AbstractCosemObject {
 
     /**

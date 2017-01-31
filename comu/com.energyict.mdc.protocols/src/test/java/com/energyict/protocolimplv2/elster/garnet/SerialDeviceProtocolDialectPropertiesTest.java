@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.garnet;
+
+import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialectProperties;
 
 import com.energyict.CustomPropertiesPersistenceTest;
 
@@ -6,8 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.energyict.protocols.mdc.protocoltasks.SerialDeviceProtocolDialectProperties;
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

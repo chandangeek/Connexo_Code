@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -12,16 +16,6 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 
 import java.util.TimeZone;
 
-/**
- * Creates XML: <TimedDisconnect Date (dd/mm/yyyy hh:mm)="10/10/2010 10:50" TimeZone="Europe/Paris" ></TimedDisconnect>
- * or
- * Creates XML: <TimedReconnect Date (dd/mm/yyyy hh:mm)="10/10/2010 10:50" TimeZone="Europe/Paris" ></TimedReconnect>
- * <p/>
- * Copyrights EnergyICT
- * Date: 24/10/13
- * Time: 10:23
- * Author: khe
- */
 public class ContactorControlWithActivationDateAndTimezoneMessageEntry implements MessageEntryCreator {
 
     private final String tag;

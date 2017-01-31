@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AlphaA3.java
  *
  * Created on 10 februari 2006, 14:37

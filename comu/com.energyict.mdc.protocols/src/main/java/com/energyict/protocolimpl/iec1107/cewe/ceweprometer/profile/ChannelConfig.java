@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile;
 
 import com.energyict.mdc.common.Unit;
 
-/**
- * Copyrights
- * Date: 24/05/11
- * Time: 9:31
- */
 public class ChannelConfig {
 
     private final int id;

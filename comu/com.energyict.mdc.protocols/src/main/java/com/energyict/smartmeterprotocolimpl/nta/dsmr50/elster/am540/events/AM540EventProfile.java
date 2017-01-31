@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.events;
 
-import com.energyict.dlms.DataContainer;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dlms.DataContainer;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.DSMR40EventProfile;
@@ -14,12 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 5/06/2014 - 11:35
- */
 public class AM540EventProfile extends DSMR40EventProfile {
 
     public AM540EventProfile(AbstractSmartNtaProtocol protocol) {

@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.text.ParseException;
@@ -9,11 +14,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/05/11
- * Time: 13:42
- */
 public class InstallationDateDiscover {
 
     public static final Date FIRST_POSSIBLE_DATE = ProtocolTools.getDateFromYYYYMMddhhmmss("2010-01-01 00:00:00");

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr40.common.profiles;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -23,12 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 19/12/2014 - 9:28
- */
 public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
 
     private boolean cumulativeCaptureTimeChannel = false;

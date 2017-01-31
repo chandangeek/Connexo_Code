@@ -1,13 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocolimpl.dlms.idis.events.AbstractEvent;
 import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog1;
 import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog2;
@@ -22,11 +27,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/09/11
- * Time: 15:42
- */
 public class MBusProfileDataReader extends ProfileDataReader {
 
     private static ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MK10Register.java
  *
  */
@@ -8,6 +12,7 @@ package com.energyict.protocolimpl.iec1107.iskraemeco.mt83.registerconfig;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.iskraemeco.mt83.vdew.AbstractVDEWRegistry;

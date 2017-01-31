@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EventLogMfgCodeFactory.java
  *
  * Created on 22 november 2005, 11:40

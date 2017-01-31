@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-okt-2010
- * Time: 16:00:48
- */
 public class EndOfSessionRequestStructure extends Data<EndOfSessionRequestStructure> {
 
     public EndOfSessionRequestStructure() {

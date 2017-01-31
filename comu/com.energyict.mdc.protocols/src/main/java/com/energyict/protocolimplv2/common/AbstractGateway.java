@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.common;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -28,14 +32,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Super class for every gateway protocol that implements the DeviceProtocol interface
- * <p/>
- * Copyrights EnergyICT
- * Date: 29/05/13
- * Time: 17:03
- * Author: khe
- */
 public abstract class AbstractGateway implements DeviceProtocol {
 
     protected DeviceProtocolCache deviceCache;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CourbeChargePartielle.java
  *
  * Created on 21 februari 2007, 13:15
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edf.trimaran2p.core;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 
 import java.io.IOException;

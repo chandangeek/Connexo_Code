@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -49,15 +53,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 
-/**
- * Provides functionality to fetch and create {@link ProfileData} objects for a SmartMeterProtocol
- * <p/>
- * <pre>
- * Copyrights EnergyICT
- * Date: 3-mrt-2011
- * Time: 17:02:07
- * </pre>
- */
 public class LoadProfileBuilder implements DeviceLoadProfileSupport {
 
     /**

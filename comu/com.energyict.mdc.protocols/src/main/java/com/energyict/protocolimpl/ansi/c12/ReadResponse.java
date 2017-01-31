@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ReadResponse.java
  *
  * Created on 18 oktober 2005, 9:15

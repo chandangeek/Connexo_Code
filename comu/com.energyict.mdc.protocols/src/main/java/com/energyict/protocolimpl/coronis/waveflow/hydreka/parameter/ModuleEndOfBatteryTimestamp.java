@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter;
 
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
@@ -9,12 +13,6 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.AbstractParame
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/12/12
- * Time: 11:17
- * Author: khe
- */
 public class ModuleEndOfBatteryTimestamp extends AbstractParameter {
 
     private Date timestamp;

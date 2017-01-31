@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * S200Profile.java
  *
  * Created on 1 augustus 2006, 9:25
@@ -16,6 +20,7 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.landisgyr.sentry.s200.core.DataDumpFactory;
 import com.energyict.protocolimpl.landisgyr.sentry.s200.core.S200EventsFactory;

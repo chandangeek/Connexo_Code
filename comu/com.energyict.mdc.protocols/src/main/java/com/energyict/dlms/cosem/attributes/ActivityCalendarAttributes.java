@@ -1,16 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributes;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 
-/**
- * Contains functionality to access attributes of the ActivityCalendar (independent whether or not shortName or logicalNames are used)
- * <br/>
- * Copyrights EnergyICT<br/>
- * Date: 17-dec-2010<br/>
- * Time: 10:27:28<br/>
- */
 public enum ActivityCalendarAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.logbooks;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -34,11 +38,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 29.09.15
- * Time: 10:46
- */
 public class Dsmr50LogBookFactory implements DeviceLogBookSupport {
 
     private static final ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");

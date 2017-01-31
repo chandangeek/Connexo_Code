@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributes;
 
 import com.energyict.mdc.common.ObisCode;
@@ -5,12 +9,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 17/06/2015 - 13:53
- */
 public enum DeviceTypeManagerAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),

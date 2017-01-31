@@ -1,17 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributeobjects;
+
+import com.energyict.mdc.protocol.api.ProtocolException;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.mdc.protocol.api.ProtocolException;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/08/11
- * Time: 8:44
- */
 public class RegisterZigbeeDeviceData extends Structure {
 
     public RegisterZigbeeDeviceData(String address, String linkKey) throws IOException {

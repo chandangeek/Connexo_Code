@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dlms.aso.ApplicationServiceObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,11 +12,6 @@ import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/16/12
- * Time: 9:36 AM
- */
 public class IF2Connection implements DLMSConnection {
 
     /**

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -27,11 +31,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * Date: 13-okt-2011
- * Time: 12:04:50
- */
 public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
 
     @Override

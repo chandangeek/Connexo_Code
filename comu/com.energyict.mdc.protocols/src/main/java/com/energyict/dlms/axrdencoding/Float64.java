@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.axrdencoding;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 
-/**
- * Copyrights EnergyICT
- * Date: 20-aug-2010
- * Time: 9:23:49
- */
 public class Float64 extends AbstractDataType {
 
     private static final int SIZE = 9;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -12,17 +16,6 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Creates a MessageEntry based on the
- * {@link com.energyict.protocolimpl.messages.RtuMessageConstant#FIRMWARE_PATH}
- * xml tag with an additional userFile and activationDate
- *
- * This is NOT for the message that is created using the FirmwareUpdateMessaging interface!
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 17:13
- */
 public class WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry implements MessageEntryCreator {
 
     private final String firmwareContentName;

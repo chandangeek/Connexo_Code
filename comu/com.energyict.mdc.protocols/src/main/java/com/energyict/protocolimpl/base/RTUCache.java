@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.base;
 
 import com.energyict.protocols.mdc.services.impl.OrmClient;
@@ -5,13 +9,6 @@ import com.energyict.protocols.mdc.services.impl.OrmClient;
 import java.io.IOException;
 import java.sql.SQLException;
 
-/**
- * Provides functionality to have access to the CES_DEVICECACHE table.
- *
- * Copyrights EnergyICT
- * Date: 20-mei-2010
- * Time: 11:29:25
- */
 public class RTUCache {
 
     private int deviceId;

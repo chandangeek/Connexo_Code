@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.events;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -6,12 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 14/12/11
- * Time: 11:41
- */
 public class EventNumber {
 
     static List<EventNumber> events = new ArrayList<EventNumber>();

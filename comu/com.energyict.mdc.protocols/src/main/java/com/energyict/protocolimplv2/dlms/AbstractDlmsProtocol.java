@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -66,14 +70,6 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Common functionality that is shared between the smart V2 DLMS protocols.
- * <p>
- * Copyrights EnergyICT
- * Date: 18/10/13
- * Time: 13:30
- * Author: khe
- */
 public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");

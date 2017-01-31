@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * BillingPeriodDefinition.java
  *
  * Created on 15 juli 2004, 9:31

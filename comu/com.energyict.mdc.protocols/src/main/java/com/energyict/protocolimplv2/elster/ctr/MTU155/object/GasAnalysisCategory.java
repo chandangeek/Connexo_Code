@@ -1,17 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/02/11
- * Time: 14:46
- */
 public class GasAnalysisCategory extends AbstractUnsignedBINObject<GasAnalysisCategory> {
 
     private static final int[] DEFAULT_LENGTHS = gi(3);

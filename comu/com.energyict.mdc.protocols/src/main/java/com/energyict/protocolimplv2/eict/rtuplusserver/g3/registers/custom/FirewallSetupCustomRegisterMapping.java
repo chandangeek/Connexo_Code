@@ -1,22 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.FirewallSetup;
 import com.energyict.dlms.cosem.attributes.FirewallSetupAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-
 
 import java.io.IOException;
 
-/**
- * Creates an overview (for the text field of a register) of the attributes of the FirewallSetup object.
- * <p/>
- * Copyrights EnergyICT
- * Date: 15/05/14
- * Time: 15:38
- * Author: khe
- */
 public class FirewallSetupCustomRegisterMapping extends CustomRegisterMapping {
 
     private final ObisCode obisCode = FirewallSetup.getDefaultObisCode();

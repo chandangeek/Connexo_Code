@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter;
 
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
@@ -6,18 +10,6 @@ import com.energyict.protocolimpl.coronis.waveflow.core.parameter.OperatingMode;
 
 import java.io.IOException;
 
-/**
- * Bit 4: tamper detection
- * Bit 5: leakage detection
- * Bit 6: probe RTC resynch
- * Bit 7: low battery detection
- * <p/>
- * <p/>
- * Copyrights EnergyICT
- * Date: 17/12/12
- * Time: 11:50
- * Author: khe
- */
 public class OperatingModeHydreka extends OperatingMode {
 
     public OperatingModeHydreka(WaveFlow waveFlow) {

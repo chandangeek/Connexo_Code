@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -6,15 +12,9 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.GenericPlcIBSetupAttributes;
 import com.energyict.dlms.cosem.methods.GenericPlcIBSetupMethods;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/4/13
- * Time: 10:04 AM
- */
 public class GenericPlcIBSetup extends AbstractCosemObject {
 
     /**

@@ -1,16 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import org.w3c.dom.Element;
 
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 30/08/11
- * Time: 17:38
- */
 public class PowerFailLog extends AbstractActarisObject {
 
     private MeterEvent meterEvent;

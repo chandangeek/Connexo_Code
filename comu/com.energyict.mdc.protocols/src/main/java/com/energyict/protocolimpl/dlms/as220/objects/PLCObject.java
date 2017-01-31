@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.as220.objects;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -8,15 +14,9 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.attributeobjects.Repeater;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 31-mei-2010
- * Time: 14:48:16
- */
 public class PLCObject extends AbstractCosemObject {
 
     private static final byte[] LN = ObisCode.fromString("0.0.96.128.0.255").getLN();

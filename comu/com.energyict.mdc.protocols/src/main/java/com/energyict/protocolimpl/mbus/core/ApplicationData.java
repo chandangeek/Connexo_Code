@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ApplicationData.java
  *
  * Created on 18 juni 2003, 14:02
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870CIField;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 

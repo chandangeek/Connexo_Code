@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -25,15 +29,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * <p/>
- * Logical slave protocol that does not read out any data, it's merely a placeholder for the supported messages, properties, ...
- * The read out of the MBus registers, logbook, load profile, etc is implemented in the AM450 e-meter (master) protocol.
- *
- * @author sva
- * @since 23/01/2015 - 9:26
- */
 public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     private final IDISMBusMessaging idisMBusMessaging;

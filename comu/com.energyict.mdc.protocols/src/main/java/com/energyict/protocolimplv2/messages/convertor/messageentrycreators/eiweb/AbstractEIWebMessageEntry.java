@@ -1,24 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
-/**
- * Abstract class with some utility methods for generating a legacy XML message from a given MessageTag.
- * writeTag() is the same method as used in com.energyict.genericprotocolimpl.common.messages.GenericMessaging
- * <p/>
- * Copyrights EnergyICT
- * Date: 1/10/13
- * Time: 16:54
- * Author: khe
- */
 public abstract class AbstractEIWebMessageEntry implements MessageEntryCreator {
 
     private static final String EIWEB_PREFIX = "Set";

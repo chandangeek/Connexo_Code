@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.BooleanObject;
@@ -6,16 +12,9 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.ModemWatchdogConfigurationAttributes;
 import com.energyict.dlms.cosem.methods.ModemWatchdogConfigurationMethods;
-import com.energyict.mdc.common.ObisCode;
-
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/27/12
- * Time: 10:51 AM
- */
 public class ModemWatchdogConfiguration extends AbstractCosemObject {
 
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.128.0.11.255");

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -8,13 +12,6 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Creates a MessageEntry for the GlobalMeterReset message
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/04/13
- * Time: 9:28
- */
 public class GlobalMeterReset implements MessageEntryCreator {
 
     @Override

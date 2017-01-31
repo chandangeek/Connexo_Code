@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ClockStateTable.java
  *
  * Created on 4 november 2005, 16:49

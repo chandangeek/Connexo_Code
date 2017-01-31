@@ -1,22 +1,33 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.*;
 import com.energyict.protocols.util.ProtocolUtils;
-import org.w3c.dom.*;
+
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendar;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.CosemCalendar;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.DayProfile;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.DayProfileSegment;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.OctetString;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.SeasonProfile;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.SpecialDay;
+import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.WeekProfile;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
-
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/01/12
- * Time: 8:46
- */
+import java.util.Calendar;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 public class IskraActivityCalendarReader implements com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendarReader {
 

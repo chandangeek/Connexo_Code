@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SiemensSCTMFrame.java
  *
  * Created on 5 februari 2003, 14:41

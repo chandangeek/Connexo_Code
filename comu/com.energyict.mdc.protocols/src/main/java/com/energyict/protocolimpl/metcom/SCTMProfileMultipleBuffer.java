@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SCTMProfile.java
  *
  * Created on 6 februari 2003, 11:45
@@ -11,6 +15,7 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.sctm.base.SCTMProfileFlags;
 import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
 

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ReadReplyDataError.java
  *
  * Created on 1 december 2006, 15:42

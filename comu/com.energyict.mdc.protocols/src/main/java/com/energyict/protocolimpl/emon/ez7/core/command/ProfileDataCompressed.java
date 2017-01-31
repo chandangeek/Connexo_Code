@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ProfileDataCompressed.java
  *
  * Created on 18 mei 2005, 17:18

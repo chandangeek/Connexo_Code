@@ -1,11 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  *
  */
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 
 import com.energyict.dlms.axrdencoding.OctetString;

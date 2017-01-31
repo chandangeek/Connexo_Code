@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavesense.core.parameter;
 
 import com.energyict.protocolimpl.coronis.wavesense.WaveSense;
@@ -5,11 +9,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 8-mrt-2011
- * Time: 9:41:47
- */
 public class NumberOfStoredValues extends AbstractParameter {
 
     private int numberOfValues = 0;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -7,13 +11,6 @@ import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 
-/**
- * Summarizes all used DeviceSecurityProperty.
- *
- * Copyrights EnergyICT
- * Date: 10/01/13
- * Time: 16:40
- */
 public enum DeviceSecurityProperty {
 
     /**

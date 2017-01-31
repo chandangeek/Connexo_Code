@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.common;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,11 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/9/14
- * Time: 12:23 PM
- */
 public class BasicDynamicPropertySupport implements HasDynamicProperties {
 
     public static final String TIMEOUT = "Timeout";

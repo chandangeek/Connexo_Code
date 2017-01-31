@@ -1,19 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.ProtocolException;
 
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/04/11
- * Time: 11:53
- */
 public abstract class AbstractDLMSProfile {
 
     protected abstract CosemObjectFactory getCosemObjectFactory();

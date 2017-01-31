@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * UOM2ObisTranslator.java
  *
  * Created on 30 november 2005, 11:20
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.ge.kv2.tables;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
 
 import java.io.IOException;

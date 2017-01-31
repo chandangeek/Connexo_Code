@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.mdc.common.ObisCode;
 
 import java.io.Serializable;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/08/12
- * Time: 15:04
- * Author: khe
- */
 public class ObisCodeAndAttribute implements Serializable {
 
     private int attribute;

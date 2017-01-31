@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MultiplierFactory.java
  *
  * Created on 26 september 2007, 11:41

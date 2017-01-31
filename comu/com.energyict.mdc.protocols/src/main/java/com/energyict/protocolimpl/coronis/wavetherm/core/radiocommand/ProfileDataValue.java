@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand;
 
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- * Date: 24-mei-2011
- * Time: 15:02:56
- */
 public class ProfileDataValue {
 
     private BigDecimal value;

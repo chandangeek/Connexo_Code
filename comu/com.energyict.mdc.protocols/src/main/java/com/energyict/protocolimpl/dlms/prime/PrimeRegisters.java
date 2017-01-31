@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime;
 
 import com.energyict.mdc.common.BaseUnit;
@@ -33,11 +37,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/02/12
- * Time: 13:22
- */
 public class PrimeRegisters {
 
     private final DlmsSession session;

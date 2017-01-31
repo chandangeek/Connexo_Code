@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.serial.optical.rxtx;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -5,7 +9,6 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
@@ -15,14 +18,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-/**
- * Provides an implementation of a {@link ConnectionType} interface for optical
- * communication using the open source RxTX libraries.
- * <p/>
- * Copyrights EnergyICT
- * Date: 12/11/12
- * Time: 13:00
- */
 public class RxTxOpticalConnectionType extends RxTxSerialConnectionType implements OpticalDriver {
 
     @Inject

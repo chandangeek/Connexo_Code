@@ -1,13 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime;
+
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.protocolimpl.dlms.common.DLMSProfileHelper;
 import com.energyict.protocolimpl.dlms.common.ProfileCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -16,11 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/02/12
- * Time: 13:39
- */
 public class PrimeProfile extends DLMSProfileHelper {
 
     public static final ObisCode BASIC_PROFILE = ObisCode.fromString("1.0.99.1.0.255");

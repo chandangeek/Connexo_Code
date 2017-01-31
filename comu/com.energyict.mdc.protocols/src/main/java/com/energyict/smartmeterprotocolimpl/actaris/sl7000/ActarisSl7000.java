@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -45,12 +49,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 17/07/12
- * Time: 16:41
- */
 public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol {
 
     @Override

@@ -1,12 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.core.wavecell;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
-
-/**
- * Copyrights EnergyICT
- * Date: 27/04/12
- * Time: 17:21
- */
 
 public class WaveCellFrame {
 

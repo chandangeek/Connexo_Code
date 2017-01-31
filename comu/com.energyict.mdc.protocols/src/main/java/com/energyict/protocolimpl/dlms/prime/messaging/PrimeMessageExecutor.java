@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
 import com.energyict.mdc.common.ObisCode;
@@ -27,11 +31,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/29/12
- * Time: 8:39 AM
- */
 public abstract class PrimeMessageExecutor {
 
     private final DlmsSession session;

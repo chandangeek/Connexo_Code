@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RegisterMapper.java
  *
  * Created on 12 juni 2006, 15:25
@@ -11,8 +15,9 @@
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.registermappping;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.S4s;
 
 import java.io.IOException;

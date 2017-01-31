@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AbstractIEC1107Protocol.java
  *
  * Created on 2 juli 2004, 17:30

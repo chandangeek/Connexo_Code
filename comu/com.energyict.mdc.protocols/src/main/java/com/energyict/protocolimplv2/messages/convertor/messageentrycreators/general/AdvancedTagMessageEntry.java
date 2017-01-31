@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -8,15 +12,6 @@ import com.energyict.mdc.protocol.api.messaging.Messaging;
 
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-/**
- * Creates XML: <tagX> </tagX>, where X is the value of the (only) device message attribute.
- * E.g. <ConnectRelay1></ConnectRelay1>, when the user chooses the "Connect relay" message and attribute value "1".
- * <p/>
- * Copyrights EnergyICT
- * Date: 24/10/13
- * Time: 10:23
- * Author: khe
- */
 public class AdvancedTagMessageEntry implements MessageEntryCreator {
 
     private final String tag;

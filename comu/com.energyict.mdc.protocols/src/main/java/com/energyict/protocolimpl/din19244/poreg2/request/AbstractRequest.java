@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request;
 
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -7,13 +11,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-/**
- * Parent class for all requests.
- * Contains common methods, e.g. doRequest()
- * Copyrights EnergyICT
- * Date: 21-apr-2011
- * Time: 22:02:44
- */
 abstract public class AbstractRequest {
 
     protected Poreg poreg;

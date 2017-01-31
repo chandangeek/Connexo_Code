@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.EMCO.frame;
 
 import java.io.UnsupportedEncodingException;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/02/12
- * Time: 8:48
- */
 public interface RequestFrame {
 
     public static char REGISTER_REQUEST = '#';      // Request transmission of a data register

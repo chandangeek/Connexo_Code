@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -9,12 +13,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 3/04/12
- * Time: 13:40
- */
 public class TimeOfUseMessageBuilder extends com.energyict.protocols.messaging.TimeOfUseMessageBuilder {
 
     public static final String RAW_CONTENT_TAG = "Activity_Calendar";

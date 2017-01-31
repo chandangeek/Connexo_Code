@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LOCommand.java
  *
  * Created on 11 augustus 2005, 14:23

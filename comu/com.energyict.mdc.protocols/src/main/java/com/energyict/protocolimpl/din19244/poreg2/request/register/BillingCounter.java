@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.din19244.poreg2.request.register;
 
 import com.energyict.protocolimpl.din19244.poreg2.Poreg;
@@ -8,11 +12,6 @@ import com.energyict.protocolimpl.din19244.poreg2.core.RegisterGroupID;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 10-mei-2011
- * Time: 15:54:25
- */
 public class BillingCounter extends AbstractRegister {
 
     public BillingCounter(Poreg poreg) {

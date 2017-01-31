@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.mdc.common.ObisCode;
@@ -44,11 +48,6 @@ import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/10/11
- * Time: 16:49
- */
 public class DLMSActivityCalendarController implements ActivityCalendarController {
 
     public static final String xmlDocType = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";

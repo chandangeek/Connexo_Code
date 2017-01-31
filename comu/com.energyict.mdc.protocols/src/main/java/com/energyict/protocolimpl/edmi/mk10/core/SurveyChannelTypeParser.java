@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ChannelTypeParser.java
  *
  * Created on 15 oktober 2008, 16:57

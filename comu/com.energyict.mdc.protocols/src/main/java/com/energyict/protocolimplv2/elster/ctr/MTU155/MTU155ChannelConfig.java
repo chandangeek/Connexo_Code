@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-/**
- * Copyrights EnergyICT
- * Date: 19-okt-2010
- * Time: 15:32:11
- */
 public class MTU155ChannelConfig {
 
     private final int numberOfChannels;

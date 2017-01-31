@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.g3;
 
 
@@ -54,12 +58,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 10/11/2015 - 17:35
- */
 public class G3GatewayPSKProvider {
 
     private final DeviceIdentifier deviceIdentifier;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Class13PreviousSeasonBillingData.java
  *
  * Created on 13 juli 2005, 15:18

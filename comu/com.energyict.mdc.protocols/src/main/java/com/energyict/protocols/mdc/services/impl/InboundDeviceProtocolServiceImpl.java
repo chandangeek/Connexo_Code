@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -36,11 +40,6 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collection;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/11/13
- * Time: 12:03
- */
 @Component(name = "com.energyict.mdc.service.inbounddeviceprotocols", service = InboundDeviceProtocolService.class, immediate = true)
 public class InboundDeviceProtocolServiceImpl implements InboundDeviceProtocolService {
 

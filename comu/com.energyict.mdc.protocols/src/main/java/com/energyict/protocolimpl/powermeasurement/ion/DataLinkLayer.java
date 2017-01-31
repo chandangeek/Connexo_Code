@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.powermeasurement.ion;
 
-import com.energyict.dialer.connection.Connection;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
+import com.energyict.dialer.connection.Connection;
 import com.energyict.protocolimpl.base.CRCGenerator;
 
 import java.io.IOException;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Utils.java
  *
  * Created on 14 september 2006, 14:20
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.itron.protocol;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;

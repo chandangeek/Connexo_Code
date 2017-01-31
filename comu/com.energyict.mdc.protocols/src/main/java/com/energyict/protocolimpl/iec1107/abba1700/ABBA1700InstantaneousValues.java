@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ABBA1700InstantaneousValues.java
  *
  * Created on 22 december 2004, 15:24

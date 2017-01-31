@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object.field;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.Field;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 
-/**
- * Class for the access field of a CTR Object. Indicates the enabled permissions.
- * Copyrights EnergyICT
- * Date: 7-okt-2010
- * Time: 15:16:41
- */
 public class AccessDescriptor extends AbstractField {
 
     private int access;

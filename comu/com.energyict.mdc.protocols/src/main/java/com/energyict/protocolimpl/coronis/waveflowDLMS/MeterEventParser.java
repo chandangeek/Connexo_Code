@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -6,15 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Parser class that generates the proper meter events based on a given code.
- * This is the same for AS253 and AS1253.
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/04/13
- * Time: 14:01
- * Author: khe
- */
 public class MeterEventParser {
 
     /**

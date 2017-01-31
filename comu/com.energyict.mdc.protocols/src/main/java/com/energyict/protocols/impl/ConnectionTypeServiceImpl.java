@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl;
 
 import com.elster.jupiter.nls.Layer;
@@ -43,14 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Provides an implementation for the {@link ConnectionTypeService} interface
- * and registers as a OSGi component.
- * <p/>
- * Copyrights EnergyICT
- * Date: 28/11/13
- * Time: 16:27
- */
 @Component(name = "com.energyict.protocols.mdc.services.connectiontypeservice", service = {ConnectionTypeService.class, TranslationKeyProvider.class}, immediate = true)
 public class ConnectionTypeServiceImpl implements ConnectionTypeService, TranslationKeyProvider {
 

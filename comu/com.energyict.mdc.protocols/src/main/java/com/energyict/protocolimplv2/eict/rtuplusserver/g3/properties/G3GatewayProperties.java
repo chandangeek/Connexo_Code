@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties;
 
 
@@ -15,12 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 11/06/2014 - 13:46
- */
 public class G3GatewayProperties extends G3Properties {
 
     public static final String AARQ_TIMEOUT_PROP_NAME = "AARQ_Timeout";

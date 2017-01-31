@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DatalinkLayer.java
  *
  * Created on 29 juni 2006, 10:05
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edf.core;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.CRCGenerator;
 
 import java.io.ByteArrayOutputStream;

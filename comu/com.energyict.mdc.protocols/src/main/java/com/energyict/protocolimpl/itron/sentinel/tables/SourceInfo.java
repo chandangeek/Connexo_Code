@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SourceUnits.java
  *
  * Created on 16 november 2005, 11:22
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.itron.sentinel.tables;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
 import com.energyict.protocolimpl.itron.sentinel.Sentinel;
 

@@ -1,29 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.inbound.MeterType;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 
-/**
- * IEC1107 HHU connection for the Iskra MT880.
- * The connection is similar to the regular {@link IEC1107HHUConnection}.
- * It starts on baud 300 (7E1), after which it can switch to a higher baud (up to 38400).
- * The communication settings should remain 7E1 through whole communication.
- *
- * <p/>
- * Copyrights EnergyICT
- * Date: 2/05/13
- * Time: 11:00
- * Author: khe
- */
 public class IskraHHUConnection extends IEC1107HHUConnection {
 
     private static final Log logger = LogFactory.getLog(IskraHHUConnection.class);

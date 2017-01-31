@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.garnet.structure;
 
 import com.energyict.protocolimplv2.elster.garnet.RequestFactory;
@@ -5,8 +9,6 @@ import com.energyict.protocolimplv2.elster.garnet.exception.ParsingException;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.Data;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.FunctionCode;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.DateTime;
-
-import java.time.Clock;
 
 /**
  * @author sva

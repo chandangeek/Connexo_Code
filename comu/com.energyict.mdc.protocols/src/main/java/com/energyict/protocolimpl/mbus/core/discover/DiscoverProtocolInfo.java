@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DiscoverProtocolInfo.java
  *
  * Created on 22 oktober 2007, 16:10

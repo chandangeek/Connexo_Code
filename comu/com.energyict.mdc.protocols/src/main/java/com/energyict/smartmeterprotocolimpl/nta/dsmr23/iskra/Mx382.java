@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -21,11 +25,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * Date: 15-jul-2011
- * Time: 11:59:24
- */
 public class Mx382 extends AbstractSmartNtaProtocol {
 
     private final CalendarService calendarService;

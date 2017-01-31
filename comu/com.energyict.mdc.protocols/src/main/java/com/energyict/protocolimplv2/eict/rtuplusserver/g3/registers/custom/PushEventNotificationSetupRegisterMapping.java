@@ -1,20 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom;
 
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.EventPushNotificationConfig;
+
 import java.io.IOException;
 
-/**
- * Represents an overview of all attributes of the PushEventNotificationSetup object
- * <p/>
- * Copyrights EnergyICT
- * Date: 15/05/14
- * Time: 15:38
- * Author: khe
- */
 public class PushEventNotificationSetupRegisterMapping extends CustomRegisterMapping {
 
     public PushEventNotificationSetupRegisterMapping(CosemObjectFactory cosemObjectFactory) {

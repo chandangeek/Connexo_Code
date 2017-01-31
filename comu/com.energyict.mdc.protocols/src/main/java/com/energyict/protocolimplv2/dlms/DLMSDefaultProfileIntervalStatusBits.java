@@ -1,17 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms;
 
 import com.energyict.mdc.common.interval.IntervalStateBits;
+
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
-/**
- * Straightforward implementation which just returns the given statusCode back to the profileBuilder
- *
- * <pre>
- * Copyrights EnergyICT
- * Date: 11-mrt-2011
- * Time: 9:02:41
- * </pre>
- */
 public class DLMSDefaultProfileIntervalStatusBits implements ProfileIntervalStatusBits{
 
     /**

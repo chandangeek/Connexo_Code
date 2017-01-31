@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.info;
 
-/**
- * Copyrights EnergyICT
- * Date: 4-nov-2010
- * Time: 11:12:57
- */
 public class EquipmentClassInfo {
 
     private static final String[][] CLASS_INFO = new String[][]{

@@ -1,26 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.inbound.MeterType;
 import com.energyict.protocols.mdc.inbound.general.MeterTypeImpl;
 import com.energyict.protocols.util.ProtocolUtils;
-import com.energyict.mdc.protocol.api.inbound.MeterType;
+
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 
-/**
- * IEC1107 HHU connection for the IBM Kaifa meter.
- * This meter does not send an acknowledgement after you changed the baudrate to 9600...
- * <p/>
- * Copyrights EnergyICT
- * Date: 2/05/13
- * Time: 11:00
- * Author: khe
- */
 public class KaifaHHUConnection extends IEC1107HHUConnection {
 
     private static final Log logger = LogFactory.getLog(KaifaHHUConnection.class);

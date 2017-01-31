@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
@@ -13,11 +17,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.AckStructure;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 14/03/11
- * Time: 16:14
- */
 public class SealConfig {
 
     private static final String CURRENT_SEAL_STATUS = "D.9.0";

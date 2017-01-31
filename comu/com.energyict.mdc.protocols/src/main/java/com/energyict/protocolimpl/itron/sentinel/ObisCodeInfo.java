@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ObisCodeInfo.java
  *
  * Created on 16 november 2005, 14:15
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.itron.sentinel;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.base.ObisCodeExtensions;
 
 /**

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ProtocolInstantiator.java
  *
  * Created on 9 december 2002, 9:04

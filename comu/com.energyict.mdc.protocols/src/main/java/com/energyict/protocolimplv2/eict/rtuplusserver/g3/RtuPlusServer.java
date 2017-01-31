@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -81,11 +85,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/04/13
- * Time: 16:00
- */
 public class RtuPlusServer implements DeviceProtocol {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");

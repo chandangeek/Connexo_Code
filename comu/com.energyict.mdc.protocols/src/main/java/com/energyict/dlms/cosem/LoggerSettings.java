@@ -1,18 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.attributes.LoggerSettingsAttributes;
-import com.energyict.mdc.common.ObisCode;
-
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/27/12
- * Time: 10:51 AM
- */
 public class LoggerSettings extends AbstractCosemObject {
 
     public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.128.0.4.255");

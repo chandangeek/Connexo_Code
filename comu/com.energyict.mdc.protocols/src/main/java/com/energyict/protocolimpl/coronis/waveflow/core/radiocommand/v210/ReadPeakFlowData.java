@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.v210;
 
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
@@ -7,11 +11,6 @@ import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.AbstractRad
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 16-mei-2011
- * Time: 11:26:04
- */
 public class ReadPeakFlowData extends AbstractRadioCommand {
 
     public ReadPeakFlowData(WaveFlow waveFlow) {

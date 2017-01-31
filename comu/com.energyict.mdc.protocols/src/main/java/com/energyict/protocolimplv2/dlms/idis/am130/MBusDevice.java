@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.am130;
 
 
@@ -26,15 +30,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * <p>
- * Logical slave protocol that does not read out any data, it's merely a placeholder for the supported messages, properties, ...
- * The read out of the MBus registers, logbook, load profile, etc is implemented in the AM130 e-meter (master) protocol.
- *
- * @author khe
- * @since 15/01/2015 - 9:19
- */
 public class MBusDevice extends AbstractDlmsSlaveProtocol {
 
     private final AbstractDlmsProtocol masterProtocol;

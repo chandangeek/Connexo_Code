@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.instromet.v444.tables;
 
 import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.protocolimpl.instromet.v444.Instromet444;
 
 import java.util.ArrayList;

@@ -1,15 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.mdc.common.ApplicationException;
 
-/**
- * Unchecked exception for interrupt handling.
- * This one should be catched at the highest protocol level
- *
- * Copyrights EnergyICT
- * Date: 30-apr-2010
- * Time: 10:37:39
- */
 public class ProtocolInterruptedException extends ApplicationException{
 
     /**

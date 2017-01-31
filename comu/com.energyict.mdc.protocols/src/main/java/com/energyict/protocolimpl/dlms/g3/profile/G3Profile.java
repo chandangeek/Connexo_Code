@@ -1,18 +1,23 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.g3.profile;
+
+import com.energyict.mdc.common.BaseUnit;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.OctetString;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.LogicalName;
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.protocolimpl.dlms.common.DLMSProfileHelper;
 import com.energyict.protocolimpl.dlms.g3.G3Cache;
 import com.energyict.protocolimpl.dlms.g3.G3ProfileType;
@@ -26,11 +31,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/02/12
- * Time: 13:39
- */
 public class G3Profile extends DLMSProfileHelper {
 
     private static final int SECONDS_IN_DAY = 60 * 60 * 24;

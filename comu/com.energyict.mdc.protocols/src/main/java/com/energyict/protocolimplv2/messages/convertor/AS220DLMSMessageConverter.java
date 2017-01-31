@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
@@ -12,15 +17,49 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ActiveChannelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL1_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL1_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL1_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL1_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL2_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL2_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL2_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL2_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL3_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL3_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL3_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL3_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL4_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL4_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL4_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL4_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL5_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL5_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL5_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL5_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL6_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL6_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL6_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL6_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.IEC1107ClassIdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MAX_FRAME_LENGTHAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MAX_RECEIVING_GAINAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MAX_TRANSMITTING_GAINAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.OffsetAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.REPEATERAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.RawDataAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SEARCH_INITIATOR_GAINAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SEARCH_INITIATOR_TIMEOUTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SYNCHRONIZATION_CONFIRMATION_TIMEOUTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.TIME_OUT_FRAME_NOT_OKAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.normalThresholdAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 
-/**
- * Represents a MessageConverter for the DLMS AS220 protocol
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:26
- */
 public class AS220DLMSMessageConverter extends AbstractMessageConverter {
 
     private static String[] getChannelFrequencyTags() {

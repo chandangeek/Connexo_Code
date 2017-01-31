@@ -1,17 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.attributes.PrimePlcMacSetupAttributes;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/6/12
- * Time: 10:10 AM
- */
 public class PrimePlcMacSetup extends AbstractCosemObject {
 
     public static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.28.2.0.255");

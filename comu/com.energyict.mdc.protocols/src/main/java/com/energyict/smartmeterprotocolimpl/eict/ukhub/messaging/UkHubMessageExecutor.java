@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
-import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
@@ -70,11 +68,6 @@ import java.util.logging.Logger;
 
 import static com.energyict.protocolimpl.utils.ProtocolTools.getBytesFromHexString;
 
-/**
- * Copyrights EnergyICT
- * Date: 20-jul-2011
- * Time: 17:15:18
- */
 @StoresConfigurationInformationInSystemGlobalFile
 public class UkHubMessageExecutor extends MessageParser {
 

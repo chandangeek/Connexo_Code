@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime;
 
 import com.energyict.mdc.common.ObisCode;
@@ -24,13 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Prime protocol, that should be able to read all the prime compliant devices (L&G, ZIV, Current, Elster, ...)
- *
- * Copyrights EnergyICT
- * Date: 21/02/12
- * Time: 14:43
- */
 public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
 
     private final PrimeProperties properties = new PrimeProperties();

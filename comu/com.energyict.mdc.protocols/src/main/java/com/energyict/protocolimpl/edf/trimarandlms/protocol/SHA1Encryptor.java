@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SHA1Encryptor.java
  *
  * Created on 18 januari 2007, 10:47

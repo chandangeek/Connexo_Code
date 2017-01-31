@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -10,11 +14,6 @@ import java.io.ObjectInputStream;
 import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 
-/**
- * Copyrights EnergyICT
- * Date: 30/03/11
- * Time: 10:27
- */
 public class CodeTableBase64Parser {
 
     public static CodeObject getCodeTableFromBase64(byte[] base64Content) throws IOException {

@@ -1,15 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavetherm.core.parameter;
 
 import com.energyict.mdc.protocol.api.UnsupportedException;
+
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 
 import java.io.IOException;
 
-/**
- * Copyrights EnergyICT
- * Date: 29-mrt-2011
- * Time: 14:57:50
- */
 public class NumberOfLogLoops extends AbstractParameter {
 
     NumberOfLogLoops(WaveTherm waveTherm) {

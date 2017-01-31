@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ParametresP.java
  *
  * Created on 16 februari 2007, 15:22
@@ -12,6 +16,7 @@ package com.energyict.protocolimpl.edf.trimaranplus.core;
 
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.edf.trimarandlms.axdr.TrimaranDataContainer;
 
 import java.io.IOException;

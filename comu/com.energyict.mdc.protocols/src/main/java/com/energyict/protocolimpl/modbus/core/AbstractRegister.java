@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * AbstractRegister.java
  *
  * Created on 30 maart 2007, 17:33
@@ -14,6 +18,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadDeviceIdentification;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersRequest;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadInputRegistersRequest;

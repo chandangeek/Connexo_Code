@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.waveflow.core;
 
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
@@ -10,14 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Class that generates a list of meter events based on the information in the application status
- * <p/>
- * Copyrights EnergyICT
- * Date: 24/07/12
- * Time: 16:29
- * Author: khe
- */
 public class ApplicationStatusParser {
 
     private static final String ORIGIN_BBU = " [origin BBU]";

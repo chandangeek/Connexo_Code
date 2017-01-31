@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -53,14 +57,6 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.Checks.is;
 
-/**
- * Provides an implementation of a DeviceProtocol which serves as a <i>guiding</i>
- * protocol for implementors
- * <p/>
- * Copyrights EnergyICT
- * Date: 5/02/13
- * Time: 13:55
- */
 public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
 
     private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());

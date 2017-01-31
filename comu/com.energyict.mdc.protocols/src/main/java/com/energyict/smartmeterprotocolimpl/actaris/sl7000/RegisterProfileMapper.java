@@ -1,24 +1,22 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.Register;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.ProfileGeneric;
+
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 17/08/12
- * Time: 13:56
- */
 public class RegisterProfileMapper {
 
     final ObisCode ALLDEMANDS_PROFILE = ObisCode.fromString("0.0.98.133.5.255");

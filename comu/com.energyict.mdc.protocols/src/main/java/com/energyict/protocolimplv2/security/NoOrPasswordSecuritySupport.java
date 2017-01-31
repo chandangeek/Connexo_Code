@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -23,17 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides general security <b>capabilities</b> for devices that have either:
- * <ul>
- *     <li>No password</li>
- *     <li>A password</li>
- * </ul>
- *
- * Copyrights EnergyICT
- * Date: 21/01/13
- * Time: 14:41
- */
 public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private final PropertySpecService propertySpecService;

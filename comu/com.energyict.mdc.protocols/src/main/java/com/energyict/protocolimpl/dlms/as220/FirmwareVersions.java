@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  *
  */
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.dlms.cosem.Data;
 import com.energyict.mdc.common.ObisCode;
+
+import com.energyict.dlms.cosem.Data;
 
 import java.io.IOException;
 

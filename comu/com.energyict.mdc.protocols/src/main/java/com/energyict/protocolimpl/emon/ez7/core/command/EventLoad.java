@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EventGeneral.java
  *
  * Created on 18 mei 2005, 11:12
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
+
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
 
 import java.io.IOException;

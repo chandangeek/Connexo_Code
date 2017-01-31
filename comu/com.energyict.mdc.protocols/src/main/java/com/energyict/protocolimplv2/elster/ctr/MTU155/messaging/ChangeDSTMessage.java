@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.issues.IssueService;
@@ -14,11 +18,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/03/11
- * Time: 16:40
- */
 public class ChangeDSTMessage extends AbstractMTU155Message {
 
     private static final String OBJECT_ID = "8.2.0";

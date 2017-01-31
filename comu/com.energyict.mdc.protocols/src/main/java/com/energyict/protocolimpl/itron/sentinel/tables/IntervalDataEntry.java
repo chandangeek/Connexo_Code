@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RecordTemplate.java
  *
  * Created on 28 oktober 2005, 17:28

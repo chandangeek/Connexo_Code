@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -9,13 +13,6 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
-/**
- * Creates a MessageEntry based on the old {@link com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder}
- * <p/>
- * Copyrights EnergyICT
- * Date: 2/05/13
- * Time: 13:33
- */
 public class PartialLoadProfileMessageEntry implements MessageEntryCreator {
 
     private static final String MESSAGETAG = "PartialLoadProfile";

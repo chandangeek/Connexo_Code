@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EventLogCodes.java
  *
  * Created on 12 augustus 2005, 9:06

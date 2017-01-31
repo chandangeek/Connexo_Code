@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.mdc.io.CommunicationException;
@@ -6,8 +10,11 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.protocols.util.TempFileLoader;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.util.ProtocolUtils;
+import com.energyict.protocols.util.TempFileLoader;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CTRDeviceProtocolCache;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -16,8 +23,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Identify;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Segment;
-import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -27,11 +32,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
 
-/**
-* Copyrights EnergyICT
-* Date: 7/10/11
-* Time: 13:18
-*/
 public class FirmwareUpgradeMessage extends AbstractMTU155Message {
 
     private Identify newSoftwareIdentifier;         // Version number of the new firmware

@@ -1,6 +1,8 @@
-package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 /**
  * @author sva

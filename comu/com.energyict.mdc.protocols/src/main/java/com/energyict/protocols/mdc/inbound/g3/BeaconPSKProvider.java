@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.g3;
 
 
@@ -30,12 +34,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 23/11/2015 - 12:04
- */
 public class BeaconPSKProvider extends G3GatewayPSKProvider {
 
     private final boolean provideProtocolJavaClasName;

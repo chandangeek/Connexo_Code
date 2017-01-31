@@ -1,11 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling;
+
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog;

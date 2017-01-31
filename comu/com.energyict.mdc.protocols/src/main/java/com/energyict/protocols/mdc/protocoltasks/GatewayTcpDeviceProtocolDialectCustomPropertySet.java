@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -17,11 +21,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/10/16
- * Time: 14:47
- */
 public class GatewayTcpDeviceProtocolDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, GatewayTcpDeviceProtocolDialectProperties> {
 
     private final Thesaurus thesaurus;

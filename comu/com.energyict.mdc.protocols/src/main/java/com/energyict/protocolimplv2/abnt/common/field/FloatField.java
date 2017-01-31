@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.abnt.common.field;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 
 /**

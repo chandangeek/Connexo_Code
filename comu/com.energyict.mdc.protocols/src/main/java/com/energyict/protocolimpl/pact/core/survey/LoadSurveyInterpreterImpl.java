@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * LoadSurveyInterpreter.java
  *
  * Created on 11 maart 2004, 11:07
@@ -7,6 +11,7 @@
 package com.energyict.protocolimpl.pact.core.survey;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
+
 import com.energyict.protocolimpl.pact.core.common.ChannelMap;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingsInterpreter;
 

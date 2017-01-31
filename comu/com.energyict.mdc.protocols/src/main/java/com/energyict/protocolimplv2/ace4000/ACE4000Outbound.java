@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -61,12 +65,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/11/12
- * Time: 16:46
- * Author: khe
- */
 public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     private final Clock clock;

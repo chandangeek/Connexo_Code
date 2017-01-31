@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -70,14 +74,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Provides an implementation for the {@link DeviceProtocolService} interface
- * and registers as a OSGi component.
- * <p>
- * Copyrights EnergyICT
- * Date: 06/11/13
- * Time: 11:03
- */
 @Component(name = "com.energyict.mdc.service.deviceprotocols",
         service = {DeviceProtocolService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,

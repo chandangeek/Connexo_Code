@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
 import com.energyict.mdc.common.ApplicationException;
@@ -75,12 +79,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 20/01/12
- * Time: 11:19
- */
 public class IskraMx372Messaging extends ProtocolMessages implements WakeUpProtocolSupport {
 
     private final IskraMx372 protocol;

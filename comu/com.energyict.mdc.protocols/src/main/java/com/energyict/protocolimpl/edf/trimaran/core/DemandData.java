@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DemandData.java
  *
  * Created on 23 juni 2006, 16:41
@@ -14,9 +18,10 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocols.util.LittleEndianOutputStream;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.protocolimpl.base.ParseUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

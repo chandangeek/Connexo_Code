@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.unilog;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -28,11 +32,6 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-dec-2010
- * Time: 16:51:30
- */
 public abstract class AbstractUnilog extends PluggableMeterProtocol implements RegisterProtocol, ProtocolLink, MeterExceptionInfo {
 
     private Logger logger;

@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.messaging.proxy;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
+
 import com.energyict.protocolimpl.messaging.AnnotatedMessage;
 import com.energyict.protocolimpl.messaging.AnnotatedMessaging;
 import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
@@ -13,11 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/29/12
- * Time: 08:37 AM
- */
 public class ProxyMessageInvocationHandler implements InvocationHandler {
 
     private final Map<String, String> attributes;

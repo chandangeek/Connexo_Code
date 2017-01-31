@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.elster.jupiter.calendar.CalendarService;
@@ -60,11 +64,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 20/09/11
- * Time: 17:22
- */
 public class IDISMessageHandler extends GenericMessaging implements MessageProtocol {
 
     private static final ObisCode RELAY_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");

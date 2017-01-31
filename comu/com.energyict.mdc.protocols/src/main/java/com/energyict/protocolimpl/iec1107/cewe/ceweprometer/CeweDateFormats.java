@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/05/11
- * Time: 10:24
- */
 public class CeweDateFormats {
 
     private final TimeZone timeZone;

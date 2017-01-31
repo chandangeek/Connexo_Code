@@ -1,14 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.cosem.attributes;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 
-/**
- * Copyrights EnergyICT
- * Date: 25-nov-2010
- * Time: 15:46:04
- */
 public enum MbusClientAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00, 0x00),

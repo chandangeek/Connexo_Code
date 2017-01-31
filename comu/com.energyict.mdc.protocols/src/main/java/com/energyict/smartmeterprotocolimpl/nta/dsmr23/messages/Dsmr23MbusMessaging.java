@@ -1,20 +1,20 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.protocolimpl.generic.messages.GenericMessaging;
+import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
+
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 15-jul-2011
- * Time: 13:23:56
- */
 public class Dsmr23MbusMessaging extends GenericMessaging implements MessageProtocol{
 
 

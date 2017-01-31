@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CapturedObjects.java
  *
  * Created on 3 april 2003, 17:25
@@ -6,9 +10,10 @@
 
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 

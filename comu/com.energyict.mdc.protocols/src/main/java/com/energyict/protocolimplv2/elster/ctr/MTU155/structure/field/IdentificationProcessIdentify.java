@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -6,12 +10,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingExcept
 
 import java.io.UnsupportedEncodingException;
 
-/**
- * Class for the Identify field in a CTR Structure Object - used in the (non-encrypted) Identify table
- * Copyrights EnergyICT
- * Date: 8-okt-2010
- * Time: 16:39:27
- */
 public class IdentificationProcessIdentify extends AbstractField<IdentificationProcessIdentify> {
 
     private String manufacturerIdentifier;

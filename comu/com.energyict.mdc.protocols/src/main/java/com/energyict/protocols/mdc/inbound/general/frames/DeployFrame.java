@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
@@ -7,12 +11,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
-/**
- * Copyrights EnergyICT
- * Date: 26/06/12
- * Time: 9:52
- * Author: khe
- */
 public class DeployFrame extends AbstractInboundFrame {
 
     private final CollectedDataFactory collectedDataFactory;

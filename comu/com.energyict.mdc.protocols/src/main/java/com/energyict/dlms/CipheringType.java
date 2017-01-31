@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/02/11
- * Time: 14:38
- */
 public enum CipheringType {
 
     GLOBAL(0, "Global ciphering"),

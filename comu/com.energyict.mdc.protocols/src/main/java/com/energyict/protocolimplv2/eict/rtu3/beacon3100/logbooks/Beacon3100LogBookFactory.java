@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -24,10 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-/**
- * Copyrights EnergyICT
- */
 
 public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
 

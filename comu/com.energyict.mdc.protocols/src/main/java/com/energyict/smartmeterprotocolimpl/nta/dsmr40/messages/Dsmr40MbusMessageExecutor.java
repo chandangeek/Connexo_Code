@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
@@ -8,12 +12,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessag
 
 import java.time.Clock;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/04/13
- * Time: 17:37
- * Author: khe
- */
 public class Dsmr40MbusMessageExecutor extends Dsmr23MbusMessageExecutor {
 
     public Dsmr40MbusMessageExecutor(AbstractSmartNtaProtocol protocol, Clock clock) {

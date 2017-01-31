@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers;
 
 import com.energyict.mdc.common.BaseUnit;
@@ -45,12 +49,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 9/06/2015 - 16:22
- */
 public class RegisterFactory implements DeviceRegisterSupport {
 
     private final DlmsSession dlmsSession;

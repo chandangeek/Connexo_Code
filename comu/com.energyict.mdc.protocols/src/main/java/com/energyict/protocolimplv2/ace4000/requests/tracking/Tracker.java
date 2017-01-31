@@ -1,11 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000.requests.tracking;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/01/13
- * Time: 9:20
- * Author: khe
- */
 public class Tracker {
 
     private RequestType type;

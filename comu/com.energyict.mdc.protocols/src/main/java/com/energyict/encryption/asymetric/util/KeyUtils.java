@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.encryption.asymetric.util;
 
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;

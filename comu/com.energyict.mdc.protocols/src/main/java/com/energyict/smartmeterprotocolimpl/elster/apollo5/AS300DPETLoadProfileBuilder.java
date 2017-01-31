@@ -1,13 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
+
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ProfileData;
 
 import com.energyict.dlms.OctetString;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.LogicalName;
 import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300LoadProfileBuilder;
@@ -20,11 +25,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 30/06/11
- * Time: 13:49
- */
 public class AS300DPETLoadProfileBuilder extends AS300LoadProfileBuilder {
 
     public AS300DPETLoadProfileBuilder(AS300 meterProtocol) {

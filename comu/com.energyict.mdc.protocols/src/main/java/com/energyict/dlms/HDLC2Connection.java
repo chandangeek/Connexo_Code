@@ -1,13 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
 
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.mdc.protocol.api.ProtocolException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.mdc.common.NestedIOException;
 import com.energyict.protocols.util.ProtocolUtils;
+
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * ReceiverStateMachine.java
  *
  * Created on 30 november 2006, 17:06
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 import java.io.ByteArrayOutputStream;

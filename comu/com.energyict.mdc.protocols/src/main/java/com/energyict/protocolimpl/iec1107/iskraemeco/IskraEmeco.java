@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IskraEmeco.java
  *
  * Created on 8 mei 2003, 17:56

@@ -1,4 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.dlms.prime.messaging.tariff;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -13,7 +19,6 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Change;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Contract;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.xml.Day;
@@ -30,11 +35,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/10/11
- * Time: 16:49
- */
 public class PrimeActivityCalendarController {
 
     private static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");

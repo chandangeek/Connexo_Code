@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * MK10InputStreamParser.java
  * 
@@ -6,11 +10,12 @@
  */
 package com.energyict.protocolimpl.edmi.mk10.parsers;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import com.energyict.protocols.util.ProtocolUtils;
 
 import com.energyict.protocolimpl.base.CRCGenerator;
-import com.energyict.protocols.util.ProtocolUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 
 /**

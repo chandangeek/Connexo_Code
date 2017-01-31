@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.ace4000;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -18,14 +22,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Has common methods and fields for the inbound and the outbound ACE4000 protocol class
- * <p/>
- * Copyrights EnergyICT
- * Date: 6/11/12
- * Time: 16:47
- * Author: khe
- */
 public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
 
     private final IdentificationService identificationService;

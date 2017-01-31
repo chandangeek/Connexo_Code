@@ -1,22 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.impl.channels.serial.direct.rxtx;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-/**
- * Provides an implementation for the {@link ConnectionType} interface for Serial communication.
- * <p/>
- * Copyrights EnergyICT
- * Date: 13/08/12
- * Time: 11:14
- */
 public class RxTxPlainSerialConnectionType extends RxTxSerialConnectionType {
 
     @Inject

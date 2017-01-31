@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms.axrdencoding;
 
 import com.energyict.mdc.protocol.api.ProtocolException;
@@ -6,11 +10,6 @@ import com.energyict.protocols.util.ProtocolUtils;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-/**
- * Copyrights EnergyICT
- * Date: 20-aug-2010
- * Time: 9:23:49
- */
 public class Float32 extends AbstractDataType {
 
     private static final int SIZE = 5;

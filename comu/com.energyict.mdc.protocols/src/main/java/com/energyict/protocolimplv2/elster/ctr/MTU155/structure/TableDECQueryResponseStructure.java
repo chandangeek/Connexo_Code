@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -10,11 +14,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 28-okt-2010
- * Time: 13:26:00
- */
 public class TableDECQueryResponseStructure extends AbstractTableQueryResponseStructure<TableDECQueryResponseStructure> {
 
     private static final List<String> CAPTURED_OBJECTS;

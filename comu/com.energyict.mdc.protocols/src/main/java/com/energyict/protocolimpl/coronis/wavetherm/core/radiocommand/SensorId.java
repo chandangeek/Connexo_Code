@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-/**
- * Copyrights EnergyICT
- * Date: 28-mrt-2011
- * Time: 9:42:45
- */
 public class SensorId {
 
     private int familyCode;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general.frames.parsing;
 
 import com.energyict.mdc.common.ObisCode;
@@ -10,12 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- * Date: 26/06/12
- * Time: 15:36
- * Author: khe
- */
 public class RegisterInfo {
 
     private String info;

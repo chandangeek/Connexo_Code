@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.dlms;
+
+import com.energyict.mdc.common.ObisCode;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
-import com.energyict.mdc.common.ObisCode;
 
 import java.util.ArrayList;
 import java.util.Collections;

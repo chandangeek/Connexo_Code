@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr23.registers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -37,9 +41,9 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -51,11 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 14-jul-2011
- * Time: 13:12:35
- */
 public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     private static final String[] possibleConnectStates = {"Disconnected", "Connected", "Ready for Reconnection"};

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.modbus.multilin.epm2200;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -17,12 +21,6 @@ import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 7/09/12
- * Time: 10:21
- */
 public class EPM2200 extends Modbus {
 
     @Override

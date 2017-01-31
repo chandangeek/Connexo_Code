@@ -1,19 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.protocolimpl.generic.CommonObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 
-/**
- * <p>
- * Straightforward summary of the possible ObisCodes of the Apollo meter
- * </p>
- * <p>
- * Copyrights EnergyICT<br/>
- * Date: 23-nov-2010<br/>
- * Time: 16:32:14<br/>
- * </p>
- */
 public class AS300ObisCodeProvider implements CommonObisCodeProvider {
 
     public static final ObisCode ClockObisCode = ObisCode.fromString("0.0.1.0.0.255");

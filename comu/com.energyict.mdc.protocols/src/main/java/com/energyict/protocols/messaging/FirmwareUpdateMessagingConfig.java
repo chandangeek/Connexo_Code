@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.messaging;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/08/11
- * Time: 10:40
- */
 public class FirmwareUpdateMessagingConfig {
 
     private boolean supportsUrls;

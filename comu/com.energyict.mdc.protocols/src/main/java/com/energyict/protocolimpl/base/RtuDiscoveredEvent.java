@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/02/11
- * Time: 14:56
- */
 public class RtuDiscoveredEvent {
 
     private final BaseDevice device;

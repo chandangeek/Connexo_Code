@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * SecurityLevelException.java
  *
  * Created on 23 mei 2005, 15:14

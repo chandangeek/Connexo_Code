@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * CumulativeMaximumDemand.java
  *
  * Created on 10 juni 2004, 14:01

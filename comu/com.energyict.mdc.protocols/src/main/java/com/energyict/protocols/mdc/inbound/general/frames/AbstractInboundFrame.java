@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.inbound.general.frames;
 
 import com.energyict.mdc.issues.IssueService;
@@ -10,15 +14,6 @@ import com.energyict.protocols.mdc.inbound.general.frames.parsing.InboundParamet
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Abstract super class for all inbound frames.
- * Parsing depends on the type of the frame, but has a common part for received parameters
- * <p/>
- * Copyrights EnergyICT
- * Date: 25/06/12
- * Time: 17:07
- * Author: khe
- */
 public abstract class AbstractInboundFrame {
 
     private final IssueService issueService;

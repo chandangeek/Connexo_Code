@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.nta.dsmr50.registers;
 
 import com.energyict.mdc.common.BaseUnit;
@@ -32,12 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 18/12/2014 - 14:29
- */
 public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
 
     public static final ObisCode ClockObisCode = ObisCode.fromString("0.0.1.0.0.255");

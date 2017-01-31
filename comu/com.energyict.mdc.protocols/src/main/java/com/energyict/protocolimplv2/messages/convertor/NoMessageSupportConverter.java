@@ -1,19 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.Collections;
 import java.util.Map;
 
-/**
- * Represents a MessageConverter for protocols which don't have any messages.
- * <p/>
- * Copyrights EnergyICT
- * Date: 28/05/13
- * Time: 14:07
- */
 public class NoMessageSupportConverter extends AbstractMessageConverter {
 
     public NoMessageSupportConverter() {

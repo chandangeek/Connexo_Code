@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dialects;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -10,14 +14,6 @@ import com.energyict.protocolimplv2.DeviceProtocolDialectName;
 
 import java.util.Optional;
 
-/**
- * Simple dialect that has no parameters.
- *
- * Copyrights EnergyICT
- * Date: 3/06/13
- * Time: 13:39
- * Author: khe
- */
 public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     public NoParamsDeviceProtocolDialect(Thesaurus thesaurus, PropertySpecService propertySpecService) {

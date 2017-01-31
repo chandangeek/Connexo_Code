@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimpl.EMCO;
 
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.EMCO.frame.RegisterRequestFrame;
 import com.energyict.protocolimpl.EMCO.frame.RegisterResponseFrame;
 
@@ -13,12 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 5/03/12
- * Time: 13:09
- */
 public class EventLog  {
 
     private FP93 meterProtocol;

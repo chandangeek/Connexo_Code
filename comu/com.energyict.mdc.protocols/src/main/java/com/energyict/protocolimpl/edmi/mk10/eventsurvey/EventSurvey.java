@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * EventSurvey.java
  *
  * Created on 31 maart 2006, 14:28
@@ -11,6 +15,7 @@
 package com.energyict.protocolimpl.edmi.mk10.eventsurvey;
 
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk10.command.FileAccessReadCommand;
 import com.energyict.protocolimpl.edmi.mk10.core.DateTimeBuilder;
