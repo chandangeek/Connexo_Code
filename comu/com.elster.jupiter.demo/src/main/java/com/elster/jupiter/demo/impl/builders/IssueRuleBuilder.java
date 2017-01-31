@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -43,6 +44,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private final IssueService issueService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final TimeService timeService;
 
     private String type;
     private String reason;
@@ -51,12 +53,13 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private Priority priority;
 
     @Inject
-    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public IssueRuleBuilder(IssueCreationService issueCreationService, IssueService issueService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
         super(IssueRuleBuilder.class);
         this.issueCreationService = issueCreationService;
         this.issueService = issueService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.timeService = timeService;
     }
 
     public IssueRuleBuilder withType(String type) {
@@ -172,9 +175,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("2"));
-            properties.put(
+           /* properties.put(
                     BasicDeviceAlarmRuleTemplate.THRESHOLD,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.THRESHOLD).get().getValueFactory().fromStringValue(String.valueOf(System.currentTimeMillis() + 5 * 60 * 1000)));
+            */
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.THRESHOLD, timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days").get() : timeService.getAllRelativePeriod() );
             properties.put(
                     BasicDeviceAlarmRuleTemplate.UP_URGENCY_ON_RAISE, true);
             properties.put(
@@ -245,7 +251,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private List<HasIdAndName> getAllDeviceStates() {
         List<HasIdAndName> listValue = new ArrayList<>();
         deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().find()
-                .stream().map(lifecycle ->  lifecycle.getFiniteStateMachine().getStates())
+                .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
                 .flatMap(Collection::stream)
                 .forEach(value -> listValue.add(new HasIdAndName() {
                             @Override
@@ -258,7 +264,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                                 return value.getName();
                             }
                         })
-        );
+                );
         return listValue;
     }
 
