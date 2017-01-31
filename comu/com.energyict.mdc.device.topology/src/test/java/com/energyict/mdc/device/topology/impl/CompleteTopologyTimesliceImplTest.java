@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.data.Device;
@@ -7,7 +11,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.Arrays;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
