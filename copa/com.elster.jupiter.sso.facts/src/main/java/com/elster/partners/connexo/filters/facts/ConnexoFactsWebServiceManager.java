@@ -1,6 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.partners.connexo.filters.facts;
 
-import com.hof.mi.web.service.*;
+import com.hof.mi.web.service.AdministrationPerson;
+import com.hof.mi.web.service.AdministrationServiceRequest;
+import com.hof.mi.web.service.AdministrationServiceResponse;
+import com.hof.mi.web.service.AdministrationServiceService;
+import com.hof.mi.web.service.AdministrationServiceServiceLocator;
+import com.hof.mi.web.service.AdministrationServiceSoapBindingStub;
 
 import javax.xml.rpc.ServiceException;
 import java.rmi.RemoteException;
