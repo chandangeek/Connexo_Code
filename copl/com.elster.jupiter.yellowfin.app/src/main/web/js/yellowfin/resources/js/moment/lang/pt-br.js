@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : brazilian portuguese (pt-br)
 // author : Caio Ribeiro Pereira : https://github.com/caio-ribeiro-pereira

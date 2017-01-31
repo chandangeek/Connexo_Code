@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : Arabic (ar)
 // author : Abdel Said : https://github.com/abdelsaid

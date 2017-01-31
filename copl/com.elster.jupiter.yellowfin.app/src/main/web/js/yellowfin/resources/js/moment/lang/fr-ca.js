@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // moment.js language configuration
 // language : canadian french (fr-ca)
 // author : Jonathan Abourbih : https://github.com/jonbca
