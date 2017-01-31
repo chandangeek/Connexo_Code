@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.common.ExportTagsInfoButton', {
     extend: 'Ext.button.Button',
     xtype: 'dxp-export-tags-info-button',

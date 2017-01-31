@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dxp.view.log.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.dxp-log-grid',
