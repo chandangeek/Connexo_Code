@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.export.DataExportService;
@@ -13,11 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 29/10/2014
- * Time: 13:07
- */
 @Component(name = "com.elster.jupiter.export.processor.translations", service = {TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true)
 public class Translations implements TranslationKeyProvider, MessageSeedProvider {
 
