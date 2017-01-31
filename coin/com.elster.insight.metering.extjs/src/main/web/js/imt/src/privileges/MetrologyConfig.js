@@ -24,5 +24,11 @@ Ext.define('Imt.privileges.MetrologyConfig', {
     },
     canAdministrateValidation:function(){
         return Uni.Auth.checkPrivileges(Imt.privileges.MetrologyConfig.adminValidation);
+    },
+    canViewEstimation: function () {
+        return Uni.Auth.checkPrivileges(Imt.privileges.MetrologyConfig.viewEstimation);
+    },
+    canAdministrateEstimation: function () {
+        return Uni.Auth.checkPrivileges(Imt.privileges.MetrologyConfig.adminEstimation);
     }
 });

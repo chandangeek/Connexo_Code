@@ -582,7 +582,7 @@ Ext.define('Imt.controller.History', {
                     route: 'validation/rulesets/{ruleSetId}/metrologyconfigurationpurposes',
                     controller: 'Imt.rulesets.controller.ValidationRuleSetPurposes',
                     action: 'showMetrologyConfigurationPurposes',
-                    privileges: Imt.privileges.MetrologyConfig.canView() || Imt.privileges.MetrologyConfig.canAdministrate(),
+                    privileges: Imt.privileges.MetrologyConfig.canViewValidation() || Imt.privileges.MetrologyConfig.canAdministrateValidation(),
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.addMetrologyConfigurationPurposes', 'IMT', 'Add metrology configuration purposes'),
@@ -598,7 +598,7 @@ Ext.define('Imt.controller.History', {
                     route: 'estimationrulesets/{ruleSetId}/metrologyconfigurationpurposes',
                     controller: 'Imt.rulesets.controller.EstimationRuleSetPurposes',
                     action: 'showMetrologyConfigurationPurposes',
-                    privileges: Imt.privileges.MetrologyConfig.canView() || Imt.privileges.MetrologyConfig.canAdministrate(),
+                    privileges: Imt.privileges.MetrologyConfig.canViewEstimation() || Imt.privileges.MetrologyConfig.canAdministrateEstimation(),
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.addMetrologyConfigurationPurposes', 'IMT', 'Add metrology configuration purposes'),
