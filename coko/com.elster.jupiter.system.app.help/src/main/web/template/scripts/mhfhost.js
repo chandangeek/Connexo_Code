@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 var gsNoTopics="No results found";
 var gsLoadXmlFailed="Failed to load XML file";
 var gsInitDatabaseFailed="Failed to initialise database";

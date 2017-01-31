@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 var gbBlockIOSScaling = 0;
 var gbPreviewMode = 0;
 var gRhEvtFuncsList = new Array;

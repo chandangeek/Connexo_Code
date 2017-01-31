@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 //	MultiscreenHelp Help 1.0.0
 var gsFileName="";
 var gsDivName="";

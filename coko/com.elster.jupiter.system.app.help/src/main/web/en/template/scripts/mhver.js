@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 //	Mobile Help 1.0.0
 var gbNav=false;
 var gbNav6=false;

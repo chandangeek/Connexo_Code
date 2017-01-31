@@ -1,1 +1,5 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 gXMLBuffer ="<?xml version=\"1.0\" encoding=\"utf-8\" ?><data  src=\"toc.js\"  name=\"Application servers\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Application_servers.htm\"><item name=\"Understand application servers\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Understand_application_servers.htm\" /><book  src=\"toc9.js\"  name=\"Monitor application servers\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Monitor_application_servers.htm\" /><book  src=\"toc10.js\"  name=\"Configure application servers\" url=\"000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_ApplicationServers/Configure_application_servers.htm\" /></data>";

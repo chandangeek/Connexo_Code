@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 var gProjDataFile = "projectdata.js";
 gbLoadingProjData = false;
 gbProjDataLoaded = false;
