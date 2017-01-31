@@ -1,16 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io;
 
 import com.elster.jupiter.time.TimeDuration;
 
 import java.math.BigDecimal;
 
-/**
- * Groups relevant serial port configuration options.
- *
- * Copyrights EnergyICT
- * Date: 14/08/12
- * Time: 13:23
- */
 public class SerialPortConfiguration {
 
     public static final TimeDuration DEFAULT_SERIAL_PORT_OPEN_TIMEOUT = new TimeDuration(2);

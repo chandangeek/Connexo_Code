@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io;
 
 import aQute.bnd.annotation.ProviderType;
 
-/**
- * Provides functionality to manipulate the signals of the Serial Port
- * <p/>
- * Copyrights EnergyICT
- * Date: 24/08/12
- * Time: 16:00
- */
 @ProviderType
 public interface SignalController {
 

@@ -1,16 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
 
-import com.elster.jupiter.util.exception.MessageSeed;
-
-/**
- * Provides functionality to create proper exceptions related to a ServerSerialPort.
- * <p/>
- * Copyrights EnergyICT
- * Date: 14/08/12
- * Time: 16:08
- */
 public final class SerialPortException extends ComServerRuntimeException {
 
     public SerialPortException(MessageSeed messageSeed, Object... messageArguments) {

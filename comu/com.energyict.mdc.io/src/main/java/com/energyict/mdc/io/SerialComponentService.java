@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
 
 import java.math.BigDecimal;
 import java.util.List;

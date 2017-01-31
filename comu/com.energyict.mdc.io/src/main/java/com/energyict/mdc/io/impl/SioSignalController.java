@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.SerialPortException;
@@ -7,13 +11,6 @@ import Serialio.SerialPort;
 
 import java.io.IOException;
 
-/**
- * The SignalController for a SerialPort working with the SerialIO library.
- * <p/>
- * Copyrights EnergyICT
- * Date: 24/08/12
- * Time: 16:19
- */
 public class SioSignalController implements SignalController {
 
     private final SerialPort serialPort;

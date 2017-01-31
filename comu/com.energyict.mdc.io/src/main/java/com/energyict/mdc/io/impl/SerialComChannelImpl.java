@@ -1,17 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.ServerSerialPort;
 
-/**
- * Creates a simple {@link ComChannel} wrapped around a {@link ServerSerialPort}.
- * <p>
- * Copyrights EnergyICT
- * Date: 17/08/12
- * Time: 9:34
- */
 public class SerialComChannelImpl extends SynchronousComChannel implements SerialComChannel {
 
     private final ServerSerialPort serialPort;

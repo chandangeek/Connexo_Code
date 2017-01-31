@@ -1,6 +1,8 @@
-package com.energyict.mdc.io;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.io.ComChannel;
+package com.energyict.mdc.io;
 
 import java.io.IOException;
 import java.io.OutputStream;

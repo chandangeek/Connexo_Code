@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.VirtualUdpSession;
@@ -13,13 +17,6 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 
-/**
- * The abstract UDP session handles the Input- and OutputStream as well as the common components.
- * <p/>
- * Copyrights EnergyICT
- * Date: 9/11/12
- * Time: 10:57
- */
 public abstract class AbstractUdpSession implements VirtualUdpSession {
 
     private final int bufferSize;

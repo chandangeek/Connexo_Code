@@ -1,15 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.SignalController;
+
 import gnu.io.SerialPort;
 
-/**
- * The SignalController for a SerialPort working with the RxTx library.
- * <p/>
- * Copyrights EnergyICT
- * Date: 24/08/12
- * Time: 16:23
- */
 public class RxTxSignalController implements SignalController {
 
     private final SerialPort serialPort;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io;
 
 import aQute.bnd.annotation.ProviderType;
@@ -5,13 +9,6 @@ import aQute.bnd.annotation.ProviderType;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Provides functionality to manage a hardware serial(RS-232) port on the ComServer side.
- * <p/>
- * Copyrights EnergyICT
- * Date: 14/08/12
- * Time: 10:37
- */
 @ProviderType
 public interface ServerSerialPort {
 

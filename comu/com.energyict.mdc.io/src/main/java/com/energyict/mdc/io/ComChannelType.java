@@ -1,14 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io;
 
-/**
- * The ComChannel type is added as a typed property to the comchannel instances.
- * This can be used by the V2 protocols to determine which connection layer should be used.
- * <p>
- * Copyrights EnergyICT
- * Date: 7/11/13
- * Time: 9:27
- * Author: khe
- */
 public enum ComChannelType {
 
     NOT_DEFINED(-1),

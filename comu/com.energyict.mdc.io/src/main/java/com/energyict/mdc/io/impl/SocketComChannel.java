@@ -1,19 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelType;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.net.Socket;
 
-/**
- * Creates a simple {@link ComChannel} wrapped around a {@link Socket}.
- * <p>
- * Copyrights EnergyICT
- * Date: 17/08/12
- * Time: 16:33
- */
 public class SocketComChannel extends SynchronousComChannel {
 
     private final Socket socket;

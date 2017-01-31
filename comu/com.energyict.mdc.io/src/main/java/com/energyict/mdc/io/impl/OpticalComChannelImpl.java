@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.ComChannelType;
@@ -5,13 +9,6 @@ import com.energyict.mdc.io.OpticalComChannel;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.ServerSerialPort;
 
-/**
- * Serves as an Optical ComChannel.
- *
- * Copyrights EnergyICT
- * Date: 12/11/14
- * Time: 3:22 PM
- */
 public class OpticalComChannelImpl extends SynchronousComChannel implements OpticalComChannel {
 
     private final SerialComChannel serialComChannel;

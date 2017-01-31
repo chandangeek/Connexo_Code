@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.common.ComServerRuntimeException;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.ComServerRuntimeException;
 
 /**
  * Models the exceptional situations that occur when a developer has

@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.ModemComponent;
@@ -8,20 +13,11 @@ import com.energyict.mdc.io.ModemTimeoutException;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SignalController;
 
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Provides an implementation for the {@link ModemComponent} interface
- * for the standard AT modem type.<br>
- * Copyrights EnergyICT
- * Date: 20/11/12
- * Time: 17:00
- */
 public class AtModemComponent implements ModemComponent {
 
     public static final String CONFIRM = "\r\n";

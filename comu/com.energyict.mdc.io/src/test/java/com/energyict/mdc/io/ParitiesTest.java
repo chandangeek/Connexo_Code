@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 1/09/2015
- * Time: 14:53
- */
 public class ParitiesTest {
 
     @Test

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.BaudrateValue;
@@ -10,24 +14,18 @@ import com.energyict.mdc.io.SerialPortException;
 
 import gnu.io.SerialPort;
 import gnu.io.UnsupportedCommOperationException;
-import org.junit.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/**
- * Tests for the {@link RxTxSerialPort} component.
- * <p/>
- * Copyrights EnergyICT
- * Date: 17/08/12
- * Time: 9:52
- */
 public class RxTxSerialPortTest {
 
     private static final BigDecimal NR_OF_DATA_BITS_8 = new BigDecimal(SerialPort.DATABITS_8);

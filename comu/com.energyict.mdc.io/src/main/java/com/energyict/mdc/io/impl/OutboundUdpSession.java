@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import java.io.IOException;
@@ -5,13 +9,6 @@ import java.io.PipedOutputStream;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 
-/**
- * Straightforward version of an Outbound UDP session
- * <p/>
- * Copyrights EnergyICT
- * Date: 9/11/12
- * Time: 11:41
- */
 public class OutboundUdpSession extends AbstractUdpSession {
 
     /**

@@ -1,13 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
-import com.energyict.mdc.io.ModemComponent;
-import com.energyict.mdc.io.SignalController;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.ModemTimeoutException;
-
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.SignalController;
 
 import java.util.ArrayList;
 import java.util.Iterator;

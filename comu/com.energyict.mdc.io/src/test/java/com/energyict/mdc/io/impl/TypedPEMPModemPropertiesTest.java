@@ -1,17 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import java.util.Collections;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Testing the defaults
- * Copyrights EnergyICT
- * Date: 1/09/2015
- * Time: 15:13
- */
 public class TypedPEMPModemPropertiesTest extends TypedPEMPModemProperties {
 
     public TypedPEMPModemPropertiesTest() {

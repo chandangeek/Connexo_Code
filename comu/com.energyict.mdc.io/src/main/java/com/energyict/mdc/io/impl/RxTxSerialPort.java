@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.FlowControl;
@@ -22,15 +26,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * A hardware SerialPort driven by the Rx/Tx java library.
- * <p/>
- * Copyrights EnergyICT
- * Date: 14/08/12
- * Time: 15:41
- *
- * @see <a href="http://rxtx.qbang.org/wiki/index.php/Main_Page">RxTx Homepage</a>
- */
 public class RxTxSerialPort implements ServerSerialPort {
 
     private static final int STOPBITS_1_5_UNSCALED_VALUE = 15;

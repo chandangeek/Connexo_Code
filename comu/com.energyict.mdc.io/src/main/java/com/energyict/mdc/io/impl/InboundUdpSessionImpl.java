@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.ComChannel;
-
 import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.io.InboundUdpSession;
 import com.energyict.mdc.io.SocketService;
@@ -11,13 +14,6 @@ import java.io.PipedOutputStream;
 import java.net.DatagramPacket;
 import java.net.SocketException;
 
-/**
- * Straightforward version of an inbound UDP session.
- * <p/>
- * Copyrights EnergyICT
- * Date: 9/11/12
- * Time: 10:56
- */
 public class InboundUdpSessionImpl extends AbstractUdpSession implements InboundUdpSession {
 
     /**

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.BaudrateValue;
@@ -21,15 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 
-/**
- * A hardware SerialPort driven by the SerialIO java library.
- * <p/>
- * Copyrights EnergyICT
- * Date: 17/08/12
- * Time: 11:43
- *
- * @see <a href="http://www.serialio.com/products/serialport/serialport.php">SerialIO Homepage</a>
- */
 public class SioSerialPort implements ServerSerialPort {
 
     private static final int SERIAL_CONFIG_1_STOP_BIT_UNSCALED_VALUE = 1;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.common.ApplicationException;
@@ -21,13 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
 
-/**
- * Tests for the {@link SioSerialPort} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 17/08/12
- * Time: 14:45
- */
 public class SioSerialPortTest {
 
     @Test
