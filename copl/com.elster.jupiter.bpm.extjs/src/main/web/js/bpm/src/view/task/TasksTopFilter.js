@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.view.task.TasksTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'bpm-view-tasks-topfilter',

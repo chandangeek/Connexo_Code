@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.monitorissueprocesses.view.IssueProcessPreview', {
     extend: 'Ext.form.Panel',
     alias: 'widget.bpm-issue-process-preview',

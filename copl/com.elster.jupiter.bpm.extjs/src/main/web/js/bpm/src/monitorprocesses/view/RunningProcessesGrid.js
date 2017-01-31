@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.monitorprocesses.view.RunningProcessesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.bpm-running-processes-grid',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.view.task.UserAssigneeCombo', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.user-assignee-combo',
