@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.devtools.tests;
 
 import org.hamcrest.BaseMatcher;
@@ -5,11 +9,6 @@ import org.hamcrest.Description;
 
 import java.util.function.Predicate;
 
-/**
-* Copyrights EnergyICT
-* Date: 20/11/2014
-* Time: 10:01
-*/
 public class Matcher<T> extends BaseMatcher<T> {
 
     private final Predicate<T> matchingPredicate;
