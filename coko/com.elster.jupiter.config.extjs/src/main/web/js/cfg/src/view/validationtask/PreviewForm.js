@@ -5,7 +5,7 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
     requires: [        
         'Uni.form.field.Duration',
         'Cfg.view.validationtask.DataSourcesPreviewContainer',
-        'Dxp.store.TaskLogLevels'
+        'Uni.store.TaskLogLevels'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -16,7 +16,7 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
 
     initComponent: function () {
         var me = this,
-            logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+            logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
 
         me.items = [
             {

@@ -5,7 +5,7 @@ Ext.define('Cfg.view.validationtask.Add', {
         'Uni.form.field.DateTime',
         'Uni.util.FormErrorMessage',
         'Cfg.view.validationtask.DataSourcesContainer',
-        'Dxp.store.TaskLogLevels'
+        'Uni.store.TaskLogLevels'
     ],
 
     edit: false,
@@ -57,7 +57,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                         width: 500,
                         itemId: 'cfg-validation-task-add-loglevel',
                         allowBlank: false,
-                        store: 'Dxp.store.TaskLogLevels',
+                        store: 'Uni.store.TaskLogLevels',
                         queryMode: 'local',
                         displayField: 'displayValue',
                         valueField: 'id'

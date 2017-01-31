@@ -5,7 +5,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
     requires: [        
         'Uni.form.field.Duration',
         'Cfg.view.validationtask.DataSourcesPreviewContainer',
-        'Dxp.store.TaskLogLevels'
+        'Uni.store.TaskLogLevels'
     ],
     appName: null,
 
@@ -15,7 +15,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
 
     initComponent: function () {
         var me = this,
-            logLevelsStore = Ext.getStore('Dxp.store.TaskLogLevels');
+            logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
         me.items = [
             {
                 xtype: 'displayfield',
