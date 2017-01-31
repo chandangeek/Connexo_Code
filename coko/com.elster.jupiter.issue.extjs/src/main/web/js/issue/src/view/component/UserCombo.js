@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Isu.view.component.UserCombo', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.issues-user-combo',
