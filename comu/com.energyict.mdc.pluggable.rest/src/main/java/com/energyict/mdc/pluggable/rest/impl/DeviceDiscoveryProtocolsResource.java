@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
@@ -21,11 +25,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/11/13
- * Time: 12:11
- */
 @Path("/devicediscoveryprotocols")
 public class DeviceDiscoveryProtocolsResource {
 

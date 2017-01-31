@@ -1,14 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.ProtocolFamily;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 09:37
- */
 @XmlRootElement
 public class LicensedProtocolInfo {
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -22,13 +26,6 @@ import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 
 import java.util.Date;
 
-/**
- * Represents simple types which a property can have
- * <p/>
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 11:44
- */
 public enum SimplePropertyType implements PropertyType {
     PASSWORD(Password.class),
     HEXSTRING(HexString.class),

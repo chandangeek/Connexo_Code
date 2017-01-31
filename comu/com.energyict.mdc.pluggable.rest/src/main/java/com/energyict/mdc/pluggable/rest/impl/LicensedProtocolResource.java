@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.rest.util.Transactional;
@@ -13,11 +17,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 09:46
- */
 @Path("/licensedprotocols")
 public class LicensedProtocolResource {
 
