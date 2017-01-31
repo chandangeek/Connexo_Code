@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.orm;
 
 import aQute.bnd.annotation.ConsumerType;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/07/2016
- * Time: 9:45
- */
 @ConsumerType
 @FunctionalInterface
 public interface DifferencesListener {

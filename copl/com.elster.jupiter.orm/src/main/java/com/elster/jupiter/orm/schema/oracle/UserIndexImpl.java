@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.orm.schema.oracle;
 
 import com.elster.jupiter.orm.Column;
@@ -10,11 +14,6 @@ import com.elster.jupiter.orm.schema.ExistingIndex;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/04/2014
- * Time: 14:07
- */
 public class UserIndexImpl implements ExistingIndex {
 
     private String name;
