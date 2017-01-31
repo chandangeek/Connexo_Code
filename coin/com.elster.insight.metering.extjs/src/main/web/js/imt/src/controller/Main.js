@@ -100,27 +100,31 @@ Ext.define('Imt.controller.Main', {
     onValidationRuleSetMenuBeforeRender: function (menu) {
         var me = this;
 
-        menu.add(
-            {
-                text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
-                itemId: 'metrology-configuration-purposes-link',
-                href: me.getController('Uni.controller.history.Router')
-                    .getRoute('administration/rulesets/overview/metrologyconfigurationpurposes')
-                    .buildUrl({ruleSetId: menu.ruleSetId})
-            }
-        );
+        if (Imt.privileges.MetrologyConfig.canViewValidation() || Imt.privileges.MetrologyConfig.canAdministrateValidation()) {
+            menu.add(
+                {
+                    text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                    itemId: 'metrology-configuration-purposes-link',
+                    href: me.getController('Uni.controller.history.Router')
+                        .getRoute('administration/rulesets/overview/metrologyconfigurationpurposes')
+                        .buildUrl({ruleSetId: menu.ruleSetId})
+                }
+            );
+        }
     },
 
     onEstimationRuleSetMenuBeforeRender: function (menu) {
         var me = this;
 
-        menu.add(
-            {
-                text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
-                itemId: 'metrology-configuration-purposes-link',
-                href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes').buildUrl()
-            }
-        );
+        if (Imt.privileges.MetrologyConfig.canViewEstimation() || Imt.privileges.MetrologyConfig.canAdministrateEstimation()) {
+            menu.add(
+                {
+                    text: Uni.I18n.translate('general.metrologyConfigurationPurposes', 'IMT', 'Metrology configuration purposes'),
+                    itemId: 'metrology-configuration-purposes-link',
+                    href: me.getController('Uni.controller.history.Router').getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes').buildUrl()
+                }
+            );
+        }
     },
 
     initMenu: function () {
