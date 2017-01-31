@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.cps.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -16,11 +20,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/06/2016
- * Time: 14:15
- */
 class Installer implements FullInstaller {
 
     private final MeteringService meteringService;
