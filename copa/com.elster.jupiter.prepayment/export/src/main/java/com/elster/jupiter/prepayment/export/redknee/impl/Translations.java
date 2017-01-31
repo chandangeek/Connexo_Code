@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.prepayment.export.redknee.impl;
 
 import com.elster.jupiter.export.DataExportService;
@@ -18,11 +22,6 @@ import java.util.List;
 // import com.elster.jupiter.export.processor.impl.FormatterProperties;
 // import com.elster.jupiter.export.processor.impl.MessageSeeds;
 
-/**
- * Copyrights EnergyICT
- * Date: 29/10/2014
- * Time: 13:07
- */
 @Component(name = "com.elster.jupiter.export.redknee.translations", service = {TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true)
 public class Translations implements TranslationKeyProvider, MessageSeedProvider {
 

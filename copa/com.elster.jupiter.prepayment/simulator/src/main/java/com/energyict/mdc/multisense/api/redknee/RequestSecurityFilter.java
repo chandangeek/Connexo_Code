@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.multisense.api.redknee;
 
 import javax.ws.rs.container.ContainerRequestContext;
@@ -5,7 +9,6 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Base64;
 
 /**
  * Created by bvn on 9/23/15.

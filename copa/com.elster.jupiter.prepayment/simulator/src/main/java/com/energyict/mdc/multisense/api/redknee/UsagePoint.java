@@ -1,10 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.multisense.api.redknee;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.logging.Logger;
 
 /**
  * Created by bvn on 9/17/15.
