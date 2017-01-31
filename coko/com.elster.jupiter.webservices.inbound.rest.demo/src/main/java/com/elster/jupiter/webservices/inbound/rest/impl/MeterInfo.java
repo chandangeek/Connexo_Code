@@ -15,6 +15,9 @@ public class MeterInfo {
     public String mRID;
     public String name;
     public String serialNumber;
+    public String manufacturer;
+    public String modelNbr;
+    public String modelVersion;
     public String utcNumber;
     public String eMail1;
     public String eMail2;
@@ -34,6 +37,9 @@ public class MeterInfo {
         this.mRID = meter.getMRID();
         this.name = meter.getName();
         this.serialNumber = meter.getSerialNumber();
+        this.manufacturer = meter.getManufacturer();
+        this.modelNbr = meter.getModelNumber();
+        this.modelVersion = meter.getModelVersion();
         this.utcNumber = meter.getUtcNumber();
 
         if (meter.getElectronicAddress() != null) {
