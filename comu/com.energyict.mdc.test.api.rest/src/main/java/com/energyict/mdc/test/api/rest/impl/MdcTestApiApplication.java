@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.test.api.rest.impl;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
