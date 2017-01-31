@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dsh.view.widget.CommunicationsList', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.communications-list',

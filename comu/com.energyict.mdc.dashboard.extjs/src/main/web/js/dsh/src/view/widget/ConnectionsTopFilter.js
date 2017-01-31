@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'dsh-view-widget-connectionstopfilter',
