@@ -1,10 +1,13 @@
-package com.energyict.mdc.pluggable.exceptions;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.pluggable.PluggableClass;
+package com.energyict.mdc.pluggable.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.pluggable.PluggableClass;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made

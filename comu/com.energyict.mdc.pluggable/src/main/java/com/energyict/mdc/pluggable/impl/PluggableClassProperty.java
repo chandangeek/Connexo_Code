@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.pluggable.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -5,6 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.pluggable.PluggableClass;
+
 import javax.inject.Inject;
 import java.time.Instant;
 
