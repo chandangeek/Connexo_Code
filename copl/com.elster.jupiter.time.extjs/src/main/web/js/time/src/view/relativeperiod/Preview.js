@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Tme.view.relativeperiod.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,

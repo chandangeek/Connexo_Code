@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Tme.view.relativeperiod.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.relative-periods-grid',

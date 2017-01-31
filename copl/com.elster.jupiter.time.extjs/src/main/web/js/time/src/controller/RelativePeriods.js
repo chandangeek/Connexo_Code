@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Tme.controller.RelativePeriods', {
     extend: 'Ext.app.Controller',
 
