@@ -1,11 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl.comserver;
 
 
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
+import com.energyict.mdc.engine.config.ComServer;
+
 import com.google.common.collect.Ordering;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class LogLevelAdapter extends MapBasedXmlAdapter<ComServer.LogLevel> {
 

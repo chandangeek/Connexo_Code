@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -5,6 +9,7 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 

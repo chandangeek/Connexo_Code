@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
+import com.energyict.mdc.io.BaudrateValue;
 
 public class BaudrateAdapter extends MapBasedXmlAdapter<BaudrateValue> {
     public BaudrateAdapter() {

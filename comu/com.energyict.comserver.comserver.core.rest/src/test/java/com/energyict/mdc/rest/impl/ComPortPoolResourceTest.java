@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -12,23 +16,29 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.*;
+import com.energyict.mdc.rest.impl.comserver.ComPortPoolInfo;
+import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
+import com.energyict.mdc.rest.impl.comserver.OutboundComPortInfo;
+import com.energyict.mdc.rest.impl.comserver.OutboundComPortPoolInfo;
+import com.energyict.mdc.rest.impl.comserver.TcpOutboundComPortInfo;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

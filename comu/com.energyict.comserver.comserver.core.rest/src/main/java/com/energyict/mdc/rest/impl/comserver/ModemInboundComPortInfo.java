@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -7,16 +11,15 @@ import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
-import com.energyict.mdc.protocol.api.ComPortType;
-
 import com.energyict.mdc.io.SerialPortConfiguration;
-import java.util.Optional;
+import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboundComPort, ModemBasedInboundComPort.ModemBasedInboundComPortBuilder> {
 
