@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Yfn.view.generatereport.Browse', {
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'generatereport-browse',

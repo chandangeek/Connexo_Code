@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Yfn.view.ReportView', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.report-view',

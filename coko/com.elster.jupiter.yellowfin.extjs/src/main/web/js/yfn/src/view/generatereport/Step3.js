@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Yfn.view.generatereport.Step3', {
     extend: 'Ext.panel.Panel',
     xtype: 'generatereport-wizard-step3',
