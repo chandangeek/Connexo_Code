@@ -573,8 +573,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         DataValidationStatus dataValidationStatus_3 = mockValidationStatus(INTERVAL_3.upperEndpoint(), minMax);
         IntervalReadingRecord intervalReadingRecord4 = mockIntervalReadingRecord(INTERVAL_4, BigDecimal.TEN);
         DataValidationStatus dataValidationStatus_4 = mockEstimationStatus(INTERVAL_4.upperEndpoint(), estimation);
-        DataValidationStatus dataValidationStatus_5 = mockEstimationStatus(timeStamp.plus(1, ChronoUnit.HOURS), estimation);
-        //intentionally added one more status which is out of requested interval
 
         List<IntervalReadingRecord> intervalReadings = Arrays.asList(intervalReadingRecord1, intervalReadingRecord3, intervalReadingRecord4);
         when(channel.getIntervalReadings(any())).thenReturn(intervalReadings);
@@ -585,7 +583,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel.getReading(INTERVAL_4.upperEndpoint())).thenReturn(Optional.of(intervalReadingRecord4));
         when(evaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, intervalReadings,
                 Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint())))
-                .thenReturn(Arrays.asList(dataValidationStatus_1, dataValidationStatus_2, dataValidationStatus_3, dataValidationStatus_4, dataValidationStatus_5));
+                .thenReturn(Arrays.asList(dataValidationStatus_1, dataValidationStatus_2, dataValidationStatus_3, dataValidationStatus_4));
     }
 
     private ValidationRule mockValidationRule(long id, String name) {
