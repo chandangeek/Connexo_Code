@@ -326,6 +326,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     //Evn crypto protocols
     EVN_CRYPTO_AM540(283, "com.evn.protocolimplv2.dlms.idis.am540.CryptoAM540", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
     EVN_CRYPTO_BEACON3100(284, "com.evn.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100", FamilyRule.G3_PLC, FamilyRule.ELSTER_IDIS_P2),
+    T210D_MBUS_DEVICE(285, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.MBusDevice"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
