@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.time.rest;
 
 import com.elster.jupiter.time.RelativePeriod;
@@ -5,11 +9,6 @@ import com.elster.jupiter.time.RelativePeriod;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/11/2014
- * Time: 9:52
- */
 public class RelativePeriodInfos {
 
     public int total;
