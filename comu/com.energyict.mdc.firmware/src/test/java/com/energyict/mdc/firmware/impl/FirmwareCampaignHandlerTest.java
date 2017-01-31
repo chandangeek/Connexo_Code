@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -40,11 +44,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.04.16
- * Time: 14:49
- */
 @RunWith(MockitoJUnitRunner.class)
 public class FirmwareCampaignHandlerTest {
 

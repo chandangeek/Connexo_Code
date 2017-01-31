@@ -1,18 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 
-/**
- * Exceptions that can be raised when 'Retrying' a {@link DeviceInFirmwareCampaign}
- * Copyrights EnergyICT
- * Date: 6/04/2016
- * Time: 9:16
- */
 public class RetryDeviceInFirmwareCampaignExceptions {
 
     static final String CAMPAIGN_IS_NOT_ONGOING = "DeviceInFirmwareCampaign.ChangeStatusNotAllowed.campaignNotOngoing";

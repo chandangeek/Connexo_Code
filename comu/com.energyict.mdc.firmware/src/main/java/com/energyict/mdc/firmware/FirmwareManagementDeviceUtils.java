@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -11,11 +15,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 04.09.15
- * Time: 10:35
- */
 public interface FirmwareManagementDeviceUtils {
     Optional<DeviceMessage<Device>> getUploadMessageForActivationMessage(DeviceMessage<Device> activationMessage);
 

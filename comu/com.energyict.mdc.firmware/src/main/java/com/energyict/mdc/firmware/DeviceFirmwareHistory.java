@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware;
 
 import java.util.List;
 
-/**
- * History of ActivatedFirmwareVersions of a device
- * Copyrights EnergyICT
- * Date: 1/04/2016
- * Time: 12:53
- */
 public interface DeviceFirmwareHistory {
 
     /**

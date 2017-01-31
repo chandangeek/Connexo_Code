@@ -1,24 +1,32 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.firmware.impl;
 
-import com.elster.jupiter.util.conditions.*;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.BadFilterException;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
+import com.energyict.mdc.firmware.FirmwareService;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
-
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/03/2016
- * Time: 16:44
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DevicesInFirmwareCampaignFilterTest {
 
