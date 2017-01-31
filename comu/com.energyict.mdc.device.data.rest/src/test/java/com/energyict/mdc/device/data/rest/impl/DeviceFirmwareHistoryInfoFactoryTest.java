@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -23,11 +27,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/04/2016
- * Time: 11:59
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceFirmwareHistoryInfoFactoryTest {
 
