@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.issue.datacollection.rest.i18n;
 
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 
 import java.util.logging.Level;
 
