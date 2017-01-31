@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.impl.records;
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
