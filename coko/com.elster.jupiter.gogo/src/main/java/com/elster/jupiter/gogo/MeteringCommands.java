@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.gogo;
 
 import com.elster.jupiter.cbo.MacroPeriod;
@@ -45,11 +49,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/06/2014
- * Time: 18:00
- */
 @Component(name = "com.elster.jupiter.playground.metering.console", service = MeteringCommands.class,
         property = {"osgi.command.scope=metering",
                 "osgi.command.function=createMeter",

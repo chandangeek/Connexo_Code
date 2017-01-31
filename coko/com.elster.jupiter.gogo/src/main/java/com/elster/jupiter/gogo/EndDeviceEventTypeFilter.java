@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.gogo;
 
 
@@ -7,11 +11,6 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 
-/**
- * Copyrights EnergyICT
- * Date: 27/06/2014
- * Time: 14:23
- */
 public class EndDeviceEventTypeFilter {
     private final boolean allApplicable;
     private final EndDeviceType type;

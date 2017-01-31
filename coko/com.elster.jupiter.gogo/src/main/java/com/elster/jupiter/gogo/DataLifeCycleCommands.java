@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.gogo;
 
 import org.osgi.service.component.annotations.Component;
@@ -7,12 +11,7 @@ import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/06/2014
- * Time: 18:00
- */
-@Component(service = DataLifeCycleCommands.class,property = {"osgi.command.scope=metering", "osgi.command.function=purgeData", "osgi.command.function=retention"} , immediate = true)                
+@Component(service = DataLifeCycleCommands.class,property = {"osgi.command.scope=metering", "osgi.command.function=purgeData", "osgi.command.function=retention"} , immediate = true)
 public class DataLifeCycleCommands {
 
     private volatile LifeCycleService lifeCycleService;
