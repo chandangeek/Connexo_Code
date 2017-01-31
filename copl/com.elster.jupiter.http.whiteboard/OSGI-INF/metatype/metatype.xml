@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
   <OCD description="HTTP Resource Server" name="HTTP Resources" id="com.elster.jupiter.http.whiteboard">       
     <AD name="event"  id="event" required="true" type="Boolean" default="false" description="If true generate events"/>
