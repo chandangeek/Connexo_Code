@@ -48,7 +48,7 @@ Ext.define('Fim.controller.history.DataImport', {
                                     title: Uni.I18n.translate('general.edit', 'FIM', 'Edit'),
                                     route: 'edit',
                                     controller: 'Fim.controller.ImportServices',
-                                    privileges: Fim.privileges.DataImport.getAdmin(),
+                                    privileges: Fim.privileges.DataImport.getAdmin,
                                     action: 'showEditImportService'
                                 },
                                 history: {
