@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.license.License;
@@ -18,13 +22,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-/**
- * Implementation of LicensedProtocolService interface responsible for the licnese
- * of the EICT test protocols
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 09:52
- */
 @Component(name = "com.energyict.mdc.service.licensedtestprotocols", service = LicensedProtocolService.class, immediate = true)
 public class LicensedProtocolServiceImpl implements LicensedProtocolService {
 
