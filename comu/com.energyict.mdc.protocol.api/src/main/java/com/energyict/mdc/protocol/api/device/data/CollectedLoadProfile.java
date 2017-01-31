@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IdentificationFactory.java
  *
  * Created on 2 juni 2005, 15:25

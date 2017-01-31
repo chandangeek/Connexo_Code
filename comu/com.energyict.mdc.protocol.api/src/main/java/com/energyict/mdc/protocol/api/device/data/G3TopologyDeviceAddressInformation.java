@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-/**
- * Straightforward ValueObject for the G3 deviceAddressInformation
- *
- * Copyrights EnergyICT
- * Date: 1/13/15
- * Time: 12:11 PM
- */
 public class G3TopologyDeviceAddressInformation {
 
     private final DeviceIdentifier deviceIdentifier;

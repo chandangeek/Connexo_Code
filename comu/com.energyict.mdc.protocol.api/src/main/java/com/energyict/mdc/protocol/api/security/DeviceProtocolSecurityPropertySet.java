@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.security;
 
 import com.energyict.mdc.common.TypedProperties;
 
-/**
- * Maps the SecurityPropertySet to a usable property set for a DeviceProtocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 21/01/13
- * Time: 15:24
- */
 public interface DeviceProtocolSecurityPropertySet {
 
     /**

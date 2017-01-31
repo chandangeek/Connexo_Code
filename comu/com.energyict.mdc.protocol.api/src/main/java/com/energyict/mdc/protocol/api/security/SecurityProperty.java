@@ -1,9 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.security;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 /**
  * Holds the value of a single security property for a Device.

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -14,18 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Provides a summary of all messages related to
- * <ul>
- * <li>Load limiting</li>
- * <li>Energy balance</li>
- * <li>Grid stability</li>
- * </ul>
- * <p>
- * Copyrights EnergyICT
- * Date: 3/04/13
- * Time: 9:43
- */
 enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
 
     WriteControlThresholds(DeviceMessageId.LOAD_BALANCING_WRITE_CONTROL_THRESHOLDS, "Write control thresholds") {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.services;
 
 import com.elster.jupiter.license.License;
@@ -6,14 +10,6 @@ import com.energyict.mdc.protocol.api.LicensedProtocol;
 
 import java.util.List;
 
-/**
- * Models the behavior of a component that will provide licensing
- * information about the protocols contained in the same bundle.
- *
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 09:51
- */
 public interface LicensedProtocolService {
 
     /**

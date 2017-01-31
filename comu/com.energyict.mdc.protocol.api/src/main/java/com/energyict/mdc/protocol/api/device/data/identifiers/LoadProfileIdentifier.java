@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlElement;

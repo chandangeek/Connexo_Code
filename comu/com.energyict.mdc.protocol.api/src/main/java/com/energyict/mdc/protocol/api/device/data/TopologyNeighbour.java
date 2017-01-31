@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-/**
- * Straightforward ValueObject for a Topology neighbour
- *
- * Copyrights EnergyICT
- * Date: 1/5/15
- * Time: 9:49 AM
- */
 public class TopologyNeighbour {
 
     private final DeviceIdentifier neighbour;

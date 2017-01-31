@@ -1,16 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-/**
- * A CollectedDeviceCache identifies the {@link DeviceProtocolCache}
- * that the protocol used/updated during a communication session with a device.
- * <p/>
- * Copyrights EnergyICT
- * Date: 31/08/12
- * Time: 16:12
- */
 public interface CollectedDeviceCache extends CollectedData {
 
     /**

@@ -1,16 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 
-/**
- * Coding or setup exceptions which can occur in the adapter classes.
- * <p/>
- * Copyrights EnergyICT
- * Date: 14/01/13
- * Time: 11:43
- */
 public final class DeviceProtocolAdapterCodingExceptions extends ComServerRuntimeException {
 
     /**

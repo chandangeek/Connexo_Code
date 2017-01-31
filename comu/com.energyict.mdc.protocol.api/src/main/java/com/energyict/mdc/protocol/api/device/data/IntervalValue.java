@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IntervalValue.java
  *
  * Created on 15 juli 2003, 10:24

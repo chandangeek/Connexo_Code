@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.tasks.support;
 
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Defines functionality related to Firmware Version information

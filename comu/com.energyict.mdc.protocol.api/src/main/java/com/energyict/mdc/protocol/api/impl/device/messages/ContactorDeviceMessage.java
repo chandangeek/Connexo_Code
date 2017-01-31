@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,13 +14,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provides a summary of all <i>Contactor</i> related messages
- * <p/>
- * Copyrights EnergyICT
- * Date: 28/02/13
- * Time: 9:00
- */
 public enum ContactorDeviceMessage implements DeviceMessageSpecEnum {
 
     CONTACTOR_OPEN(DeviceMessageId.CONTACTOR_OPEN, "Contactor open"),

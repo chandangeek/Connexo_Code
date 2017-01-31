@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,11 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/8/14
- * Time: 12:11 PM
- */
 enum FirewallConfigurationMessage implements DeviceMessageSpecEnum {
 
     ActivateFirewall(DeviceMessageId.FIREWALL_ACTIVATE_FIREWALL, "Activate the firewall"),

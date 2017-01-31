@@ -1,24 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.messaging;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.messaging.Messaging;
-
-import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.Set;
 
-/**
- * Provides functionality to do conversion between the <i>new</i>
- * {@link DeviceMessageSpec}s and the <i>old</i> MessageSpecs.
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:15
- */
 public interface LegacyMessageConverter {
 
     /**

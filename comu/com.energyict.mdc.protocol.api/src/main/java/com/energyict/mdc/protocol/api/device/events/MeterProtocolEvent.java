@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.events;
 
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -5,11 +9,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/12/12
- * Time: 9:33
- */
 public class MeterProtocolEvent implements Serializable, Comparable {
 
     /**

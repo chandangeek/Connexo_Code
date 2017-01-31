@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -14,11 +18,6 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/05/13
- * Time: 16:30
- */
 @ProviderType
 public interface CollectedDataFactory {
 

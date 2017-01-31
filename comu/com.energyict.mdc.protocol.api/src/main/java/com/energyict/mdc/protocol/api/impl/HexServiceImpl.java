@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl;
 
 import com.energyict.mdc.protocol.api.services.HexService;
+
 import org.osgi.service.component.annotations.Component;
 
 import javax.xml.bind.DatatypeConverter;

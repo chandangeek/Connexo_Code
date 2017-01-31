@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.legacy;
 
 import java.sql.SQLException;
 
-/**
- * Provides functionality to maintain a cache object for a certain protocol
- * <p/>
- * Copyrights EnergyICT
- * Date: 9-feb-2011
- * Time: 13:58:09
- */
 public interface CachingProtocol {
 
     /**

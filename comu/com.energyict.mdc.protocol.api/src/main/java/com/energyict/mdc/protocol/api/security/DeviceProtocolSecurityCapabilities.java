@@ -1,23 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.security;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides functionality to expose a {@link DeviceProtocol DeviceProtocol}
- * his security capabilities.
- * <p/>
- * Copyrights EnergyICT
- * Date: 21/01/13
- * Time: 16:04
- */
 public interface DeviceProtocolSecurityCapabilities {
 
     /**

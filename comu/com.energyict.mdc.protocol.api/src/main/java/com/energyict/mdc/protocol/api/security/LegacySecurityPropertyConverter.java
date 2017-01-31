@@ -1,16 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.security;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 
-/**
- * Converts the <i>new</i> {@link DeviceProtocolSecurityPropertySet}
- * to old property values which are used in legacy protocols.
- *
- * Copyrights EnergyICT
- * Date: 22/01/13
- * Time: 9:15
- */
 public interface LegacySecurityPropertyConverter {
 
     /**

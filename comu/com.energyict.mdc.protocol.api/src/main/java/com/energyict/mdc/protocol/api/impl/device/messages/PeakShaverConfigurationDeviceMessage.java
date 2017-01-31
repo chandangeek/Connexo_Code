@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,13 +13,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provides a summary of all <i>Clock</i> related messages
- * <p/>
- * Copyrights EnergyICT
- * Date: 28/02/13
- * Time: 9:10
- */
 enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetActiveChannel(DeviceMessageId.PEAK_SHAVING_SET_ACTIVE_CHANNEL, "Set active channel") {

@@ -1,12 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.messaging;
 
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * Tests that all {@link DeviceMessageId} enumeration values have a unique db value.

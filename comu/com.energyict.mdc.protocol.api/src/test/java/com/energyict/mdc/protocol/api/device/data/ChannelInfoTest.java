@@ -1,22 +1,23 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 04.08.15
- * Time: 11:06
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelInfoTest {
 

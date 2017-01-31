@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,11 +13,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/02/13
- * Time: 9:10
- */
 enum PPPConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetISP1Phone(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_PHONE, "Set ISP1 phone") {

@@ -1,17 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.services;
 
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+
 import java.util.Collection;
 
-/**
- * OSGI Service wrapper for {@link InboundDeviceProtocol}s.
- *
- * Copyrights EnergyICT
- * Date: 15/11/13
- * Time: 11:52
- */
 public interface InboundDeviceProtocolService {
 
     /**

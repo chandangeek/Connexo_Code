@@ -1,12 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.security;
 
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 29/04/2016 - 11:05
- */
 public interface FrameCounterCache {
 
     /**

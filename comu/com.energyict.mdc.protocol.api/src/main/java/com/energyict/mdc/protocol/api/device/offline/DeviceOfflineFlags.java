@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.offline;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/03/13
- * Time: 13:19
- */
 public class DeviceOfflineFlags implements OfflineDeviceContext {
     public static final int REGISTERS_FLAG               = 0b0000_0000_0000_0000_0000_0000_0000_0001;
     public static final int SLAVE_DEVICES_FLAG           = 0b0000_0000_0000_0000_0000_0000_0000_0010;

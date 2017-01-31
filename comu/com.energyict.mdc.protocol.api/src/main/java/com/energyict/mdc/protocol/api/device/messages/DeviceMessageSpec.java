@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.messages;
 
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.List;
 import java.util.Optional;

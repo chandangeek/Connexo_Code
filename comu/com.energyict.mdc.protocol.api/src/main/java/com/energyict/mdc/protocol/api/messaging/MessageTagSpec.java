@@ -1,7 +1,8 @@
-package com.energyict.mdc.protocol.api.messaging;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
-import com.energyict.mdc.protocol.api.messaging.MessageElementSpec;
+package com.energyict.mdc.protocol.api.messaging;
 
 import java.util.ArrayList;
 import java.util.List;

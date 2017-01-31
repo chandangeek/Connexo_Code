@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * DialinScheduleProtocol.java
  *
  * Created on 22 september 2005, 14:46

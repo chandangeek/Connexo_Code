@@ -1,9 +1,12 @@
-package com.energyict.mdc.protocol.api.device.events;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
+package com.energyict.mdc.protocol.api.device.events;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
 
 import java.util.ArrayList;
 import java.util.Date;

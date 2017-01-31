@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -12,13 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Provides a summary of all messages related to <i>Network</i> and <i>Connectivity</i>
- * <p/>
- * Copyrights EnergyICT
- * Date: 2/04/13
- * Time: 10:11
- */
 enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
 
     ACTIVATE_WAKEUP_MECHANISM(DeviceMessageId.NETWORK_CONNECTIVITY_ACTIVATE_WAKEUP_MECHANISM, "Activate wakeup mechanism"),

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,11 +13,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/8/14
- * Time: 12:08 PM
- */
 enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecEnum {
     EnableUplinkPing(DeviceMessageId.UPLINK_CONFIGURATION_ENABLE_PING, "Enable uplink ping"){
         @Override

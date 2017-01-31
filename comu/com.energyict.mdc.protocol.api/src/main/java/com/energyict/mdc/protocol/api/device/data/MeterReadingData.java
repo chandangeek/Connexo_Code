@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MeterReading.java
  *
  * Created on 24 februari 2003, 10:24

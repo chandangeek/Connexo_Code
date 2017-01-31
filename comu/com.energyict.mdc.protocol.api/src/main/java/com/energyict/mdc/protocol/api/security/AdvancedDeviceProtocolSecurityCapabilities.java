@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.security;
 
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 5/02/2016 - 17:16
- */
 public interface AdvancedDeviceProtocolSecurityCapabilities extends DeviceProtocolSecurityCapabilities {
 
     /**

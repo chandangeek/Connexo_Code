@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,13 +18,6 @@ import java.util.List;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.loadProfileAttributeName;
 
-/**
- * Provides a summary of all DeviceMessages related to LoadProfiles and their configuration
- * <p/>
- * Copyrights EnergyICT
- * Date: 2/05/13
- * Time: 10:44
- */
 enum LoadProfileMessage implements DeviceMessageSpecEnum {
 
     PARTIAL_LOAD_PROFILE_REQUEST(DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST, "Partial load profile request") {

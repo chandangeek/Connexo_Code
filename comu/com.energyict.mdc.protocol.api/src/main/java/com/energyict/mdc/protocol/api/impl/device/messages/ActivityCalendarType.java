@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-/**
- * Copyrights EnergyICT
- * Date: 25/10/13
- * Time: 17:27
- * Author: khe
- */
 enum ActivityCalendarType implements TranslationKey {
 
     PublicNetwork("PublicNetwork", "Public network"),

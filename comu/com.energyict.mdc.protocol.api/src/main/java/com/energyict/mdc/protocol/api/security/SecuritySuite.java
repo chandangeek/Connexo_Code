@@ -1,15 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.security;
 
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * A security set can have one or more security suites that each specifies a number of supported security levels.
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 5/02/2016 - 17:20
- */
 public interface SecuritySuite extends Serializable, DeviceAccessLevel {
 
     /**

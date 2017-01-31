@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.common.ObisCode;
@@ -6,15 +10,12 @@ import com.energyict.mdc.common.Unit;
 
 import java.util.Date;
 
-import org.junit.*;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-/**
- * Copyrights EnergyICT
- * Date: 7-feb-2011
- * Time: 14:55:26
- */
 public class RegisterValueTest {
 
     private static final ObisCode OBIS = ObisCode.fromString("1.0.1.8.0.255");

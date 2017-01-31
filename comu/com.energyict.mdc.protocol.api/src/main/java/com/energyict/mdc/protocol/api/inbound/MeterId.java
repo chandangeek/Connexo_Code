@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MeterId.java
  *
  * Created on 23 oktober 2003, 15:28

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,12 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/06/13
- * Time: 9:45
- * Author: khe
- */
 enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
 
     WriteExchangeStatus(DeviceMessageId.CONFIGURATION_CHANGE_WRITE_EXCHANGE_STATUS, "Write exchange status") {

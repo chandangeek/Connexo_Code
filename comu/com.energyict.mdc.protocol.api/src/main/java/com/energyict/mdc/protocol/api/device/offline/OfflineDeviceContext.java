@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.offline;
 
-/**
- * Copyrights EnergyICT
- * Date: 14/03/13
- * Time: 14:42
- */
 public interface OfflineDeviceContext {
 
     boolean needsSlaveDevices();

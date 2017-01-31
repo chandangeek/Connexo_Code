@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -9,12 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 13/05/2016 - 17:11
- */
 public class IntervalFlagMapper {
 
     private static final Map<Integer, ReadingQualityType> mapping = new HashMap<>();

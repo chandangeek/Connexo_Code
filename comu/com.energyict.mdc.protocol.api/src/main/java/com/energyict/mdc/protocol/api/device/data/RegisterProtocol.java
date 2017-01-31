@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * RegisterProtocol.java
  *
  * Created on 27 mei 2004, 16:12

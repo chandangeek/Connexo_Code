@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,13 +13,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provides a summary of all messages related to a <i>Display</i>
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/04/13
- * Time: 8:38
- */
 enum DisplayDeviceMessage implements DeviceMessageSpecEnum {
 
     CONSUMER_MESSAGE_CODE_TO_PORT_P1(DeviceMessageId.DISPLAY_CONSUMER_MESSAGE_CODE_TO_PORT_P1, "Send a code message to the P1 port") {

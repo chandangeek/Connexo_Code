@@ -1,9 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.exceptions;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.ConnectionException;
-
-import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Wraps a {@link ConnectionException}, turning it into a Runtime exception.

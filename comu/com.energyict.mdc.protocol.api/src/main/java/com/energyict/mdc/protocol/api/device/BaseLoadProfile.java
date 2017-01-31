@@ -1,8 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device;
 
 import com.energyict.mdc.common.ObisCode;
-
-import java.util.List;
 
 /**
  * LoadProfile represents a loadprofile on a data logger or energy meter.

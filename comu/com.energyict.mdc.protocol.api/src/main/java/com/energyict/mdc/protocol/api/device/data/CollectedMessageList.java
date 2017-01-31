@@ -1,17 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.data;
 
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 
 import java.util.List;
 
-/**
- * A <Code>CollectedMessageList</Code> identifies a list of DeviceMessages
- * executed by the device and the result from the execution.
- * <p/>
- * Copyrights EnergyICT
- * Date: 21/03/13
- * Time: 16:31
- */
 public interface CollectedMessageList extends CollectedData {
 
     /**

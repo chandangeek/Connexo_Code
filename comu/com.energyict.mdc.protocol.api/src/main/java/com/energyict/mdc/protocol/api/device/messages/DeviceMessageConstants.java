@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.messages;
 
-/**
- * Copyrights EnergyICT
- * Date: 19/03/13
- * Time: 8:45
- */
 public class DeviceMessageConstants {
 
     public static final String contactorActivationDateAttributeName = "ContactorDeviceMessage.activationdate";

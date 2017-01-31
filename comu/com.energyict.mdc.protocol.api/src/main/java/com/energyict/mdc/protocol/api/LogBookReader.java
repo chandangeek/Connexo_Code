@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import java.time.Clock;
 import java.time.Instant;

@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * HalfDuplexController.java
  *
  * Created on 17 maart 2004, 15:41

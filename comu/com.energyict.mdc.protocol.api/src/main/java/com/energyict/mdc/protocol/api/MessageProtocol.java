@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MessageProtocol.java
  *
  * Created on 27 juli 2007, 15:13

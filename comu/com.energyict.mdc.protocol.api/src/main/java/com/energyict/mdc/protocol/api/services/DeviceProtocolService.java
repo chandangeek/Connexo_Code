@@ -1,14 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.services;
 
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-
-/**
- * OSGI Service wrapper for {@link DeviceProtocol}s.
- *
- * Copyrights EnergyICT
- * Date: 06/11/13
- * Time: 11:01
- */
 public interface DeviceProtocolService {
 
     public static String COMPONENT_NAME = "PR1"; // Stands for Protocol bundle 1 (as more protocol bundles can follow)

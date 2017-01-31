@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.offline;
 
 import com.energyict.mdc.common.Offline;
@@ -11,14 +15,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Represents an Offline version of a DeviceMessage
- * which should contain all necessary information needed to perform the actual DeviceMessage.
- * <p/>
- * Copyrights EnergyICT
- * Date: 18/02/13
- * Time: 16:27
- */
 public interface OfflineDeviceMessage extends Offline {
 
     /**

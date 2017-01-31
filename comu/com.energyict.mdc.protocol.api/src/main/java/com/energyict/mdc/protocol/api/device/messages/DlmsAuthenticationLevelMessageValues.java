@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.device.messages;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 18/03/13
- * Time: 16:39
- */
 public enum DlmsAuthenticationLevelMessageValues {
 
     NO_AUTHENTICATION("No authentiction", 0),

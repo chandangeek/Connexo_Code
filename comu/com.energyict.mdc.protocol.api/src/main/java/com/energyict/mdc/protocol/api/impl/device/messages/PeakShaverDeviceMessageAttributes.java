@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 
-/**
- * Copyrights EnergyICT
- * Date: 30.04.15
- * Time: 15:35
- */
 enum PeakShaverDeviceMessageAttributes implements TranslationKey {
 
     id("PeakShaverConfigurationDeviceMessage." + DeviceMessageConstants.loadIdAttributeName, "loadId"),

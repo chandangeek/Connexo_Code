@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -6,13 +10,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.Set;
 
-/**
- * Models a {@link DeviceProtocol} that was registered in the HeadEnd as a {@link PluggableClass}.
- *
- * Copyrights EnergyICT
- * Date: 3/07/12
- * Time: 8:58
- */
 public interface DeviceProtocolPluggableClass extends PluggableClass {
 
     /**

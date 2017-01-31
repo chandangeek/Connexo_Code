@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
 import com.elster.jupiter.calendar.Calendar;
@@ -13,13 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides a summary of all <i>ActivityCalendar</i> related messages.
- * <p/>
- * Copyrights EnergyICT
- * Date: 7/02/13
- * Time: 12:01
- */
 public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
     ACTIVITY_CALENDAR_READ(DeviceMessageId.ACTIVITY_CALENDAR_READ, "Read activity calendar") {
