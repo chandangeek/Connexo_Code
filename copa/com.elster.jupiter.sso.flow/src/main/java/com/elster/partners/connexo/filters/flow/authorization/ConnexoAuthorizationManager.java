@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.partners.connexo.filters.flow.authorization;
 
 import org.jboss.errai.security.shared.api.identity.User;
