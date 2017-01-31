@@ -1,10 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.nls;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/10/2014
- * Time: 11:55
- */
 public interface TranslationKey {
 
     String getKey();

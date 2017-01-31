@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.domain.util;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/03/14
- * Time: 11:22
- */
 public class VerboseConstraintViolationException extends ConstraintViolationException {
 
 	private static final long serialVersionUID = 1L;

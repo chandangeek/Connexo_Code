@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.nls;
 
 import java.io.IOException;
@@ -6,11 +10,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/10/2014
- * Time: 13:02
- */
 public class SimpleTranslationKey implements TranslationKey {
 
     private String key;
