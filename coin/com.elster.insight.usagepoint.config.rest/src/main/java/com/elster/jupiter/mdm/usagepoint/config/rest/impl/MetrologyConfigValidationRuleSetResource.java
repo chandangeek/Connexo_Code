@@ -87,14 +87,14 @@ public class MetrologyConfigValidationRuleSetResource {
     public PagedInfoList getLinkablePurposes(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
         ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        List<MetrologyConfigValidationRuleSetInfo> availableOutputs = metrologyConfigurationService.findAllMetrologyConfigurations()
+        List<MetrologyConfigValidationRuleSetInfo> linkablePurposes = metrologyConfigurationService.findAllMetrologyConfigurations()
                 .stream()
                 .flatMap(metrologyConfiguration -> metrologyConfiguration.getContracts().stream())
                 .flatMap(metrologyContract -> getAvailablePurposes(metrologyContract, validationRuleSet).stream())
                 .sorted((a, b) -> a.getMetrologyConfigurationInfo().name.compareTo(b.getMetrologyConfigurationInfo().name))
                 .collect(Collectors.toList());
 
-        return PagedInfoList.fromPagedList("purposes", availableOutputs, queryParameters);
+        return PagedInfoList.fromPagedList("purposes", linkablePurposes, queryParameters);
     }
 
     @PUT
@@ -136,8 +136,8 @@ public class MetrologyConfigValidationRuleSetResource {
 
     private MetrologyConfigValidationRuleSetInfo getMetrologyConfigurationInfo(MetrologyContract contract, ValidationRuleSet ruleSet) {
         MetrologyConfigValidationRuleSetInfo info = new MetrologyConfigValidationRuleSetInfo();
-        info.setMetrologyConfigurationInfo(new IdWithNameInfo(contract.getMetrologyConfiguration()
-                .getId(), contract.getMetrologyConfiguration().getName()));
+        info.setMetrologyConfigurationInfo(new IdWithNameInfo(contract.getMetrologyConfiguration().getId(),
+                contract.getMetrologyConfiguration().getName()));
         info.setActive(contract.getMetrologyConfiguration().isActive());
         info.setPurpose(contract.getMetrologyPurpose().getName());
         info.setOutputs(getMatchedOutputs(contract, ruleSet));
