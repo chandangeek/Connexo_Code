@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.partners.connexo.filters.generic;
 
-import javax.servlet.http.Cookie;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by dragos on 11/26/2015.
