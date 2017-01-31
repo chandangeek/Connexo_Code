@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -18,11 +22,6 @@ import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/29/14
- * Time: 2:59 PM
- */
 class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribute> implements DeviceMessageAttribute {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_IS_REQUIRED + "}")

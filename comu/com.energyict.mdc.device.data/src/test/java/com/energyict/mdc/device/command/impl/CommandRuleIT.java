@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -71,7 +75,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.command.CommandRuleService.CommandRuleBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

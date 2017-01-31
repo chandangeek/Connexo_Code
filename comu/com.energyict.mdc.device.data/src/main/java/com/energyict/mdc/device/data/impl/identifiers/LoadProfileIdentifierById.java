@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -12,15 +16,9 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
-/**
- * Implementation of a LoadProfileIdentifier that uniquely identifies a LoadProfile with its database ID.
- *
- * Copyrights EnergyICT
- * Date: 13/05/13
- * Time: 13:30
- */
 @XmlRootElement
 public final class LoadProfileIdentifierById implements LoadProfileIdentifier {
 

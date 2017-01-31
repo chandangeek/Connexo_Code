@@ -1,11 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.data.NumericalReading;
-
 import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.device.data.NumericalReading;
 
 import java.math.BigDecimal;
 

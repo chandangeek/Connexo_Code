@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.events.EventService;
@@ -14,15 +18,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.time.Clock;
 import java.util.List;
 
-/**
- * Provides an abstract implementation for the {@link OutboundConnectionTask} interface,
- * leaving a number of details to the expected subclasses that will deal
- * with scheduling and initiation.
- * <p>
- * Copyrights EnergyICT
- * Date: 13/09/12
- * Time: 13:10
- */
 public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundConnectionTask>
         extends ConnectionTaskImpl<PCTT, OutboundComPortPool>
         implements OutboundConnectionTask<PCTT> {

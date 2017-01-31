@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -25,13 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the check for which task this ComTaskExecution is configured.
- * <p>
- * Copyrights EnergyICT
- * Date: 22/04/14
- * Time: 09:39
- */
 @Ignore("Please mock all dependencies of the ScheduledComTaskExecutionImpl ")
 public class ComTaskExecutionCheckWhichTaskTests {
 

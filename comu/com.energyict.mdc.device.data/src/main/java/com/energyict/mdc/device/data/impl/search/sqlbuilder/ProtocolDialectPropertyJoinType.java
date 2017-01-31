@@ -1,11 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.search.sqlbuilder;
 
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.search.JoinClauseBuilder;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames;
-
-import java.time.Instant;
 
 public class ProtocolDialectPropertyJoinType implements JoinType {
 

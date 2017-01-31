@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.messaging.Message;
@@ -7,6 +11,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+
 import org.osgi.service.event.EventConstants;
 
 import java.util.EnumSet;

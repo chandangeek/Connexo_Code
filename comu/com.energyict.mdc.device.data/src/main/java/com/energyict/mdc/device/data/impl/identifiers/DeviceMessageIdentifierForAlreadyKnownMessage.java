@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.Device;
@@ -10,14 +14,6 @@ import javax.xml.bind.annotation.XmlElement;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
- * based on the ID of the DeviceMessage
- * <p/>
- * Copyrights EnergyICT
- * Date: 22/03/13
- * Time: 9:05
- */
 public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIdentifier {
 
 

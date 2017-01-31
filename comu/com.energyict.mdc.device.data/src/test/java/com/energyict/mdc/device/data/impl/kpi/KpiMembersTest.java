@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.kpi.KpiEntry;
@@ -8,7 +12,6 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.google.common.collect.Range;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -17,9 +20,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link KpiMembers} component.

@@ -1,15 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.BaseException;
 import com.elster.jupiter.util.streams.FancyJoiner;
 import com.energyict.mdc.device.command.impl.MessageSeeds;
 import com.energyict.mdc.device.command.impl.TranslationKeys;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class LimitsExceededForCommandException extends LocalizedException {

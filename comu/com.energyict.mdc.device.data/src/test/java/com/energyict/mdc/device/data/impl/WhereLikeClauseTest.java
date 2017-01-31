@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -20,13 +24,6 @@ import org.junit.rules.TestRule;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Tests the {@link com.elster.jupiter.util.conditions.Where}-LIKE clause. This test was put here so it could be a true integration test
- * <p/>
- * Copyrights EnergyICT
- * Date: 05/03/14
- * Time: 13:49
- */
 public class WhereLikeClauseTest extends PersistenceIntegrationTest {
 
     @Rule

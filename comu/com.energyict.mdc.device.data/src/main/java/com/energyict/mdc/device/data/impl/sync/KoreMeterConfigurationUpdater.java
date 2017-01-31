@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.sync;
 
 import com.elster.jupiter.events.EventService;
@@ -17,12 +21,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.function.Function;
 
-/**
- * Syncing Kore Meter Configuration with register updater values
- * Copyrights EnergyICT
- * Date: 2/06/2016
- * Time: 14:24
- */
 public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMeter {
 
     private final Clock clock;

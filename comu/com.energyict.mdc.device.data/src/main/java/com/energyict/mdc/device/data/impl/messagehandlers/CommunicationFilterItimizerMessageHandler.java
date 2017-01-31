@@ -1,5 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.messagehandlers;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -13,14 +24,6 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Interval;
 
 import java.util.EnumSet;
 import java.util.HashSet;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -37,13 +41,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Tests the ComTaskExecutionImpl component
- * <p>
- * Copyrights EnergyICT
- * Date: 14/04/14
- * Time: 14:40
- */
 public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
     @Test

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.elster.jupiter.messaging.MessageService;
@@ -18,11 +22,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-/**
- * Copyrights EnergyICT
- * Date: 05.11.15
- * Time: 09:01
- */
 @Component(name = "com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeHandlerFactory",
         service = MessageHandlerFactory.class,
         property = {"subscriber=" + ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER, "destination=" + ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION},

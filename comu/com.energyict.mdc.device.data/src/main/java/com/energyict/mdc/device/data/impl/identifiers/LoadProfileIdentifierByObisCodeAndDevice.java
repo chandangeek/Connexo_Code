@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -16,16 +20,6 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Implementation of a {@link com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier} that uniquely identifies a LoadProfile
- * based on the ObisCode of the LoadProfile(type) and the {@link DeviceIdentifier}.<br/>
- * <b>Note: </b> we assume that it is never possible that two LoadProfiles with the same ObisCode are configured on the Device.<br/>
- * <b>Note2: </b> if the B-field of the ObisCode is marked as a wildcard, then make sure the provided loadProfileObisCode also has the wildcard!
- * <p/>
- * Copyrights EnergyICT
- * Date: 13/05/13
- * Time: 13:30
- */
 @XmlRootElement
 public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIdentifier {
 

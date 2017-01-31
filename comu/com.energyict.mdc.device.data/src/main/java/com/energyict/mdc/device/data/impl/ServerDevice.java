@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.Meter;
@@ -13,11 +17,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- * Date: 26.07.16
- * Time: 14:15
- */
 public interface ServerDevice extends Device {
     Reference<Meter> getMeter();
 

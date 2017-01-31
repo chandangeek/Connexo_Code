@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.domain.util.Range;
@@ -70,15 +74,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
-/**
- * Provides code and structural reuse opportunities for
- * components that intend to provide an implementation
- * for the {@link ComTaskExecution} interface.
- * <p>
- * Copyrights EnergyICT
- * Date: 11/04/14
- * Time: 15:09
- */
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 @ManuallyScheduledNextExecSpecRequired(groups = {SaveScheduled.class})
 @SharedScheduleComScheduleRequired(groups = {Save.Create.class, Save.Update.class})
