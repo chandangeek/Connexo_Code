@@ -1,15 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 
-/**
- * Maps the securityPropertySet to a usable property set for a DeviceProtocol.
- *
- * Copyrights EnergyICT
- * Date: 22/01/13
- * Time: 15:05
- */
 public class DeviceProtocolSecurityPropertySetImpl implements DeviceProtocolSecurityPropertySet {
 
     private int authenticationDeviceAccessLevel;

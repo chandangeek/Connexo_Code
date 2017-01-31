@@ -1,9 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.tools;
 
 import com.elster.jupiter.time.TimeDuration;
-import org.junit.*;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for the {@link com.energyict.mdc.engine.impl.tools.TimeDurations} component

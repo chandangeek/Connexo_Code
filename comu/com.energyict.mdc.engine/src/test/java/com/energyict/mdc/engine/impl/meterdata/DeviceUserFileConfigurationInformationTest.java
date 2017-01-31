@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.device.data.DeviceService;
@@ -7,8 +11,8 @@ import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

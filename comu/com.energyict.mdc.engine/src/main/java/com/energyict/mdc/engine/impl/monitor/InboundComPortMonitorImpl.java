@@ -1,11 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
-import com.energyict.mdc.engine.impl.core.ScheduledComPort;
-import com.energyict.mdc.engine.monitor.*;
+import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
 
 import javax.management.openmbean.CompositeData;
 import java.time.Clock;

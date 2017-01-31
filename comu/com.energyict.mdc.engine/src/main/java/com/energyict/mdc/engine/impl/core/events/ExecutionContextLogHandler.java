@@ -1,6 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.events;
 
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
@@ -8,7 +13,6 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.events.logging.CommunicationLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.config.ComPort;
 
 /**
  * Provides an implementation for the log Handler interface

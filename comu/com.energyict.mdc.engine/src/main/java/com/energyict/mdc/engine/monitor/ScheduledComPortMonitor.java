@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.monitor;
 
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.engine.config.ComPort;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Exposes the information that is gathered by the process

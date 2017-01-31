@@ -1,6 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.elster.jupiter.metering.readings.*;
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.elster.jupiter.metering.readings.IntervalBlock;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
@@ -8,24 +14,22 @@ import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.util.*;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 24/02/2016
- * Time: 17:53
- */
 @RunWith(MockitoJUnitRunner.class)
 public class MeterDataStorageEventTest {
 

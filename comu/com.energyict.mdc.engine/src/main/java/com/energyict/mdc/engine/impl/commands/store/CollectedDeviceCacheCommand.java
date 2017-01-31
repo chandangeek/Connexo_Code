@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -17,13 +21,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides functionality to update the cache of a Device in the database.
- * <p/>
- * Copyrights EnergyICT
- * Date: 31/08/12
- * Time: 16:22
- */
 public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDeviceCacheEvent> {
 
     public final static String DESCRIPTION_TITLE = "Collected device cache";

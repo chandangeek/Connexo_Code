@@ -1,16 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.cache;
 
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 
-import java.io.Serializable;
-
-/**
- * Represents a simple object that holds a <i>cache</i> {@link Object} for a specific {@link com.energyict.mdc.protocol.api.device.BaseDevice}
- * <p/>
- * Copyrights EnergyICT
- * Date: 31/08/12
- * Time: 16:30
- */
 public interface DeviceCache {
 
     void update();

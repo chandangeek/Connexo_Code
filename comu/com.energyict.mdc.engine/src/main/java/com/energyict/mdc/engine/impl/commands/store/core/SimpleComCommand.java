@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -33,7 +37,6 @@ import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.io.IOException;
 import java.util.ArrayList;

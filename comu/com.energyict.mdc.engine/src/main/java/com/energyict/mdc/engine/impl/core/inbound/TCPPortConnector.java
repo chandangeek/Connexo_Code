@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -9,7 +12,6 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.io.SocketService;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import java.io.IOException;
@@ -17,13 +19,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Clock;
 
-/**
- * Implementation of an {@link InboundComPortConnector} for a {@link ComPort} of the type {@link ComPortType#TCP}.
- * <p>
- * Copyrights EnergyICT
- * Date: 18/10/12
- * Time: 13:49
- */
 public class TCPPortConnector implements InboundComPortConnector {
 
     /**

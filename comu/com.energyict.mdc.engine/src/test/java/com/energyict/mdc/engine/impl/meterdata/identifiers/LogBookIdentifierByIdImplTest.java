@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -10,8 +14,8 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

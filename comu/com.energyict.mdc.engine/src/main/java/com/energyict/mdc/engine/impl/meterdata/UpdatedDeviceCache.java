@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceCacheCommand;
@@ -8,13 +12,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDeviceCache;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-/**
- * Implementation of a DeviceProtocolCache collected during communication with a Device.
- * <p/>
- * Copyrights EnergyICT
- * Date: 31/08/12
- * Time: 16:14
- */
 public class UpdatedDeviceCache extends CollectedDeviceData implements CollectedDeviceCache {
 
     /**

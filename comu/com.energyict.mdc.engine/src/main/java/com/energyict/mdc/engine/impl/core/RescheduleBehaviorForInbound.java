@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -9,14 +13,8 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 
 import java.time.Clock;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 4/06/13
- * Time: 15:29
- */
 public class RescheduleBehaviorForInbound extends AbstractRescheduleBehavior implements RescheduleBehavior {
 
     protected RescheduleBehaviorForInbound(ComServerDAO comServerDAO, ConnectionTask connectionTask, Clock clock) {

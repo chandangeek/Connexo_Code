@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -6,18 +10,21 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.*;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ClockTaskOptions;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 
-import java.util.List;
 import java.util.Optional;
 
 /**

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.common;
 
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -12,19 +16,13 @@ import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/**
- * Tests for the {@link DeviceProtocolInitializeCommand} component
- * <p>
- * Copyrights EnergyICT
- * Date: 9/08/12
- * Time: 14:50
- */
 public class DeviceProtocolInitializeCommandTest extends AbstractComCommandExecuteTest {
 
     private ComChannelPlaceHolder getMockedComChannel() {

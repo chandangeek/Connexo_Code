@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
@@ -103,11 +107,6 @@ import org.mockito.stubbing.Answer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/01/14
- * Time: 15:02
- */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractCollectedDataIntegrationTest {
 

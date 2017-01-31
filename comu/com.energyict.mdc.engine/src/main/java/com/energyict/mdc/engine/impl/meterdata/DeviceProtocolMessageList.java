@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.impl.commands.store.CollectedMessageListDeviceCommand;
@@ -12,11 +16,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/03/13
- * Time: 16:34
- */
 public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedMessage> implements CollectedMessageList {
 
     private final List<OfflineDeviceMessage> offlineDeviceMessages;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -10,11 +14,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import java.time.Instant;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/03/13
- * Time: 16:27
- */
 public class DeviceProtocolMessage extends CollectedDeviceData implements CollectedMessage {
 
     private final MessageIdentifier deviceMessageIdentifier;
