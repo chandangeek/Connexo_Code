@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('FV.controller.Feeds', {
     extend: 'Ext.app.Controller',
 

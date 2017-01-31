@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.Loader.setPath('Ext.ux', '../ux');
 Ext.require('Ext.ux.CellDragDrop');
 Ext.onReady(function () {

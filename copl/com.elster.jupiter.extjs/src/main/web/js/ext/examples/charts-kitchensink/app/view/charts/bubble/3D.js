@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('ChartsKitchenSink.view.charts.bubble.3D', {
     extend: 'Ext.Panel',
     xtype: '3d-bubble',

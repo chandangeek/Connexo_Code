@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * <p>A plugin for Field Components which creates clones of the Field for as
  * long as the user keeps filling them. Leaving the final one blank ends the repeating series.</p>

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Books.app
  * A MVC application which displays a list of books and their reviews.

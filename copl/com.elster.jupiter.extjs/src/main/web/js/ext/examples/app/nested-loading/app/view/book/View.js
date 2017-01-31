@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * The view which displays information about a speficied book
  * @extends Ext.panel.Panel

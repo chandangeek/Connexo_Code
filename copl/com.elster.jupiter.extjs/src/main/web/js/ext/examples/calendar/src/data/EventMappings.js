@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 //@define Ext.calendar.data.EventMappings
 /**
  * @class Ext.calendar.data.EventMappings

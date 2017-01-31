@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.Loader.setConfig({enabled: true});
 Ext.Loader.setPath('Ext.ux', '../ux/');
 
@@ -710,7 +714,7 @@ Ext.onReady(function(){
                   replycount:5,
                   lastpost:1305798712,
                   lastposter:"tobiu",
-                  excerpt:"hi community,\r\n\r\nsince we now have an ext js meetup in frankfurt and hamburg, i would like to start a meetup in munich as well on a regular basis.\r\n\r\nÉ"
+                  excerpt:"hi community,\r\n\r\nsince we now have an ext js meetup in frankfurt and hamburg, i would like to start a meetup in munich as well on a regular basis.\r\n\r\nï¿½"
                },
                {
                   title:"Ext JS 3.x RESTful Grid doesn't get updated on fast machine",

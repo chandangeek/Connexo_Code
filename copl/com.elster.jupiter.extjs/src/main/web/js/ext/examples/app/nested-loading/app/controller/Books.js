@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Books controller
  * Used to manage books; showing the first book, showing a spefied book, loading books, and showing their

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 @function min($value1, $value2) {
     @if $value1 > $value2 {
         @return $value2;

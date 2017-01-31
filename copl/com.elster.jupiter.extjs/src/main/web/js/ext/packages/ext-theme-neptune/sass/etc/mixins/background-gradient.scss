@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 @function linear-gradient-glossy-button($direction, $bg-color) {
     @return linear-gradient($direction, color_stops(
         mix(#fff, $bg-color, 10%),

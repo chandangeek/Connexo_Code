@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * This base class is used to handle data preparation (e.g., sorting, filtering and
  * group summary).

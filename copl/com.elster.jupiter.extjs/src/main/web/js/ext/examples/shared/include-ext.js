@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * This file includes the required ext-all js and css files based upon "theme" and "direction"
  * url parameters.  It first searches for these parameters on the page url, and if they

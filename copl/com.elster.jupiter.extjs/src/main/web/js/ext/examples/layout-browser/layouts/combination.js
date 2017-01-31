@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 function getCombinationLayouts() {
     // fake grid data used below in the tabsNestedLayouts config
     var myData = [

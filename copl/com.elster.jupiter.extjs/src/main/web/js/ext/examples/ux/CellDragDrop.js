@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * This plugin can enable a cell to cell drag and drop operation within the same grid view.
  *

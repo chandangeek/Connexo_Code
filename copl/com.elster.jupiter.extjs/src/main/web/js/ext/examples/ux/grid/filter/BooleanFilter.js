@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Boolean filters use unique radio group IDs (so you can have more than one!)
  * <p><b><u>Example Usage:</u></b></p>

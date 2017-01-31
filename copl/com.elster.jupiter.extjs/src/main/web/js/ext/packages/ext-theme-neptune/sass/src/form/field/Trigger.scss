@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 .#{$prefix}form-trigger {
     height: $form-field-height - vertical($form-field-border-width);
     @if $include-ext-toolbar-toolbar and $form-toolbar-field-height != $form-field-height {

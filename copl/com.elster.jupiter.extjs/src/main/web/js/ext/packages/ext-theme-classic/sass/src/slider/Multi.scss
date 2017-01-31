@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 @if $include-ie {
     // Include gif images for IE6 since it does not support png transparency
     .#{$prefix}ie6 {

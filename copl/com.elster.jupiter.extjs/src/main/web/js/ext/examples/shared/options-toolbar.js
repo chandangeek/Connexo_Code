@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 (function() {
     function getQueryParam(name, queryString) {
         var match = RegExp(name + '=([^&]*)').exec(queryString || location.search);

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('ChartsKitchenSink.view.charts.combination.Pareto', {
     extend: 'Ext.Panel',
     xtype: 'pareto-chart',

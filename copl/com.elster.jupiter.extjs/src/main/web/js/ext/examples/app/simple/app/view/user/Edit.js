@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('AM.view.user.Edit', {
     extend: 'Ext.window.Window',
     alias : 'widget.useredit',

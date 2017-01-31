@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**S
  * @class Ext.calendar.view.DayBody
  * @extends Ext.calendar.view.AbstractCalendar

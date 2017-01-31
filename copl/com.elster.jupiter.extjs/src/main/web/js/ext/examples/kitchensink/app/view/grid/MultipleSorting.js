@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('KitchenSink.view.grid.MultipleSorting', {
     extend: 'Ext.grid.Panel',
     xtype: 'multi-sort-grid',

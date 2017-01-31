@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * This is a simple in-memory store implementation that is ONLY intended for use with
  * calendar samples running locally in the browser with no external data source. Under
  * normal circumstances, stores that use a MemoryProxy are read-only and intended only

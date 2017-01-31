@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 @if $include-panel-light-ui {
     @include extjs-panel-ui(
         $ui: 'light',

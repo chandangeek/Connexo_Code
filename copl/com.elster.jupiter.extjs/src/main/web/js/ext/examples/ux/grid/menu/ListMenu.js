@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * This is a supporting class for {@link Ext.ux.grid.filter.ListFilter}.
  * Although not listed as configuration options for this class, this class

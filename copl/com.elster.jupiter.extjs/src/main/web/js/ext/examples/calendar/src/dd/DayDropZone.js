@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Internal drop zone implementation for the calendar day and week views.
  */
 Ext.define('Ext.calendar.dd.DayDropZone', {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * FiltersFeature is a grid {@link Ext.grid.feature.Feature feature} that allows for a slightly more
  * robust representation of filtering than what is provided by the default store.

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 .#{$prefix}accordion-hd {
     // !important is needed to override dock layout's border:0 !important
     border-width: $accordion-header-border-width !important;

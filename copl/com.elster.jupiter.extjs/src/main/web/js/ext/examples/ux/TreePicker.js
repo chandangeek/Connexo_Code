@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * A Picker field that contains a tree panel on its popup, enabling selection of tree nodes.
  */

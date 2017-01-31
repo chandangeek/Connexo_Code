@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Here is where we "activate" the DataView.
  * We have decided that each node with the class "patient-source" encapsulates a single draggable
  * object.

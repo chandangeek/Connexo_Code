@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Wait until the test condition is true or a timeout occurs. Useful for waiting
  * on a server response or for a ui change (fadeIn, etc.) to occur.

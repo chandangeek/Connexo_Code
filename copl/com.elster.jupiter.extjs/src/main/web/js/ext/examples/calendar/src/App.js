@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * This calendar application was forked from Ext Calendar Pro
  * and contributed to Ext JS as an advanced example of what can 
  * be built using and customizing Ext components and templates.

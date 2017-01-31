@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // Fixes a bug in IE 9 standards. When there is a row that is wider than the view, the horizontal scrollbar is triggered b/c overflow
 // is set to auto. The boundlist will then continue to grow vertically in size every time addCls is called when the rows are highlighted.
 // http://stackoverflow.com/questions/5788726/add-remove-css-will-cause-ie9-to-increase-the-tables-height

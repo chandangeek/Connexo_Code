@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /* @private
  * This is an internal helper class for the calendar views and should not be overridden.
  * It is responsible for the base event rendering logic underlying all views based on a 

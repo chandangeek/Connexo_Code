@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Neptune.view.grid.widget.Grouped', function() {
     // wrapped in closure to prevent global vars.
     Ext.define('Restaurant', {

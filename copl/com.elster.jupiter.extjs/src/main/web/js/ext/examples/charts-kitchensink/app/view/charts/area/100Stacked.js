@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('ChartsKitchenSink.view.charts.area.100Stacked', {
     extend: 'Ext.Panel',
     xtype: '100-stacked-area',

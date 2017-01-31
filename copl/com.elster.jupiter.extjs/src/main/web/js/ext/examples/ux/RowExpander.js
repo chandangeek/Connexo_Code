@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @deprecated
  * Ext.ux.RowExpander has been promoted to the core framework. Use

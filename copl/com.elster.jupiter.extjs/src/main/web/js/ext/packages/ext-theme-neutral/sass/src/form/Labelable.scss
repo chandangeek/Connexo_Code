@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 .#{$prefix}form-invalid-under {
     padding: top($form-error-under-padding) right($form-error-under-padding) bottom($form-error-under-padding) (left($form-error-under-padding) + $form-error-icon-width + $form-error-under-icon-spacing);
 

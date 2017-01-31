@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Neptune.store.Company', function() {
     var data = [
             ['3m Co',                               71.72, 0.02,  0.03,  '9/1 12:00am'],

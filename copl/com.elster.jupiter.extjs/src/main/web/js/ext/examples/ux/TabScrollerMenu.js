@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.ns('Ext.ux');
 /**
  * Plugin for adding a tab menu to a TabBar is the Tabs overflow.

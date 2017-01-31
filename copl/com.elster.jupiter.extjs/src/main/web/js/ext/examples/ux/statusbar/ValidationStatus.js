@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * A {@link Ext.ux.statusbar.StatusBar} plugin that provides automatic error
  * notification when the associated form contains validation errors.

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Filters using an Ext.ux.grid.menu.RangeMenu.
  * <p><b><u>Example Usage:</u></b></p>

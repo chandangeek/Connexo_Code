@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * This example features a window with a DataView from which the user can select images to add to a <div> on the page.
  * To create the example we create simple subclasses of Window, DataView and Panel. When the user selects an image
  * we just add it to the page using the insertSelectedImage function below.

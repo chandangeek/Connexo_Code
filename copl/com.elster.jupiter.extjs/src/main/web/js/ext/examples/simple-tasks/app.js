@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 if (SimpleTasksSettings.useLocalStorage && !Ext.supports.LocalStorage) {
     alert('Simple Tasks is configured to use HTML5 Local Storage, but your browser does not support Local Storage');
 } else {

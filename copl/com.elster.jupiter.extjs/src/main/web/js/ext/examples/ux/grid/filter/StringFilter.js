@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Filter by a configurable Ext.form.field.Text
  * <p><b><u>Example Usage:</u></b></p>

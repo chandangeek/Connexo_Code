@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('ChartsKitchenSink.view.charts.line.Marked', {
     extend: 'Ext.Panel',
     xtype: 'marked-line',

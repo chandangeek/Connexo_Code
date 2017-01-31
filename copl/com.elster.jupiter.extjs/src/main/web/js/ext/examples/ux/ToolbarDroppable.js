@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Plugin which allows items to be dropped onto a toolbar and be turned into new Toolbar items.
  * To use the plugin, you just need to provide a createItem implementation that takes the drop

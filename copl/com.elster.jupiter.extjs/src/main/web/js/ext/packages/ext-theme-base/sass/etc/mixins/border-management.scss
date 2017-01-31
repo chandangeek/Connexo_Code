@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 @mixin border-management($parent-cls, $border-width, $border-color) {
     .#{$prefix}#{$parent-cls}-outer-border-l {
         border-left-color: left($border-color) !important;

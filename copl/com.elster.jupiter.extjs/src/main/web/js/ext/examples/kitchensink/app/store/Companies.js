@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('KitchenSink.store.Companies', {
     extend: 'Ext.data.ArrayStore',
     model: 'KitchenSink.model.Company',

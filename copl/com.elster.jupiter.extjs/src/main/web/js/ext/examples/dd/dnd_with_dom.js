@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.onReady(function() {
     // Create an object that we'll use to implement and override drag behaviors a little later
     var overrides = {

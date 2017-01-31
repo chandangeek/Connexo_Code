@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 .#{$prefix}grid-row-editor {
     .#{$prefix}field {
         margin: 0 ceil($grid-row-editor-field-spacing / 2) 0 floor($grid-row-editor-field-spacing / 2);

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * This layout manager is used to center contents within a container. As a subclass of
  * {@link Ext.layout.container.Fit fit layout}, CenterLayout expects to have one child

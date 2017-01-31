@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('KitchenSink.view.grid.BigData', {
     extend: 'Ext.grid.Panel',
     requires: 'Ext.ux.grid.FiltersFeature',

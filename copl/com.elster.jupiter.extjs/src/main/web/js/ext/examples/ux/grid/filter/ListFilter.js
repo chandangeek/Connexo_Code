@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * List filters are able to be preloaded/backed by an Ext.data.Store to load
  * their options the first time they are shown. ListFilter utilizes the

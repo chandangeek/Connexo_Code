@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * The main application viewport, which displays the whole application
  * @extends Ext.Viewport

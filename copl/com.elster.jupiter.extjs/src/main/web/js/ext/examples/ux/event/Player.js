@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * This class manages the playback of an array of "event descriptors". For details on the
  * contents of an "event descriptor", see {@link Ext.ux.event.Recorder}. The events recorded by the

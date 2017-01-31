@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class SimpleTasks.view.Toolbar
  * @extends Ext.toolbar.Toolbar

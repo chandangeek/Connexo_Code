@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Custom implementation of {@link Ext.menu.Menu} that has preconfigured items for entering numeric
  * range comparison values: less-than, greater-than, and equal-to. This is used internally

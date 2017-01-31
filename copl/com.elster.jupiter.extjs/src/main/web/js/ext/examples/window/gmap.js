@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.Loader.setConfig({enabled: true});
 Ext.Loader.setPath('Ext.ux', '../ux');
 Ext.require([

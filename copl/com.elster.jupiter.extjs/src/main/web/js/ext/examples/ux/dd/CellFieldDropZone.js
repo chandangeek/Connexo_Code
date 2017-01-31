@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 // A DropZone which cooperates with DragZones whose dragData contains
 // a "field" property representing a form Field. Fields may be dropped onto
 // grid data cells containing a matching data type.

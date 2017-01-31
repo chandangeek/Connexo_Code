@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 [
     ['AL', 'Alabama', 'The Heart of Dixie'],
     ['AK', 'Alaska', 'The Land of the Midnight Sun'],

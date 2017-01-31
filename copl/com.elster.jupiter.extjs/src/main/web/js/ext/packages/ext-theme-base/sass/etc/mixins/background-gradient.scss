@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 @function linear-gradient-bevel($direction, $bg-color) {
     @return linear-gradient($direction, color_stops(
         lighten($bg-color, 15%),

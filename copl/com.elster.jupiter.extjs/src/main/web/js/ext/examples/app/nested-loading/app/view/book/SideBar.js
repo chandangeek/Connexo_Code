@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * The sidebar view for the application. Used to display a list of books.
  * @extends Ext.view.View

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('KitchenSink.view.button.SplitBottomButtons', {
     extend: 'Ext.Container',
     xtype: 'split-bottom-buttons',

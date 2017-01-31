@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('KitchenSink.view.tab.FramedTabs', {
     extend: 'Ext.tab.Panel',
     xtype: 'framed-tabs',

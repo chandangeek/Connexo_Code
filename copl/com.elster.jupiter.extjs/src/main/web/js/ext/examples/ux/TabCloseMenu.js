@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * Plugin for adding a close context menu to tabs. Note that the menu respects
  * the closable configuration on the tab. As such, commands like remove others

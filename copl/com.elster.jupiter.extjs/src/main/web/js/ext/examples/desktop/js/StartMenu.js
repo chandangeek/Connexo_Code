@@ -1,8 +1,5 @@
-/*!
- * Ext JS Library 4.0
- * Copyright(c) 2006-2011 Sencha Inc.
- * licensing@sencha.com
- * http://www.sencha.com/license
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Ext.ux.desktop.StartMenu', {

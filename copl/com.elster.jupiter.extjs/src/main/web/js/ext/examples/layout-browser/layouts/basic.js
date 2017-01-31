@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 //
 // Note that these are all defined as panel configs, rather than instantiated
 // as panel objects.  You could just as easily do this instead:

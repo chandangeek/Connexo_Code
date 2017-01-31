@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('KitchenSink.view.panel.BasicPanels', {
     extend: 'Ext.Container',
     xtype: 'basic-panels',
