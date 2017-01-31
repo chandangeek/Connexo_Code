@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.ReadingPreview', {
     extend: 'Ext.tab.Panel',
     alias: 'widget.reading-preview',

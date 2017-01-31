@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.metrology-configuration-side-menu',

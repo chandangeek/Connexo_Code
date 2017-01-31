@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.time-sliced-custom-attribute-set-action-menu',

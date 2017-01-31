@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.ReadingsGraph', {
     extend: 'Uni.view.highstock.GraphView',
     alias: 'widget.readings-graph',
