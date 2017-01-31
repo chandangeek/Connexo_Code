@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.common.HexString;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/08/2016
- * Time: 14:38
- */
 public class HexStringLengthValidator implements PropertyValidator<HexString> {
 
     Integer validLength;

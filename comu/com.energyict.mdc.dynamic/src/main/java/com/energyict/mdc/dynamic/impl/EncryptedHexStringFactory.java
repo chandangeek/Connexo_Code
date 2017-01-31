@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
@@ -5,11 +9,6 @@ import com.energyict.mdc.common.HexString;
 
 import javax.inject.Inject;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/08/2016
- * Time: 13:40
- */
 public class EncryptedHexStringFactory extends AbstractEncryptedValueFactory<HexString> {
 
     @Inject

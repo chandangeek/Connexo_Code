@@ -1,14 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
-/**
- * Copyrights EnergyICT
- * Date: 16/08/2016
- * Time: 14:30
- */
 public enum MessageSeeds implements MessageSeed {
 
     LENGTH_EXCEEDS_MAXIMUM(1,"NumberOfCharactersExceedsMaximumX", "This field should not exceed {1} characters."),
