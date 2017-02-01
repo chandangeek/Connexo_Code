@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposesGrid', {
     extend: 'Uni.view.grid.SelectionGridForPreviewContainer',
     alias: 'widget.add-metrology-configuration-purposes-grid',

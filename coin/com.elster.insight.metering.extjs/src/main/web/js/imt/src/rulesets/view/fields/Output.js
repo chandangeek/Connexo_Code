@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.rulesets.view.fields.Output', {
     extend: 'Ext.form.field.Display',
     alias: 'widget.output-display',

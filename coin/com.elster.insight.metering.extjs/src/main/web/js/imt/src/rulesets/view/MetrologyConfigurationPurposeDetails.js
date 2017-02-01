@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposeDetails', {
     extend: 'Ext.form.Panel',
     alias: 'widget.metrology-configuration-purpose-details',
