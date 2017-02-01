@@ -67,7 +67,7 @@ Ext.define('Dal.controller.CreationRules', {
                 this.showDeleteConfirmation(menu.record);
                 break;
             case 'edit':
-                router.getRoute('administration/creationrules/edit').forward({id: id});
+                router.getRoute('administration/alarmcreationrules/edit').forward({id: id});
                 break;
         }
     },

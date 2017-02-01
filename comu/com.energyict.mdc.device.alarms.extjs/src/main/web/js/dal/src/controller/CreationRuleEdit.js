@@ -72,7 +72,7 @@ Ext.define('Dal.controller.CreationRuleEdit', {
         if (savedData) {
             rule = savedData;
             clipboard.clear('alarmsCreationRuleState');
-            me.loadDependencies(rule, dependenciesOnLoad);
+            me.loadDependencies(dependenciesOnLoad);
         } else {
             if (id) {
                 dependencesCounter++;

@@ -304,7 +304,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
                         itemId: 'cancel',
                         text: Uni.I18n.translate('general.cancel', 'DAL', 'Cancel'),
                         ui: 'link',
-                        href: me.router.getRoute('administration/creationrules').buildUrl()
+                        href: me.router.getRoute('administration/alarmcreationrules').buildUrl()
                     }
                 ]
             }
