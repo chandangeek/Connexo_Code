@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -31,11 +35,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 1/04/2015
- * Time: 11:52
- */
 public abstract class AbstractValidationEvaluator implements ValidationEvaluator {
 
     @Override

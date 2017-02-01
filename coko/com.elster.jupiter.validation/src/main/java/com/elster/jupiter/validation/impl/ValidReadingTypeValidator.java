@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -6,11 +10,6 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-/**
- * Copyrights EnergyICT
- * Date: 1/07/2014
- * Time: 15:12
- */
 public class ValidReadingTypeValidator implements ConstraintValidator<ValidReadingType, String> {
 
     private MeteringService meteringService;
