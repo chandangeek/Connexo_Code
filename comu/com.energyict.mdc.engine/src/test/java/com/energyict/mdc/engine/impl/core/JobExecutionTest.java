@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.nls.Layer;
@@ -93,14 +97,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
-/**
- * Test to check if the organizeComCommands() method on the interface GenericDeviceProtocol is triggered correctly.
- * <p>
- * Copyrights EnergyICT
- * Date: 30/01/13
- * Time: 9:11
- * Author: khe
- */
 @RunWith(MockitoJUnitRunner.class)
 public class JobExecutionTest {
 

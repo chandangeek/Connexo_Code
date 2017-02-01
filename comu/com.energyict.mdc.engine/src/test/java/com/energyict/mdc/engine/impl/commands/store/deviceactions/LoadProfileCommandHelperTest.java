@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -12,11 +16,16 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-
-import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

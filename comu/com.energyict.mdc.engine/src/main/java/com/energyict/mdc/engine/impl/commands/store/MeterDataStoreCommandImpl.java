@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
@@ -22,11 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/31/14
- * Time: 3:44 PM
- */
 public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorageEvent> implements MeterDataStoreCommand {
 
     private final Map<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> meterReadings = new HashMap<>();

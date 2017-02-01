@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -32,11 +36,6 @@ import org.osgi.service.component.annotations.Reference;
 import java.time.Clock;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 14/05/13
- * Time: 11:31
- */
 @Component(name = "com.energyict.mdc.engine.meterdata.collector", service = {CollectedDataFactory.class})
 @SuppressWarnings("unused")
 public class CollectedDataFactoryImpl implements CollectedDataFactory {

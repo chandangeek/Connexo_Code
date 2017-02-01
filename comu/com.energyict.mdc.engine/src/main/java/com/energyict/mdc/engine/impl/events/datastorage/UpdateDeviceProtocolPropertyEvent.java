@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 

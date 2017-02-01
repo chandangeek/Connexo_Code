@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -9,7 +13,14 @@ import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.impl.commands.collect.*;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -22,11 +33,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -36,9 +42,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 /**

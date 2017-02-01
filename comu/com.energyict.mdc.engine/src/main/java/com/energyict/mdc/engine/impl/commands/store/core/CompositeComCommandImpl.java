@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -12,7 +16,11 @@ import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

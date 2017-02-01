@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -12,14 +16,14 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
 import java.sql.SQLException;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;

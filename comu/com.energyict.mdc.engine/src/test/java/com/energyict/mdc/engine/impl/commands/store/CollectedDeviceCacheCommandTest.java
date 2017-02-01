@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
@@ -15,28 +19,25 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-/**
- * Tests for the {@link CollectedDeviceCacheCommand} component.
- * <p>
- * Copyrights EnergyICT
- * Date: 3/09/12
- * Time: 15:12
- */
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedDeviceCacheCommandTest {
 

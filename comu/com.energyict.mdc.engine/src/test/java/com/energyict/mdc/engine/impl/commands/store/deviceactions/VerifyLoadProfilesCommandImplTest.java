@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
@@ -11,22 +15,18 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+
 import org.fest.assertions.api.Assertions;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import java.util.Arrays;
+
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 15/07/13
- * Time: 11:33
- * Author: khe
- */
 public class VerifyLoadProfilesCommandImplTest extends AbstractComCommandExecuteTest {
 
     private final String SERIAL_NUMBER = "mskldjf";

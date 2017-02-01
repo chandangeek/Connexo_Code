@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.StoreConfigurationUserFile;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 

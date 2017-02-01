@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -8,12 +12,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/08/2016 - 16:43
- */
 public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup implements Runnable {
 
     private final ParallelRootScheduledJob parallelRootScheduledJob;

@@ -1,9 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.commands.collect.*;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
@@ -14,12 +22,13 @@ import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;

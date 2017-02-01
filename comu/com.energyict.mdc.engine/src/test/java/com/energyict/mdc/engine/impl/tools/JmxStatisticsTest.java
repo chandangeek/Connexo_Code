@@ -1,10 +1,13 @@
-package com.energyict.mdc.engine.impl.tools;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.engine.impl.tools.JmxStatistics;
-import org.junit.*;
+package com.energyict.mdc.engine.impl.tools;
 
 import javax.management.openmbean.OpenDataException;
 import java.util.Collection;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 

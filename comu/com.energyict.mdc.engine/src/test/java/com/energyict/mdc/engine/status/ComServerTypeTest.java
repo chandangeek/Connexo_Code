@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.status;
 
 import com.energyict.mdc.engine.config.ComServer;
@@ -5,7 +9,7 @@ import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.RemoteComServer;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -7,10 +11,6 @@ import com.energyict.mdc.engine.impl.commands.store.ComTaskExecutionRootDeviceCo
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.tasks.ComTask;
-
-import org.json.JSONException;
-import org.json.JSONWriter;
 
 import java.util.List;
 import java.util.stream.Collectors;

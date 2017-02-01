@@ -1,18 +1,21 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
-import com.energyict.mdc.engine.impl.core.inbound.SerialPortConnector;
-import com.energyict.mdc.engine.impl.core.inbound.TCPPortConnector;
-import com.energyict.mdc.engine.impl.core.inbound.UDPPortConnector;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
+import com.energyict.mdc.engine.impl.core.inbound.SerialPortConnector;
+import com.energyict.mdc.engine.impl.core.inbound.TCPPortConnector;
+import com.energyict.mdc.engine.impl.core.inbound.UDPPortConnector;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.protocol.api.services.HexService;
-
 import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.protocol.api.services.HexService;
 
 import java.time.Clock;
 

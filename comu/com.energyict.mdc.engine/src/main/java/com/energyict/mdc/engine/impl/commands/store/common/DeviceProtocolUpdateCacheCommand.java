@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.common;
 
 
@@ -13,14 +17,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
-/**
- * Updates and 'holds' the {@link DeviceProtocolCache} of a {@link DeviceProtocol}.
- * Command will/must be run at the end of the communication so the {@link DeviceProtocol} has time to update the update during communication.
- * <p>
- * Copyrights EnergyICT
- * Date: 31/08/12
- * Time: 16:07
- */
 public class DeviceProtocolUpdateCacheCommand extends SimpleComCommand {
 
     private final OfflineDevice device;

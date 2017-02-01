@@ -1,10 +1,14 @@
-package com.energyict.mdc.engine.impl.monitor;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
+package com.energyict.mdc.engine.impl.monitor;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
+
 import org.joda.time.DateTime;
 
 import javax.management.openmbean.CompositeData;
@@ -12,8 +16,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Date;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -6,17 +10,17 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

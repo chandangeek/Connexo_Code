@@ -1,11 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.exceptions;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-
-import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptions related to {@link ComCommand}s.

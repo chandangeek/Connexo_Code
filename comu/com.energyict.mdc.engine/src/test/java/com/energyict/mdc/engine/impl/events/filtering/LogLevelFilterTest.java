@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.filtering;
 
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.events.LoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

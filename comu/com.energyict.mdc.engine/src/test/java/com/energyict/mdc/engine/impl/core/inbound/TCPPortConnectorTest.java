@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
@@ -14,26 +18,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Clock;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link TCPPortConnector} component.
- * <p/>
- * Copyrights EnergyICT
- * Date: 18/10/12
- * Time: 14:43
- */
 @RunWith(MockitoJUnitRunner.class)
 public class TCPPortConnectorTest {
 

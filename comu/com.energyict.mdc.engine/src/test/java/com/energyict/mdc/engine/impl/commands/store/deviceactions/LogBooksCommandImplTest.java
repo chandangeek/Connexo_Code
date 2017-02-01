@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
@@ -16,11 +20,6 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LogBooksTask;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -29,10 +28,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link LogBooksCommandImpl} component

@@ -1,33 +1,87 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.commands.store;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceCacheCommand;
+import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CollectedFirmwareVersionDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CollectedLogBookDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CollectedMessageListDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateNoLogBooksForDeviceEvent;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.StoreConfigurationUserFile;
+import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceIpAddress;
+import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceMessage;
+import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceProtocolProperty;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.engine.impl.events.datastorage.*;
-import com.energyict.mdc.engine.impl.meterdata.*;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceCacheEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceTopologyEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedFirmwareVersionEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedLogBookEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedMessageListEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedNoLogBooksForDeviceEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.CollectedRegisterListEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.MeterDataStorageEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.NoopCollectedDataEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.StoreConfigurationEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceIpAddressEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceMessageEvent;
+import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceProtocolPropertyEvent;
+import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
+import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
+import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
+import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
+import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
+import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
+import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.protocol.api.device.data.*;
-import com.energyict.mdc.protocol.api.device.data.identifiers.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.*;
+import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceCommandImplTest {

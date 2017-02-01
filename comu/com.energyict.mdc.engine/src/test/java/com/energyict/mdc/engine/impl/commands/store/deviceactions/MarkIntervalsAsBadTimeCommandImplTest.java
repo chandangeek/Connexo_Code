@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
@@ -32,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

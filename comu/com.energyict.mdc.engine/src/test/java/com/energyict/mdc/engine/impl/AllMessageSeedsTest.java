@@ -1,9 +1,12 @@
-package com.energyict.mdc.engine.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
+package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

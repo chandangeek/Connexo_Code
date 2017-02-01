@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.device.config.LogBookSpec;
@@ -9,13 +13,14 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import java.time.Instant;
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Instant;
-import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
