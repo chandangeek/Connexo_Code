@@ -33,9 +33,6 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             'issue-action-view issue-action-form #issue-action-apply': {
                 click: this.applyAction
             },
-            'assign-issue #issue-assign-action-apply': {
-                click: this.assignAction
-            },
             'issues-action-menu #assign-to-me': {
                 click: this.assignToMe
             },
