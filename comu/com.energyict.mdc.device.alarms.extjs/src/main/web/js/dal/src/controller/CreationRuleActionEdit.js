@@ -15,7 +15,7 @@ Ext.define('Dal.controller.CreationRuleActionEdit', {
     refs: [
         {
             ref: 'actionForm',
-            selector: 'issues-creation-rules-edit-action form'
+            selector: 'alarms-creation-rules-edit-action form'
         }
     ],
 
@@ -26,7 +26,7 @@ Ext.define('Dal.controller.CreationRuleActionEdit', {
 
     init: function () {
         this.control({
-            'issues-creation-rules-edit-action button[action=saveRuleAction]': {
+            'alarms-creation-rules-edit-action button[action=saveRuleAction]': {
                 click: this.saveAction
             }
         });
@@ -36,7 +36,7 @@ Ext.define('Dal.controller.CreationRuleActionEdit', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             clipboard = me.getStore('Dal.store.Clipboard'),
-            widget = Ext.widget('issues-creation-rules-edit-action', {
+            widget = Ext.widget('alarms-creation-rules-edit-action', {
                 isEdit: false,
                 router: router,
                 returnLink: router.getRoute(router.currentRoute.replace('/addaction', '')).buildUrl()
@@ -49,7 +49,7 @@ Ext.define('Dal.controller.CreationRuleActionEdit', {
                         widget.down('form').loadRecord(Ext.create('Dal.model.CreationRuleAction'));
                         me.getStore('Dal.store.CreationRuleActionPhases').load(function (records) {
                             if (widget.rendered) {
-                                widget.down('issues-creation-rules-edit-action-form').addPhases(records);
+                                widget.down('alarms-creation-rules-edit-action-form').addPhases(records);
                                 widget.setLoading(false);
                             }
                         });

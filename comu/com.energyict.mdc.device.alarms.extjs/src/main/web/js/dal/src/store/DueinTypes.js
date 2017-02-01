@@ -3,8 +3,8 @@ Ext.define('Dal.store.DueinTypes', {
     model: 'Dal.model.DueinType',
 
     data: [
-        {name: 'days', displayValue: Uni.I18n.translate('period.days','ISU','day(s)')},
-        {name: 'weeks', displayValue: Uni.I18n.translate('period.weeks','ISU','week(s)')},
-        {name: 'months', displayValue: Uni.I18n.translate('period.months','ISU','month(s)')}
+        {name: 'days', displayValue: Uni.I18n.translate('period.days','DAL','day(s)')},
+        {name: 'weeks', displayValue: Uni.I18n.translate('period.weeks','DAL','week(s)')},
+        {name: 'months', displayValue: Uni.I18n.translate('period.months','DAL','month(s)')}
     ]
 });

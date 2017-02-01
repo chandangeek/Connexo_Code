@@ -5,7 +5,7 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
         'Dal.store.Clipboard',
         'Dal.model.Action'
     ],
-    alias: 'widget.issues-creation-rules-edit-action-form',
+    alias: 'widget.alarms-creation-rules-edit-action-form',
     isEdit: false,
     returnLink: null,
     ui: 'large',
@@ -26,7 +26,7 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
                 xtype: 'radiogroup',
                 itemId: 'phasesRadioGroup',
                 name: 'phase',
-                fieldLabel: Uni.I18n.translate('issueCreationRules.actions.whenToPerform', 'ISU', 'When to perform'),
+                fieldLabel: Uni.I18n.translate('alarmCreationRules.actions.whenToPerform', 'DAL', 'When to perform'),
                 required: true,
                 columns: 1,
                 vertical: true,
@@ -40,7 +40,7 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
                 itemId: 'actionType',
                 xtype: 'combobox',
                 name: 'type',
-                fieldLabel: Uni.I18n.translate('general.action', 'ISU', 'Action'),
+                fieldLabel: Uni.I18n.translate('general.action', 'DAL', 'Action'),
                 required: true,
                 store: 'Dal.store.CreationRuleActions',
                 queryMode: 'local',
@@ -58,8 +58,8 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
             {
                 xtype: 'displayfield',
                 itemId: 'no-actions-displayfield',
-                fieldLabel: Uni.I18n.translate('general.action', 'ISU', 'Action'),
-                value: Uni.I18n.translate('issueCreationRules.actions.noActionsDefined', 'ISU', 'No actions defined'),
+                fieldLabel: Uni.I18n.translate('general.action', 'DAL', 'Action'),
+                value: Uni.I18n.translate('alarmCreationRules.actions.noActionsDefined', 'DAL', 'No actions defined'),
                 fieldStyle: 'color: #eb5642',
                 required: true,
                 hidden: true
@@ -82,12 +82,12 @@ Ext.define('Dal.view.creationrules.EditActionForm', {
                     {
                         itemId: 'actionOperation',
                         ui: 'action',
-                        text: me.isEdit ? Uni.I18n.translate('general.save', 'ISU', 'Save') : Uni.I18n.translate('general.add', 'ISU', 'Add'),
+                        text: me.isEdit ? Uni.I18n.translate('general.save', 'DAL', 'Save') : Uni.I18n.translate('general.add', 'DAL', 'Add'),
                         action: 'saveRuleAction'
                     },
                     {
                         itemId: 'cancel',
-                        text: Uni.I18n.translate('general.cancel', 'ISU', 'Cancel'),
+                        text: Uni.I18n.translate('general.cancel', 'DAL', 'Cancel'),
                         action: 'cancel',
                         ui: 'link',
                         href: me.returnLink

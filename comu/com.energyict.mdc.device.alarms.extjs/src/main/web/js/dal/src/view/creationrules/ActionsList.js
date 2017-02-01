@@ -14,7 +14,7 @@ Ext.define('Dal.view.creationrules.ActionsList', {
         items: [
             {
                 itemId: 'description',
-                header: Uni.I18n.translate('general.action', 'ISU', 'Action'),
+                header: Uni.I18n.translate('general.action', 'DAL', 'Action'),
                 dataIndex: 'type',
                 flex: 1,
                 renderer: function (value, metaData, record) {
@@ -24,7 +24,7 @@ Ext.define('Dal.view.creationrules.ActionsList', {
             {
                 itemId: 'phase',
                 dataIndex: 'phase',
-                header: Uni.I18n.translate('issueCreationRules.actions.whenToPerform', 'ISU', 'When to perform'),
+                header: Uni.I18n.translate('alarmCreationRules.actions.whenToPerform', 'DAL', 'When to perform'),
                 flex: 1,
                 renderer: function (value) {
                     return value ? value.title : '';

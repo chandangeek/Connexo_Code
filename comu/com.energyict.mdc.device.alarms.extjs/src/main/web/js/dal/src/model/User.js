@@ -6,17 +6,17 @@ Ext.define('Dal.model.User', {
     fields: [
         {
             name: 'id',
-            displayValue: Uni.I18n.translate('general.id','ISU','ID'),
+            displayValue: Uni.I18n.translate('general.id','DAL','ID'),
             type: 'int'
         },
         {
             name: 'type',
-            displayValue: Uni.I18n.translate('general.type','ISU','Type'),
+            displayValue: Uni.I18n.translate('general.type','DAL','Type'),
             type: 'auto'
         },
         {
             name: 'name',
-            displayValue: Uni.I18n.translate('general.name','ISU','Name'),
+            displayValue: Uni.I18n.translate('general.name','DAL','Name'),
             type: 'auto'
         }
     ],

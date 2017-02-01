@@ -1,6 +1,6 @@
 Ext.define('Dal.view.creationrules.EditAction', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.issues-creation-rules-edit-action',
+    alias: 'widget.alarms-creation-rules-edit-action',
     requires: [
         'Dal.view.creationrules.EditActionForm'
     ],
@@ -11,8 +11,8 @@ Ext.define('Dal.view.creationrules.EditAction', {
 
         me.content = [
             {
-                xtype: 'issues-creation-rules-edit-action-form',
-                itemId: 'issues-creation-rules-edit-action-form',
+                xtype: 'alarms-creation-rules-edit-action-form',
+                itemId: 'alarms-creation-rules-edit-action-form',
                 title: me.router.getRoute().getTitle(),
                 ui: 'large',
                 isEdit: me.isEdit,
