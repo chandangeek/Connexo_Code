@@ -16,7 +16,7 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
     ],
 
     models: [
-        'Imt.rulesets.model.MetrologyConfigurationPurpose',
+        'Imt.rulesets.model.ValidationRuleSetPurpose',
         'Cfg.model.ValidationRuleSet'
     ],
 
@@ -61,7 +61,7 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
 
         function onSuccessLoad(record) {
             app.fireEvent('loadRuleSet', record);
-            me.getModel('Imt.rulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
+            me.getModel('Imt.rulesets.model.ValidationRuleSetPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
             purposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
             app.fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
                 itemId: 'validation-rule-set-purposes',

@@ -16,7 +16,7 @@ Ext.define('Imt.rulesets.controller.EstimationRuleSetPurposes', {
     ],
 
     models: [
-        'Imt.rulesets.model.MetrologyConfigurationPurpose',
+        'Imt.rulesets.model.EstimationRuleSetPurpose',
         'Est.estimationrulesets.model.EstimationRuleSet'
     ],
 
@@ -61,7 +61,7 @@ Ext.define('Imt.rulesets.controller.EstimationRuleSetPurposes', {
 
         function onSuccessLoad(record) {
             app.fireEvent('loadEstimationRuleSet', record);
-            me.getModel('Imt.rulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
+            me.getModel('Imt.rulesets.model.EstimationRuleSetPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
             purposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
             app.fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
                 itemId: 'estimation-rule-set-purposes',
