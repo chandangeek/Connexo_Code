@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.property.controller.Registry
  * @singleton
@@ -45,7 +49,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.ObisCode',
         'Uni.property.view.property.ObisCodeCombo',
         'Uni.property.view.property.Quantity',
-        'Uni.property.view.property.ReadingQualities'
+        'Uni.property.view.property.ReadingQualities',
+        'Uni.property.view.property.Assign'
     ],
 
     /**
@@ -87,7 +92,8 @@ Ext.define('Uni.property.controller.Registry', {
         DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
         SELECTIONGRID: 'Uni.property.view.property.SelectionGrid',
         QUANTITY: 'Uni.property.view.property.Quantity',
-        LISTREADINGQUALITY: 'Uni.property.view.property.ReadingQualities'
+        LISTREADINGQUALITY: 'Uni.property.view.property.ReadingQualities',
+        ASSIGN: 'Uni.property.view.property.Assign',
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)

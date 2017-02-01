@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * @class Uni.DateTime
  */
@@ -103,6 +107,6 @@ Ext.define('Uni.DateTime', {
         } else {
             dateTimeFormat += timeFormat;
         }
-        return Ext.Date.format(date, dateTimeFormat);
+        return Ext.Date.format(Ext.isDate(date) ? date : new Date(date), dateTimeFormat);
     }
 });
