@@ -48,22 +48,26 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
 
         mainView.setLoading();
         me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {
-            success: function (record) {
-                app.fireEvent('loadRuleSet', record);
-                app.fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
-                    itemId: 'add-purposes-to-validation-rule-set',
-                    sideMenu: 'ruleSetSubMenu',
-                    router: router,
-                    cancelHref: router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes').buildUrl(),
-                    purposesStore: availableToAddPurposesStore,
-                    ruleSetId: ruleSetId
-                }));
-                availableToAddPurposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
-                availableToAddPurposesStore.load();
-            },
-            callback: function () {
-                mainView.setLoading(false);
-            }
+            success: onSuccessLoad,
+            callback: loadCallback
         });
+
+        function onSuccessLoad(record) {
+            app.fireEvent('loadRuleSet', record);
+            app.fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
+                itemId: 'add-purposes-to-validation-rule-set',
+                sideMenu: 'ruleSetSubMenu',
+                router: router,
+                cancelHref: router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes').buildUrl(),
+                purposesStore: availableToAddPurposesStore,
+                ruleSetId: ruleSetId
+            }));
+            availableToAddPurposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
+            availableToAddPurposesStore.load();
+        }
+
+        function loadCallback() {
+            mainView.setLoading(false);
+        }
     }
 });

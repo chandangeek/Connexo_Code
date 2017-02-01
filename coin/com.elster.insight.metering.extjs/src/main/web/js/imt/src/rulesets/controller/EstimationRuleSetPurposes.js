@@ -55,23 +55,27 @@ Ext.define('Imt.rulesets.controller.EstimationRuleSetPurposes', {
 
         mainView.setLoading();
         me.getModel('Est.estimationrulesets.model.EstimationRuleSet').load(ruleSetId, {
-            success: function (record) {
-                app.fireEvent('loadEstimationRuleSet', record);
-                me.getModel('Imt.rulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
-                purposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
-                app.fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
-                    itemId: 'estimation-rule-set-purposes',
-                    sideMenu: 'estimation-rule-set-side-menu',
-                    purposesStore: purposesStore,
-                    router: router,
-                    addLink: router.getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes/add').buildUrl(),
-                    adminPrivileges: Imt.privileges.MetrologyConfig.adminEstimation,
-                    ruleSetId: ruleSetId
-                }));
-            },
-            callback: function () {
-                mainView.setLoading(false);
-            }
+            success: onSuccessLoad,
+            callback: loadCallback
         });
+
+        function onSuccessLoad(record) {
+            app.fireEvent('loadEstimationRuleSet', record);
+            me.getModel('Imt.rulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
+            purposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
+            app.fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
+                itemId: 'estimation-rule-set-purposes',
+                sideMenu: 'estimation-rule-set-side-menu',
+                purposesStore: purposesStore,
+                router: router,
+                addLink: router.getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes/add').buildUrl(),
+                adminPrivileges: Imt.privileges.MetrologyConfig.adminEstimation,
+                ruleSetId: ruleSetId
+            }));
+        }
+
+        function loadCallback() {
+            mainView.setLoading(false);
+        }
     }
 });

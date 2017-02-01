@@ -1,6 +1,6 @@
 Ext.define('Imt.rulesets.model.MetrologyConfigurationPurpose', {
     extend: 'Ext.data.Model',
-    fields: ['isActive', 'metrologyConfigurationInfo', 'purpose', 'outputs', 'metrologyContractId'],
+    fields: ['isActive', 'metrologyConfigurationInfo', 'purpose', 'outputs', 'metrologyContractId', 'metrologyContractInfo'],
     idProperty: 'metrologyContractId',
     proxy: {
         type: 'rest',

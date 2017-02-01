@@ -48,22 +48,26 @@ Ext.define('Imt.rulesets.controller.AddPurposesToEstimationRuleSet', {
 
         mainView.setLoading();
         me.getModel('Est.estimationrulesets.model.EstimationRuleSet').load(ruleSetId, {
-            success: function (record) {
-                app.fireEvent('loadEstimationRuleSet', record);
-                app.fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
-                    itemId: 'add-purposes-to-estimation-rule-set',
-                    sideMenu: 'estimation-rule-set-side-menu',
-                    router: router,
-                    cancelHref: router.getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes').buildUrl(),
-                    purposesStore: availableToAddPurposesStore,
-                    ruleSetId: ruleSetId
-                }));
-                availableToAddPurposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
-                availableToAddPurposesStore.load();
-            },
-            callback: function () {
-                mainView.setLoading(false);
-            }
+            success: onSuccessLoad,
+            callback: loadCallback
         });
+
+        function onSuccessLoad(record) {
+            app.fireEvent('loadEstimationRuleSet', record);
+            app.fireEvent('changecontentevent', Ext.widget('add-metrology-configuration-purposes', {
+                itemId: 'add-purposes-to-estimation-rule-set',
+                sideMenu: 'estimation-rule-set-side-menu',
+                router: router,
+                cancelHref: router.getRoute('administration/estimationrulesets/estimationruleset/metrologyconfigurationpurposes').buildUrl(),
+                purposesStore: availableToAddPurposesStore,
+                ruleSetId: ruleSetId
+            }));
+            availableToAddPurposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
+            availableToAddPurposesStore.load();
+        }
+
+        function loadCallback() {
+            mainView.setLoading(false);
+        }
     }
 });

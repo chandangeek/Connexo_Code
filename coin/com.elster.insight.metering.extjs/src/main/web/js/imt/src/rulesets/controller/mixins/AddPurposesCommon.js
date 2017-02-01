@@ -18,14 +18,16 @@ Ext.define('Imt.rulesets.controller.mixins.AddPurposesCommon', {
         Ext.Ajax.request({
             method: 'PUT',
             url: Ext.String.format(me.addPurposesLink, router.arguments.ruleSetId),
-            jsonData: formatData(),
+            jsonData: {
+                contracts: formatData()
+            },
             success: onSuccessAdd,
             callback: addCallback
         });
 
         function formatData() {
             return _.map(records, function (record) {
-                return record.getId();
+                return record.get('metrologyContractInfo');
             });
         }
 

@@ -55,23 +55,27 @@ Ext.define('Imt.rulesets.controller.ValidationRuleSetPurposes', {
 
         mainView.setLoading();
         me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {
-            success: function (record) {
-                app.fireEvent('loadRuleSet', record);
-                me.getModel('Imt.rulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
-                purposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
-                app.fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
-                    itemId: 'validation-rule-set-purposes',
-                    sideMenu: 'ruleSetSubMenu',
-                    purposesStore: purposesStore,
-                    router: router,
-                    addLink: router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes/add').buildUrl(),
-                    adminPrivileges: Imt.privileges.MetrologyConfig.adminValidation,
-                    ruleSetId: ruleSetId
-                }));
-            },
-            callback: function () {
-                mainView.setLoading(false);
-            }
+            success: onSuccessLoad,
+            callback: loadCallback
         });
+
+        function onSuccessLoad(record) {
+            app.fireEvent('loadRuleSet', record);
+            me.getModel('Imt.rulesets.model.MetrologyConfigurationPurpose').getProxy().setExtraParam('ruleSetId', ruleSetId);
+            purposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
+            app.fireEvent('changecontentevent', Ext.widget('metrology-configuration-purposes', {
+                itemId: 'validation-rule-set-purposes',
+                sideMenu: 'ruleSetSubMenu',
+                purposesStore: purposesStore,
+                router: router,
+                addLink: router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes/add').buildUrl(),
+                adminPrivileges: Imt.privileges.MetrologyConfig.adminValidation,
+                ruleSetId: ruleSetId
+            }));
+        }
+
+        function loadCallback() {
+            mainView.setLoading(false);
+        }
     }
 });
