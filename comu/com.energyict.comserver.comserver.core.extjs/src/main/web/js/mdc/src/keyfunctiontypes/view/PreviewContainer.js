@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.keyfunctiontypes.view.PreviewContainer', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.key-function-types-preview-container',
