@@ -64,6 +64,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         itemId: 'validation-schedule',
                         fieldLabel: Uni.I18n.translate('general.validationSchedule', 'IMT', 'Validation schedule'),
                         store: 'Imt.purpose.store.ValidationTasks',
+                        buttonItemId: 'view-validation-button',
                         route: me.router.getRoute('administration/validationtasks/validationtask'),
                         emptyText: Uni.I18n.translate('usagepoint.purpose.validation.task.noTasks.on.usagePoint', 'IMT', 'No validation tasks have been configured for this usage point yet ({0}manage validation tasks{1})',
                             [
@@ -79,6 +80,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         itemId: 'estimation-schedule',
                         fieldLabel: Uni.I18n.translate('general.estimationSchedule', 'IMT', 'Estimation schedule'),
                         store: 'Imt.purpose.store.EstimationTasks',
+                        buttonItemId: 'view-estimation-button',
                         route: me.router.getRoute('administration/estimationtasks/estimationtask'),
                         emptyText: Uni.I18n.translate('usagepoint.purpose.estimation.task.noTasks.on.usagePoint', 'IMT', 'No estimation tasks has been configured for this usage point yet ({0}manage estimation tasks{1})',
                             [

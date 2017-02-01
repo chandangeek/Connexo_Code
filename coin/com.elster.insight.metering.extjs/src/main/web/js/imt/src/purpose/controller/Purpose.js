@@ -439,6 +439,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     doOperation: function (purpose, usagePoint, confirmationWindow, successMessage, action) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             purposePage = me.getPurposePage();
 
         purpose[action](usagePoint, {
@@ -450,7 +451,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 }
                 if (purposePage.rendered && success) {
                     me.getApplication().fireEvent('acknowledge', successMessage);
-                    me.getController('Uni.controller.history.Router').getRoute().forward();
+                    router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
                 }
             }
         });
