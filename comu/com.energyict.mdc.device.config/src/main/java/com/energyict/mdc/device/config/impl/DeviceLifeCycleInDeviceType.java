@@ -1,9 +1,12 @@
-package com.energyict.mdc.device.config.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import java.time.Instant;
 import java.util.Optional;

@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.masterdata.RegisterType;
 
 import aQute.bnd.annotation.ProviderType;
 

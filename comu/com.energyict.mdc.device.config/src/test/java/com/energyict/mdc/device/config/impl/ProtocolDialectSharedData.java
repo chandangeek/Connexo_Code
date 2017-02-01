@@ -1,9 +1,13 @@
-package com.energyict.mdc.device.config.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+
 import com.google.common.base.Strings;
 
 import java.util.Optional;

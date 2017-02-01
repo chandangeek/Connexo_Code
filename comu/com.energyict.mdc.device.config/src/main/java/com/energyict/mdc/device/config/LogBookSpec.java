@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
@@ -6,11 +10,6 @@ import com.energyict.mdc.masterdata.LogBookType;
 
 import aQute.bnd.annotation.ProviderType;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/11/12
- * Time: 13:19
- */
 @ProviderType
 public interface LogBookSpec extends HasId {
 

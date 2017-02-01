@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -9,11 +13,6 @@ import java.util.Optional;
 
 import org.junit.Before;
 
-/**
- * Copyrights EnergyICT
- * Date: 7/03/14
- * Time: 15:09
- */
 public abstract class DeviceTypeProvidingPersistenceTest extends PersistenceTest {
 
     static final String DEVICE_TYPE_NAME = PersistenceTest.class.getName() + "Type";

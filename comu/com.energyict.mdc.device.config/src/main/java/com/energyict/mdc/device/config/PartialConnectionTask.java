@@ -1,12 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**

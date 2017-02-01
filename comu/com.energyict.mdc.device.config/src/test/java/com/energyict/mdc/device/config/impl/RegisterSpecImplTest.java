@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
@@ -32,13 +36,6 @@ import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * Tests the {@link RegisterSpecImpl} class hierarchy.
- * <p/>
- * Copyrights EnergyICT
- * Date: 17/02/14
- * Time: 15:51
- */
 public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private static final String DEVICE_CONFIGURATION_NAME = RegisterSpecImplTest.class.getName() + "Config";

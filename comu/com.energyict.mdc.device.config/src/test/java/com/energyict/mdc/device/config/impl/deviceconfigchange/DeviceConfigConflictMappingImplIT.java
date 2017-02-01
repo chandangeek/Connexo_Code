@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -16,11 +20,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.09.15
- * Time: 10:59
- */
 public class DeviceConfigConflictMappingImplIT extends AbstractConflictIT {
 
     @Test

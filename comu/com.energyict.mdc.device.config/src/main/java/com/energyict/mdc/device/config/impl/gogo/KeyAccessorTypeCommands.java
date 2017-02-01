@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config.impl.gogo;
 
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;

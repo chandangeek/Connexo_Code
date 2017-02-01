@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -18,11 +22,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Copyrights EnergyICT
- * Date: 24.02.16
- * Time: 14:13
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DataloggerSlaveTest extends DeviceTypeProvidingPersistenceTest {
 

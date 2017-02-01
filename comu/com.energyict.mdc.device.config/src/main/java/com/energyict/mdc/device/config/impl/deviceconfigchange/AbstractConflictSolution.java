@@ -1,7 +1,8 @@
-package com.energyict.mdc.device.config.impl.deviceconfigchange;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.config.ConflictingSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -9,6 +10,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.device.config.ConflictingSolution;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 
 import javax.validation.constraints.NotNull;
 

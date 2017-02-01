@@ -1,22 +1,19 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
-
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.validation.ValidationRule;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LoadProfileType;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 
-/**
- * Represents a LoadProfile specification modeled by a {@link LoadProfileType}.
- * <p/>
- * Copyrights EnergyICT
- * Date: 9/11/12
- * Time: 10:06
- */
 @ProviderType
 public interface LoadProfileSpec extends HasId {
 

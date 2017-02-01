@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -21,11 +25,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/30/14
- * Time: 1:36 PM
- */
 class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessageEnablement> implements ServerDeviceMessageEnablement, PersistenceAware {
 
     static class DeviceMessageUserActionRecord {

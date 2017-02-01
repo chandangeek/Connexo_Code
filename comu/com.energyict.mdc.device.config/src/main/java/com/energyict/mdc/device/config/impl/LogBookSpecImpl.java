@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -20,11 +24,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
 
-/**
- * Copyrights EnergyICT
- * Date: 12/11/12
- * Time: 13:30
- */
 class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerLogBookSpec {
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();

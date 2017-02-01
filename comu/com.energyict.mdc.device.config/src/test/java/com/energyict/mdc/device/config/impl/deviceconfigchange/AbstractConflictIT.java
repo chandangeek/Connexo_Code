@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -121,11 +125,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.09.15
- * Time: 10:16
- */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractConflictIT {
     public static final TimeDuration FIFTEEN_MINUTES = TimeDuration.minutes(15);
