@@ -11,6 +11,8 @@ import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Validates that it is only allowed for a channel to have a ReadingType with an interval.
@@ -45,7 +47,11 @@ public class ReadingTypeIntervalOnlyForChannelValidator implements ConstraintVal
     private boolean validMacroPeriod(ReadingType readingType) {
         return readingType.getMacroPeriod().isApplicable() &&
                 !(readingType.getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD) ||
-                        ((readingType.getMacroPeriod().equals(MacroPeriod.DAILY) ||
-                                readingType.getMacroPeriod().equals(MacroPeriod.MONTHLY)) && readingType.getAggregate().isApplicable()));
+                        ((this.recurringMacroPeriods().contains(readingType.getMacroPeriod())) && readingType.getAggregate().isApplicable()));
     }
+
+    private Set<MacroPeriod> recurringMacroPeriods() {
+        return EnumSet.of(MacroPeriod.DAILY, MacroPeriod.MONTHLY, MacroPeriod.YEARLY);
+    }
+
 }
