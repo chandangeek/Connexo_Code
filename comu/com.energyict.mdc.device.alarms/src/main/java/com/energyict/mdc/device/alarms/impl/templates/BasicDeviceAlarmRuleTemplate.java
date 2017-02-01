@@ -8,6 +8,8 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.HasIdAndName;
@@ -44,7 +46,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
@@ -68,6 +72,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile TimeService timeService;
+    private volatile MeteringService meteringService;
     public static final boolean LOG_ON_SAME_ALARM_DEFAULT_VALUE = false;
     public static final boolean DOWN_URGENCY_ON_CLEAR_DEFAULT_VALUE = false;
     public static final boolean UP_URGENCY_ON_RAISE_DEFAULT_VALUE = false;
@@ -77,7 +82,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
     @Inject
-    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService) {
+    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MeteringService meteringService) {
         this();
         setDeviceAlarmService(deviceAlarmService);
         setNlsService(nlsService);
@@ -126,6 +131,11 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     @Reference
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -182,6 +192,8 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
         EventTypes eventTypes = new EventTypes(getThesaurus(), DeviceAlarmEventDescription.values());
+        /*EventTypeInfo[] possibleEventTypes = meteringService.getAvailableEndDeviceEventTypes().stream().map(EventTypeInfo::new)
+                .toArray(EventTypeInfo[]::new); */
         DeviceTypeInfo[] possibleDeviceTypes = deviceConfigurationService.findAllDeviceTypes()
                 .find().stream().map(DeviceTypeInfo::new)
                 .toArray(DeviceTypeInfo[]::new);
@@ -209,7 +221,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
         builder.add(propertySpecService
-                //.longSpec()
                 .relativePeriodSpec()
                 .named(THRESHOLD, TranslationKeys.EVENT_TEMPORAL_THRESHOLD)
                 .fromThesaurus(this.getThesaurus())
@@ -224,18 +235,19 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
-                .specForValuesOf(new AlarmPropertyHasNameInfoValueFactory())
+                .specForValuesOf(new EventTypeInfoValueFactory())
                 .named(TRIGGERING_EVENTS, TranslationKeys.TRIGGERING_EVENTS)
-                .fromThesaurus(this.getThesaurus())
-                .markMultiValued(",")
-                // .markExhaustive()
-                .finish());
-        builder.add(propertySpecService
-                .specForValuesOf(new AlarmPropertyHasNameInfoValueFactory())
-                .named(CLEARING_EVENTS, TranslationKeys.CLEARING_EVENTS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .markMultiValued(",")
+              //  .addValues(possibleEventTypes)
+                .finish());
+        builder.add(propertySpecService
+                .specForValuesOf(new EventTypeInfoValueFactory())
+                .named(CLEARING_EVENTS, TranslationKeys.CLEARING_EVENTS)
+                .fromThesaurus(this.getThesaurus())
+                .markMultiValued(",")
+                //.addValues(possibleEventTypes)
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
@@ -293,7 +305,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             List<String> clearingEvents = new ArrayList<>();
             alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
                     .findFirst().ifPresent(element ->
-                    ((ArrayList) (element.getValue())).forEach(value -> clearingEvents.add(((AlarmPropertyHasNameInfo) value).getName())));
+                    ((ArrayList) (element.getValue())).forEach(value -> clearingEvents.add(((EventTypeInfo) value).getName())));
             Optional<Boolean> upUrgencyOnRaise = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(UP_URGENCY_ON_RAISE))
                     .findFirst().map(found -> (Boolean) found.getValue());
             Optional<Boolean> downUrgencyOnClear = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(DOWN_URGENCY_ON_CLEAR))
@@ -328,10 +340,13 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
     // BpmProcessPropertyFactory - maps to SimplePropertyType.SELECTIONGRID, needed PropertyValueInfoService for single or no selection - will rename or create marker interface
-    private class AlarmPropertyHasNameInfoValueFactory implements ValueFactory<HasName>, BpmProcessPropertyFactory {
+    private class EventTypeInfoValueFactory implements ValueFactory<HasName>, BpmProcessPropertyFactory {
         @Override
         public HasName fromStringValue(String stringValue) {
-            return new AlarmPropertyHasNameInfo(stringValue);
+            //TODO - add inexistent event, after being validated, to MTR_ENDDEVICEEVENTTYPE on creation rule save
+         return meteringService.getEndDeviceEventType(stringValue)
+                    .map(EventTypeInfo::new)
+                    .orElse(null);
         }
 
         @Override
@@ -374,18 +389,59 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
     @XmlRootElement
-    static class AlarmPropertyHasNameInfo implements HasName {
+    static class EventTypeInfo implements HasName {
 
-        private transient String value;
+        private transient EndDeviceEventType eventType;
 
-        AlarmPropertyHasNameInfo(String value) {
-            this.value = value;
+        EventTypeInfo(EndDeviceEventType eventType) {
+            this.eventType = eventType;
+        }
+
+        public int getTypeCode() {
+            return eventType.getType().getCode();
+        }
+
+        public String getTypeName() {
+            return eventType.getType().getMnemonic();
+        }
+
+        public int getDomainCode() {
+            return eventType.getDomain().getCode();
+        }
+
+        public String getDomainName() {
+            return eventType.getDomain().getMnemonic();
+        }
+
+        public int getSubDomainCode() {
+            return eventType.getSubDomain().getCode();
+        }
+
+        public String getSubDomainName() {
+            return eventType.getSubDomain().getMnemonic();
+        }
+
+        public int getEventOrActionCode() {
+            return eventType.getEventOrAction().getCode();
+        }
+
+        public String getEventOrActionName() {
+            return eventType.getEventOrAction().getMnemonic();
         }
 
 
         @Override
         public String getName() {
-            return value;
+            return eventType.getMRID();
+            /*
+            return Stream.<HasNumericCode>of(type, domain, subDomain, eventOrAction)
+                .map(hasNumericCode -> Optional.ofNullable(hasNumericCode)
+                        .map(HasNumericCode::getCode)
+                        .map(String::valueOf)
+                        .orElse("*")
+                )
+                .collect(Collectors.joining("."));
+             */
         }
 
 
@@ -394,20 +450,22 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof AlarmPropertyHasNameInfo)) {
+            if (!(o instanceof EventTypeInfo)) {
                 return false;
             }
 
-            AlarmPropertyHasNameInfo that = (AlarmPropertyHasNameInfo) o;
+            EventTypeInfo that = (EventTypeInfo) o;
 
-            return value.equals(that.value);
+            return eventType.equals(that.eventType);
 
         }
 
         @Override
         public int hashCode() {
-            return value.hashCode();
+            return eventType.hashCode();
         }
+
+
     }
 
 
