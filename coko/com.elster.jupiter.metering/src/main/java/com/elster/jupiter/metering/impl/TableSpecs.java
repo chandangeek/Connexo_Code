@@ -384,8 +384,8 @@ public enum TableSpecs {
             Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.column("MANUFACTURER").varChar(NAME_LENGTH).map("manufacturer").since(version(10, 3)).add();
-            table.column("MODELNBR").varChar(NAME_LENGTH).map("modelnbr").since(version(10, 3)).add();
-            table.column("MODELVERSION").varChar(NAME_LENGTH).map("modelversion").since(version(10, 3)).add();
+            table.column("MODELNBR").varChar(NAME_LENGTH).map("modelNbr").since(version(10, 3)).add();
+            table.column("MODELVERSION").varChar(NAME_LENGTH).map("modelVersion").since(version(10, 3)).add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_METER").on(idColumn).add();
             table.foreignKey("FK_MTR_METERAMRSYSTEM")

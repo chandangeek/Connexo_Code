@@ -68,8 +68,8 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Instant modTime;
     private SpatialCoordinates spatialCoordinates;
     private String manufacturer;
-    private String modelnbr;
-    private String modelversion;
+    private String modelNbr;
+    private String modelVersion;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -417,22 +417,22 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     @Override
     public String getModelNumber() {
-        return modelnbr == null ? "" : modelnbr;
+        return modelNbr == null ? "" : modelNbr;
     }
 
     @Override
     public void setModelNumber(String modelNumber) {
-       this.modelnbr = modelNumber;
+       this.modelNbr = modelNumber;
     }
 
     @Override
     public String getModelVersion() {
-        return modelversion == null ? "" : modelversion;
+        return modelVersion == null ? "" : modelVersion;
     }
 
     @Override
     public void setModelVersion(String modelVersion) {
-        this.modelversion = modelVersion;
+        this.modelVersion = modelVersion;
     }
 
     /**
