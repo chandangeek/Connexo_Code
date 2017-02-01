@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -121,12 +122,27 @@ public enum TableSpecs {
                     .map(KeyAccessorTypeImpl.Fields.DURATION.fieldName()+".timeUnitCode")
                     .since(Version.version(10,3))
                     .add();
+            table.column("ENCRYPTION")
+                    .varChar()
+                    .map(KeyAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
+                    .since(Version.version(10,3))
+                    .add();
+            Column keytypeid = table.column("KEYTYPEID")
+                    .number()
+                    .notNull()
+                    .since(Version.version(10, 3))
+                    .add();
             table.foreignKey("FK_DTC_KEYACCESSOR_DEVTYPE")
                     .on(deviceType)
                     .references(DTC_DEVICETYPE.name())
                     .map(KeyAccessorTypeImpl.Fields.DEVICETYPE.fieldName())
                     .reverseMap(DeviceTypeImpl.Fields.KEY_ACCESSOR_TYPE.fieldName())
                     .composition()
+                    .add();
+            table.foreignKey("FK_DTC_KEYACCCESSOR_KEYTYPE")
+                    .on(keytypeid)
+                    .references(KeyType.class)
+                    .map(KeyAccessorTypeImpl.Fields.KEYTYPE.fieldName())
                     .add();
             table.primaryKey("PK_DTC_KEYACCESSOR").on(id).add();
         }

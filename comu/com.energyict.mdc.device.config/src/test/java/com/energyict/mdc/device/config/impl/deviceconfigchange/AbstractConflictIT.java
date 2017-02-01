@@ -29,6 +29,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -265,7 +266,8 @@ public abstract class AbstractConflictIT {
                     injector.getInstance(CalendarService.class),
                     injector.getInstance(CustomPropertySetService.class),
                     UpgradeModule.FakeUpgradeService.getInstance(),
-                    injector.getInstance(DeviceMessageSpecificationService.class));
+                    injector.getInstance(DeviceMessageSpecificationService.class),
+                    injector.getInstance(PkiService.class));
             ctx.commit();
         }
         setupMasterData();

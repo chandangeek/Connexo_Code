@@ -166,6 +166,7 @@ public class InMemoryPersistence {
             injector.getInstance(Publisher.class);
             this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
+            this.pkiService = this.injector.getInstance(PkiService.class);
             finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
@@ -179,7 +180,6 @@ public class InMemoryPersistence {
             this.calendarService = injector.getInstance(CalendarService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.pluggableService = this.injector.getInstance(PluggableService.class);
-            this.pkiService = this.injector.getInstance(PkiService.class);
             if (!mockedProtocolPluggableService) {
                 this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
                 this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);

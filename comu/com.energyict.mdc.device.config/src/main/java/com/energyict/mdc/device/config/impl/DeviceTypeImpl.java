@@ -289,8 +289,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType) {
-        return new KeyAccessorTypeBuilder(name, keyType, this);
+    public KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType, String keyEncryptionMethod) {
+        return new KeyAccessorTypeBuilder(name, keyType, keyEncryptionMethod, this);
     }
 
     @Override
@@ -304,10 +304,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private class KeyAccessorTypeBuilder implements KeyAccessorType.Builder {
         private final KeyAccessorTypeImpl underConstruction;
 
-        private KeyAccessorTypeBuilder(String name, KeyType keyType, DeviceTypeImpl deviceType) {
+        private KeyAccessorTypeBuilder(String name, KeyType keyType, String keyEncryptionMethod, DeviceTypeImpl deviceType) {
             underConstruction = new KeyAccessorTypeImpl();
             underConstruction.setName(name);
             underConstruction.setKeyType(keyType);
+            underConstruction.setKeyEncryptionMethod(keyEncryptionMethod);
             underConstruction.setDeviceType(deviceType);
         }
 
@@ -325,6 +326,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public KeyAccessorType add() {
+            Save.CREATE.validate(getDataModel(), underConstruction);
             DeviceTypeImpl.this.keyAccessors.add(underConstruction);
             return underConstruction;
         }

@@ -20,6 +20,9 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
     private TimeDuration duration;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private String keyEncryptionMethod;
     private Reference<KeyType> keyType = Reference.empty();
     private Reference<DeviceType> deviceType = Reference.empty();
 
@@ -27,6 +30,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
         ID("id"),
         NAME("name"),
         DESCRIPTION("description"),
+        ENCRYPTIONMETHOD("keyEncryptionMethod"),
         DURATION("duration"),
         KEYTYPE("keyType"),
         DEVICETYPE("deviceType")
@@ -61,12 +65,22 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
         return duration==null?Optional.empty():Optional.of(duration);
     }
 
+    @Override
     public KeyType getKeyType() {
         return keyType.get();
     }
 
     public void setKeyType(KeyType keyType) {
         this.keyType.set(keyType);
+    }
+
+    @Override
+    public String getKeyEncryptionMethod() {
+        return keyEncryptionMethod;
+    }
+
+    public void setKeyEncryptionMethod(String keyEncryptionMethod) {
+        this.keyEncryptionMethod = keyEncryptionMethod;
     }
 
     @Override

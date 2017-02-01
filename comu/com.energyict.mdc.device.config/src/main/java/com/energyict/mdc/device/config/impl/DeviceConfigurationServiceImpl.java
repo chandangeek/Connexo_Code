@@ -24,6 +24,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -154,6 +155,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile CalendarService calendarService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile PkiService pkiService;
 
     private final Set<Privilege> privileges = new HashSet<>();
 
@@ -182,7 +184,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                                           CalendarService calendarService,
                                           CustomPropertySetService customPropertySetService,
                                           UpgradeService upgradeService,
-                                          DeviceMessageSpecificationService deviceMessageSpecificationService) {
+                                          DeviceMessageSpecificationService deviceMessageSpecificationService,
+                                          PkiService pkiService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -205,6 +208,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setCalendarService(calendarService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setCustomPropertySetService(customPropertySetService);
+        this.setPkiService(pkiService);
         setUpgradeService(upgradeService);
         this.activate();
     }
@@ -615,6 +619,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setPkiService(PkiService pkiService) {
+        this.pkiService = pkiService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -637,6 +646,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(EstimationService.class).toInstance(estimationService);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(PkiService.class).toInstance(pkiService);
             }
         };
     }

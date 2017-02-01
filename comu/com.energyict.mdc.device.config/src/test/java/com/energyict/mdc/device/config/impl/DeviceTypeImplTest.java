@@ -956,11 +956,16 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void addKeyAccessorType() throws Exception {
         inMemoryPersistence.getPkiService().addSymmetricKeyType("AES128", "AES", 128);
+
         Optional<KeyType> aes128 = inMemoryPersistence.getPkiService().getKeyType("AES128");
-        assertThat(this.deviceType.getKeyAccessorTypes()).isEmpty();
-        this.deviceType.addKeyAccessorType("GUAK", aes128.get()).description("general use AK").duration(TimeDuration.days(365)).add();
-        assertThat(this.deviceType.getKeyAccessorTypes()).hasSize(1);
-        assertThat(this.deviceType.getKeyAccessorTypes().get(0).getName()).isEqualTo("GUAK");
+        assertThat(deviceType.getKeyAccessorTypes()).isEmpty();
+        this.deviceType.addKeyAccessorType("GUAK", aes128.get(), "SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        DeviceType deviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceType(this.deviceType.getId()).get();
+        assertThat(deviceType.getKeyAccessorTypes()).hasSize(1);
+        assertThat(deviceType.getKeyAccessorTypes().get(0).getName()).isEqualTo("GUAK");
+        assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyEncryptionMethod()).isEqualTo("SSM");
+        assertThat(deviceType.getKeyAccessorTypes().get(0).getKeyType().getName()).isEqualTo("AES128");
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {
