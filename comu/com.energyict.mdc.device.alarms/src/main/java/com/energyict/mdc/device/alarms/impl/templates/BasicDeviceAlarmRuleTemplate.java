@@ -17,6 +17,7 @@ import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
+import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -469,7 +470,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
 
-    private class DeviceTypeInfoValueFactory implements ValueFactory<HasIdAndName>, BpmProcessPropertyFactory {
+    private class DeviceTypeInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceConfigurationPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return deviceConfigurationService
