@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.ValidationStatusForm', {
     extend: 'Ext.container.Container',
     alias: 'widget.output-validation-status-form',

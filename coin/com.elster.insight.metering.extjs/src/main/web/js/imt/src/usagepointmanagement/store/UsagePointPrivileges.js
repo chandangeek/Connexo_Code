@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.store.UsagePointPrivileges', {
     extend: 'Ext.data.Store',
     fields: [

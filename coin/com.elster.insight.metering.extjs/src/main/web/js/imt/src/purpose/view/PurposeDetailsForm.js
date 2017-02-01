@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.purpose-details-form',

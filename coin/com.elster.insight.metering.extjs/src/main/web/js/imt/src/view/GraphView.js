@@ -1,4 +1,8 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
 Added in scope of http://jira.eict.vpdc/browse/JP-8566
 Solution found in https://github.com/highslide-software/highcharts.com/issues/2434
 Please notice, that it can break https://github.com/highslide-software/highcharts.com/issues/1514

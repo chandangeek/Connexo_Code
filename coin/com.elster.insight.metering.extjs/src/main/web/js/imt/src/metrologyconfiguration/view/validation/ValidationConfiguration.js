@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.view.validation.ValidationConfiguration', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.metrology-configuration-validation-tab-view',
