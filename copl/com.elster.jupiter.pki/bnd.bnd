@@ -1,5 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.pki.impl
+Private-Package: com.elster.jupiter.pki.impl.*
 Export-Package: com.elster.jupiter.pki
 

@@ -1,4 +1,8 @@
-package com.elster.jupiter.pki.impl;
+/*
+ * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
+ */
+
+package com.elster.jupiter.pki.impl.gogo;
 
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.util.gogo.MysqlPrint;
