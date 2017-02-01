@@ -31,8 +31,11 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposeDetails', {
         },
         {
             itemId: 'purpose-field',
-            name: 'purpose',
-            fieldLabel: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose')
+            name: 'metrologyContractInfo',
+            fieldLabel: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose'),
+            renderer: function (value) {
+                return value.name
+            }
         },
         {
             xtype: 'fieldcontainer',

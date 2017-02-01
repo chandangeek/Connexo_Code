@@ -37,7 +37,10 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
             },
             {
                 header: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose'),
-                dataIndex: 'purpose',
+                dataIndex: 'metrologyContractInfo',
+                renderer: function (value) {
+                    return value.name
+                },
                 flex: 1
             },
             {
