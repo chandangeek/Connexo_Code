@@ -9,6 +9,8 @@ Ext.define('Dal.privileges.Alarm', {
     viewUsagePoint: ['privilege.view.anyUsagePoint', 'privilege.view.ownUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     viewAdminProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
     viewAdminAlarm: ['privilege.view.alarm', 'privilege.comment.alarm', 'privilege.close.alarm', 'privilege.assign.alarm', 'privilege.action.alarm'],
+    viewAdminAlarmCreationRule: ['privilege.view.alarm.creationRule', 'privilege.administrate.alarm.creationRule'],
+    createAlarmRule: ['privilege.administrate.alarm.creationRule'],
     adminDevice: ['privilege.comment.alarm', 'privilege.close.alarm', 'privilege.assign.alarm', 'privilege.action.alarm'],
     comment: ['privilege.comment.alarm'],
     assign: ['privilege.assign.alarm'],
@@ -30,7 +32,9 @@ Ext.define('Dal.privileges.Alarm', {
             Dal.privileges.Alarm.viewUsagePoint,
             Dal.privileges.Alarm.viewAdminProcesses,
             Dal.privileges.Alarm.viewAdminAlarm,
+            Dal.privileges.Alarm.viewAdminAlarmCreationRule,
             Dal.privileges.Alarm.adminDevice,
+            Dal.privileges.Alarm.createAlarmRule,
             Dal.privileges.Alarm.comment,
             Dal.privileges.Alarm.assign);
     },
@@ -77,5 +81,8 @@ Ext.define('Dal.privileges.Alarm', {
     },
     canViewProcesses: function () {
         return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.viewAdminProcesses);
-    }
+    },
+    canViewAdminAlarmCreationRule: function () {
+        return Uni.Auth.checkPrivileges(Dal.privileges.Alarm.viewAdminAlarmCreationRule);
+    },
 });
