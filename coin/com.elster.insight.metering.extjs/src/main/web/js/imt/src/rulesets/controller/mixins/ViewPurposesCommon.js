@@ -30,7 +30,7 @@ Ext.define('Imt.rulesets.controller.mixins.ViewPurposesCommon', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('general.removex', 'IMT', "Remove '{0}'?",
-                record.get('purpose')),
+                record.get('name')),
             msg: me.confirmRemoveMsg,
             fn: remove
         });
