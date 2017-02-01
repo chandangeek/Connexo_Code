@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 @mixin confirmationWindow($cnfWindowMainColor) {
   .#{$prefix}toolbar {
     // TODO Enable this again when the buttons are not center aligned anymore.
