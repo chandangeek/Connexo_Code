@@ -1707,6 +1707,35 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 action: 'showEditSpecifications'
                                             }
                                         }
+                                    },
+                                    keyfunctiontypes: {
+                                        title: Uni.I18n.translate('general.keyFunctionTypes', 'MDC', 'Key function types'),
+                                        route: 'keyfunctiontypes',
+                                        privileges: Mdc.privileges.DeviceType.view,
+                                        controller: 'Mdc.keyfunctiontypes.controller.KeyFunctionTypes',
+                                        action: 'showKeyFunctionTypesOverview',
+                                        items: {
+                                            add: {
+                                                title: Uni.I18n.translate('keyfunctiontypes.addKeyFunctionType', 'MDC', 'Add key function type'),
+                                                route: 'add',
+                                                privileges: Mdc.privileges.DeviceType.admin,
+                                                controller: 'Mdc.keyfunctiontypes.controller.KeyFunctionTypes',
+                                                action: 'showAddKeyFunctionType'
+                                            },
+                                            edit: {
+                                                title: Uni.I18n.translate('keyfunctiontypes.editKeyFunctionType', 'MDC', 'Edit key function type'),
+                                                route: '{keyFunctionTypeId}/edit',
+                                                privileges: Mdc.privileges.DeviceType.admin,
+                                                controller: 'Mdc.keyfunctiontypes.controller.KeyFunctionTypes',
+                                                action: 'showEditKeyFunctionType',
+                                                callback: function (route) {
+                                                    this.getApplication().on('keyfunctiontypeload', function (name) {
+                                                        route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name));
+                                                    }, {single: true});
+                                                    return this;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

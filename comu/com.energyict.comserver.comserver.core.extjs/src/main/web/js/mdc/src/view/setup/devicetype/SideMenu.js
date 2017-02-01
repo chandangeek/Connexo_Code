@@ -110,6 +110,12 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmwareversions'
                 },
                 {
+                    text: Uni.I18n.translate('general.keyFunctionTypes', 'MDC', 'Key function types'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'keyfunctiontypesLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/keyfunctiontypes'
+                },
+                {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
                     privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'timeOfUseLink',
@@ -131,6 +137,12 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     itemId: 'fileManagementLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/filemanagement',
                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement
+                },
+                {
+                    text: Uni.I18n.translate('general.keyFunctionTypes', 'MDC', 'Key function types'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'keyfunctiontypesLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/keyfunctiontypes'
                 },
                 {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),

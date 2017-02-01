@@ -114,7 +114,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.metrologyconfiguration.controller.AddView',
         'Mdc.usagepointmanagement.controller.UsagePointHistory',
         'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
-        'Mdc.controller.setup.CommandLimitationRules'
+        'Mdc.controller.setup.CommandLimitationRules',
+        'Mdc.keyfunctiontypes.controller.KeyFunctionTypes'
     ],
 
     stores: [
