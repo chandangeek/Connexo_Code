@@ -380,6 +380,7 @@ public class InMemoryIntegrationPersistence {
         privileges.add(ePrivilege1);
         privileges.add(vPrivilege1);
         when(this.principal.getPrivileges()).thenReturn(privileges);
+        when(this.principal.getPrivileges(anyString())).thenReturn(privileges);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
         this.thesaurus = mock(Thesaurus.class);
