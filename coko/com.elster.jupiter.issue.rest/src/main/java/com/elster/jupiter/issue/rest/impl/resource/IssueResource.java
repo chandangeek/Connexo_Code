@@ -249,15 +249,40 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getGroupedList(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         IssueGroupFilter groupFilter = getIssueService().newIssueGroupFilter();
-        List<String> issueTypes = getIssueService().query(IssueType.class)
+        String id = null;
+        List<IssueType> issueTypes = getIssueService().query(IssueType.class)
                 .select(Condition.TRUE)
                 .stream()
                 .filter(issueType -> !issueType.getPrefix().equals("ALM"))
+                .collect(Collectors.toList());
+        List<String> issueTypesKeys = issueTypes.stream()
                 .map(IssueType::getKey)
                 .collect(Collectors.toList());
+        if(filter.getString(IssueRestModuleConst.ID) != null) {
+            String[] issueIdPart = filter.getString(IssueRestModuleConst.ID).split("-");
+            if (issueIdPart.length == 2) {
+                if (isNumericValue(issueIdPart[1])) {
+                    if (issueTypes.stream()
+                            .anyMatch(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))) {
+                        issueTypesKeys = issueTypes.stream()
+                                .filter(type -> type.getPrefix().toLowerCase().equals(issueIdPart[0].toLowerCase()))
+                                .map(IssueType::getKey)
+                                .collect(Collectors.toList());
+                        id = issueIdPart[1];
+                    } else{
+                        id = "-1";
+                    }
+                } else{
+                    id = "-1";
+                }
+            } else{
+                id = "-1";
+            }
+        }
         groupFilter.using(getQueryApiClass(filter)) // Issues, Historical Issues or Both
                 .onlyGroupWithKey(filter.getString(IssueRestModuleConst.REASON))  // Reason id
-                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE).isEmpty() ? issueTypes : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
+                .withId(id)
+                .withIssueTypes(filter.getStringList(IssueRestModuleConst.ISSUE_TYPE).isEmpty() ? issueTypesKeys : filter.getStringList(IssueRestModuleConst.ISSUE_TYPE)) // Reasons only with specific issue type
                 .withStatuses(filter.getStringList(IssueRestModuleConst.STATUS)) // All selected statuses
                 .withMeterName(filter.getString(IssueRestModuleConst.METER)) // Filter by meter MRID
                 .groupBy(filter.getString(IssueRestModuleConst.FIELD)) // Main grouping column
@@ -288,6 +313,15 @@ public class IssueResource extends BaseResource {
         }
         ActionInfo info = getTransactionService().execute(new AssignIssueTransaction(request, performer, issueProvider));
         return entity(info).build();
+    }
+
+    private boolean isNumericValue(String id){
+        try {
+            long number = Long.parseLong(id);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     private List<? extends Issue> getIssuesForBulk(JsonQueryFilter filter) {

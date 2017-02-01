@@ -385,7 +385,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         TransactionContext context = mock(TransactionContext.class);
         when(transactionService.getContext()).thenReturn(context);
 
-        String filter = URLEncoder.encode("[{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":[\"datacollection\"]}]");
+        String filter = URLEncoder.encode("[{\"property\":\"id\",\"value\":\"1\"},{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":[\"datacollection\"]}]");
         Query<IssueType> query = mock(Query.class);
         when(query.select(Matchers.<Condition>anyObject())).thenReturn(Collections.<IssueType>emptyList());
         when(issueService.query(IssueType.class)).thenReturn(query);

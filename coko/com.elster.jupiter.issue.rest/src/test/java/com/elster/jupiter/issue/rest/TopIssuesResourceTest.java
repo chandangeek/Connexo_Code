@@ -78,6 +78,7 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest{
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
 
         Priority priority = Priority.DEFAULT;
+        when(issue.getPriority()).thenReturn(priority);
         when(issue.getId()).thenReturn(1L);
         when(issue.getReason()).thenReturn(reason);
         when(issue.getStatus()).thenReturn(status);
@@ -87,24 +88,7 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest{
         when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
         when(issue.getModTime()).thenReturn(Instant.EPOCH);
         when(issue.getVersion()).thenReturn(1L);
-        when(issue.getPriority()).thenReturn(priority);
     }
-
-    //FixMe Move test to alarms.rest
-    /*@Test
-    public void getTopAlarms(){
-        Finder<? extends Issue> issueFinder = mock(Finder.class);
-        doReturn(issueFinder).when(issueService).findAlarms();
-        List<? extends Issue> issues = Collections.singletonList(issue);
-        doReturn(issues).when(issueFinder).find();
-        List<IssueProvider> issueProviders = Arrays.asList(issueProvider);
-        doReturn(issueProviders).when(issueService).getIssueProviders();
-        Optional<? extends Issue> issueRef = Optional.of(issues.get(0));
-        doReturn(issueRef).when(issueProvider).findIssue(1L);
-
-        Map response = target("/topissues/alarms").request().get(Map.class);
-        defaultTopTaskAsserts(response);
-    }*/
 
     @Test
     public void getTopIssues(){

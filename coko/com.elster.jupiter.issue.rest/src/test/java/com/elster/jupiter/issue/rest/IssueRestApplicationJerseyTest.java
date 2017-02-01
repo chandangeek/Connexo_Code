@@ -38,7 +38,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 
-import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -57,6 +56,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -89,7 +89,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
 
 
     @Provider
-    @Priority(Priorities.AUTHORIZATION)
+    @javax.annotation.Priority(Priorities.AUTHORIZATION)
     private static class SecurityRequestFilter implements ContainerRequestFilter {
         @Override
         public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -363,6 +363,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(issueGroupFilter.setAscOrder(false)).thenReturn(issueGroupFilter);
         when(issueGroupFilter.from(1L)).thenReturn(issueGroupFilter);
         when(issueGroupFilter.to(2L)).thenReturn(issueGroupFilter);
+        when(issueGroupFilter.withId(anyString())).thenReturn(issueGroupFilter);
         return issueGroupFilter;
     }
 
