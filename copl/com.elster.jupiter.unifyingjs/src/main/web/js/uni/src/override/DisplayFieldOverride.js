@@ -4,6 +4,7 @@
 Ext.define('Uni.override.DisplayFieldOverride', {
     override: 'Ext.form.field.Display',
     emptyValueDisplay: '-',
+    labelWidth: 200,
 
     initComponent: function () {
         this.callParent(arguments);
