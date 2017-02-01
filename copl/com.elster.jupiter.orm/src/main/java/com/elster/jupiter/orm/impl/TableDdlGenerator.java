@@ -236,7 +236,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
             sb.append("partition by range(");
             sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
             sb.append(") interval (");
-            sb.append(86400L * 1000L * 30L);
+            sb.append(PARTITIONSIZE);
             sb.append(") (partition P0 values less than(0))");
         }
         return sb.toString();
