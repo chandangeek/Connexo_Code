@@ -1,20 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -43,37 +39,23 @@ import java.util.List;
  */
 public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, SerialNumberSupport {
 
-    protected AS300Properties properties;
-    private AS300ObjectFactory objectFactory;
-    private RegisterReader registerReader;
-    protected AS300LoadProfileBuilder loadProfileBuilder;
-    protected AS300Messaging messageProtocol;
-    private final TariffCalendarFinder calendarFinder;
-    private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
-    private final Formatter formatter;
     private final PropertySpecService propertySpecService;
+    protected AS300Properties properties;
+    protected AS300LoadProfileBuilder loadProfileBuilder;
+    protected AS300Messaging messageProtocol;
+    private AS300ObjectFactory objectFactory;
+    private RegisterReader registerReader;
 
-    public AS300(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Formatter formatter, PropertySpecService propertySpecService) {
-        this.calendarFinder = calendarFinder;
-        this.calendarExtractor = calendarExtractor;
+    public AS300(DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
         this.messageFileFinder = messageFileFinder;
         this.messageFileExtractor = messageFileExtractor;
-        this.formatter = formatter;
         this.propertySpecService = propertySpecService;
     }
 
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
-    }
-
-    protected TariffCalendarFinder getCalendarFinder() {
-        return calendarFinder;
-    }
-
-    protected TariffCalendarExtractor getCalendarExtractor() {
-        return calendarExtractor;
     }
 
     protected DeviceMessageFileFinder getMessageFileFinder() {
@@ -82,10 +64,6 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     protected DeviceMessageFileExtractor getMessageFileExtractor() {
         return messageFileExtractor;
-    }
-
-    protected Formatter getFormatter() {
-        return formatter;
     }
 
     @Override
@@ -119,7 +97,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        if(this.dlmsSession != null){
+        if (this.dlmsSession != null) {
             // We need to update the correct TimeZone!!
             this.dlmsSession.updateTimeZone(getTimeZone());
         }
@@ -223,7 +201,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
     public AS300Messaging getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.formatter));
+            this.messageProtocol = new AS300Messaging(new AS300MessageExecutor(this, this.messageFileFinder, this.messageFileExtractor));
         }
         return messageProtocol;
     }

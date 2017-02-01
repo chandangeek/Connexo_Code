@@ -1,16 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -52,6 +49,41 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
     public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
     private final PropertySpecService propertySpecService;
+    /**
+     * The <code>Properties</code> used for this protocol
+     */
+    protected Dsmr23Properties properties;
+    /**
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23RegisterFactory}
+     */
+    protected Dsmr23RegisterFactory registerFactory;
+    /**
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder}
+     */
+    protected LoadProfileBuilder loadProfileBuilder;
+    /**
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile}
+     */
+    protected EventProfile eventProfile;
+    /**
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology}
+     */
+    protected MeterTopology meterTopology;
+    /**
+     * Indicating if the meter has a breaker.
+     * This implies whether or not we can control the breaker and read the control logbook.
+     * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
+     */
+    private boolean hasBreaker = true;
+
+    /**
+     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo}
+     */
+    private ComposedMeterInfo meterInfo;
+    /**
+     * A list of slaveDevices
+     */
+    private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<>();
 
     protected AbstractSmartNtaProtocol(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -69,48 +101,6 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      * @return the requested type
      */
     public abstract AXDRDateTimeDeviationType getDateTimeDeviationType();
-
-    /**
-     * The <code>Properties</code> used for this protocol
-     */
-    protected Dsmr23Properties properties;
-
-    /**
-     * Indicating if the meter has a breaker.
-     * This implies whether or not we can control the breaker and read the control logbook.
-     * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
-     */
-    private boolean hasBreaker = true;
-
-    /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo}
-     */
-    private ComposedMeterInfo meterInfo;
-
-    /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23RegisterFactory}
-     */
-    protected Dsmr23RegisterFactory registerFactory;
-
-    /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder}
-     */
-    protected LoadProfileBuilder loadProfileBuilder;
-
-    /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile}
-     */
-    protected EventProfile eventProfile;
-
-    /**
-     * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology}
-     */
-    protected MeterTopology meterTopology;
-
-    /**
-     * A list of slaveDevices
-     */
-    private List<AbstractNtaMbusDevice> mbusDevices = new ArrayList<>();
 
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
@@ -284,6 +274,15 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     }
 
     /**
+     * Sets a custom LoadProfileBuilder object
+     *
+     * @param loadProfileBuilder the loadProfileBuilder to set
+     */
+    protected void setLoadProfileBuilder(LoadProfileBuilder loadProfileBuilder) {
+        this.loadProfileBuilder = loadProfileBuilder;
+    }
+
+    /**
      * Getter for the <b>DSMR 2.3</b> EventProfile
      *
      * @return the lazy loaded EventProfile
@@ -335,23 +334,6 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     @Override
     public String writeValue(final MessageValue value) {
         return getMessageProtocol().writeValue(value);
-    }
-
-    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
-    }
-
-    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
-    }
-
-    /**
-     * Sets a custom LoadProfileBuilder object
-     *
-     * @param loadProfileBuilder the loadProfileBuilder to set
-     */
-    protected void setLoadProfileBuilder(LoadProfileBuilder loadProfileBuilder) {
-        this.loadProfileBuilder = loadProfileBuilder;
     }
 
     public boolean hasBreaker() {

@@ -54,9 +54,12 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
@@ -83,7 +86,6 @@ import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
@@ -324,47 +326,56 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      */
     private static final int FATAL_DEVICE_ERROR = 0x0001;
     private final PropertySpecService propertySpecService;
-
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    /**
+     * The COSEM object factory.
+     */
+    private final CosemObjectFactory cosemObjectFactory = new CosemObjectFactory(this);
+    /**
+     * The stored values implementation for the Z3.
+     */
+    private final StoredValuesImpl storedValuesImpl = new StoredValuesImpl(this.cosemObjectFactory);
+    /**
+     * The OBIS code mapper.
+     */
+    private final ObisCodeMapper ocm = new ObisCodeMapper(this.cosemObjectFactory);
+    /**
+     * The meter configuration used here is the one from the AbstractNTAProtocol meter.
+     */
+    private final DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
     /**
      * Contains the node address.
      */
     private String nodeAddress;
-
     /**
      * The device ID. This is used in the requestSAP() operation.
      */
     private String deviceId;
-
     /**
      * The password to be used for the device.
      */
     private String password;
-
     /**
      * The serial number to be used for the device.
      */
     private String serialNumber;
-
     /**
      * The MBus serial numbers are cached when they are requested.
      */
     private String[] mbusSerialNumbers;
-
     /**
      * The device serial number.
      */
     private String deviceSerialNumber;
-
     /**
      * Indicates the HDLC time out in milliseconds.
      */
     private int hdlcTimeout;
-
     /**
      * Indicates the number of retries the protocol must do before giving up.
      */
     private int protocolRetries;
-
     /**
      * The security level used.
      */
@@ -373,92 +384,58 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * the used encryptionLevel
      */
     private EncryptionLevel encryptionLevel;
-
     /**
      * Indicates whether we should request the time zone from the meter.
      */
     private boolean requestTimeZone;
-
     /**
      * The roundtrip correction if this would be applicable.
      */
     private int roundtripCorrection;
-
     /**
      * The client MAC address.
      */
     private int clientMacAddress;
-
     /**
      * The server upper MAC address.
      */
     private int serverUpperMacAddress;
-
     /**
      * The server lower MAC address.
      */
     private int serverLowerMacAddress;
-
     /**
      * The load profile OBIS code.
      */
     private ObisCode loadProfileObisCode;
-
     /**
      * The DLMS connection that is used. Gets initialized in the {@link #init(InputStream, OutputStream, TimeZone, Logger)} method.
      */
     private DLMSConnection dlmsConnection;
-
-    /**
-     * The COSEM object factory.
-     */
-    private final CosemObjectFactory cosemObjectFactory = new CosemObjectFactory(this);
-
-    /**
-     * The stored values implementation for the Z3.
-     */
-    private final StoredValuesImpl storedValuesImpl = new StoredValuesImpl(this.cosemObjectFactory);
-
-    /**
-     * The OBIS code mapper.
-     */
-    private final ObisCodeMapper ocm = new ObisCodeMapper(this.cosemObjectFactory);
-
     /**
      * The number of channels in the meter.
      */
     private int numberOfChannels = -1;
-
     /**
      * Indicates whether the configuration of the meter has changed. Non primitive because it can be null as well.
      */
     private int numberOfConfigurationChanges = -1;
-
     /**
      * Profile interval, initialized to -1 to indicate that it has not been set yet.
      */
     private int profileInterval = -1;
-
     /**
      * The captured objects helper.
      */
     private CapturedObjectsHelper capturedObjectsHelper;
-
     /**
      * Logger instance is not final as it can be set. We do default to the java.util.logging naming convention.
      */
     private Logger logger = Logger.getLogger(EictZ3.class.getName());
-
     /**
      * The device time zone.
      */
     private TimeZone timeZone;
-
-    /**
-     * The meter configuration used here is the one from the AbstractNTAProtocol meter.
-     */
-    private final DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("WKP");
-
     /**
      * DLMS cache, used to cache the UOL.
      */
@@ -525,8 +502,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      */
     private ApplicationServiceObject aso;
 
-    public EictZ3(PropertySpecService propertySpecService) {
+    public EictZ3(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         this.propertySpecService = propertySpecService;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 
     @Override
@@ -1358,8 +1337,8 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         try {
             UniversalObject uo = getMeterConfig().getSerialNumberObject();
             return getCosemObjectFactory().getGenericRead(uo).getString();
-        }  catch (IOException e) {
-           throw DLMSIOExceptionHandler.handle(e, protocolRetries + 1);
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, protocolRetries + 1);
         }
     }
 
@@ -1557,16 +1536,16 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     @Override
+    public Serializable getCache() {
+        return this.dlmsCache;
+    }
+
+    @Override
     public final void setCache(Serializable cacheObject) {
         if (!(cacheObject instanceof DLMSCache)) {
             throw new IllegalArgumentException("This protocol expects a cache object of type [" + DLMSCache.class.getName() + "], you provided an object of type [" + cacheObject + "], which is not compatible with this implementation !");
         }
         this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    @Override
-    public Serializable getCache() {
-        return this.dlmsCache;
     }
 
     @Override
@@ -1811,12 +1790,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         // Not implemented for this protocol.
     }
 
-    private class ImportMessageException extends Exception {
-        private ImportMessageException(Throwable cause) {
-            super(cause);
-        }
-    }
-
     private void importMessage(final String message, final DefaultHandler handler) throws ImportMessageException {
         try {
 
@@ -1917,7 +1890,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         if (isEpIOFirmwareUpgrade(messageEntry.getContent())) {
             logger.info("Received a firmware upgrade message, using firmware message builder...");
 
-            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
+            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(deviceMessageFileFinder, deviceMessageFileExtractor);
 
             try {
                 builder.initFromXml(messageEntry.getContent());
@@ -1935,14 +1908,14 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             }
 
             // We requested an inlined file...
-            if (builder.getUserFile() != null) {
+            if (builder.getUserFileContent() != null) {
                 logger.info("Pulling out user file and dispatching to the device...");
 
-                final byte[] upgradeFileData = builder.getUserFile().loadFileInByteArray();
+                final byte[] upgradeFileData = builder.getUserFileContent().getBytes();
 
                 if (upgradeFileData.length > 0) {
                     try {
-                        this.upgradeDevice(builder.getUserFile().loadFileInByteArray());
+                        this.upgradeDevice(upgradeFileData);
                     } catch (final IOException e) {
                         if (logger.isLoggable(Level.SEVERE)) {
                             logger.log(Level.SEVERE, "Caught an IO error when trying upgrade [" + e.getMessage() + "]", e);
@@ -1950,7 +1923,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                     }
                 } else {
                     if (logger.isLoggable(Level.WARNING)) {
-                        logger.log(Level.WARNING, "Length of the upgrade file is not valid [" + upgradeFileData + " bytes], failing message.");
+                        logger.log(Level.WARNING, "Length of the upgrade file is not valid [" + upgradeFileData.length + " bytes], failing message.");
                     }
 
                     return MessageResult.createFailed(messageEntry);
@@ -2129,7 +2102,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * RF topology is stored).
      *
      * @return The CyNet RF network topology. The string has one line per node in the topology, and each line is manufacturerID and routing address,
-     *         separated by a comma.
+     * separated by a comma.
      */
     public final String getRFNetworkTopology() throws IOException {
         if (logger.isLoggable(Level.FINE)) {
@@ -2170,6 +2143,12 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             }
 
             return null;
+        }
+    }
+
+    private class ImportMessageException extends Exception {
+        private ImportMessageException(Throwable cause) {
+            super(cause);
         }
     }
 

@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
+import com.energyict.dlms.DlmsSession;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-
-import com.energyict.dlms.DlmsSession;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.dlms.prime.PrimeProperties;
 import com.energyict.protocolimpl.dlms.prime.messaging.tariff.TariffControl;
@@ -20,6 +21,8 @@ import java.util.List;
 public class PrimeMessaging {
 
     private final DlmsSession session;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private final DisconnectControl disconnectControl;
     private final ClockControl clockControl;
     private final FirmwareUpgrade firmwareUpgrade;
@@ -31,11 +34,13 @@ public class PrimeMessaging {
     private final PasswordSetup passwordSetup;
     private final BasicIntervalSetup basicIntervalSetup;
 
-    public PrimeMessaging(DlmsSession session, PrimeProperties properties) {
+    public PrimeMessaging(DlmsSession session, PrimeProperties properties, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         this.session = session;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.disconnectControl = new DisconnectControl(session);
         this.clockControl = new ClockControl(session);
-        this.firmwareUpgrade = new FirmwareUpgrade(session, properties);
+        this.firmwareUpgrade = new FirmwareUpgrade(session, properties, deviceMessageFileFinder, deviceMessageFileExtractor);
         this.tariffControl = new TariffControl(session);
         this.powerQuality = new PowerQuality(session);
         this.demandResponse = new DemandResponse(session);

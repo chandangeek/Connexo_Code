@@ -21,8 +21,6 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -56,37 +54,42 @@ import java.util.logging.Logger;
  */
 public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, SerialNumberSupport {
 
+    private static final int ELECTRICITY = 0x00;
+    private static final int MBUS = 0x01;
+    public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255)};
+    private final PropertySpecService propertySpecService;
+    private final TariffCalendarFinder calendarFinder;
+    private final TariffCalendarExtractor extractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
     private IskraMX372Properties properties;
     private String serialnr = null;
     private String devID = null;
     private CosemObjectFactory cosemObjectFactory;
     private LoadProfileBuilder loadProfileBuilder;
     private RegisterReader registerReader;
-
     private ObisCode deviceLogicalName = ObisCode.fromString("0.0.42.0.0.255");
-
     private IskraMx372Messaging messageProtocol;
-
-    public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255), new ScalerUnit(0, 255)};
-    private static final int ELECTRICITY = 0x00;
-    private static final int MBUS = 0x01;
-
     /**
      * Indicating if the meter has a breaker.
      * This implies whether or not we can control the breaker and read the control logbook.
      * This will be set to false in the cryptoserver protocols, because these meters don't have a breaker anymore.
      */
     private boolean hasBreaker = true;
-    private final PropertySpecService propertySpecService;
-    private final TariffCalendarFinder calendarFinder;
-    private final TariffCalendarExtractor extractor;
-    private final DeviceMessageFileExtractor messageFileExtractor;
 
     public IskraMx372(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileExtractor messageFileExtractor) {
         this.propertySpecService = propertySpecService;
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
         this.messageFileExtractor = messageFileExtractor;
+    }
+
+    public static ScalerUnit getScalerUnit(ObisCode obisCode) {
+
+        if (obisCode.toString().indexOf("1.0") == 0) {
+            return demandScalerUnits[ELECTRICITY];
+        } else {
+            return demandScalerUnits[MBUS];
+        }
     }
 
     /**
@@ -129,7 +132,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      */
     @Override
     public void disconnect() throws IOException {
-       if (!properties.madeCSDCall()) {
+        if (!properties.madeCSDCall()) {
             super.disconnect();
         }
     }
@@ -167,17 +170,14 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     /**
      * Search for slave devices
-     *
-     *
      */
     public void searchForSlaveDevices() throws ConnectionException {
         try {
             messageProtocol.checkMbusDevices();
         } catch (Exception e) {
-            throw new ConnectionException("Got an error while loading the attached Slave devices: "+e.getMessage());
+            throw new ConnectionException("Got an error while loading the attached Slave devices: " + e.getMessage());
         }
     }
-
 
     /**
      * Get the firmware version of the meter
@@ -186,7 +186,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @throws java.io.IOException Thrown in case of an exception
      */
     public String getFirmwareVersion() throws IOException {
-        return ((IskraMX372Properties)getProperties()).getFirmwareVersion();
+        return ((IskraMX372Properties) getProperties()).getFirmwareVersion();
     }
 
     /**
@@ -194,15 +194,15 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      *
      * @return the serialNumber of the device
      */
-    public String getMeterSerialNumber()  {
-        try{
+    public String getMeterSerialNumber() {
+        try {
             if (!properties.madeCSDCall()) {
                 UniversalObject uo = getMeterConfig().getSerialNumberObject();
                 return getCosemObjectFactory().getGenericRead(uo).getString();
             } else {
                 return getProperties().getSerialNumber();
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
@@ -240,20 +240,11 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         }
     }
 
-     public RegisterReader getRegisterReader() {
+    public RegisterReader getRegisterReader() {
         if (registerReader == null) {
             registerReader = new RegisterReader(this);
         }
         return registerReader;
-    }
-
-    public static ScalerUnit getScalerUnit(ObisCode obisCode) {
-
-        if (obisCode.toString().indexOf("1.0") == 0) {
-            return demandScalerUnits[ELECTRICITY];
-        } else {
-            return demandScalerUnits[MBUS];
-        }
     }
 
     /**
@@ -400,7 +391,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * {@link com.energyict.dlms.ProtocolLink}.SN_REFERENCE or {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE
      *
      * @return {@link com.energyict.dlms.ProtocolLink}.SN_REFERENCE for short name or
-     *         {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE for long name
+     * {@link com.energyict.dlms.ProtocolLink}.LN_REFERENCE for long name
      */
     public int getReference() {
         return 0;
@@ -426,9 +417,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     //     * @throws SQLException
     //     * @throws BusinessException
     //*******************************************************************************************/
-    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return getMessageProtocol().getLoadProfileRegisterMessageBuilder();
-    }
 
     public IskraMx372Messaging getMessageProtocol() {
         if (messageProtocol == null) {
@@ -481,12 +469,9 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return getMessageProtocol().writeValue(value);
     }
 
-    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return getMessageProtocol().getPartialLoadProfileMessageBuilder();
-    }
-
     /**
      * Based on the serial number, find out the physical address of the slave Mbus meter.
+     *
      * @param serialNumber
      * @return
      */
@@ -501,6 +486,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     /**
      * Based on the physical address of the mbus slave, find out the serial number of the slave Mbus meter.
+     *
      * @param physicalAddress
      * @return
      */

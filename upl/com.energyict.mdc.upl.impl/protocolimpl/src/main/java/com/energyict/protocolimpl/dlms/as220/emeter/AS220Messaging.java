@@ -1,5 +1,9 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -10,9 +14,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.AbstractSubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.AS220;
@@ -72,11 +73,15 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     private final AS220 as220;
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor extractor;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    public AS220Messaging(AS220 as220, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor) {
+    public AS220Messaging(AS220 as220, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         this.as220 = as220;
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         addSupportedMessageTag(CONNECT_EMETER);
         addSupportedMessageTag(DISCONNECT_EMETER);
         addSupportedMessageTag(ARM_EMETER);
@@ -153,7 +158,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
                 getAs220().geteMeter().getClockController().setTime();
             } else if (isMessageTag(FIRMWARE_UPDATE, messageEntry)) {
                 getAs220().getLogger().info("FIRMWARE_UPDATE message received");
-                AS220ImageTransfer imageTransfer = new AS220ImageTransfer(this, messageEntry);
+                AS220ImageTransfer imageTransfer = new AS220ImageTransfer(this, messageEntry, deviceMessageFileFinder, deviceMessageFileExtractor);
                 imageTransfer.initiate();
                 imageTransfer.upgrade();
                 imageTransfer.activate();

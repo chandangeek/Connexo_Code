@@ -16,7 +16,6 @@ import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -160,7 +159,7 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
             return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute, this.loadProfileExtractor);
         } else if (propertySpec.getName().equals(fromDateAttributeName)
                 || propertySpec.getName().equals(toDateAttributeName)) {
-            return dateFormat.format((Date) messageAttribute);
+            return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
             return dateFormat.format((Date) messageAttribute);
         }

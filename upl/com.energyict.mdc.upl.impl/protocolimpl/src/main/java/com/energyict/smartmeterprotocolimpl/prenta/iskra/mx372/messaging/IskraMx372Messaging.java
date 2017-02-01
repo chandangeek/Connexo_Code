@@ -1,17 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -28,6 +16,17 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.TCPUDPSetup;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
@@ -79,25 +78,32 @@ import java.util.List;
  */
 public class IskraMx372Messaging extends ProtocolMessages {
 
+    public static final int MBUS_MAX = 0x04;
+    /**
+     * The maximum allowed number of phoneNumbers to make a CSD call to the device
+     */
+    private static final int maxNumbersCSDWhiteList = 8;
+    /**
+     * The maximum allowed number of managed calls to be put in the whiteList
+     */
+    private static final int maxNumbersManagedWhiteList = 8;
+    private final PropertySpecService propertySpecService;
+    private final TariffCalendarFinder calendarFinder;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
     private IskraMx372 protocol;
     private Device rtu;
-
     private ObisCode llsSecretObisCode1 = ObisCode.fromString("0.0.128.100.1.255");
     private ObisCode llsSecretObisCode2 = ObisCode.fromString("0.0.128.100.2.255");
     private ObisCode llsSecretObisCode3 = ObisCode.fromString("0.0.128.100.3.255");
     private ObisCode llsSecretObisCode4 = ObisCode.fromString("0.0.128.100.4.255");
     private ObisCode breakerObisCode = ObisCode.fromString("0.0.128.30.21.255");
-
     private ObisCode crGroupID = ObisCode.fromString("0.0.128.62.0.255");
     private ObisCode crStartDate = ObisCode.fromString("0.0.128.62.1.255");
     private ObisCode crDuration = ObisCode.fromString("0.0.128.62.2.255");
-
     private ObisCode crPowerLimit = ObisCode.fromString("0.0.128.62.3.255");
     private ObisCode crMeterGroupID = ObisCode.fromString("0.0.128.62.6.255");
     private ObisCode contractPowerLimit = ObisCode.fromString("0.0.128.61.1.255");
-
-    public static final int MBUS_MAX = 0x04;
-
     private MbusDevice[] mbusDevices = {null, null, null, null};                // max. 4 MBus meters
     private ObisCode[] mbusPrimaryAddress = {ObisCode.fromString("0.1.128.50.20.255"),
             ObisCode.fromString("0.2.128.50.20.255"),
@@ -115,7 +121,6 @@ public class IskraMx372Messaging extends ProtocolMessages {
             ObisCode.fromString("0.2.128.50.23.255"),
             ObisCode.fromString("0.3.128.50.23.255"),
             ObisCode.fromString("0.4.128.50.23.255")};
-
     private byte[] connectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x01};
     private byte[] disconnectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x00};
     private byte[] contractPowerLimitMsg = new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), 0, 0, 0, 0};
@@ -123,19 +128,6 @@ public class IskraMx372Messaging extends ProtocolMessages {
     private byte[] crDurationMsg = new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), 0, 0, 0, 0};
     private byte[] crMeterGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
     private byte[] crGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
-
-    /**
-     * The maximum allowed number of phoneNumbers to make a CSD call to the device
-     */
-    private static final int maxNumbersCSDWhiteList = 8;
-    /**
-     * The maximum allowed number of managed calls to be put in the whiteList
-     */
-    private static final int maxNumbersManagedWhiteList = 8;
-    private final PropertySpecService propertySpecService;
-    private final TariffCalendarFinder calendarFinder;
-    private final TariffCalendarExtractor calendarExtractor;
-    private final DeviceMessageFileExtractor messageFileExtractor;
 
     public IskraMx372Messaging(IskraMx372 protocol, PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         this.protocol = protocol;
@@ -263,14 +255,6 @@ public class IskraMx372Messaging extends ProtocolMessages {
             msgSpec.add(tagSpec);
         }
         return msgSpec;
-    }
-
-    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
-    }
-
-    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
     }
 
     /**
@@ -777,7 +761,7 @@ public class IskraMx372Messaging extends ProtocolMessages {
 
     public MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
-            LegacyLoadProfileRegisterMessageBuilder builder = (LegacyLoadProfileRegisterMessageBuilder) LegacyLoadProfileRegisterMessageBuilder.fromXml(msgEntry.getContent());
+            LegacyLoadProfileRegisterMessageBuilder builder = LegacyLoadProfileRegisterMessageBuilder.fromXml(msgEntry.getContent());
             LoadProfileReader reader = builder.getLoadProfileReader();
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
@@ -816,7 +800,7 @@ public class IskraMx372Messaging extends ProtocolMessages {
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), register.getRtuRegisterId());
                         mrd.add(registerValue);
                     }
                 }
@@ -847,7 +831,7 @@ public class IskraMx372Messaging extends ProtocolMessages {
 
     public MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
-            LegacyPartialLoadProfileMessageBuilder builder = (LegacyPartialLoadProfileMessageBuilder) LegacyPartialLoadProfileMessageBuilder.fromXml(msgEntry.getContent());
+            LegacyPartialLoadProfileMessageBuilder builder = LegacyPartialLoadProfileMessageBuilder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             this.protocol.fetchLoadProfileConfiguration(Collections.singletonList(lpr));
@@ -1108,7 +1092,7 @@ public class IskraMx372Messaging extends ProtocolMessages {
 
     /**
      * *************************************************************************
-     * <p/>
+     * <p>
      * These methods require database access ...
      * /****************************************************************************
      */

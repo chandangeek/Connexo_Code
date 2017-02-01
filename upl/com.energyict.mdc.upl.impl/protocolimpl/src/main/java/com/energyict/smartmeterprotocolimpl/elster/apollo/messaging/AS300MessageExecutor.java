@@ -1,14 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DlmsSession;
@@ -33,6 +24,11 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
@@ -94,21 +90,15 @@ public class AS300MessageExecutor extends MessageParser {
     private static final String RESUME = "resume";
 
     protected final AbstractSmartDlmsProtocol protocol;
-    private final TariffCalendarFinder calendarFinder;
-    private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
-    private final Formatter formatter;
 
     protected boolean success;
 
-    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Formatter formatter) {
+    public AS300MessageExecutor(final AbstractSmartDlmsProtocol protocol, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
         this.protocol = protocol;
-        this.calendarFinder = calendarFinder;
-        this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
         this.messageFileExtractor = messageFileExtractor;
-        this.formatter = formatter;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -625,7 +615,7 @@ public class AS300MessageExecutor extends MessageParser {
 
     private void updateTimeOfUse(final String content) throws IOException {
         log(Level.INFO, "Received update ActivityCalendar message.");
-        final AS300TimeOfUseMessageBuilder builder = new AS300TimeOfUseMessageBuilder(this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.formatter);
+        final TimeOfUseMessageBuilder builder = new TimeOfUseMessageBuilder(this.messageFileFinder, this.messageFileExtractor);
         ActivityCalendarController activityCalendarController = new AS300ActivityCalendarController((AS300) this.protocol);
         try {
             builder.initFromXml(content);
@@ -637,9 +627,9 @@ public class AS300MessageExecutor extends MessageParser {
                 activityCalendarController.writeCalendarName("");
                 log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                 activityCalendarController.writeCalendar();
-            } else if (builder.getDeviceMessageFile() != null) { // userFile implementation
+            } else if (builder.getDeviceMessageFileContent() != null) { // userFile implementation
                 log(Level.FINEST, "Getting UserFile from message");
-                String userFileData = this.messageFileExtractor.contents(builder.getDeviceMessageFile(), "US-ASCII");
+                String userFileData = builder.getDeviceMessageFileContent();
                 if (!userFileData.isEmpty()) {
                     log(Level.FINEST, "Sending out the new Passive Calendar objects.");
                     handleXmlToDlms(userFileData);

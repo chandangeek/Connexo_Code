@@ -1,16 +1,17 @@
 package com.energyict.protocolimpl.dlms.prime;
 
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.GenericRead;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
@@ -39,6 +40,8 @@ import java.util.logging.Level;
  */
 abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements SerialNumberSupport, CachingProtocol {
 
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     private PrimeProfile loadProfile;
     private PrimeEventLogs eventLogs;
     private PrimeClock clock;
@@ -48,13 +51,15 @@ abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements
     private ProfileCacheImpl cache = new ProfileCacheImpl();
     private final PrimeProperties properties;
 
-    protected AbstractPrimeMeter(PropertySpecService propertySpecService) {
+    protected AbstractPrimeMeter(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.properties = new PrimeProperties(propertySpecService);
     }
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:59 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Fri Nov 4 14:49:44 2016 +0100 $";
     }
 
     @Override
@@ -64,7 +69,7 @@ abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol implements
         this.clock = new PrimeClock(getSession());
         this.meterInfo = new PrimeMeterInfo(getSession());
         this.registers = new PrimeRegisters(getProperties(), getSession(), meterInfo);
-        this.messaging = new PrimeMessaging(getSession(), getProperties());
+        this.messaging = new PrimeMessaging(getSession(), getProperties(), deviceMessageFileFinder, deviceMessageFileExtractor);
     }
 
     @Override

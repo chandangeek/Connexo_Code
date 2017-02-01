@@ -1,18 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSConnection;
@@ -28,6 +15,15 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -57,54 +53,41 @@ import java.util.logging.Level;
  */
 public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements ProtocolLink, MessageProtocol, SerialNumberSupport {
 
+    private final PropertySpecService propertySpecService;
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
     /**
      * Contains properties related to the Actaris SL7000 protocol
      */
     private SL7000Properties properties;
-
-     /**
+    /**
      * Contains information about the meter (serialNumber, firmwareVersion,...)
      */
     private ComposedMeterInfo meterInfo;
-
     /**
      * The serial number of the device
      */
     private String meterSerial;
-
     /**
      * Boolean indicating whether or not this device has an old type of firmware.
      * In this case, some commands (for example the MAC association release) are not supported.
      */
     private boolean oldFirmware;
-
     /**
      * The LoadProfileBuilder, used for fetching the LoadProfileConfiguration and reading of the LoadProfiles.
      */
     private LoadProfileBuilder loadProfileBuilder;
-
     /**
      * The RegisterReader, used to read out the meters registers.
      */
     private RegisterReader registerReader;
-
     private StoredValuesImpl storedValues;
-
     private Messages messageProtocol;
-    private final TariffCalendarFinder calendarFinder;
-    private final TariffCalendarExtractor tariffCalendarExtractor;
-    private final PropertySpecService propertySpecService;
-    private final DeviceMessageFileFinder messageFileFinder;
-    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
-    private final Formatter formatter;
 
-    public ActarisSl7000(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, Formatter formatter) {
-        this.calendarFinder = calendarFinder;
+    public ActarisSl7000(PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         this.propertySpecService = propertySpecService;
-        this.tariffCalendarExtractor = tariffCalendarExtractor;
         this.messageFileFinder = messageFileFinder;
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
-        this.formatter = formatter;
     }
 
     @Override
@@ -161,15 +144,15 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         byte[] byteTimeBuffer = new byte[14];
         byteTimeBuffer[0] = AxdrType.OCTET_STRING.getTag();
         byteTimeBuffer[1] = 12;
-        byteTimeBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[3] = (byte) calendar.get(calendar.YEAR);
-        byteTimeBuffer[4] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteTimeBuffer[5] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) calendar.get(calendar.DAY_OF_WEEK);
+        byteTimeBuffer[2] = (byte) (calendar.get(Calendar.YEAR) >> 8);
+        byteTimeBuffer[3] = (byte) calendar.get(Calendar.YEAR);
+        byteTimeBuffer[4] = (byte) (calendar.get(Calendar.MONTH) + 1);
+        byteTimeBuffer[5] = (byte) calendar.get(Calendar.DAY_OF_MONTH);
+        byte bDOW = (byte) calendar.get(Calendar.DAY_OF_WEEK);
         byteTimeBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteTimeBuffer[7] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[8] = (byte) calendar.get(calendar.MINUTE);
-        byteTimeBuffer[9] = (byte) calendar.get(calendar.SECOND);
+        byteTimeBuffer[7] = (byte) calendar.get(Calendar.HOUR_OF_DAY);
+        byteTimeBuffer[8] = (byte) calendar.get(Calendar.MINUTE);
+        byteTimeBuffer[9] = (byte) calendar.get(Calendar.SECOND);
         byteTimeBuffer[10] = (byte) 0x00;
         byteTimeBuffer[11] = (byte) 0x00;
         byteTimeBuffer[12] = (byte) 0x00;
@@ -185,11 +168,11 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
     public String getMeterSerialNumber() {
         Data data;
-        try  {
+        try {
             oldFirmware = true;
             data = getDlmsSession().getCosemObjectFactory().getData(ObisCodeMapper.OBISCODE_SERIAL_NUMBER_OBJ2);
             return AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
-        }  catch (IOException e) {
+        } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
     }
@@ -236,18 +219,18 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return meterInfo;
     }
 
-      public boolean isOldFirmware() {
-          return oldFirmware;
-      }
+    public boolean isOldFirmware() {
+        return oldFirmware;
+    }
 
-     private LoadProfileBuilder getLoadProfileBuilder() {
+    private LoadProfileBuilder getLoadProfileBuilder() {
         if (loadProfileBuilder == null) {
             loadProfileBuilder = new LoadProfileBuilder(this);
         }
         return loadProfileBuilder;
     }
 
-     private RegisterReader getRegisterReader() {
+    private RegisterReader getRegisterReader() {
         if (registerReader == null) {
             registerReader = new RegisterReader(this);
         }
@@ -263,7 +246,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     }
 
     public boolean isRequestTimeZone() {
-          return (getProperties().getRequestTimeZone() != 0);
+        return (getProperties().getRequestTimeZone() != 0);
     }
 
     public int getRoundTripCorrection() {
@@ -305,9 +288,9 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return getMessageProtocol().writeValue(value);
     }
 
-     public Messages getMessageProtocol() {
+    public Messages getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new Messages(this, this.calendarFinder, this.tariffCalendarExtractor, this.messageFileFinder, this.deviceMessageFileExtractor, this.formatter);
+            messageProtocol = new Messages(this, this.messageFileFinder, this.deviceMessageFileExtractor);
         }
         return messageProtocol;
     }

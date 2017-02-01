@@ -1,13 +1,12 @@
 package test.com.energyict.smartmeterprotocolimpl.sdksample;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.Quantity;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -49,12 +48,11 @@ import java.util.logging.Logger;
 public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements MessageProtocol {
 
     private static final String MeterSerialNumber = "Master";
-
+    private final PropertySpecService propertySpecService;
     /**
      * The used <CODE>Connection</CODE> class
      */
     private SDKSampleProtocolConnection connection;
-
     /**
      * This field contains the ProtocolProperies,
      * a class that manages the properties for this particular protocol
@@ -62,8 +60,6 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
     private SDKSmartMeterProperties properties;
     private SDKSmartMeterProfile smartMeterProfile;
     private SDKSmartMeterRegisterFactory registerFactory;
-
-    private final PropertySpecService propertySpecService;
 
     public SDKSmartMeterProtocol(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -160,10 +156,9 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
      * Get the firmware version of the meter
      *
      * @return the version of the meter firmware
-     *         </p>
-     * @throws java.io.IOException Thrown in case of an exception
-     * @throws UnsupportedException
-     *                             Thrown if method is not supported
+     * </p>
+     * @throws java.io.IOException  Thrown in case of an exception
+     * @throws UnsupportedException Thrown if method is not supported
      */
     public String getFirmwareVersion() throws IOException {
         getLogger().info("call getFirmwareVersion()");
@@ -339,10 +334,6 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
         }
     }
 
-    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
-    }
-
     /**
      * Provides the full list of outstanding messages to the protocol.
      * If for any reason certain messages have to be grouped before they are sent to a device, then this is the place to do it.
@@ -376,8 +367,7 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
     private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             getLogger().info("Handling message Read LoadProfile Registers.");
-            LegacyLoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) LegacyLoadProfileRegisterMessageBuilder.fromXml(msgEntry.getContent());
+            LegacyLoadProfileRegisterMessageBuilder builder = LegacyLoadProfileRegisterMessageBuilder.fromXml(msgEntry.getContent());
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
             }
@@ -407,7 +397,7 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), register.getRtuRegisterId());
                         mrd.add(registerValue);
                     }
                 }
@@ -428,8 +418,7 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
     private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
             getLogger().info("Handling message Read Partial LoadProfile.");
-            LegacyPartialLoadProfileMessageBuilder builder = getPartialLoadProfileMessageBuilder();
-            builder = (LegacyPartialLoadProfileMessageBuilder) LegacyPartialLoadProfileMessageBuilder.fromXml(msgEntry.getContent());
+            LegacyPartialLoadProfileMessageBuilder builder = LegacyPartialLoadProfileMessageBuilder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             final List<LoadProfileConfiguration> loadProfileConfigurations = fetchLoadProfileConfiguration(Collections.singletonList(lpr));
@@ -462,9 +451,5 @@ public abstract class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol i
 
     public String writeValue(final MessageValue value) {
         return null;  //TODO implement proper functionality.
-    }
-
-    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
     }
 }

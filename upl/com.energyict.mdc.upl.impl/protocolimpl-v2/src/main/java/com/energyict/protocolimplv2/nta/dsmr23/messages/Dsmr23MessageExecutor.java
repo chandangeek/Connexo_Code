@@ -1,17 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -37,9 +25,21 @@ import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.User;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -211,8 +211,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     mBusClientRemoteCommissioning(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ChangeMBusAttributes)) {
                     changeMBusClientAttributes(pendingMessage);
-                }
-                else {   //Unsupported message
+                } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
                     collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
@@ -268,7 +267,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         mbusClient.installSlave(primaryAddress);
     }
 
-    private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException{
+    private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
@@ -286,19 +285,19 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         int physicalAddress = getMBusPhysicalAddress(installChannel);
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
         mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
-        mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber) , getProtocol().getDlmsSessionProperties().getFixMbusHexShortId()));
+        mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId()));
         mbusClient.setDeviceType(getDeviceType(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientDeviceType)));
         mbusClient.setVersion(getVersion(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientVersion)));
     }
 
     private Unsigned16 getManufacturerId(String manufacturerId) {
         char[] chars = manufacturerId.toCharArray();
-        int id =  Integer.parseInt("" + ((chars[2]-64) + (chars[1]-64)*32 + (chars[0]-64)*32*32));
+        int id = Integer.parseInt("" + ((chars[2] - 64) + (chars[1] - 64) * 32 + (chars[0] - 64) * 32 * 32));
         return new Unsigned16(id);
     }
 
     private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) {
-        if(fixMbusHexShortId)
+        if (fixMbusHexShortId)
             return new Unsigned32(Integer.parseInt(indentificationNumber));
         else
             return new Unsigned32(Integer.parseInt(indentificationNumber, 16));
@@ -311,6 +310,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private Unsigned8 getDeviceType(String deviceType) {
         return new Unsigned8(Integer.parseInt(deviceType, 16));
     }
+
     /**
      * Substracts 5 seconds from the startReadingTime and adds 5 seconds to the endReadingTime
      *
@@ -334,8 +334,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         );
         Date fromDate = new Date(Long.valueOf(fromDateEpoch));
         try {
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) LegacyLoadProfileRegisterMessageBuilder.fromXml(fullLoadProfileContent);
+            LegacyLoadProfileRegisterMessageBuilder builder = LegacyLoadProfileRegisterMessageBuilder.fromXml(fullLoadProfileContent);
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -381,7 +380,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 for (int i = 0; i < collectedLoadProfile.getChannelInfo().size(); i++) {
                     final ChannelInfo channel = collectedLoadProfile.getChannelInfo().get(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i), channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(), new Date(), builder.getRtuRegisterIdForRegister(register));
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i), channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(), new Date(), register.getRtuRegisterId());
                         collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
                     }
                 }
@@ -414,8 +413,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             Date fromDate = new Date(Long.valueOf(fromDateEpoch));
             Date toDate = new Date(Long.valueOf(toDateEpoch));
 
-            LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) LegacyLoadProfileRegisterMessageBuilder.fromXml(fullLoadProfileContent);
+            LegacyPartialLoadProfileMessageBuilder builder = LegacyPartialLoadProfileMessageBuilder.fromXml(fullLoadProfileContent);
 
             LoadProfileReader lpr = builder.getLoadProfileReader();  //Does not contain the correct from & to date yet, they were stored in separate attributes
             LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, toDate, lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
@@ -727,10 +725,10 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     private int getMBusPhysicalAddress(int installChannel) {
         int physicalAddress;
-        if(installChannel == 0){
-            physicalAddress = (byte)this.getProtocol().getMeterTopology().searchNextFreePhysicalAddress();
+        if (installChannel == 0) {
+            physicalAddress = (byte) this.getProtocol().getMeterTopology().searchNextFreePhysicalAddress();
             this.getProtocol().getLogger().log(Level.INFO, "Channel: " + physicalAddress + " will be used as MBUS install channel.");
-        }else{
+        } else {
             physicalAddress = installChannel;
         }
         return physicalAddress;

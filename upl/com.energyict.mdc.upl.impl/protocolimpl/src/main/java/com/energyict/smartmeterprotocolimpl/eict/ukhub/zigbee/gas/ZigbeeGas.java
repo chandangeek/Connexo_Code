@@ -1,18 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -41,12 +37,14 @@ import java.util.List;
  */
 public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, SerialNumberSupport {
 
+    private final DeviceMessageFileFinder messageFileFinder;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final PropertySpecService propertySpecService;
     /**
      * The properties to use for this protocol
      */
     private ZigbeeGasProperties properties;
     private ZigbeeGasMessaging zigbeeGasMessaging = null;
-
     /**
      * The used ComposedMeterInfo
      */
@@ -54,25 +52,16 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
     private ZigbeeGasEventProfiles zigbeeGasEventProfiles;
     private ZigbeeGasLoadProfile zigbeeGasLoadProfile;
     private ZigbeeGasRegisterFactory registerFactory;
-    private final TariffCalendarFinder calendarFinder;
-    private final TariffCalendarExtractor calendarExtractor;
-    private final DeviceMessageFileFinder messageFileFinder;
-    private final DeviceMessageFileExtractor messageFileExtractor;
-    private final Formatter formatter;
-    private final PropertySpecService propertySpecService;
 
-    public ZigbeeGas(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Formatter formatter, PropertySpecService propertySpecService) {
-        this.calendarFinder = calendarFinder;
-        this.calendarExtractor = calendarExtractor;
+    public ZigbeeGas(DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
         this.messageFileFinder = messageFileFinder;
         this.messageFileExtractor = messageFileExtractor;
-        this.formatter = formatter;
         this.propertySpecService = propertySpecService;
     }
 
     public ZigbeeGasMessaging getMessageProtocol() {
         if (zigbeeGasMessaging == null) {
-            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, this.formatter));
+            this.zigbeeGasMessaging = new ZigbeeGasMessaging(new ZigbeeMessageExecutor(this, this.messageFileFinder, this.messageFileExtractor));
         }
         return this.zigbeeGasMessaging;
     }
@@ -111,7 +100,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      */
     @Override
     protected void initAfterConnect() throws ConnectionException {
-        if(this.dlmsSession != null){
+        if (this.dlmsSession != null) {
             // We need to update the correct TimeZone!!
             this.dlmsSession.updateTimeZone(getTimeZone());
         }
@@ -231,6 +220,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
 
     /**
      * Returns the implementation version
+     *
      * @return the version
      */
     public String getVersion() {

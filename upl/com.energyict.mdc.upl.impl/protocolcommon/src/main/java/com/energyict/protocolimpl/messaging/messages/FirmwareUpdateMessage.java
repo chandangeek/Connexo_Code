@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.messaging.messages;
 
-import com.energyict.protocolimpl.messaging.*;
+import com.energyict.protocolimpl.messaging.AnnotatedMessage;
+import com.energyict.protocolimpl.messaging.RtuMessageAttribute;
+import com.energyict.protocolimpl.messaging.RtuMessageDescription;
 
 /**
  * Copyrights EnergyICT
@@ -16,22 +18,26 @@ import com.energyict.protocolimpl.messaging.*;
 )
 public interface FirmwareUpdateMessage extends AnnotatedMessage {
 
+    String ATTR_USER_FILE_ID = "userFileID";
+    String ATTR_USER_FILE_CONTENT = "userFileContent";
+    String ATTR_URL = "url";
+
     @RtuMessageAttribute(
-            tag = AnnotatedFWUpdateMessageBuilder.ATTR_URL,
+            tag = ATTR_URL,
             required = false,
             defaultValue = ""
     )
     String getURL();
 
     @RtuMessageAttribute(
-            tag = AnnotatedFWUpdateMessageBuilder.ATTR_USER_FILE_ID,
+            tag = ATTR_USER_FILE_ID,
             required = false,
             defaultValue = "-1"
     )
     int getUserFileId();
 
     @RtuMessageAttribute(
-            tag = AnnotatedFWUpdateMessageBuilder.ATTR_USER_FILE_CONTENT,
+            tag = ATTR_USER_FILE_CONTENT,
             required = false,
             defaultValue = ""
     )

@@ -13,13 +13,6 @@ import java.io.IOException;
 public interface MessageBuilder {
 
     /**
-     * Return a readable description of the message being built
-     *
-     * @return
-     */
-    String getDescription();
-
-    /**
      * Init the builder with the given xml
      *
      * @param xml

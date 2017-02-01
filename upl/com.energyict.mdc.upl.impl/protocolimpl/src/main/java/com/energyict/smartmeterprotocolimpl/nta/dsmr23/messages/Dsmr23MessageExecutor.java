@@ -1,13 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
@@ -61,6 +53,13 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.LookupEntry;
@@ -116,11 +115,10 @@ import java.util.logging.Level;
  */
 public class Dsmr23MessageExecutor extends MessageParser {
 
+    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
+    private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
     protected final DlmsSession dlmsSession;
     protected final AbstractSmartNtaProtocol protocol;
-    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
-
-    private static final byte[] defaultMonitoredAttribute = new byte[]{1, 0, 90, 7, 0, (byte) 255};    // Total current, instantaneous value
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileExtractor messageFileExtractor;
@@ -301,11 +299,11 @@ public class Dsmr23MessageExecutor extends MessageParser {
                     installMbus(messageHandler);
                 } else if (resetMbusClient) {
                     resetMbusClient(messageHandler);
-                } else if (isMbusClientRemoteCommission){
+                } else if (isMbusClientRemoteCommission) {
                     mBusClientRemoteCommissioning(messageHandler);
                 } else if (isChangeMbusClientAttributes) {
                     changeMBusClientAttributes(messageHandler);
-                }else {
+                } else {
                     msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
                     log(Level.INFO, "Message not supported : " + content);
                 }
@@ -357,14 +355,15 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     private int getMBusPhysicalAddress(int installChannel) throws ProtocolException {
         int physicalAddress;
-        if(installChannel == 0){
-            physicalAddress = (byte)this.protocol.getMeterTopology().searchNextFreePhysicalAddress();
+        if (installChannel == 0) {
+            physicalAddress = (byte) this.protocol.getMeterTopology().searchNextFreePhysicalAddress();
             log(Level.INFO, "Channel: " + physicalAddress + " will be used as MBUS install channel.");
-        }else{
+        } else {
             physicalAddress = installChannel;
         }
         return physicalAddress;
     }
+
     /**
      * Not supported for the DSMR 2.3 protocols.
      * Sub classes can override.
@@ -405,8 +404,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
     protected MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
-            LegacyLoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
-            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            LegacyLoadProfileRegisterMessageBuilder builder = LegacyLoadProfileRegisterMessageBuilder.fromXml(msgEntry.getContent());
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 return MessageResult.createFailed(msgEntry, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!");
             }
@@ -440,7 +438,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        int rtuRegisterId = builder.getRtuRegisterIdForRegister(register);
+                        int rtuRegisterId = register.getRtuRegisterId();
                         final RegisterValue registerValue;
                         if (rtuRegisterId != -1) {
                             registerValue = new RegisterValue(register, new Quantity(id.get(i), channel.getUnit()), id.getEndTime(), null, id.getEndTime(), new Date(), rtuRegisterId);
@@ -468,8 +466,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
     private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read Partial LoadProfile.");
-            LegacyPartialLoadProfileMessageBuilder builder = this.protocol.getPartialLoadProfileMessageBuilder();
-            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
+            LegacyPartialLoadProfileMessageBuilder builder = LegacyPartialLoadProfileMessageBuilder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
 
@@ -1523,33 +1520,33 @@ public class Dsmr23MessageExecutor extends MessageParser {
         return ProtocolTools.mw();
     }
 
-    private void mBusClientRemoteCommissioning(MessageHandler messageHandler) throws IOException{
+    private void mBusClientRemoteCommissioning(MessageHandler messageHandler) throws IOException {
         int installChannel = messageHandler.getMbusInstallChannel();
         int physicalAddress = getMBusPhysicalAddress(installChannel);
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
         String shortId = messageHandler.getMbusShortId();
-        MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(),((Dsmr23Properties)getProtocol().getProperties()).getFixMbusHexShortId());
+        MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), ((Dsmr23Properties) getProtocol().getProperties()).getFixMbusHexShortId());
         try {
             mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
             mbusClient.setIdentificationNumber(mbusProvider.getIdentificationNumber(shortId));
             mbusClient.setVersion(mbusProvider.getVersion(shortId));
             mbusClient.setDeviceType(mbusProvider.getDeviceType(shortId));
-        }catch(ProtocolException e){
-            log(Level.SEVERE,"Invalid short id value.");
+        } catch (ProtocolException e) {
+            log(Level.SEVERE, "Invalid short id value.");
         }
     }
 
     private void changeMBusClientAttributes(MessageHandler messageHandler) throws IOException {
         int installChannel = messageHandler.getMbusInstallChannel();
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(),9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
         try {
             mbusClient.setManufacturerID(messageHandler.getMbusClientManufacturerID());
-            mbusClient.setIdentificationNumber(messageHandler.getMbusClientIdentificationNumber(((Dsmr23Properties)getProtocol().getProperties()).getFixMbusHexShortId()));
+            mbusClient.setIdentificationNumber(messageHandler.getMbusClientIdentificationNumber(((Dsmr23Properties) getProtocol().getProperties()).getFixMbusHexShortId()));
             mbusClient.setDeviceType(messageHandler.getMbusDeviceType());
             mbusClient.setVersion(messageHandler.getMbusClientVersion());
-        }catch(ProtocolException e){
-            log(Level.SEVERE,"Invalid short id value.");
+        } catch (ProtocolException e) {
+            log(Level.SEVERE, "Invalid short id value.");
         }
     }
 }

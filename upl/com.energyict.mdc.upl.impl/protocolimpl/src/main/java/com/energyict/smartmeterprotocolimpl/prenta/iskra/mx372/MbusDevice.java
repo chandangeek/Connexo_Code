@@ -1,15 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Unit;
 import com.energyict.mdw.core.Device;
-import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
-import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372MbusMessaging;
@@ -25,16 +22,14 @@ import java.util.logging.Logger;
 public class MbusDevice extends AbstractNtaMbusDevice {
 
     private final boolean hasBreaker;
+    public Device mbus;
     private int mbusAddress = -1;        // this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
     private int physicalAddress = -1;    // this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
     private int medium = 15;
-
     private String customerID;
     private String rtuType;
     private Unit mbusUnit;
-
     private IskraMx372 iskra;
-    public Device mbus;
     private Logger logger;
 
     public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
@@ -66,17 +61,9 @@ public class MbusDevice extends AbstractNtaMbusDevice {
         return new IskraMx372MbusMessaging(hasBreaker);
     }
 
-    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return ((IskraMx372MbusMessaging) getMessageProtocol()).getLoadProfileRegisterMessageBuilder();
-    }
-
-    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return ((IskraMx372MbusMessaging) getMessageProtocol()).getPartialLoadProfileMessageBuilder();
-    }
-
     @Override
     public String getVersion() {
-        return "$Date: 2015-03-10 09:02:30 +0100 (Tue, 10 Mar 2015) $";
+        return "$Date: Mon Jan 2 11:14:35 2017 +0100 $";
     }
 
     public void setUPLProperties(TypedProperties properties) {

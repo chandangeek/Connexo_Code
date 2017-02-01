@@ -1,9 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -50,22 +49,22 @@ public class IskraMx372MbusMessageExecutor extends MessageParser {
         MessageResult msgResult = null;
         try {
             if (isItThisMessage(messageEntry, RtuMessageConstant.DISCONNECT_LOAD)) {
-                infoLog("Sending disconnectLoad message for meter with serialnumber: "+messageEntry.getSerialNumber());
-                connectDisconnectDevice(messageEntry,  false);
+                infoLog("Sending disconnectLoad message for meter with serialnumber: " + messageEntry.getSerialNumber());
+                connectDisconnectDevice(messageEntry, false);
                 infoLog("DisconnectLoad message successful.");
             } else if (isItThisMessage(messageEntry, RtuMessageConstant.CONNECT_LOAD)) {
-                infoLog("Sending connectLoad message for meter with serialnumber: "+messageEntry.getSerialNumber());
-                connectDisconnectDevice(messageEntry,  true);
+                infoLog("Sending connectLoad message for meter with serialnumber: " + messageEntry.getSerialNumber());
+                connectDisconnectDevice(messageEntry, true);
                 infoLog("ConnectLoad message successful.");
             } else if (isItThisMessage(messageEntry, RtuMessageConstant.MBUS_SET_VIF)) {
-                infoLog("Sending MbusSetVif message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                infoLog("Sending MbusSetVif message for meter with serialnumber: " + messageEntry.getSerialNumber());
                 mbusSetVif(messageEntry);
                 infoLog("MbusSetVif message successful.");
             } else if (isItThisMessage(messageEntry, LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
-                infoLog("Sending LoadProfileRegister message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                infoLog("Sending LoadProfileRegister message for meter with serialnumber: " + messageEntry.getSerialNumber());
                 msgResult = doReadLoadProfileRegisters(messageEntry);
             } else if (isItThisMessage(messageEntry, LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag())) {
-                infoLog("Sending PartialLoadProfile message for meter with serialnumber: "+messageEntry.getSerialNumber());
+                infoLog("Sending PartialLoadProfile message for meter with serialnumber: " + messageEntry.getSerialNumber());
                 msgResult = doReadPartialLoadProfile(messageEntry);
             } else {
                 msgResult = MessageResult.createFailed(messageEntry, "Message not supported by the protocol.");
@@ -77,7 +76,7 @@ public class IskraMx372MbusMessageExecutor extends MessageParser {
                 iskraMx372.getLogger().severe("Message failed : " + msgResult.getInfo());
             }
         } catch (Exception e) {
-             msgResult = MessageResult.createFailed(messageEntry, e.getMessage());
+            msgResult = MessageResult.createFailed(messageEntry, e.getMessage());
             iskraMx372.getLogger().severe("Message failed : " + e.getMessage());
         }
         return msgResult;
@@ -119,24 +118,16 @@ public class IskraMx372MbusMessageExecutor extends MessageParser {
         return iskraMx372.getMessageProtocol().doReadPartialLoadProfile(msgEntry);
     }
 
-    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LegacyLoadProfileRegisterMessageBuilder();
-    }
-
-    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new LegacyPartialLoadProfileMessageBuilder();
-    }
-
     private int getMbusAddress(String serialNumber) throws IOException {
         return iskraMx372.getPhysicalAddressFromSerialNumber(serialNumber);
     }
 
-     /**
+    /**
      * Log the given message to the logger with the INFO level
      *
      * @param messageToLog
      */
-     private void infoLog(String messageToLog) {
+    private void infoLog(String messageToLog) {
         iskraMx372.getLogger().info(messageToLog);
-     }
+    }
 }

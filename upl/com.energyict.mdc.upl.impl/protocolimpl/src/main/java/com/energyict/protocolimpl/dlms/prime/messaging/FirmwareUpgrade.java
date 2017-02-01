@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.dlms.prime.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
@@ -22,9 +23,13 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
 
     private static final ObisCode IMAGE_TRANSFER_OBIS = ObisCode.fromString("0.0.44.0.0.255");
     private static final String FIRMWARE_UPDATE = "FirmwareUpdate";
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    protected FirmwareUpgrade(DlmsSession session, PrimeProperties properties) {
+    protected FirmwareUpgrade(DlmsSession session, PrimeProperties properties, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         super(session, properties);
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 
     @Override
@@ -42,17 +47,17 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
         getLogger().info("Received a firmware upgrade message, using firmware message builder...");
 
         try {
-            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
+            final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(deviceMessageFileFinder, deviceMessageFileExtractor);
             builder.initFromXml(messageEntry.getContent());
 
-            if (builder.getUserFile() == null) {
+            if (builder.getUserFileContent() == null) {
                 String message = "The message did not contain a user file to use for the upgrade, message fails...";
                 getLogger().severe(message);
                 throw new IOException(message);
             }
 
             getLogger().info("Pulling out user file and dispatching to the device...");
-            final byte[] base64Data = builder.getUserFile().loadFileInByteArray();
+            final byte[] base64Data = builder.getUserFileContent().getBytes();
 
             getLogger().info("Decoding BASE64 content ...");
             final Base64EncoderDecoder b64 = new Base64EncoderDecoder();

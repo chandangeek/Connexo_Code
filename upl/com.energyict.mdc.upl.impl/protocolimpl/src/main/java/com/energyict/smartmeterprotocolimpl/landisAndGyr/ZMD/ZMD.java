@@ -20,14 +20,11 @@ import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -67,30 +64,24 @@ import java.util.logging.Logger;
  */
 public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, ProtocolLink, SerialNumberSupport {
 
+    private final ZMDMessages messageProtocol;
+    private final PropertySpecService propertySpecService;
     protected String firmwareVersion;
-
     private CosemObjectFactory cosemObjectFactory = null;
     private StoredValuesImpl storedValuesImpl = null;
-
     private RegisterReader registerReader;
     private LogBookReader logBookReader;
     private LoadProfileBuilder loadProfileBuilder;
-
     private int dstFlag;
-
     // lazy initializing
     private int iMeterTimeZoneOffset = 255;
     private int iConfigProgramChange = -1;
-
     // Added for MeterProtocol interface implementation
     private ZMDProperties properties = null;
 
-    private final ZMDMessages messageProtocol;
-    private final PropertySpecService propertySpecService;
-
-    public ZMD(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Formatter formatter, PropertySpecService propertySpecService) {
+    public ZMD(DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
-        this.messageProtocol = new ZMDMessages(this, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, formatter);
+        this.messageProtocol = new ZMDMessages(this, messageFileFinder, messageFileExtractor);
     }
 
     @Override
@@ -209,7 +200,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
     }
 
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
-       return getLogBookReader().getMeterEvents(lastLogbookDate);
+        return getLogBookReader().getMeterEvents(lastLogbookDate);
     }
 
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
@@ -249,7 +240,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
     }
 
     public void resetDemand() throws IOException {
-        GenericInvoke gi = new GenericInvoke(this, new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString("0.0.240.1.0.255").getLN(), (short)10100, (short)0)).getBaseName()),6);
+        GenericInvoke gi = new GenericInvoke(this, new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString("0.0.240.1.0.255").getLN(), (short) 10100, (short) 0)).getBaseName()), 6);
         gi.invoke(new Integer8(0).getBEREncodedByteArray());
     }
 

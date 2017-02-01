@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -22,10 +21,10 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
-* Copyrights EnergyICT
-* Date: 23/02/11
-* Time: 9:33
-*/
+ * Copyrights EnergyICT
+ * Date: 23/02/11
+ * Time: 9:33
+ */
 public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
 
@@ -40,7 +39,7 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        String loadProfileXML= getDeviceMessageAttribute(message, DeviceMessageConstants.loadProfileAttributeName).getValue();
+        String loadProfileXML = getDeviceMessageAttribute(message, DeviceMessageConstants.loadProfileAttributeName).getValue();
         Date fromDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.fromDateAttributeName).getValue()));
         Date toDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.toDateAttributeName).getValue()));
 
@@ -49,7 +48,7 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
 
     private CollectedMessage readPartialProfileData(OfflineDeviceMessage message, String loadProfileXML, Date fromDate, Date toDate) throws CTRException {
         try {
-            LegacyPartialLoadProfileMessageBuilder builder = (LegacyPartialLoadProfileMessageBuilder) LegacyPartialLoadProfileMessageBuilder.fromXml(loadProfileXML);
+            LegacyPartialLoadProfileMessageBuilder builder = LegacyPartialLoadProfileMessageBuilder.fromXml(loadProfileXML);
             builder.setStartReadingTime(fromDate);
             builder.setEndReadingTime(toDate);
 

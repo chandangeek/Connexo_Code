@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.messages.convertor.utils;
 
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,12 +29,19 @@ public class LoadProfileMessageUtils {
     private static final String RegisterTag = "Reg";
     private static final String RegisterObiscodeTag = "OC";
     private static final String RtuRegisterSerialNumber = "ID";
+    private static final String RtuRegisterId = "RegID";
     private static final String ChannelInfosTag = "Channels";
     private static final String ChannelTag = "Ch";
     private static final String ChannelIdTag = "Id";
     private static final String ChannelNametag = "Name";
     private static final String ChannelMeterIdentifier = "ID";
     private static final String ChannelUnitTag = "Unit";
+
+    /**
+     * Hide utility class constructor.
+     */
+    private LoadProfileMessageUtils() {
+    }
 
     public static String createPartialLoadProfileMessage(String messageTag, String fromDate, String toDate, final String loadProfileXml) {
         try {
@@ -90,6 +96,7 @@ public class LoadProfileMessageUtils {
             Element registerElement = document.createElement(RegisterTag);
             registerElement.setAttribute(RegisterObiscodeTag, String.valueOf(item.getAttributes().getNamedItem(RegisterObiscodeTag).getNodeValue()));
             registerElement.setAttribute(RtuRegisterSerialNumber, String.valueOf(item.getAttributes().getNamedItem(RtuRegisterSerialNumber).getNodeValue()));
+            registerElement.setAttribute(RtuRegisterId, String.valueOf(item.getAttributes().getNamedItem(RtuRegisterId).getNodeValue()));
             registers.appendChild(registerElement);
         }
         return registers;
@@ -152,8 +159,9 @@ public class LoadProfileMessageUtils {
         Element registers = document.createElement(RtuRegistersTag);
         for (LoadProfileExtractor.Register register : allRegisters) {
             Element registerElement = document.createElement(RegisterTag);
-            registerElement.setAttribute(RegisterObiscodeTag, register.obisCode().toString());
+            registerElement.setAttribute(RegisterObiscodeTag, register.obisCode());
             registerElement.setAttribute(RtuRegisterSerialNumber, register.deviceSerialNumber());
+            registerElement.setAttribute(RtuRegisterId, String.valueOf(register.getRegisterId()));
             registers.appendChild(registerElement);
         }
         return registers;
@@ -171,11 +179,5 @@ public class LoadProfileMessageUtils {
             channels.appendChild(channelElement);
         }
         return channels;
-    }
-
-    /**
-     * Hide utility class constructor.
-     */
-    private LoadProfileMessageUtils() {
     }
 }

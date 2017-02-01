@@ -3,13 +3,14 @@
  */
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.as220.AS220;
@@ -27,6 +28,8 @@ public class AS220ImageTransfer {
 
     private final AS220Messaging messaging;
     private final MessageEntry messageEntry;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
     private final ImageTransfer imageTransfer;
 
@@ -40,11 +43,14 @@ public class AS220ImageTransfer {
     /**
      * @param messaging
      * @param messageEntry
-     * @throws IOException
+     * @param deviceMessageFileFinder
+     *@param deviceMessageFileExtractor @throws IOException
      */
-    public AS220ImageTransfer(AS220Messaging messaging, MessageEntry messageEntry) throws IOException {
+    public AS220ImageTransfer(AS220Messaging messaging, MessageEntry messageEntry, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) throws IOException {
         this.messaging = messaging;
         this.messageEntry = messageEntry;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
 //		this.imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
         this.imageTransfer = getAs220().getCosemObjectFactory().getImageTransferSN();
     }
@@ -56,7 +62,7 @@ public class AS220ImageTransfer {
     public void initiate() throws IOException {
         getAs220().getLogger().info("Received a firmware upgrade message, using firmware message builder...");
         String errorMessage = "";
-        final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder();
+        final FirmwareUpdateMessageBuilder builder = new FirmwareUpdateMessageBuilder(deviceMessageFileFinder, deviceMessageFileExtractor);
 
         try {
             builder.initFromXml(messageEntry.getContent());
@@ -73,10 +79,10 @@ public class AS220ImageTransfer {
         }
 
         // We requested an inlined file...
-        if (builder.getUserFile() != null) {
+        if (builder.getUserFileContent() != null) {
             getAs220().getLogger().info("Pulling out user file and dispatching to the device...");
 
-            this.data = builder.getUserFile().loadFileInByteArray();
+            this.data = builder.getUserFileContent().getBytes();
 
             if (this.data.length == 0) {
                 errorMessage = "Length of the upgrade file is not valid [" + this.data.length + " bytes], failing message.";

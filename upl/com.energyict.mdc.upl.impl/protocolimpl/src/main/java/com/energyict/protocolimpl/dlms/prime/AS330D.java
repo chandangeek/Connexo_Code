@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.dlms.prime;
 
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.support.SerialNumberSupport;
 
 import java.io.IOException;
@@ -15,13 +16,13 @@ import java.io.IOException;
  */
 public class AS330D extends AbstractPrimeMeter implements SerialNumberSupport{
 
-    public AS330D(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public AS330D(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
     }
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Thu Nov 26 15:23:57 2015 +0200 $";
     }
 
     @Override
