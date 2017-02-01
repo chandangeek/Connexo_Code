@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.deviceloadprofiles.DataValidationContent', {
     extend: 'Ext.container.Container',
     defaults: {

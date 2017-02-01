@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.controller.setup.DeviceChannelData', {
     extend: 'Ext.app.Controller',
 
@@ -524,9 +528,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             event.column.getEditor().allowBlank = true;
         }
 
+
         if (event.record.isModified('value')) {
             me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
 
+            Ext.suspendLayouts(true);
             if (!event.record.get('value')) {
                 point.update({y: null});
             } else {
@@ -540,6 +546,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     color: 'rgba(112,187,81,0.3)'
                 };
                 point.update(updatedObj);
+                point.select(false);
+                me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', event.record);
             }
 
             if (event.column) {
@@ -547,6 +555,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                 event.record.get('confirmed') && event.record.set('confirmed', false);
             }
+            Ext.resumeLayouts();
         } else if (condition) {
             me.resetChanges(event.record, point);
         }
@@ -776,6 +785,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     if (mainStatus) {
                         rec.get('mainValidationInfo').confirmedNotSaved = true;
                         chart.get(rec.get('interval').start).update({color: 'rgba(112,187,81,0.3)'});
+                        chart.get(rec.get('interval').start).select(false);
+                        me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', record)
                     }
 
                     if (bulkStatus) {
@@ -789,6 +800,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
             };
 
+        Ext.suspendLayouts(true);
         if (isBulk) {
             Ext.Array.each(record, function (reading) {
                 func(reading);
@@ -796,6 +808,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else {
             func(record);
         }
+        Ext.resumeLayouts(true);
 
         me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
     },

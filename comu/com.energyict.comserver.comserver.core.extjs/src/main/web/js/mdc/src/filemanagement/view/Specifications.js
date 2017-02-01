@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.filemanagement.view.Specifications', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.files-specifications-preview-panel',

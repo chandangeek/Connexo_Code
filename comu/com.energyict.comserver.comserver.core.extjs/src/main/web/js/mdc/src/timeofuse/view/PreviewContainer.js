@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.timeofuse.view.PreviewContainer', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.tou-devicetype-preview-container',

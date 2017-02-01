@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comservercomports.InboundComPortPoolCombo', {
     alias: 'widget.inbound-com-port-pool-combo',
     extend: 'Ext.form.field.ComboBox',

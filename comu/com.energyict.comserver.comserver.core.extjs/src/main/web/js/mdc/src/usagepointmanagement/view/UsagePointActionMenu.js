@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.view.UsagePointActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.usage-point-action-menu',
