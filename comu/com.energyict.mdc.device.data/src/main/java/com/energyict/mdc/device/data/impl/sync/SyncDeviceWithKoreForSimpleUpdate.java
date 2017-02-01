@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.sync;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -67,16 +68,17 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
 
     @Override
     public void syncWithKore(DeviceImpl device) {
-        device.getMeter().getOptional().get().setManufacturer(manufacturer);
-        device.getMeter().getOptional().get().setModelNumber(modelNbr);
-        device.getMeter().getOptional().get().setModelVersion(modelVersion);
+        Meter meter = device.getMeter(). get();
+        meter.setManufacturer(manufacturer);
+        meter.setModelNumber(modelNbr);
+        meter.setModelVersion(modelVersion);
         if (this.location.isPresent()) {
             device.getMeter().get().setLocation(location.get());
         }
         if (this.spatialCoordinates.isPresent()) {
             device.getMeter().get().setSpatialCoordinates(spatialCoordinates.get());
         }
-        device.getMeter().getOptional().get().update();
+        meter.update();
     }
 
     @Override
