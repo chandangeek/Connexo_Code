@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationtasks.view.DataSourcesContainer', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.est-data-sources-container',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.main.view.RuleSetSideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.estimation-rule-set-side-menu',

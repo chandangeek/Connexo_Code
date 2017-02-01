@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Est.estimationrulesets.view.RuleSetEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.rule-set-edit',
