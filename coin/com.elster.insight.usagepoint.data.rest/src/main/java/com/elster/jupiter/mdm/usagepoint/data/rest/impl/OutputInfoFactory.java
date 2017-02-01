@@ -104,6 +104,8 @@ public class OutputInfoFactory {
             timeDuration = TimeDuration.days(1);
         } else if (macroPeriod.equals(MacroPeriod.MONTHLY)) {
             timeDuration = TimeDuration.months(1);
+        } else if (macroPeriod.equals(MacroPeriod.YEARLY)) {
+            timeDuration = TimeDuration.years(1);
         } else if (macroPeriod.equals(MacroPeriod.WEEKLYS)) {
             timeDuration = TimeDuration.weeks(1);
         }
