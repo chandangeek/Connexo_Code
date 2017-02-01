@@ -17,5 +17,6 @@ public class MacroPeriodAdapter extends MapBasedXmlAdapter<MacroPeriod> {
         register("Seasonal", MacroPeriod.SEASONAL);
         register("Specified period", MacroPeriod.SPECIFIEDPERIOD);
         register("Weekly", MacroPeriod.WEEKLYS);
+        register("Yearly", MacroPeriod.YEARLY);
     }
 }
