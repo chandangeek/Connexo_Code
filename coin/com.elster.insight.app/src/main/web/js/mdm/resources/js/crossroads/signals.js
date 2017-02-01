@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /*jslint indent:4, white:true, nomen:true, plusplus:true */
 /*global define:false, require:false, exports:false, module:false, signals:false */
 
