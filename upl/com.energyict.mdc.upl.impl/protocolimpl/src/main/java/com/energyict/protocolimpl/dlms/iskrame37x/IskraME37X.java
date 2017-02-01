@@ -1,15 +1,15 @@
 /**
  * @version 2.0
  * @author Koenraad Vanderschaeve
- * <P>
+ * <p>
  * <B>Description :</B><BR>
  * Class that implements the DLMS COSEM meter protocol of the Iskra ME37x meter with LN referencing.
  * <BR>
  * <B>@beginchanges</B><BR>
-KV|11042007|Initial version
-KV|23072007|Work around due to a bug in the meter to allow requesting more then 1 day of load profile for data compression meters
-GN|03032008|Added external MBus functionality
-GN|07112008|Only read the MBus unit when mbus is enabled, older meters don't have the MBus register...
+ * KV|11042007|Initial version
+ * KV|23072007|Work around due to a bug in the meter to allow requesting more then 1 day of load profile for data compression meters
+ * GN|03032008|Added external MBus functionality
+ * GN|07112008|Only read the MBus unit when mbus is enabled, older meters don't have the MBus register...
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms.iskrame37x;
@@ -44,8 +44,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -76,8 +74,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -88,8 +84,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -134,44 +128,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     private static final byte[] connectMsg = new byte[]{0x11, 0x01};
     private static final byte[] disconnectMsg = new byte[]{0x11, 0x00};
-    private final PropertySpecService propertySpecService;
-
-    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("ISK");
-    private DLMSCache dlmsCache = new DLMSCache();
-    private Logger logger = null;
-    private TimeZone timeZone = null;
-
-    private String strID = null;
-    private String strPassword = null;
-    private String serialNumber = null;
-    private String rtuType = null;
-    private String firmwareVersion;
-
-    private List messages = new ArrayList(9);
-
-    private int iInterval = 0;
-    private int iHDLCTimeoutProperty;
-    private int iProtocolRetriesProperty;
-    private int iSecurityLevelProperty;
-    private int iRequestTimeZone;
-    private int iRoundtripCorrection;
-    private int iClientMacAddress;
-    private int iServerUpperMacAddress;
-    private int iServerLowerMacAddress;
-    private int extendedLogging;
-    private int dataContainerOffset = -1;
-    public static int metertype = -1;
-
-    private int numberOfChannels = -1;
-    private int configProgramChanges = -1;
-    private int deviation = -1;
-    private int addressingMode;
-    private int connectionMode;
-
-    private String version = null;
-    private String serialnr = null;
-    private String nodeId;
-
     private static final byte[] aarqlowlevel17 = {
             (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
             (byte) 0x60, // AARQ
@@ -179,7 +135,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
             (byte) 0xAA, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
             (byte) 0xAB, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-
     private static final byte[] aarqlowlevel17_2 = {
             (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
             (byte) 0x01, // initiate request
@@ -187,7 +142,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             (byte) 0x06,  // dlms version nr
             (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
             (byte) 0x21, (byte) 0x34};
-
     private static final byte[] aarqlowlevelANY = {
             (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
             (byte) 0x60, // AARQ
@@ -196,14 +150,12 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
             (byte) 0x8A, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
             (byte) 0x8B, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-
     private static final byte[] aarqlowlevelANY_2 = {(byte) 0xBE, (byte) 0x10, (byte) 0x04, (byte) 0x0E,
             (byte) 0x01, // initiate request
             (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
             (byte) 0x06,  // dlms version nr
             (byte) 0x5F, (byte) 0x1F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
             (byte) 0x21, (byte) 0x34};
-
     private static final byte[] aarqlowlevelOLD = {
             (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
             (byte) 0x60, // AARQ
@@ -212,14 +164,12 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
             (byte) 0x8A, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
             (byte) 0x8B, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-
     private static final byte[] aarqlowlevelOLD_2 = {(byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
             (byte) 0x01, // initiate request
             (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
             (byte) 0x06,  // dlms version nr
             (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
             (byte) 0x21, (byte) 0x34};
-
     private static final byte[] aarqlowestlevel = {
             (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
             (byte) 0x60, // AARQ
@@ -231,12 +181,46 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             (byte) 0x06,  // dlms version nr
             (byte) 0x5F, (byte) 0x1F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x7E, (byte) 0x1F, // proposed conformance
             (byte) 0xFF, (byte) 0xFF};
-
+    private static final int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x01;
+    private static final int PROFILE_STATUS_RESET_CUMULATION = 0x10;
+    private static final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
+    private static final int PROFILE_STATUS_POWER_RETURNED = 0x40;
+    private static final int PROFILE_STATUS_POWER_FAILURE = 0x80;
+    public static int metertype = -1;
+    private final PropertySpecService propertySpecService;
+    private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("ISK");
+    private DLMSCache dlmsCache = new DLMSCache();
+    private Logger logger = null;
+    private TimeZone timeZone = null;
+    private String strID = null;
+    private String strPassword = null;
+    private String serialNumber = null;
+    private String rtuType = null;
+    private String firmwareVersion;
+    private List messages = new ArrayList(9);
+    private int iInterval = 0;
+    private int iHDLCTimeoutProperty;
+    private int iProtocolRetriesProperty;
+    private int iSecurityLevelProperty;
+    private int iRequestTimeZone;
+    private int iRoundtripCorrection;
+    private int iClientMacAddress;
+    private int iServerUpperMacAddress;
+    private int iServerLowerMacAddress;
+    private int extendedLogging;
+    private int dataContainerOffset = -1;
+    private int numberOfChannels = -1;
+    private int configProgramChanges = -1;
+    private int deviation = -1;
+    private int addressingMode;
+    private int connectionMode;
+    private String version = null;
+    private String serialnr = null;
+    private String nodeId;
     private CapturedObjects capturedObjects = null;
     private DLMSConnection dlmsConnection = null;
     private CosemObjectFactory cosemObjectFactory = null;
     private ObisCodeMapper ocm = null;
-
     private ObisCode loadProfileObisCode = null;
     private ObisCode loadProfileObisCode1 = ObisCode.fromString("1.0.99.1.0.255");
     private ObisCode loadProfileObisCode2 = ObisCode.fromString("1.0.99.2.0.255");
@@ -700,7 +684,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         return -1;
     }
 
-
     private void buildProfileData(DataContainer dataContainer, ProfileData profileData) throws IOException {
         Calendar calendar = null;
         int i, protocolStatus;
@@ -778,13 +761,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         }
         return intervalData;
     }
-
-
-    private static final int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x01;
-    private static final int PROFILE_STATUS_RESET_CUMULATION = 0x10;
-    private static final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
-    private static final int PROFILE_STATUS_POWER_RETURNED = 0x40;
-    private static final int PROFILE_STATUS_POWER_FAILURE = 0x80;
 
     private int map(int protocolStatus) {
 
@@ -1062,23 +1038,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         demandResetScriptTable.execute(0);
     }
 
-    class InitiateResponse {
-
-        byte bNegotiatedQualityOfService;
-        byte bNegotiatedDLMSVersionNR;
-        long lNegotiatedConformance;
-        short sServerMaxReceivePduSize;
-        short sVAAName;
-
-        InitiateResponse() {
-            bNegotiatedQualityOfService = 0;
-            bNegotiatedDLMSVersionNR = 0;
-            lNegotiatedConformance = 0;
-            sServerMaxReceivePduSize = 0;
-            sVAAName = 0;
-        }
-    }
-
     /**
      * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references.
      * This method must be executed before other request methods.
@@ -1247,39 +1206,13 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     @Override
-    public void setCache(Serializable cacheObject) {
-        this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    @Override
     public Serializable getCache() {
         return dlmsCache;
     }
 
     @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        if (deviceId != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-            RtuDLMS rtu = new RtuDLMS(deviceId);
-            return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-                RtuDLMS rtu = new RtuDLMS(deviceId);
-                rtuCache.saveObjectList(dc.getObjectList(), connection);
-                rtu.setConfProgChange(dc.getConfProgChange(), connection);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
+    public void setCache(Serializable cacheObject) {
+        this.dlmsCache = (DLMSCache) cacheObject;
     }
 
     @Override
@@ -1521,6 +1454,23 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         tagSpec.add(new MessageValueSpec());
         msgSpec.add(tagSpec);
         return msgSpec;
+    }
+
+    class InitiateResponse {
+
+        byte bNegotiatedQualityOfService;
+        byte bNegotiatedDLMSVersionNR;
+        long lNegotiatedConformance;
+        short sServerMaxReceivePduSize;
+        short sVAAName;
+
+        InitiateResponse() {
+            bNegotiatedQualityOfService = 0;
+            bNegotiatedDLMSVersionNR = 0;
+            lNegotiatedConformance = 0;
+            sServerMaxReceivePduSize = 0;
+            sVAAName = 0;
+        }
     }
 
 }

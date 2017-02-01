@@ -1,9 +1,11 @@
 package com.energyict.protocolimpl.dlms.g3;
 
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -13,17 +15,11 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
-import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.AbstractDlmsSessionProtocol;
 import com.energyict.protocolimpl.dlms.g3.events.G3Events;
 import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
@@ -32,8 +28,6 @@ import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,8 +41,10 @@ import java.util.logging.Level;
 public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberSupport, CachingProtocol {
 
     private static final String TIMEOUT = "timeout";
+    private final TariffCalendarFinder calendarFinder;
+    private final TariffCalendarExtractor calendarExtractor;
+    private final PropertySpecService propertySpecService;
     protected G3Properties properties;
-
     private G3Clock clock;
     private G3DeviceInfo info;
     private G3RegisterMapper registerMapper;
@@ -56,9 +52,6 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
     private G3Events events;
     private G3Messaging messaging;
     private G3Cache cache = new G3Cache();
-    private final TariffCalendarFinder calendarFinder;
-    private final TariffCalendarExtractor calendarExtractor;
-    private final PropertySpecService propertySpecService;
 
     public AS330D(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService) {
         this.calendarFinder = calendarFinder;
@@ -273,29 +266,4 @@ public class AS330D extends AbstractDlmsSessionProtocol implements SerialNumberS
             this.getProperties().getSecurityProvider().setInitialFrameCounter(this.cache.getFrameCounter());    //Get this from the last session
         }
     }
-
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        if (deviceId != 0) {
-            RTUCache rtuCache = new RTUCache(deviceId);
-            try {
-                return rtuCache.getCacheObject(connection);
-            } catch (IOException e) {
-                return new G3Cache();
-            }
-        } else {
-            throw new IllegalArgumentException("invalid device identifier!");
-        }
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            G3Cache dc = (G3Cache) cacheObject;
-            new RTUCache(deviceId).setBlob(dc, connection);
-        } else {
-            throw new IllegalArgumentException("invalid device identifier!");
-        }
-    }
-
 }

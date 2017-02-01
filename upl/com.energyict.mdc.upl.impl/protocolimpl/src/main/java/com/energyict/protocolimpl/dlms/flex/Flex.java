@@ -1,15 +1,15 @@
 /**
  * @version 2.0
  * @author Koenraad Vanderschaeve
- * <P>
+ * <p>
  * <B>Description :</B><BR>
  * Class that implements the DLMS COSEM meter protocol for the FLEX Landis + Gyr GSM/GPRS module
  * <BR>
  * <B>@beginchanges</B><BR>
-KV|11042007|Initial version
-KV|23072007|Work around due to a bug in the meter to allow requesting more then 1 day of load profile for data compression meters
-GN|17122007|Taken over everything from the Iskra protocol
-SVA|16072012|Taken a local copy of all stuff reused from Iskra protocol - this is done to remove the dependency between both protocols.
+ * KV|11042007|Initial version
+ * KV|23072007|Work around due to a bug in the meter to allow requesting more then 1 day of load profile for data compression meters
+ * GN|17122007|Taken over everything from the Iskra protocol
+ * SVA|16072012|Taken a local copy of all stuff reused from Iskra protocol - this is done to remove the dependency between both protocols.
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms.flex;
@@ -45,7 +45,6 @@ import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.CachingProtocol;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -65,8 +64,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
@@ -74,8 +71,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -99,24 +94,88 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
     private static final int iNROfIntervals = 50000;
     private static final int MAX_ADDRESS_LENGTH = 16;
+    private static final byte[] aarqlowlevel17 = {
+            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
+            (byte) 0x60, // AARQ
+            (byte) 0x37, // bytes to follow
+            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
+            (byte) 0xAA, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
+            (byte) 0xAB, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
+    private static final byte[] aarqlowlevel17_2 = {
+            (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
+            (byte) 0x01, // initiate request
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
+            (byte) 0x06,  // dlms version nr
+            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
+            (byte) 0x21, (byte) 0x34};
+    private static final byte[] aarqlowlevelANY = {
+            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
+            (byte) 0x60, // AARQ
+            (byte) 0x36, // bytes to follow
+            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07,
+            (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
+            (byte) 0x8A, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
+            (byte) 0x8B, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
+    private static final byte[] aarqlowlevelANY_2 = {(byte) 0xBE, (byte) 0x10, (byte) 0x04, (byte) 0x0E,
+            (byte) 0x01, // initiate request
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
+            (byte) 0x06,  // dlms version nr
+            (byte) 0x5F, (byte) 0x1F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
+            (byte) 0x21, (byte) 0x34};
+    private static final byte[] aarqlowlevelOLD = {
+            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
+            (byte) 0x60, // AARQ
+            (byte) 0x35, // bytes to follow
+            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07,
+            (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
+            (byte) 0x8A, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
+            (byte) 0x8B, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
+    private static final byte[] aarqlowlevelOLD_2 = {(byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
+            (byte) 0x01, // initiate request
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
+            (byte) 0x06,  // dlms version nr
+            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
+            (byte) 0x21, (byte) 0x34};
+    private static final byte[] aarqFlex = {
+            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
+            (byte) 0x60, //AARQ
+            (byte) 0x20, //bytes to follow
+            (byte) 0x80, (byte) 0x02, (byte) 0x07, (byte) 0x80, (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85,
+            (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x02, (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
+            (byte) 0x01, //initiate request
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, //unused parameters
+            (byte) 0x06, //dlms version nr
+            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x18, (byte) 0x02, (byte) 0x20, (byte) 0x00, //proposed conformance
+            (byte) 0x00/*,(byte)0x02*/
+    };
+    private static final byte AARE_APPLICATION_CONTEXT_NAME = (byte) 0xA1;
+    private static final byte AARE_RESULT = (byte) 0xA2;
+    private static final byte AARE_RESULT_SOURCE_DIAGNOSTIC = (byte) 0xA3;
+    private static final byte AARE_USER_INFORMATION = (byte) 0xBE;
+    private static final byte AARE_TAG = 0x61;
+    private static final byte ACSE_SERVICE_USER = (byte) 0xA1;
+    private static final byte ACSE_SERVICE_PROVIDER = (byte) 0xA2;
+    private static final byte DLMS_PDU_INITIATE_RESPONSE = (byte) 0x08;
+    private static final byte DLMS_PDU_CONFIRMED_SERVICE_ERROR = (byte) 0x0E;
+    private static final int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x01;
+    private static final int PROFILE_STATUS_RESET_CUMULATION = 0x10;
+    private static final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
+    private static final int PROFILE_STATUS_POWER_RETURNED = 0x40;
+    private static final int PROFILE_STATUS_POWER_FAILURE = 0x80;
     private final PropertySpecService propertySpecService;
-
     private ObisCode loadProfileObisCode1 = ObisCode.fromString("1.0.99.1.0.255");
     private ObisCode loadProfileObisCode2 = ObisCode.fromString("1.0.99.2.0.255");
     private ObisCode loadProfileObisCode97 = ObisCode.fromString("1.0.99.97.0.255");
     private ObisCode loadProfileObisCode = null;
     private ObisCode eventLogObisCode = ObisCode.fromString("1.0.99.98.0.255");
-
     private int iInterval = 0;
     private ScalerUnit[] demandScalerUnits = null;
     private String version = null;
     private String serialnr = null;
     private String nodeId;
-
     private String strID = null;
     private String strPassword = null;
     private String serialNumber = null;
-
     private int iHDLCTimeoutProperty;
     private int iProtocolRetriesProperty;
     //    private int iDelayAfterFailProperty;
@@ -125,26 +184,21 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     private int iRoundtripCorrection;
     private int iClientMacAddress;
     private int iServerUpperMacAddress;
+    //(byte)0xAC,(byte)0x0A,(byte)0x04}; //,(byte)0x08,(byte)0x41,(byte)0x42,(byte)0x43,(byte)0x44,(byte)0x45,(byte)0x46,(byte)0x47,(byte)0x48,
     private int iServerLowerMacAddress;
     private String firmwareVersion;
-
     private CapturedObjects capturedObjects = null;
-
     private DLMSConnection dlmsConnection = null;
     private CosemObjectFactory cosemObjectFactory = null;
     private StoredValuesImpl storedValuesImpl = null;
-
     private ObisCodeMapper ocm = null;
-
     // Lazy initializing
     private int numberOfChannels = -1;
     private int configProgramChanges = -1;
     private int deviation = -1;
-
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
     private TimeZone timeZone = null;
-
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("LGZ");
     private DLMSCache dlmsCache = new DLMSCache();
     private int extendedLogging;
@@ -189,69 +243,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
         //boolAbort = false;
     }
-
-
-    private static final byte[] aarqlowlevel17 = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x60, // AARQ
-            (byte) 0x37, // bytes to follow
-            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
-            (byte) 0xAA, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
-            (byte) 0xAB, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-    //(byte)0xAC,(byte)0x0A,(byte)0x04}; //,(byte)0x08,(byte)0x41,(byte)0x42,(byte)0x43,(byte)0x44,(byte)0x45,(byte)0x46,(byte)0x47,(byte)0x48,
-
-    private static final byte[] aarqlowlevel17_2 = {
-            (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
-            (byte) 0x01, // initiate request
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
-            (byte) 0x06,  // dlms version nr
-            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
-            (byte) 0x21, (byte) 0x34};
-
-    private static final byte[] aarqlowlevelANY = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x60, // AARQ
-            (byte) 0x36, // bytes to follow
-            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07,
-            (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
-            (byte) 0x8A, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
-            (byte) 0x8B, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-
-    private static final byte[] aarqlowlevelANY_2 = {(byte) 0xBE, (byte) 0x10, (byte) 0x04, (byte) 0x0E,
-            (byte) 0x01, // initiate request
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
-            (byte) 0x06,  // dlms version nr
-            (byte) 0x5F, (byte) 0x1F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
-            (byte) 0x21, (byte) 0x34};
-
-    private static final byte[] aarqlowlevelOLD = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x60, // AARQ
-            (byte) 0x35, // bytes to follow
-            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07,
-            (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
-            (byte) 0x8A, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
-            (byte) 0x8B, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-
-    private static final byte[] aarqlowlevelOLD_2 = {(byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
-            (byte) 0x01, // initiate request
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
-            (byte) 0x06,  // dlms version nr
-            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
-            (byte) 0x21, (byte) 0x34};
-
-    private static final byte[] aarqFlex = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x60, //AARQ
-            (byte) 0x20, //bytes to follow
-            (byte) 0x80, (byte) 0x02, (byte) 0x07, (byte) 0x80, (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85,
-            (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x02, (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
-            (byte) 0x01, //initiate request
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, //unused parameters
-            (byte) 0x06, //dlms version nr
-            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x18, (byte) 0x02, (byte) 0x20, (byte) 0x00, //proposed conformance
-            (byte) 0x00/*,(byte)0x02*/
-    };
 
     private byte[] getLowLevelSecurity() {
         if ("1.7".compareTo(firmwareVersion) == 0) {
@@ -315,19 +306,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             ProtocolUtils.printResponseData(responseData);
         }
     }
-
-    private static final byte AARE_APPLICATION_CONTEXT_NAME = (byte) 0xA1;
-    private static final byte AARE_RESULT = (byte) 0xA2;
-    private static final byte AARE_RESULT_SOURCE_DIAGNOSTIC = (byte) 0xA3;
-    private static final byte AARE_USER_INFORMATION = (byte) 0xBE;
-
-    private static final byte AARE_TAG = 0x61;
-
-    private static final byte ACSE_SERVICE_USER = (byte) 0xA1;
-    private static final byte ACSE_SERVICE_PROVIDER = (byte) 0xA2;
-
-    private static final byte DLMS_PDU_INITIATE_RESPONSE = (byte) 0x08;
-    private static final byte DLMS_PDU_CONFIRMED_SERVICE_ERROR = (byte) 0x0E;
 
     private void CheckAARE(byte[] responseData) throws IOException {
         int i;
@@ -616,7 +594,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         return -1;
     }
 
-
     private void buildProfileData(DataContainer dataContainer, ProfileData profileData) throws IOException {
         Calendar calendar = null;
         int i, protocolStatus;
@@ -693,13 +670,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
         return intervalData;
     }
-
-
-    private static final int PROFILE_STATUS_DEVICE_DISTURBANCE = 0x01;
-    private static final int PROFILE_STATUS_RESET_CUMULATION = 0x10;
-    private static final int PROFILE_STATUS_DEVICE_CLOCK_CHANGED = 0x20;
-    private static final int PROFILE_STATUS_POWER_RETURNED = 0x40;
-    private static final int PROFILE_STATUS_POWER_FAILURE = 0x80;
 
     private int map(int protocolStatus) {
         int eiStatus = 0;
@@ -962,23 +932,6 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         }
     }
 
-    class InitiateResponse {
-
-        byte bNegotiatedQualityOfService;
-        byte bNegotiatedDLMSVersionNR;
-        long lNegotiatedConformance;
-        short sServerMaxReceivePduSize;
-        short sVAAName;
-
-        InitiateResponse() {
-            bNegotiatedQualityOfService = 0;
-            bNegotiatedDLMSVersionNR = 0;
-            lNegotiatedConformance = 0;
-            sServerMaxReceivePduSize = 0;
-            sVAAName = 0;
-        }
-    }
-
     /**
      * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references.
      * This method must be executed before other request methods.
@@ -1002,7 +955,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             UniversalObject uo = meterConfig.getSerialNumberObject();
             return getCosemObjectFactory().getGenericRead(uo).getString();
         } catch (IOException e) {
-           throw DLMSIOExceptionHandler.handle(e, iProtocolRetriesProperty + 1);
+            throw DLMSIOExceptionHandler.handle(e, iProtocolRetriesProperty + 1);
         }
     }
 
@@ -1139,43 +1092,13 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     }
 
     @Override
-    public void setCache(Serializable cacheObject) {
-        this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    @Override
     public Serializable getCache() {
         return dlmsCache;
     }
 
     @Override
-    public Serializable fetchCache(int rtuid, Connection connection) throws SQLException {
-        if (rtuid != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
-            RtuDLMS rtu = new RtuDLMS(rtuid);
-            try {
-                return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
-            } catch (ProtocolCacheFetchException e) {
-                return new DLMSCache(null, -1);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException {
-        if (deviceId != 0) {
-            DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-                RtuDLMS rtu = new RtuDLMS(deviceId);
-                rtuCache.saveObjectList(dc.getObjectList(), connection);
-                rtu.setConfProgChange(dc.getConfProgChange(), connection);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
+    public void setCache(Serializable cacheObject) {
+        this.dlmsCache = (DLMSCache) cacheObject;
     }
 
     @Override
@@ -1268,6 +1191,23 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
+    }
+
+    class InitiateResponse {
+
+        byte bNegotiatedQualityOfService;
+        byte bNegotiatedDLMSVersionNR;
+        long lNegotiatedConformance;
+        short sServerMaxReceivePduSize;
+        short sVAAName;
+
+        InitiateResponse() {
+            bNegotiatedQualityOfService = 0;
+            bNegotiatedDLMSVersionNR = 0;
+            lNegotiatedConformance = 0;
+            sServerMaxReceivePduSize = 0;
+            sVAAName = 0;
+        }
     }
 
 }

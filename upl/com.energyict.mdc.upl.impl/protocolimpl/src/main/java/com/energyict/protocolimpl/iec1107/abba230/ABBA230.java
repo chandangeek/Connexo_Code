@@ -17,11 +17,14 @@ entries occur twice or more they need an SL flag.
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.CachingProtocol;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
@@ -38,12 +41,6 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.HHUEnabler;
@@ -75,8 +72,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -99,39 +94,33 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
  * @author fbo
- * KV	25112008 	Changed authentication mechanism with new security level
- * KV	02122008 	Add intervalstate bits to logbook
- * JME	23012009	Fixed Java 1.5 <=> 1.4 issues to port from 8.1 to 7.5, 7.3 or 7.1
- * JME	20022009	Implemented Billing reset message
- * JME	13032009	Fixed bug in Billing reset message
- * JME	24032009	Added delay during close contactor message execution between the ARM and CLOSE command.
- * JME	27032009	Made extended logging more robust for meter configuration
- * JME	02042009	Moved contactor code to new class and fixed bug in close message (Mantis issue 4047)
- * SVA  18102011    Extending the protocol to enable the collection of Instrumentation Channels
- *                  If property 'InstrumentationProfileMode' is set, the Instrumentation Profiles will be read out instead of the Load Profiles.
- *
+ *         KV	25112008 	Changed authentication mechanism with new security level
+ *         KV	02122008 	Add intervalstate bits to logbook
+ *         JME	23012009	Fixed Java 1.5 <=> 1.4 issues to port from 8.1 to 7.5, 7.3 or 7.1
+ *         JME	20022009	Implemented Billing reset message
+ *         JME	13032009	Fixed bug in Billing reset message
+ *         JME	24032009	Added delay during close contactor message execution between the ARM and CLOSE command.
+ *         JME	27032009	Made extended logging more robust for meter configuration
+ *         JME	02042009	Moved contactor code to new class and fixed bug in close message (Mantis issue 4047)
+ *         SVA  18102011    Extending the protocol to enable the collection of Instrumentation Channels
+ *         If property 'InstrumentationProfileMode' is set, the Instrumentation Profiles will be read out instead of the Load Profiles.
  */
 public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
-                                                               RegisterProtocol, MessageProtocol, EventMapper, SerialNumberSupport, CachingProtocol {
+        RegisterProtocol, MessageProtocol, EventMapper, SerialNumberSupport, CachingProtocol {
 
     private static final int DEBUG = 0;
-
-    private boolean firmwareUpgrade = false;
-
     private static final String CONNECT = "ConnectLoad";
     private static final String DISCONNECT = "DisconnectLoad";
     private static final String ARM = "ArmMeter";
     private static final String TARIFFPROGRAM = "UploadMeterScheme";
     private static final String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
     private static final String BILLINGRESET = RtuMessageConstant.BILLINGRESET;
-
     private static final String CONNECT_DISPLAY = "Connect Load";
     private static final String DISCONNECT_DISPLAY = "Disconnect Load";
     private static final String ARM_DISPLAY = "Arm Meter";
     private static final String TARIFFPROGRAM_DISPLAY = "Upload Meter Scheme";
     private static final String FIRMWAREPROGRAM_DISPLAY = "Upgrade Meter Firmware";
     private static final String BILLINGRESET_DISPLAY = "Billing reset";
-
     /**
      * Property keys specific for AS230 protocol.
      */
@@ -142,10 +131,8 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PK_IEC1107_COMPATIBLE = "IEC1107Compatible";
     private static final String PK_ECHO_CANCELING = "EchoCancelling";
-
     private static final String PK_SCRIPTING_ENABLED = "ScriptingEnabled";
     private static final String INSTRUMENTATION_PROFILE_MODE = "InstrumentationProfileMode";
-
     /**
      * Property Default values
      */
@@ -158,7 +145,18 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private static final int PD_IEC1107_COMPATIBLE = 1;
     private static final int PD_ECHO_CANCELING = 0;
     private static final int PD_FORCED_DELAY = 300;
+    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
 
+    static {
+        EXCEPTION_INFO_MAP.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
+        EXCEPTION_INFO_MAP.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist in the meter");
+        EXCEPTION_INFO_MAP.put("ERR3", "Invalid Packet Number");
+        EXCEPTION_INFO_MAP.put("ERR5", "Data Identity is locked - pPassword timeout");
+        EXCEPTION_INFO_MAP.put("ERR6", "General Comms error");
+    }
+
+    private final PropertySpecService propertySpecService;
+    private boolean firmwareUpgrade = false;
     /**
      * Property values Required properties will have NO default value Optional
      * properties make use of default value
@@ -167,10 +165,8 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private String pNodeId = PD_NODE_ID;
     private String pSerialNumber = null;
     private String pPassword = null;
-
     /* Protocol timeout fail in msec */
     private int pTimeout = PD_TIMEOUT;
-
     /* Max nr of consecutive protocol errors before end of communication */
     private int pRetries = PD_RETRIES;
     private int forcedDelay = PD_FORCED_DELAY;
@@ -181,18 +177,15 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private int pExtendedLogging = PD_EXTENDED_LOGGING;
     private int pEchoCancelling = PD_ECHO_CANCELING;
     private int pIEC1107Compatible = PD_IEC1107_COMPATIBLE;
-
     private TimeZone timeZone;
     private Logger logger;
     private FlagIEC1107Connection flagConnection = null;
     private ABBA230RegisterFactory rFactory = null;
     private ABBA230Profile profile = null;
-
     private CacheMechanism cacheObject = null;
     private boolean software7E1;
     private int scriptingEnabled = 0;
     private int nrOfProfileBlocks = 0;
-
     /**
      * Indication whether to send a break command before a retry
      */
@@ -202,14 +195,11 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
      * Mostly you will send it, just not if the signon failed.
      */
     private boolean sendBreakBeforeDisconnect;
-
     /**
      * Indicate whether the normal Load Profile Data should be read out, or if the Instrumentation Profile Data must be read instead.
      * By default (boolean false) the Load Profile Data will be read out.
      */
     private boolean instrumentationProfileMode;
-
-    private final PropertySpecService propertySpecService;
 
     public ABBA230(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -557,7 +547,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
-        TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
+        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         properties.setProperty("SecurityLevel", "0");
         properties.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");
@@ -578,16 +568,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
-    }
-
-    private static final Map<String, String> EXCEPTION_INFO_MAP = new HashMap<>();
-
-    static {
-        EXCEPTION_INFO_MAP.put("ERR1", "Invalid Command/Function type e.g. other than W1, R1 etc");
-        EXCEPTION_INFO_MAP.put("ERR2", "Invalid Data Identity Number e.g. Data id does not exist in the meter");
-        EXCEPTION_INFO_MAP.put("ERR3", "Invalid Packet Number");
-        EXCEPTION_INFO_MAP.put("ERR5", "Data Identity is locked - pPassword timeout");
-        EXCEPTION_INFO_MAP.put("ERR6", "General Comms error");
     }
 
     @Override
@@ -624,17 +604,8 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         }
     }
 
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        return null;
-    }
-
     public void setCache(Serializable cacheObject) {
         this.cacheObject = (CacheMechanism) cacheObject;
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
     }
 
     @Override
@@ -1126,7 +1097,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     }
 
     private PropertySpec stringSpecOfExactLength(String name, boolean required, int length) {
-        return this.spec(name,required, () -> this.propertySpecService.stringSpecOfExactLength(length));
+        return this.spec(name, required, () -> this.propertySpecService.stringSpecOfExactLength(length));
     }
 
 }

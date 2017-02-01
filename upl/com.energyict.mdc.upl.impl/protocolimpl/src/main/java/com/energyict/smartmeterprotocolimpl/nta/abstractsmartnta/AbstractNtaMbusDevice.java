@@ -13,7 +13,6 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -32,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.sql.Connection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -226,16 +224,6 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     @Override
     public Serializable getCache() {
         return null;
-    }
-
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) {
-        return null;
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) {
-
     }
 
     @Override

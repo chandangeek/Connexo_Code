@@ -1,17 +1,5 @@
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.CachingProtocol;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -39,11 +27,18 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.CachingProtocol;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -51,8 +46,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -71,19 +64,19 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
- * @version 2.0
  * @author Koenraad Vanderschaeve
- * <P>
- * <B>Description :</B><BR>
- * Base class that implements the DLMS SN (short name) protocol
- * <BR>
- * <B>@beginchanges</B><BR>
- *      KV 08042003 Initial version.<BR>
- *      KV 08102003 Save dstFlag when getTime() to be used in setTime()
- *      KV 14072004 DLMSMeterConfig made multithreaded! singleton pattern implementation removed!
- *      KV 20082004 Extended with obiscode mapping for register reading + start reengineering to use cosem package
- *      KV 30082004 Reengineered to use cosem package
- *@endchanges
+ *         <p>
+ *         <B>Description :</B><BR>
+ *         Base class that implements the DLMS SN (short name) protocol
+ *         <BR>
+ *         <B>@beginchanges</B><BR>
+ *         KV 08042003 Initial version.<BR>
+ *         KV 08102003 Save dstFlag when getTime() to be used in setTime()
+ *         KV 14072004 DLMSMeterConfig made multithreaded! singleton pattern implementation removed!
+ *         KV 20082004 Extended with obiscode mapping for register reading + start reengineering to use cosem package
+ *         KV 30082004 Reengineered to use cosem package
+ * @version 2.0
+ * @endchanges
  */
 public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, CachingProtocol, SerialNumberSupport {
 
@@ -120,7 +113,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private static final int CONNECTION_MODE_COSEM_PDU = 2;
     private static final int CONNECTION_MODE_LLC = 3;
     private static final int MAX_ADDRESS_LENGTH = 16;
-
+    private final PropertySpecService propertySpecService;
     protected int iInterval = -1;
     private boolean debug = false;
     private DLMSCache dlmsCache = new DLMSCache();
@@ -144,38 +137,28 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private int opticalBaudrate;
     private int profileType = 0;
     private int cipheringType;
-
     private int authenticationSecurityLevel;
     private int datatransportSecurityLevel;
-
     private DLMSConnection dlmsConnection = null;
     private SecurityContext securityContext = null;
     private ApplicationServiceObject aso = null;
-
     private CosemObjectFactory cosemObjectFactory = null;
     private AS220StoredValues storedValuesImpl = null;
-
     // lazy initializing
     private int iMeterTimeZoneOffset = 255;
     private int iConfigProgramChange = -1;
-
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance();
-
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
     private TimeZone timeZone = null;
-
     // filled in when getTime is invoked!
     private int dstFlag; // -1=unknown, 0=not set, 1=set
     private int addressingMode;
     private int connectionMode;
-
     private Properties properties;
-
     private int iForcedDelay;
     private int limitMaxNrOfDays;
     private boolean readPlcLogbook;
-    private final PropertySpecService propertySpecService;
 
     public DLMSSNAS220(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -429,9 +412,8 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 UniversalObject uo = getMeterConfig().getSerialNumberObject();
                 byte[] responsedata = getCosemObjectFactory().getGenericRead(uo.getBaseName(), uo.getValueAttributeOffset()).getResponseData();
                 return AXDRDecoder.decode(responsedata).getOctetString().stringValue();
-            }
-            catch (IOException e) {
-               throw DLMSIOExceptionHandler.handle(e, getProtocolRetries() + 1);
+            } catch (IOException e) {
+                throw DLMSIOExceptionHandler.handle(e, getProtocolRetries() + 1);
             }
         } while (true);
     }
@@ -588,36 +570,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     @Override
     public void setCache(Serializable cacheObject) {
         this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException {
-        if (deviceId != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-            RtuDLMS rtu = new RtuDLMS(deviceId);
-            try {
-                return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
-            } catch (ProtocolCacheFetchException e) {
-                return new DLMSCache(null, -1);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-                RtuDLMS rtu = new RtuDLMS(deviceId);
-                rtuCache.saveObjectList(dc.getObjectList(), connection);
-                rtu.setConfProgChange(dc.getConfProgChange(), connection);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
     }
 
     @Override

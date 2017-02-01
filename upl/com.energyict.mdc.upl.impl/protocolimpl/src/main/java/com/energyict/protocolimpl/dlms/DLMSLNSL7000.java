@@ -57,8 +57,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -86,8 +84,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -1394,32 +1390,6 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     public void setCache(Serializable cacheObject) {
         if (cacheObject != null) {
             this.dlmsCache = (DLMSCache) cacheObject;
-        }
-    }
-
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        if (deviceId != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-            RtuDLMS rtu = new RtuDLMS(deviceId);
-            return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-                RtuDLMS rtu = new RtuDLMS(deviceId);
-                rtuCache.saveObjectList(dc.getObjectList(), connection);
-                rtu.setConfProgChange(dc.getConfProgChange(), connection);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
         }
     }
 

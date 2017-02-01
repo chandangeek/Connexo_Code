@@ -11,7 +11,6 @@
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -41,8 +40,6 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -62,8 +59,6 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -72,8 +67,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -95,47 +88,10 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
 
     private static final byte[] profileLN = {0, 0, 99, 1, 0, (byte) 255};
     private static final int iNROfIntervals = 50000;
-    private final PropertySpecService propertySpecService;
-
-    private int iInterval = 0;
-    private ScalerUnit[] demandScalerUnits = null;
-    private String version = null;
-    private String nodeId;
-
     private static final String PK_TIMEOUT = Property.TIMEOUT.getName();
     private static final String PK_RETRIES = Property.RETRIES.getName();
     private static final String PK_SECURITYLEVEL = Property.SECURITYLEVEL.getName();
     private static final String PK_EXTENDED_LOGGING = "ExtendedLogging";
-
-    private String strID = null;
-    private String strPassword = null;
-    private String serialNumber = null;
-
-    private int iHDLCTimeoutProperty;
-    private int iProtocolRetriesProperty;
-    private int iSecurityLevelProperty;
-    private int iRequestTimeZone;
-    private int iRoundtripCorrection;
-    private int iClientMacAddress;
-    private int iServerUpperMacAddress;
-    private int iServerLowerMacAddress;
-    private String firmwareVersion;
-    private int alarmStatusFlagChannel;
-
-    private CapturedObjects capturedObjects = null;
-
-    private DLMSConnection dlmsConnection = null;
-    private CosemObjectFactory cosemObjectFactory = null;
-    private StoredValuesImpl storedValues = null;
-
-    private ObisCodeMapper ocm = null;
-
-    // Lazy initializing
-    private int numberOfChannels = -1;
-    private int configProgramChanges = -1;
-
-    private int statusAlarmChannelIndex = -1;
-
     // interval alarm status flags
     private static final int EXTERNAL_CLOCK_INCOHERENCE = 1;
     private static final int NON_VOLATILE_MEMORY_NON_FATAL_ERROR = 2;
@@ -152,11 +108,92 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     private static final int BATTERY = 4096;
     private static final int EXCESS_DEMAND = 8192;
     private static final int PARAMETER_PROGRAMMING = 16384;
-
+    private static final byte[] aarqlowlevel17 = {
+            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
+            (byte) 0x60, // AARQ
+            (byte) 0x37, // bytes to follow
+            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
+            (byte) 0xAA, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
+            (byte) 0xAB, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
+    private static final byte[] aarqlowlevel17_2 = {
+            (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
+            (byte) 0x01, // initiate request
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
+            (byte) 0x06,  // dlms version nr
+            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
+            (byte) 0x21, (byte) 0x34};
+    private static final byte[] aarqlowlevelANY = {
+            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
+            (byte) 0x60, // AARQ
+            (byte) 0x35, // bytes to follow
+            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07,
+            (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
+            (byte) 0x8A, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
+            (byte) 0x8B, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
+    private static final byte[] aarqlowlevelANY_2 = {(byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
+            (byte) 0x01, // initiate request
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
+            (byte) 0x06,  // dlms version nr
+            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
+            (byte) 0x21, (byte) 0x34};
+    private static final byte[] aarqlowestlevel = {
+            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
+            (byte) 0x60, // AARQ
+            (byte) 0x1C, // bytes to follow
+            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
+            (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
+            (byte) 0x01, // initiate request
+            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
+            (byte) 0x06,  // dlms version nr
+            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
+            (byte) 0xFF, (byte) 0xFF};
+    private static final byte AARE_APPLICATION_CONTEXT_NAME = (byte) 0xA1;
+    private static final byte AARE_RESULT = (byte) 0xA2;
+    private static final byte AARE_RESULT_SOURCE_DIAGNOSTIC = (byte) 0xA3;
+    private static final byte AARE_USER_INFORMATION = (byte) 0xBE;
+    private static final byte AARE_TAG = 0x61;
+    private static final byte ACSE_SERVICE_USER = (byte) 0xA1;
+    private static final byte ACSE_SERVICE_PROVIDER = (byte) 0xA2;
+    private static final byte DLMS_PDU_INITIATE_RESPONSE = (byte) 0x08;
+    private static final byte DLMS_PDU_CONFIRMED_SERVICE_ERROR = (byte) 0x0E;
+    // status bitstring has 6 used bits
+    private static final int EV_WATCHDOG_RESET = 0x04;
+    private static final int EV_DST = 0x08;
+    //private static final int EV_EXTERNAL_CLOCK_SYNC=0x10;
+    //private static final int EV_CLOCK_SETTINGS=0x20;
+    private static final int EV_ALL_CLOCK_SETTINGS = 0x30;
+    private static final int EV_POWER_FAILURE = 0x40;
+    private static final int EV_START_OF_MEASUREMENT = 0x80;
+    private final PropertySpecService propertySpecService;
+    private int iInterval = 0;
+    private ScalerUnit[] demandScalerUnits = null;
+    private String version = null;
+    private String nodeId;
+    private String strID = null;
+    private String strPassword = null;
+    private String serialNumber = null;
+    private int iHDLCTimeoutProperty;
+    private int iProtocolRetriesProperty;
+    private int iSecurityLevelProperty;
+    private int iRequestTimeZone;
+    private int iRoundtripCorrection;
+    private int iClientMacAddress;
+    private int iServerUpperMacAddress;
+    private int iServerLowerMacAddress;
+    private String firmwareVersion;
+    private int alarmStatusFlagChannel;
+    private CapturedObjects capturedObjects = null;
+    private DLMSConnection dlmsConnection = null;
+    private CosemObjectFactory cosemObjectFactory = null;
+    private StoredValuesImpl storedValues = null;
+    private ObisCodeMapper ocm = null;
+    // Lazy initializing
+    private int numberOfChannels = -1;
+    private int configProgramChanges = -1;
+    private int statusAlarmChannelIndex = -1;
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
     private TimeZone timeZone = null;
-
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("SLB");
     private DLMSCache dlmsCache = new DLMSCache();
     private int extendedLogging;
@@ -197,50 +234,6 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
             throw new IOException(e.getMessage());
         }
     }
-
-    private static final byte[] aarqlowlevel17 = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x60, // AARQ
-            (byte) 0x37, // bytes to follow
-            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
-            (byte) 0xAA, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
-            (byte) 0xAB, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-
-    private static final byte[] aarqlowlevel17_2 = {
-            (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
-            (byte) 0x01, // initiate request
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
-            (byte) 0x06,  // dlms version nr
-            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
-            (byte) 0x21, (byte) 0x34};
-
-    private static final byte[] aarqlowlevelANY = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x60, // AARQ
-            (byte) 0x35, // bytes to follow
-            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07,
-            (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
-            (byte) 0x8A, (byte) 0x02, (byte) 0x07, (byte) 0x80, // ACSE requirements
-            (byte) 0x8B, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x02, (byte) 0x01};
-
-    private static final byte[] aarqlowlevelANY_2 = {(byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
-            (byte) 0x01, // initiate request
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
-            (byte) 0x06,  // dlms version nr
-            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
-            (byte) 0x21, (byte) 0x34};
-
-    private static final byte[] aarqlowestlevel = {
-            (byte) 0xE6, (byte) 0xE6, (byte) 0x00,
-            (byte) 0x60, // AARQ
-            (byte) 0x1C, // bytes to follow
-            (byte) 0xA1, (byte) 0x09, (byte) 0x06, (byte) 0x07, (byte) 0x60, (byte) 0x85, (byte) 0x74, (byte) 0x05, (byte) 0x08, (byte) 0x01, (byte) 0x01, //application context name , LN no ciphering
-            (byte) 0xBE, (byte) 0x0F, (byte) 0x04, (byte) 0x0D,
-            (byte) 0x01, // initiate request
-            (byte) 0x00, (byte) 0x00, (byte) 0x00, // unused parameters
-            (byte) 0x06,  // dlms version nr
-            (byte) 0x5F, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x10, (byte) 0x1D, // proposed conformance
-            (byte) 0xFF, (byte) 0xFF};
 
     private byte[] getLowLevelSecurity() {
         if ("1.7".compareTo(firmwareVersion) == 0) {
@@ -302,19 +295,6 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         }
 
     }
-
-    private static final byte AARE_APPLICATION_CONTEXT_NAME = (byte) 0xA1;
-    private static final byte AARE_RESULT = (byte) 0xA2;
-    private static final byte AARE_RESULT_SOURCE_DIAGNOSTIC = (byte) 0xA3;
-    private static final byte AARE_USER_INFORMATION = (byte) 0xBE;
-
-    private static final byte AARE_TAG = 0x61;
-
-    private static final byte ACSE_SERVICE_USER = (byte) 0xA1;
-    private static final byte ACSE_SERVICE_PROVIDER = (byte) 0xA2;
-
-    private static final byte DLMS_PDU_INITIATE_RESPONSE = (byte) 0x08;
-    private static final byte DLMS_PDU_CONFIRMED_SERVICE_ERROR = (byte) 0x0E;
 
     private void CheckAARE(byte[] responseData) throws IOException {
         int i;
@@ -664,15 +644,6 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return calendar;
 
     }
-
-    // status bitstring has 6 used bits
-    private static final int EV_WATCHDOG_RESET = 0x04;
-    private static final int EV_DST = 0x08;
-    //private static final int EV_EXTERNAL_CLOCK_SYNC=0x10;
-    //private static final int EV_CLOCK_SETTINGS=0x20;
-    private static final int EV_ALL_CLOCK_SETTINGS = 0x30;
-    private static final int EV_POWER_FAILURE = 0x40;
-    private static final int EV_START_OF_MEASUREMENT = 0x80;
 
     private Calendar parseProfileStartDate(DataStructure dataStructure, Calendar calendar) throws IOException {
         if (isNewDate(dataStructure.getStructure(0).getOctetString(0).getArray())) {
@@ -1268,23 +1239,6 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         }
     }
 
-    class InitiateResponse {
-
-        byte bNegotiatedQualityOfService;
-        byte bNegotiatedDLMSVersionNR;
-        long lNegotiatedConformance;
-        short sServerMaxReceivePduSize;
-        short sVAAName;
-
-        InitiateResponse() {
-            bNegotiatedQualityOfService = 0;
-            bNegotiatedDLMSVersionNR = 0;
-            lNegotiatedConformance = 0;
-            sServerMaxReceivePduSize = 0;
-            sVAAName = 0;
-        }
-    }
-
     /**
      * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references.
      * This method must be executed before other request methods.
@@ -1434,43 +1388,13 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     }
 
     @Override
-    public void setCache(Serializable cacheObject) {
-        this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    @Override
     public Serializable getCache() {
         return dlmsCache;
     }
 
     @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        if (deviceId != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-            RtuDLMS rtu = new RtuDLMS(deviceId);
-            try {
-                return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
-            } catch (NotFoundException e) {
-                return new DLMSCache(null, -1);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-                RtuDLMS rtu = new RtuDLMS(deviceId);
-                rtuCache.saveObjectList(dc.getObjectList(), connection);
-                rtu.setConfProgChange(dc.getConfProgChange(), connection);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
+    public void setCache(Serializable cacheObject) {
+        this.dlmsCache = (DLMSCache) cacheObject;
     }
 
     @Override
@@ -1556,6 +1480,23 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
+    }
+
+    class InitiateResponse {
+
+        byte bNegotiatedQualityOfService;
+        byte bNegotiatedDLMSVersionNR;
+        long lNegotiatedConformance;
+        short sServerMaxReceivePduSize;
+        short sVAAName;
+
+        InitiateResponse() {
+            bNegotiatedQualityOfService = 0;
+            bNegotiatedDLMSVersionNR = 0;
+            lNegotiatedConformance = 0;
+            sServerMaxReceivePduSize = 0;
+            sVAAName = 0;
+        }
     }
 
 }

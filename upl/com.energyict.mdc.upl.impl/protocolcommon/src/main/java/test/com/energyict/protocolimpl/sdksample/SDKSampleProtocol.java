@@ -10,11 +10,12 @@
 
 package test.com.energyict.protocolimpl.sdksample;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.CachingProtocol;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -29,10 +30,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -47,7 +44,6 @@ import com.energyict.protocolimpl.base.CacheObject;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -55,8 +51,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -148,7 +142,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         builder.append(msgTag.getName());
 
         // b. Attributes
-        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext();) {
+        for (Iterator<MessageAttribute> it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = it.next();
             if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
@@ -159,7 +153,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         builder.append(">");
 
         // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext();) {
+        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
                 builder.append(writeTag((MessageTag) elt));
@@ -386,7 +380,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2014-06-20 14:07:47 +0200 (Fri, 20 Jun 2014) $";
+        return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
     }
 
     @Override
@@ -444,30 +438,6 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     @Override
     public void setCache(Serializable cacheObject) {
         this.cache = (CacheObject) cacheObject;
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            /* Use the RTUCache to set the blob (cache) to the database */
-            RTUCache rtu = new RTUCache(deviceId);
-            rtu.setBlob(cacheObject, connection);
-        }
-    }
-
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        if (deviceId != 0) {
-            /* Use the RTUCache to get the blob from the database */
-            RTUCache rtu = new RTUCache(deviceId);
-            try {
-                return rtu.getCacheObject(connection);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-        return null;
     }
 
     private boolean isSimulateRealCommunication() {

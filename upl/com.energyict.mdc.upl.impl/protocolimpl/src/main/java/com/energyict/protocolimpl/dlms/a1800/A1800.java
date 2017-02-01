@@ -1,14 +1,11 @@
 package com.energyict.protocolimpl.dlms.a1800;
 
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.cache.CachingProtocol;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CachingProtocol;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -20,8 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
@@ -29,23 +24,20 @@ import java.util.logging.Logger;
 
 /**
  * Main class for A1800 protocol
- * <p/>
+ * <p>
  * Created by heuckeg on 13.06.2014.
  */
 @SuppressWarnings("unused")
 public class A1800 extends AbstractDlmsSessionProtocol implements SerialNumberSupport, CachingProtocol {
 
     static final ObisCode CLOCK_OBIS_CODE = ObisCode.fromString("0.0.1.0.0.255");
-
+    protected final A1800Properties properties;
     private OutputStream outputStream;
     private A1800MeterInfo info;
-
     private A1800Profile loadProfile;
     private A1800EventLog eventLog;
     private ProfileCacheImpl cache = new ProfileCacheImpl();
     private RegisterReader registerReader = null;
-
-    protected final A1800Properties properties;
 
     public A1800(PropertySpecService propertySpecService) {
         this.properties = new A1800Properties(propertySpecService);
@@ -188,15 +180,6 @@ public class A1800 extends AbstractDlmsSessionProtocol implements SerialNumberSu
         if ((cache != null) && (cache instanceof ProfileCacheImpl)) {
             this.cache = (ProfileCacheImpl) cache;
         }
-    }
-
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        return null;
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
     }
 
 }

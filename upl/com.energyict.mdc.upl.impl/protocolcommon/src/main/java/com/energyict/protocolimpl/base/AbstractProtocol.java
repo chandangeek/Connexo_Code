@@ -426,16 +426,6 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     }
 
     @Override
-    public void setDialinScheduleTime(Date date) throws IOException {
-        throw new UnsupportedException();
-    }
-
-    @Override
-    public void setPhoneNr(String phoneNr) throws IOException {
-        //throw new UnsupportedException();
-    }
-
-    @Override
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
         throw new IOException("Not implemented!");
     }

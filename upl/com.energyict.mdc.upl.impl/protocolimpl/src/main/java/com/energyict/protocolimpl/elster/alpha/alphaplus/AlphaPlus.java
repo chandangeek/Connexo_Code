@@ -331,7 +331,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         return alphaConnection;
     }
 
-    @Override
+    //This used to implement the DialinScheduleProtocol interface
     public void setDialinScheduleTime(Date date) throws IOException {
         // Programm class31
         Calendar cal = ProtocolUtils.getCleanCalendar(getTimeZone());
@@ -346,7 +346,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
         getCommandFactory().getFunctionWithDataCommand().billingReadDialin(date,getTimeZone());
     }
 
-    @Override
+    //This used to implement the DialinScheduleProtocol interface
     public void setPhoneNr(String phoneNr) throws IOException {
 
         Class31ModemBillingCallConfiguration o = getClassFactory().getClass31ModemBillingCallConfiguration();

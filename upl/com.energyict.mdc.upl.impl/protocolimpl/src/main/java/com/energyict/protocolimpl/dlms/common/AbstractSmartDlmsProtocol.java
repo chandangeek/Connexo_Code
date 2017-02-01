@@ -1,9 +1,5 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
@@ -11,16 +7,13 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.ProtocolProperties;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Level;
@@ -34,6 +27,10 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      * The used {@link com.energyict.dlms.DlmsSession}
      */
     protected DlmsSession dlmsSession;
+    /**
+     * The {@link DLMSCache} of the current RTU
+     */
+    protected DLMSCache dlmsCache;
 
     /**
      * <p></p>
@@ -49,13 +46,6 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
             getLogger().log(Level.FINEST, e.getMessage());
             throw new IOException("Could not retrieve the Clock object. " + e);
         }
-    }
-
-    /**
-     * Used by sub protocols that implement ProtocolLink
-     */
-    public ApplicationServiceObject getAso() {
-        return getDlmsSession().getAso();
     }
 
     /**
@@ -76,9 +66,11 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     }
 
     /**
-     * The {@link DLMSCache} of the current RTU
+     * Used by sub protocols that implement ProtocolLink
      */
-    protected DLMSCache dlmsCache;
+    public ApplicationServiceObject getAso() {
+        return getDlmsSession().getAso();
+    }
 
     /**
      * Getter for the {@link DlmsProtocolProperties}
@@ -203,6 +195,11 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
         return dlmsCache;
     }
 
+    @Override
+    public void setCache(Serializable cacheObject) {
+        this.dlmsCache = (DLMSCache) cacheObject;
+    }
+
     /**
      * The name under which the file will be save in the OperatingSystem.
      *
@@ -211,37 +208,6 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
     public String getFileName() {
         final Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + getProperties().getSerialNumber() + "_SimpleDLMS.cache";
-    }
-
-    @Override
-    public void setCache(Serializable cacheObject) {
-        this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        if (deviceId != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-            RtuDLMS rtu = new RtuDLMS(deviceId);
-            return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-                RtuDLMS rtu = new RtuDLMS(deviceId);
-                rtuCache.saveObjectList(dc.getObjectList(), connection);
-                rtu.setConfProgChange(dc.getConfProgChange(), connection);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
     }
 
     /**

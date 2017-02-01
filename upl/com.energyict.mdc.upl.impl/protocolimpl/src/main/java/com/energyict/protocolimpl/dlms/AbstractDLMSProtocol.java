@@ -1,14 +1,5 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.CosemPDUConnection;
@@ -31,11 +22,16 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -44,8 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -71,6 +65,11 @@ import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.MAX_
  */
 public abstract class AbstractDLMSProtocol extends AbstractProtocol implements ProtocolLink, HHUEnabler {
 
+    protected static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
+    protected static final String PROPNAME_CONNECTION = "Connection";
+    protected static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
+    protected static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
+    protected static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
     private static final int CONNECTION_MODE_HDLC = 0;
     private static final int CONNECTION_MODE_TCPIP = 1;
     private static final int CONNECTION_MODE_COSEM_PDU = 2;
@@ -93,13 +92,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     private static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
     private static final String ISKRA_WRAPPER_DEFAULT = "1";
     private static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT = "1";
-
-    protected static final String PROPNAME_INFORMATION_FIELD_SIZE = "InformationFieldSize";
-    protected static final String PROPNAME_CONNECTION = "Connection";
-    protected static final String PROPNAME_CLIENT_MAC_ADDRESS = "ClientMacAddress";
-    protected static final String PROPNAME_SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
-    protected static final String PROPNAME_SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
-
     protected ApplicationServiceObject aso;
     protected DLMSCache dlmsCache;
     protected ConformanceBlock conformanceBlock;
@@ -202,23 +194,6 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 
     protected void setCache(Serializable cacheObject) {
         this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    protected Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        if (deviceId != 0) {
-            /* Use the RTUCache to get the blob from the database */
-            RTUCache rtu = new RTUCache(deviceId);
-            return rtu.getCacheObject(connection);
-        }
-        return null;
-    }
-
-    protected void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            /* Use the RTUCache to set the blob (cache) to the database */
-            RTUCache rtu = new RTUCache(deviceId);
-            rtu.setBlob(cacheObject, connection);
-        }
     }
 
     @Override

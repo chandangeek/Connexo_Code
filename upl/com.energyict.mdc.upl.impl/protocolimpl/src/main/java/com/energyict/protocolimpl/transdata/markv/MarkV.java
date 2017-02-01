@@ -216,7 +216,7 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
         }
     }
 
-    @Override
+    //This used to implement the DialinScheduleProtocol interface
     public void setDialinScheduleTime(Date nextDialin) throws IOException {
         Date nd = new Date(nextDialin.getTime() - nextDialin.getTime()%60000);
         getCommandFactory().issueTCCommand(nd);

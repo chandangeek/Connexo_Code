@@ -10,14 +10,13 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -157,7 +156,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:13 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
     }
 
     @Override
@@ -197,7 +196,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
         }
 
         for (int i=0;i<passwords.size();i++) {
-            String password = (String)passwords.get(i);
+            String password = passwords.get(i);
             try {
                 TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
                 properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), password);
@@ -295,7 +294,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
         return alphaBasicProfile;
     }
 
-    @Override
+    //This used to implement the DialinScheduleProtocol interface
     public void setDialinScheduleTime(Date date) throws IOException {
         getCommandFactory().getFunctionWithDataCommand().billingReadDialin(date,getTimeZone());
     }

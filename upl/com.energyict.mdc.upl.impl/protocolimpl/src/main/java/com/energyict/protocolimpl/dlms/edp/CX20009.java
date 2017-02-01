@@ -1,9 +1,14 @@
 package com.energyict.protocolimpl.dlms.edp;
 
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -13,14 +18,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -35,9 +32,6 @@ import com.energyict.protocolimpl.dlms.edp.registers.EDPStoredValues;
 import com.energyict.protocolimpl.dlms.edp.registers.RegisterReader;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -85,7 +79,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Thu Dec 29 12:02:33 2016 +0100 $";
     }
 
     @Override
@@ -273,26 +267,6 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
             storedValues = new EDPStoredValues(this);
         }
         return storedValues;
-    }
-
-    @Override
-    public void setCache(Serializable cacheObject) {
-        super.setCache(cacheObject);
-    }
-
-    @Override
-    public Serializable getCache() {
-        return super.getCache();
-    }
-
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        return super.fetchCache(deviceId, connection);
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        super.updateCache(deviceId, cacheObject, connection);
     }
 
     @Override

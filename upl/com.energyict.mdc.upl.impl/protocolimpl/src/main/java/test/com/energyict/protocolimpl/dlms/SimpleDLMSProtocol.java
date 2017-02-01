@@ -1,13 +1,32 @@
 package test.com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.SecureConnection;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
@@ -15,16 +34,16 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.dlms.RtuDLMS;
-import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
@@ -32,13 +51,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.*;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * <p>
@@ -49,73 +77,64 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.*;
  */
 public class SimpleDLMSProtocol extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, CacheMechanism, SerialNumberSupport {
 
+    private static final int CONNECTION_MODE_HDLC = 0;
+    private static final int CONNECTION_MODE_TCPIP = 1;
+    private static final int MAX_PDU_SIZE = 200;
+    private static final int PROPOSED_QOS = -1;
+    private static final int PROPOSED_DLMS_VERSION = 6;
     private final PropertySpecService propertySpecService;
-
     /**
      * The {@link com.energyict.dlms.aso.ConformanceBlock} used
      */
     private ConformanceBlock conformanceBlock;
-
     /**
      * The {@link com.energyict.dlms.aso.XdlmsAse} used
      */
     private XdlmsAse xdlmsAse;
-
     /**
      * The {@link com.energyict.dlms.InvokeIdAndPriority} used
      */
     private InvokeIdAndPriority invokeIdAndPriority;
-
     /**
      * The {@link com.energyict.dlms.cosem.CosemObjectFactory} used
      */
     private CosemObjectFactory cosemObjectFactory;
-
     /**
      * The {@link com.energyict.dlms.DLMSConnection} used
      */
     private DLMSConnection dlmsConnection;
-
     /**
      * The {@link com.energyict.dlms.DLMSMeterConfig} used
      */
     private DLMSMeterConfig dlmsMeterConfig;
-
     /**
      * The {@link com.energyict.dlms.aso.ApplicationServiceObject} used
      */
     private ApplicationServiceObject aso;
-
     /**
      * The {@link com.energyict.dlms.aso.SecurityProvider} used for DLMS communication
      */
     private SecurityProvider securityProvider;
-
     /**
      * The {@link Properties} of the current RTU
      */
     private Properties properties;
-
     /**
      * The {@link Logger} provided by the ComServer
      */
     private Logger logger;
-
     /**
      * The {@link TimeZone} provided by the ComServer
      */
     private TimeZone timeZone = null;
-
     /**
      * The used {@link com.energyict.dlms.aso.SecurityContext}
      */
     private SecurityContext securityContext;
-
     /**
      * The used {@link com.energyict.dlms.DLMSCache}
      */
     private DLMSCache dlmsCache = new DLMSCache();
-
     /* Properties */
     private int connectionMode;
     private int datatransportSecurityLevel;
@@ -140,16 +159,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     private String serialNumber;
     private String nodeId;
     private String deviceId;
-
     private int iConfigProgramChange = -1;
-
-
-    private static final int CONNECTION_MODE_HDLC = 0;
-    private static final int CONNECTION_MODE_TCPIP = 1;
-
-    private static final int MAX_PDU_SIZE = 200;
-    private static final int PROPOSED_QOS = -1;
-    private static final int PROPOSED_DLMS_VERSION = 6;
 
     public SimpleDLMSProtocol(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -622,43 +632,13 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     }
 
     @Override
-    public void setCache(Serializable cacheObject) {
-        this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    @Override
     public Serializable getCache() {
         return dlmsCache;
     }
 
     @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        if (deviceId != 0) {
-            RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-            RtuDLMS rtu = new RtuDLMS(deviceId);
-            try {
-                return new DLMSCache(rtuCache.getObjectList(connection), rtu.getConfProgChange(connection));
-            } catch (NotFoundException e) {
-                return new DLMSCache(null, -1);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.contentChanged()) {
-                RtuDLMSCache rtuCache = new RtuDLMSCache(deviceId);
-                RtuDLMS rtu = new RtuDLMS(deviceId);
-                rtuCache.saveObjectList(dc.getObjectList(), connection);
-                rtu.setConfProgChange(dc.getConfProgChange(), connection);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
+    public void setCache(Serializable cacheObject) {
+        this.dlmsCache = (DLMSCache) cacheObject;
     }
 
     @Override

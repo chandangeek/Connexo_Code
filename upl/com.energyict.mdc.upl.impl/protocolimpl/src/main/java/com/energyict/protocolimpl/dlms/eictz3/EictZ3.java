@@ -116,7 +116,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1546,16 +1545,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             throw new IllegalArgumentException("This protocol expects a cache object of type [" + DLMSCache.class.getName() + "], you provided an object of type [" + cacheObject + "], which is not compatible with this implementation !");
         }
         this.dlmsCache = (DLMSCache) cacheObject;
-    }
-
-    @Override
-    public Serializable fetchCache(int deviceId, Connection connection) {
-        throw new UnsupportedOperationException("Fetching caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) {
-        throw new UnsupportedOperationException("Updating caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
     }
 
     @Override

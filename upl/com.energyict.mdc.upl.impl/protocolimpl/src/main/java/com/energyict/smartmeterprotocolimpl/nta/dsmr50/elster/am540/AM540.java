@@ -1,7 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.upl.cache.ProtocolCacheFetchException;
-import com.energyict.mdc.upl.cache.ProtocolCacheUpdateException;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
@@ -9,17 +13,8 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.NotFoundException;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocolimpl.base.RTUCache;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
@@ -29,15 +24,13 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.registers.AM
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 
 /**
  * Protocol for the Elster AM540 module (connected to an AS3000 e-meter), following the DSMR 5.0 spec.
  * This is a hybrid supporting both the DSMR4.0 functionality and the G3 PLC objects.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Author: khe
  */
@@ -82,20 +75,6 @@ public class AM540 extends E350 {
     }
 
     @Override
-    public Serializable fetchCache(int deviceId, Connection connection) throws SQLException, ProtocolCacheFetchException {
-        if (deviceId != 0) {
-            RTUCache rtuCache = new RTUCache(deviceId);
-            try {
-                return rtuCache.getCacheObject(connection);
-            } catch (NotFoundException e) {
-                return new AM540Cache(null, -1);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
-    }
-
-    @Override
     protected void checkCacheObjects() throws IOException {
         int readCacheProperty = getProperties().getForcedToReadCache();
         if (getCache() == null) {
@@ -115,18 +94,6 @@ public class AM540 extends E350 {
             getLogger().info("Cache exist, will not be read!");
         }
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getCache()).getObjectList());
-    }
-
-    @Override
-    public void updateCache(int deviceId, Serializable cacheObject, Connection connection) throws SQLException, ProtocolCacheUpdateException {
-        if (deviceId != 0) {
-            AM540Cache dc = (AM540Cache) cacheObject;
-            if (dc.contentChanged()) {
-                new RTUCache(deviceId).setBlob(dc, connection);
-            }
-        } else {
-            throw new IllegalArgumentException("invalid RtuId!");
-        }
     }
 
     /**
@@ -199,7 +166,7 @@ public class AM540 extends E350 {
      * - every normal register, extended register and demand register
      * - all data registers that contain a simple number, enum or string value
      * - G3 PLC object attributes
-     * <p/>
+     * <p>
      * Note: a maximum of 5 registers can be read out in bulk (should always be less than 16 attributes)
      */
     @Override
