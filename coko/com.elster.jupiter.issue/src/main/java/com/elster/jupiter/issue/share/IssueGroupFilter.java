@@ -37,9 +37,17 @@ public interface IssueGroupFilter {
 
     Collection<String> getStatuses();
 
+    Collection<String> getClearedStatuses();
+
     IssueGroupFilter withStatuses(Collection<String> statuses);
 
+    IssueGroupFilter withClearedStatuses(Collection<String> clearedStatuses);
+
     IssueGroupFilter withUserAssignee(long id);
+
+    IssueGroupFilter withId(String id);
+
+    String getId();
 
     IssueGroupFilter withAssignee(long id, String type);
 

@@ -39,6 +39,17 @@ public enum IssueGroupRealization {
             return new GroupByAssigneeImpl(dataModel, thesaurus);
         }
     },
+    WORKGROUP {
+        @Override
+        public String getKey() {
+            return "workgroupAssignee";
+        }
+
+        @Override
+        IssuesGroupOperation getOperation(DataModel dataModel, Thesaurus thesaurus) {
+            return new GroupByWorkGroupAssigneeImpl(dataModel, thesaurus);
+        }
+    },
     TYPE {
         @Override
         public String getKey() {

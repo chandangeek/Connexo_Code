@@ -16,9 +16,11 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     private Object key;
     private long to;
     private long from;
+    private String id;
     private boolean isAsc = true;
     private Class<?> sourceClass;
     private Set<String> statuses;
+    private Set<String> clearedStatuses;
     private String groupBy;
     private List<Long> userAssignees;
     private String meterName;
@@ -28,6 +30,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
 
     public IssueGroupFilterImpl() {
         this.statuses = new HashSet<>();
+        this.clearedStatuses = new HashSet<>();
         this.userAssignees = new ArrayList<>();
         this.workGroupAssignees = new ArrayList<>();
         this.issueTypes = new HashSet<>();
@@ -117,6 +120,11 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
         return Collections.unmodifiableSet(statuses);
     }
 
+    @Override
+    public Collection<String> getClearedStatuses() {
+        return Collections.unmodifiableSet(clearedStatuses);
+    }
+
     /**
      * Only issues which have one of passed statuses will be used for grouping and counting
      * @param statuses list which contains keys of allowed statuses
@@ -131,9 +139,28 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
     }
 
     @Override
+    public IssueGroupFilterImpl withClearedStatuses(Collection<String> clearedStatuses) {
+        if (clearedStatuses != null) {
+            this.clearedStatuses = clearedStatuses.stream().map(this::getSafeString).collect(Collectors.toSet());
+        }
+        return this;
+    }
+
+    @Override
     public IssueGroupFilter withUserAssignee(long id) {
         this.userAssignees.add(id);
         return this;
+    }
+
+    @Override
+    public IssueGroupFilter withId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    @Override
+    public String getId(){
+        return this.id;
     }
 
     @Override
