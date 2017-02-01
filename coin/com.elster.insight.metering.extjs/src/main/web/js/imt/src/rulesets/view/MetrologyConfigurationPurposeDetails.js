@@ -21,7 +21,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposeDetails', {
         },
         {
             itemId: 'metrology-configuration-status-field',
-            name: 'isActive',
+            name: 'active',
             fieldLabel: Uni.I18n.translate('general.metrologyConfigurationStatus', 'IMT', 'Metrology configuration status'),
             renderer: function (value) {
                 return value
@@ -31,11 +31,8 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposeDetails', {
         },
         {
             itemId: 'purpose-field',
-            name: 'metrologyContractInfo',
-            fieldLabel: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose'),
-            renderer: function (value) {
-                return value.name
-            }
+            name: 'name',
+            fieldLabel: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose')
         },
         {
             xtype: 'fieldcontainer',

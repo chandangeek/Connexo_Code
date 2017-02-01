@@ -27,7 +27,7 @@ Ext.define('Imt.rulesets.controller.mixins.AddPurposesCommon', {
 
         function formatData() {
             return _.map(records, function (record) {
-                return record.get('metrologyContractInfo');
+                return record.getRecordData();
             });
         }
 

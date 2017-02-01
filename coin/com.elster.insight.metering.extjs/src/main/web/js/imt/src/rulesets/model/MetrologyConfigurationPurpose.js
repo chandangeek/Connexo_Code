@@ -1,8 +1,6 @@
 Ext.define('Imt.rulesets.model.MetrologyConfigurationPurpose', {
-    extend: 'Ext.data.Model',
-    fields: ['isActive', 'metrologyConfigurationInfo', 'outputs', 'metrologyContractInfo',
-        {name: 'id', mapping: 'metrologyContractInfo.id'}
-    ],
+    extend: 'Uni.model.Version',
+    fields: ['active', 'name', 'metrologyConfigurationInfo', 'outputs'],
     proxy: {
         type: 'rest',
         url: '/api/ucr/validationrulesets/{ruleSetId}/purposes',

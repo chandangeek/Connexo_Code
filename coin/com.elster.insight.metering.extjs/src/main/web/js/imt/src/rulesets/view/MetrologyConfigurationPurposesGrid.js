@@ -27,7 +27,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
             },
             {
                 header: Uni.I18n.translate('general.metrologyConfigurationStatus', 'IMT', 'Metrology configuration status'),
-                dataIndex: 'isActive',
+                dataIndex: 'active',
                 flex: 1,
                 renderer: function (value) {
                     return value
@@ -37,10 +37,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
             },
             {
                 header: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose'),
-                dataIndex: 'metrologyContractInfo',
-                renderer: function (value) {
-                    return value.name
-                },
+                dataIndex: 'name',
                 flex: 1
             },
             {
