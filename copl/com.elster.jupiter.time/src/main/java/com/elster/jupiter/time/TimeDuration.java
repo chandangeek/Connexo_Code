@@ -209,6 +209,10 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
         return new TimeDuration(count, MONTHS);
     }
 
+    public static TimeDuration years(int count) {
+        return new TimeDuration(count, YEARS);
+    }
+
     public static TimeDuration weeks(int count) {
         return new TimeDuration(count, WEEKS);
     }
