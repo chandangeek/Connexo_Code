@@ -26,9 +26,9 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
 
         me.items = [
             {
-                name: 'mrid',
-                itemId: 'fld-device-mrid',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID'),
+                name: 'name',
+                itemId: 'fld-device-name',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name'),
                 renderer: function (value) {
                     if (me.fullInfo && value && value.available) {
                         this.show();
@@ -40,9 +40,9 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 }
             },
             {
-                name: 'name',
-                itemId: 'fld-device-name',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.name', 'MDC', 'Name'),
+                name: 'mrid',
+                itemId: 'fld-device-mrid',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID'),
                 renderer: function (value) {
                     if (me.fullInfo && value && value.available) {
                         this.show();
@@ -132,6 +132,50 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         return null;
                     }
 
+                }
+            },
+            {
+                name: 'manufacturer',
+                itemId: 'fld-device-manufacturer',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.manufacturer', 'MDC', 'Manufacturer'),
+                renderer: function (value) {
+                    if (me.fullInfo) {
+                        this.show();
+                        return Ext.isEmpty(value.displayValue) ? '-' : Ext.String.htmlEncode(value.displayValue);
+                    } else {
+                        this.hide();
+                        return null;
+                    }
+
+                }
+            },
+            {
+                name: 'modelNbr',
+                itemId: 'fld-device-model-number',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelNumber', 'MDC', 'Model number'),
+                renderer: function (value) {
+                    if (me.fullInfo) {
+                        this.show();
+                        return Ext.isEmpty(value.displayValue) ? '-' : Ext.String.htmlEncode(value.displayValue);
+                    } else {
+                        this.hide();
+                        return null;
+                    }
+
+                }
+            },
+            {
+                name: 'modelVersion',
+                itemId: 'fld-device-model-version',
+                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelVersion', 'MDC', 'Model version'),
+                renderer: function (value) {
+                    if (me.fullInfo) {
+                        this.show();
+                        return Ext.isEmpty(value.displayValue) ? '-' : Ext.String.htmlEncode(value.displayValue);
+                    } else {
+                        this.hide();
+                        return null;
+                    }
                 }
             },
             {
