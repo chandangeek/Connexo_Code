@@ -10,6 +10,9 @@ public class DeviceShipmentImportRecord extends FileImportRecord {
     private String deviceConfiguration;
     private ZonedDateTime shipmentDate;
     private String serialNumber;
+    private String manufacturer;
+    private String modelNbr;
+    private String modelVersion;
     private Integer yearOfCertification;
     private String batch;
 
@@ -43,6 +46,30 @@ public class DeviceShipmentImportRecord extends FileImportRecord {
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public String getModelNbr() {
+        return modelNbr;
+    }
+
+    public void setModelNbr(String modelNbr) {
+        this.modelNbr = modelNbr;
+    }
+
+    public String getModelVersion() {
+        return modelVersion;
+    }
+
+    public void setModelVersion(String modelVersion) {
+        this.modelVersion = modelVersion;
     }
 
     public Integer getYearOfCertification() {

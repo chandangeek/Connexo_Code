@@ -41,6 +41,18 @@ public class DeviceShipmentImportDescription implements FileImportDescription<De
                 .withSetter(record::setDeviceConfiguration)
                 .markMandatory()
                 .build());
+        // Manufacturer
+        fields.add(CommonField.withParser(stringParser)
+                .withSetter(record::setManufacturer)
+                .build());
+        // Model number
+        fields.add(CommonField.withParser(stringParser)
+                .withSetter(record::setModelNbr)
+                .build());
+        // Model Version
+        fields.add(CommonField.withParser(stringParser)
+                .withSetter(record::setModelVersion)
+                .build());
         // Shipment date
         fields.add(CommonField.withParser(dateParser)
                 .withSetter(record::setShipmentDate)
@@ -50,6 +62,7 @@ public class DeviceShipmentImportDescription implements FileImportDescription<De
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setSerialNumber)
                 .build());
+
         // Year or certification
         fields.add(CommonField.withParser(new NumberParser())
                 .withSetter(number -> record.setYearOfCertification(number != null ? number.intValue() : null))
