@@ -32,7 +32,7 @@ Ext.define('Dxp.view.tasks.HistoryFilter', {
             },
             {
                 type: 'combobox',
-                itemId: 'cbo-import-service',
+                itemId: 'cbo-export-task',
                 dataIndex: 'exportTask',
                 emptyText: Uni.I18n.translate('general.exportTask', 'DES', 'Export task'),
                 displayField: 'name',
@@ -44,6 +44,7 @@ Ext.define('Dxp.view.tasks.HistoryFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'status',
+                itemId: 'cbo-status',
                 emptyText: Uni.I18n.translate('general.status', 'DES', 'Status'),
                 multiSelect: true,
                 displayField: 'display',

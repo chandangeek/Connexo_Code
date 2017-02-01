@@ -73,6 +73,7 @@ Ext.define('Dxp.view.tasks.History', {
                 {
                     dock: 'top',
                     xtype: 'dxp-view-tasks-historyfilter',
+                    itemId: 'dxp-view-tasks-historyfilter-id',
                     showExportTask: me.showExportTask
                 }
             ]
