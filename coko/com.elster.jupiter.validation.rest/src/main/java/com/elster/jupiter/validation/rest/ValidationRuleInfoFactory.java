@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -17,11 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/05/15
- * Time: 10:09
- */
 public class ValidationRuleInfoFactory {
 
     private final PropertyValueInfoService propertyValueInfoService;
