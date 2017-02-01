@@ -8,7 +8,9 @@ import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.util.HasName;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,8 +51,10 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
-            List<HasIdAndName> value = (List<HasIdAndName>) domainValue;
-            return value.stream().map(HasIdAndName::getId).collect(Collectors.toList());
+            List<Object> nameList = ((List<Object>) domainValue).stream().filter(value -> (value instanceof HasName) && !(value instanceof HasIdAndName)).map(value -> ((HasName) value).getName()).collect(Collectors.toList());
+            List<Object> idAndnameList = ((List<Object>) domainValue).stream().filter(value -> value instanceof HasIdAndName).map(value -> ((HasIdAndName) value).getId()).collect(Collectors.toList());
+            idAndnameList.addAll(nameList);
+            return idAndnameList;
         }
         return null;
     }
