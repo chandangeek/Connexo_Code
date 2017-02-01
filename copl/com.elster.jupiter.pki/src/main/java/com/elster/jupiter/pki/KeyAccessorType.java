@@ -52,6 +52,13 @@ public interface KeyAccessorType {
      */
     KeyType getKeyType();
 
+    /**
+     * KeyEncryptionMethod describes how the key will be stored. KeyEncryptionMethods are registered through whiteboard
+     * on the KeyService
+     * @return The KeyEncryptionMethod as a name
+     */
+    String getKeyEncryptionMethod();
+
     interface Builder {
         Builder description(String description);
         Builder duration(TimeDuration duration);
