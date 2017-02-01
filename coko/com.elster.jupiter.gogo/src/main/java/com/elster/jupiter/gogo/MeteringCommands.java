@@ -278,6 +278,8 @@ public class MeteringCommands {
                     return time.plusDays(1);
                 case MONTHLY:
                     return time.plusMonths(1);
+                case YEARLY:
+                    return time.plusYears(1);
                 case WEEKLYS:
                     return time.plusWeeks(1);
                 default:
