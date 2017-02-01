@@ -36,7 +36,7 @@ Ext.define('Dal.view.creationrules.Item', {
                         name: 'name'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.title.ruleTemplate', 'DAL', 'Template'),
+                        fieldLabel: Uni.I18n.translate('general.title.Template', 'DAL', 'Template'),
                         name: 'template_name'
                     },
                     {
