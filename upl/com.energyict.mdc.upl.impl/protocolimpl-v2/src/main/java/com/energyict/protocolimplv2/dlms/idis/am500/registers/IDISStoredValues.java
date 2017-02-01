@@ -54,11 +54,19 @@ public class IDISStoredValues implements StoredValues {
         if (!isValidBillingPoint(billingPoint)) {
             throw new NoSuchRegisterException("Billing point " + obisCode.getF() + " doesn't exist for obiscode " + baseObisCode + ".");
         }
-        int value = ((IntervalValue) getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(channelIndex - 1)).getNumber().intValue();
+        int reverseBillingPoint = getReversedBillingPoint(billingPoint);
+        ProfileData historicalProfileData = getProfileData();
+        IntervalData intervalData = historicalProfileData.getIntervalData(reverseBillingPoint);
+        IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(channelIndex - 1);
+        int value = intervalValue.getNumber().intValue();
+
+
         HistoricalRegister cosemValue = new HistoricalRegister();
         cosemValue.setQuantityValue(BigDecimal.valueOf(value), getUnit(baseObisCode));
 
-        return new HistoricalValue(cosemValue, getBillingPointTimeDate(getReversedBillingPoint(billingPoint)), new Date(), 0);
+        Date historicalDate = intervalData.getEndTime();
+
+        return new HistoricalValue(cosemValue, historicalDate, new Date(), 0);
     }
 
     protected int getReversedBillingPoint(int billingPoint) throws IOException {
@@ -78,11 +86,23 @@ public class IDISStoredValues implements StoredValues {
             Date timeStamp = new Date();
             List<IntervalValue> values = new ArrayList<>();
             for (int channel = 0; channel < structure.getNrOfElements(); channel++) {
-                if (channel == 0) {
-                    timeStamp = structure.getOctetString(0).toDate();
-                } else {
-                    value = new IntervalValue(structure.getInteger(channel), 0, 0);
-                    values.add(value);
+                try {
+                    if (channel == 0) {
+                        timeStamp = structure.getOctetString(0).toDate();
+                    } else {
+                        if (structure.isInteger(channel)) {
+                            value = new IntervalValue(structure.getInteger(channel), 0, 0);
+                        } else {
+                            value = new IntervalValue(null, 0, 0);
+                        }
+
+                        values.add(value);
+                    }
+                } catch (Exception ex){
+                    getProtocol().getLogger().warning(ex.getMessage());
+                    if (channel>0){
+                        values.add(new IntervalValue(null, 0, 0));
+                    }
                 }
             }
             intervalDatas.add(new IntervalData(timeStamp, 0, 0, 0, values));
@@ -107,7 +127,7 @@ public class IDISStoredValues implements StoredValues {
             }
             channelIndex++;
         }
-        throw new NoSuchRegisterException("Obiscode " + obisCode.toString() + " is not stored in the billing profile");
+        throw new NoSuchRegisterException("Obiscode " + obisCode.toString() + " is not stored in the billing profile. The captured objects are: "+captureObjects.toString());
     }
 
     public ProfileGeneric getProfileGeneric() throws NotInObjectListException {
