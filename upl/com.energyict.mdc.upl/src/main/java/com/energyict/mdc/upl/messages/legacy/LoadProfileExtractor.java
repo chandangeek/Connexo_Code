@@ -63,5 +63,6 @@ public interface LoadProfileExtractor {
     interface Register {
         String deviceSerialNumber();
         String obisCode();
+        int getRegisterId();
     }
 }
