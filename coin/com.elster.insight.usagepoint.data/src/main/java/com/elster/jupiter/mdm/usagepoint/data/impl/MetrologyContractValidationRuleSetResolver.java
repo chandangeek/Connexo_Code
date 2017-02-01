@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
@@ -11,8 +15,6 @@ import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.time.Clock;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
