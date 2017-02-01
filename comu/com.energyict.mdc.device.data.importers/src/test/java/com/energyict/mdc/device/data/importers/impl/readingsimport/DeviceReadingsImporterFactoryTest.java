@@ -487,6 +487,25 @@ public class DeviceReadingsImporterFactoryTest {
     }
 
     @Test
+    public void testReadingDateIncorrectYearlyReadingType() {
+        String csv = "Device name;Reading date;Reading type MRID;Reading Value;\n" +
+                "VPB0001;01/08/2015 00:00;1001.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;\n" +
+                "VPB0001;01/01/2016 00:00;1001.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        Channel channel = mockChannel(device, "1001.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        when(channel.getReadingType().getMacroPeriod()).thenReturn(MacroPeriod.YEARLY);
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.READING_DATE_INCORRECT_FOR_YEARLY_CHANNEL).format(2, "1001.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", context.getClock().getZone()));
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
+    }
+
+    @Test
     public void testDeviceDoesNotSupportReadingType() {
         String csv = "Device name;Reading date;Reading type MRID;Reading Value\n" +
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";

@@ -166,6 +166,9 @@ public class DeviceReadingsImportProcessor extends AbstractDeviceDataFileImportP
             if (MacroPeriod.MONTHLY == readingType.getMacroPeriod() && !(readingDate.getDayOfMonth() == 1 && validTimeOfDay(readingDate))) {
                 throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_MONTHLY_CHANNEL, lineNumber, readingType.getMRID(), readingDate.getZone());
             }
+            if (MacroPeriod.YEARLY == readingType.getMacroPeriod() && !(readingDate.getDayOfYear() == 1 && validTimeOfDay(readingDate))) {
+                throw new ProcessorException(MessageSeeds.READING_DATE_INCORRECT_FOR_YEARLY_CHANNEL, lineNumber, readingType.getMRID(), readingDate.getZone());
+            }
         }
     }
 
