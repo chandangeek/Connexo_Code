@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
@@ -40,7 +44,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
-import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
@@ -412,7 +415,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                             meterActivationInfo.meter.mRID = meter.getMRID();
                             meterActivationInfo.meter.name = meter.getName();
                             meterActivationInfo.meter.version = meter.getVersion();
-                            meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
+                            meterActivationInfo.meter.watsGoingOnMeterStatus = authorization != null ? getWhatsGoingOnMeterStatus(meter, authorization) : null;
                             meterActivationInfo.meter.url = meter.getHeadEndInterface()
                                     .flatMap(he -> he.getURLForEndDevice(meter))
                                     .map(URL::toString)
@@ -424,7 +427,15 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .collect(Collectors.toList());
     }
 
-    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
+    public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint) {
+        return this.getMetersOnUsagePointInfo(usagePoint, null);
+    }
+
+    public List<MeterActivationInfo> getMetersOnUsagePointFullInfo(UsagePoint usagePoint, String authorization) {
+        return this.getMetersOnUsagePointInfo(usagePoint, authorization);
+    }
+
+    private List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
         if(usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()){
             return getMetersOnUsagePointWithMetrologyConfigurationInfo(usagePoint, authorization);
         }
@@ -442,7 +453,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                         meterActivationInfo.meter.mRID = meter.getMRID();
                         meterActivationInfo.meter.name = meter.getName();
                         meterActivationInfo.meter.version = meter.getVersion();
-                        meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
+                        meterActivationInfo.meter.watsGoingOnMeterStatus = authorization != null ? getWhatsGoingOnMeterStatus(meter, authorization) : null;
                         meterActivationInfo.meter.url = meter.getHeadEndInterface()
                                 .flatMap(he -> he.getURLForEndDevice(meter))
                                 .map(URL::toString)

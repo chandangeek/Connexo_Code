@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -22,7 +26,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -32,7 +35,6 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
@@ -305,7 +307,19 @@ public class UsagePointResource {
     public Response getMetersOnUsagePoint(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         return Response.ok()
-                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint, auth), queryParameters))
+                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointFullInfo(usagePoint, auth), queryParameters))
+                .build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/meterroles")
+    public Response getMeterRolesOnUsagePoint(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        return Response.ok()
+                .entity(PagedInfoList.fromCompleteList("meterActivations", usagePointInfoFactory.getMetersOnUsagePointInfo(usagePoint), queryParameters))
                 .build();
     }
 
@@ -840,6 +854,7 @@ public class UsagePointResource {
                 .filter(mc -> usagePoint.getCurrentEffectiveMetrologyConfiguration().flatMap(emc -> emc.getChannelsContainer(mc, clock.instant())).isPresent())
                 .map(MetrologyContract::getDeliverables)
                 .flatMap(List::stream)
+                .sorted((a, b) -> a.getName().compareTo(b.getName()))
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
