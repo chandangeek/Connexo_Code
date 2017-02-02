@@ -12,6 +12,10 @@ Ext.define('Mdc.keyfunctiontypes.model.KeyType', {
         {
             name: 'name',
             type: 'string'
+        },
+        {
+            name: 'requiresDuration',
+            type: 'boolean'
         }
     ]
 });

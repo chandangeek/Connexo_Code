@@ -12,10 +12,16 @@ Ext.define('Mdc.keyfunctiontypes.store.KeyTypes', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/dtc/devicetypes/{deviceTypeId}/keyfunctiontypes', //hier iets van keytypes
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/keyfunctiontypes/keytypes',
         reader: {
-            type: 'json',
-            root: 'data'
+            type: 'json'
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
+
+        setUrl: function(deviceTypeId) {
+            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
         }
     }
 })

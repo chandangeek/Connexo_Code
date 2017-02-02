@@ -25,7 +25,11 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesGrid', {
             {
                 header: Uni.I18n.translate('general.keyType', 'MDC', 'Key type'),
                 dataIndex: 'keyType',
-                flex: 3
+                flex: 3,
+                renderer: function (value) {
+                    value = value && value.name ?  value.name : '-';
+                    return value;
+                }
             },
             {
                 header: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
@@ -48,6 +52,7 @@ Ext.define('Mdc.keyfunctiontypes.view.KeyFunctionTypesGrid', {
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
+                isFullTotalCount: true,
                 store: me.store,
                 dock: 'top',
                 emptyMsg: Uni.I18n.translate('keyfunctiontype.pagingtoolbartop.emptyMsg', 'MDC', 'No key function types'),

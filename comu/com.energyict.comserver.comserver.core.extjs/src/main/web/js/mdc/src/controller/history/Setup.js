@@ -1734,7 +1734,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 action: 'showEditKeyFunctionType',
                                                 callback: function (route) {
                                                     this.getApplication().on('keyfunctiontypeload', function (name) {
-                                                        route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name));
+                                                        route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
                                                     }, {single: true});
                                                     return this;
                                                 }

@@ -7,8 +7,10 @@ Ext.define('Mdc.keyfunctiontypes.view.AddEditKeyFunctionType', {
     alias: 'widget.key-function-type-add-form',
     requires: [
         'Uni.util.FormErrorMessage',
+        'Mdc.store.TimeUnitsYearsSeconds'
     ],
     isEdit: false,
+    title: null,
 
     initComponent: function () {
         var me = this;
@@ -20,7 +22,7 @@ Ext.define('Mdc.keyfunctiontypes.view.AddEditKeyFunctionType', {
                 width: 500
             },
             ui: 'large',
-            title: Uni.I18n.translate('general.addKeyFunctionType', 'MDC', 'Add key function type'),
+            title: me.isEdit ? me.title : Uni.I18n.translate('general.addKeyFunctionType', 'MDC', 'Add key function type'),
 
             items: [
                 {
@@ -48,17 +50,20 @@ Ext.define('Mdc.keyfunctiontypes.view.AddEditKeyFunctionType', {
                     itemId: 'key-function-type-key-type-combobox',
                     fieldLabel: Uni.I18n.translate('general.keyType', 'MDC', 'Key type'),
                     required: true,
-                    //store: 'Mdc.keyfunctiontypes.store.KeyTypes',
+                    store: 'Mdc.keyfunctiontypes.store.KeyTypes',
                     queryMode: 'local',
                     displayField: 'name',
                     valueField: 'id',
                     forceSelection: true,
-                    valueIsRecordData: true
+                    valueIsRecordData: true,
+                    disabled: me.isEdit,
+                    emptyText: Uni.I18n.translate('keyfunctiontypes.selectKeyType','MDC', 'Select a key type...')
                 },
                 {
                     xtype: 'fieldcontainer',
                     itemId: 'key-function-type-validity-period',
                     fieldLabel: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
+                    hidden: true,
                     required: true,
                     width: 500,
                     items: [
@@ -84,7 +89,7 @@ Ext.define('Mdc.keyfunctiontypes.view.AddEditKeyFunctionType', {
                                     xtype: 'combobox',
                                     name: 'validityPeriod[timeUnit]',
                                     itemId: 'cbo-key-function-type-validity-period-delay',
-                                    store: 'Mdc.store.TimeUnits',
+                                    store: 'Mdc.store.TimeUnitsYearsSeconds',
                                     queryMode: 'local',
                                     editable: false,
                                     displayField: 'localizedValue',

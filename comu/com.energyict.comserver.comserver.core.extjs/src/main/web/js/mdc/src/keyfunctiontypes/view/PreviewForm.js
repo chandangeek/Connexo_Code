@@ -32,7 +32,11 @@ Ext.define('Mdc.keyfunctiontypes.view.PreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.keyType', 'MDC', 'Key type'),
-                        name: 'keyType'
+                        name: 'keyType',
+                        renderer: function (value) {
+                            value = value && value.name ?  value.name : '-';
+                            return value;
+                        }
                     }
                 ]
             },
