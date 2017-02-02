@@ -838,7 +838,7 @@ Ext.define('Dxp.controller.Tasks', {
             if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                 me.setFormValues(view);
             } else {
-                logLevelCombo.setValue('WARNING'); // = Default value at creation time
+                logLevelCombo.setValue(900); // = WARNING, the default value at creation time
                 if (this.getCount() === 1) {
                     dataSelectorCombo.setValue(this.getAt(0).get('name'));
                 }
@@ -1931,7 +1931,7 @@ Ext.define('Dxp.controller.Tasks', {
             }
 
             record.set('name', form.down('#task-name').getValue());
-            record.set('logLevelId', form.down('#dxp-data-export-tasks-add-loglevel').getValue());
+            record.set('logLevel', form.down('#dxp-data-export-tasks-add-loglevel').getValue());
 
             startOnDate = moment(form.down('#start-on').getValue()).valueOf();
 

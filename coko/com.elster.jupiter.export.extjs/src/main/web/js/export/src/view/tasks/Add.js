@@ -73,7 +73,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         xtype: 'combobox',
                         fieldLabel: Uni.I18n.translate('general.logLevel', 'DES', 'Log level'),
                         required: true,
-                        name: 'logLevelId',
+                        name: 'logLevel',
                         width: 500,
                         itemId: 'dxp-data-export-tasks-add-loglevel',
                         allowBlank: false,

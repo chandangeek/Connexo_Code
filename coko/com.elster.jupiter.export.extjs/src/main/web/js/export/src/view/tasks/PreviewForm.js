@@ -28,7 +28,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.logLevel', 'DES', 'Log level'),
-                name: 'logLevelId',
+                name: 'logLevel',
                 labelWidth: 250,
                 renderer: function(value) {
                     if (Ext.isEmpty(value)) {
