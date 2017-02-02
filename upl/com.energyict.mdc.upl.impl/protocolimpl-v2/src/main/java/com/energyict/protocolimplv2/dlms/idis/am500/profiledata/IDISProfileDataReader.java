@@ -40,7 +40,7 @@ public class IDISProfileDataReader {
 
     private static final ObisCode QUARTER_HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
     private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.2.0.255");
-    private static final ObisCode BILLING_LOAD_PROFILE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
+    private static final ObisCode BILLING_LOAD_PROFILE_OBISCODE = ObisCode.fromString("0.0.98.1.0.255");
     private static final ObisCode OBISCODE_MBUS_LOAD_PROFILE = ObisCode.fromString("0.x.24.3.0.255");
 
     private static final ObisCode OBISCODE_NR_OF_POWER_FAILURES = ObisCode.fromString("0.0.96.7.9.255");
@@ -50,6 +50,7 @@ public class IDISProfileDataReader {
     private final long limitMaxNrOfDays;
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;
     private Map<ObisCode, Integer> intervalMap;
+    private Map<ObisCode, Boolean> hasStatus = new HashMap<>();
 
     public IDISProfileDataReader(AbstractDlmsProtocol protocol) {
         this(protocol, DO_NOT_LIMIT_MAX_NR_OF_DAYS);
@@ -99,15 +100,18 @@ public class IDISProfileDataReader {
                             cal.add(Calendar.SECOND, getIntervalMap().get(correctedLoadProfileObisCode));
                             timeStamp = cal.getTime();
                         } else {
-                            Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, "Invalid interval data, timestamp should be of type OctetString or NullData");
+                            Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, "Invalid interval data, timestamp should be the first captured object of type OctetString or NullData");
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             break;  //Stop parsing, move on
                         }
                         previousTimeStamp = timeStamp;
 
-                        if (hasStatusInformation()) {
+                        if (hasStatusInformation(correctedLoadProfileObisCode)) {
+                            protocol.getLogger().fine("A status obisCode is expected in this loadProfile");
                             status = structure.getInteger(1);
                             offset = 2;
+                        } else {
+                            protocol.getLogger().fine("A status obisCode is NOT expected in this loadProfile (only clock)");
                         }
 
                         final List<IntervalValue> values = new ArrayList<>();
@@ -332,7 +336,11 @@ public class IDISProfileDataReader {
         if (!isCaptureTime(capturedObject) && (classId == DLMSClassId.REGISTER.getClassId() || classId == DLMSClassId.EXTENDED_REGISTER.getClassId() || classId == DLMSClassId.DEMAND_REGISTER.getClassId())) {
             return true;
         }
-        if (isClock(obisCode) || isProfileStatus(obisCode) || isCaptureTime(capturedObject)) {
+        if (isClock(obisCode) || isCaptureTime(capturedObject)){
+            return false;
+        }
+        if (isProfileStatus(obisCode)) {
+            hasStatus.put(correctedLoadProfileObisCode, true);
             return false;
         }
         throw new ProtocolException("Unexpected captured_object in load profile '" + correctedLoadProfileObisCode + "': " + capturedObject.toString());
@@ -363,7 +371,11 @@ public class IDISProfileDataReader {
         return limitMaxNrOfDays;
     }
 
-    protected boolean hasStatusInformation() {
-        return true;
+    protected boolean hasStatusInformation(ObisCode correctedLoadProfileObisCode) {
+        if (hasStatus.containsKey(correctedLoadProfileObisCode)){
+            return hasStatus.get(correctedLoadProfileObisCode);
+        }
+
+        return false;
     }
 }
