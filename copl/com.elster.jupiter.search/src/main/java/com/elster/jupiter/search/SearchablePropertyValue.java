@@ -58,9 +58,10 @@ public final class SearchablePropertyValue {
      * Serializable representation of searchable property value
      */
     public static class ValueBean {
-        private String propertyName;
-        private SearchablePropertyOperator operator;
-        private List<String> values = new ArrayList<>();
+        // Set those fields public only for baseline check reasons
+        public String propertyName;
+        public SearchablePropertyOperator operator;
+        public List<String> values = new ArrayList<>();
 
         public ValueBean() {}
 
