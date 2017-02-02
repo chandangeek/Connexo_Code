@@ -71,14 +71,14 @@ public class CreationRuleResource extends BaseResource {
     public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams) {
         IssueType alarmType = getIssueService().findIssueType("devicealarm").orElse(null);
         List<IssueReason> issueReasons = getIssueService().query(IssueReason.class)
-                .select(where(ISSUE_TYPE).isEqualTo(alarmType))
+                .select(where(ISSUE_TYPE).isNotEqual(alarmType))
                 .stream()
                 .collect(Collectors.toList());
 
         Query<CreationRule> query =
                 getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
         List<CreationRule> rules;
-        Condition conditionIssue = where("reason").in(issueReasons).not();
+        Condition conditionIssue = where("reason").in(issueReasons);
         if (queryParams.getStart().isPresent()) {
             int from = queryParams.getStart().get() + 1;
             int to = from + queryParams.getLimit().orElse(0);
