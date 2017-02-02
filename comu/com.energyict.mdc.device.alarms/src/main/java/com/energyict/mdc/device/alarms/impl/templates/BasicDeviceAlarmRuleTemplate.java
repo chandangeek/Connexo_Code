@@ -16,8 +16,9 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
-import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
+import com.elster.jupiter.properties.rest.DeviceTypePropertyFactory;
+import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
+import com.elster.jupiter.properties.rest.LifecycleStatePropertyFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -47,9 +48,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 @Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
         property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
@@ -68,7 +67,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public static final String EVENT_OCCURENCE_COUNT = NAME + ".eventCount";
     public static final String DEVICE_LIFECYCLE_STATE = NAME + ".deviceLifecyle";
     public static final String DEVICE_TYPES = NAME + ".deviceTypes";
-    public static final String EIS_CODES = NAME + ".eisCodes";
+    public static final String DEVICE_CODES = NAME + ".deviceCodes";
 
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
@@ -160,7 +159,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "rule \"Basic device alarm rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
-                "\teval( event.computeOccurenceCount(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + LOG_ON_SAME_ALARM + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\", \"@{" + EIS_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
+                "\teval( event.computeOccurenceCount(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + LOG_ON_SAME_ALARM + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\", \"@{" + DEVICE_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
                 "\teval( event.hasAssociatedDeviceLifecycleStateIn(\"@{" + DEVICE_LIFECYCLE_STATE + "}\") == true )\n" +
                 "\teval( event.hasAssociatedDeviceTypeIn(\"@{" + DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
@@ -258,20 +257,21 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .markRequired()
                 .markMultiValued(",")
                 .addValues(possibleDeviceLifecycleStates)
-                .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new DeviceTypeInfoValueFactory())
-                .named(DEVICE_TYPES, TranslationKeys.DEVICE_TYPES)
+                .named(DEVICE_TYPES, TranslationKeys.DEVICE_TYPE)
                 .fromThesaurus(this.getThesaurus())
                 .addValues(possibleDeviceTypes)
                 .markRequired()
                 .markMultiValued(",")
+                .markExhaustive(PropertySelectionMode.LIST)
                 // .markExhaustive()
                 .finish());
         builder.add(propertySpecService
                 .stringSpec()
-                .named(EIS_CODES, TranslationKeys.EIS_CODES)
+                .named(DEVICE_CODES, TranslationKeys.DEVICE_CODE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 // .markExhaustive()
@@ -341,7 +341,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
     // BpmProcessPropertyFactory - maps to SimplePropertyType.SELECTIONGRID, needed PropertyValueInfoService for single or no selection - will rename or create marker interface
-    private class EventTypeInfoValueFactory implements ValueFactory<HasName>, BpmProcessPropertyFactory {
+    private class EventTypeInfoValueFactory implements ValueFactory<HasName>, EndDeviceEventTypePropertyFactory {
         @Override
         public HasName fromStringValue(String stringValue) {
             //TODO - add inexistent event, after being validated, to MTR_ENDDEVICEEVENTTYPE on creation rule save
@@ -470,7 +470,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     }
 
 
-    private class DeviceTypeInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceConfigurationPropertyFactory {
+    private class DeviceTypeInfoValueFactory implements ValueFactory<HasIdAndName>, DeviceTypePropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return deviceConfigurationService
@@ -563,7 +563,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         }
     }
 
-    private class DeviceLifecycleStatusInfoValueFactory implements ValueFactory<HasIdAndName>, BpmProcessPropertyFactory {
+    private class DeviceLifecycleStatusInfoValueFactory implements ValueFactory<HasIdAndName>, LifecycleStatePropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
             return deviceLifeCycleConfigurationService

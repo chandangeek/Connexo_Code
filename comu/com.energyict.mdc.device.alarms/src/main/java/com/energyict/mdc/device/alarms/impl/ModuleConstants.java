@@ -25,7 +25,8 @@ public final class ModuleConstants {
     public static final String UP_URGENCY_ON_RAISE = "upUrgencyOnRaise";
     public static final String DOWN_URGENCY_ON_CLEAR = "downUrgencyOnClear";
     public static final String DEVICE_LIFECYCLE_STATE = "deviceLifecycleState";
-    public static final String DEVICE_TYPES = "deviceTypes";
-    public static final String EIS_CODES = "eiServerCodes";
+    public static final String DEVICE_TYPE = "deviceTypes";
+    public static final String DEVICE_CODE = "eiServerCodes";
+    public static final String ALARM_RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.deviceAlarm";
 
 }

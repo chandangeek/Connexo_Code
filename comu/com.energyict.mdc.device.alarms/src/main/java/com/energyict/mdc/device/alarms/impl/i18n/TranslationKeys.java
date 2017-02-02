@@ -29,8 +29,9 @@ public enum TranslationKeys implements TranslationKey {
     UP_URGENCY_ON_RAISE(ModuleConstants.UP_URGENCY_ON_RAISE, "Increase alarm urgency on subsequent triggering event raise"),
     DOWN_URGENCY_ON_CLEAR(ModuleConstants.DOWN_URGENCY_ON_CLEAR, "Decrease alarm urgency on clearing event"),
     DEVICE_LIFECYCLE_STATE(ModuleConstants.DEVICE_LIFECYCLE_STATE, "Device lifecycle state"),
-    DEVICE_TYPES(ModuleConstants.DEVICE_TYPES, "Device types"),
-    EIS_CODES(ModuleConstants.EIS_CODES, "EIServer codes")
+    DEVICE_TYPE(ModuleConstants.DEVICE_TYPE, "Device type"),
+    DEVICE_CODE(ModuleConstants.DEVICE_CODE, "Device code"),
+    ALARM_RELATIVE_PERIOD_CATEGORY (ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Alarms");
     ;
     //TODO - update list
 
