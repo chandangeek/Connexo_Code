@@ -33,6 +33,7 @@ public enum SDKTranslationKeys implements TranslationKey {
     SDKEAN18PROPERTY(Keys.SDKEAN18PROPERTY, "An EAN18 property"),
     SDKENCRYPTEDSTRINGPROPERTY(Keys.SDKENCRYPTEDSTRINGPROPERTY, "An encrypted string property"),
     SDKENCRYPTEDHEXSTRINGPROPERTY(Keys.SDKENCRYPTEDHEXSTRINGPROPERTY, "An encrypted hex string property"),
+    SDKKEYACCESSORTYPE(Keys.SDKKEYACCESSORTYPE, "A key function definition"),
     DEFAULT_OPTIONAL_PROPERTY("SDK.defaultOptionalProperty", "Default optional property"),
     DELAY_AFTER_REQUEST("SDK.delay.after.request", "Delay after request"),
     ACTIVE_CALENDAR_NAME("SDK.activeCalendarName", "Active calendar"),
@@ -91,6 +92,7 @@ public enum SDKTranslationKeys implements TranslationKey {
         public static final String SDKEAN18PROPERTY = "SDKEan18Property";
         public static final String SDKENCRYPTEDSTRINGPROPERTY = "SDKEncryptedStringProperty";
         public static final String SDKENCRYPTEDHEXSTRINGPROPERTY = "SDKEncryptedHexStringProperty";
+        public static final String SDKKEYACCESSORTYPE = "SDKKeyAccessorTypeProperty";
     }
 
 }
