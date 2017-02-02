@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -49,7 +50,8 @@ import java.util.stream.Collectors;
         "osgi.command.function=linkMetrologyConfig",
         "osgi.command.function=setMultiplierValue",
         "osgi.command.function=matchingChannels",
-        "osgi.command.function=showData"
+        "osgi.command.function=showData",
+        "osgi.command.function=introspect"
 }, immediate = true)
 @SuppressWarnings("unused")
 public class DataAggregationCommands {
@@ -162,6 +164,45 @@ public class DataAggregationCommands {
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
             context.commit();
         }
+    }
+
+    public void introspect() {
+        System.out.println("Usage: introspect <usage point name> <contract purpose> <start date> [<end date>]");
+    }
+
+    public void introspect(String usagePointName, String contractPurpose, String deliverableName, String startDate) {
+        Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        Range<Instant> period = Range.openClosed(start, Instant.now());
+        this.introspect(usagePointName, contractPurpose, deliverableName, period);
+    }
+
+    public void introspect(String usagePointName, String contractPurpose, String deliverableName, String startDate, String endDate) {
+        Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        Instant end = ZonedDateTime.ofInstant(Instant.parse(endDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        Range<Instant> period = Range.closedOpen(start, end);
+        this.introspect(usagePointName, contractPurpose, deliverableName, period);
+    }
+
+    private void introspect(String usagePointName, String contractPurpose, String deliverableName, Range<Instant> period) {
+        UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
+                .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
+        UsagePointMetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
+        MetrologyContract contract = configuration.getContracts().stream()
+                .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
+                .findFirst()
+                .orElseThrow(() -> noContractForPurpose(contractPurpose, configuration));
+        ReadingTypeDeliverable deliverable = contract.getDeliverables().stream()
+                .filter(d -> d.getName().equals(deliverableName))
+                .findFirst()
+                .orElseThrow(() -> deliverableNotAvailableInContract(deliverableName, contract));
+
+        MetrologyContractCalculationIntrospector introspector = dataAggregationService.introspect(usagePoint, contract, period);
+        System.out.println("Channels usages for deliverable " + deliverableName);
+        introspector.getChannelUsagesFor(deliverable).stream()
+                .map(chan -> String.valueOf(chan.getChannel().getId()) + ": " + chan.getChannel().getMainReadingType().getFullAliasName())
+                .forEach(System.out::println);
     }
 
     private NoSuchElementException noContractForPurpose(String purpose, UsagePointMetrologyConfiguration configuration) {
