@@ -132,7 +132,8 @@ public class DataExportTaskResource {
         queryParameters.getLimit().ifPresent(finder::setLimit);
 
         List<DataExportTaskHistoryInfo> infos = finder.stream()
-                .flatMap(task -> getAllHistoryFromTask(task, filter, task.getOccurrencesFinder()).stream()).collect(Collectors.toList());
+                .flatMap(task -> getAllHistoryFromTask(task, filter, task.getOccurrencesFinder()).stream())
+                .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
@@ -595,18 +596,24 @@ public class DataExportTaskResource {
                         .ifPresent(destination -> destinationInfo.type.update(destination, destinationInfo)));
     }
 
-    private List<DataExportTaskHistoryInfo> getAllHistoryFromTask(ExportTask task, JsonQueryFilter filter,DataExportOccurrenceFinder occurrencesFinder) {
+    private List<DataExportTaskHistoryInfo> getAllHistoryFromTask(ExportTask task, JsonQueryFilter filter, DataExportOccurrenceFinder occurrencesFinder) {
         if (filter.hasProperty("startedOnFrom")) {
-            occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
-                    filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
+            if (filter.hasProperty("startedOnTo")) {
+                occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
+            } else {
+                occurrencesFinder.withStartDateIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
+            }
         } else if (filter.hasProperty("startedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
         }
         if (filter.hasProperty("finishedOnFrom")) {
-            occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"),
-                    filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now()));
+            if (filter.hasProperty("finishedOnTo")) {
+                occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
+            } else {
+                occurrencesFinder.withEndDateIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
+            }
         } else if (filter.hasProperty("finishedOnTo")) {
-            occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
+            occurrencesFinder.withEndDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }
         if (filter.hasProperty("exportTask")) {
             occurrencesFinder.withExportTask(filter.getLongList("exportTask"));
