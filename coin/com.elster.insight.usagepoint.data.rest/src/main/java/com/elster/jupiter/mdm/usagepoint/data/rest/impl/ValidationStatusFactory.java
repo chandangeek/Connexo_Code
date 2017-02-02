@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
@@ -123,7 +124,11 @@ public class ValidationStatusFactory {
                                 .stream()
                                 .anyMatch(quality -> quality.getType().isSuspect());
                         if (suspect) {
-                            validationStatus.getOffendedRules().forEach(rule -> addValidationRule(suspectRulesCount, rule));
+                            validationStatus.getOffendedRules().forEach(rule -> {
+                                if (rule.getAction() != ValidationAction.WARN_ONLY) {
+                                    addValidationRule(suspectRulesCount, rule);
+                                }
+                            });
                         } else {
                             validationStatus.getOffendedRules().forEach(rule -> addValidationRule(informativeRulesCount, rule));
                         }
