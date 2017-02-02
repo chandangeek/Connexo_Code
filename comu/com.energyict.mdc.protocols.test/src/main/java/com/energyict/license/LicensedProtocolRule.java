@@ -29,7 +29,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SDK_SMART_SAMPLE_PROTOCOL(5004, "com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol", ProtocolFamily.TEST),
     SDK_DEVICE_PROTOCOL(5005, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", ProtocolFamily.TEST),
     SDK_SAMPLE_PROTOCOL_TEST_WITH_ALL_PROPERTIES(5006, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", ProtocolFamily.TEST),
-    SDK_SAMPLE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY(5007, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty", ProtocolFamily.TEST),;
+    SDK_SAMPLE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY(5007, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty", ProtocolFamily.TEST),
+    SDK_SAMPLE_PROTOCOL_TEST_WITH_CRYPTO_PROPERTIES(5008, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolWithCryptoProperties", ProtocolFamily.TEST);
 
     private int code;
     private String className;
