@@ -460,6 +460,8 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
         - DD: Device Type
     */
     private void installSlave(Array mbusSearchResult, ObisCode mbusPortReferenceObis) throws IOException {
+        List<Integer> channelsInUse = new ArrayList<>();//we need a extra list of channels in use when we run this message,
+        // because the channel is actually booked after a manual user action (press on a meter button). So the primary address cannot be used anymore to check if the channel is free
         for(AbstractDataType mbusSearchResultEntry: mbusSearchResult){
             byte[] entry = mbusSearchResultEntry.getOctetString().getOctetStr();
             String serialNumber = ProtocolTools.getHexStringFromBytes(ProtocolTools.reverseByteArray(ProtocolTools.getSubArray(entry, 0, 4)), "");
@@ -467,21 +469,32 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             String version = ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(entry, 6, 7), "");
             String deviceType = ProtocolTools.getHexStringFromBytes(ProtocolTools.getSubArray(entry, 7, 8), "");
 
-
             for (int channel = 1; channel <= getMaxMBusSlaves(); channel++) {//Check the available 4 channels, install the slave meter on a free channel client.
                 ObisCode obisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) channel);   //Find the right MBus client object
                 MBusClient mbusClient = getMbusClientForVersion(version, obisCode);
-                if (mbusClient.getPrimaryAddress().getValue() == 0) {     //Find a free channel client
+                if (mbusClient.getPrimaryAddress().getValue() == 0 && !channelsInUse.contains(channel)) {     //Find a free channel client
                     mbusClient.setMBusPortReference(OctetString.fromObisCode(mbusPortReferenceObis));
                     mbusClient.setIdentificationNumber(new Unsigned32(Integer.parseInt(serialNumber, 16)));
                     mbusClient.setManufacturerID(new Unsigned16(Integer.parseInt(manufacturerId, 16)));
                     mbusClient.setVersion(Integer.parseInt(version, 16));
                     mbusClient.setDeviceType(new Unsigned8(Integer.parseInt(deviceType, 16)));
                     //install MBus device
-                    mbusClient.invoke(1, new Unsigned8(1).getBEREncodedByteArray());
-                    if(mbusClient.getPrimaryAddress().getValue() != 253){
-                        String errorMsg = "Failed to install Mbus slave with identification number: "+ serialNumber;
-                        setIncompatibleFailedMessage(collectedMessage, pendingMessage, errorMsg);
+                    try {
+                        mbusClient.invoke(1, new Unsigned8(1).getBEREncodedByteArray());
+                        channelsInUse.add(channel);
+                    } catch (DataAccessResultException e){
+                        if(e.getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode()){
+                            //Sagemcom stated this is expected behaviour. so ignoring
+                            channelsInUse.add(channel);
+                        } else {
+                            throw e;
+                        }
+                    }
+
+                    break;
+                } else {
+                    if(!channelsInUse.contains(channel)){
+                        channelsInUse.add(channel);
                     }
                 }
             }

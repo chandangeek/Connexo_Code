@@ -329,10 +329,10 @@ public class IDISProfileDataReader {
     private boolean isChannel(CapturedObject capturedObject, ObisCode correctedLoadProfileObisCode) throws ProtocolException {
         int classId = capturedObject.getClassId();
         ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
-        if (classId == DLMSClassId.REGISTER.getClassId() || classId == DLMSClassId.EXTENDED_REGISTER.getClassId() || classId == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+        if (!isCaptureTime(capturedObject) && (classId == DLMSClassId.REGISTER.getClassId() || classId == DLMSClassId.EXTENDED_REGISTER.getClassId() || classId == DLMSClassId.DEMAND_REGISTER.getClassId())) {
             return true;
         }
-        if (isClock(obisCode) || isProfileStatus(obisCode)) {
+        if (isClock(obisCode) || isProfileStatus(obisCode) || isCaptureTime(capturedObject)) {
             return false;
         }
         throw new ProtocolException("Unexpected captured_object in load profile '" + correctedLoadProfileObisCode + "': " + capturedObject.toString());
@@ -344,6 +344,10 @@ public class IDISProfileDataReader {
 
     private boolean isClock(ObisCode obisCode) {
         return (Clock.getDefaultObisCode().equals(obisCode));
+    }
+
+    private boolean isCaptureTime(CapturedObject capturedObject) {
+        return (capturedObject.getAttributeIndex() == 5 && capturedObject.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId()) || (capturedObject.getAttributeIndex() == 6 && capturedObject.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId());
     }
 
     private boolean isSupported(LoadProfileReader lpr) {
