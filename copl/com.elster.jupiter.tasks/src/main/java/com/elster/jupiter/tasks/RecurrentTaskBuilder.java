@@ -35,7 +35,7 @@ public interface RecurrentTaskBuilder {
 
         RecurrentTaskBuilderFinisher setFirstExecution(Instant instant);
 
-        RecurrentTaskBuilderFinisher setLogLevel(TaskLogLevel level);
+        RecurrentTaskBuilderFinisher setLogLevel(int level);
 
         RecurrentTask build();
 

@@ -71,7 +71,7 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
      */
     Optional<RecurrentTask> getVersionAt(Instant time);
 
-    void setLogLevel(TaskLogLevel level);
+    void setLogLevel(int level);
 
-    TaskLogLevel getLogLevel();
+    int getLogLevel();
 }

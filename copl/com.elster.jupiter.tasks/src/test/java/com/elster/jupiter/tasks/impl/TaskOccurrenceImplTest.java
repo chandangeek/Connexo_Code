@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.util.json.JsonService;
@@ -69,7 +68,7 @@ public class TaskOccurrenceImplTest {
         when(validator.validate(anyObject())).thenReturn(new HashSet<>());
 
         when(clock.instant()).thenReturn(now, instant2);
-        recurrentTask = RecurrentTaskImpl.from(dataModel, "Pulse", NAME, mock(ScheduleExpression.class), mock(DestinationSpec.class), "payload", TaskLogLevel.INFORMATION);
+        recurrentTask = RecurrentTaskImpl.from(dataModel, "Pulse", NAME, mock(ScheduleExpression.class), mock(DestinationSpec.class), "payload", Level.INFO.intValue());
         when(mapper.lock(any())).thenReturn(recurrentTask);
     }
 

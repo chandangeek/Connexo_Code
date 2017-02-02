@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -23,6 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.junit.After;
 import org.junit.Before;
@@ -89,7 +89,7 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(anyObject())).thenReturn(new HashSet<>());
 
-        recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, TaskLogLevel.INFORMATION);
+        recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, Level.INFO.intValue());
 
         when(clock.instant()).thenReturn(NOW);
         when(cronExpression.nextOccurrence(zoned(NOW))).thenReturn(Optional.of(zoned(NEXT)));
@@ -106,7 +106,7 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, TaskLogLevel.INFORMATION);
+            instanceA = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, Level.INFO.intValue());
             field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCEA_ID);
         }
         return instanceA;
@@ -114,14 +114,14 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, TaskLogLevel.INFORMATION);
+        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, Level.INFO.intValue());
         field("id").ofType(Long.TYPE).in(entity).set(INSTANCEA_ID);
         return entity;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, TaskLogLevel.ERROR);
+        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, Level.SEVERE.intValue());
         field("id").ofType(Long.TYPE).in(entity).set(INSTANCEA_ID + 1);
         return Collections.singletonList(entity);
     }
@@ -134,7 +134,7 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
         RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock) {
-        }.init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, TaskLogLevel.INFORMATION);
+        }.init(APPLICATION, NAME, cronExpression, destination, PAYLOAD, Level.INFO.intValue());
         field("id").ofType(Long.TYPE).in(recurrentTask).set(INSTANCEA_ID);
         return recurrentTask;
     }

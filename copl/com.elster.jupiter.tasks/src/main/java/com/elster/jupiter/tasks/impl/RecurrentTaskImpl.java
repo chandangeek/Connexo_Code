@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
@@ -52,7 +51,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String destination;
     private Instant lastRun;
     private transient DestinationSpec destinationSpec;
-    private TaskLogLevel logLevel;
+    private int logLevel;
 
     private final Clock clock;
     private final ScheduleExpressionParser scheduleExpressionParser;
@@ -77,10 +76,10 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.jsonService = jsonService;
         // for persistence
         this.clock = clock;
-        this.setLogLevel(TaskLogLevel.WARNING);
+        this.setLogLevel(Level.WARNING.intValue());
     }
 
-    RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, TaskLogLevel logLevel) {
+    RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, int logLevel) {
         this.application = application;
         this.destinationSpec = destinationSpec;
         this.destination = destinationSpec.getName();
@@ -92,7 +91,7 @@ class RecurrentTaskImpl implements RecurrentTask {
         return this;
     }
 
-    static RecurrentTaskImpl from(DataModel dataModel, String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, TaskLogLevel logLevel) {
+    static RecurrentTaskImpl from(DataModel dataModel, String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, int logLevel) {
         return dataModel.getInstance(RecurrentTaskImpl.class).init(application, name, scheduleExpression, destinationSpec, payload, logLevel);
     }
 
@@ -328,22 +327,11 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.save();
     }
 
-    public void setLogLevel(TaskLogLevel newLevel) {
-        if (newLevel == null) return;
-
+    public void setLogLevel(int newLevel) {
         this.logLevel = newLevel;
-        Level level2Apply = Level.WARNING;
-        switch(newLevel) {
-            case ERROR:         level2Apply = Level.SEVERE;     break;
-            case WARNING:       level2Apply = Level.WARNING;    break;
-            case INFORMATION:   level2Apply = Level.INFO;       break;
-            case DEBUG:         level2Apply = Level.FINE;       break;
-            case TRACE:         level2Apply = Level.FINEST;     break;
-        }
-        LOGGER.setLevel(level2Apply);
     }
 
-    public TaskLogLevel getLogLevel() {
+    public int getLogLevel() {
         return logLevel;
     }
 }
