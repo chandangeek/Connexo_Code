@@ -23,6 +23,8 @@ public interface DataExportOccurrenceFinder {
 
     DataExportOccurrenceFinder withExportStatus(List<DataExportStatus> statuses);
 
+    DataExportOccurrenceFinder withExportTask(List<Long> exportTasksIds);
+
     List<? extends DataExportOccurrence> find();
 
     QueryStream<DataExportOccurrence> stream();
