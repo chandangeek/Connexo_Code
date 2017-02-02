@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -39,14 +40,19 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
@@ -54,14 +60,17 @@ import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.Sets;
 
 import javax.ws.rs.core.Application;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -106,12 +115,18 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     CalendarService calendarService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    PkiService pkiService;
 
     ReadingTypeInfoFactory readingTypeInfoFactory;
     RegisterConfigInfoFactory registerConfigInfoFactory;
     RegisterTypeInfoFactory registerTypeInfoFactory;
     RegisterGroupInfoFactory registerGroupInfoFactory;
     LoadProfileTypeOnDeviceTypeInfoFactory loadProfileTypeOnDeviceTypeInfoFactory;
+
+    public static final long OK_VERSION = 24L;
+    public static final long BAD_VERSION = 17L;
+
 
     @Before
     public void setup() {
@@ -138,7 +153,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
 
     @Override
     protected Application getApplication() {
-        DeviceConfigurationApplication application = new DeviceConfigurationApplication();
+        DeviceConfigurationApplication application = new DeviceConfigurationApplication(pkiService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMeteringService(meteringService);
@@ -161,6 +176,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setCalendarInfoFactory(new CalendarInfoFactoryImpl(thesaurus));
         application.setCalendarService(calendarService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setPkiService(pkiService);
         return application;
     }
 
@@ -225,5 +241,37 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         return registeredCustomPropertySet;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected DeviceType mockDeviceType(String name, long id) {
+        DeviceType deviceType = mock(DeviceType.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
+        when(deviceType.getRegisterTypeTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(deviceType.getCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
+        when(deviceType.getName()).thenReturn(name);
+        when(deviceType.getId()).thenReturn(id);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
+        when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
+        when(deviceType.getVersion()).thenReturn(OK_VERSION);
+
+        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findDeviceType(id);
+        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findAndLockDeviceType(id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceType(id, BAD_VERSION);
+
+        return deviceType;
+    }
+
+    protected DeviceLifeCycle mockStandardDeviceLifeCycle() {
+        DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
+        when(deviceLifeCycle.getId()).thenReturn(1L);
+        when(deviceLifeCycle.getName()).thenReturn("Default");
+        return deviceLifeCycle;
     }
 }

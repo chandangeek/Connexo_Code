@@ -278,37 +278,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         return logBookType;
     }
 
-    private DeviceType mockDeviceType(String name, long id) {
-        DeviceType deviceType = mock(DeviceType.class);
-        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
-        when(deviceType.getRegisterTypeTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
-        when(deviceType.getCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
-        when(deviceType.getName()).thenReturn(name);
-        when(deviceType.getId()).thenReturn(id);
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
-        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
-        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
-        when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
-        when(deviceType.getVersion()).thenReturn(OK_VERSION);
-
-        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findDeviceType(id);
-        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findAndLockDeviceType(id, OK_VERSION);
-        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceType(id, BAD_VERSION);
-
-        return deviceType;
-    }
-
-    private DeviceLifeCycle mockStandardDeviceLifeCycle() {
-        DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
-        when(deviceLifeCycle.getId()).thenReturn(1L);
-        when(deviceLifeCycle.getName()).thenReturn("Default");
-        return deviceLifeCycle;
-    }
-
     private DeviceConfiguration mockDeviceConfiguration(long id, DeviceType deviceType) {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn("Device configuration " + id);
