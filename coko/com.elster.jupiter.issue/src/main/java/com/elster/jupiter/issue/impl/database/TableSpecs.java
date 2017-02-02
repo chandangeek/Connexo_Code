@@ -412,41 +412,41 @@ public enum TableSpecs {
 
         table.primaryKey(pkKey).on(idColumn).add();
         table
-                .foreignKey(reasonFKName)
-                .on(reasonRefIdColumn)
-                .references(IssueReason.class)
-                .map("reason")
-                .add();
+            .foreignKey(reasonFKName)
+            .on(reasonRefIdColumn)
+            .references(IssueReason.class)
+            .map("reason")
+            .add();
         table
-                .foreignKey(statusFKName)
-                .on(statusRefIdColumn)
-                .references(IssueStatus.class)
-                .map("status")
-                .add();
+            .foreignKey(statusFKName)
+            .on(statusRefIdColumn)
+            .references(IssueStatus.class)
+            .map("status")
+            .add();
         table
-                .foreignKey(deviceFKName)
-                .on(deviceRefIdColumn)
-                .references(EndDevice.class)
-                .map("device")
-                .add();
+            .foreignKey(deviceFKName)
+            .on(deviceRefIdColumn)
+            .references(EndDevice.class)
+            .map("device")
+            .add();
         table
-                .foreignKey(userFKName)
-                .on(userRefIdColumn)
-                .references(User.class)
-                .map("user")
-                .onDelete(DeleteRule.SETNULL).add();
+            .foreignKey(userFKName)
+            .on(userRefIdColumn)
+            .references(User.class)
+            .map("user")
+            .onDelete(DeleteRule.SETNULL).add();
         table
-                .foreignKey(workGroupFKName)
-                .on(workGroupRefIdColumn)
-                .references(WorkGroup.class)
-                .map("workGroup")
-                .onDelete(DeleteRule.SETNULL).since(version(10, 3)).add();
+            .foreignKey(workGroupFKName)
+            .on(workGroupRefIdColumn)
+            .references(WorkGroup.class)
+            .map("workGroup")
+            .onDelete(DeleteRule.SETNULL).since(version(10, 3)).add();
         table
-                .foreignKey(ruleFKName)
-                .on(ruleRefIdColumn)
-                .references(CreationRule.class)
-                .map("rule")
-                .add();
+            .foreignKey(ruleFKName)
+            .on(ruleRefIdColumn)
+            .references(CreationRule.class)
+            .map("rule")
+            .add();
     }
 
 }
