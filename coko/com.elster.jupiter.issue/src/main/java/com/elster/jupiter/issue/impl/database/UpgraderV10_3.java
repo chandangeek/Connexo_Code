@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.issue.impl.database;
 
-
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -31,7 +30,6 @@ public class UpgraderV10_3 implements Upgrader {
     UpgraderV10_3(DataModel dataModel) {
         this.dataModel = dataModel;
     }
-
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
@@ -80,24 +78,10 @@ public class UpgraderV10_3 implements Upgrader {
     }
 
     private void upgradeOpenIssue(Connection connection) {
-        String[] sqlStatements = {
-                "ALTER TABLE ISU_ISSUE_HISTORY DROP COLUMN ASSIGNEE_TYPE",
-                "ALTER TABLE ISU_ISSUE_OPEN DROP COLUMN ASSIGNEE_TYPE",
-                "ALTER TABLE ISU_ISSUE_HISTORY ADD URGENCY NUMBER(2) DEFAULT 25 NOT NULL",
-                "ALTER TABLE ISU_ISSUE_HISTORY ADD IMPACT NUMBER(2) DEFAULT 5 NOT NULL",
-                "ALTER TABLE ISU_ISSUE_OPEN ADD URGENCY NUMBER(2) DEFAULT 25 NOT NULL",
-                "ALTER TABLE ISU_ISSUE_OPEN ADD IMPACT NUMBER(2) DEFAULT 5 NOT NULL",
-                "ALTER TABLE ISU_CREATIONRULE ADD URGENCY NUMBER(2) DEFAULT 25 NOT NULL",
-                "ALTER TABLE ISU_CREATIONRULE ADD IMPACT NUMBER(2) DEFAULT 5 NOT NULL",
-                "ALTER TABLE ISU_CREATIONRULEJRNL ADD URGENCY NUMBER(2) DEFAULT 25 NOT NULL",
-                "ALTER TABLE ISU_CREATIONRULEJRNL ADD IMPACT NUMBER(2) DEFAULT 5 NOT NULL",
-                "CREATE OR REPLACE VIEW ISU_ISSUE_ALL AS SELECT * FROM ISU_ISSUE_OPEN UNION SELECT * FROM ISU_ISSUE_HISTORY"};
-        for (String sqlStatement : sqlStatements) {
-            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                throw new UnderlyingSQLFailedException(e);
-            }
+        try (PreparedStatement statement = connection.prepareStatement("CREATE OR REPLACE VIEW ISU_ISSUE_ALL AS SELECT * FROM ISU_ISSUE_OPEN UNION SELECT * FROM ISU_ISSUE_HISTORY")) {
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
