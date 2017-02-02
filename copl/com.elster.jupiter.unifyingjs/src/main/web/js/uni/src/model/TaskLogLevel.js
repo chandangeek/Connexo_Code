@@ -1,6 +1,13 @@
 Ext.define('Uni.model.TaskLogLevel', {
     extend: 'Ext.data.Model',
     fields: [
-        'id', 'displayValue'
+        {
+            name: 'id',
+            type: 'int'
+        },
+        {
+            name: 'displayValue',
+            type: 'string'
+        }
     ]
 });

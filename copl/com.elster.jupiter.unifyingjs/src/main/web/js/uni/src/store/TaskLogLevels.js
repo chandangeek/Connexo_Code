@@ -3,7 +3,7 @@ Ext.define('Uni.store.TaskLogLevels', {
     model: 'Uni.model.TaskLogLevel',
     proxy: {
         type: 'rest',
-        url: '/api/tsk/task/loglevels',
+        url: '/api/rut/loglevels',
         timeout: 120000,
         reader: {
             type: 'json',
