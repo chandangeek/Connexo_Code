@@ -158,13 +158,13 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
             properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
            /* properties.put(
-                    BasicDeviceAlarmRuleTemplate.DEVICE_TYPES,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES).get().getValueFactory().fromStringValue("0"));
+                    BasicDeviceAlarmRuleTemplate.DEVICE_TYPE,
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_TYPE).get().getValueFactory().fromStringValue("0"));
             */
             properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES, getOneRandomeviceType());
             properties.put(
-                    BasicDeviceAlarmRuleTemplate.EIS_CODES,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EIS_CODES).get().getValueFactory().fromStringValue("1"));
+                    BasicDeviceAlarmRuleTemplate.DEVICE_CODES,
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_CODES).get().getValueFactory().fromStringValue("1"));
             properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE, getAllDeviceStates());
             /* properties.put(
                     BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE,
