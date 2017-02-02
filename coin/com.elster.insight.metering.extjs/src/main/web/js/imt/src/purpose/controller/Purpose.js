@@ -19,7 +19,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Uni.store.DataIntervalAndZoomLevels',
         'Imt.purpose.store.RegisterReadings',
         'Imt.usagepointmanagement.store.UsagePointTypes',
-        'Imt.purpose.store.ValidationTasks'
+        'Imt.purpose.store.ValidationTasks',
+        'Imt.purpose.store.EstimationTasks',
+        'Imt.usagepointmanagement.store.Periods'
     ],
 
     models: [
@@ -34,13 +36,24 @@ Ext.define('Imt.purpose.controller.Purpose', {
     views: [
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputChannelMain',
-        'Imt.purpose.view.ValidationStatusForm'
+        'Imt.purpose.view.ValidationStatusForm',
+        'Imt.purpose.view.ValidationDate',
+        'Uni.view.window.Confirmation',
+        'Ext.ProgressBar'
     ],
 
     refs: [
         {
             ref: 'readingPreviewPanel',
             selector: 'output-channel-main reading-preview'
+        },
+        {
+            ref: 'purposePage',
+            selector: '#purpose-outputs'
+        },
+        {
+            ref: 'outputPreview',
+            selector: '#purpose-outputs #output-preview'
         }
     ],
 
@@ -51,6 +64,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
             },
             'purpose-outputs purpose-actions-menu': {
                 click: this.chooseAction
+            },
+            '#purpose-outputs #outputs-list': {
+                select: this.showOutputPreview
             }
         });
     },
@@ -66,47 +82,80 @@ Ext.define('Imt.purpose.controller.Purpose', {
     showOutputs: function (usagePointId, purposeId) {
         var me = this,
             app = me.getApplication(),
-            router = me.getController('Uni.controller.history.Router'),            
+            router = me.getController('Uni.controller.history.Router'),
+            periodsStore = me.getStore('Imt.usagepointmanagement.store.Periods'),
             purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
-            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            extraParams = {
+                usagePointId: usagePointId,
+                purposeId: purposeId
+            },
+            dependenciesCounter = 4,
+            defaultPeriod,
+            usagePoint,
+            purposes;
 
         mainView.setLoading();
-        
-        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function(usagePointTypes, op, success) {
-            if (success) {
-                me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
-                    success: function (usagePoint) {
-                        app.fireEvent('usagePointLoaded', usagePoint);
-                        purposesStore.getProxy().extraParams = {
-                            usagePointId: usagePointId
-                        };
-                        purposesStore.load(function(purposes) {
-                            usagePoint.set('purposes', purposes);
-                            app.fireEvent('purposes-loaded', purposes);
-                            var purpose = _.find(purposes, function (p) {
-                                    return p.getId() == purposeId
-                                }),
-                                widget = Ext.widget('purpose-outputs', {
-                                    itemId: 'purpose-outputs',
-                                    router: router,
-                                    usagePoint: usagePoint,
-                                    purposes: purposes,
-                                    purpose: purpose
-                                });
-                            widget.down('#purpose-details-form').loadRecord(purpose);
-                            app.fireEvent('changecontentevent', widget);
-                            if (mainView.down('purpose-actions-menu')) {
-                                mainView.down('purpose-actions-menu').record = purpose;
-                            }
-                            mainView.setLoading(false);
-                            me.loadOutputs(usagePointId, purposeId);
-                        });
-                    }                    
-                });
-            } else {
-                mainView.setLoading(false);
+
+        me.getStore('Imt.purpose.store.ValidationTasks').getProxy().extraParams = extraParams;
+        me.getStore('Imt.purpose.store.EstimationTasks').getProxy().extraParams = extraParams;
+        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(onDependenciesLoad);
+
+        periodsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+        periodsStore.load(function (records) {
+            defaultPeriod = records[0].getId();
+            onDependenciesLoad();
+        });
+
+        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
+            success: function (record) {
+                usagePoint = record;
+                app.fireEvent('usagePointLoaded', usagePoint);
+                onDependenciesLoad();
             }
         });
+
+        purposesStore.getProxy().extraParams = {usagePointId: usagePointId};
+        purposesStore.load(function (records) {
+            purposes = records;
+            app.fireEvent('purposes-loaded', purposes);
+            onDependenciesLoad();
+        });
+
+        function onDependenciesLoad() {
+            var purpose,
+                widget;
+
+            dependenciesCounter--;
+            if (!dependenciesCounter) {
+                usagePoint.set('purposes', purposes);
+                purpose = _.find(purposes, function (p) {
+                    return p.getId() == purposeId
+                });
+                widget = Ext.widget('purpose-outputs', {
+                    itemId: 'purpose-outputs',
+                    router: router,
+                    usagePoint: usagePoint,
+                    purposes: purposes,
+                    purpose: purpose,
+                    defaultPeriod: defaultPeriod
+                });
+
+                widget.down('#purpose-details-form').loadRecord(purpose);
+                app.fireEvent('changecontentevent', widget);
+                if (mainView.down('purpose-actions-menu')) {
+                    mainView.down('purpose-actions-menu').record = purpose;
+                }
+                mainView.setLoading(false);
+                me.loadOutputs(usagePointId, purposeId);
+            }
+        }
+    },
+
+    showOutputPreview: function (selectionModel, record) {
+        var me = this;
+
+        me.getOutputPreview().loadRecord(record);
     },
 
     makeLinkToOutputs: function (router) {
@@ -173,7 +222,12 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     displayPage();
                 }
             });
+
+            // avoid handling events of the outputs store by components on the purpose page
+            var outputsStore = me.getStore('Imt.purpose.store.Outputs');
+            outputsStore.suspendEvents();
             me.loadOutputs(usagePointId, purposeId, function (records) {
+                outputsStore.resumeEvents();
                 outputs = records;
                 displayPage();
             });
@@ -252,107 +306,59 @@ Ext.define('Imt.purpose.controller.Purpose', {
                     me.validatePurpose(menu.record);
                     break;
             }
+            switch (item.action) {
+                case 'estimateNow':
+                    me.estimatePurpose(menu.record);
+                    break;
+            }
         }
     },
 
     validatePurpose: function (purpose) {
         var me = this,
+            usagePoint = Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint,
+            lastChecked = purpose.get('validationInfo').lastChecked,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'purpose-validateNowConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'IMT', 'Validate'),
-                confirmation: function () {
-                    me.onValidateNow(this, purpose);
-                }
+                closeAction: 'destroy',
+                confirmation: _.once(Ext.bind(me.onValidateNow, me, [purpose, usagePoint, getConfirmationWindow]))
             });
 
-        confirmationWindow.insert(1, me.getActivationConfirmationContent(purpose));
+        confirmationWindow.insert(1, {
+            xtype: 'validation-date',
+            itemId: 'purpose-rdg-validation-run',
+            defaultDate: lastChecked ? new Date(lastChecked) : new Date(),
+            padding: '-10 0 0 45'
+        });
         confirmationWindow.show({
-            title: Uni.I18n.translate('purpose.validateNow', 'IMT', 'Validate data for "{0}" purpose on usage point "{1}"',
-                [purpose.get('name'), Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint.get('name')], false),
-            icon: 'icon-question4',
-            msg: ''
+            title: Uni.I18n.translate('purpose.validateNow', 'IMT', "Validate data for '{0}' purpose on usage point '{1}'?",
+                [purpose.get('name'), usagePoint.get('name')], false),
+            icon: 'icon-question4'
         });
-        confirmationWindow.on('close', function () {
-            this.destroy();
-        });
+
+        function getConfirmationWindow() {
+            return confirmationWindow
+        }
     },
 
-    getActivationConfirmationContent: function (purpose) {
-        var lastCheckedDate = purpose.get('validationInfo').lastChecked ? Uni.DateTime.formatDateShort(new Date(purpose.get('validationInfo').lastChecked)) :  Uni.DateTime.formatDateShort(new Date());
-        return Ext.create('Ext.container.Container', {
-            defaults: {
-                labelAlign: 'left'
-            },
-            items: [
-                {
-                    xtype: 'radiogroup',
-                    itemId: 'purpose-rdg-validation-run',
-                    columns: 1,
-                    padding: '-10 0 0 45',
-                    defaults: {
-                        name: 'validationRun'
-                    },
-                    items: [
-                        {
-                            boxLabel: Uni.I18n.translate('validationResults.validate.fromLast', 'IMT', 'Validate data from last validation ({0})',
-                                lastCheckedDate),
-                            inputValue: 'lastValidation',
-                            itemId: 'purpose-rdo-validate-from-last',
-                            xtype: 'radiofield',
-                            checked: true,
-                            name: 'validation'
-                        },
-                        {
-                            xtype: 'container',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
-                            width: 300,
-                            items: [
-                                {
-                                    boxLabel: Uni.I18n.translate('validationResults.validate.from', 'IMT', 'Validate data from'),
-                                    inputValue: 'newValidation',
-                                    itemId: 'purpose-rdo-validate-from-date',
-                                    xtype: 'radiofield',
-                                    name: 'validation'
-                                },
-                                {
-                                    xtype: 'datefield',
-                                    itemId: 'purpose-dtm-validation-from-date',
-                                    editable: false,
-                                    showToday: false,
-                                    value: purpose.get('validationInfo').lastChecked ? new Date(purpose.get('validationInfo').lastChecked) : new Date(),
-                                    fieldLabel: '  ',
-                                    labelWidth: 10,
-                                    width: 150,
-                                    listeners: {
-                                        focus: {
-                                            fn: function () {
-                                                var radioButton = Ext.ComponentQuery.query('#purpose-rdg-validation-run #purpose-rdo-validate-from-date')[0];
-                                                radioButton.setValue(true);
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    xtype: 'panel',
-                    itemId: 'purpose-pnl-validation-progress',
-                    layout: 'fit',
-                    padding: '0 0 0 50'
-                }
-            ]
-        });
-    },
-
-    onValidateNow: function (confWindow, purpose) {
+    onValidateNow: function (purpose, usagePoint, getConfirmationWindow) {
         var me = this,
-            lastChecked,
-            usagePoint = Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint;
+            confWindow = getConfirmationWindow(),
+            progressbar = confWindow.insert(2, {
+                xtype: 'progressbar',
+                itemId: 'validation-progressbar',
+                margin: '5 0 15 0'
+            }),
+            lastChecked;
+
+        progressbar.wait({
+            duration: 60000,
+            fn: Ext.bind(me.onTooLongOperation, me, [purpose, confWindow, {
+                title: Uni.I18n.translate('purpose.dataValidation.timeout.title1', 'IMT', 'Data validation takes longer than expected'),
+                msg: Uni.I18n.translate('purpose.dataValidation.timeout.msg1', 'IMT', 'Data validation takes longer than expected. Data validation will continue in the background.')
+            }])
+        });
 
         if (confWindow.down('#purpose-rdg-validation-run').getValue().validation === 'newValidation') {
             lastChecked = confWindow.down('#purpose-dtm-validation-from-date').getValue().getTime();
@@ -361,52 +367,91 @@ Ext.define('Imt.purpose.controller.Purpose', {
         } else {
             lastChecked = new Date().getTime();
         }
-        confWindow.down('#purpose-pnl-validation-progress').add(Ext.create('Ext.ProgressBar', {
-            margin: '5 0 15 0'
-        })).wait({
-            duration: 60000,
-            text: Uni.I18n.translate('purpose.dataValidation.isInProgress', 'IMT', 'Data validation is in progress. Please wait...'),
-            fn: function () {
-                confWindow.destroy();
-                Ext.widget('messagebox', {
-                    buttons: [
-                        {
-                            text: Uni.I18n.translate('general.close', 'IMT', 'Close'),
-                            ui: 'remove',
-                            handler: function () {
-                                this.up('window').close();
-                            }
-                        }
-                    ],
-                    listeners: {
-                        close: function () {
-                            this.destroy();
-                        }
-                    }
-                }).show({
-                    ui: 'notification-error',
-                    title: Uni.I18n.translate('purpose.dataValidation.timeout.title1', 'IMT', 'Data validation takes longer than expected'),
-                    msg: Uni.I18n.translate('purpose.dataValidation.timeout.msg1', 'IMT', 'Data validation takes longer than expected. Data validation will continue in the background.'),
-                    icon: Ext.MessageBox.ERROR
-                });
-            }
+
+        purpose.set('validationInfo', {lastChecked: lastChecked});
+        me.doOperation(purpose, usagePoint, confWindow, Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'), 'validate');
+    },
+
+    estimatePurpose: function (purpose) {
+        var me = this,
+            usagePoint = Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint,
+            confirmationWindow = Ext.widget('confirmation-window', {
+                itemId: 'estimate-now-confirmation-window',
+                closeAction: 'destroy',
+                confirmText: Uni.I18n.translate('general.estimate', 'IMT', 'Estimate'),
+                confirmation: _.once(Ext.bind(me.onEstimateNow, me, [purpose, usagePoint, getConfirmationWindow]))
+            });
+
+        confirmationWindow.show({
+            title: Uni.I18n.translate('purpose.estimateNow', 'IMT', "Estimate data for '{0}' purpose on usage point '{1}'?",
+                [purpose.get('name'), usagePoint.get('name')], false),
+            icon: 'icon-question4'
         });
 
-        var purposeProxy = purpose.getProxy();
-        purpose.set('validationInfo', {lastChecked: lastChecked});
-        purposeProxy.extraParams = {
-            usagePointId: usagePoint.get('name'),
-            upVersion: usagePoint.get('version')
-        };
-        purposeProxy.timeout = 600000;
-        purpose.save({
+        function getConfirmationWindow() {
+            return confirmationWindow
+        }
+    },
+
+    onEstimateNow: function (purpose, usagePoint, getConfirmationWindow) {
+        var me = this,
+            confirmationWindow = getConfirmationWindow(),
+            progressbar = confirmationWindow.insert(1, {
+                xtype: 'progressbar',
+                itemId: 'estimation-progressbar',
+                margin: '5 0 15 0'
+            });
+
+        progressbar.wait({
+            duration: 60000,
+            fn: Ext.bind(me.onTooLongOperation, me, [purpose, confirmationWindow, {
+                title: Uni.I18n.translate('purpose.dataEstimation.timeout.title1', 'IMT', 'Data estimation takes longer than expected'),
+                msg: Uni.I18n.translate('purpose.dataEstimation.timeout.msg1', 'IMT', 'Data estimation takes longer than expected. Data estimation will continue in the background.')
+            }])
+        });
+
+        me.doOperation(purpose, usagePoint, confirmationWindow, Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'), 'estimate');
+    },
+
+    onTooLongOperation: function (purpose, confirmationWindow, errorMessageConfig) {
+        var errorMessage = Ext.widget('messagebox', {
+            closeAction: 'destroy',
+            buttons: [
+                {
+                    text: Uni.I18n.translate('general.close', 'IMT', 'Close'),
+                    ui: 'remove',
+                    handler: function () {
+                        this.up('window').close();
+                    }
+                }
+            ]
+        });
+
+        Ext.suspendLayouts();
+        confirmationWindow.close();
+        errorMessage.show(Ext.apply({
+            ui: 'notification-error',
+            modal: false,
+            icon: Ext.MessageBox.ERROR
+        }, errorMessageConfig));
+        Ext.resumeLayouts(true);
+    },
+
+    doOperation: function (purpose, usagePoint, confirmationWindow, successMessage, action) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            purposePage = me.getPurposePage();
+
+        purpose[action](usagePoint, {
             isNotEdit: true,
-            callback: function (model, operation, success) {
-                confWindow.destroy();
-                purposeProxy.timeout = 30000;
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'));
-                    me.getController('Uni.controller.history.Router').getRoute().forward();
+            notHandleTimeout: true,
+            callback: function (options, success, response) {
+                if (response.status) {
+                    confirmationWindow.close();
+                }
+                if (purposePage.rendered && success) {
+                    me.getApplication().fireEvent('acknowledge', successMessage);
+                    router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
                 }
             }
         });

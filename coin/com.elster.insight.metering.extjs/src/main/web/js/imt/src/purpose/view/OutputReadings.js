@@ -157,7 +157,6 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         output: me.output,
                         router: me.router,
                         hidden: true,
-                        withOutAppName: true,
                         outputType: output.get('outputType')
                     }
                 });
@@ -199,10 +198,12 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             output = me.output,
             unitOfMeasure = output.get('readingType').names.unitOfMeasure,
             okColor = "#70BB51",
+            estimatedColor = '#568343',
             suspectColor = 'rgba(235, 86, 66, 1)',
             informativeColor = "#dedc49",
             notValidatedColor = "#71adc7",
             tooltipOkColor = 'rgba(255, 255, 255, 0.85)',
+            tooltipEstimatedColor = 'rgba(86, 131, 67, 0.3)',
             tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)',
             tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)',
             tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
@@ -220,13 +221,17 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             point.unitOfMeasure = unitOfMeasure;
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
+            point.showQualityIcon = !Ext.isEmpty(record.get('readingQualities'));
 
             point.validationRules = record.get('validationRules');
 
             if (record.get('modificationFlag')) {
                 point.edited = true;
             }
-            if (properties.notValidated) {
+            if (record.get('estimatedByRule')) {
+                point.color = estimatedColor;
+                point.tooltipColor = tooltipEstimatedColor;
+            } else if (properties.notValidated) {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
             } else if (properties.suspect) {
