@@ -58,7 +58,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         });
 
         me.getRecurrenceTypeCombo().setValue(me.getRecurrenceTypeCombo().store.getAt(2));
-        widget.down('#est-tasks-add-loglevel').setValue('WARNING'); // = Default value at creation time
+        widget.down('#est-tasks-add-loglevel').setValue(900); // = WARNING, the default value at creation time
         me.recurrenceEnableDisable();
         Ext.resumeLayouts(true);
     },
@@ -77,7 +77,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             newEstimationTask.beginEdit();
 
             newEstimationTask.set('name', newEstimationTaskDto.name);
-            newEstimationTask.set('logLevelId', newEstimationTaskDto.logLevelId);
+            newEstimationTask.set('logLevel', newEstimationTaskDto.logLevel);
             newEstimationTask.set('application', appName);
             newEstimationTask.set('active', true);
             newEstimationTask.set('lastEstimationOccurrence', null);

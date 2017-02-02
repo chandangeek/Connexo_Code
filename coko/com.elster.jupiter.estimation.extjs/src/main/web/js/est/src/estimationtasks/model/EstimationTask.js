@@ -14,8 +14,8 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
         {name: 'nextRun', type: 'number', useNull: true},
         {name: 'lastRun', type: 'number', useNull: true},
         {
-            name: 'logLevelId',
-            type: 'string',
+            name: 'logLevel',
+            type: 'int',
             useNull: true
         },
         {

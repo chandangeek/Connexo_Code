@@ -21,7 +21,7 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.logLevel', 'EST', 'Log level'),
-                name: 'logLevelId',
+                name: 'logLevel',
                 labelWidth: 250,
                 renderer: function(value) {
                     if (Ext.isEmpty(value)) {

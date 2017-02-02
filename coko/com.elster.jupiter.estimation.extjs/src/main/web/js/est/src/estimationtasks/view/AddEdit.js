@@ -53,7 +53,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                         xtype: 'combobox',
                         fieldLabel: Uni.I18n.translate('general.logLevel', 'EST', 'Log level'),
                         required: true,
-                        name: 'logLevelId',
+                        name: 'logLevel',
                         width: 500,
                         itemId: 'est-tasks-add-loglevel',
                         allowBlank: false,
