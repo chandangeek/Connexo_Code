@@ -35,7 +35,7 @@ import static com.elster.jupiter.time.TimeDuration.TimeUnit.YEARS;
  * represents a relative period in time
  * e.g. two months , three weeks.
  * TimeDuration takes into account that the exact length
- * of a duration specified in years,months,weeks or days is not fixed.
+ * of a duration specified in years, months, weeks or days is not fixed.
  *
  * @author Karel
  */
