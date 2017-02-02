@@ -35,10 +35,10 @@ Ext.define('Cfg.model.ValidationTaskHistory', {
             }
         },
         {
-            name: 'logLevelId',
+            name: 'logLevel',
             persist:false,
             mapping:  function (data) {
-                return data.task.logLevelId;
+                return data.task.logLevel;
             }
         },
         {

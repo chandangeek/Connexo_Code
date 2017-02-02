@@ -26,7 +26,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.logLevel', 'CFG', 'Log level'),
-                name: 'logLevelId',
+                name: 'logLevel',
                 labelWidth: 250,
                 renderer: function(value) {
                     if (Ext.isEmpty(value)) {

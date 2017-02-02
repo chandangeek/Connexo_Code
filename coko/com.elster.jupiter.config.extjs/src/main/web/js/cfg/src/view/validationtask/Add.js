@@ -53,7 +53,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                         xtype: 'combobox',
                         fieldLabel: Uni.I18n.translate('general.logLevel', 'CFG', 'Log level'),
                         required: true,
-                        name: 'logLevelId',
+                        name: 'logLevel',
                         width: 500,
                         itemId: 'cfg-validation-task-add-loglevel',
                         allowBlank: false,

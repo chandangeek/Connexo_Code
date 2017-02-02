@@ -234,7 +234,7 @@ Ext.define('Cfg.controller.Tasks', {
         me.taskId = null;
         me.fromEdit = false;
         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
-        view.down('#cfg-validation-task-add-loglevel').setValue('WARNING'); // = Default value at creation time
+        view.down('#cfg-validation-task-add-loglevel').setValue(900); // = WARNING, the default value at creation time
         me.recurrenceEnableDisable();
     },
 
@@ -519,7 +519,7 @@ Ext.define('Cfg.controller.Tasks', {
         }
 
         record.set('name', form.down('#txt-task-name').getValue());
-        record.set('logLevelId', form.down('#cfg-validation-task-add-loglevel').getValue());
+        record.set('logLevel', form.down('#cfg-validation-task-add-loglevel').getValue());
 
         if (dataSourcesContainer) {
             dataSourcesContainer.setDataSourcesToRecord(record);

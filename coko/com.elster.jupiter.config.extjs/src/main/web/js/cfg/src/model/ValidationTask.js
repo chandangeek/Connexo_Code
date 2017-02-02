@@ -7,8 +7,8 @@ Ext.define('Cfg.model.ValidationTask', {
     fields: [
 			'id', 'name',
         {
-            name: 'logLevelId',
-            type: 'string',
+            name: 'logLevel',
+            type: 'int',
             useNull: true
         },
         {
