@@ -3,8 +3,10 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 
-import java.time.Instant;
+import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
+@ProviderType
 public interface MeterBuilder {
 
     Meter create();
