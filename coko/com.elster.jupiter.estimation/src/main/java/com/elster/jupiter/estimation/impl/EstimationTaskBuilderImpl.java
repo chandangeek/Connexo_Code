@@ -6,7 +6,6 @@ import com.elster.jupiter.estimation.EstimationTaskBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -24,7 +23,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     private EndDeviceGroup endDeviceGroup;
     private UsagePointGroup usagePointGroup;
     private QualityCodeSystem qualityCodeSystem;
-    private TaskLogLevel logLevel;
+    private int logLevel;
 
     public EstimationTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -55,7 +54,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     }
 
     @Override
-    public EstimationTaskBuilder setLogLevel(TaskLogLevel logLevel) {
+    public EstimationTaskBuilder setLogLevel(int logLevel) {
         this.logLevel = logLevel;
         return this;
     }

@@ -3,7 +3,6 @@ package com.elster.jupiter.estimation;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -23,7 +22,7 @@ public interface EstimationTaskBuilder {
 
     EstimationTaskBuilder setName(String string);
 
-    EstimationTaskBuilder setLogLevel(TaskLogLevel logLevel);
+    EstimationTaskBuilder setLogLevel(int logLevel);
 
     EstimationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
