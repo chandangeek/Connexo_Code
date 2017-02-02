@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -20,6 +21,8 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -78,6 +81,17 @@ public class ReadingTypeResource {
                 .stream()
                 .map(readingTypeInfoFactory::from)
                 .collect(Collectors.toList());
+
+        String searchText = queryParameters.getLike();
+        if (searchText != null && !searchText.isEmpty()) {
+            ReadingTypeFilter filter = new ReadingTypeFilter();
+            filter.addCondition(getReadingTypeFilterCondition(searchText));
+            List<ReadingTypeInfo> infos = meteringService.findReadingTypes(filter).stream()
+                    .limit(50)
+                    .map(readingTypeInfoFactory::from)
+                    .collect(Collectors.toList());
+            return PagedInfoList.fromPagedList("readingTypes", infos, queryParameters);
+        }
 
         return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);
     }
@@ -295,5 +309,25 @@ public class ReadingTypeResource {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_CREATING_FAIL);
         }
         return Response.ok().build();
+    }
+
+    private Condition getReadingTypeFilterCondition(String dbSearchText) {
+        String regex = "*" + dbSearchText.replace(" ", "*") + "*";
+        return Where.where("fullAliasName").likeIgnoreCase(regex)
+                .and(mrIdMatchOfNormalRegisters()
+                        .or(mrIdMatchOfBillingRegisters())
+                        .or(mrIdMatchOfPeriodRelatedRegisters()));
+    }
+
+    private Condition mrIdMatchOfPeriodRelatedRegisters() {
+        return Where.where("mRID").matches("^[11-13]\\.\\[1-24]\\.0", "");
+    }
+
+    private Condition mrIdMatchOfBillingRegisters() {
+        return Where.where("mRID").matches("^8\\.\\d+\\.0", "");
+    }
+
+    private Condition mrIdMatchOfNormalRegisters() {
+        return Where.where("mRID").matches("^0\\.\\d+\\.0", "");
     }
 }
