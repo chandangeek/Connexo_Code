@@ -52,6 +52,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -245,6 +246,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .collect(Collectors.toList());
     }
 
+    @Deprecated
     @Override
     public boolean isLinkableValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet, List<ValidationRuleSet> linkedValidationRuleSets) {
         if (linkedValidationRuleSets.contains(validationRuleSet)) {
@@ -294,6 +296,33 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         }
         return false;
     }
+
+    @Override
+    public List<ReadingTypeDeliverable> getMatchingDeliverablesOnValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
+        if (!validationRuleSet.getRuleSetVersions().isEmpty()) {
+            ValidationRuleSetVersion activeRuleSetVersion = validationRuleSet.getRuleSetVersions()
+                    .stream()
+                    .filter(validationRuleSetVersion -> validationRuleSetVersion.getStatus() == ValidationVersionStatus.CURRENT)
+                    .findFirst()
+                    .get();
+            if (!activeRuleSetVersion.getRules().isEmpty()) {
+                List<ReadingType> ruleSetReadingTypes = activeRuleSetVersion
+                        .getRules()
+                        .stream()
+                        .flatMap(rule -> rule.getReadingTypes().stream())
+                        .collect(Collectors.toList());
+                if (!metrologyContract.getDeliverables().isEmpty()) {
+                    return metrologyContract.getDeliverables()
+                            .stream()
+                            .filter(deliverable -> ruleSetReadingTypes.contains(deliverable.getReadingType()))
+                            .collect(Collectors.toList());
+                }
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
 
     @Override
     public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {

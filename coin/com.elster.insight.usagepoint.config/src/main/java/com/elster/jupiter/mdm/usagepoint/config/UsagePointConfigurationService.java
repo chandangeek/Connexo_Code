@@ -4,6 +4,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
@@ -49,9 +50,12 @@ public interface UsagePointConfigurationService {
      */
     void removeValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet);
 
+    @Deprecated
     boolean isLinkableValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet, List<ValidationRuleSet> linkedValidationRuleSets);
 
     boolean isValidationRuleSetInUse(ValidationRuleSet ruleset);
+
+    List<ReadingTypeDeliverable> getMatchingDeliverablesOnValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet);
 
     /**
      * Gets the {@link EstimationRuleSet}s that are being used by the specified {@link MetrologyContract}.
