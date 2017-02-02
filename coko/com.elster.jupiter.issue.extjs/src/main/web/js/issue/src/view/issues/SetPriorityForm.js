@@ -137,7 +137,7 @@ Ext.define('Isu.view.issues.SetPriorityForm', {
                         Uni.I18n.translate('issue.priority.veryHigh', 'ISU', 'Very high');
 
 
-        labelPriority.setText(priorityValue + ' - ' + priorityLabel);
+        labelPriority.setText(priorityLabel + ' (' + priorityValue +')');
 
     },
     numberFieldValidation: function (field) {

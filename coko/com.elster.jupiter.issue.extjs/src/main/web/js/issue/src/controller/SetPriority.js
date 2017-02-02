@@ -93,8 +93,8 @@ Ext.define('Isu.controller.SetPriority', {
             }
         };
 
-        acknowledgeMessage = (forAlarm ? Uni.I18n.translate('issue.dal.setpriority.success', 'ISU', 'Alarm priority has been changed'):
-                                         Uni.I18n.translate('issue.isu.setpriority.success', 'ISU', 'Issue priority has been changed')
+        acknowledgeMessage = (forAlarm ? Uni.I18n.translate('issue.dal.setpriority.success', 'ISU', 'Alarm priority changed'):
+                                         Uni.I18n.translate('issue.isu.setpriority.success', 'ISU', 'Issue priority changed')
                              );
 
         Ext.Ajax.request({
