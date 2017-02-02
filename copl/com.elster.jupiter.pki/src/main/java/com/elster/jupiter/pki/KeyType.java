@@ -1,5 +1,7 @@
 package com.elster.jupiter.pki;
 
+import com.elster.jupiter.util.HasId;
+
 /**
  * KeyType identifies the properties of a CryptoEntity (certificate/ keypair/ symmetric key) such as algorithm, bit length, ...
  * For an symmetric key, the following properties apply:
@@ -11,7 +13,7 @@ package com.elster.jupiter.pki;
  * - ec: curve name
  *
  */
-public interface KeyType {
+public interface KeyType extends HasId {
 
     /**
      * The name for a KeyType is intended to allow easy identification of a type. It does not need to match on other value.

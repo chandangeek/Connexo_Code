@@ -59,6 +59,11 @@ public interface KeyAccessorType {
      */
     String getKeyEncryptionMethod();
 
+    /**
+     * Saves the changes made via the setters of the key function type
+     */
+    void save();
+
     interface Builder {
         Builder description(String description);
         Builder duration(TimeDuration duration);
