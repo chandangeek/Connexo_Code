@@ -45,7 +45,7 @@ public class UsagePointTestResource {
     }
 
     @PUT
-    @Path("/clearHistory/")
+    @Path("/clearhistory/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response clearImportHistory() throws SQLException {
