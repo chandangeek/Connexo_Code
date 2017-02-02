@@ -87,7 +87,7 @@ Ext.define('Fim.controller.history.DataImport', {
             disabled: true,
             items: {
                 importhistory: {
-                    title: Uni.I18n.translate('general.history', 'FIM', 'History'),
+                    title: Uni.I18n.translate('general.importHistory', 'FIM', 'Import history'),
                     route: 'importhistory',
                     controller: 'Fim.controller.History',
                     action: 'showImportServicesHistoryWorkspace',
