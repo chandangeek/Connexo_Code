@@ -23,5 +23,5 @@ public class DataExportTaskInfo {
     public StandardDataSelectorInfo standardDataSelector;
     public List<DestinationInfo> destinations = new ArrayList<>();
     public long version;
-    public String logLevelId;
+    public int logLevel;
 }

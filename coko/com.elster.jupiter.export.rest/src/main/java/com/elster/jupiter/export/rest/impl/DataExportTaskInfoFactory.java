@@ -8,7 +8,6 @@ import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -75,8 +74,7 @@ public class DataExportTaskInfoFactory {
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.id = dataExportTask.getId();
         info.name = dataExportTask.getName();
-        TaskLogLevel taskLogLevel = dataExportTask.getLogLevel() != null ? dataExportTask.getLogLevel() : TaskLogLevel.WARNING;
-        info.logLevelId = taskLogLevel.name();
+        info.logLevel = dataExportTask.getLogLevel();
         info.active = dataExportTask.isActive();
         info.dataProcessor =
                 new ProcessorInfo(
