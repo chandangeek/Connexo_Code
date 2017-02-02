@@ -2,12 +2,16 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
+
+import com.google.inject.Inject;
 
 import javax.validation.constraints.Size;
 import java.util.Optional;
@@ -23,8 +27,11 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String keyEncryptionMethod;
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<KeyType> keyType = Reference.empty();
+    @IsPresent
     private Reference<DeviceType> deviceType = Reference.empty();
+    private DataModel dataModel;
 
     enum Fields {
         ID("id"),
@@ -33,8 +40,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
         ENCRYPTIONMETHOD("keyEncryptionMethod"),
         DURATION("duration"),
         KEYTYPE("keyType"),
-        DEVICETYPE("deviceType")
-        ;
+        DEVICETYPE("deviceType");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -44,6 +50,11 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
         String fieldName() {
             return javaFieldName;
         }
+    }
+
+    @Inject
+    public KeyAccessorTypeImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     public long getId() {
@@ -62,7 +73,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
 
     @Override
     public Optional<TimeDuration> getDuration() {
-        return duration==null?Optional.empty():Optional.of(duration);
+        return duration == null ? Optional.empty() : Optional.of(duration);
     }
 
     @Override
@@ -77,6 +88,11 @@ public class KeyAccessorTypeImpl implements KeyAccessorType {
     @Override
     public String getKeyEncryptionMethod() {
         return keyEncryptionMethod;
+    }
+
+    @Override
+    public void save() {
+        Save.UPDATE.save(dataModel, this);
     }
 
     public void setKeyEncryptionMethod(String keyEncryptionMethod) {

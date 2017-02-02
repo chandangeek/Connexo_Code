@@ -309,7 +309,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         private final KeyAccessorTypeImpl underConstruction;
 
         private KeyAccessorTypeBuilder(String name, KeyType keyType, String keyEncryptionMethod, DeviceTypeImpl deviceType) {
-            underConstruction = new KeyAccessorTypeImpl();
+            underConstruction = new KeyAccessorTypeImpl(getDataModel());
             underConstruction.setName(name);
             underConstruction.setKeyType(keyType);
             underConstruction.setKeyEncryptionMethod(keyEncryptionMethod);
