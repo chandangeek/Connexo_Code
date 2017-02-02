@@ -7,7 +7,7 @@ Ext.define('Uni.property.store.PropertyReadingTypes', {
     storeId: 'PropertyReadingTypes',
     proxy: {
         type: 'ajax',
-        url: '/api/mds/readingtypes',
+        url: '/api/mtr/readingtypes',
         reader: {
             type: 'json',
             root: 'readingTypes'
