@@ -265,11 +265,35 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(jsonModel.<String>get("$registerData[1].validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<Integer>get("$registerData[1].validationRules[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$registerData[1].validationRules[0].name")).isEqualTo("MinMax");
-        assertThat(jsonModel.<String>get("$registerData[2].action")).isEqualTo("FAIL");
-        assertThat(jsonModel.<Boolean>get("$registerData[2].dataValidated")).isEqualTo(true);
-        assertThat(jsonModel.<String>get("$registerData[2].validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<Integer>get("$registerData[2].validationRules[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$registerData[2].validationRules[0].name")).isEqualTo("MinMax");
+    }
+
+    @Test
+    public void testGetRegisterSuspectOutputData() throws Exception {
+        mockReadingsWithValidationResult(channel);
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
+        when(channel.getCalculatedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
+        when(channel.getPersistedRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Collections.emptyList());
+        when(channel.toList(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingTimeStamp1, readingTimeStamp2, readingTimeStamp3));
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", readingTimeStamp1.toEpochMilli())
+                .property("intervalEnd", readingTimeStamp3.toEpochMilli())
+                .property("suspect", Collections.singletonList("suspect"))
+                .create();
+        // Business method
+        String json = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/2/registerData")
+                .queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<List<Number>>get("$registerData[*].timeStamp")).containsExactly(
+                readingTimeStamp3.toEpochMilli(), readingTimeStamp2.toEpochMilli());
+        assertThat(jsonModel.<List<Number>>get("$registerData[*].reportedDateTime")).containsExactly(
+                readingTimeStamp3.toEpochMilli(), readingTimeStamp2.toEpochMilli());
+        assertThat(jsonModel.<List<String>>get("$registerData[*].value")).containsExactly("250", "206");
+        assertThat(jsonModel.<String>get("$registerData[0].validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<String>get("$registerData[1].validationResult")).isEqualTo("validationStatus.suspect");
     }
 
     @Test
@@ -412,7 +436,6 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     private void mockReadingsWithValidationResult(Channel channel) {
         ValidationRule minMax = mockValidationRule(1, "MinMax");
 
-        DataValidationStatus dataValidationStatus_1 = mockValidationStatus(readingTimeStamp1, minMax);
         DataValidationStatus dataValidationStatus_2 = mockValidationStatus(readingTimeStamp2, minMax);
         DataValidationStatus dataValidationStatus_3 = mockValidationStatus(readingTimeStamp3, minMax);
 
@@ -421,7 +444,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
         when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM)),
                 eq(channel), any(), eq(Range.openClosed(readingTimeStamp1, readingTimeStamp3))))
-                .thenReturn(Arrays.asList(dataValidationStatus_1, dataValidationStatus_2, dataValidationStatus_3));
+                .thenReturn(Arrays.asList(dataValidationStatus_2, dataValidationStatus_3));
     }
 
     private ValidationRule mockValidationRule(long id, String name) {

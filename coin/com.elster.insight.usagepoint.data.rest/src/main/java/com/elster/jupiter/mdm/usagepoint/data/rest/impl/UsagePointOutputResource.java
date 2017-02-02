@@ -266,10 +266,15 @@ public class UsagePointOutputResource {
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
                         .map(outputChannelDataInfoFactory::createChannelDataInfo)
+                        .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                         .collect(Collectors.toList());
             }
         }
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
+    }
+
+    private boolean hasSuspects(OutputChannelDataInfo info) {
+        return ValidationStatus.SUSPECT.equals(info.validationResult);
     }
 
     private <T extends BaseReadingRecord> Map<Instant, T> toMap(List<T> readings) {
@@ -466,10 +471,15 @@ public class UsagePointOutputResource {
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
                         .map(reading -> outputRegisterDataInfoFactory.createRegisterDataInfo(reading, readingTypeDeliverable))
+                        .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                         .collect(Collectors.toList());
             }
         }
         return PagedInfoList.fromPagedList("registerData", outputRegisterData, queryParameters);
+    }
+
+    private boolean hasSuspects(OutputRegisterDataInfo info) {
+        return ValidationStatus.SUSPECT.equals(info.validationResult);
     }
 
     @GET

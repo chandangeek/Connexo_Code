@@ -305,6 +305,41 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     }
 
     @Test
+    public void testGetSuspectChannelData() throws Exception {
+        AggregatedChannel channel = mock(AggregatedChannel.class);
+        when(channel.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
+        when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
+        when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
+        when(channel.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint()))).thenReturn(
+                Arrays.asList(INTERVAL_1.upperEndpoint(), INTERVAL_2.upperEndpoint(), INTERVAL_3.upperEndpoint(), INTERVAL_4.upperEndpoint())
+        );
+        mockDifferentIntervalReadings(channel);
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", INTERVAL_1.lowerEndpoint().toEpochMilli())
+                .property("intervalEnd", INTERVAL_4.upperEndpoint().toEpochMilli())
+                .property("suspect", Collections.singletonList("suspect"))
+                .create();
+
+        // Business method
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
+                .queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
+
+        assertThat(jsonModel.<Long>get("$.channelData[0].interval.start")).isEqualTo(INTERVAL_3.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[0].interval.end")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[0].reportedDateTime")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<String>get("$.channelData[0].value")).isEqualTo("10");
+        assertThat(jsonModel.<Boolean>get("$.channelData[0].dataValidated")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.channelData[0].validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<String>get("$.channelData[0].action")).isEqualTo("FAIL");
+        assertThat(jsonModel.<Number>get("$.channelData[0].validationRules[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.channelData[0].validationRules[0].name")).isEqualTo("MinMax");
+    }
+
+    @Test
     public void testGetChannelDataOfMonthlyChannel() throws UnsupportedEncodingException {
         ZonedDateTime time = ZonedDateTime.of(LocalDateTime.of(2016, 5, 1, 0, 0), ZoneId.systemDefault());
         Range<Instant> interval_JUN = Range.openClosed(time.toInstant(), time.with(Month.JUNE).toInstant());
