@@ -506,13 +506,17 @@ public class UsagePointResource {
 
         if (validate) {
             if (step.equals("generalInfo")) {
-                usagePointInfoFactory.newUsagePointBuilder(info).validate();
+                try (TransactionContext transaction = transactionService.getContext()) {
+                    usagePointInfoFactory.newUsagePointBuilder(info).validate();
+                }
             } else if (step.equals("techInfo")) {
                 if (info.techInfo == null) {
                     throw exceptionFactory.newException(MessageSeeds.NO_SUCH_TECHNICAL_INFO, info.serviceCategory);
                 }
-                info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
-                        .validate(), clock).validate();
+                try (TransactionContext transaction = transactionService.getContext()) {
+                    info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
+                            .validate(), clock).validate();
+                }
             } else if (step.equals("metrologyConfigurationWithMetersInfo")) {
                 validateMetrologyConfiguration(info, validationBuilder);
             } else if (customPropertySetId > 0) {

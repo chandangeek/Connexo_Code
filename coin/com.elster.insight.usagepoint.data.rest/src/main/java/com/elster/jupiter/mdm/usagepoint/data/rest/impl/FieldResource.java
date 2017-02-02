@@ -84,7 +84,6 @@ public class FieldResource {
         UsagePoint usagePoint;
         usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
-
         return usagePoint;
     }
 }

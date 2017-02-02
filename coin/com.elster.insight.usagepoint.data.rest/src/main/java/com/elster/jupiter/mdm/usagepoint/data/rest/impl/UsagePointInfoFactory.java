@@ -39,7 +39,6 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleInfoFactory;
@@ -329,13 +328,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
             usagePointBuilder.withGeoCoordinates(geoCoordinates);
         }
 
-        try (TransactionContext transaction = transactionService.getContext()) {
-            Location location = getLocation(usagePointInfo);
-            if (location != null) {
-                usagePointBuilder.withLocation(location);
-            }
-            return usagePointBuilder;
+        Location location = getLocation(usagePointInfo);
+        if (location != null) {
+            usagePointBuilder.withLocation(location);
         }
+        return usagePointBuilder;
     }
 
     SpatialCoordinates getGeoCoordinates(UsagePointInfo usagePointInfo) {
