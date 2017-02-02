@@ -3,7 +3,6 @@ package com.elster.jupiter.export;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -97,7 +96,7 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     String getApplication();
 
-    TaskLogLevel getLogLevel();
+    int getLogLevel();
 
-    void setLogLevel(TaskLogLevel newLevel);
+    void setLogLevel(int newLevel);
 }

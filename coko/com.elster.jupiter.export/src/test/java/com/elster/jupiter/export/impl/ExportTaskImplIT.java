@@ -30,7 +30,6 @@ import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
@@ -54,6 +53,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -334,7 +334,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         ExportTask exportTask = dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(NAME)
-                .setLogLevel(TaskLogLevel.TRACE)
+                .setLogLevel(Level.FINEST.intValue())
                 .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setDataFormatterFactoryName(FORMATTER)
@@ -382,7 +382,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         ExportTask exportTask = dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(NAME)
-                .setLogLevel(TaskLogLevel.TRACE)
+                .setLogLevel(Level.FINEST.intValue())
                 .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .selectingEventTypes()
@@ -652,7 +652,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         return dataExportService.newBuilder()
                 .scheduleImmediately()
                 .setName(name)
-                .setLogLevel(TaskLogLevel.TRACE)
+                .setLogLevel(Level.FINEST.intValue())
                 .setApplication(APPLICATION)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .selectingMeterReadings()
