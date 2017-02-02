@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -33,6 +32,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -59,7 +59,7 @@ final class DataValidationTaskImpl implements DataValidationTask {
     private String userName;
     private final Thesaurus thesaurus;
     private transient Instant nextExecution;
-    private transient TaskLogLevel logLevel;
+    private transient int logLevel;
 
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
 
@@ -82,14 +82,14 @@ final class DataValidationTaskImpl implements DataValidationTask {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.destinationSpecProvider = destinationSpecProvider;
-        this.logLevel = TaskLogLevel.WARNING;
+        this.logLevel = Level.WARNING.intValue();
     }
 
-    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem, TaskLogLevel logLevel) {
+    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
         return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, qualityCodeSystem, logLevel);
     }
 
-    DataValidationTaskImpl init(String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem, TaskLogLevel logLevel) {
+    DataValidationTaskImpl init(String name, Instant nextExecution, QualityCodeSystem qualityCodeSystem, int logLevel) {
         this.nextExecution = nextExecution;
         this.name = name.trim();
         this.logLevel = logLevel;
@@ -385,11 +385,11 @@ final class DataValidationTaskImpl implements DataValidationTask {
         return recurrentTask.get();
     }
 
-    public TaskLogLevel getLogLevel() {
+    public int getLogLevel() {
         return recurrentTask.isPresent() ? this.getRecurrentTask().getLogLevel() : logLevel;
     }
 
-    public void setLogLevel(TaskLogLevel newLevel) {
+    public void setLogLevel(int newLevel) {
         this.logLevel = newLevel;
         if (recurrentTask.isPresent()) {
             recurrentTaskDirty = true;

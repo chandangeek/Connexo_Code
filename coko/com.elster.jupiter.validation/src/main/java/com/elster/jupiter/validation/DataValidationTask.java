@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import aQute.bnd.annotation.ProviderType;
@@ -73,8 +72,8 @@ public interface DataValidationTask extends HasAuditInfo {
 
     void updateLastRun(Instant triggerTime);
 
-    TaskLogLevel getLogLevel();
+    int getLogLevel();
 
-    void setLogLevel(TaskLogLevel newLevel);
+    void setLogLevel(int newLevel);
 }
 

@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -13,7 +12,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -28,6 +26,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -90,14 +89,14 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationTask == null) {
-            validationTask = setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC, TaskLogLevel.INFORMATION), ID);
+            validationTask = setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC, Level.INFO.intValue()), ID);
         }
         return validationTask;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC, TaskLogLevel.INFORMATION), ID);
+        return setId(newTask().init("taskname", Instant.now(), QualityCodeSystem.MDC, Level.INFO.intValue()), ID);
     }
 
     @Override
@@ -127,7 +126,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         when(taskService.newBuilder()).thenReturn(taskBuilder);
         when(recurrentTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(recurrentTask.getName()).thenReturn("testname");
-        when(recurrentTask.getLogLevel()).thenReturn(TaskLogLevel.INFORMATION);
+        when(recurrentTask.getLogLevel()).thenReturn(Level.INFO.intValue());
 
         doNothing().when(recurrentTask).setNextExecution(any(Instant.class));
         doNothing().when(recurrentTask).save();
@@ -142,7 +141,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     public void testPersist() {
         DataValidationTaskImpl testPersistDataValidationTask = newTask();
         testPersistDataValidationTask.setName("testname");
-        testPersistDataValidationTask.setLogLevel(TaskLogLevel.TRACE);
+        testPersistDataValidationTask.setLogLevel(Level.FINEST.intValue());
         testPersistDataValidationTask.setEndDeviceGroup(endDeviceGroup);
         testPersistDataValidationTask.doSave();
         verify(dataModel).persist(testPersistDataValidationTask);
