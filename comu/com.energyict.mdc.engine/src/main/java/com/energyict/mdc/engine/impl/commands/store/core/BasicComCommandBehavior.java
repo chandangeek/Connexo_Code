@@ -229,19 +229,12 @@ public class BasicComCommandBehavior implements CanProvideDescriptionTitle {
 
     private <T extends Issue> void buildErrorDescription(DescriptionBuilder builder, String heading, List<T> issues) {
         if (!issues.isEmpty()) {
-            DateTimeFormatter dateAndTimeFormatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build();
-
             PropertyDescriptionBuilder listBuilder = builder.addListProperty(heading);
             for (T issue : issues) {
                 listBuilder.append(issue.getDescription());
-                appendIssueTimestamp(listBuilder, dateAndTimeFormatter.toFormat(), issue);
                 listBuilder.next();
             }
         }
-    }
-
-    private <T extends Issue> void appendIssueTimestamp(PropertyDescriptionBuilder builder, Format dateFormat, Issue issue) {
-        builder.append(" (").append(dateFormat.format(Date.from(issue.getTimestamp()))).append(")");
     }
 
     public boolean hasExecuted() {

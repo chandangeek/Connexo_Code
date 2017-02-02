@@ -58,8 +58,8 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
             addIssue(getIssueService().newProblem(
                     getCommandType(),
                     MessageSeeds.MAXIMUM_TIME_DIFFERENCE_EXCEEDED,
-                    this.timeDifference,
-                    new TimeDuration(toIntExact(this.maximumClockDifference.getMilliSeconds()), TimeDuration.TimeUnit.MILLISECONDS)),
+                    new TimeDuration(toIntExact(this.maximumClockDifference.getMilliSeconds()), TimeDuration.TimeUnit.MILLISECONDS),
+                    new TimeDuration(toIntExact(Math.abs(this.timeDifference.getMilliSeconds())), TimeDuration.TimeUnit.MILLISECONDS)),
                     CompletionCode.TimeError);
         }
     }

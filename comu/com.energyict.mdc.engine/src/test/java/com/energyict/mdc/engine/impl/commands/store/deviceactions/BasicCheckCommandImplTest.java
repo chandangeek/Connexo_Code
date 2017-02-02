@@ -114,7 +114,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         assertThat(basicCheckCommand.getVerifyTimeDifferenceCommand().getWarnings().isEmpty()).isTrue();
         assertThat(basicCheckCommand.getVerifySerialNumberCommand()).isNull();
 
-        assertEquals(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {check time difference; timeDifference: 3 seconds}", journalMessage);
+        assertEquals(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {check maximum clock difference}", journalMessage);
     }
 
     @Test
@@ -175,7 +175,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.ERROR);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {check serial number; check time difference}");
+        assertThat(description).isEqualTo(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {check serial number; check maximum clock difference}");
     }
 
     @Test
@@ -194,7 +194,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.INFO);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; check serial number; check time difference}");
+        assertThat(description).isEqualTo(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; check serial number; check maximum clock difference}");
     }
 
     @Test
@@ -213,7 +213,7 @@ public class BasicCheckCommandImplTest extends CommonCommandImplTests {
         String description = basicCheckCommand.toJournalMessageDescription(LogLevel.TRACE);
 
         // Asserts
-        assertThat(description).isEqualTo(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; check serial number; check time difference; maximumClockDifference: 111 seconds}");
+        assertThat(description).isEqualTo(ComCommandDescriptionTitle.BasicCheckCommandImpl.getDescription() + " {executionState: NOT_EXECUTED; completionCode: Ok; check serial number; check maximum clock difference}");
     }
 
     @Test
