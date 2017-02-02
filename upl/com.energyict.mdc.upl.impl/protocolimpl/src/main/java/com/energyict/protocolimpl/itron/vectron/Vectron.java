@@ -108,7 +108,7 @@ public class Vectron extends SchlumbergerProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date: 2017-01-27 13:23:41 +0200 (Fr, 27 Jan 2017)$";
+        return "$Date: 2017-02-02 16:23:41 +0200 (Th, 2 Feb 2017)$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

@@ -169,16 +169,14 @@ public class VectronProfile {
 
             getLogger().info(" - parsing 60 intervals, start date: "+format(cal));
 
-
             for (int interval=59;interval>=0;interval--) {
-
-
                 if ((recordNr>0) || ((recordNr==0) && (interval < currentIntervalNr))) {
                     int eiStatus=0;
                     int protocolStatus=0;
-                    boolean outage = (massMemoryRecord.getOutageFlags() & (0x80 << Math.abs(interval -59))) != 0;
-                    if (outage)
+                    boolean outage = (massMemoryRecord.getOutageFlags() & (0x0800000000000000L >> interval)) != 0;
+                    if (outage) {
                         eiStatus = (IntervalStateBits.POWERDOWN | IntervalStateBits.POWERUP);
+                    }
                     eiStatus |= mapStatus2EIStatus(massMemoryRecord.getStatusFlags());
                     protocolStatus = massMemoryRecord.getStatusFlags();
 
@@ -199,8 +197,6 @@ public class VectronProfile {
 
 
             } // for (int interval=59;interval>=0;interval--)
-
-
         } // for(int i=massMemoryRecords.size()-1;i>0;i--)
 
 
