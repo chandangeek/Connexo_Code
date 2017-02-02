@@ -334,7 +334,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
         switch (value.type) {
             case 'issue':
-                href = this.router.getRoute('workspace/issues/view').buildUrl({issueId: value.id}, {issueType: value.issueType});
+                href = this.router.getRoute('workspace/issues/view').buildUrl({issueId: value.id.replace(/\D/g,'')}, {issueType: value.issueType});
                 html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 break;
             case 'servicecall':
@@ -342,7 +342,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.reference + ' (' + value.description + ')';
                 break;
             case 'alarm':
-                href = this.router.getRoute('workspace/alarms/view').buildUrl({alarmId: value.id});
+                href = this.router.getRoute('workspace/alarms/view').buildUrl({alarmId: value.id.replace(/\D/g,'')});
                 html = '<a class="a-underline" style="color:' + textColor + ';" href="' + href + '">' + value.description;
                 break;
             case 'process':
