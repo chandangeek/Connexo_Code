@@ -11,11 +11,13 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -40,52 +42,43 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Dimension;
 
 import com.google.common.collect.Range;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link DataAggregationServiceImpl#calculate(UsagePoint, MetrologyContract, Range)} method.
+ * Tests the {@link DataAggregationServiceImpl#introspect(UsagePoint, MetrologyContract, Range)} method.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2016-02-10 (15:40)
+ * @since 2017-02-01 (15:37)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DataAggregationServiceImplCalculateTest {
+public class DataAggregationServiceImplIntrospectionTest {
 
-    @Mock
-    private VirtualFactory virtualFactory;
     @Mock
     private UsagePoint usagePoint;
     @Mock
@@ -109,18 +102,6 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private ServerMeteringService meteringService;
     @Mock
-    private Connection connection;
-    @Mock
-    private PreparedStatement preparedStatement;
-    @Mock
-    private ResultSet resultSet;
-    @Mock
-    private SqlBuilderFactory sqlBuilderFactory;
-    @Mock
-    private ReadingTypeDeliverableForMeterActivationFactory readingTypeDeliverableForMeterActivationFactory;
-    @Mock
-    private ClauseAwareSqlBuilder sqlBuilder;
-    @Mock
     private EventService eventService;
     @Mock
     private UserService userService;
@@ -132,27 +113,14 @@ public class DataAggregationServiceImplCalculateTest {
     private NlsService nlsService;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
-    private SqlBuilder withClauseBuilder;
-    private SqlBuilder selectClauseBuilder;
-    private SqlBuilder completeSqlBuilder;
 
     @Before
-    public void initializeMocks() throws SQLException {
+    public void initializeMocks() {
         when(this.usagePoint.getName()).thenReturn("DataAggregationServiceImplCalculateTest");
         when(this.usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.effectiveMetrologyConfiguration));
         when(this.metrologyPurpose.getName()).thenReturn("DataAggregationServiceImplCalculateTest");
         when(this.contract.getMetrologyPurpose()).thenReturn(this.metrologyPurpose);
-        this.withClauseBuilder = new SqlBuilder();
-        this.selectClauseBuilder = new SqlBuilder();
-        this.completeSqlBuilder = new SqlBuilder();
-        when(this.sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(this.sqlBuilder);
-        when(this.sqlBuilder.with(anyString(), any(Optional.class), anyVararg())).thenReturn(this.withClauseBuilder);
-        when(this.sqlBuilder.select()).thenReturn(this.selectClauseBuilder);
-        when(this.sqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
         when(this.meteringService.getDataModel()).thenReturn(this.dataModel);
-        when(this.dataModel.getConnection(true)).thenReturn(this.connection);
-        when(this.connection.prepareStatement(anyString())).thenReturn(this.preparedStatement);
-        when(this.preparedStatement.executeQuery()).thenReturn(this.resultSet);
         when(this.dataModel.getInstance(CalculatedReadingRecordFactory.class)).thenReturn(new CalculatedReadingRecordFactoryImpl(this.dataModel, meteringService));
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringDataModelService, this.dataModel, this.thesaurus);
         when(this.configuration.getContracts()).thenReturn(Collections.singletonList(this.contract));
@@ -165,7 +133,7 @@ public class DataAggregationServiceImplCalculateTest {
     }
 
     /**
-     * Tests the case where data aggregation is requested for a
+     * Tests the case where introspection is requested for a
      * {@link MetrologyContract} that is not active on the {@link UsagePoint}
      * because no {@link MetrologyConfiguration} has been applied
      * to the UsagePoint yet.
@@ -177,15 +145,15 @@ public class DataAggregationServiceImplCalculateTest {
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.emptyList());
 
         // Business method
-        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
+        service.introspect(this.usagePoint, this.contract, aggregationPeriod);
 
         //Asserts: see expected exception rule
     }
 
     /**
-     * Tests the case where data aggregation is requested for a
+     * Tests the case where introspection is requested for a
      * {@link MetrologyContract} that is not active on the {@link UsagePoint}
-     * because no {@link MetrologyConfiguration} has been applied
+     * because another {@link MetrologyConfiguration} has been applied
      * to the UsagePoint yet.
      */
     @Test(expected = MetrologyContractDoesNotApplyToUsagePointException.class)
@@ -200,7 +168,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(queryExecutor.select(any(Condition.class))).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
 
         // Business method
-        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
+        service.introspect(this.usagePoint, this.contract, aggregationPeriod);
 
         //Asserts: see expected exception rule
     }
@@ -252,8 +220,6 @@ public class DataAggregationServiceImplCalculateTest {
         when(virtualConsumption.sqlName()).thenReturn("vrt-consumption");
         VirtualReadingTypeRequirement virtualProduction = mock(VirtualReadingTypeRequirement.class);
         when(virtualProduction.sqlName()).thenReturn("vrt-production");
-        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualConsumption);
-        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualProduction);
 
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -281,43 +247,29 @@ public class DataAggregationServiceImplCalculateTest {
         when(consumption.getMatchesFor(channelsContainer)).thenReturn(Collections.singletonList(productionReadingType15min));
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn1));
         when(production.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn2));
-        when(this.virtualFactory.allRequirements()).thenReturn(Arrays.asList(virtualConsumption, virtualProduction));
-        ReadingTypeDeliverableForMeterActivationSet netConsumptionForMeterActivation = mock(ReadingTypeDeliverableForMeterActivationSet.class);
-        when(netConsumptionForMeterActivation.sqlName()).thenReturn("vrt-netConsumption");
-        when(this.readingTypeDeliverableForMeterActivationFactory
-                .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    any(MeterActivationSet.class),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
-                .thenReturn(netConsumptionForMeterActivation);
 
         // Business method
-        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
+        MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);
 
         // Asserts
-        verify(this.virtualFactory).nextMeterActivationSet(any(MeterActivationSet.class), eq(aggregationPeriod));
-        ArgumentCaptor<VirtualReadingType> consumptionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
-        VirtualReadingType capturedConsumptionReadingType = consumptionReadingTypeArgumentCaptor.getValue();
-        assertThat(capturedConsumptionReadingType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        ArgumentCaptor<VirtualReadingType> productionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
-        VirtualReadingType capturedProductionReadngType = productionReadingTypeArgumentCaptor.getValue();
-        assertThat(capturedProductionReadngType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        verify(this.virtualFactory).allRequirements();
-        verify(netConsumptionForMeterActivation).appendDefinitionTo(this.sqlBuilder);
-        verify(virtualConsumption).appendDefinitionTo(this.sqlBuilder);
-        verify(virtualProduction).appendDefinitionTo(this.sqlBuilder);
-        verify(netConsumptionForMeterActivation).appendDefinitionTo(this.sqlBuilder);
-        verify(this.dataModel).getConnection(true);
-        verify(this.resultSet).next();
-        verify(this.resultSet).close();
-        verify(this.preparedStatement).close();
-        verify(this.connection).close();
+        assertThat(introspector).isNotNull();
+        assertThat(introspector.getUsagePoint()).isEqualTo(this.usagePoint);
+        assertThat(introspector.getMetrologyContract()).isEqualTo(this.contract);
+        List<MetrologyContractCalculationIntrospector.ChannelUsage> channelUsages = introspector.getChannelUsagesFor(netConsumption);
+        assertThat(channelUsages).isNotNull();
+        assertThat(channelUsages).hasSize(2);
+        List<Channel> usedChannels =
+                channelUsages
+                        .stream()
+                        .map(MetrologyContractCalculationIntrospector.ChannelUsage::getChannel)
+                        .collect(Collectors.toList());
+        assertThat(usedChannels).containsOnly(chn1, chn2);
+        Set<Range<Instant>> usedRanges =
+                channelUsages
+                        .stream()
+                        .map(MetrologyContractCalculationIntrospector.ChannelUsage::getRange)
+                        .collect(Collectors.toSet());
+        assertThat(usedRanges).containsOnly(year2016());    // Remember that meter activations are clipped to aggregation period
     }
 
     /**
@@ -370,8 +322,6 @@ public class DataAggregationServiceImplCalculateTest {
         when(virtualConsumption.sqlName()).thenReturn("vrt-consumption");
         VirtualReadingTypeRequirement virtualProduction = mock(VirtualReadingTypeRequirement.class);
         when(virtualProduction.sqlName()).thenReturn("vrt-production");
-        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualConsumption);
-        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualProduction);
 
         // Setup contract deliverables
 
@@ -400,42 +350,29 @@ public class DataAggregationServiceImplCalculateTest {
         when(consumption.getMatchesFor(channelsContainer)).thenReturn(Collections.singletonList(productionReadingType15min));
         when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn1));
         when(production.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn2));
-        when(this.virtualFactory.allRequirements()).thenReturn(Arrays.asList(virtualConsumption, virtualProduction));
-        ReadingTypeDeliverableForMeterActivationSet netConsumptionForMeterActivation = mock(ReadingTypeDeliverableForMeterActivationSet.class);
-        when(netConsumptionForMeterActivation.sqlName()).thenReturn("vrt-netConsumption");
-        when(this.readingTypeDeliverableForMeterActivationFactory
-                .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    any(MeterActivationSet.class),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
-                .thenReturn(netConsumptionForMeterActivation);
 
         // Business method
-        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
+        MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);
 
         // Asserts
-        verify(this.virtualFactory).nextMeterActivationSet(any(MeterActivationSet.class), eq(aggregationPeriod));
-        ArgumentCaptor<VirtualReadingType> consumptionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
-        VirtualReadingType capturedConsumptionReadingType = consumptionReadingTypeArgumentCaptor.getValue();
-        assertThat(capturedConsumptionReadingType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        ArgumentCaptor<VirtualReadingType> productionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
-        VirtualReadingType capturedProductionReadngType = productionReadingTypeArgumentCaptor.getValue();
-        assertThat(capturedProductionReadngType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        verify(this.virtualFactory).allRequirements();
-        verify(virtualConsumption).appendDefinitionTo(this.sqlBuilder);
-        verify(virtualProduction).appendDefinitionTo(this.sqlBuilder);
-        verify(netConsumptionForMeterActivation).appendDefinitionTo(this.sqlBuilder);
-        verify(this.dataModel).getConnection(true);
-        verify(this.resultSet).next();
-        verify(this.resultSet).close();
-        verify(this.preparedStatement).close();
-        verify(this.connection).close();
+        assertThat(introspector).isNotNull();
+        assertThat(introspector.getUsagePoint()).isEqualTo(this.usagePoint);
+        assertThat(introspector.getMetrologyContract()).isEqualTo(this.contract);
+        List<MetrologyContractCalculationIntrospector.ChannelUsage> channelUsages = introspector.getChannelUsagesFor(netConsumption);
+        assertThat(channelUsages).isNotNull();
+        assertThat(channelUsages).hasSize(2);
+        List<Channel> usedChannels =
+                channelUsages
+                        .stream()
+                        .map(MetrologyContractCalculationIntrospector.ChannelUsage::getChannel)
+                        .collect(Collectors.toList());
+        assertThat(usedChannels).containsOnly(chn1, chn2);
+        Set<Range<Instant>> usedRanges =
+                channelUsages
+                        .stream()
+                        .map(MetrologyContractCalculationIntrospector.ChannelUsage::getRange)
+                        .collect(Collectors.toSet());
+        assertThat(usedRanges).containsOnly(year2016());    // Remember that meter activations are clipped to aggregation period
     }
 
     /**
@@ -460,7 +397,9 @@ public class DataAggregationServiceImplCalculateTest {
     @Test
     public void simplestNetConsumptionOfProsumerWithMultipleMeterActivations() throws SQLException {
         DataAggregationServiceImpl service = this.testInstance();
-        Range<Instant> aggregationPeriod = year2016();
+        when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2015AndBeyond());
+        when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(year2015AndBeyond()));
+        Range<Instant> aggregationPeriod = year2015AndBeyond();
         // Setup configuration requirements
         ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
         when(consumption.getName()).thenReturn("A-");
@@ -492,8 +431,6 @@ public class DataAggregationServiceImplCalculateTest {
         when(virtualProductionJan.sqlName()).thenReturn("vrt-production-jan");
         VirtualReadingTypeRequirement virtualProductionFeb = mock(VirtualReadingTypeRequirement.class);
         when(virtualProductionFeb.sqlName()).thenReturn("vrt-production-feb");
-        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualConsumptionJan, virtualConsumptionFeb);
-        when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), any(VirtualReadingType.class))).thenReturn(virtualProductionJan, virtualProductionFeb);
 
         // Setup contract deliverables
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
@@ -506,7 +443,8 @@ public class DataAggregationServiceImplCalculateTest {
         when(meterActivation1.getMeterRole()).thenReturn(Optional.of(this.meterRole));
         when(meterActivation1.getMultiplier(any(MultiplierType.class))).thenReturn(Optional.empty());
         when(meterActivation1.getInterval()).thenReturn(Interval.of(jan1st2015(), feb1st2015()));
-        when(meterActivation1.getRange()).thenReturn(Interval.of(jan1st2015(), feb1st2015()).toClosedOpenRange());
+        when(meterActivation1.getRange()).thenReturn(jan2015());
+        when(meterActivation1.getEnd()).thenReturn(feb1st2015());
         when(meterActivation1.overlaps(aggregationPeriod)).thenReturn(true);
         MeterActivation meterActivation2 = mock(MeterActivation.class);
         ChannelsContainer channelsContainer2 = mock(ChannelsContainer.class);
@@ -515,7 +453,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(meterActivation2.getMeterRole()).thenReturn(Optional.of(this.meterRole));
         when(meterActivation2.getMultiplier(any(MultiplierType.class))).thenReturn(Optional.empty());
         when(meterActivation2.getInterval()).thenReturn(Interval.startAt(feb1st2015()));
-        when(meterActivation2.getRange()).thenReturn(Interval.startAt(feb1st2015()).toClosedOpenRange());
+        when(meterActivation2.getRange()).thenReturn(atLeastFeb2015());
         when(meterActivation2.overlaps(aggregationPeriod)).thenReturn(true);
         doReturn(Arrays.asList(meterActivation1, meterActivation2)).when(this.usagePoint).getMeterActivations();
         ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
@@ -534,64 +472,149 @@ public class DataAggregationServiceImplCalculateTest {
         when(virtualProductionFeb.getPreferredChannel()).thenReturn(chnFeb2);
         when(consumption.getMatchingChannelsFor(channelsContainer1)).thenReturn(Collections.singletonList(chnJan1));
         when(production.getMatchingChannelsFor(channelsContainer1)).thenReturn(Collections.singletonList(chnJan2));
-        when(consumption.getMatchingChannelsFor(channelsContainer2)).thenReturn(Collections.singletonList(chnJan1));
-        when(production.getMatchingChannelsFor(channelsContainer2)).thenReturn(Collections.singletonList(chnJan2));
-        when(this.virtualFactory.allRequirements()).thenReturn(Arrays.asList(virtualConsumptionJan, virtualProductionJan, virtualConsumptionFeb, virtualProductionFeb));
-
-        ReadingTypeDeliverableForMeterActivationSet netConsumptionForJan = mock(ReadingTypeDeliverableForMeterActivationSet.class);
-        when(netConsumptionForJan.sqlName()).thenReturn("vrt-netConsumption-jan");
-        ReadingTypeDeliverableForMeterActivationSet netConsumptionForFeb = mock(ReadingTypeDeliverableForMeterActivationSet.class);
-        when(netConsumptionForJan.sqlName()).thenReturn("vrt-netConsumption-feb");
-        when(this.readingTypeDeliverableForMeterActivationFactory
-                .from(
-                    eq(Formula.Mode.AUTO),
-                    eq(netConsumption),
-                    any(MeterActivationSet.class),
-                    eq(aggregationPeriod),
-                    anyInt(),
-                    any(ServerExpressionNode.class),
-                    any(VirtualReadingType.class)))
-                .thenReturn(
-                    netConsumptionForJan,
-                    netConsumptionForFeb);
+        when(consumption.getMatchingChannelsFor(channelsContainer2)).thenReturn(Collections.singletonList(chnFeb1));
+        when(production.getMatchingChannelsFor(channelsContainer2)).thenReturn(Collections.singletonList(chnFeb2));
 
         // Business method
-        service.calculate(this.usagePoint, this.contract, aggregationPeriod);
+        MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);
 
         // Asserts
-        verify(this.virtualFactory, times(2)).nextMeterActivationSet(any(MeterActivationSet.class), eq(aggregationPeriod));
-        ArgumentCaptor<VirtualReadingType> consumptionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
-        List<VirtualReadingType> capturedConsumptionReadingTypes = consumptionReadingTypeArgumentCaptor.getAllValues();
-        assertThat(capturedConsumptionReadingTypes).hasSize(2);
-        assertThat(capturedConsumptionReadingTypes.get(0).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        assertThat(capturedConsumptionReadingTypes.get(1).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        ArgumentCaptor<VirtualReadingType> productionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
-        List<VirtualReadingType> capturedProductionReadingTypes = productionReadingTypeArgumentCaptor.getAllValues();
-        assertThat(capturedProductionReadingTypes).hasSize(2);
-        assertThat(capturedProductionReadingTypes.get(0).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        assertThat(capturedProductionReadingTypes.get(1).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
-        verify(this.virtualFactory).allRequirements();
-        verify(virtualConsumptionJan).appendDefinitionTo(this.sqlBuilder);
-        verify(virtualProductionJan).appendDefinitionTo(this.sqlBuilder);
-        verify(netConsumptionForJan).appendDefinitionTo(this.sqlBuilder);
-        verify(virtualConsumptionFeb).appendDefinitionTo(this.sqlBuilder);
-        verify(virtualProductionFeb).appendDefinitionTo(this.sqlBuilder);
-        verify(netConsumptionForFeb).appendDefinitionTo(this.sqlBuilder);
-        verify(this.dataModel).getConnection(true);
-        verify(this.resultSet).next();
-        verify(this.resultSet).close();
-        verify(this.preparedStatement).close();
-        verify(this.connection).close();
+        assertThat(introspector).isNotNull();
+        assertThat(introspector.getUsagePoint()).isEqualTo(this.usagePoint);
+        assertThat(introspector.getMetrologyContract()).isEqualTo(this.contract);
+        List<MetrologyContractCalculationIntrospector.ChannelUsage> channelUsages = introspector.getChannelUsagesFor(netConsumption);
+        assertThat(channelUsages).isNotNull();
+        assertThat(channelUsages).hasSize(4);
+        List<Channel> usedChannels =
+                channelUsages
+                        .stream()
+                        .map(MetrologyContractCalculationIntrospector.ChannelUsage::getChannel)
+                        .collect(Collectors.toList());
+        assertThat(usedChannels).containsOnly(chnJan1, chnJan2, chnFeb1, chnFeb2);
+        Set<Range<Instant>> usedRanges =
+                channelUsages
+                        .stream()
+                        .map(MetrologyContractCalculationIntrospector.ChannelUsage::getRange)
+                        .collect(Collectors.toSet());
+        assertThat(usedRanges).containsOnly(
+                jan2015(),
+                atLeastFeb2015());
+    }
+
+    /**
+     * Tests the availability of multiple channels at the meter:
+     * Metrology configuration
+     * requirements:
+     * A- ::= any Wh with flow = forward (aka consumption)
+     * deliverables:
+     * netConsumption (daily kWh) ::= A-
+     * Device:
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * A-(15m) -> 15 min kWh
+     * A-(1h) -> 60 min kWh
+     * In other words, should pick the 60 min channel.
+     */
+    @Test
+    public void multipleChannelsForSameRequirement() throws SQLException {
+        DataAggregationServiceImpl service = this.testInstance();
+        Range<Instant> aggregationPeriod = year2016();
+        // Setup configuration requirements
+        ReadingTypeRequirement consumption = mock(ReadingTypeRequirement.class);
+        when(consumption.getName()).thenReturn("A-");
+        when(consumption.getDimension()).thenReturn(Dimension.ENERGY);
+        when(this.configuration.getRequirements()).thenReturn(Collections.singletonList(consumption));
+        when(this.configuration.getMeterRoleFor(consumption)).thenReturn(Optional.of(this.meterRole));
+        // Setup configuration deliverables
+        ReadingTypeDeliverable netConsumption = mock(ReadingTypeDeliverable.class);
+        when(netConsumption.getName()).thenReturn("consumption");
+        ReadingType netConsumptionReadingType = this.mockHourlyReadingType("0.0.7.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(netConsumption.getReadingType()).thenReturn(netConsumptionReadingType);
+        ServerFormulaBuilder formulaBuilder = this.newFormulaBuilder();
+        ExpressionNode node = formulaBuilder.requirement(consumption).create();
+        ServerFormula formula = mock(ServerFormula.class);
+        when(formula.getMode()).thenReturn(Formula.Mode.AUTO);
+        doReturn(node).when(formula).getExpressionNode();
+        when(netConsumption.getFormula()).thenReturn(formula);
+        VirtualReadingTypeRequirement virtualConsumption = mock(VirtualReadingTypeRequirement.class);
+        when(virtualConsumption.sqlName()).thenReturn("vrt-consumption");
+
+        // Setup contract deliverables
+        when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(netConsumption));
+
+        // Setup meter activations
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(this.usagePoint));
+        when(meterActivation.getMeterRole()).thenReturn(Optional.of(this.meterRole));
+        when(meterActivation.getMultiplier(any(MultiplierType.class))).thenReturn(Optional.empty());
+        Interval year2015 = Interval.startAt(jan1st2015());
+        when(meterActivation.getInterval()).thenReturn(year2015);
+        when(meterActivation.getRange()).thenReturn(year2015.toClosedOpenRange());
+        when(meterActivation.overlaps(aggregationPeriod)).thenReturn(true);
+        doReturn(Collections.singletonList(meterActivation)).when(this.usagePoint).getMeterActivations();
+        ReadingType consumptionReadingType15min = this.mock15minReadingType("0.0.2.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        ChannelContract chn15min = mock(ChannelContract.class);
+        when(chn15min.getMainReadingType()).thenReturn(consumptionReadingType15min);
+        ReadingType consumptionReadingType60min = this.mockHourlyReadingType("0.0.7.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
+        ChannelContract chn60min = mock(ChannelContract.class);
+        when(chn60min.getMainReadingType()).thenReturn(consumptionReadingType60min);
+        when(consumption.getMatchesFor(channelsContainer)).thenReturn(Collections.singletonList(consumptionReadingType60min));
+        when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn15min));
+        when(consumption.getMatchingChannelsFor(channelsContainer)).thenReturn(Collections.singletonList(chn60min));
+        when(virtualConsumption.getPreferredChannel()).thenReturn(chn60min);
+
+        // Business method
+        MetrologyContractCalculationIntrospector introspector = service.introspect(this.usagePoint, this.contract, aggregationPeriod);
+
+        // Asserts
+        assertThat(introspector).isNotNull();
+        assertThat(introspector.getUsagePoint()).isEqualTo(this.usagePoint);
+        assertThat(introspector.getMetrologyContract()).isEqualTo(this.contract);
+        List<MetrologyContractCalculationIntrospector.ChannelUsage> channelUsages = introspector.getChannelUsagesFor(netConsumption);
+        assertThat(channelUsages).isNotNull();
+        assertThat(channelUsages).hasSize(1);
+        List<Channel> usedChannels =
+                channelUsages
+                        .stream()
+                        .map(MetrologyContractCalculationIntrospector.ChannelUsage::getChannel)
+                        .collect(Collectors.toList());
+        assertThat(usedChannels).containsOnly(chn60min);
+        Set<Range<Instant>> usedRanges =
+                channelUsages
+                        .stream()
+                        .map(MetrologyContractCalculationIntrospector.ChannelUsage::getRange)
+                        .collect(Collectors.toSet());
+        assertThat(usedRanges).containsOnly(year2016());    // Remember that meter activations are clipped to aggregation period
+    }
+
+    private Range<Instant> atLeastFeb2015() {
+        return Interval.startAt(feb1st2015()).toClosedOpenRange();
+    }
+
+    private Range<Instant> jan2015() {
+        return Interval.of(jan1st2015(), feb1st2015()).toClosedOpenRange();
     }
 
     private Instant jan1st2015() {
         return Instant.ofEpochMilli(1420070400000L);
     }
 
+    private Instant jan1st2016() {
+        return Instant.ofEpochMilli(1451606400000L);
+    }
+
     private Instant feb1st2015() {
-        return Instant.ofEpochMilli(1454284800000L);
+        return Instant.ofEpochMilli(1422748800000l);
+    }
+
+    private Range<Instant> year2015() {
+        return Range.closedOpen(jan1st2015(), jan1st2016());
+    }
+
+    private Range<Instant> year2015AndBeyond() {
+        return Range.atLeast(jan1st2015());
     }
 
     private Range<Instant> year2016() {
@@ -609,26 +632,33 @@ public class DataAggregationServiceImplCalculateTest {
         return readingType;
     }
 
+    private ReadingType mockHourlyReadingType(String mRID) {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(mRID);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE60);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        return readingType;
+    }
+
+    private ReadingType mockDailyReadingType(String mRID) {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(mRID);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ENERGY);
+        return readingType;
+    }
+
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
-                this.customPropertySetService,
                 this.meteringService,
                 new InstantTruncaterFactory(this.meteringService),
-                this::getSqlBuilderFactory,
-                this::getVirtualFactory,
-                this::getReadingTypeDeliverableForMeterActivationFactory);
-    }
-
-    private SqlBuilderFactory getSqlBuilderFactory() {
-        return sqlBuilderFactory;
-    }
-
-    private ReadingTypeDeliverableForMeterActivationFactory getReadingTypeDeliverableForMeterActivationFactory() {
-        return readingTypeDeliverableForMeterActivationFactory;
-    }
-
-    private VirtualFactory getVirtualFactory() {
-        return this.virtualFactory;
+                this.customPropertySetService);
     }
 
     private ServerFormulaBuilder newFormulaBuilder() {

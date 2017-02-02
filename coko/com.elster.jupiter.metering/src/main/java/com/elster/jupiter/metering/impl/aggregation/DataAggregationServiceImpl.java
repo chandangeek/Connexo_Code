@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
 import com.elster.jupiter.metering.aggregation.VirtualUsagePointsOnlySupportConstantLikeExpressionsException;
 import com.elster.jupiter.metering.config.ConstantNode;
@@ -47,6 +48,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -91,30 +93,12 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     @Override
     public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
-        Loggers.ANALYSIS.debug(() -> new DataAggregationAnalysisLogger().calculationStarted(usagePoint, contract, period));
-        List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
-        this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
-        Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
-        Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new LinkedHashMap<>();
         VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
-        List<MeterActivationSet> meterActivationSets = this.getMeterActivationSets(usagePoint, clippedPeriod);
-        if (meterActivationSets.isEmpty()) {
-            if (usagePoint.isVirtual()) {
-                /* No meter activations is only supported for unmeasured usage points
-                 * if all formulas of the contract are using only constants
-                 * or expressions that behave as a constant (e.g. custom properties). */
-                if (this.onlyConstantLikeExpressions(contract)) {
-                    MeterActivationSetImpl meterActivationSet = new MeterActivationSetImpl((UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(), 1, clippedPeriod, clippedPeriod.lowerEndpoint());
-                    this.prepare(usagePoint, meterActivationSet, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
-                } else {
-                    throw new VirtualUsagePointsOnlySupportConstantLikeExpressionsException(this.getThesaurus());
-                }
-            } else {
-                return noData(usagePoint, contract, period);
-            }
-        } else {
-            meterActivationSets.forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation));
-        }
+        Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation =
+                this.prepareCalculation(
+                        usagePoint, contract, period,
+                        () -> new DataAggregationAnalysisLogger().calculationStarted(usagePoint, contract, period),
+                        virtualFactory);
         if (deliverablesPerMeterActivation.isEmpty()) {
             return noData(usagePoint, contract, period);
         } else {
@@ -132,6 +116,42 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                 throw new UnderlyingSQLFailedException(e);
             }
         }
+    }
+
+    @Override
+    public MetrologyContractCalculationIntrospector introspect(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
+        Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation =
+                this.prepareCalculation(
+                        usagePoint, contract, period,
+                        () -> new DataAggregationAnalysisLogger().introspectionStarted(usagePoint, contract, period),
+                        virtualFactory);
+        return new MetrologyContractCalculationIntrospectorImpl(usagePoint, contract, deliverablesPerMeterActivation);
+    }
+
+    private Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> prepareCalculation(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Supplier<String> startLoggingSupplier, VirtualFactory virtualFactory) {
+        Loggers.ANALYSIS.debug(startLoggingSupplier);
+        List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
+        this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
+        Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
+        Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new LinkedHashMap<>();
+        List<MeterActivationSet> meterActivationSets = this.getMeterActivationSets(usagePoint, clippedPeriod);
+        if (meterActivationSets.isEmpty()) {
+            if (usagePoint.isVirtual()) {
+                /* No meter activations is only supported for unmeasured usage points
+                 * if all formulas of the contract are using only constants
+                 * or expressions that behave as a constant (e.g. custom properties). */
+                if (this.onlyConstantLikeExpressions(contract)) {
+                    MeterActivationSetImpl meterActivationSet = new MeterActivationSetImpl((UsagePointMetrologyConfiguration) contract.getMetrologyConfiguration(), 1, clippedPeriod, clippedPeriod.lowerEndpoint());
+                    this.prepare(usagePoint, meterActivationSet, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
+                } else {
+                    throw new VirtualUsagePointsOnlySupportConstantLikeExpressionsException(this.getThesaurus());
+                }
+            }
+        } else {
+            meterActivationSets.forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation));
+        }
+        return deliverablesPerMeterActivation;
     }
 
     private boolean onlyConstantLikeExpressions(MetrologyContract contract) {

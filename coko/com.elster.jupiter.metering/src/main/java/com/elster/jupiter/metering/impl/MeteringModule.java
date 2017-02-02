@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
@@ -181,6 +182,11 @@ public class MeteringModule extends AbstractModule {
         @Override
         public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
             return dataAggregationService.calculate(usagePoint, contract, period);
+        }
+
+        @Override
+        public MetrologyContractCalculationIntrospector introspect(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+            return dataAggregationService.introspect(usagePoint, contract, period);
         }
     }
 

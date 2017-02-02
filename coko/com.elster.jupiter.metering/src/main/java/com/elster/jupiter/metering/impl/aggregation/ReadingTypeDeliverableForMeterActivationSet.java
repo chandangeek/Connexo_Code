@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -18,6 +19,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -78,7 +80,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return meterActivationSequenceNumber;
     }
 
-    private Range<Instant> getRange() {
+    Range<Instant> getRange() {
         return this.meterActivationSet.getRange();
     }
 
@@ -394,6 +396,14 @@ class ReadingTypeDeliverableForMeterActivationSet {
         } else {
             return Optional.empty();
         }
+    }
+
+    Collection<ChannelContract> getPreferredChannels() {
+        return this.expressionNode
+                    .accept(new RequirementsFromExpressionNode())
+                    .stream()
+                    .map(VirtualRequirementNode::getPreferredChannel)
+                    .collect(Collectors.toList());
     }
 
 }
