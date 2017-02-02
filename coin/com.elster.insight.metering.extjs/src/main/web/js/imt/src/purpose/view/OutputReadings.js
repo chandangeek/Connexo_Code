@@ -29,32 +29,22 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             durations,
             all,
             duration;
-        switch (output.get('outputType')){
-            case 'channel' : {
-                emptyComponent = {
-                    xtype: 'no-readings-found-panel',
-                    itemId: 'readings-empty-panel'
+
+        emptyComponent = {
+            xtype: 'no-readings-found-panel',
+            itemId: 'readings-empty-panel'
+        };
+
+        if (output.get('outputType') === 'register') {
+            emptyComponent.stepItems = [
+                {
+                    text: Uni.I18n.translate('register-data.list.add', 'IMT', 'Add reading'),
+                    privileges: Imt.privileges.UsagePoint.admin,
+                    href: me.router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl(),
+                    action: 'add',
+                    itemId: 'add-register-data'
                 }
-            } break;
-            case 'register': {
-                emptyComponent = Ext.create('Uni.view.notifications.NoItemsFoundPanel',{
-                    itemId: 'register-data-empty-panel',
-                    title: Uni.I18n.translate('register-data.list.empty', 'IMT', 'No readings have been defined yet'),
-                    reasons: [
-                        Uni.I18n.translate('register-data.list.reason1', 'IMT', 'No readings have been defined yet'),
-                        Uni.I18n.translate('register-data.list.reason3', 'IMT', 'No readings comply with the filter')
-                    ],
-                    stepItems: [
-                        {
-                            text: Uni.I18n.translate('register-data.list.add', 'IMT', 'Add reading'),
-                            privileges: Imt.privileges.UsagePoint.admin,
-                            href: me.router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl(),
-                            action: 'add',
-                            itemId: 'add-register-data'
-                        }
-                    ]
-                })
-            }
+            ];
         }
 
         if (me.interval) {
@@ -87,8 +77,22 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         dataIndexTo: 'intervalEnd',
                         text: Uni.I18n.translate('general.startDate', 'IMT', 'Start date'),
                         loadStore: false,
-                        itemId: 'devicechannels-topfilter-duration'
-                    }, duration)
+                        itemId: 'output-readings-topfilter-duration'
+                    }, duration),
+                    {
+                        type: 'checkbox',
+                        dataIndex: 'suspect',
+                        itemId: 'output-readings-topfilter-validation-result',
+                        layout: 'hbox',
+                        defaults: {margin: '0 10 0 0'},
+                        options: [
+                            {
+                                display: Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect'),
+                                value: 'suspect',
+                                itemId: 'output-readings-topfilter-suspect'
+                            }
+                        ]
+                    }
                 ]
             }
         ];
