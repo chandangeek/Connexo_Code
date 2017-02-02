@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -103,7 +102,6 @@ public class TaskApplication extends Application implements TranslationKeyProvid
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(TranslationKeys.values()));
-        keys.addAll(Arrays.asList(TaskLogLevel.values()));
         return keys;
     }
 }
