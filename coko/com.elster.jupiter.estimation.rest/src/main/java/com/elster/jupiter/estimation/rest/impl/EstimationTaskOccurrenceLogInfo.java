@@ -4,7 +4,7 @@ import com.elster.jupiter.util.logging.LogEntry;
 
 public class EstimationTaskOccurrenceLogInfo {
     public Long timestamp;
-    public String loglevel;
+    public int loglevel;
     public String message;
 
     public EstimationTaskOccurrenceLogInfo() {
@@ -12,7 +12,7 @@ public class EstimationTaskOccurrenceLogInfo {
 
     public EstimationTaskOccurrenceLogInfo(LogEntry logEntry) {
         this.timestamp = logEntry.getTimestamp().toEpochMilli();
-        this.loglevel = logEntry.getLogLevel().getName();
+        this.loglevel = logEntry.getLogLevel().intValue();
         this.message = logEntry.getMessage();
     }
 }

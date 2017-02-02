@@ -3,7 +3,6 @@ package com.elster.jupiter.estimation.rest.impl;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
-import com.elster.jupiter.tasks.TaskLogLevel;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -30,7 +29,7 @@ public class EstimationTaskInfo {
     public long version;
     public String application;
     public String recurrence;
-    public String logLevelId;
+    public int logLevel;
 
     public EstimationTaskInfo() {
     }
@@ -65,8 +64,7 @@ public class EstimationTaskInfo {
     void populate(EstimationTask estimationTask) {
         id = estimationTask.getId();
         name = estimationTask.getName();
-        TaskLogLevel taskLogLevel = estimationTask.getLogLevel() != null ? estimationTask.getLogLevel() : TaskLogLevel.WARNING;
-        logLevelId = taskLogLevel.name();
+        logLevel = estimationTask.getLogLevel();
         active = estimationTask.isActive();
         deviceGroup =  estimationTask.getEndDeviceGroup().map(MeterGroupInfo::new).orElse(null);
         usagePointGroup = estimationTask.getUsagePointGroup().map(upg -> new IdWithDisplayValueInfo<>(upg.getId(), upg.getName())).orElse(null);
