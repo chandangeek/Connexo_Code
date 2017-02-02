@@ -24,7 +24,7 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
     @Override
     public PropertyType getPropertyType(PropertySpec propertySpec) {
         if (propertySpec.getValueFactory() instanceof AssignPropertyFactory) {
-            return SimplePropertyType.TEXT;
+            return SimplePropertyType.ASSIGN;
         }
         return SimplePropertyType.IDWITHNAME;
     }

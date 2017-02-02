@@ -124,7 +124,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
             return null;
         }
         Object defaultValue = possibleValues.getDefault();
-        if(defaultValue != null){
+        if (defaultValue != null) {
             return getConverter(propertySpec).convertValueToInfo(propertySpec, defaultValue);
         } else {
             return null;
@@ -139,7 +139,10 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         if (possibleValues.getAllValues().size() <= 1
                 && propertyType != SimplePropertyType.DEVICECONFIGURATIONLIST
                 && propertyType != SimplePropertyType.QUANTITY
-                && propertyType != SimplePropertyType.SELECTIONGRID) {
+                && propertyType != SimplePropertyType.SELECTIONGRID
+                && propertyType != SimplePropertyType.DEVICETYPELIST
+                && propertyType != SimplePropertyType.LIFECYCLESTATUSLIST
+                && propertyType != SimplePropertyType.ENDDEVICEEVENTTYPELIST) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
         }
@@ -147,7 +150,8 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         PropertyValueConverter converter = getConverter(propertySpec);
         if (converter != null) {
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
-                if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST) {
+                if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST ||
+                       propertyType == SimplePropertyType.DEVICETYPELIST || propertyType == SimplePropertyType.LIFECYCLESTATUSLIST || propertyType == SimplePropertyType.ENDDEVICEEVENTTYPELIST) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
                 } else if (propertyType == SimplePropertyType.IDWITHNAME) {
                     HasIdAndName idWithName = (HasIdAndName) possibleValues.getAllValues().get(i);
