@@ -404,10 +404,10 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
             RegisterValue registerValue = new RegisterValue(
                                                     offlineRegister.getObisCode(),
                                                     historicalValue.getQuantityValue(),
-                                                    historicalValue.getCaptureTime(), // event time
+                                                    null, // event time
                                                     null, // from time
-                                                    null, // to time
-                                                    historicalValue.getBillingDate(),  // read time
+                                                    historicalValue.getBillingDate(), // to time
+                                                    historicalValue.getCaptureTime(),  // read time
                                                     0,
                                                     null);
 
