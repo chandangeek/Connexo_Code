@@ -127,7 +127,7 @@ Ext.define('Dxp.controller.history.Export', {
             disabled: true,
             items: {
                 exporthistory: {
-                    title: Uni.I18n.translate('general.history', 'DES', 'History'),
+                    title: Uni.I18n.translate('general.exportHistory', 'DES', 'Export history'),
                     route: 'exporthistory',
                     controller: 'Dxp.controller.Tasks',
                     action: 'showDataExportTaskHistory',

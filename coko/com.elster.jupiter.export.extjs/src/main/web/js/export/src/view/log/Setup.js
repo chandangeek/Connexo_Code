@@ -36,6 +36,7 @@ Ext.define('Dxp.view.log.Setup', {
 
         me.content = {
             xtype: 'panel',
+            itemId: 'main-panel',
             ui: 'large',
             title: Uni.I18n.translate('general.log', 'DES', 'Log'),
             items: [

@@ -53,6 +53,10 @@ Ext.define('Dxp.controller.Log', {
                     taskLink = view.down('#log-view-menu #tasks-view-link');
                     taskLink.setText(task.get('name'));
                     me.getApplication().fireEvent('dataexporttaskload', task);
+                } else {
+                    view.down('#main-panel').setTitle(
+                        Uni.I18n.translate('exportTask.log.of.occurence', 'DES', "Log '{0}'", occurrenceTask.get('startedOn_formatted'), false)
+                    );
                 }
                 view.down('#log-preview-form').loadRecord(occurrenceTask);
                 view.down('#reason-field').setVisible(occurrenceTask.get('status') === 'Failed');
