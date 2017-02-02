@@ -1379,7 +1379,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             }
         }
         return null;
-
     }
 
     @Override
