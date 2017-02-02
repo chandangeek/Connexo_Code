@@ -29,8 +29,6 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.util.time.Never;
-import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
@@ -42,7 +40,6 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -77,6 +74,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     private MetrologyContract metrologyContract;
     @Mock
     private MetrologyContractInfo metrologyContractInfo;
+    @Mock
+    private ReadingTypeDeliverable readingTypeDeliverable;
 
     @Before
     public void setUpStubs() {
@@ -114,13 +113,13 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.of(metrologyContract));
         when(metrologyConfigurationService.findMetrologyContract(1L)).thenReturn(Optional.of(metrologyContract));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(vrs));
+        when(usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, vrs2)).thenReturn(Collections.singletonList(readingTypeDeliverable));
         when(vrs2.getName()).thenReturn("LinkableValidationRuleSet");
         when(vrs2.getId()).thenReturn(31L);
         when(vrs2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         doReturn(Collections.singletonList(validationRuleSetVersion2)).when(vrs2).getRuleSetVersions();
         doReturn(Optional.of(vrs3)).when(validationService).getValidationRuleSet(anyLong());
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(vrs, vrs2));
-        when(usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, vrs2, Collections.singletonList(vrs))).thenReturn(true);
         doReturn(Optional.of(ers)).when(estimationService).getEstimationRuleSet(51L);
         doReturn(Optional.of(ers2)).when(estimationService).getEstimationRuleSet(52L);
         doReturn(Optional.of(ers3)).when(estimationService).getEstimationRuleSet(53L);
@@ -253,6 +252,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
     @Test
     public void testLinkableValidationRuleSetsOfMetrologyContract() {
+        when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.emptyList());
         String json = target("/metrologyconfigurations/1/contracts/1").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Integer>get("$.validationRuleSets[0].id")).isEqualTo(31);

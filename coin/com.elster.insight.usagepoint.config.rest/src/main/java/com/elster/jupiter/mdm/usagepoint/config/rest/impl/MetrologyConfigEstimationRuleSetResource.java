@@ -64,19 +64,20 @@ public class MetrologyConfigEstimationRuleSetResource {
 
 
     @DELETE
-    @Path("/{estimationRuleSetId}/purposes/")
+    @Path("/{estimationRuleSetId}/purposes/{metrologyContractId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Transactional
-    public Response removeMetrologyConfigurationPurpose(@PathParam("validationRuleSetId") long estimationRuleSetId, MetrologyContractInfo metrologyContractInfo, @BeanParam JsonQueryParameters queryParameters) {
+    public Response removeMetrologyConfigurationPurpose(@PathParam("estimationRuleSetId") long estimationRuleSetId, @PathParam("metrologyContractId") long metrologyContractId, LinkableMetrologyContractInfo metrologyContractInfo, @BeanParam JsonQueryParameters queryParameters) {
         EstimationRuleSet estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSetId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
+        MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo.getId(), metrologyContractInfo.getVersion(), metrologyContractInfo.getName());
 
         usagePointConfigurationService.removeEstimationRuleSet(metrologyContract, estimationRuleSet);
 
         return Response.status(Response.Status.OK).build();
+
     }
 
     @GET
@@ -98,7 +99,7 @@ public class MetrologyConfigEstimationRuleSetResource {
     }
 
     @PUT
-    @Path("/{validationRuleSetId}/purposes/add")
+    @Path("/{estimationRuleSetId}/purposes/add")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
@@ -110,7 +111,6 @@ public class MetrologyConfigEstimationRuleSetResource {
             MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
             usagePointConfigurationService.addEstimationRuleSet(metrologyContract, estimationRuleSet);
         });
-
         return Response.status(Response.Status.OK).build();
     }
 
@@ -126,14 +126,15 @@ public class MetrologyConfigEstimationRuleSetResource {
                 .collect(Collectors.toList());
     }
 
-    private LinkableMetrologyContractInfo getLinkableMetrologyContractInfo(MetrologyContract contract, EstimationRuleSet estimationRuleSet) {
+    private LinkableMetrologyContractInfo getLinkableMetrologyContractInfo(MetrologyContract contract, EstimationRuleSet ruleSet) {
         LinkableMetrologyContractInfo info = new LinkableMetrologyContractInfo();
         info.setMetrologyConfigurationInfo(new IdWithNameInfo(contract.getMetrologyConfiguration().getId(),
                 contract.getMetrologyConfiguration().getName()));
         info.setActive(contract.getMetrologyConfiguration().isActive());
-        info.setPurpose(contract.getMetrologyPurpose().getName());
-        info.setOutputs(getMatchedOutputs(contract, estimationRuleSet));
-        info.setMetrologyContractInfo(new MetrologyContractInfo(contract));
+        info.setOutputs(getMatchedOutputs(contract, ruleSet));
+        info.setVersion(contract.getVersion());
+        info.setId(contract.getId());
+        info.setName(contract.getMetrologyPurpose().getName());
 
         return info;
     }

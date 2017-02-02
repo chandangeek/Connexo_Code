@@ -72,10 +72,14 @@ public class ResourceHelper {
     }
 
     MetrologyContract findAndLockContractOnMetrologyConfiguration(MetrologyContractInfo metrologyContractInfo) {
-        return metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(metrologyContractInfo.name)
-                .withActualVersion(() -> getCurrentMetrologyContractVersion(metrologyContractInfo.id))
-                .supplier());
+        return findAndLockContractOnMetrologyConfiguration(metrologyContractInfo.id, metrologyContractInfo.version, metrologyContractInfo.name);
+    }
+
+    MetrologyContract findAndLockContractOnMetrologyConfiguration(long id, long version, String name) {
+        return metrologyConfigurationService.findAndLockMetrologyContract(id, version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                        .withActualVersion(() -> getCurrentMetrologyContractVersion(id))
+                        .supplier());
     }
 
     MetrologyContract findContractByIdOrThrowException(long contractId) {

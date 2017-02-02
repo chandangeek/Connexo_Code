@@ -273,8 +273,8 @@ public class MetrologyConfigurationResource {
         List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
                 .stream()
                 .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
-                .filter(validationRuleSet -> usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, validationRuleSet,
-                        usagePointConfigurationService.getValidationRuleSets(metrologyContract)))
+                .filter(validationRuleSet -> !usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet).isEmpty())
+                .filter(validationRuleSet -> !usagePointConfigurationService.getValidationRuleSets(metrologyContract).contains(validationRuleSet))
                 .map(ValidationRuleSetInfo::new)
                 .collect(Collectors.toList());
         List<EstimationRuleSetInfo> linkableEstimationRuleSets = estimationService.getEstimationRuleSets()

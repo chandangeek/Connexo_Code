@@ -7,48 +7,57 @@ import java.util.List;
 public class LinkableMetrologyContractInfo {
 
     private IdWithNameInfo metrologyConfigurationInfo;
-    private boolean isActive;
-    private String purpose;
+    private boolean active;
     private List<OutputMatchesInfo> outputs;
-    private MetrologyContractInfo metrologyContractInfo;
+    private long id;
+    private long version;
+    private String name;
 
     public void setMetrologyConfigurationInfo(IdWithNameInfo metrologyConfigurationInfo) {
         this.metrologyConfigurationInfo = metrologyConfigurationInfo;
     }
 
     public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    public void setPurpose(String purpose) {
-        this.purpose = purpose;
+        this.active = active;
     }
 
     public void setOutputs(List<OutputMatchesInfo> outputs) {
         this.outputs = outputs;
     }
 
-    public void setMetrologyContractInfo(MetrologyContractInfo metrologyContractInfo) {
-        this.metrologyContractInfo = metrologyContractInfo;
-    }
-
-    public IdWithNameInfo getMetrologyConfigurationInfo() {
-        return metrologyConfigurationInfo;
-    }
-
     public boolean isActive() {
-        return isActive;
-    }
-
-    public String getPurpose() {
-        return purpose;
+        return active;
     }
 
     public List<OutputMatchesInfo> getOutputs() {
         return outputs;
     }
 
-    public MetrologyContractInfo getMetrologyContractInfo() {
-        return metrologyContractInfo;
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public IdWithNameInfo getMetrologyConfigurationInfo() {
+        return metrologyConfigurationInfo;
     }
 }
