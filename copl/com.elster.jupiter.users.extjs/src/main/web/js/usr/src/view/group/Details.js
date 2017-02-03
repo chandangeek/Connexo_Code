@@ -22,6 +22,7 @@ Ext.define('Usr.view.group.Details', {
     tools: [
         {
             xtype: 'uni-button-action',
+            itemId: 'group-preview-actions-button',
             privileges: Usr.privileges.Users.admin,
             menu: {
                 xtype: 'group-action-menu'

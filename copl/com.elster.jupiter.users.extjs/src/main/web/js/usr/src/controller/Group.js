@@ -100,6 +100,7 @@ Ext.define('Usr.controller.Group', {
 
         page.down('groupDetails').setTitle(Ext.String.htmlEncode(record.get('name')));
         if (page.down('groupDetails').down('group-action-menu')) {
+            page.down('#group-preview-actions-button').setDisabled(!record.get('canEdit'));
             page.down('groupDetails').down('group-action-menu').record = record;
         }
         form.loadRecord(record);
