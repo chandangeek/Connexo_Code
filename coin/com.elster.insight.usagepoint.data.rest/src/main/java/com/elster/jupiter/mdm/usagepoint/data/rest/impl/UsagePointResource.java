@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -62,7 +66,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 import com.elster.jupiter.util.Checks;
@@ -164,7 +167,6 @@ public class UsagePointResource {
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
     private final TransactionService transactionService;
     private final UsagePointLifeCycleService usagePointLifeCycleService;
-    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final PropertyValueInfoService propertyValueInfoService;
 
     @Inject
@@ -193,7 +195,7 @@ public class UsagePointResource {
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
                               ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
                               DataValidationTaskInfoFactory dataValidationTaskInfoFactory, TransactionService transactionService,
-                              UsagePointLifeCycleService usagePointLifeCycleService, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
+                              UsagePointLifeCycleService usagePointLifeCycleService,
                               PropertyValueInfoService propertyValueInfoService) {
         this.queryService = queryService;
         this.timeService = timeService;
@@ -222,7 +224,6 @@ public class UsagePointResource {
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.transactionService = transactionService;
         this.usagePointLifeCycleService = usagePointLifeCycleService;
-        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
