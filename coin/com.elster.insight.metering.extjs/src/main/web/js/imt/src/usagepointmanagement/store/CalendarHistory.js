@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.store.CalendarHistory', {
     extend: 'Ext.data.Store',
     model: 'Imt.usagepointmanagement.model.ActiveCalendar',

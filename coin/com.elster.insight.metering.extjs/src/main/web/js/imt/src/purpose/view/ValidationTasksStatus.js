@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.view.ValidationTasksStatus', {
     extend: 'Ext.container.Container',
     alias: 'widget.output-validation-tasks-status',

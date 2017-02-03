@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usage-point-metrology-config',
