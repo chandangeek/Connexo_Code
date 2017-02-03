@@ -192,7 +192,7 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         calendarInfo.id = calendar.getId();
         calendarInfo.description = calendar.getDescription();
         calendarInfo.startYear = calendar.getStartYear().getValue();
-        calendarInfo.status = new IdWithDisplayValueInfo<>(calendar.getStatus(), calendar.getStatus().getDisplayName(thesaurus));
+        calendarInfo.status = new IdWithDisplayValueInfo<>(calendar.getStatus(), calendar.getStatusDisplayName());
         calendarInfo.version = calendar.getVersion();
     }
 
