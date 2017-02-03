@@ -167,7 +167,7 @@ public class DataAggregationCommands {
     }
 
     public void introspect() {
-        System.out.println("Usage: introspect <usage point name> <contract purpose> <start date> [<end date>]");
+        System.out.println("Usage: introspect <usage point name> <contract purpose> <deliverable name> <start date> [<end date>]");
     }
 
     public void introspect(String usagePointName, String contractPurpose, String deliverableName, String startDate) {
