@@ -2,8 +2,9 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.calendar;
+package com.elster.jupiter.calendar.impl;
 
+import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 

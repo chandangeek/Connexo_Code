@@ -36,7 +36,7 @@ public class DayTypeBuilderImpl implements CalendarService.DayTypeBuilder {
     }
 
     @Override
-    public CalendarService.DayTypeEventOccurrenceBuilder eventWithCode(int code) {
+    public CalendarService.DayTypeEventOccurrenceBuilder eventWithCode(long code) {
         Event event = calendarImpl.getEvents()
                 .stream()
                 .filter(evt -> evt.getCode() == code)

@@ -37,42 +37,56 @@ import static org.mockito.Mockito.mock;
 
 public class CalendarInMemoryBootstrapModule {
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private Clock clock;
     private Injector injector;
+
+    public CalendarInMemoryBootstrapModule() {
+        super();
+    }
+
+    public CalendarInMemoryBootstrapModule(Clock clock) {
+        this();
+        this.clock = clock;
+    }
 
     public void activate() {
         injector = Guice.createInjector(
-                new MockModule(),
+                mockModule(),
                 inMemoryBootstrapModule,
                 new OrmModule(),
                 new DataVaultModule(),
                 new DomainUtilModule(),
                 new NlsModule(),
                 new UserModule(),
-                new UtilModule(),
+                utilModule(),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
                 new TransactionModule(false),
                 new InMemoryMessagingModule(),
-                //new TaskModule(),
                 new IdsModule(),
                 new EventsModule(),
                 new CalendarModule()
-                //new PartyModule(),
-                //new FiniteStateMachineModule(),
-                //new MeteringModule(),
-                //new CustomPropertySetsModule(),
-                //new UsagePointConfigModule(),
-                //new ValidationModule(),
-                //new MeteringGroupsModule(),
-                //new UsagePointDataModule(),
-                //new BasicPropertiesModule()
-
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(CalendarService.class);
-            //injector.getInstance(EventService.class);
             ctx.commit();
+        }
+    }
+
+    private MockModule mockModule() {
+        if (this.clock == null) {
+            return new MockModule();
+        } else {
+            return new MockModule(this.clock);
+        }
+    }
+
+    private UtilModule utilModule() {
+        if (this.clock == null) {
+            return new UtilModule();
+        } else {
+            return new UtilModule(this.clock);
         }
     }
 
@@ -84,41 +98,35 @@ public class CalendarInMemoryBootstrapModule {
         return injector.getInstance(ServerCalendarService.class);
     }
 
-    /*public EventService getEventService() {
-        return injector.getInstance(EventService.class);
-    }*/
-
     public TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-
-    /*public MeteringService getMeteringService() {
-        return injector.getInstance(MeteringService.class);
-    }*/
-
-    /*public CustomPropertySetService getCustomPropertySetService() {
-        return injector.getInstance(CustomPropertySetService.class);
-    }*/
-
-
-
-   /* public PropertySpecService getPropertySpecService() {
-        return injector.getInstance(PropertySpecService.class);
-    }*/
 
     public ThreadPrincipalService getThreadPrincipalService() {
         return injector.getInstance(ThreadPrincipalService.class);
     }
 
     private static class MockModule extends AbstractModule {
+        private Clock clock;
+
+        MockModule() {
+            super();
+        }
+
+        MockModule(Clock clock) {
+            this();
+            this.clock = clock;
+        }
+
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            //bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(Clock.class).toInstance(Clock.systemDefaultZone());
+            if (clock == null) {
+                bind(Clock.class).toInstance(Clock.systemDefaultZone());
+            }
         }
     }
 }

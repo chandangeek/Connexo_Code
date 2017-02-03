@@ -15,14 +15,14 @@ class EventSetBuilderImpl implements CalendarService.EventSetBuilder {
 
     private final class EventBuilderImpl implements EventBuilder {
         private final String name;
-        private int code;
+        private long code;
 
         private EventBuilderImpl(String name) {
             this.name = name;
         }
 
         @Override
-        public CalendarService.EventSetBuilder withCode(int code) {
+        public CalendarService.EventSetBuilder withCode(long code) {
             if (underConstruction.getEvents().stream().noneMatch(event -> event.getName().equals(name))) {
                 this.code = code;
                 EventSetBuilderImpl.this.eventBuilders.add(this);
@@ -38,7 +38,7 @@ class EventSetBuilderImpl implements CalendarService.EventSetBuilder {
     private EventSetImpl underConstruction;
     private List<EventBuilderImpl> eventBuilders = new ArrayList<>();
 
-    public EventSetBuilderImpl(DataModel dataModel, String name) {
+    EventSetBuilderImpl(DataModel dataModel, String name) {
         underConstruction = EventSetImpl.from(dataModel, name);
     }
 

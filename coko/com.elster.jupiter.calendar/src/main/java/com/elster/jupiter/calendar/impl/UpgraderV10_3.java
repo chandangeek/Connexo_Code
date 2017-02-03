@@ -5,7 +5,6 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
@@ -17,22 +16,23 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.Currying.perform;
 
 class UpgraderV10_3 implements Upgrader {
 
-    private final DataModel dataModel;
+    private final ServerCalendarService calendarService;
 
     @Inject
-    UpgraderV10_3(DataModel dataModel) {
-        this.dataModel = dataModel;
+    UpgraderV10_3(ServerCalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         try (
-                Connection connection = dataModel.getConnection(true);
+                Connection connection = this.calendarService.getDataModel().getConnection(true);
                 Statement statement = connection.createStatement();
         ) {
             introduceEventSetWithExistingCalendarsSQL()
@@ -41,17 +41,24 @@ class UpgraderV10_3 implements Upgrader {
             throw new UnderlyingSQLFailedException(e);
         }
 
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 3));
+        dataModelUpgrader.upgrade(this.calendarService.getDataModel(), Version.version(10, 3));
 
         createNewCategories();
+
+        this.calendarService.createVault();
+        this.calendarService.createRecordSpec();
     }
 
     private void createNewCategories() {
-        for (OutOfTheBoxCategory outOfTheBoxCategory : new OutOfTheBoxCategory[] {OutOfTheBoxCategory.WORKFORCE, OutOfTheBoxCategory.COMMANDS}) {
-            CategoryImpl category = this.dataModel.getInstance(CategoryImpl.class);
-            category.init(outOfTheBoxCategory.getDefaultDisplayName());
-            category.save();
-        }
+        Stream
+            .of(OutOfTheBoxCategory.WORKFORCE, OutOfTheBoxCategory.COMMANDS)
+            .forEach(this::create);
+    }
+
+    private void create(OutOfTheBoxCategory outOfTheBoxCategory) {
+        CategoryImpl category = this.calendarService.getDataModel().getInstance(CategoryImpl.class);
+        category.init(outOfTheBoxCategory.getDefaultDisplayName());
+        category.save();
     }
 
     private List<String> introduceEventSetWithExistingCalendarsSQL() {

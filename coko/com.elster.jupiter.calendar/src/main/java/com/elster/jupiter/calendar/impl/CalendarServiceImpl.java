@@ -8,13 +8,16 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarFilter;
 import com.elster.jupiter.calendar.CalendarResolver;
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.CalendarStatusTranslationKeys;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.security.Privileges;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.ids.FieldType;
+import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -43,12 +46,17 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Year;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,13 +69,20 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public class CalendarServiceImpl implements ServerCalendarService, MessageSeedProvider, TranslationKeyProvider {
 
+    private static final long VAULT_ID = 1L;
+    private static final long RECORD_SPEC_ID = 1L;
+
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile IdsService idsService;
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
     private volatile Clock clock;
+
+    private Vault vault;
+    private RecordSpec recordSpec;
 
     private final List<CalendarResolver> calendarResolvers = new CopyOnWriteArrayList<>();
 
@@ -75,10 +90,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     @Inject
-    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, UserService userService, EventService eventService, UpgradeService upgradeService, MessageService messageService, Clock clock) {
+    public CalendarServiceImpl(OrmService ormService, NlsService nlsService, IdsService idsService, UserService userService, EventService eventService, UpgradeService upgradeService, MessageService messageService, Clock clock) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
+        setIdsService(idsService);
         setUserService(userService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
@@ -100,9 +116,29 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         this.thesaurus = nlsService.getThesaurus(CalendarService.COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Override
+    public IdsService getIdsService() {
+        return idsService;
+    }
+
+    @Reference
+    public void setIdsService(IdsService idsService) {
+        this.idsService = idsService;
+    }
+
+    @Override
+    public UserService getUserService() {
+        return userService;
+    }
+
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Override
+    public EventService getEventService() {
+        return eventService;
     }
 
     @Reference
@@ -115,9 +151,19 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
         this.upgradeService = upgradeService;
     }
 
+    @Override
+    public MessageService getMessageService() {
+        return messageService;
+    }
+
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Override
+    public Clock getClock() {
+        return clock;
     }
 
     @Reference
@@ -136,6 +182,8 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 3), UpgraderV10_3.class
                 ));
+        // Installer or upgrader will have created the vault and the record spec
+        this.initVaultAndRecordSpec();
     }
 
     private Module getModule() {
@@ -146,8 +194,9 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(CalendarService.class).toInstance(CalendarServiceImpl.this);
-                bind(EventService.class).toInstance(eventService);
                 bind(ServerCalendarService.class).toInstance(CalendarServiceImpl.this);
+                bind(EventService.class).toInstance(eventService);
+                bind(IdsService.class).toInstance(idsService);
                 bind(UserService.class).toInstance(userService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(Clock.class).toInstance(clock);
@@ -313,4 +362,45 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     public void removeCalendarResolver(CalendarResolver resolver) {
         calendarResolvers.remove(resolver);
     }
+
+    @Override
+    public void createVault() {
+        this.vault = this.idsService.createVault(COMPONENTNAME, VAULT_ID, "Calendar timeseries", 1, 0, true);
+        this.createPartitions();
+    }
+
+    @Override
+    public Vault getVault() {
+        return vault;
+    }
+
+    private void createPartitions() {
+        Instant start = LocalDate.now(this.clock).withDayOfYear(1).minusYears(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        this.vault.activate(start);
+        this.vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
+    }
+
+    @Override
+    public void createRecordSpec() {
+        this.recordSpec =
+                idsService
+                        .createRecordSpec(COMPONENTNAME, RECORD_SPEC_ID, "calendar")
+                        .addFieldSpec("code", FieldType.LONGINTEGER)
+                        .create();
+    }
+
+    @Override
+    public RecordSpec getRecordSpec() {
+        return recordSpec;
+    }
+
+    private void initVaultAndRecordSpec() {
+        if (this.vault == null) {
+            this.vault = this.idsService.getVault(COMPONENTNAME, VAULT_ID).orElseThrow(() -> new IllegalStateException("Installer or upgrader failed to create the calendar vault"));
+        }
+        if (this.recordSpec == null) {
+            this.recordSpec = this.idsService.getRecordSpec(COMPONENTNAME, RECORD_SPEC_ID).orElseThrow(() -> new IllegalStateException("Installer or upgrader failed to create the calendar record spec"));
+        }
+    }
+
 }

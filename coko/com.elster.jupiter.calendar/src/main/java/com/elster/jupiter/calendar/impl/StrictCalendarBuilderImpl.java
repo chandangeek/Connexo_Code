@@ -22,7 +22,7 @@ class StrictCalendarBuilderImpl implements CalendarService.StrictCalendarBuilder
     private final Clock clock;
     private final Thesaurus thesaurus;
 
-    public StrictCalendarBuilderImpl(Clock clock, CalendarImpl calendar, Thesaurus thesaurus) {
+    StrictCalendarBuilderImpl(Clock clock, CalendarImpl calendar, Thesaurus thesaurus) {
         this.clock = clock;
         this.updating = calendar;
         this.thesaurus = thesaurus;
@@ -45,11 +45,11 @@ class StrictCalendarBuilderImpl implements CalendarService.StrictCalendarBuilder
         private final DayTypeImpl dayTypeImpl;
         private LocalDate localDate;
 
-        public StrictExceptionBuilderImpl(DayTypeImpl dayType) {
+        StrictExceptionBuilderImpl(DayTypeImpl dayType) {
             this.dayTypeImpl = dayType;
         }
 
-            public StrictExceptionBuilderImpl(String dayTypeName) {
+            StrictExceptionBuilderImpl(String dayTypeName) {
             this.dayTypeImpl = (DayTypeImpl) updating.getDayTypes()
                     .stream()
                     .filter(on(DayType::getName).test(dayTypeName::equals))

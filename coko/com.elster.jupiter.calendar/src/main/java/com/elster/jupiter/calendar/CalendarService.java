@@ -96,14 +96,14 @@ public interface CalendarService {
         EventSet add();
 
         interface EventBuilder {
-            EventSetBuilder withCode(int code);
+            EventSetBuilder withCode(long code);
         }
     }
 
     @ProviderType
     interface DayTypeBuilder {
         DayTypeEventOccurrenceBuilder event(String eventName);
-        DayTypeEventOccurrenceBuilder eventWithCode(int code);
+        DayTypeEventOccurrenceBuilder eventWithCode(long code);
         CalendarBuilder add();
     }
 

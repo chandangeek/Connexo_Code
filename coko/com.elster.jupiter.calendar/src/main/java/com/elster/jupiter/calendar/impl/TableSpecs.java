@@ -14,12 +14,14 @@ import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
 import com.elster.jupiter.calendar.Status;
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Version.version;
@@ -310,8 +312,37 @@ public enum TableSpecs {
                     .add();
         }
     },
+    CAL_TIMESERIES {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<CalendarTimeSeries> table = dataModel.addTable(name(), CalendarTimeSeries.class);
+            table.since(version(10, 3));
+            table.map(CalendarTimeSeriesImpl.class);
+            Column calendar = table.column("CALENDAR").number().notNull().map("calendar").add();
+            Column zoneId = table.column("ZONEID").varChar().notNull().map("zoneIdString").add();
+            Column intervalValue = table.column("INTERVAL_VALUE").number().conversion(NUMBER2INT).notNull().map("interval.count").add();
+            Column intervalUnit = table.column("INTERVAL_UNIT").number().conversion(NUMBER2INT).notNull().map("interval.timeUnitCode").add();
 
-    ;
+            table
+                .primaryKey("CAL_PK_TIMESERIES")
+                .on(calendar, zoneId, intervalValue, intervalUnit)
+                .add();
+            table
+                .foreignKey("CAL_FK_TIMESERIES_CALENDAR")
+                .on(calendar)
+                .references(CAL_CALENDAR.name())
+                .map("calendar")
+                .reverseMap("timeSeries")
+                .composition()
+                .add();
+            table
+                .foreignKey("CAL_FK_TIMESERIES_TIMESERIES")
+                .on(calendar)
+                .references(TimeSeries.class)
+                .map("timeSeries")
+                .add();
+        }
+    };
 
     public abstract void addTo(DataModel component);
 }

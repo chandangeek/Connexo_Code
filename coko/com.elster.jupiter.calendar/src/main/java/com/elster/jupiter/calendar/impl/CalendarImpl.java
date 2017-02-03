@@ -23,6 +23,7 @@ import com.elster.jupiter.calendar.Status;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -39,6 +40,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.Year;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +54,7 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_MRID + "}")
 @UniqueCalendarName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_NAME + "}")
 @ValidTransitions(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_TRANSITIONS + "}")
-public class CalendarImpl implements Calendar {
+public class CalendarImpl implements ServerCalendar {
 
     public enum Fields {
         ID("id"),
@@ -119,6 +122,7 @@ public class CalendarImpl implements Calendar {
     private List<ExceptionalOccurrence> exceptionalOccurrences = new ArrayList<>();
     @Valid
     private List<PeriodTransitionSpec> periodTransitionSpecs = new ArrayList<>();
+    private List<CalendarTimeSeries> timeSeries = new ArrayList<>();    // Composition managed by ORM
 
     private final ServerCalendarService calendarService;
     private final EventService eventService;
@@ -411,7 +415,7 @@ public class CalendarImpl implements Calendar {
     private List<PeriodTransition> getRecurrentPeriodTransitions() {
         List<PeriodTransition> result = new ArrayList<>();
         int year = startYear;
-        int toYear = (endYear == null || endYear == 0) ? Year.now().getValue() : endYear;
+        int toYear = (endYear == null || endYear == 0) ? Year.now(this.clock).getValue() : endYear;
         while (year <= toYear) {
             int finalYear = year;
             result.addAll(this.periodTransitionSpecs.stream()
@@ -481,6 +485,11 @@ public class CalendarImpl implements Calendar {
         return status;
     }
 
+    @Override
+    public String getStatusDisplayName() {
+        return CalendarStatusTranslationKeys.translationFor(this.getStatus(), this.thesaurus);
+    }
+
     void setStatus(Status status) {
         this.status = status;
     }
@@ -509,4 +518,30 @@ public class CalendarImpl implements Calendar {
     public Optional<Instant> getObsoleteTime() {
         return Optional.ofNullable(this.obsoleteTime);
     }
+
+    @Override
+    public TimeSeries toTimeSeries(TemporalAmount interval, ZoneId zoneId) {
+        return this.timeSeries
+                .stream()
+                .filter(timeSeries -> timeSeries.matches(interval, zoneId))
+                .findAny()
+                .orElseGet(() -> this.createTimeSeries(interval, zoneId))
+                .timeSeries();
+    }
+
+    private CalendarTimeSeries createTimeSeries(TemporalAmount interval, ZoneId zoneId) {
+        CalendarTimeSeries generated = this.calendarService
+                .getDataModel()
+                .getInstance(CalendarTimeSeries.class)
+                .initialize(this, interval, zoneId)
+                .generate();
+        this.timeSeries.add(generated);
+        return generated;
+    }
+
+    @Override
+    public ZonedView forZone(ZoneId zoneId, Year year) {
+        return new ZonedCalenderViewImpl(this, this.clock, zoneId, year);
+    }
+
 }
