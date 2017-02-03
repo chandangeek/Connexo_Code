@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /* Tiny Scrollbar */
 #scrollbar1 { width: 520px; margin: 20px 0 10px; }
 #scrollbar1 .viewport { width: 500px; height: 200px; overflow: hidden; position: relative; }

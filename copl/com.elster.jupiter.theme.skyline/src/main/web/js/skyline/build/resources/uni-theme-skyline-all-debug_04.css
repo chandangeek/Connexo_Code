@@ -1,12 +1,6 @@
-/* line 327, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-form-error-framed-collapsed-right-br {
-  background-position: right -50px;
-}
-
-/* line 331, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
-.x-panel-header-form-error-framed-collapsed-right-ml {
-  background-position: 0 right;
-}
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
 /* line 335, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-form-error-framed-collapsed-right-mr {
@@ -2892,15 +2886,6 @@ div.x-form-spinner-down {
 .combo-limit-notification {
   color: #828282;
   font-size: 11px;
-}
-
-/* line 6, ../../sass/src/form/field/Combobox.scss */
-.stretchy-combo {
-  width: 100%;
-}
-/* line 8, ../../sass/src/form/field/Combobox.scss */
-.stretchy-combo .x-form-trigger-wrap {
-  width: 100% !important;
 }
 
 /* line 7, ../../sass/src/form/field/Base.scss */
@@ -10262,15 +10247,6 @@ div.x-form-spinner-down {
 .combo-limit-notification {
   color: #828282;
   font-size: 11px;
-}
-
-/* line 6, ../../sass/src/form/field/Combobox.scss */
-.stretchy-combo {
-  width: 100%;
-}
-/* line 8, ../../sass/src/form/field/Combobox.scss */
-.stretchy-combo .x-form-trigger-wrap {
-  width: 100% !important;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */
