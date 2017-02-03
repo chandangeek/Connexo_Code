@@ -76,12 +76,6 @@ public class ReadingTypeResource {
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getReadingTypes(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypes(readingTypeFilterFactory.from(jsonQueryFilter))
-                .from(queryParameters)
-                .stream()
-                .map(readingTypeInfoFactory::from)
-                .collect(Collectors.toList());
-
         String searchText = queryParameters.getLike();
         if (searchText != null && !searchText.isEmpty()) {
             ReadingTypeFilter filter = new ReadingTypeFilter();
@@ -92,6 +86,12 @@ public class ReadingTypeResource {
                     .collect(Collectors.toList());
             return PagedInfoList.fromPagedList("readingTypes", infos, queryParameters);
         }
+
+        List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypes(readingTypeFilterFactory.from(jsonQueryFilter))
+                .from(queryParameters)
+                .stream()
+                .map(readingTypeInfoFactory::from)
+                .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);
     }
