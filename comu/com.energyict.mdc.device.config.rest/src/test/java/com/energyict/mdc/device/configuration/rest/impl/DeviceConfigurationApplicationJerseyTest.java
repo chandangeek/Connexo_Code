@@ -153,7 +153,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
 
     @Override
     protected Application getApplication() {
-        DeviceConfigurationApplication application = new DeviceConfigurationApplication(pkiService);
+        DeviceConfigurationApplication application = new DeviceConfigurationApplication();
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMeteringService(meteringService);
