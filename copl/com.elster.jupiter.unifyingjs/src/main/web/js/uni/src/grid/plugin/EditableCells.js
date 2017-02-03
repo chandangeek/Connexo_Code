@@ -52,6 +52,7 @@ Ext.define('Uni.grid.plugin.EditableCells', {
                                         renderTo: inner,
                                         constrain: true,
                                         value: record ? record.get(column.dataIndex) : null,
+                                        itemId: column.dataIndex + '-' + column.editor.xtype + '-' + index,
                                         cell: {
                                             record: record,
                                             dataIndex: column.dataIndex
