@@ -50,8 +50,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
+import static java.util.stream.Collectors.toList;
 
 public class SDKDeviceProtocolWithCryptoProperties extends SDKDeviceProtocol {
 
@@ -116,14 +118,9 @@ public class SDKDeviceProtocolWithCryptoProperties extends SDKDeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(
-                this.propertySpecService
-                        .referenceSpec(KeyAccessorType.class)
-                        .named(SDKTranslationKeys.SDKKEYACCESSORTYPE)
-                        .fromThesaurus(this.getThesaurus())
-                        .finish());
-        return optionalProperties;
+        return Stream.of(SDKTranslationKeys.SDK_AK_KEYACCESSORTYPE, SDKTranslationKeys.SDK_EK_KEYACCESSORTYPE, SDKTranslationKeys.SDK_MK_KEYACCESSORTYPE, SDKTranslationKeys.SDK_GUAK_KEYACCESSORTYPE)
+                .map(key-> this.propertySpecService.referenceSpec(KeyAccessorType.class).named(key).fromThesaurus(this.getThesaurus()).finish())
+                .collect(toList());
     }
 
     @Override
