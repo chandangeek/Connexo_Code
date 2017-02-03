@@ -17,24 +17,28 @@ Ext.define('Dal.view.ActionMenu', {
             privileges: Dal.privileges.Alarm.assign,
             action: 'assignIssueToMe',
             itemId: 'assign-alarm-to-me',
-            hidden: true
+            hidden: true,
+            section: this.SECTION_ACTION
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.unassign', 'DAL', 'Unassign'),
             privileges: Dal.privileges.Alarm.assign,
             action: 'unassign',
             itemId: 'unassign-alarm',
-            hidden: true
+            hidden: true,
+            section: this.SECTION_ACTION
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'DAL', 'Add comment'),
             privileges: Dal.privileges.Alarm.comment,
-            action: 'addComment'
+            action: 'addComment',
+            section: this.SECTION_ACTION
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.setPriority', 'DAL', 'Set priority'),
             privileges: Dal.privileges.Alarm.viewAdminAlarm,
-            action: 'setPriority'
+            action: 'setPriority',
+            section: this.SECTION_EDIT
         }
 
     ],
@@ -45,13 +49,16 @@ Ext.define('Dal.view.ActionMenu', {
 
         // add dynamic actions
         me.store.each(function (record) {
-            var privileges;
+            var privileges,
+                section;
             switch (record.get('name')) {
                 case 'Assign alarm':
                     privileges = Dal.privileges.Alarm.canDoAction() && Dal.privileges.Alarm.assign;
+                    section = this.SECTION_ACTION;
                     break;
                 case 'Close alarm':
                     privileges = Dal.privileges.Alarm.canDoAction() && Dal.privileges.Alarm.close;
+                    section = this.SECTION_REMOVE;
                     break;
             }
 
@@ -151,6 +158,7 @@ Ext.define('Dal.view.ActionMenu', {
 
                 text: Uni.I18n.translate('alarms.actionMenu.startProcess', 'DAL', 'Start process'),
                 action: 'startProcess',
+                section: this.SECTION_ACTION,
                 href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({alarmId: itemId}, {details: (detail) ? true : false}),
                 details: false
             });
