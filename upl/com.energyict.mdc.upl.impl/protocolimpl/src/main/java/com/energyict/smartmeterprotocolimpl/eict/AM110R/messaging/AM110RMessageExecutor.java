@@ -1,8 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-
-import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -26,15 +23,13 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.ZigBeeSETCControl;
 import com.energyict.dlms.cosem.attributeobjects.EnhancedCreditRegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.UserFileShadow;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
@@ -45,12 +40,12 @@ import com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110RRegisterFactory;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -67,9 +62,13 @@ public class AM110RMessageExecutor extends MessageParser {
     private static final String NORESUME = "noresume";
 
     private final AbstractSmartDlmsProtocol protocol;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
 
-    public AM110RMessageExecutor(final AbstractSmartDlmsProtocol protocol) {
+    public AM110RMessageExecutor(final AbstractSmartDlmsProtocol protocol, DeviceMessageFileExtractor deviceMessageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder) {
         this.protocol = protocol;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
@@ -155,16 +154,11 @@ public class AM110RMessageExecutor extends MessageParser {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
             }
-        } catch (IOException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (BusinessException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (SQLException e) {
+        } catch (IOException | IllegalArgumentException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         }
@@ -209,7 +203,7 @@ public class AM110RMessageExecutor extends MessageParser {
             sas.writeExecutionTime(dateArray);
         } else {
             log(Level.INFO, "Immediately activating the image.");
-             it.imageActivation();
+            it.imageActivation();
         }
         log(Level.INFO, "Upgrade firmware message finished.");
     }
@@ -239,7 +233,7 @@ public class AM110RMessageExecutor extends MessageParser {
             }
         }
         it.upgrade(imageData);
-        if (activationDate != null  && activationDate.after(new Date())) {
+        if (activationDate != null && activationDate.after(new Date())) {
             log(Level.INFO, "Writing the upgrade activation date.");
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(AM110RRegisterFactory.ZIGBEE_NCP_IMAGE_ACTIVATION_SCHEDULER);
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(activationDate.getTime() / 1000));
@@ -253,17 +247,15 @@ public class AM110RMessageExecutor extends MessageParser {
 
     private void restoreZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Restore ZigBee Han Parameters message received.");
-        int userFileId = messageHandler.getRestoreHanParametersUserFileId();
-        if (userFileId == -1) {
-            throw new IOException("Invalid UserFileId value : " + userFileId);
-        }
+        String userFileId = messageHandler.getRestoreHanParametersUserFileId();
 
-        UserFile uf = mw().getUserFileFactory().find(userFileId);
-        if (uf == null) {
+        Optional<DeviceMessageFile> deviceMessageFile = deviceMessageFileFinder.from(userFileId);
+        if (!deviceMessageFile.isPresent()) {
             throw new IOException("No UserFile found with ID : " + userFileId);
         }
+        byte[] bytes = deviceMessageFileExtractor.binaryContents(deviceMessageFile.get());
 
-        Structure backupStructure = getBackupRestoreData(uf.loadFileInByteArray());
+        Structure backupStructure = getBackupRestoreData(bytes);
         ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
         log(Level.INFO, "Restoring HAN backup");
         try {
@@ -307,7 +299,7 @@ public class AM110RMessageExecutor extends MessageParser {
         throw new IOException("Failed to parse the backup data - the UserFile did not contain a valid HAN backup.");
     }
 
-    private void backupZigBeeHanParameters(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void backupZigBeeHanParameters(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Backup ZigBee Han Parameters message received.");
         ZigBeeSETCControl zigBeeSETCControl = getCosemObjectFactory().getZigBeeSETCControl();
         byte[] backupBytes = zigBeeSETCControl.backupHAN();
@@ -319,10 +311,7 @@ public class AM110RMessageExecutor extends MessageParser {
         fileName.append("_");
         fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), backupStructure.getBEREncodedByteArray(), getFolderIdFromHub(), "bin");
-        mw().getUserFileFactory().create(ufs);
-        log(Level.INFO, "Backed-up ZigBee parameters in userFile : ZigBeeBackUp_" + protocol.getDlmsSession().getProperties().getSerialNumber());
-        log(Level.INFO, "Backup ZigBee Han Parameters message finished.");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void joinZigBeeSlave(MessageHandler messageHandler) throws IOException {
@@ -406,7 +395,7 @@ public class AM110RMessageExecutor extends MessageParser {
         log(Level.INFO, "Remove HAN Network message finished.");
     }
 
-    private void readDebugLogbook(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void readDebugLogbook(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Read Debug logbook message received.");
 
         Calendar from = extractDate(messageHandler.getLogbookFromTimeString());
@@ -449,14 +438,10 @@ public class AM110RMessageExecutor extends MessageParser {
         fileName.append("_");
         fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), buffer.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
-
-        log(Level.INFO, "Stored readout of debug logbook in userFile: " + fileName);
-        log(Level.INFO, "Read Debug logbook message finished.");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
-    private void readElsterLogbook(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void readElsterLogbook(final MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Read Elster logbook message received.");
 
         Calendar from = extractDate(messageHandler.getLogbookFromTimeString());
@@ -509,11 +494,7 @@ public class AM110RMessageExecutor extends MessageParser {
         fileName.append("_");
         fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), buffer.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
-
-        log(Level.INFO, "Stored readout of Elster logbook in userFile: " + fileName);
-        log(Level.INFO, "Read Elster logbook message finished.");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void configureConnectionMode(final MessageHandler messageHandler) throws IOException {
@@ -690,7 +671,7 @@ public class AM110RMessageExecutor extends MessageParser {
             mac.append("-");
         }
 
-        return mac.substring(0, mac.length() -1);
+        return mac.substring(0, mac.length() - 1);
     }
 
 
@@ -705,36 +686,5 @@ public class AM110RMessageExecutor extends MessageParser {
     @Override
     protected TimeZone getTimeZone() {
         return getDlmsSession().getTimeZone();
-    }
-
-    /*****************************************************************************/
-    /* These methods require database access ...
-    /*****************************************************************************/
-
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     */
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
-    }
-
-    private Device getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
-        String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        List<Device> rtusWithSameSerialNumber = mw().getDeviceFactory().findBySerialNumber(serial);
-        for (Device each : rtusWithSameSerialNumber) {
-            if (((String) each.getProtocolProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
-                return each;
-            }
-        }
-        throw new IOException("Could not find the EiServer rtu.");
-    }
-
-    private int getFolderIdFromHub() throws IOException {
-        return getRtuFromDatabaseBySerialNumberAndClientMac().getFolderId();
     }
 }

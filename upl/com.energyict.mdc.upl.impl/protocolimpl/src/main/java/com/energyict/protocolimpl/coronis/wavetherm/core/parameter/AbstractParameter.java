@@ -5,7 +5,11 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavetherm.WaveTherm;
 import com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand.AbstractRadioCommand;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 abstract public class AbstractParameter extends AbstractRadioCommand {
 
@@ -134,7 +138,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                     baos.close();
                 }
                 catch (IOException e) {
-                    getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveTherm().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -178,7 +182,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveTherm().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -205,7 +209,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                     baos.close();
                 }
                 catch (IOException e) {
-                    getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveTherm().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -252,7 +256,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getWaveTherm().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveTherm().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }

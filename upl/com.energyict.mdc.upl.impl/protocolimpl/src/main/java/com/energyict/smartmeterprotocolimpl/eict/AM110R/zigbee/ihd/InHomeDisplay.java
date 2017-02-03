@@ -1,8 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -23,8 +24,8 @@ import java.util.List;
  */
 public class InHomeDisplay extends AM110R {
 
-    public InHomeDisplay(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public InHomeDisplay(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
     }
 
     @Override
@@ -37,7 +38,7 @@ public class InHomeDisplay extends AM110R {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-08-26 14:01:32 +0200 (Wed, 26 Aug 2015) $";
+        return "$Date: Thu Oct 27 15:46:50 2016 +0200 $";
     }
 
     @Override

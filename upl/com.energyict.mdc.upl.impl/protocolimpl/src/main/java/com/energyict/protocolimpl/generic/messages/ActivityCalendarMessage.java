@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.generic.messages;
 
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -12,8 +9,10 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.time.LocalTime;

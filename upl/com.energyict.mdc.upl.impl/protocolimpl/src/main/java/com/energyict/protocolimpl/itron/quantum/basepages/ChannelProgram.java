@@ -10,9 +10,9 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *

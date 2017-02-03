@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.HexString;
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
-
-import com.energyict.cbo.HexString;
-import com.energyict.cbo.Password;
-import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.dlms.prime.PrimeMeter;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -16,14 +15,13 @@ import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress1AttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress2AttributeName;

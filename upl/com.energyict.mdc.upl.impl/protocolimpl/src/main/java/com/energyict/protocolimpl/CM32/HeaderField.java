@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.CM32;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.util.Date;
@@ -103,7 +102,7 @@ public class HeaderField {
 			this.configStart = Integer.parseInt(value);
 		}
 		catch (NumberFormatException e) {
-			throw new ApplicationException("HeaderField pares error: Invalid config seek value '" + value + "'");
+			throw new IllegalArgumentException("HeaderField pares error: Invalid config seek value '" + value + "'");
 		}
 	}
 	
@@ -113,7 +112,7 @@ public class HeaderField {
 			this.configSize = Integer.parseInt(value);
 		}
 		catch (NumberFormatException e) {
-			throw new ApplicationException("HeaderField pares error: Invalid config size value '" + value + "'");
+			throw new IllegalArgumentException("HeaderField pares error: Invalid config size value '" + value + "'");
 		}
 	}
 	
@@ -131,7 +130,7 @@ public class HeaderField {
 			this.numberOfDays = Integer.parseInt(value);
 		}
 		catch (NumberFormatException e) {
-			throw new ApplicationException("HeaderField pares error: Invalid number of days value '" + value + "'");
+			throw new IllegalArgumentException("HeaderField pares error: Invalid number of days value '" + value + "'");
 		}
 	}
 	
@@ -141,7 +140,7 @@ public class HeaderField {
 			this.dataRecordSize = Integer.parseInt(value);
 		}
 		catch (NumberFormatException e) {
-			throw new ApplicationException("HeaderField pares error: Invalid data record size value '" + value + "'");
+			throw new IllegalArgumentException("HeaderField pares error: Invalid data record size value '" + value + "'");
 		}
 	}
 	
@@ -151,7 +150,7 @@ public class HeaderField {
 			this.dataFieldNumberOfRecords = Integer.parseInt(value);
 		}
 		catch (NumberFormatException e) {
-			throw new ApplicationException("HeaderField pares error: Invalid number of datarecords value '" + value + "'");
+			throw new IllegalArgumentException("HeaderField pares error: Invalid number of datarecords value '" + value + "'");
 		}
 	}
 
@@ -161,7 +160,7 @@ public class HeaderField {
 			this.dataStart = Integer.parseInt(value);
 		}
 		catch (NumberFormatException e) {
-			throw new ApplicationException("HeaderField pares error: Invalid data start value '" + value + "'");
+			throw new IllegalArgumentException("HeaderField pares error: Invalid data start value '" + value + "'");
 		}
 	}
 
@@ -171,7 +170,7 @@ public class HeaderField {
 			this.dataSize = Integer.parseInt(value);
 		}
 		catch (NumberFormatException e) {
-			throw new ApplicationException("HeaderField pares error: Invalid data size value '" + value + "'");
+			throw new IllegalArgumentException("HeaderField pares error: Invalid data size value '" + value + "'");
 		}
 	}
 
@@ -181,7 +180,7 @@ public class HeaderField {
 			this.interval = Integer.parseInt(value);
 		}
 		catch (NumberFormatException e) {
-			throw new ApplicationException("HeaderField pares error: Invalid interval value '" + value + "'");
+			throw new IllegalArgumentException("HeaderField pares error: Invalid interval value '" + value + "'");
 		}
 	}
 

@@ -1,15 +1,5 @@
 package com.elster.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.*;
-
 import com.elster.dlms.cosem.application.services.common.DataAccessResult;
 import com.elster.dlms.cosem.application.services.get.GetDataResult;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
@@ -40,6 +30,21 @@ import com.elster.protocolimpl.dlms.registers.RegisterMap;
 import com.elster.protocolimpl.dlms.util.ElsterProtocolIOExceptionHandler;
 import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -174,12 +179,16 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor calendarExtractor;
     private final PropertySpecService propertySpecService;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    public Dlms(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService) {
+    public Dlms(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         super();
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.propertySpecService = propertySpecService;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 
     @Override
@@ -638,17 +647,17 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
 
     @Override
     public String writeMessage(Message msg) {
-        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor).writeMessage(msg);
+        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor, deviceMessageFileFinder, deviceMessageFileExtractor).writeMessage(msg);
     }
 
     @Override
     public String writeTag(MessageTag tag) {
-        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor).writeTag(tag);
+        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor, deviceMessageFileFinder, deviceMessageFileExtractor).writeTag(tag);
     }
 
     @Override
     public String writeValue(MessageValue value) {
-        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor).writeValue(value);
+        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor, deviceMessageFileFinder, deviceMessageFileExtractor).writeValue(value);
     }
 
     public DlmsMessageExecutor getMessageExecutor() {

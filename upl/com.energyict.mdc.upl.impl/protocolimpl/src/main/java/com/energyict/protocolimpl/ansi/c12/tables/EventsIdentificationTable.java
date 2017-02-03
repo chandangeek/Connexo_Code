@@ -10,12 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -34,7 +31,7 @@ public class EventsIdentificationTable extends AbstractTable {
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("EventsIdentificationTable: \n");
-        strBuff.append("stdEventsSupported = "+ProtocolUtils.getResponseData(getStdEventsSupported())+"\n");
+        strBuff.append("stdEventsSupported = "+ ProtocolUtils.getResponseData(getStdEventsSupported())+"\n");
         strBuff.append("mfgEventsSupported = "+ProtocolUtils.getResponseData(getMfgEventsSupported())+"\n");
         return strBuff.toString();
     }

@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class ActionItem extends ComplexCosemObject{
 	
@@ -32,13 +33,13 @@ public class ActionItem extends ComplexCosemObject{
 		if (names.getLength() != 0){
 			logicalName = new OctetString(names.item(0).getFirstChild().getNodeValue());
 		} else {
-			throw new ApplicationException("Cannot create ActionItem");
+			throw new IllegalArgumentException("Cannot create ActionItem");
 		}
 		NodeList selectors = element.getElementsByTagName(SELECTORELEMENTNAME);
 		if (names.getLength() != 0){
 			selector = Integer.parseInt(selectors.item(0).getFirstChild().getNodeValue());
 		} else {
-			throw new ApplicationException("Cannot create ActionItem");
+			throw new IllegalArgumentException("Cannot create ActionItem");
 		}
 	}
 

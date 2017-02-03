@@ -1,6 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ek280;
 
+import com.elster.protocolimpl.dlms.messaging.XmlMessageWriter;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
@@ -9,8 +12,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-
-import com.elster.protocolimpl.dlms.messaging.XmlMessageWriter;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
@@ -26,10 +27,14 @@ public class EK280ActivityCalendarMessageEntry implements MessageEntryCreator {
     private static final String defaultTariffCodeAttributeTag = "DefaultTariff";
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor calendarExtractor;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
 
-    public EK280ActivityCalendarMessageEntry(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor) {
+    public EK280ActivityCalendarMessageEntry(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder) {
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
+        this.messageFileExtractor = messageFileExtractor;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
     }
 
     @Override
@@ -44,12 +49,12 @@ public class EK280ActivityCalendarMessageEntry implements MessageEntryCreator {
         msgTag.add(new MessageAttribute(defaultTariffCodeAttributeTag, defaultTariffCode));
         msgTag.add(new MessageValue(" "));
         return MessageEntry
-                    .fromContent(getXmlMessageWriter().writeNormalTag(msgTag))
-                    .andMessage(offlineDeviceMessage)
-                    .finish();
+                .fromContent(getXmlMessageWriter().writeNormalTag(msgTag))
+                .andMessage(offlineDeviceMessage)
+                .finish();
     }
 
     private XmlMessageWriter getXmlMessageWriter() {
-        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor);
+        return new XmlMessageWriter(this.calendarFinder, this.calendarExtractor, deviceMessageFileFinder, messageFileExtractor);
     }
 }

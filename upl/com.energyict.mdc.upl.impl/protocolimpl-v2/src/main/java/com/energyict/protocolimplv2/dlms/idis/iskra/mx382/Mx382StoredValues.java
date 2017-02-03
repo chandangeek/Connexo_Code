@@ -1,15 +1,13 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.mx382;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.HistoricalRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
 
@@ -41,7 +39,7 @@ public class Mx382StoredValues extends IDISStoredValues{
         if (!isValidBillingPoint(billingPoint)) {
             throw new NoSuchRegisterException("Billing point " + obisCode.getF() + " doesn't exist for obiscode " + baseObisCode + ".");
         }
-        int value = ((IntervalValue) getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(channelIndex - 1)).getNumber().intValue();
+        int value = getProfileData().getIntervalData(getReversedBillingPoint(billingPoint)).getIntervalValues().get(channelIndex - 1).getNumber().intValue();
         HistoricalRegister cosemValue = new HistoricalRegister();
         cosemValue.setQuantityValue(BigDecimal.valueOf(value), getUnit(baseObisCode));
 

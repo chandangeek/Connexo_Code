@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import com.energyict.cbo.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**

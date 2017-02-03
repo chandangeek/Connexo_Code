@@ -1,5 +1,17 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
+import com.elster.us.protocolimplv2.mercury.minimax.frame.RequestFrame;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.ResponseFrame;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.data.AuditLogRecord;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.data.BasicResponseData;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.data.DMResponseData;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.data.ExtendedData;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.data.MultiReadResponseData;
+import com.elster.us.protocolimplv2.mercury.minimax.frame.data.SingleReadResponseData;
+import com.elster.us.protocolimplv2.mercury.minimax.utility.ObisCodeMapper;
+import com.elster.us.protocolimplv2.mercury.minimax.utility.UnitMapper;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -34,20 +46,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
-import com.elster.us.protocolimplv2.mercury.minimax.frame.RequestFrame;
-import com.elster.us.protocolimplv2.mercury.minimax.frame.ResponseFrame;
-import com.elster.us.protocolimplv2.mercury.minimax.frame.data.AuditLogRecord;
-import com.elster.us.protocolimplv2.mercury.minimax.frame.data.BasicResponseData;
-import com.elster.us.protocolimplv2.mercury.minimax.frame.data.DMResponseData;
-import com.elster.us.protocolimplv2.mercury.minimax.frame.data.ExtendedData;
-import com.elster.us.protocolimplv2.mercury.minimax.frame.data.MultiReadResponseData;
-import com.elster.us.protocolimplv2.mercury.minimax.frame.data.SingleReadResponseData;
-import com.elster.us.protocolimplv2.mercury.minimax.utility.ObisCodeMapper;
-import com.elster.us.protocolimplv2.mercury.minimax.utility.UnitMapper;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.mdw.amr.RegisterIdentifierById;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -56,6 +54,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
+import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
 import java.io.ByteArrayOutputStream;

@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class MessagePostXmlFile extends MessageContent {
 	
@@ -27,7 +28,7 @@ public class MessagePostXmlFile extends MessageContent {
 		if (filenames.getLength() != 0){
 			filename = filenames.item(0).getFirstChild().getNodeValue();
 		} else {
-			throw new ApplicationException("Cannot create MessageWriteRegister");
+			throw new IllegalArgumentException("Cannot create MessageWriteRegister");
 		}
 	}
 	

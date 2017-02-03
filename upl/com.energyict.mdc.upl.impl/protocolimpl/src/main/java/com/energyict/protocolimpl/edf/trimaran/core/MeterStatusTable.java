@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
@@ -75,7 +76,7 @@ public class MeterStatusTable extends AbstractTable {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         Calendar cal = ProtocolUtils.getCleanCalendar(getDataFactory().getTrimeran().getTimeZone());
-        cal.set(Calendar.DAY_OF_MONTH,ProtocolUtils.BCD2hex(data[offset++]));
+        cal.set(Calendar.DAY_OF_MONTH, ProtocolUtils.BCD2hex(data[offset++]));
         cal.set(Calendar.MONTH,ProtocolUtils.BCD2hex(data[offset++])-1);
         int year = ProtocolUtils.BCD2hex(data[offset++]);
         cal.set(Calendar.YEAR,year>50?1900+year:2000+year);

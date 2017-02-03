@@ -10,14 +10,12 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.datastar.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+
 /**
  *
  * @author Koen
@@ -86,7 +84,7 @@ public class MassMemoryBasePages extends AbstractBasePage {
         setStartOffsetOfCurrentRecord(ProtocolUtils.getInt(data,offset, 3)-getBasePagesFactory().getMemStartAddress());
         offset+=3;
         setCurrentIntervalNr(ProtocolUtils.getInt(data,offset, 1));
-        offset++;;
+        offset++;
         //lastInterrogateTimestamp;
         //auxInput1ClosureTimestamp;
         //auxInput2ClosureTimestamp;

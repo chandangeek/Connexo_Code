@@ -10,15 +10,26 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
+import com.energyict.protocolimpl.iec1107.abba1140.Calculate;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import javax.crypto.*;
-import java.security.*;
-import javax.crypto.spec.*;
-import java.security.spec.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Calendar;
 /**
  *
  * @author Koen
@@ -44,7 +55,7 @@ public class TestClass {
     }
     
     private void start2() {
-        Calendar cal = ProtocolUtils.getCleanGMTCalendar(); 
+        Calendar cal = ProtocolUtils.getCleanGMTCalendar();
         System.out.println(cal.getTime());
     }
     

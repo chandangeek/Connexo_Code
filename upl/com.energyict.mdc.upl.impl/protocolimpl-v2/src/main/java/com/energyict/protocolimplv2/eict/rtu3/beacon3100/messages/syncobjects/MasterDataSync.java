@@ -1,19 +1,18 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
+import com.energyict.ObjectMapperFactory;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.ClientTypeManager;
+import com.energyict.dlms.cosem.DeviceTypeManager;
+import com.energyict.dlms.cosem.ScheduleManager;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.cpo.ObjectMapperFactory;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.ClientTypeManager;
-import com.energyict.dlms.cosem.DeviceTypeManager;
-import com.energyict.dlms.cosem.ScheduleManager;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -201,10 +200,7 @@ public class MasterDataSync {
         }
         token = tokenizer.nextToken();
         int secondNr = Integer.parseInt(token);
-        if (secondNr < 4) {
-            return false;
-        }
-        return true;
+        return secondNr >= 4;
     }
 
     private void syncDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {

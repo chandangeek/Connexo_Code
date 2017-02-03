@@ -701,8 +701,6 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.WatchTalk
 
--keepnames class com.energyict.protocolimpl.base.RtuDiscoveredEvent
-
 -keepnames class com.energyict.protocolimpl.dlms.JanzC280.JanzC280
 
 -keepnames class com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372

@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -71,7 +68,7 @@ class ProfileMerge {
     }
 
     ProfileData toProfileData(boolean includeEvents)
-        throws UnsupportedException, ApplicationException, IOException {
+        throws IllegalArgumentException, IOException {
 
         checkNrChannels();
         checkProfileInterval();
@@ -110,7 +107,7 @@ class ProfileMerge {
      * Loop over all the entries and compare them.
      */
     private void checkNrChannels( )
-        throws ApplicationException, UnsupportedException, IOException {
+        throws IllegalArgumentException, IOException {
 
         if( map.isEmpty() ) return;
 
@@ -136,7 +133,7 @@ class ProfileMerge {
      * interval.
      */
     private void checkProfileInterval()
-        throws UnsupportedException, IOException {
+        throws IOException {
 
         if( map.isEmpty() ) return;
 
@@ -165,8 +162,8 @@ class ProfileMerge {
         }
     }
 
-    ApplicationException createException(MessageFormat mf, Object []arg) {
-        return new ApplicationException( mf.format(arg) );
+    IllegalArgumentException createException(MessageFormat mf, Object []arg) {
+        return new IllegalArgumentException( mf.format(arg) );
     }
 
 }

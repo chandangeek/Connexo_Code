@@ -6,12 +6,15 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.iec870.AddressMap;
+import com.energyict.protocolimpl.iec870.CP24Time2a;
+import com.energyict.protocolimpl.iec870.IEC870InformationObject;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec870.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  *
@@ -23,7 +26,7 @@ public class IntegratedTotal extends Information {
     
     /** Creates a new instance of IntegratedTotal */
      public IntegratedTotal(Calendar calendar, TimeZone timeZone, IEC870InformationObject io) throws IOException {
-        value = BigDecimal.valueOf((long)ProtocolUtils.getIntLE(io.getObjData()));
+        value = BigDecimal.valueOf((long) ProtocolUtils.getIntLE(io.getObjData()));
         status = ProtocolUtils.getIntLE(io.getObjData(),4,1);
         int channelId = io.getAddress()&AddressMap.MAX_ADDRESS;
         int addresstype = io.getAddress()&(AddressMap.MAX_ADDRESS^0xFFFF);

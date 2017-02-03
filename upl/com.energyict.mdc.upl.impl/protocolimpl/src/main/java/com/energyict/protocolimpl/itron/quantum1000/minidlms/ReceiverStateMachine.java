@@ -10,9 +10,11 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
@@ -86,7 +88,7 @@ public class ReceiverStateMachine {
                             connection.sendRR();
                             message.write(frame.getData());
                             frame.setData(message.toByteArray());
-if (DEBUG>=1) System.out.println("STATE_ONLINE last frame received datasize = "+frame+", "+frame.getData().length+", "+ProtocolUtils.outputHexString(frame.getData()));                         
+if (DEBUG>=1) System.out.println("STATE_ONLINE last frame received datasize = "+frame+", "+frame.getData().length+", "+ ProtocolUtils.outputHexString(frame.getData()));
                             return frame;
                         } else if ((connection.getReceiveSequencePlus1() == frame.getSendSequence()) && !frame.isLastFrame()) {
 
@@ -147,7 +149,7 @@ if (DEBUG>=1) System.out.println("STATE_RECEIVING_MESSAGE chunk frame received d
                 
             } // switch(state)
             
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("ReceiverStateMachine, stateMachine() protocol timeout error",connection.getTIMEOUT_ERROR()); 
             }
             

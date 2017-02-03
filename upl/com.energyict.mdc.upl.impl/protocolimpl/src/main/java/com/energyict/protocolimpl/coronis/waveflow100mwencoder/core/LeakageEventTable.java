@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.coronis.core.TimeDateRTCParser;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
@@ -131,7 +130,7 @@ public class LeakageEventTable extends AbstractRadioCommand {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow100mW().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }

@@ -1,12 +1,10 @@
 package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -60,7 +58,7 @@ class ObisCodeMapper {
 
     /** @return a RegisterInfo for the obiscode */
     public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        ValueFactory vFactory = (ValueFactory)get( obisCode );
+        ValueFactory vFactory = get( obisCode );
         if( vFactory == null )
             return new RegisterInfo( "not supported" );
         return new RegisterInfo( vFactory.getDescription() );
@@ -68,7 +66,7 @@ class ObisCodeMapper {
 
     /** @return a RegisterValue for the obiscode */
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        ValueFactory vFactory = (ValueFactory)get( obisCode );
+        ValueFactory vFactory = get( obisCode );
         if( vFactory == null )
             throw new NoSuchRegisterException();
         return vFactory.getRegisterValue(obisCode);
@@ -85,7 +83,7 @@ class ObisCodeMapper {
         f.setObisCode(o);
 
         if(keys.containsKey(ocw))
-            throw new ApplicationException("obiscode " + o + " already mapped");
+            throw new IllegalArgumentException("obiscode " + o + " already mapped");
 
         keys.put( ocw, f );
     }
@@ -641,7 +639,7 @@ class ObisCodeMapper {
     }
 
     private Quantity searchHistoricTotal(final int bp, String searched)
-        throws IOException, NoSuchRegisterException {
+        throws IOException {
 
         for(int i = 0; i < prometer.rBillingTotal.length; i++ ){
             String regType = prometer.rBillingTotal[i][bp].asString(0);
@@ -653,7 +651,7 @@ class ObisCodeMapper {
     }
 
     private Quantity searchHistoricRate(final int bp, final int rate, String rType)
-        throws IOException, NoSuchRegisterException {
+        throws IOException {
 
         for(int i = 0; i < prometer.rBillingRegister.length; i++ ){
 
@@ -710,13 +708,18 @@ class ObisCodeMapper {
     abstract class ValueFactory {
         ObisCode obisCode = null;
         public ValueFactory(  ){ }
-        Quantity getQuantity( ) throws IOException  { return null;       };
+        Quantity getQuantity( ) throws IOException  { return null;       }
+
         // since the eventTime is always the same as the toTime ... shortcut
-        Date getEventTime( ) throws IOException     { return null; };
-        Date getFromTime( ) throws IOException      { return null; };
-        Date getToTime( ) throws IOException        { return null; };
-        ObisCode getObisCode( ) throws IOException  { return obisCode;   };
-        void setObisCode(ObisCode oCode)            { this.obisCode = oCode; };
+        Date getEventTime( ) throws IOException     { return null; }
+
+        Date getFromTime( ) throws IOException      { return null; }
+
+        Date getToTime( ) throws IOException        { return null; }
+
+        ObisCode getObisCode( ) throws IOException  { return obisCode;   }
+
+        void setObisCode(ObisCode oCode)            { this.obisCode = oCode; }
 
         RegisterValue getRegisterValue( ObisCode obisCode ) throws IOException  {
             Quantity q = getQuantity();
@@ -753,7 +756,7 @@ class ObisCodeMapper {
                 case C_EXTERNAL_3:  return "external register 3";
             }
             String msg = "No description found for " + this.obisCode;
-            throw new ApplicationException(msg);
+            throw new IllegalArgumentException(msg);
         }
 
         String getDDescription( ){
@@ -779,7 +782,7 @@ class ObisCodeMapper {
                 case -1:            return ", billing point VZ-1";
             }
             String msg = "No description found for " + this.obisCode;
-            throw new ApplicationException(msg);
+            throw new IllegalArgumentException(msg);
         }
 
     }

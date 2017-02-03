@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 
@@ -73,7 +72,7 @@ class UnitParser {
         if( "min".equalsIgnoreCase(id))  
             return Unit.get(BaseUnit.MINUTE, 0 );
         
-        throw new ApplicationException( "Unit " + id + " not supported " );
+        throw new IllegalArgumentException( "Unit " + id + " not supported " );
         
     }
     

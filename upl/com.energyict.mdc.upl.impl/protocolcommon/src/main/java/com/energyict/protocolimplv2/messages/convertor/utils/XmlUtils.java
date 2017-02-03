@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
-import com.energyict.cbo.ApplicationException;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -37,10 +36,10 @@ public class XmlUtils {
                 transformer.transform(source, result);
                 return result.getWriter().toString();
             } catch (TransformerException e) {
-                throw new ApplicationException(e);
+                throw new IllegalArgumentException(e);
             }
         } catch (TransformerConfigurationException e) {
-            throw new ApplicationException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 

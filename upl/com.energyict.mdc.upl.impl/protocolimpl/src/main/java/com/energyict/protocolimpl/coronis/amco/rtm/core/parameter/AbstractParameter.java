@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.parameter;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.AbstractRadioCommand;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
@@ -174,7 +173,7 @@ public abstract class AbstractParameter extends AbstractRadioCommand {
                     baos.close();
                 }
                 catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -192,7 +191,7 @@ public abstract class AbstractParameter extends AbstractRadioCommand {
                     baos.close();
                 }
                 catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -229,7 +228,7 @@ public abstract class AbstractParameter extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -271,7 +270,7 @@ public abstract class AbstractParameter extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -298,7 +297,7 @@ public abstract class AbstractParameter extends AbstractRadioCommand {
                     baos.close();
                 }
                 catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -343,7 +342,7 @@ public abstract class AbstractParameter extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }

@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import com.energyict.cbo.*;
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *

@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *

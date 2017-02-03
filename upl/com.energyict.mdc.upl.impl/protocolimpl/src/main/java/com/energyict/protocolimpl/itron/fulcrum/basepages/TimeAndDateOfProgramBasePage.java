@@ -10,12 +10,14 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -48,7 +50,7 @@ public class TimeAndDateOfProgramBasePage extends AbstractBasePage {
         
         TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getFulcrum().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-            tz = ProtocolUtils.getWinterTimeZone(tz);                
+            tz = ProtocolUtils.getWinterTimeZone(tz);
         
         Calendar calendar = ProtocolUtils.getCleanCalendar(tz); 
         calendar.set(Calendar.MINUTE,data[0]);

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.protocol.Calculate;
+import com.energyict.protocolimpl.iec1107.abba1140.Calculate;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;

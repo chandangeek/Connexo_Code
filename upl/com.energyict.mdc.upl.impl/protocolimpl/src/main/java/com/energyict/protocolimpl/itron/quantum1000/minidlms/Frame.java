@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *
@@ -44,8 +44,8 @@ public class Frame {
         
         if ((getPacketType()&0x80) == 0) {
             // I-frame
-            setSendSequence((((int) getPacketType() & 0xff) & 0x70) >> 4);
-            setReceivedSequence((((int) getPacketType() & 0xff) & 0x07) >> 0);
+            setSendSequence(((getPacketType() & 0xff) & 0x70) >> 4);
+            setReceivedSequence(((getPacketType() & 0xff) & 0x07) >> 0);
             setLastFrame((getPacketType()&0x08) == 0x08);
             setPacketType(MiniDLMSConnection.getPACKET_TYPE_I());
         }
@@ -59,11 +59,11 @@ public class Frame {
             setPacketType(MiniDLMSConnection.getPACKET_TYPE_UI());
         }
         else if ((getPacketType() & 0xf8) == MiniDLMSConnection.getPACKET_TYPE_RR()) {
-            setReceivedSequence((((int) getPacketType() & 0xff) & 0x07) >> 0);
+            setReceivedSequence(((getPacketType() & 0xff) & 0x07) >> 0);
             setPacketType(MiniDLMSConnection.getPACKET_TYPE_RR());
         }
         else if ((getPacketType() & 0xf8) == MiniDLMSConnection.getPACKET_TYPE_REJ()) {
-            setReceivedSequence((((int) getPacketType() & 0xff) & 0x07) >> 0);
+            setReceivedSequence(((getPacketType() & 0xff) & 0x07) >> 0);
             setPacketType(MiniDLMSConnection.getPACKET_TYPE_REJ());
         }
         

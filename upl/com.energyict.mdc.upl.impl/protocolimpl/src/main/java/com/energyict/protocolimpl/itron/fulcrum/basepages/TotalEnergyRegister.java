@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.math.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *

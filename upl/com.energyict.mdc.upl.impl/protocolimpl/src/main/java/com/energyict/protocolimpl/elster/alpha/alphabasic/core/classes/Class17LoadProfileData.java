@@ -10,15 +10,17 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphabasic.core.classes;
 
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimpl.elster.alpha.core.classes.ClassParseUtils;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.*;
-import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.cbo.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**

@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.PrivateKeyAlias;
-
-import com.energyict.cbo.CertificateWrapperId;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
+import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
-import com.energyict.mdw.core.ECCCurve;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.PrivateKeyAlias;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -36,6 +36,7 @@ import java.security.spec.InvalidKeySpecException;
  */
 public class Beacon3100SecurityProvider extends NTASecurityProvider implements GeneralCipheringSecurityProvider {
 
+    private final CertificateWrapperExtractor certificateWrapperExtractor;
     private int securitySuite;
     private byte[] sessionKey;
     private byte[] serverSessionKey;
@@ -45,8 +46,9 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     private PrivateKey clientPrivateKeyAgreementKey;
     private PrivateKey clientPrivateSigningKey;
 
-    public Beacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel, int securitySuite) {
+    public Beacon3100SecurityProvider(TypedProperties properties, int authenticationDeviceAccessLevel, int securitySuite, CertificateWrapperExtractor certificateWrapperExtractor) {
         super(properties, authenticationDeviceAccessLevel);
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
         setRespondingFrameCounterHandling(new G3RespondingFrameCounterHandler(DLMSConnectionException.REASON_ABORT_INVALID_FRAMECOUNTER));
         this.securitySuite = securitySuite;
     }
@@ -160,13 +162,13 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
      * Returns a valid X509 v3 certificate, or null if the property has no value
      */
     private X509Certificate parseX509Certificate(String propertyName) {
-        CertificateWrapperId certificateWrapperId = properties.getTypedProperty(propertyName);
-        if (certificateWrapperId == null) {
+        CertificateWrapper certificateWrapper = properties.getTypedProperty(propertyName);
+        if (certificateWrapper == null) {
             return null;
         } else {
-            String propertyValue = "CertificateWrapper with ID '" + certificateWrapperId.getId() + "'";
+            X509Certificate certificate = certificateWrapperExtractor.getCertificate(certificateWrapper);
+            String propertyValue = "Certificate with serial number '" + certificate.getSerialNumber() + "'";
             try {
-                Certificate certificate = certificateWrapperId.getCertificate();
                 return validateCertificate(propertyName, propertyValue, certificate);
             } catch (CertificateException e) {
                 throw DeviceConfigurationException.invalidPropertyFormat(

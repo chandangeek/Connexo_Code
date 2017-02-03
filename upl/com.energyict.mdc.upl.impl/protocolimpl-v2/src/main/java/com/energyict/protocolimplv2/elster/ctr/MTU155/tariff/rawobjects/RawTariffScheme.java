@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeCalendarObject;
@@ -32,7 +31,7 @@ public class RawTariffScheme extends AbstractField<RawTariffScheme> {
     private boolean[] holidays;
     private RawSpecialDays specialDays;
 
-    public RawTariffScheme(CodeObject codeObject, String tariffName, Date activationDate) throws BusinessException {
+    public RawTariffScheme(CodeObject codeObject, String tariffName, Date activationDate) {
         this.enabled = true;
         this.year = codeObject.getYearFrom();
         this.tariffId = getTariffIdentifier(tariffName);
@@ -41,6 +40,17 @@ public class RawTariffScheme extends AbstractField<RawTariffScheme> {
         bandDescriptor = new RawBandsDescriptor(codeObject);
         holidays = getHolidaysFromCodeObject(codeObject);
         specialDays = new RawSpecialDays(codeObject);
+    }
+
+    public RawTariffScheme() {
+        enabled = false;
+        year = 2000;
+        tariffId = 0;
+        activationDate = new Date();
+        defaultBand = 0;
+        bandDescriptor = new RawBandsDescriptor();
+        holidays = new boolean[HOLIDAYS_COUNT];
+        specialDays = new RawSpecialDays();
     }
 
     private boolean[] getHolidaysFromCodeObject(CodeObject codeObject) {
@@ -68,17 +78,6 @@ public class RawTariffScheme extends AbstractField<RawTariffScheme> {
             }
         }
         return -1;
-    }
-
-    public RawTariffScheme() {
-        enabled = false;
-        year = 2000;
-        tariffId = 0;
-        activationDate = new Date();
-        defaultBand = 0;
-        bandDescriptor = new RawBandsDescriptor();
-        holidays = new boolean[HOLIDAYS_COUNT];
-        specialDays = new RawSpecialDays();
     }
 
     public byte[] getBytes() {

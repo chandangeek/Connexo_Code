@@ -6,11 +6,12 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import java.math.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 /**
  *
  * @author  Koen
@@ -89,9 +90,7 @@ public class SCTMRegister {
         catch(NumberFormatException e) {
             return false;
         }
-        if (Unit.get(unitStrValue) == null)
-            return false;
-        return true;
+        return Unit.get(unitStrValue) != null;
     }
     
     public Quantity getQuantityValue() throws IOException {

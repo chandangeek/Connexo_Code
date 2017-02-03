@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.EventStatusAndDescription;
@@ -64,7 +63,7 @@ public class LeakageEventTable extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }

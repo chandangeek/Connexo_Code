@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
@@ -13,7 +14,7 @@ import java.util.Set;
 
 /**
  * Implementation of a {@link MessageIdentifier} that uniquely identifies a {@link DeviceMessage}
- * based on the {@link com.energyict.mdw.core.Device} to which it belongs and the messages protocol info.
+ * based on the {@link Device} to which it belongs and the messages protocol info.
  *
  * @author sva
  * @since 3/07/13 - 14:34

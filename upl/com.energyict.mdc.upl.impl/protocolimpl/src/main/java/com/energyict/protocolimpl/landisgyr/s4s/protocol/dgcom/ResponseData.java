@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *
@@ -28,7 +27,7 @@ public class ResponseData {
     }
    
     public String toString() {
-        return "ResponseData binary: "+ProtocolUtils.outputHexString(getData())+"\n"+"ResponseData ascii: "+new String(getData());
+        return "ResponseData binary: "+ ProtocolUtils.outputHexString(getData())+"\n"+"ResponseData ascii: "+new String(getData());
     }
     
     public byte[] getData() {

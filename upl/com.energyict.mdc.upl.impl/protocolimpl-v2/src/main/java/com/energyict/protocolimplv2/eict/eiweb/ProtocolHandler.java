@@ -1,6 +1,10 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
+import com.energyict.LittleEndianInputStream;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.upl.InboundDAO;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -10,17 +14,11 @@ import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.cim.EndDeviceEventTypeMapping;
-import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -46,20 +44,20 @@ import java.util.logging.Logger;
 
 public class ProtocolHandler {
 
-    private ContentType contentType;
     private final ResponseWriter responseWriter;
     private final InboundDAO inboundDAO;
-    private final Cryptographer cryptographer;
+    private final EIWebCryptographer cryptographer;
+    private final CollectedDataFactory collectedDataFactory;
+    private final PropertySpecService propertySpecService;
+    private final NlsService nlsService;
+    private final Converter converter;
+    private ContentType contentType;
     private PacketBuilder packetBuilder;
     private ProfileBuilder profileBuilder;
     private List<CollectedRegister> registerData = new ArrayList<>();
     private CollectedConfigurationInformation configurationInformation;
     private CollectedLogBook deviceLogBook;
     private LegacyMessageConverter messageConverter = null;
-    private final CollectedDataFactory collectedDataFactory;
-    private final PropertySpecService propertySpecService;
-    private final NlsService nlsService;
-    private final Converter converter;
 
     public ProtocolHandler(ResponseWriter responseWriter, InboundDiscoveryContext context) {
         super();
@@ -263,7 +261,7 @@ public class ProtocolHandler {
 
     private CollectedLogBook getDeviceLogBook() {
         if (this.deviceLogBook == null) {
-            this.deviceLogBook = this.collectedDataFactory.createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            this.deviceLogBook = this.collectedDataFactory.createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBook.GENERIC_LOGBOOK_TYPE_OBISCODE));
         }
         return this.deviceLogBook;
     }

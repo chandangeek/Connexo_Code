@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 

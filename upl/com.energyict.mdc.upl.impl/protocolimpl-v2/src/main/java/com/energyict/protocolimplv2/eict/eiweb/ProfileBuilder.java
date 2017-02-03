@@ -1,14 +1,12 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.energyict.LittleEndianInputStream;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.cbo.TimeConstants;
-import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
@@ -179,7 +177,7 @@ public class ProfileBuilder {
             String description = is.readString(length);
             profileData.addEvent(
                     new MeterEvent(
-                            new Date((seconds80 + EIWebConstants.SECONDS10YEARS) * TimeConstants.MILLISECONDS_IN_SECOND),
+                            new Date((seconds80 + EIWebConstants.SECONDS10YEARS) * 1000),
                             mapEventCode(code),
                             code,
                             description));
@@ -189,7 +187,7 @@ public class ProfileBuilder {
     private void buildIntervalData(LittleEndianInputStream is) throws IOException {
         for (int i = 0; i < packetBuilder.getNrOfRecords(); i++) {
             long rawValue = is.readLEUnsignedInt();
-            long ldate = (rawValue + EIWebConstants.SECONDS10YEARS) * TimeConstants.MILLISECONDS_IN_SECOND;
+            long ldate = (rawValue + EIWebConstants.SECONDS10YEARS) * 1000;
             Date date = new Date(ldate);
 
             if ((i == 0) && (!packetBuilder.isTimeCorrect(date))) {

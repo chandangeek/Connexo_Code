@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.common.objectserialization.codetable.CodeObjectValidator;
 import com.energyict.protocolimplv2.common.objectserialization.codetable.CodeTableBase64Parser;
@@ -40,7 +39,7 @@ public class ConfigureTariffSettings extends AbstractConfigMessage {
         try {
             CodeObject codeObject = validateAndGetCodeObject(codeTableBase64);
             trackingId = getAce4000().getObjectFactory().sendTariffConfiguration(number, numberOfRates, codeObject);
-        } catch (ApplicationException | IOException e) {  //Thrown while parsing the code table
+        } catch (IllegalArgumentException | IOException e) {  //Thrown while parsing the code table
             failMessage("Tariff configuration failed, invalid code table settings: " + e.getMessage());
         }
     }

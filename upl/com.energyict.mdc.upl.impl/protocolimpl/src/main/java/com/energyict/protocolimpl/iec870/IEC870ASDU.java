@@ -6,11 +6,14 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.iec1107.abba1140.Calculate;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 
 
 /**
@@ -113,13 +116,13 @@ public class IEC870ASDU {
         try {
             tidName = IEC870TypeIdentification.getTypeIdentification(typeIdentification).getDescription()+" "+IEC870TypeIdentification.getTypeIdentification(typeIdentification).getShortdescr();
         }
-        catch(NotFoundException e) {
+        catch(IllegalArgumentException e) {
             tidName = e.getMessage();
         }
         try {
             causeName = IEC870TransmissionCause.getTransmissionCause(getCauseOfTransmissionCause()).getDescription();
         }
-        catch(NotFoundException e) {
+        catch(IllegalArgumentException e) {
             causeName = e.getMessage();
         }
         strbuff.append("********************** ASDU ************************\r\n");

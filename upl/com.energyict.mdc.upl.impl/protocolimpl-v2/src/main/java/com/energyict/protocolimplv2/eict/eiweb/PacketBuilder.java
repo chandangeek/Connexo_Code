@@ -1,14 +1,11 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.energyict.LittleEndianInputStream;
+import com.energyict.LittleEndianOutputStream;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
-import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
-import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -68,6 +65,7 @@ public class PacketBuilder {
     private static final long SIX_CHANNELS_MASK = 0x0000003FL;
     private static final int BITS_IN_NIBBLE = 4;
     private static final String SEPARATOR = "; ";
+    private final CollectedDataFactory collectedDataFactory;
     private int version;
     private long mask;
     private int contentLength;
@@ -78,18 +76,16 @@ public class PacketBuilder {
     private int nrOfChannels;
     private Integer nrOfAcceptedMessages = null;
     private StringBuilder additionalInfo;
-
-    private Cryptographer cryptographer;
+    private EIWebCryptographer cryptographer;
     private DeviceIdentifier deviceIdentifier;
     private List<CollectedData> collectedData = new ArrayList<>();
     private Logger logger;
-    private final CollectedDataFactory collectedDataFactory;
 
-    public PacketBuilder(Cryptographer cryptographer, CollectedDataFactory collectedDataFactory) {
+    public PacketBuilder(EIWebCryptographer cryptographer, CollectedDataFactory collectedDataFactory) {
         this(cryptographer, Logger.getAnonymousLogger(), collectedDataFactory);
     }
 
-    public PacketBuilder(Cryptographer cryptographer, Logger logger, CollectedDataFactory collectedDataFactory) {
+    public PacketBuilder(EIWebCryptographer cryptographer, Logger logger, CollectedDataFactory collectedDataFactory) {
         super();
         this.cryptographer = cryptographer;
         this.logger = logger;
@@ -446,7 +442,7 @@ public class PacketBuilder {
         return Integer.parseInt(buffer);
     }
 
-    private MD5Seed buildMD5Seed() {
+    private StringBasedMD5Seed buildMD5Seed() {
         String buffer = String.valueOf(getSeq().charAt(1)) +
                 getSeq().charAt(3) +
                 getSeq().charAt(0) +
@@ -457,5 +453,4 @@ public class PacketBuilder {
     public int getVersion() {
         return version;
     }
-
 }

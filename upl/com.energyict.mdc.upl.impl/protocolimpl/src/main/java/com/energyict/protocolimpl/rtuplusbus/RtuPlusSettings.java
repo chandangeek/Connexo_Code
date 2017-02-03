@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.rtuplusbus;
 
-import com.energyict.cbo.LittleEndianInputStream;
+import com.energyict.LittleEndianInputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

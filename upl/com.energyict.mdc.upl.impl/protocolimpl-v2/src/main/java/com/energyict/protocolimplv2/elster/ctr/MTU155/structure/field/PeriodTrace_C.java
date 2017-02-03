@@ -1,8 +1,11 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 
 /**
  * Class for the PeriodTrace_C field in a CTR Structure Object
@@ -19,9 +22,9 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
     public static final int HOURLY_SECOND_PART = 0x81;
 
     private static final int LENGTH = 1;
-    private static final TimeDuration HOUR = new TimeDuration(1, TimeDuration.HOURS);
-    private static final TimeDuration DAY = new TimeDuration(1, TimeDuration.DAYS);
-    private static final TimeDuration MONTH = new TimeDuration(1, TimeDuration.MONTHS);
+    private static final TemporalAmount HOUR = Duration.ofHours(1);
+    private static final TemporalAmount DAY = Duration.ofDays(1);
+    private static final TemporalAmount MONTH = Duration.of(1, ChronoUnit.MONTHS);
 
     private int period;
 
@@ -29,17 +32,21 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
         this(0);
     }
 
-    public PeriodTrace_C(TimeDuration interval) {
-        int seconds = interval.getSeconds();
-        if (seconds == HOUR.getSeconds()) {
+    public PeriodTrace_C(TemporalAmount interval) {
+        long seconds = interval.get(ChronoUnit.SECONDS);
+        if (seconds == HOUR.get(ChronoUnit.SECONDS)) {
             this.period = HOURLY;
-        } else if (seconds == DAY.getSeconds()) {
+        } else if (seconds == DAY.get(ChronoUnit.SECONDS)) {
             this.period = DAILY;
-        } else if (seconds == MONTH.getSeconds()) {
+        } else if (seconds == MONTH.get(ChronoUnit.SECONDS)) {
             this.period = MONTHLY;
         } else {
             throw new IllegalArgumentException("Unable to get PeriodTrace_C object for a TimeDuration of [" + interval.toString() + "]");
         }
+    }
+
+    public PeriodTrace_C(int period) {
+        this.period = period;
     }
 
     public static PeriodTrace_C getHourly() {
@@ -62,10 +69,6 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
         return new PeriodTrace_C(MONTHLY);
     }
 
-    public PeriodTrace_C(int period) {
-        this.period = period;
-    }
-
     public byte[] getBytes() {
         return getBytesFromInt(period, getLength());
     }
@@ -81,6 +84,10 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
 
     public int getPeriod() {
         return period;
+    }
+
+    public void setPeriod(int period) {
+        this.period = period;
     }
 
     /**
@@ -101,10 +108,6 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
             default:
                 return "";
         }
-    }
-
-    public void setPeriod(int period) {
-        this.period = period;
     }
 
     /**
@@ -130,18 +133,18 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
     /**
      * @return the interval in seconds
      */
-    public int getIntervalInSeconds() {
+    public long getIntervalInSeconds() {
         switch (period) {
             case HOURLY:
-                return HOUR.getSeconds();
+                return HOUR.get(ChronoUnit.SECONDS);
             case HOURLY_FIRST_PART:
-                return HOUR.getSeconds();
+                return HOUR.get(ChronoUnit.SECONDS);
             case HOURLY_SECOND_PART:
-                return HOUR.getSeconds();
+                return HOUR.get(ChronoUnit.SECONDS);
             case DAILY:
-                return DAY.getSeconds();
+                return DAY.get(ChronoUnit.SECONDS);
             case MONTHLY:
-                return MONTH.getSeconds();
+                return MONTH.get(ChronoUnit.SECONDS);
             default:
                 return 0;
         }
@@ -185,6 +188,6 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
     }
 
     public boolean isInvalid() {
-        return !(isHourly() || isHourlyFistPart() || isHourlySecondPart() || isDaily() ||isMonthly());
+        return !(isHourly() || isHourlyFistPart() || isHourlySecondPart() || isDaily() || isMonthly());
     }
 }

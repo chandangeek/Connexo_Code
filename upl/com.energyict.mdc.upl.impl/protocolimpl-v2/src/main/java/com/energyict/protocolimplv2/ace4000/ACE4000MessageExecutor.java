@@ -9,11 +9,9 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.ace4000.requests.ConfigureConsumptionLimitationsSettings;
@@ -124,7 +122,7 @@ public class ACE4000MessageExecutor {
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, msg));
                     collectedMessage.setDeviceProtocolInformation(msg);
                 }
-            } catch (ApplicationException | NumberFormatException | IndexOutOfBoundsException e) {
+            } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
                 log(Level.INFO, "Message has failed. " + e.toString());
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
@@ -189,11 +187,11 @@ public class ACE4000MessageExecutor {
     private CollectedMessage readEvents(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
         try {
             ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000, issueFactory);
-            LogBookIdentifierByObisCodeAndDevice logBookIdentifier = new LogBookIdentifierByObisCodeAndDevice(ace4000.getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE);
-            LogBookReader logBookReader = new LogBookReader(LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE, new Date(), logBookIdentifier, pendingMessage.getDeviceSerialNumber());
+            LogBookIdentifierByObisCodeAndDevice logBookIdentifier = new LogBookIdentifierByObisCodeAndDevice(ace4000.getDeviceIdentifier(), LogBook.GENERIC_LOGBOOK_TYPE_OBISCODE);
+            LogBookReader logBookReader = new LogBookReader(LogBook.GENERIC_LOGBOOK_TYPE_OBISCODE, new Date(), logBookIdentifier, pendingMessage.getDeviceSerialNumber());
             List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(logBookReader);
             return createCollectedMessageWithLogbookData(pendingMessage, collectedLogBooks.get(0));
-        } catch (ApplicationException | NumberFormatException | IndexOutOfBoundsException e) {
+        } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
             String message = "Read events request failed: " + e.toString();
             Issue issue = createMessageFailedIssue(pendingMessage, message);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);

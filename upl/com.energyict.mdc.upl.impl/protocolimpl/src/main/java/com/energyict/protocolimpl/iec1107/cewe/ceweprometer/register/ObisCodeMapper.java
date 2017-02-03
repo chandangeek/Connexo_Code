@@ -1,10 +1,8 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -63,7 +61,7 @@ public class ObisCodeMapper {
      * @return a RegisterInfo for the obiscode
      */
     public RegisterInfo getRegisterInfo(ObisCode obisCode) throws IOException {
-        AbstractValueFactory vFactory = (AbstractValueFactory) get(obisCode);
+        AbstractValueFactory vFactory = get(obisCode);
         if (vFactory == null) {
             return new RegisterInfo("not supported");
         }
@@ -74,7 +72,7 @@ public class ObisCodeMapper {
      * @return a RegisterValue for the obiscode
      */
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
-        AbstractValueFactory vFactory = (AbstractValueFactory) get(obisCode);
+        AbstractValueFactory vFactory = get(obisCode);
         if (vFactory == null) {
             throw new NoSuchRegisterException();
         }
@@ -85,7 +83,7 @@ public class ObisCodeMapper {
      * Retrieves objects from the ObisCodeMap
      */
     public AbstractValueFactory get(ObisCode o) {
-        return (AbstractValueFactory) obisMap.get(new ObisCodeWrapper(o));
+        return obisMap.get(new ObisCodeWrapper(o));
     }
 
     /**
@@ -108,7 +106,7 @@ public class ObisCodeMapper {
 
     private void putFactory(AbstractValueFactory f, ObisCodeWrapper ocw) {
         if (keys.contains(ocw)) {
-            throw new ApplicationException("obiscode already exists " + ocw);
+            throw new IllegalArgumentException("obiscode already exists " + ocw);
         }
         keys.add(ocw);
         obisMap.put(ocw, f);
@@ -149,7 +147,7 @@ public class ObisCodeMapper {
             TOUValueFactory fct = new TOUValueFactory(eo, touPhenomenon, prometer);
             ObisCodeWrapper ocw = new ObisCodeWrapper(eo);
 
-            putFactory((AbstractValueFactory) fct, ocw);
+            putFactory(fct, ocw);
 
         }
 

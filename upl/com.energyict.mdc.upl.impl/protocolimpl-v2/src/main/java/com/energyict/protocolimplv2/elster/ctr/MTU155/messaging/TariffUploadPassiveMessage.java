@@ -4,8 +4,6 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
-
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
@@ -38,7 +36,7 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
         return message.getSpecification().getId() == ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.id()
-            || message.getSpecification().getId() == ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.id();
+                || message.getSpecification().getId() == ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.id();
     }
 
     @Override
@@ -51,7 +49,7 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
             CodeObject codeObject = validateAndGetCodeObject(codeTableBase64);
             writeCodeTable(codeObject, tariffName, activationDate);
             return null;
-        } catch (IOException | BusinessException e) {
+        } catch (IOException | IllegalArgumentException e) {
             throw new CTRException(e.getMessage());
         }
     }
@@ -66,8 +64,8 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
         }
     }
 
-    private void writeCodeTable(CodeObject codeObject, String tariffName, Date activationDate) throws CTRException, BusinessException {
-        RawTariffScheme rawTariffScheme = new RawTariffScheme(codeObject,tariffName, activationDate);
+    private void writeCodeTable(CodeObject codeObject, String tariffName, Date activationDate) throws CTRException {
+        RawTariffScheme rawTariffScheme = new RawTariffScheme(codeObject, tariffName, activationDate);
         byte[] rawData = ProtocolTools.concatByteArrays(new CTRObjectID(OBJECT_ID_FUTURE).getBytes(), rawTariffScheme.getBytes());
         getFactory().executeRequest(ReferenceDate.getReferenceDate(2), WriteDataBlock.getRandomWDB(), new CTRObjectID(OBJECT_ID), rawData);
     }

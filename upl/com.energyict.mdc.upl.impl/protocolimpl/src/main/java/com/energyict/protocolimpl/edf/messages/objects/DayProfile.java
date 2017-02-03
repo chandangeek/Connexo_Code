@@ -1,9 +1,12 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class DayProfile extends ComplexCosemObject {
 	
@@ -29,7 +32,7 @@ public class DayProfile extends ComplexCosemObject {
 		if (dayIds.getLength() != 0){
 			dayId = Integer.parseInt(dayIds.item(0).getFirstChild().getNodeValue());
 		} else {
-			throw new ApplicationException("Cannot create DayProfile");
+			throw new IllegalArgumentException("Cannot create DayProfile");
 		}
 		NodeList listNode = element.getElementsByTagName(SEGMENTSNAME);
 		if (listNode.getLength() != 0){
@@ -40,7 +43,7 @@ public class DayProfile extends ComplexCosemObject {
 				segments.add(segment);
 			}	
 		} else {
-			throw new ApplicationException("Cannot create DayProfile");
+			throw new IllegalArgumentException("Cannot create DayProfile");
 		}
 	}
 

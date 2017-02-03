@@ -1,6 +1,5 @@
 package com.energyict.dlms.common;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
@@ -11,6 +10,7 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
 import java.math.BigDecimal;
@@ -105,7 +105,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     private TypedProperties typedProperties;
 
     public DlmsProtocolProperties() {
-        this(new TypedProperties());
+        this(com.energyict.protocolimpl.properties.TypedProperties.empty());
     }
 
     public DlmsProtocolProperties(TypedProperties properties) {

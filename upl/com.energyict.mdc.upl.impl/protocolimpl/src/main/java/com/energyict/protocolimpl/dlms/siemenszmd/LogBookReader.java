@@ -7,7 +7,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEventSupport;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -20,7 +19,7 @@ import java.util.List;
  * @author sva
  * @since 23/09/2014 - 9:52
  */
-public class LogBookReader implements MeterProtocolEventSupport {
+public class LogBookReader {
 
     private static final ObisCode EVENT_OBIS = ObisCode.fromString("0.0.96.240.12.255");
     private static final int EVENT_NUMBER_ATTRIBUTE_INDEX = 2;

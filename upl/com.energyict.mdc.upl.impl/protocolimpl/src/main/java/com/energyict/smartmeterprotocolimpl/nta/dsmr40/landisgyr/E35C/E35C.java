@@ -1,12 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C;
 
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
-
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
@@ -30,12 +31,12 @@ import java.util.logging.Level;
  */
 public class E35C extends E350 {
 
-    private E35CMeterInfo meterInfo;
     protected E35CProperties properties;
+    private E35CMeterInfo meterInfo;
     private E35CMeterTopology meterTopology;
 
-    protected E35C(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
-        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, propertySpecService);
+    protected E35C(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
     }
 
     public ComposedMeterInfo getMeterInfo() {

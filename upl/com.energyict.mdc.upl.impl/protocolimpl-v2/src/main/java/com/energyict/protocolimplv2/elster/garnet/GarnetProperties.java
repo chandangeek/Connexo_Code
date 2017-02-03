@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.energyict.mdc.upl.properties.*;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.energyict.dlms.DLMSUtils;
-import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -37,14 +39,11 @@ public class GarnetProperties implements HasDynamicProperties {
     public static final TemporalAmount DEFAULT_TIMEOUT = Duration.ofSeconds(10);
     public static final TemporalAmount DEFAULT_FORCED_DELAY = Duration.ofMillis(0);
     public static final TemporalAmount DEFAULT_DELAY_AFTER_ERROR = Duration.ofMillis(100);
-
+    private final PropertySpecService propertySpecService;
     private TypedProperties properties;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
-
     private byte[] manufacturerKey;
     private byte[] customerKey;
-
-    private final PropertySpecService propertySpecService;
 
     public GarnetProperties(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -82,12 +81,7 @@ public class GarnetProperties implements HasDynamicProperties {
      * The device timezone
      */
     public TimeZone getTimeZone() {
-        TimeZoneInUse timeZoneInUse = getProperties().getTypedProperty(TIMEZONE);
-        if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
-            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
-        } else {
-            return timeZoneInUse.getTimeZone();
-        }
+        return getProperties().getTypedProperty(TIMEZONE, TimeZone.getTimeZone(DEFAULT_TIMEZONE));
     }
 
     /**
@@ -126,7 +120,7 @@ public class GarnetProperties implements HasDynamicProperties {
                     );
                 }
             } else {
-                throw  ConnectionCommunicationException.cipheringException(
+                throw ConnectionCommunicationException.cipheringException(
                         new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER + " is missing!")
                 );
             }
@@ -140,13 +134,13 @@ public class GarnetProperties implements HasDynamicProperties {
             if (hex != null) {
                 this.customerKey = DLMSUtils.hexStringToByteArray(hex);
                 if (this.customerKey.length != 16) {
-                    throw  ConnectionCommunicationException.cipheringException(
+                    throw ConnectionCommunicationException.cipheringException(
                             new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " has an invalid length!")
                     );
                 }
             } else {
                 GarnetException exception = new GarnetException("Invalid security set used - the " + SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER + " is missing!");
-                throw  ConnectionCommunicationException.cipheringException(exception);
+                throw ConnectionCommunicationException.cipheringException(exception);
             }
         }
         return this.customerKey;

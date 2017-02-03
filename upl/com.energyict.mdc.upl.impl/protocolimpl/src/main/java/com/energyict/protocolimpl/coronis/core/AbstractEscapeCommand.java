@@ -125,7 +125,7 @@ abstract class AbstractEscapeCommand {
 					baos.close();
 				}
 				catch(IOException e) {
-					getProtocolStackLink().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getProtocolStackLink().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}			

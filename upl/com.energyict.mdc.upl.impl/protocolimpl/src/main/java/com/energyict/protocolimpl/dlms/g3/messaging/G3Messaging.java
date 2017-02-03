@@ -1,13 +1,5 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-
-import com.energyict.cbo.ApplicationException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.Array;
@@ -24,6 +16,12 @@ import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -233,7 +231,7 @@ public class G3Messaging extends AnnotatedMessaging {
             if (!codeId.isEmpty()) {
                 try {
                     if (msgTag.getName().contains(RtuMessageConstant.TOU_ACTIVITY_CAL) && Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().after(actDate)) {
-                        throw new ApplicationException("Invalid activation date, should be in the future");
+                        throw new IllegalArgumentException("Invalid activation date, should be in the future");
                     }
                     String xmlContent = new CodeTableXmlParsing(this.calendarFinder, this.calendarExtractor).parseActivityCalendarAndSpecialDayTable(codeId, actDate.getTime(), name);
                     addChildTag(builder, IDISMessageHandler.RAW_CONTENT, ProtocolTools.compress(xmlContent));

@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
-import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.properties.HexString;
-
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
@@ -22,7 +22,12 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
  */
 public class Beacon3100Properties extends DlmsProperties {
 
+    private CertificateWrapperExtractor certificateWrapperExtractor;
     private Integer securitySuite = null;
+
+    public Beacon3100Properties(CertificateWrapperExtractor certificateWrapperExtractor) {
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
+    }
 
     /**
      * Property indicating to read the cache out (useful because there's no config change state)
@@ -48,7 +53,7 @@ public class Beacon3100Properties extends DlmsProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new Beacon3100SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), getSecuritySuite());
+            securityProvider = new Beacon3100SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel(), getSecuritySuite(), certificateWrapperExtractor);
         }
         return securityProvider;
     }

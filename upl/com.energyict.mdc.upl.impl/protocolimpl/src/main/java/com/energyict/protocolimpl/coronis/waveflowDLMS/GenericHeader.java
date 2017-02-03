@@ -46,7 +46,7 @@ public class GenericHeader {
 					dais.close();
 				}
 				catch(IOException e) {
-					abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					abstractDLMS.getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}

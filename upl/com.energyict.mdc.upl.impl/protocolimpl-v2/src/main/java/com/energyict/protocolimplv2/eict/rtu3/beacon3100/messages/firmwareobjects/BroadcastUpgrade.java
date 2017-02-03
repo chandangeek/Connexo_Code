@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
-import com.energyict.cpo.ObjectMapperFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.ObjectMapperFactory;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.axrdencoding.BitString;
@@ -16,12 +15,14 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
+import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
@@ -52,10 +53,12 @@ public class BroadcastUpgrade {
     private static final ObisCode AM540_BROADCAST_FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
     private final Beacon3100Messaging beacon3100Messaging;
     private final PropertySpecService propertySpecService;
+    private final CertificateWrapperExtractor certificateWrapperExtractor;
 
-    public BroadcastUpgrade(Beacon3100Messaging beacon3100Messaging, PropertySpecService propertySpecService) {
+    public BroadcastUpgrade(Beacon3100Messaging beacon3100Messaging, PropertySpecService propertySpecService, CertificateWrapperExtractor certificateWrapperExtractor) {
         this.beacon3100Messaging = beacon3100Messaging;
         this.propertySpecService = propertySpecService;
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
     }
 
     //TODO fully test parsing & format, use NTA sim & eiserver
@@ -130,7 +133,7 @@ public class BroadcastUpgrade {
 
         //Now associate to the 'broadcast' logical device. It has the exact same security keys as the management logical device in the Beacon. (only the SERVER_UPPER_MAC_ADDRESS is different)
         final DlmsSessionProperties managementProperties = beacon3100Messaging.getProtocol().getDlmsSessionProperties();
-        Beacon3100Properties broadcastLogicalDeviceProperties = new Beacon3100Properties();
+        Beacon3100Properties broadcastLogicalDeviceProperties = new Beacon3100Properties(certificateWrapperExtractor);
         broadcastLogicalDeviceProperties.addProperties(managementProperties.getProperties());
         broadcastLogicalDeviceProperties.addProperties(managementProperties.getSecurityPropertySet().getSecurityProperties());
         broadcastLogicalDeviceProperties.setSecurityPropertySet(managementProperties.getSecurityPropertySet());
@@ -158,7 +161,7 @@ public class BroadcastUpgrade {
         blockTransferProperties.getProperties().setProperty(Beacon3100ConfigurationSupport.READCACHE_PROPERTY, false);
 
         //Note that all meters will have the same AK and broadcast EK. (this is defined in the IDIS P2 spec)
-        TypedProperties securityProperties = TypedProperties.empty();
+        TypedProperties securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         securityProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), broadcastClientMacAddress);
         securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), broadcastAuthenticationHexKey);
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), broadcastEncryptionHexKey);

@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *

@@ -11,10 +11,9 @@
 package com.energyict.protocolimpl.ansi.c12.tables;
 
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *

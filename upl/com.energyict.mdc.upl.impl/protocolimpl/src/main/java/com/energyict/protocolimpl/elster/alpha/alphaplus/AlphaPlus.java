@@ -218,7 +218,7 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
             String password = passwords.get(i);
 //            while(true) {
                 try {
-                    TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
+                    TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
                     properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), password);
                     setUPLProperties(properties);
                     init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);

@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.tables.ConfigurationTable;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *

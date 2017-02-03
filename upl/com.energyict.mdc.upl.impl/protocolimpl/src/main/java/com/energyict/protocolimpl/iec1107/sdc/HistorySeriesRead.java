@@ -5,12 +5,21 @@
  */
 
 package com.energyict.protocolimpl.iec1107.sdc;
-import java.io.*;
-import java.util.*;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 import java.math.BigDecimal;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
 /**
  *
  * @author  Koen
@@ -196,10 +205,7 @@ public class HistorySeriesRead extends AbstractDataReadingCommand {
     }
     
     private boolean stringContains(String string){
-    	if ( string.indexOf(",") > 0)
-    		return true;
-    	else
-    		return false;
+        return string.indexOf(",") > 0;
     }
     
     

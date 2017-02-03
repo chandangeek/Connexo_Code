@@ -8,11 +8,9 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeDuration;
 import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -20,6 +18,8 @@ import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -56,14 +56,14 @@ public class IDISMBusMessaging extends AbstractDlmsMessaging implements DeviceMe
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
-                    this.get(ContactorDeviceMessage.CONTACTOR_OPEN),
-                    this.get(ContactorDeviceMessage.CONTACTOR_CLOSE),
-                    this.get(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE),
-                    this.get(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE),
-                    this.get(MBusSetupDeviceMessage.Decommission),
-                    this.get(MBusSetupDeviceMessage.SetEncryptionKeys),
-                    this.get(MBusSetupDeviceMessage.WriteCaptureDefinitionForAllInstances),
-                    this.get(MBusSetupDeviceMessage.WriteMBusCapturePeriod));
+                this.get(ContactorDeviceMessage.CONTACTOR_OPEN),
+                this.get(ContactorDeviceMessage.CONTACTOR_CLOSE),
+                this.get(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE),
+                this.get(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE),
+                this.get(MBusSetupDeviceMessage.Decommission),
+                this.get(MBusSetupDeviceMessage.SetEncryptionKeys),
+                this.get(MBusSetupDeviceMessage.WriteCaptureDefinitionForAllInstances),
+                this.get(MBusSetupDeviceMessage.WriteMBusCapturePeriod));
     }
 
     /**
@@ -87,7 +87,7 @@ public class IDISMBusMessaging extends AbstractDlmsMessaging implements DeviceMe
         if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());     //Epoch
         } else if (propertySpec.getName().equals(capturePeriodAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+            return String.valueOf(((TemporalAmount) messageAttribute).get(ChronoUnit.SECONDS));
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
             return ((Password) messageAttribute).getValue();
         }

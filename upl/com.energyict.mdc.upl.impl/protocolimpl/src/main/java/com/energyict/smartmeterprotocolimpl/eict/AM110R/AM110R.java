@@ -1,15 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R;
 
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.SmartMeterProtocol;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.ConnectionMode;
@@ -18,6 +8,17 @@ import com.energyict.dlms.IF2HHUSignon;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.SmartMeterProtocol;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -77,9 +78,13 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
      */
     private boolean reboot = false;
     private final PropertySpecService propertySpecService;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
 
-    public AM110R(PropertySpecService propertySpecService) {
+    public AM110R(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         this.propertySpecService = propertySpecService;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -232,7 +237,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
 
     public MessageProtocol getMessageProtocol() {
         if (this.messageProtocol == null) {
-            this.messageProtocol = new AM110RMessaging(new AM110RMessageExecutor(this));
+            this.messageProtocol = new AM110RMessaging(new AM110RMessageExecutor(this, deviceMessageFileExtractor, deviceMessageFileFinder));
         }
         return messageProtocol;
     }

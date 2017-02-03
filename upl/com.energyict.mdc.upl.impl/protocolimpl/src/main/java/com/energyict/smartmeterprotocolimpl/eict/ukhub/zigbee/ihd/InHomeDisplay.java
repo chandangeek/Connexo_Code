@@ -1,11 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MessageProtocol;
@@ -39,14 +38,14 @@ public class InHomeDisplay extends UkHub {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this));
+            messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this, messageFileFinder, messageFileExtractor));
         }
         return messageProtocol;
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+        return "$Date: Thu Oct 27 15:46:50 2016 +0200 $";
     }
 
     @Override

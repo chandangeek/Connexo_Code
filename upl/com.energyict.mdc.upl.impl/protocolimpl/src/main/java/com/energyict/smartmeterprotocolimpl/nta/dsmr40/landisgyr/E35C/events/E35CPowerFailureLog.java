@@ -1,12 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.events;
 
-import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.cbo.Utils;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class E35CPowerFailureLog extends PowerFailureLog {
                 duration++;
             }
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(OctetString.fromByteArray(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()).getBEREncodedByteArray(), 0, Utils.getStandardTimeZone(timeZone)).getValue().getTime();
+                eventTimeStamp = new AXDRDateTime(OctetString.fromByteArray(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray()).getBEREncodedByteArray(), 0, ProtocolTools.getStandardTimeZone(timeZone)).getValue().getTime();
             }
             if (eventTimeStamp != null) {
                 buildMeterEvent(meterEvents, eventTimeStamp, duration);

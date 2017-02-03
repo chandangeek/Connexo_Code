@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.util.TimeZone;
+
 /**
  *
  * @author  Koen

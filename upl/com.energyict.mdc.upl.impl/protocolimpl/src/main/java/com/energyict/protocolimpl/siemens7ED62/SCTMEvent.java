@@ -6,10 +6,9 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -29,7 +28,7 @@ public class SCTMEvent {
     }
     
     public SCTMEvent(byte[] data,int meterType) throws IOException {
-        length = (int)((data[0]-0x30)*10+(data[1]-0x30));
+        length = (data[0]-0x30)*10+(data[1]-0x30);
         if (length != 0) {
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append((char)data[2]);
@@ -54,17 +53,14 @@ public class SCTMEvent {
 
     
     private boolean isFromTimeDate(int type) {
-       if ((type==0xA1)||(type==0xA2)||(type==0xC1)||(type==0xC2)||
-           (type==0xA3)||(type==0xD1)||(type==0xD2)||(type==0xD3)||(type==0xD4)) 
-            return true; 
-       else return false;
+        return (type == 0xA1) || (type == 0xA2) || (type == 0xC1) || (type == 0xC2) ||
+                (type == 0xA3) || (type == 0xD1) || (type == 0xD2) || (type == 0xD3) || (type == 0xD4);
     }
     
     
     private boolean isToTimeDate(int type) {
        if ((type==0xA1)||(type==0xA2)||(type==0xC1)||(type==0xC2)) return false;
-       else if ((type==0xA3)||(type==0xD1)||(type==0xD2)||(type==0xD3)||(type==0xD4)) return true; 
-       else return false;
+       else return (type == 0xA3) || (type == 0xD1) || (type == 0xD2) || (type == 0xD3) || (type == 0xD4);
     }
     
     private byte[] getTimeDataArray(byte[] data, int offset) {

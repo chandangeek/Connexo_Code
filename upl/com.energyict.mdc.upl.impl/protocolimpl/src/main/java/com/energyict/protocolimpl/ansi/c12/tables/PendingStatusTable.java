@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+
 /**
  *
  * @author Koen
@@ -36,7 +36,7 @@ public class PendingStatusTable extends AbstractTable {
     public String toString() {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("PendingStatusTable: \n");
-        strBuff.append("    standardPending="+ProtocolUtils.getResponseData(getStandardPending())+", manufacturerPending="+ProtocolUtils.getResponseData(getManufacturerPending())+"\n");
+        strBuff.append("    standardPending="+ ProtocolUtils.getResponseData(getStandardPending())+", manufacturerPending="+ProtocolUtils.getResponseData(getManufacturerPending())+"\n");
         strBuff.append("    lastActivationTimeDate="+getLastActivationTimeDate()+" nrOfPendingActivations="+getNrOfPendingActivations()+"\n");
         for (int i=0;i<entryActivation.length;i++) {
             strBuff.append("entryActivation["+i+"]="+getEntryActivation()[i]+"\n");

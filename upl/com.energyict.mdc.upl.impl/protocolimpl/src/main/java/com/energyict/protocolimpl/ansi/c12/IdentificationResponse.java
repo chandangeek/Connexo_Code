@@ -11,9 +11,11 @@
 package com.energyict.protocolimpl.ansi.c12;
 
 import com.energyict.protocolimpl.ansi.c12.tables.IdentificationFeature;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *

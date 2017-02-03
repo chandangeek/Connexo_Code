@@ -7,8 +7,9 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Providing functionality to fetch and create {@link com.energyict.protocol.ProfileData ProfileData} objects for {@link com.energyict.protocol.SmartMeterProtocol DSMR 4.0 SmartMeterProtocols}
+ * Providing functionality to fetch and create {@link com.energyict.protocol.ProfileData ProfileData} objects for {@link SmartMeterProtocol DSMR 4.0 SmartMeterProtocols}
  *
  * @author sva
  * @since 30/01/13 - 14:25
@@ -99,7 +100,7 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
      *
      * @param registerObject the CapturedRegisterObject
      * @return true, if the channel is cumulative
-     *         false, if not cumulative
+     * false, if not cumulative
      */
     protected boolean isCumulativeChannel(CapturedRegisterObject registerObject) {
         if ((registerObject.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId()) &&

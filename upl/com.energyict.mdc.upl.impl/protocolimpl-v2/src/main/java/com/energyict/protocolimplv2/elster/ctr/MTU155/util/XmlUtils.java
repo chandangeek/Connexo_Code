@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
-import com.energyict.cbo.ApplicationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -88,10 +87,10 @@ public class XmlUtils {
                 transformer.transform(source, result);
                 return result.getWriter().toString();
             } catch (TransformerException e) {
-                throw new ApplicationException(e);
+                throw new IllegalArgumentException(e);
             }
         } catch (TransformerConfigurationException e) {
-            throw new ApplicationException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 

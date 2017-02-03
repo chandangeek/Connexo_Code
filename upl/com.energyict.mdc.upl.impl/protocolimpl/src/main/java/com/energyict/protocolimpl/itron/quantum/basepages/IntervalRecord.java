@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *
@@ -29,7 +28,7 @@ public class IntervalRecord {
         for (int i=0;i< nrOfChannels;i++) {
             int value;
             if ((nibbleOffset%2)==0) {
-                value = (int)ProtocolUtils.getNibble(data,nibbleOffset+2)<<8;
+                value = (int) ProtocolUtils.getNibble(data,nibbleOffset+2)<<8;
                 value |= (int)ProtocolUtils.getNibble(data,nibbleOffset)<<4;
                 value |= (int)ProtocolUtils.getNibble(data,nibbleOffset+1);
                 

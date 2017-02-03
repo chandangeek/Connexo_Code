@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.profile;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -16,6 +15,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.PeriodTrac
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.CTRObjectInfo;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -32,14 +32,12 @@ import java.util.logging.Logger;
 public class ProfileChannel {
 
     private final RequestFactory requestFactory;
-
+    private final Calendar toCalendar;
+    private final Calendar fromCalendar;
     private StartOfGasDayParser startOfGasDayParser;
     private TimeZone deviceTimeZone = null;
     private CTRObjectID channelObjectId = null;
     private PeriodTrace_C period = null;
-
-    private final Calendar toCalendar;
-    private final Calendar fromCalendar;
     private int channelId = 0;
 
     public ProfileChannel(RequestFactory requestFactory, StartOfGasDayParser startOfGasDayParser, CTRObjectID objectID, int profileInterval, Date startReadingTime, Date endReadingTime) {
@@ -62,22 +60,22 @@ public class ProfileChannel {
             this.period = new PeriodTrace_C(PeriodTrace_C.HOURLY_FIRST_PART);
 
         } else {
-            this.period = new PeriodTrace_C(new TimeDuration(profileInterval));
+            this.period = new PeriodTrace_C(Duration.ofSeconds(profileInterval));
         }
     }
 
     /**
      * Get the period to use while requesting the profile data.
-     *
+     * <p>
      * Calculate the Period based on the channel interval in EIServer
      * Note: when the channel interval is hourly, period 1 (all 1h traces on the specified day) will be set.
      * For EK155 volume channels, this period is wrong (0x80 should be set (hourly traces from OFG+1 to OFG+12 on the specified day)).
-     *
+     * <p>
      * Procedure to readout hourly channels
      * 1. Send the first TraceC request to the device, with period 1.
      * 2. Parse the TraceC response:
-     *     A. response contains 24 trace_data objects: period OK - continue with the next TraceC request
-     *     B. response contains only 20 trace_data objects - period NOT OK - set period to 0x80 and resend the first TraceC request, now with period 0x80.
+     * A. response contains 24 trace_data objects: period OK - continue with the next TraceC request
+     * B. response contains only 20 trace_data objects - period NOT OK - set period to 0x80 and resend the first TraceC request, now with period 0x80.
      *
      * @return
      */
@@ -128,7 +126,7 @@ public class ProfileChannel {
         return channelObjectId;
     }
 
-    private int getIntervalInSeconds() {
+    private long getIntervalInSeconds() {
         return period.getIntervalInSeconds();
     }
 
@@ -195,13 +193,13 @@ public class ProfileChannel {
         return intervalDatas;
     }
 
-    /** Method to check if the used PeriodTrace_C is correct.
-     *
+    /**
+     * Method to check if the used PeriodTrace_C is correct.
+     * <p>
      * If we read daily values, we expect 24 objects - if we only get 20 trace_data objects instead, we know we are in wrong mode and should use splitted period (2 x 12 hours)!
-     *
      **/
     private boolean checkValidityOfPeriod(Trace_CQueryResponseStructure traceCStructure) {
-        if (period.getPeriod()  == PeriodTrace_C.HOURLY) {
+        if (period.getPeriod() == PeriodTrace_C.HOURLY) {
             if (traceCStructure.getTraceData().size() < period.getTraceCIntervalCount()) {
                 return false;
             }
@@ -211,12 +209,12 @@ public class ProfileChannel {
 
     /**
      * Check the period and if needed switch it.
-     *
+     * <p>
      * For EK155 device the hourly volume channels should be readout using splitted period.
      * E.g.: to retrieve all 24 hourly values for a specific day,
      * we must first request the first 12 values (OFG +1 to OFG +12), using period 0x80.
      * Then we must change period to 0x81, the response -for same reference day - will now contain values for OFG + 13 to OFG + 24
-     *
+     * <p>
      * Reading out of the next gas-day will require the same 2-step procedure, but with reference day now +1 day.
      */
     private void checkSwitchPeriod() {
@@ -237,8 +235,8 @@ public class ProfileChannel {
         if ((id != null) && (id.is(getChannelObjectId().toString()))) {
             if ((receivedReferenceDate != null) && (Arrays.equals(referenceDate.getBytes(), receivedReferenceDate.getBytes()))) {
                 PeriodTrace_C responsePeriod = traceCStructure.getPeriod();
-                int meterInterval = responsePeriod.getIntervalInSeconds();
-                int eiserverInterval = getIntervalInSeconds();
+                int meterInterval = (int) responsePeriod.getIntervalInSeconds();
+                int eiserverInterval = (int) getIntervalInSeconds();
                 if (meterInterval != eiserverInterval) {
                     throw new CTRConfigurationException("Channel interval is incorrect for channel [" + getChannelObjectId() + "]. " +
                             "Configuration of LoadProfile is [" + eiserverInterval + "s], " +

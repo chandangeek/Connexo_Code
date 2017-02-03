@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.cbo.HexString;
-import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.mdc.upl.properties.HexString;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 
 /**
  * Copyrights EnergyICT
@@ -34,9 +35,9 @@ public class Beacon3100ProtocolTypedProperty {
         if (value instanceof BigDecimal) {
             type = PropertyType.BigDecimal;
             this.value = value.toString();
-        } else if (value instanceof TimeDuration) {
+        } else if (value instanceof TemporalAmount) {
             type = PropertyType.TimeDuration;
-            this.value = String.valueOf(((TimeDuration) value).getMilliSeconds());
+            this.value = String.valueOf(((TemporalAmount) value).get(ChronoUnit.MILLIS));
         } else if (value instanceof String) {
             type = PropertyType.String;
             this.value = (String) value;
@@ -53,7 +54,7 @@ public class Beacon3100ProtocolTypedProperty {
     }
 
     public static boolean isSupportedType(Object value) {
-        return value instanceof HexString || value instanceof BigDecimal || value instanceof TimeDuration || value instanceof String || value instanceof Boolean;
+        return value instanceof HexString || value instanceof BigDecimal || value instanceof TemporalAmount || value instanceof String || value instanceof Boolean;
     }
 
     public Structure toStructure() {

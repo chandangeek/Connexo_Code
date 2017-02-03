@@ -1,7 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
@@ -30,17 +28,12 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
 import com.energyict.protocolimpl.generic.csvhandling.TestObject;
@@ -54,7 +47,6 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -159,7 +151,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
                     success = false;
                 }
             }
-        } catch (IOException | BusinessException | SQLException e) {
+        } catch (IOException | IllegalArgumentException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         }
@@ -310,7 +302,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         }
     }
 
-    private void readPricePerUnit() throws IOException, BusinessException, SQLException {
+    private void readPricePerUnit() throws IOException {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
         Array array = priceInformation.getValue().getArray();
         String priceInfo = "Pricing information unavailable: empty array";
@@ -324,7 +316,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
                 unit = scalerUnit.toString();
             } catch (IOException e) {
                 unit = "Error reading unit_scaler: " + e.getMessage();
-            } catch (ApplicationException e) {
+            } catch (IllegalArgumentException e) {
                 unit = "(no valid unit specified)";
             }
             sb.append(unit).append("\n");
@@ -334,14 +326,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
             priceInfo = sb.toString();
         }
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
-
-        log(Level.INFO, "Stored price information in userFile: " + fileName);
-    }
-
-    private int getFolderIdFromHub() throws IOException {
-        return getRtuFromDatabaseBySerialNumberAndClientMac().getFolderId();
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void setCV(String content) throws IOException {
@@ -513,7 +498,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
-         boolean resume = false;
+        boolean resume = false;
         if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
             resume = true;
         }
@@ -555,7 +540,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
             sas.writeExecutionTime(dateArray);
         } else {
-             it.imageActivation();
+            it.imageActivation();
         }
     }
 
@@ -671,7 +656,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
     }
 
     private boolean isFirmwareUpgradeMessage(final String messageContent) {
-        return (messageContent != null) &&  messageContent.contains(RtuMessageConstant.FIRMWARE_UPGRADE);
+        return (messageContent != null) && messageContent.contains(RtuMessageConstant.FIRMWARE_UPGRADE);
     }
 
     public ActivityCalendarController getActivityCalendarController() {
@@ -690,7 +675,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
         return this.protocol.getTimeZone();
     }
 
-    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void testMessage(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message TestMessage");
         int failures = 0;
         String userFileId = messageHandler.getTestUserFileId();
@@ -761,7 +746,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
                                 }
                                 break;
                                 default: {
-                                    throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
+                                    throw new IllegalArgumentException("Row " + i + " of the CSV file does not contain a valid type.");
                                 }
                             }
                             to.setTime(currentTime.getTime());
@@ -809,7 +794,7 @@ public class ZigbeeMessageExecutor extends MessageParser {
                 } else {
                     csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                 }
-                mw().getUserFileFactory().create(csvParser.convertResultToUserFile(deviceMessageFile, getFolderIdFromHub()));
+                throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
             } else {
                 throw new IOException("UserFileId is not a valid number");
             }
@@ -832,26 +817,6 @@ public class ZigbeeMessageExecutor extends MessageParser {
             }
         } catch (IOException e) {
             throw new IOException("Could not keep connection alive." + e.getMessage());
-        }
-    }
-
-    private Device getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
-        String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        List<Device> rtusWithSameSerialNumber = mw().getDeviceFactory().findBySerialNumber(serial);
-        for (Device each : rtusWithSameSerialNumber) {
-            if (((String) each.getProtocolProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
-                return each;
-            }
-        }
-        throw new IOException("Could not find the EiServer rtu.");
-    }
-
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
         }
     }
 }

@@ -1,13 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.messages;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -18,6 +10,15 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
@@ -37,7 +38,7 @@ import java.util.logging.Level;
  * Mostly reuses the DSMR4.0 functionality, but changes a few things.
  * Important: for DSMR5.0, the new keys (message to change AK and/or EK) are used immediately, instead of only at the start of the next message!
  * Also, when changing the encryption key, the framecounter is restarted.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  *
  * @author khe
@@ -47,8 +48,8 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
 
     private static final String RESUME = "resume";
 
-    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
-        super(protocol, calendarFinder, extractor, messageFileFinder, messageFileExtractor);
+    public Dsmr50MessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(protocol, calendarFinder, extractor, messageFileFinder, messageFileExtractor, numberLookupExtractor, numberLookupFinder);
     }
 
     @Override
@@ -211,7 +212,7 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         it.setPollingDelay(10000);
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
-        it.setCheckNumberOfBlocksInPreviousSession(((Dsmr50Properties)getProtocol().getProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
+        it.setCheckNumberOfBlocksInPreviousSession(((Dsmr50Properties) getProtocol().getProperties()).getCheckNumberOfBlocksDuringFirmwareResume());
         String imageIdentifier = messageHandler.getImageIdentifier();
         if (imageIdentifier != null && !imageIdentifier.isEmpty()) {
             it.upgrade(imageData, false, imageIdentifier, false);

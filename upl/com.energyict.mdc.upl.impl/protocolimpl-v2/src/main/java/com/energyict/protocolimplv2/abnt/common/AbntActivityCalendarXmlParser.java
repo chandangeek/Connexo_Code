@@ -2,8 +2,6 @@ package com.energyict.protocolimplv2.abnt.common;
 
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -17,6 +15,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author sva
@@ -26,10 +26,8 @@ public class AbntActivityCalendarXmlParser {
 
     private static final int HOLIDAY_LIST_SIZE = 15;
     private static final String DEFAULT_DATE = "010101";   // 01/01/2001
-
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
     private List<String> specialDays;
-
-    private final Log logger = LogFactory.getLog(getClass());
 
     public AbntActivityCalendarXmlParser() {
         this.specialDays = new ArrayList<>(0);
@@ -42,10 +40,10 @@ public class AbntActivityCalendarXmlParser {
             Document doc = builder.parse(new InputSource(new StringReader(xmlContent)));
             createSpecialDays(doc.getElementsByTagName(CodeTableXml.specialDays));
         } catch (ParserConfigurationException e) {
-            logger.error("AbntActivityCalendarXmlParser -> Could not create a DocumentBuilder.");
+            logger.log(Level.SEVERE, "AbntActivityCalendarXmlParser -> Could not create a DocumentBuilder.");
             throw new AbntException("AbntActivityCalendarXmlParser -> Could not create a DocumentBuilder. ParseConfigurationException message : " + e.getLocalizedMessage());
         } catch (SAXException e) {
-            logger.error("AbntActivityCalendarXmlParser -> A parse ERROR occurred.");
+            logger.log(Level.SEVERE, "AbntActivityCalendarXmlParser -> A parse ERROR occurred.");
             throw new AbntException("AbntActivityCalendarXmlParser -> A parse ERROR occurred. SAXException message : " + e.getLocalizedMessage());
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,7 +78,7 @@ public class AbntActivityCalendarXmlParser {
                                 temp = Integer.parseInt(sdTimeElement.getTextContent());
                                 if (temp < 0) {
                                     String message = "AbntActivityCalendarXmlParser -> Encountered one or more invalid special day entries: the month cannot be left unspecified!";
-                                    logger.error(message);
+                                    logger.log(Level.SEVERE, message);
                                     throw new AbntException(message);
                                 }
                                 month = String.format("%02d", temp);
@@ -88,7 +86,7 @@ public class AbntActivityCalendarXmlParser {
                                 temp = Integer.parseInt(sdTimeElement.getTextContent());
                                 if (temp < 0) {
                                     String message = "AbntActivityCalendarXmlParser -> Encountered one or more invalid special day entries: the day cannot be left unspecified!";
-                                    logger.error(message);
+                                    logger.log(Level.SEVERE, message);
                                     throw new AbntException(message);
                                 }
                                 day = String.format("%02d", temp);
@@ -101,7 +99,7 @@ public class AbntActivityCalendarXmlParser {
         }
         if (this.specialDays.size() > 15) {
             String message = "AbntActivityCalendarXmlParser -> At max 15 special days can be programmed!";
-            logger.error(message);
+            logger.log(Level.SEVERE, message);
             throw new AbntException(message);
         }
     }

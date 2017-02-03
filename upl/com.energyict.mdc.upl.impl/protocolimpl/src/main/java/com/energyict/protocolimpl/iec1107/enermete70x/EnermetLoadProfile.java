@@ -6,11 +6,21 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import java.io.*;
-import java.util.*;
-
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  *
  * @author  Koen
@@ -46,7 +56,7 @@ public class EnermetLoadProfile {
                     }
                     catch(ProtocolConnectionException e) {
                         //absorb ([4])
-                        if ((e.getProtocolErrorCode() == null) || (e.getProtocolErrorCode().compareTo(enermet.COMMAND_CANNOT_BE_EXECUTED) != 0))
+                        if ((e.getProtocolErrorCode() == null) || (e.getProtocolErrorCode().compareTo(EnermetBase.COMMAND_CANNOT_BE_EXECUTED) != 0))
                             throw e;
                         else
                             break;

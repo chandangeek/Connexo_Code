@@ -44,7 +44,7 @@ public class LeakageEventTable extends AbstractRadioCommand {
                     dais.close();
                 }
                 catch (IOException e) {
-                    getWaveFlow().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }

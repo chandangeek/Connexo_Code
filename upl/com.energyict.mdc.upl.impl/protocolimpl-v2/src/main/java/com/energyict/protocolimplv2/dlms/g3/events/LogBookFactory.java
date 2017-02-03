@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.g3.events;
 
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -10,7 +11,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocolimpl.dlms.g3.events.BreakerEventMapper;
 import com.energyict.protocolimpl.dlms.g3.events.CommunicationEventMapper;
 import com.energyict.protocolimpl.dlms.g3.events.CoverEventMapper;

@@ -4,7 +4,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateWrapper;
-
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -217,7 +216,7 @@ public enum DeviceSecurityProperty {
         return propertySpecService
                     .encryptedStringSpec()
                     .named(name.toString(), name.toString())
-                    .describedAs("Description for" + name.toString());
+                    .describedAs("Description for " + name.toString());
     }
 
     /**

@@ -10,16 +10,22 @@
 
 package com.energyict.protocolimpl.generic;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.mdw.core.Device;
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.TimeZone;
 
 /**
  *
@@ -165,15 +171,6 @@ public class ParseUtils {
     	return true;
     }
         
-    /**
-     * Create a midnight date from one month ago
-     * @param rtu
-     * @return
-     */
-	public static Date getClearLastMonthDate(Device rtu) {
-        return getClearLastMonthDate(TimeZone.getDefault());
-	}
-
     /**
      * Create a midnight date from one month ago
      * @param deviceTimeZone

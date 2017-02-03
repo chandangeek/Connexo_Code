@@ -10,17 +10,21 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus.core;
 
-import java.io.*;
-import java.util.*;
-
 import com.energyict.cbo.Unit;
-import com.energyict.protocolimpl.elster.alpha.alphaplus.AlphaPlus;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.elster.alpha.core.Alpha;
+import com.energyict.protocolimpl.elster.alpha.alphaplus.AlphaPlus;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.Class14LoadProfileConfiguration;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.Class17LoadProfileData;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.DayRecord;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -82,7 +86,7 @@ public class AlphaPlusProfile {
 
     private int getNrOfDays(Date lastReading) throws IOException {
         Date now = new Date();
-        int nrOfDays = ParseUtils.getNrOfDays(lastReading,now,ProtocolUtils.getWinterTimeZone(alphaPlus.getTimeZone()));
+        int nrOfDays = ParseUtils.getNrOfDays(lastReading,now, ProtocolUtils.getWinterTimeZone(alphaPlus.getTimeZone()));
         if (nrOfDays > alphaPlus.getClassFactory().getClass14LoadProfileConfiguration().getLPMEM()) {
             alphaPlus.getLogger().warning("AlphaPlusProfile, getNrOfDays(lastReading), requesting for "+nrOfDays+" days of profile data while the maximum days of profiledata in the meter is "+alphaPlus.getClassFactory().getClass14LoadProfileConfiguration().getLPMEM()+". So, limiting the nr of days to request to "+alphaPlus.getClassFactory().getClass14LoadProfileConfiguration().getLPMEM());
             nrOfDays = alphaPlus.getClassFactory().getClass14LoadProfileConfiguration().getLPMEM();

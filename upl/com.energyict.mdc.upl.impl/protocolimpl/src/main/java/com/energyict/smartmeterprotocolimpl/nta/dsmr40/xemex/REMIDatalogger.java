@@ -2,9 +2,10 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
@@ -30,8 +31,8 @@ public class REMIDatalogger extends E350 {
 
     private XemexLoadProfileBuilder loadProfileBuilder;
 
-    public REMIDatalogger(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
-        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, propertySpecService);
+    public REMIDatalogger(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override
@@ -84,7 +85,7 @@ public class REMIDatalogger extends E350 {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new XemexMessaging(new XemexMessageExecutor(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor()));
+        return new XemexMessaging(new XemexMessageExecutor(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), this.getMessageFileExtractor(), getNumberLookupFinder(), getNumberLookupExtractor()));
     }
 
     @Override

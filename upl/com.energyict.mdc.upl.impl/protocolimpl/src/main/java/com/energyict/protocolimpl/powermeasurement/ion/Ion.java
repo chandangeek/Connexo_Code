@@ -1,5 +1,8 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
@@ -7,11 +10,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Utils;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.ProfileData;
@@ -28,6 +26,7 @@ import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -215,7 +214,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             }
 
             try {
-                if (!Utils.isNull(pPassword) && !Utils.isNull(pUserId)) {
+                if (!ProtocolTools.isNull(pPassword) && !ProtocolTools.isNull(pUserId)) {
                     this.authentication = new Authentication(pPassword, pUserId);
                 }
             } catch (InvalidPasswordException e) {
@@ -583,7 +582,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         final String nodeId = discoverInfo.getNodeId();
         final int baudrate = discoverInfo.getBaudrate();
 
-        TypedProperties p = com.energyict.cpo.TypedProperties.empty();
+        TypedProperties p = com.energyict.protocolimpl.properties.TypedProperties.empty();
         p.setProperty("SecurityLevel", "0");
         p.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
 

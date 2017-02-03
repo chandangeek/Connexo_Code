@@ -1,12 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.profiles;
 
-import com.energyict.cbo.Utils;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.NullData;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class E35CProfileIntervals extends LGDLMSProfileIntervals {
                     cal = new AXDRDateTime(os, AXDRDateTimeDeviationType.Negative).getValue();
                 } else {
                     // Profile data is always transmitted in standard timezone (~ winter timezone without DST)!
-                    cal = new AXDRDateTime(os.getBEREncodedByteArray(), 0,  Utils.getStandardTimeZone(timeZone)).getValue();
+                    cal = new AXDRDateTime(os.getBEREncodedByteArray(), 0,  ProtocolTools.getStandardTimeZone(timeZone)).getValue();
                 }
             } else if (cal != null) {
                 cal.add(Calendar.SECOND, profileInterval);

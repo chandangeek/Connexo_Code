@@ -9,7 +9,6 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
@@ -31,29 +30,24 @@ import java.util.logging.Level;
  */
 public class MeterTopology implements MasterMeter {
 
+    public static final int MaxMbusDevices = 4;
     protected static final ObisCode MbusClientObisCode = ObisCode.fromString("0.0.24.1.0.255");
     protected static final int ObisCodeBFieldIndex = 1;
-    public static final int MaxMbusDevices = 4;
     protected static String ignoreZombieMbusDevice = "@@@0000000000000";
 
     private final AbstractSmartNtaProtocol protocol;
-
-    /**
-     * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
-     */
-    private ComposedCosemObject discoveryComposedCosemObject;
-
-    /**
-     * A List of localComposedCosemObjects containing the attributes to construct the serialNumber of the devices
-     */
-    private List<ComposedMbusSerialNumber> cMbusSerialNumbers = new ArrayList<ComposedMbusSerialNumber>();
-
     /**
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
     protected List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
-
-    private Device rtu;
+    /**
+     * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
+     */
+    private ComposedCosemObject discoveryComposedCosemObject;
+    /**
+     * A List of localComposedCosemObjects containing the attributes to construct the serialNumber of the devices
+     */
+    private List<ComposedMbusSerialNumber> cMbusSerialNumbers = new ArrayList<ComposedMbusSerialNumber>();
 
     public MeterTopology(final AbstractSmartNtaProtocol protocol) {
         this.protocol = protocol;
@@ -112,8 +106,7 @@ public class MeterTopology implements MasterMeter {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      *
      * @return a List of <CODE>DeviceMappings</CODE>
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          if interframeTimeout has passed and maximum retries have been reached
+     * @throws com.energyict.dialer.connection.ConnectionException if interframeTimeout has passed and maximum retries have been reached
      */
     protected List<DeviceMapping> getMbusMapper() throws ConnectionException {
         String mbusSerial;
@@ -228,7 +221,7 @@ public class MeterTopology implements MasterMeter {
      *
      * @return the next available physicalAddress or -1 if none is available.
      */
-    public int searchNextFreePhysicalAddress(){
+    public int searchNextFreePhysicalAddress() {
         List<Integer> availablePhysicalAddresses = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
         for (DeviceMapping dm : this.mbusMap) {
             availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list

@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import java.io.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
@@ -43,12 +43,12 @@ public class BeginRecordTimeCommand extends AbstractCommand {
         int offset=0;
         Calendar cal = ProtocolUtils.getCleanCalendar(getCommandFactory().getS200().getTimeZone());
         
-        cal.set(Calendar.MONTH,((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF)-1);
-        cal.set(Calendar.DAY_OF_MONTH,((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF));
-        cal.set(Calendar.HOUR_OF_DAY,((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF));
-        cal.set(Calendar.MINUTE,((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF));
+        cal.set(Calendar.MONTH,(ProtocolUtils.BCD2hex(data[offset++]) &0xFF)-1);
+        cal.set(Calendar.DAY_OF_MONTH,(ProtocolUtils.BCD2hex(data[offset++]) &0xFF));
+        cal.set(Calendar.HOUR_OF_DAY,(ProtocolUtils.BCD2hex(data[offset++]) &0xFF));
+        cal.set(Calendar.MINUTE,(ProtocolUtils.BCD2hex(data[offset++]) &0xFF));
         setBeginRecording(cal.getTime());
-        setProfileInterval((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF);
+        setProfileInterval(ProtocolUtils.BCD2hex(data[offset++]) &0xFF);
         
     }
     

@@ -1,10 +1,10 @@
 package com.energyict.encryption.asymetric.keyagreement;
 
 import com.energyict.encryption.AlgorithmID;
+import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.KDF;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
-import com.energyict.mdw.core.ECCCurve;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;
 

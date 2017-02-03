@@ -1,7 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ScalerUnit;
@@ -29,18 +27,12 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
@@ -51,12 +43,12 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -158,7 +150,7 @@ public class AS300MessageExecutor extends MessageParser {
                     success = false;
                 }
             }
-        } catch (IOException | BusinessException | SQLException e) {
+        } catch (IOException | IllegalArgumentException e) {
             logMessage = e.getMessage();
             success = false;
         }
@@ -172,7 +164,7 @@ public class AS300MessageExecutor extends MessageParser {
         }
     }
 
-    private void readPricePerUnit() throws IOException, BusinessException, SQLException {
+    private void readPricePerUnit() throws IOException {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
         Array array = priceInformation.getValue().getArray();
         String priceInfo = "Pricing information unavailable: empty array";
@@ -186,7 +178,7 @@ public class AS300MessageExecutor extends MessageParser {
                 unit = scalerUnit.toString();
             } catch (IOException e) {
                 unit = "Error reading unit_scaler: " + e.getMessage();
-            } catch (ApplicationException e) {
+            } catch (IllegalArgumentException e) {
                 unit = "(no valid unit specified)";
             }
             sb.append(unit).append("\n");
@@ -196,13 +188,11 @@ public class AS300MessageExecutor extends MessageParser {
             priceInfo = sb.toString();
         }
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, priceInfo.getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
-
-        log(Level.INFO, "Stored price information in userFile: " + fileName);
+        log(Level.SEVERE, "Storing of readout of Elster logbook in userFile is no longer supported");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
-    private void readActivityCalendar() throws IOException, BusinessException, SQLException {
+    private void readActivityCalendar() throws IOException {
         ActivityCalendar activityCalendar = getCosemObjectFactory().getActivityCalendar(ACTIVITY_CALENDAR_OBISCODE);
 
         StringBuilder sb = new StringBuilder();
@@ -270,37 +260,7 @@ public class AS300MessageExecutor extends MessageParser {
         }
 
         String fileName = "ActivityCalendar_" + protocol.getDlmsSession().getProperties().getSerialNumber() + "_" + ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss");
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName, sb.toString().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
-        mw().getUserFileFactory().create(ufs);
-
-        log(Level.INFO, "Stored activity calendar information in user file: " + fileName);
-    }
-
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     */
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
-    }
-
-    private int getFolderIdFromHub() throws IOException {
-        return getRtuFromDatabaseBySerialNumberAndClientMac().getFolderId();
-    }
-
-    private Device getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
-        String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        List<Device> rtusWithSameSerialNumber = mw().getDeviceFactory().findBySerialNumber(serial);
-        for (Device each : rtusWithSameSerialNumber) {
-            if (((String) each.getProtocolProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
-                return each;
-            }
-        }
-        throw new IOException("Could not find the EiServer rtu.");
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
     private void setStandingCharge(String content) throws IOException {
@@ -415,8 +375,9 @@ public class AS300MessageExecutor extends MessageParser {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (!(uf instanceof DeviceMessageFile)) {
+
+        Optional<DeviceMessageFile> deviceMessageFile = messageFileFinder.from(userFileID);
+        if (!deviceMessageFile.isPresent()) {
             String str = "Not a valid entry for the userfileID " + userFileID;
             throw new IOException(str);
         }
@@ -438,7 +399,7 @@ public class AS300MessageExecutor extends MessageParser {
             throw new NestedIOException(e);
         }
 
-        byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
+        byte[] imageData = new Base64EncoderDecoder().decode(messageFileExtractor.binaryContents(deviceMessageFile.get()));
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         if (resume) {
             int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
@@ -567,7 +528,7 @@ public class AS300MessageExecutor extends MessageParser {
     }
 
     private void sendTextToDisplay(final String content, final boolean sendToEMeter) throws IOException {
-        log(Level.INFO,  sendToEMeter ? "Send text message to E-meter display message received." : "Send text message to InHomeDisplay message received.");
+        log(Level.INFO, sendToEMeter ? "Send text message to E-meter display message received." : "Send text message to InHomeDisplay message received.");
         ActivePassive meterMessageControl = getCosemObjectFactory().getActivePassive(sendToEMeter ? METER_MESSAGE_EMETER_CONTROL : METER_MESSAGE_IHD_CONTROL);
 
         String[] parts = content.split("=");
@@ -590,7 +551,7 @@ public class AS300MessageExecutor extends MessageParser {
         }
 
         Structure structure = new Structure();
-        structure.addDataType(new Unsigned32((int) (Calendar.getInstance().getTimeInMillis()/1000)));   // Use the number of seconds as ID
+        structure.addDataType(new Unsigned32((int) (Calendar.getInstance().getTimeInMillis() / 1000)));   // Use the number of seconds as ID
         OctetString octetString = OctetString.fromString((message.length() > 128 ? message.substring(0, 127) : message));
         structure.addDataType(octetString);
         structure.addDataType(new Unsigned16(duration));

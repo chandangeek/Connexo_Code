@@ -7,6 +7,7 @@ import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 
 import java.io.IOException;
 import java.util.TimeZone;
+import java.util.logging.Level;
 
 /**
  * @author sva
@@ -44,7 +45,7 @@ public class DSMR40ActivityCalendarController extends DLMSActivityCalendarContro
         } else if (!"0".equalsIgnoreCase(getActivatePassiveCalendarTime().stringValue())) {
             ac.writeActivatePassiveCalendarTime(getActivatePassiveCalendarTime());
         } else {
-            getLogger().trace("No passiveCalendar activation date was given.");
+            getLogger().log(Level.FINEST, "No passiveCalendar activation date was given.");
         }
     }
 }

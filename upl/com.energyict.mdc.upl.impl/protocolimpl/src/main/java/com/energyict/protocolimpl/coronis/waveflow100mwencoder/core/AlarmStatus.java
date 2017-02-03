@@ -23,7 +23,7 @@ abstract class AlarmStatus<T> {
 					dais.close();
 				}
 				catch(IOException e) {
-					waveFlow100mW.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					waveFlow100mW.getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}					

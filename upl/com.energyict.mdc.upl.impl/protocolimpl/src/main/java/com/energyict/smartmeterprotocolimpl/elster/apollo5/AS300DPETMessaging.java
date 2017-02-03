@@ -6,9 +6,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
-
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 
@@ -50,15 +47,6 @@ public class AS300DPETMessaging extends AS300Messaging {
         tagSpec.add(new MessageValueSpec(" "));
         msgSpec.add(tagSpec);
         return msgSpec;
-    }
-
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
     }
 
     @Override

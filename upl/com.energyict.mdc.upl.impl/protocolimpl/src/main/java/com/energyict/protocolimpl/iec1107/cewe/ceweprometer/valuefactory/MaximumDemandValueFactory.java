@@ -1,11 +1,9 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.valuefactory;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ObisCodeMapper;
@@ -87,7 +85,7 @@ public class MaximumDemandValueFactory extends AbstractValueFactory {
             case ObisCodeMapper.D_MD_2: return 1;
             case ObisCodeMapper.D_MD_3: return 2;
         }
-        throw new ApplicationException("No such Max demand");
+        throw new IllegalArgumentException("No such Max demand");
     }
 
     public int getDateFieldIndex(){
@@ -96,7 +94,7 @@ public class MaximumDemandValueFactory extends AbstractValueFactory {
             case ObisCodeMapper.D_MD_2: return 3;
             case ObisCodeMapper.D_MD_3: return 5;
         }
-        throw new ApplicationException("No such Max demand");
+        throw new IllegalArgumentException("No such Max demand");
     }
 
     public int getQuantityFieldIndex(){
@@ -105,7 +103,7 @@ public class MaximumDemandValueFactory extends AbstractValueFactory {
             case ObisCodeMapper.D_MD_2: return 4;
             case ObisCodeMapper.D_MD_3: return 6;
         }
-        throw new ApplicationException("No such Max demand");
+        throw new IllegalArgumentException("No such Max demand");
     }
 
     public String getDescription( ){

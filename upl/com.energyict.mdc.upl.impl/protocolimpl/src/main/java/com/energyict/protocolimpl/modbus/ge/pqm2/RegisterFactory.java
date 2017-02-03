@@ -10,16 +10,23 @@
 
 package com.energyict.protocolimpl.modbus.ge.pqm2;
 
-import com.energyict.cbo.*;
-//import com.energyict.concentrator.core.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+
+//import com.energyict.concentrator.core.*;
 
 /**
  *

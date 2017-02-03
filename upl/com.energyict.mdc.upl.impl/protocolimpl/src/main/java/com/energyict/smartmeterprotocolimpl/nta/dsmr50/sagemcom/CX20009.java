@@ -2,10 +2,11 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom;
 
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemComMessaging;
@@ -18,19 +19,19 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr50.sagemcom.messages.SagemCo
  */
 public class CX20009 extends AM540 {
 
-    public CX20009(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
-        super(propertySpecService, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor);
+    public CX20009(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(propertySpecService, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2014-10-03 11:24:32 +0200 (vr, 03 okt 2014) $";
+        return "$Date: Fri Oct 3 14:53:35 2014 +0000 $";
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new SagemComMessaging(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), getMessageFileExtractor());
+            messageProtocol = new SagemComMessaging(this, this.getCalendarFinder(), this.getCalendarExtractor(), this.getMessageFileFinder(), getMessageFileExtractor(), getNumberLookupFinder(), getNumberLookupExtractor());
         }
         return messageProtocol;
     }

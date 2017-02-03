@@ -1,15 +1,13 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
@@ -209,7 +207,7 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
         double v = Double.parseDouble( v1 + "." + v2 );
 
         if( v < 1.2 ) {
-            throw new ApplicationException("Meter firmware version " + getFirmwareVersion() + " is not supported.  " + "Minimum version "+MINIMUM_FW_VERSION+".");
+            throw new ProtocolException("Meter firmware version " + getFirmwareVersion() + " is not supported.  " + "Minimum version "+MINIMUM_FW_VERSION+".");
         }
 
         if (pExtendedLogging==1) {

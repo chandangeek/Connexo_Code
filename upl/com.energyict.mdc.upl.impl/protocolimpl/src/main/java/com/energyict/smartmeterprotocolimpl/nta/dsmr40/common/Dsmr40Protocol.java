@@ -1,14 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -34,18 +35,22 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final NumberLookupFinder numberLookupFinder;
+    private final NumberLookupExtractor numberLookupExtractor;
 
-    public Dsmr40Protocol(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+    public Dsmr40Protocol(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService);
         this.calendarFinder = calendarFinder;
         this.messageFileFinder = messageFileFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
+        this.numberLookupFinder = numberLookupFinder;
+        this.numberLookupExtractor = numberLookupExtractor;
     }
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileFinder, this.messageFileExtractor, numberLookupExtractor, numberLookupFinder));
     }
 
     /**
@@ -97,7 +102,7 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced.<br>
      * <br>
-     * <p/>
+     * <p>
      * The AM100 module does not have the checkConfigParameter in his objectlist, thus to prevent reading the
      * objectlist each time we read the device, we will go for the following approach:<br>
      * 1/ check if the cache exists, if it does exist, go to step 2, if not go to step 3    <br>

@@ -8,16 +8,17 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.itron.fulcrum.basepages; 
+package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.cbo.Quantity;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -60,7 +61,7 @@ public class RegisterBasePage extends AbstractBasePage {
         
         TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getFulcrum().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-            tz = ProtocolUtils.getWinterTimeZone(tz);          
+            tz = ProtocolUtils.getWinterTimeZone(tz);
         
         setValue(getRegister().getValue(data).multiply(((BasePagesFactory)getBasePagesFactory()).getFulcrum().getAdjustRegisterMultiplier()));
         

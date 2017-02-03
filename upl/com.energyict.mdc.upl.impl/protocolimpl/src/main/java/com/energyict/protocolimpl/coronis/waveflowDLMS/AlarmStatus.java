@@ -2,7 +2,9 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public class AlarmStatus {
 	
@@ -34,7 +36,7 @@ public class AlarmStatus {
 					dais.close();
 				}
 				catch(IOException e) {
-					abstractDLMS.getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					abstractDLMS.getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}					

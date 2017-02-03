@@ -10,9 +10,12 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.common;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 /**

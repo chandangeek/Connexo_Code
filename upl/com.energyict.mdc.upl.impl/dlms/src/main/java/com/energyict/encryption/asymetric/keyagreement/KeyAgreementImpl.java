@@ -1,8 +1,8 @@
 package com.energyict.encryption.asymetric.keyagreement;
 
 
+import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
-import com.energyict.mdw.core.ECCCurve;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;

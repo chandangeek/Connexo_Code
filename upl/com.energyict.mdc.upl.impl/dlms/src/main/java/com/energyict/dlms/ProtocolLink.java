@@ -7,7 +7,7 @@ package com.energyict.dlms;
 
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdc.upl.MeterProtocol;
 
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -76,7 +76,7 @@ public interface ProtocolLink {
      * {@link ProtocolLink}.SN_REFERENCE or {@link ProtocolLink}.LN_REFERENCE
      *
      * @return {@link ProtocolLink}.SN_REFERENCE for short name or
-     *         {@link ProtocolLink}.LN_REFERENCE for long name
+     * {@link ProtocolLink}.LN_REFERENCE for long name
      */
     int getReference();
 
@@ -91,6 +91,6 @@ public interface ProtocolLink {
      * The ApplicationServiceObject. It is used by most protocols to setup, maintain and release the application association to the device.
      * Some old protocols don't have this (they manually build and send the AA requests), they return null.
      */
-    public ApplicationServiceObject getAso();
+    ApplicationServiceObject getAso();
 
 }

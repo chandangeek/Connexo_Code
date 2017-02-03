@@ -213,7 +213,7 @@ public class Encryption {
 					dais.close();
 				}
 				catch(IOException e) {
-					logger.severe(com.energyict.cbo.Utils.stack2string(e));
+					logger.severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 			if (baos != null) {
@@ -221,7 +221,7 @@ public class Encryption {
 					baos.close();
 				}
 				catch(IOException e) {
-					logger.severe(com.energyict.cbo.Utils.stack2string(e));
+					logger.severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}		

@@ -3,13 +3,6 @@ package com.energyict.protocolimpl.utils;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
-
-import com.energyict.cpo.Environment;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -34,6 +27,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -1176,24 +1170,6 @@ public final class ProtocolTools {
         }
     }
 
-    /**
-     * Get the properties for a given rtu. This incluides the protocol properties
-     *
-     * @param rtu
-     * @return
-     */
-    public static Properties getRtuProperties(Device rtu) {
-        Properties properties = new Properties();
-        if (rtu != null) {
-            CommunicationProtocol protocol = rtu.getDeviceType().getProtocol();
-            if (protocol != null) {
-                properties.putAll(protocol.getProperties().toStringProperties());
-            }
-            properties.putAll(rtu.getProtocolProperties().toStringProperties());
-        }
-        return properties;
-    }
-
     public static byte[] getReverseByteArray(byte[] bytes) {
         byte[] reverseBytes = new byte[bytes != null ? bytes.length : 0];
         for (int i = 0; i < reverseBytes.length; i++) {
@@ -1365,30 +1341,6 @@ public final class ProtocolTools {
     }
 
     /**
-     * Create a UserFileShadow with the given parameters.
-     *
-     * @param name      the name of the userfile
-     * @param content   the content of the userfile
-     * @param folderId  the folderId where to put the userFile
-     * @param extension the extension of the userfile
-     * @return the expected UserFileShadow
-     * @throws IOException if an error occurred during the creation of the file
-     */
-    public static UserFileShadow createUserFileShadow(String name, byte[] content, int folderId, String extension) throws IOException {
-        UserFileShadow ufs = new UserFileShadow();
-        ufs.setName(name);
-        ufs.setExtension(extension);
-        ufs.setFolderId(folderId);
-        File file = File.createTempFile("TempUserFile", extension);
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(content);
-        fos.close();
-        file.deleteOnExit();
-        ufs.setFile(file);
-        return ufs;
-    }
-
-    /**
      * Check if the ipAddress contains a PortNumber, if not then add the given one
      *
      * @param ipAddress
@@ -1406,27 +1358,6 @@ public final class ProtocolTools {
         return ipAddress;
     }
 
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     */
-    public static MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
-    }
-
-    /**
-     * Close the databaseConnection when it is not needed so optimal database pooling can be used
-     */
-    public static void closeConnection() {
-        if (!Environment.getDefault().isInTransaction()) {
-            Environment.getDefault().closeConnection();
-        }
-    }
-
     public static boolean isCorrectIntervalBoundary(Calendar toDate, int intervalInSeconds) {
         if (toDate == null) {
             return false;
@@ -1440,6 +1371,80 @@ public final class ProtocolTools {
             }
         }
         return false;
+    }
+
+    /**
+     * return a TimeZone with the same offset as the argument,
+     * but without DST corrections
+     *
+     * @param timeZone the reference TimeZone
+     * @return the calculated TimeZone
+     */
+    static public TimeZone getStandardTimeZone(TimeZone timeZone) {
+        int offset = timeZone.getRawOffset() / 3600000;
+        return TimeZone.getTimeZone("GMT" + (offset < 0 ? "" : "+") + offset);
+    }
+
+    /**
+     * Tests if two objects are equal.
+     * Contains special logic for BigDecimal and Date.
+     * Two BigDecimal objects are considered equal
+     * if they represent the same value, regardless of scale.
+     * Two Date objects are considerd equal if they represent
+     * the same point in time , regardless whether they are
+     * instances of java.util.Date, java.sql.Date or java.sql.Timestamp
+     * Otherwise this is equivalent to first.equals(second)
+     *
+     * @param first  first object to test for equality
+     * @param second second object to test for equality
+     * @return true if equal, false otherwise
+     */
+    public static boolean areEqual(Object first, Object second) {
+        if (first == null) {
+            return second == null;
+        }
+        if (second == null) {
+            return false;
+        }
+        if ((first instanceof BigDecimal) && (second instanceof BigDecimal)) {
+            return ((BigDecimal) first).compareTo((BigDecimal) second) == 0;
+        }
+        if ((first instanceof Date) && (second instanceof Date)) {
+            return ((Date) first).getTime() == ((Date) second).getTime();
+        } else {
+            return first.equals(second);
+        }
+    }
+
+    /**
+     * Checks if the given string is null or empty (length=0)
+     *
+     * @param strToTest the string to test
+     * @return true if the given string is null or empty (length=0)
+     */
+    public static boolean isNull(String strToTest) {
+        if (strToTest == null) {
+            return true;
+        }
+        for (int index = 0; index < strToTest.length(); index++) {
+            if (!Character.isWhitespace(strToTest.charAt(index))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * return a string representation of the argument's stack trace
+     *
+     * @param e Throwable to examine
+     * @return the argument's stack trace
+     */
+    static public String stack2string(Throwable e) {
+        OutputStream out = new ByteArrayOutputStream();
+        PrintStream prnout = new PrintStream(out);
+        e.printStackTrace(prnout);
+        return out.toString();
     }
 
     public static String getFormattedDate(String format, Date dateToFormat) {

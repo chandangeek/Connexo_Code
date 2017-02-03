@@ -3,7 +3,10 @@ package com.energyict.protocolimpl.coronis.waveflowDLMS;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 public class XDLMSDataParser {
@@ -100,7 +103,7 @@ public class XDLMSDataParser {
 					dais.close();
 				}
 				catch(IOException e) {
-					logger.severe(com.energyict.cbo.Utils.stack2string(e));
+					logger.severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}				

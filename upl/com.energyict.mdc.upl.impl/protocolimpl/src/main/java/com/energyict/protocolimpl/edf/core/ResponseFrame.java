@@ -10,8 +10,7 @@
 
 package com.energyict.protocolimpl.edf.core;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *
@@ -32,7 +31,7 @@ public class ResponseFrame {
     }
    
     public String toString() {
-        return "ResponseFrame binary: "+ProtocolUtils.outputHexString(getData())+"\n"+"ResponseFrame ascii: "+new String(getData()+", type="+type+", nSEQRx="+nSEQRx);
+        return "ResponseFrame binary: "+ ProtocolUtils.outputHexString(getData())+"\n"+"ResponseFrame ascii: "+new String(getData()+", type="+type+", nSEQRx="+nSEQRx);
     }
     
  

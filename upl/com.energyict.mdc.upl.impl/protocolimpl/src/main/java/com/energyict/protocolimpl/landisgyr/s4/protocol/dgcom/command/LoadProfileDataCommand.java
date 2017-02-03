@@ -15,8 +15,8 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
-import com.energyict.util.Equality;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -158,7 +158,7 @@ RXS4 32k 122k
                 intervalDatas.remove(i+1);
                 continue;
             }
-            if (Equality.equalityHoldsFor(intervalData.getEndTime()).and(intervalData2add.getEndTime())) {
+            if (ProtocolTools.areEqual(intervalData.getEndTime(), intervalData2add.getEndTime())) {
                 ParseUtils.addIntervalValues(intervalData, intervalData2add);
                intervalDatas.remove(i);
             }

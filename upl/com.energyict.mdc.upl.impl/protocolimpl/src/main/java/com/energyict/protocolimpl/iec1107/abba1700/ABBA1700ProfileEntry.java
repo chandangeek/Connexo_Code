@@ -6,12 +6,15 @@
 
 package com.energyict.protocolimpl.iec1107.abba1700;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.abba1140.Calculate;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
@@ -111,7 +114,7 @@ public class ABBA1700ProfileEntry {
         type = ProtocolUtils.getVal(bai);
         
         if (type == EXTERNALDATAENTRY) {
-            info[INFO_NROFINTERVALS_EXTERNAL] = (((int)ProtocolUtils.getShortLE(bai)&0xFFFF)-4)/(nrOfChannels*3);
+            info[INFO_NROFINTERVALS_EXTERNAL] = (((int) ProtocolUtils.getShortLE(bai)&0xFFFF)-4)/(nrOfChannels*3);
             info[INFO_STATUS] = 0;
             if (nrOfChannels ==0) throw new IOException("ABBA1700ProfileEntry, fillAttributes, INFO_STATUS received with nrofchannels == 0 (external data)!");
             for (int interval=0;interval<info[INFO_NROFINTERVALS_EXTERNAL];interval++) {

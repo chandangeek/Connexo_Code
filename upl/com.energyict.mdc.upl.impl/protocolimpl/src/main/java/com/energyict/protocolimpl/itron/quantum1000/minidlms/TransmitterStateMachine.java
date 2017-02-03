@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.base.CRCGenerator;
-import java.io.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -269,7 +269,7 @@ public class TransmitterStateMachine {
                 throw e;
             } // catch(ConnectionException e)
             
-            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+            if (System.currentTimeMillis() - protocolTimeout > 0) {
                 throw new ProtocolConnectionException("TransmitterStateMachine, stateMachine() protocol timeout error",connection.getTIMEOUT_ERROR());
             } // if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0)
             
@@ -318,13 +318,13 @@ public class TransmitterStateMachine {
             byte[] chunk = ProtocolUtils.getSubArray2(data, offset, 60);
             offset+=60;
             length-=60;
-            connection.send(connection.getPACKET_TYPE_I(), chunk);
+            connection.send(MiniDLMSConnection.getPACKET_TYPE_I(), chunk);
             connection.incSendSequence();
         } // for (int i=0; i<nrOfPackets;i++)
         
         
         byte[] chunk = ProtocolUtils.getSubArray2(data, offset, length>60?60:length);
-        connection.send(connection.getPACKET_TYPE_IP(), chunk);
+        connection.send(MiniDLMSConnection.getPACKET_TYPE_IP(), chunk);
         connection.incSendSequence();
         
     }

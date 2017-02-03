@@ -1,6 +1,6 @@
 package com.energyict.encryption.asymetric.util;
 
-import com.energyict.mdw.core.ECCCurve;
+import com.energyict.encryption.asymetric.ECCCurve;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;

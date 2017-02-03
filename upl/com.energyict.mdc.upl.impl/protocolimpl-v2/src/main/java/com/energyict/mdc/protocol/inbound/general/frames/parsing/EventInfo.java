@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.inbound.general.frames.parsing;
 
 import com.energyict.cim.EndDeviceEventTypeMapping;
-import com.energyict.cpo.Environment;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 
@@ -12,7 +11,7 @@ import java.util.TimeZone;
 
 /**
  * Class that parses a received string (containing event information) into a MeterEvent object
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 26/06/12
  * Time: 15:22
@@ -21,7 +20,7 @@ import java.util.TimeZone;
 public class EventInfo {
 
     private static final int UNKNOWN = 0;
-    private static final String PROTOCOL_EVENTVALUE = Environment.getDefault().getTranslation("protocol.eventvalue");
+    private static final String PROTOCOL_EVENTVALUE = "Protocol event value";
     private String info;
 
     public EventInfo(String info) {

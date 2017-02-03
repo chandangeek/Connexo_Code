@@ -10,14 +10,15 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.datastar.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  *
@@ -69,9 +70,9 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
     
     protected BasePageDescriptor preparebuild() throws IOException {
         if (getRecordNr() != -1)
-            return new BasePageDescriptor(((BasePagesFactory)((BasePagesFactory)getBasePagesFactory())).getMassMemoryBasePages().getMassMemoryStartOffset()+
-                                          getRecordNr()*((BasePagesFactory)((BasePagesFactory)getBasePagesFactory())).getMassMemoryBasePages().getMassMemoryRecordLength(),
-                                          onlyRegisters? 35:((BasePagesFactory)((BasePagesFactory)getBasePagesFactory())).getMassMemoryBasePages().getMassMemoryRecordLength());
+            return new BasePageDescriptor(getBasePagesFactory().getMassMemoryBasePages().getMassMemoryStartOffset()+
+                                          getRecordNr()* getBasePagesFactory().getMassMemoryBasePages().getMassMemoryRecordLength(),
+                                          onlyRegisters? 35: getBasePagesFactory().getMassMemoryBasePages().getMassMemoryRecordLength());
         else if (getOffset() != -1)
             return new BasePageDescriptor(getOffset(),
                     onlyRegisters? 35:((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getMassMemoryRecordLength());
@@ -84,7 +85,7 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
 //System.out.println("KV_DEBUG> getRecordNr() "+getRecordNr()+", data.length="+data.length);
         
         int offset = 0;
-        TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getProtocolLink().getTimeZone();
+        TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
             tz = ProtocolUtils.getWinterTimeZone(tz);
         setCalendar(ProtocolUtils.getCleanCalendar(tz));

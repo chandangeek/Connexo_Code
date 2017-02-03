@@ -7,7 +7,7 @@ import com.energyict.mdc.upl.properties.DeviceGroup;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
+import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.UserNames;
@@ -463,7 +463,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
     IMPORT_END_DEVICE_CERTIFICATE(7051, "Import end device certificate") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.positiveBigDecimalSpec(service, DeviceMessageConstants.certificateWrapperIdAttributeName, DeviceMessageConstants.certificateWrapperIdAttributeDefaultTranslation));
+            return Collections.singletonList(this.certificateWrapperReferenceSpec(service, DeviceMessageConstants.certificateWrapperAttributeName, DeviceMessageConstants.certificateWrapperAttributeDefaultTranslation));
         }
     };
 
@@ -563,10 +563,10 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    protected PropertySpec positiveBigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected PropertySpec certificateWrapperReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .positiveBigDecimalSpec()
+                .referenceSpec(CertificateWrapper.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

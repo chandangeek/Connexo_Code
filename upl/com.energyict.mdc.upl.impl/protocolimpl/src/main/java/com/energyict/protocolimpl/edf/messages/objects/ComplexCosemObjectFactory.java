@@ -1,12 +1,13 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -19,12 +20,8 @@ public class ComplexCosemObjectFactory {
 			Document document = builder.parse(new InputSource(new StringReader(xml)));
 			Element topElement = document.getDocumentElement();
 			return createCosemObject(topElement);
-		} catch (SAXException e) {
-			throw new ApplicationException(e);
-		} catch (ParserConfigurationException e) {
-			throw new ApplicationException(e);
-		} catch (IOException e) {
-			throw new ApplicationException(e);
+		} catch (SAXException | ParserConfigurationException | IOException e) {
+			throw new IllegalArgumentException(e);
 		}
 	}
 
@@ -56,7 +53,7 @@ public class ComplexCosemObjectFactory {
 		if (element.getNodeName() == FtpServerId.ELEMENTNAME){
 			return new FtpServerId(element);
 		}
-		throw new ApplicationException("Cannot determine ComplexCosemObject Type");
+		throw new IllegalArgumentException("Cannot determine ComplexCosemObject Type");
 	}
 	
 }

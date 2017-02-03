@@ -6,8 +6,8 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NotInObjectListException;
 
 import java.io.IOException;
 import java.util.Date;

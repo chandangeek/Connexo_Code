@@ -10,11 +10,10 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *

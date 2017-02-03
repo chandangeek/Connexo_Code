@@ -1,6 +1,6 @@
 package com.energyict.encryption.asymetric.signature;
 
-import com.energyict.mdw.core.ECCCurve;
+import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;

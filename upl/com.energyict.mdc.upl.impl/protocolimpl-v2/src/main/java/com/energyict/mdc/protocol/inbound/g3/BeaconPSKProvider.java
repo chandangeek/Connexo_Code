@@ -1,13 +1,12 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
@@ -29,7 +28,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol() {
-        return new Beacon3100(getContext().getPropertySpecService(), getContext().getNlsService(), getContext().getConverter(), getContext().getCollectedDataFactory(), getContext().getIssueFactory(), getContext().getObjectMapperService(), getContext().getDeviceMasterDataExtractor(), getContext().getDeviceGroupExtractor(), getContext().getX509Service(), getContext().getKeyStoreService());
+        return new Beacon3100(getContext().getPropertySpecService(), getContext().getNlsService(), getContext().getConverter(), getContext().getCollectedDataFactory(), getContext().getIssueFactory(), getContext().getObjectMapperService(), getContext().getDeviceMasterDataExtractor(), getContext().getDeviceGroupExtractor(), getContext().getX509Service(), getContext().getKeyStoreService(), getContext().getCertificateWrapperExtractor(), getContext().getMessageFileExtractor(), getContext().getDeviceExtractor(), getContext().getCertificateAliasFinder());
     }
 
     protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {

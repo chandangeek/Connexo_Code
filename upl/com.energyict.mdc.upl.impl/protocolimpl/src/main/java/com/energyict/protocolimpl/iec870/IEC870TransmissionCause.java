@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import com.energyict.cbo.NotFoundException;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -99,7 +97,7 @@ public class IEC870TransmissionCause {
             IEC870TransmissionCause cause = (IEC870TransmissionCause)it.next();
             if (cause.getId() == id) return cause;
         }
-        throw new NotFoundException("IEC870TransmissionCause, id "+id+" not found");
+        throw new IllegalArgumentException("IEC870TransmissionCause, id "+id+" not found");
     }
     public static int getId(String abbr) {
         
@@ -108,7 +106,7 @@ public class IEC870TransmissionCause {
             IEC870TransmissionCause cause = (IEC870TransmissionCause)it.next();
             if (cause.getAbbr().compareTo(abbr) == 0) return cause.getId();
         }
-        throw new NotFoundException("IEC870TransmissionCause, "+abbr+" not found");
+        throw new IllegalArgumentException("IEC870TransmissionCause, "+abbr+" not found");
     }
     
 }

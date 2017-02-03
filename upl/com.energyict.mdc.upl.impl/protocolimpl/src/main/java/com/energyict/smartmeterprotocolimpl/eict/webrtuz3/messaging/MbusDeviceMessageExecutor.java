@@ -1,9 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-
-import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -14,6 +10,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.MessageParser;
@@ -206,12 +203,8 @@ public class MbusDeviceMessageExecutor extends MessageParser {
                 throw new IOException("Unknown message");
             }
 
-        } catch (BusinessException e) {
-            getLogger().log(Level.INFO, "Messagehas failed. " + e.getMessage());
-        } catch (ConnectionException e) {
-            getLogger().log(Level.INFO, "Messagehas failed. " + e.getMessage());
-        } catch (IOException e) {
-            getLogger().log(Level.INFO, "Messagehas failed. " + e.getMessage());
+        } catch (IllegalArgumentException | IOException e) {
+            getLogger().log(Level.INFO, "Message has failed. " + e.getMessage());
         }
         if (success) {
             getLogger().log(Level.INFO, "Message has finished.");

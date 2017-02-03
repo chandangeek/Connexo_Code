@@ -10,11 +10,13 @@
 
 package com.energyict.protocolimpl.ge.kv2.tables;
 
-import java.io.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.ansi.c12.tables.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.ansi.c12.tables.AbstractTable;
+import com.energyict.protocolimpl.ansi.c12.tables.TableIdentification;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+
 /**
  *
  * @author Koen

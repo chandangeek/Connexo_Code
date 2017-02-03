@@ -1,5 +1,8 @@
 package com.elster.protocolimpl.dlms.messaging;
 
+import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -9,11 +12,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-
-import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.core.UserFileFactory;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,10 +26,14 @@ public class XmlMessageWriter implements Messaging {
 
     private final TariffCalendarFinder finder;
     private final TariffCalendarExtractor extractor;
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
 
-    public XmlMessageWriter(TariffCalendarFinder finder, TariffCalendarExtractor extractor) {
+    public XmlMessageWriter(TariffCalendarFinder finder, TariffCalendarExtractor extractor, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         this.finder = finder;
         this.extractor = extractor;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
     }
 
     public List<MessageCategorySpec> getMessageCategories() {
@@ -54,8 +57,7 @@ public class XmlMessageWriter implements Messaging {
         }
     }
 
-    private String writeUserFileTag(MessageTag msgTag, String fileTag)
-    {
+    private String writeUserFileTag(MessageTag msgTag, String fileTag) {
         StringBuilder builder = new StringBuilder();
 
         // a. Opening tag
@@ -69,12 +71,12 @@ public class XmlMessageWriter implements Messaging {
                 if ((ma.getValue() != null) && (!ma.getValue().isEmpty())) {
                     String[] nameParts = ma.getValue().split("\\.");
                     String name = nameParts[0];
-                    UserFileFactory factory = MeteringWarehouse.getCurrent().getUserFileFactory();
-                    List files = factory.findByName(name);
+
+                    List<? extends DeviceMessageFile> deviceMessageFiles = deviceMessageFileFinder.fromName(name);
 
                     String data = "";
-                    if (!files.isEmpty()) {
-                        data = new String(((UserFile) files.get(0)).loadFileInByteArray());
+                    if (!deviceMessageFiles.isEmpty()) {
+                        data = new String((deviceMessageFileExtractor.binaryContents(deviceMessageFiles.get(0))));
                         data = data.replaceAll("\"", "''");
                     }
                     builder.append(" ").append(specName);

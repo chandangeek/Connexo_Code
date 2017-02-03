@@ -6,12 +6,23 @@
 
 package com.energyict.protocolimpl.iec870.datawatt;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.iec870.*;
+import com.energyict.protocolimpl.iec870.IEC870Connection;
+import com.energyict.protocolimpl.iec870.IEC870ConnectionException;
+import com.energyict.protocolimpl.iec870.IEC870Frame;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.List;
+import java.util.TimeZone;
+
 /**
  *
  * @author  Koen

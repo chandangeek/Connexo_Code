@@ -6,9 +6,9 @@
 
 package com.energyict.dlms;
 
-import com.energyict.cbo.Utils;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -557,9 +557,9 @@ public class DataContainer implements Serializable {
 				}
 				catch(DataContainerException e) {
 					if (logger == null) {
-						System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+						System.out.println(ProtocolTools.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					} else {
-						logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+						logger.severe(ProtocolTools.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 					}
 					return;
 				}

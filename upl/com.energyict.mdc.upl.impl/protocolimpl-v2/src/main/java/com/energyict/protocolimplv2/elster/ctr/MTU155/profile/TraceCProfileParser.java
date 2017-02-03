@@ -286,7 +286,7 @@ public class TraceCProfileParser {
      * @return
      */
     private int getIntervalInSeconds() {
-        return getPeriod().getIntervalInSeconds();
+        return (int) getPeriod().getIntervalInSeconds();
     }
 
     /**

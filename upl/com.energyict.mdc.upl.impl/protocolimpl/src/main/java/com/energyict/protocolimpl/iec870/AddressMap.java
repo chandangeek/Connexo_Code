@@ -6,10 +6,9 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -90,6 +89,6 @@ public class AddressMap {
            AddressMap a = (AddressMap)it.next();
            if ((address >= a.getFrom()) && (address <= a.getTo())) return a;
         }
-        throw new NotFoundException("Address "+address+" not found");
+        throw new IllegalArgumentException("Address "+address+" not found");
     }
 }

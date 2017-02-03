@@ -10,12 +10,15 @@
 
 package com.energyict.protocolimpl.itron.sentinel.procedures;
 
-import com.energyict.protocol.*;
-import java.io.*;
-import com.energyict.protocolimpl.ansi.c12.procedures.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocolimpl.base.*;
-import java.util.*;
+import com.energyict.protocolimpl.ansi.c12.procedures.AbstractProcedure;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureFactory;
+import com.energyict.protocolimpl.ansi.c12.procedures.ProcedureIdentification;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 /**
  *
  * @author Koen

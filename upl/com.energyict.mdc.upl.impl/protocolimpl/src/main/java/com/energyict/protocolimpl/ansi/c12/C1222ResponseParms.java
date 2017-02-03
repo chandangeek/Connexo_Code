@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -178,7 +178,7 @@ public class C1222ResponseParms
 		int tempLength = 0;
 
 		if (byteArray[pos] != 0x28) 
-			throw new ApplicationException("First byte of user information must be 0x28");
+			throw new ProtocolException("First byte of user information must be 0x28");
 		
 		tempLength = byteArray[++pos]; // read off length bytes
 		if ((tempLength & 0x80) != 0)
@@ -233,7 +233,7 @@ public class C1222ResponseParms
     	byte fieldType = byteArray[0];
     	
     	if (fieldType != 0x02) 
-    		throw new ApplicationException("Invalid Field Type");
+    		throw new IllegalArgumentException("Invalid Field Type");
     	
 		for(int i = 2; i < byteArray.length; i++)
 		{
@@ -250,7 +250,7 @@ public class C1222ResponseParms
     	byte fieldType = byteArray[0];
 
     	if (fieldType != 0x80 && fieldType != 0x06) 
-    		throw new ApplicationException("Invalid Field Type");
+    		throw new IllegalArgumentException("Invalid Field Type");
     	
     	result.append(byteArray[2] / 40);
     	result.append(".");

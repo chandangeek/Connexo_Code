@@ -10,13 +10,9 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-
+import java.io.IOException;
 
 
 /**
@@ -40,7 +36,7 @@ public class DataControlTable extends AbstractTable {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("DataControlTable: \n");
         for (int i=0;i<getSourceId().length;i++) {
-            strBuff.append("sourceId["+i+"]="+ProtocolUtils.getResponseData(getSourceId()[i])+"\n");
+            strBuff.append("sourceId["+i+"]="+ ProtocolUtils.getResponseData(getSourceId()[i])+"\n");
         }
         return strBuff.toString();
     }

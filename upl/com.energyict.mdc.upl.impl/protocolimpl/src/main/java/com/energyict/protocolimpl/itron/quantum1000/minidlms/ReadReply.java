@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *
@@ -31,7 +31,7 @@ public class ReadReply extends AbstractCommandResponse {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("ReadReply:\n");
-        strBuff.append("       data="+ProtocolUtils.outputHexString(getData())+"\n");
+        strBuff.append("       data="+ ProtocolUtils.outputHexString(getData())+"\n");
         strBuff.append("   dataTag="+getDataTag()+"\n");
         strBuff.append("   dataType="+getDataType()+"\n");
         strBuff.append("   variableAccessSpec="+getVariableAccessSpec()+"\n");

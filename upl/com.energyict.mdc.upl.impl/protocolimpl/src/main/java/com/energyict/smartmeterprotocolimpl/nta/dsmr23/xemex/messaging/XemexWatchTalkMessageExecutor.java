@@ -1,11 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.TariffCalendar;
-
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -14,7 +8,15 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -24,6 +26,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging.cosem.Xem
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -34,8 +37,8 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
 
     private static final String NORESUME = "noresume";
 
-    public XemexWatchTalkMessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder tariffCalendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
-        super(protocol, tariffCalendarFinder, tariffCalendarExtractor, messageFileExtractor);
+    public XemexWatchTalkMessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder tariffCalendarFinder, TariffCalendarExtractor tariffCalendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder, NumberLookupExtractor numberLookupExtractor, NumberLookupFinder numberLookupFinder) {
+        super(protocol, tariffCalendarFinder, tariffCalendarExtractor, messageFileExtractor, deviceMessageFileFinder, numberLookupExtractor, numberLookupFinder);
     }
 
     @Override
@@ -138,13 +141,15 @@ public class XemexWatchTalkMessageExecutor extends Dsmr23MessageExecutor {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (uf == null) {
+
+        Optional<DeviceMessageFile> deviceMessageFile = getMessageFileFinder().from(userFileID);
+
+        if (!deviceMessageFile.isPresent()) {
             String str = "Not a valid entry for the userfileID " + userFileID;
             throw new IOException(str);
         }
 
-        byte[] imageData = uf.loadFileInByteArray();
+        byte[] imageData = getMessageFileExtractor().binaryContents(deviceMessageFile.get());
         XemexWatchTalkImageTransfer it = new XemexWatchTalkImageTransfer(getCosemObjectFactory().getProtocolLink());
         it.setBooleanValue(getBooleanValue());
         it.setUsePollingInit(true);    //Poll image transfer status during init

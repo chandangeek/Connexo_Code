@@ -1,15 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -33,22 +35,29 @@ import java.util.logging.Level;
 
 /**
  * Protocol class for teh Xemex WatchTalk NTA 2.1 device
+ *
  * @author sva
  * @since 18/03/14 - 15:55
  */
 public class WatchTalk extends AbstractSmartNtaProtocol {
 
-    private Dsmr40LoadProfileBuilder loadProfileBuilder;
-    private Dsmr23Messaging messageProtocol;
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final NumberLookupFinder numberLookupFinder;
+    private final NumberLookupExtractor numberLookupExtractor;
+    private Dsmr40LoadProfileBuilder loadProfileBuilder;
+    private Dsmr23Messaging messageProtocol;
 
-    public WatchTalk(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
+    public WatchTalk(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService);
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.numberLookupFinder = numberLookupFinder;
+        this.numberLookupExtractor = numberLookupExtractor;
     }
 
     @Override
@@ -98,7 +107,7 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new XemexWatchTalkMessaging(new XemexWatchTalkMessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileExtractor));
+            messageProtocol = new XemexWatchTalkMessaging(new XemexWatchTalkMessageExecutor(this, this.calendarFinder, this.calendarExtractor, this.messageFileExtractor, deviceMessageFileFinder, numberLookupExtractor, numberLookupFinder));
         }
         return messageProtocol;
     }
@@ -127,7 +136,7 @@ public class WatchTalk extends AbstractSmartNtaProtocol {
     /**
      * Convert a given date to an {@link com.energyict.dlms.axrdencoding.util.AXDRDateTime} object
      *
-     * @param time  the {@link java.util.Date} to convert
+     * @param time the {@link java.util.Date} to convert
      * @return the AXDRDateTime of the given time
      */
     private AXDRDateTime convertDateToGMTDateTime(Date time) {

@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -118,17 +117,13 @@ class RegisterFactory  extends AbstractRegisterFactory {
 
         getParserFactory().addParser(Type.REAL_NUMBER.toString(), 
         new Parser() {
-            public Object val(int[] values, AbstractRegister register) {
+            public Object val(int[] values, AbstractRegister register) throws IOException {
             
                 dbg( "Parser.val( " + Type.REAL_NUMBER + " )" );
                 
-                try {
                     BigDecimal bd = toBigDecimal(Type.REAL_NUMBER, values);
                     Quantity q = scale( new Quantity( bd, register.getUnit() ) );
                     return new RegisterValue( register.getObisCode(), q );
-                } catch( IOException ioe ){
-                    throw new ApplicationException(ioe);
-                }
             }
         });
 

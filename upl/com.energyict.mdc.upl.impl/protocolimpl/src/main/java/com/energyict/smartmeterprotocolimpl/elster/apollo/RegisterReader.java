@@ -1,8 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.mdc.upl.UnsupportedException;
-
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -20,6 +17,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.PrivacyEnhancingDataAggregation;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
@@ -80,7 +78,7 @@ public class RegisterReader {
                     Quantity quantity;
                     try {
                         quantity = new Quantity(value.getValue(), scalerUnit.getEisUnit());
-                    } catch (ApplicationException e) {  // The BasUnit code is not found (not yet present)
+                    } catch (IllegalArgumentException e) {  // The BasUnit code is not found (not yet present)
                         quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
                     }
                     registerValue = new RegisterValue(register, quantity);

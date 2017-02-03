@@ -1,25 +1,5 @@
 package com.energyict.protocolimpl.dlms.Z3;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
-import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageElement;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -45,7 +25,25 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdw.core.Device;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -119,7 +117,6 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private AARQ aarq;
     private Logger logger;
     private Clock clock;
-    private Device rtu;
     private TimeZone timeZone;
 
     public DLMSZ3Messaging(PropertySpecService propertySpecService) {
@@ -155,10 +152,6 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 
     public void log(Level level, String tekst) {
         this.logger.log(level, tekst);
-    }
-
-    public Device getMeter() {
-        return this.rtu;
     }
 
     @Override
@@ -287,69 +280,59 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
                     byte[] data = new byte[]{axdrType.getTag(), (byte) Integer.parseInt(dataStr)};
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(data);
                 }
-                ;
                 break;
 
                 case INTEGER: {
                     Integer8 integer = new Integer8(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case LONG: {
                     Integer16 integer = new Integer16(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case DOUBLE_LONG: {
                     Integer32 integer = new Integer32(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case LONG64: {
                     Integer64 integer = new Integer64(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case LONG_UNSIGNED: {
                     Unsigned16 integer = new Unsigned16(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case UNSIGNED: {
                     Unsigned8 integer = new Unsigned8(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case DOUBLE_LONG_UNSIGNED: {
                     Unsigned32 integer = new Unsigned32(Integer.parseInt(dataStr));
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(integer.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case OCTET_STRING: {
                     OctetString octString = OctetString.fromString(dataStr);
                     getCosemObjectFactory().getGenericWrite(ObisCode.fromString(name), 2).write(octString.getBEREncodedByteArray());
                 }
-                ;
                 break;
 
                 case TIME: {
 
                 }
-                ;
                 break;
 
             }

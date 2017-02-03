@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.iec1107.vdew;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -93,18 +94,12 @@ public class TestClass {
         Date testdate;
         if (timeZone.inDaylightTime(date)) {
             testdate = new Date(date.getTime()+3600000);
-            if (timeZone.inDaylightTime(testdate))
-                return false;
-            else
-                return true;
+            return !timeZone.inDaylightTime(testdate);
         }
         else
             testdate = new Date(date.getTime()-3600000);
 
-        if (timeZone.inDaylightTime(testdate))  
-            return true;
-        else
-            return false;
+        return timeZone.inDaylightTime(testdate);
     }
     
     protected Date validateLastReading(Date lastReading, TimeZone timeZone) {

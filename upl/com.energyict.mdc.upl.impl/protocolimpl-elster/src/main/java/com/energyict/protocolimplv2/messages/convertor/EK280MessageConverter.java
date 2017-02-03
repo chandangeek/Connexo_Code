@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
@@ -13,8 +15,6 @@ import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
-import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -52,12 +52,14 @@ public class EK280MessageConverter extends AbstractMessageConverter {
     private final TariffCalendarExtractor calendarExtractor;
     private final TariffCalendarFinder calendarFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
 
-    public EK280MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+    public EK280MessageConverter(Messaging messagingProtocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder) {
         super(messagingProtocol, propertySpecService, nlsService, converter);
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
     }
 
     @Override
@@ -75,21 +77,21 @@ public class EK280MessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(ConfigurationChangeDeviceMessage.WriteNewPDRNumber), new MultipleAttributeMessageEntry("WritePDR", "PdrToWrite"))
                 .put(messageSpec(ConfigurationChangeDeviceMessage.ConfigureAllGasParameters),
                         new MultipleAttributeMessageEntry(
-                            "WriteGasParameters",
-                            "GasDensity",
-                            "RelativeDensity",
-                            "N2_Percentage",
-                            "CO2_Percentage",
-                            "CO_Percentage",
-                            "H2_Percentage",
-                            "Methane_Percentage",
-                            "CalorificValue"))
+                                "WriteGasParameters",
+                                "GasDensity",
+                                "RelativeDensity",
+                                "N2_Percentage",
+                                "CO2_Percentage",
+                                "CO_Percentage",
+                                "H2_Percentage",
+                                "Methane_Percentage",
+                                "CalorificValue"))
                 .put(messageSpec(ConfigurationChangeDeviceMessage.ChangeMeterLocation), new MultipleAttributeMessageEntry("MeterLocation", "Location"))
                 .put(messageSpec(ConfigurationChangeDeviceMessage.ConfigureGasMeterMasterData), new MultipleAttributeMessageEntry("WriteMeterMasterData", "MeterType", "MeterCaliber", "MeterSerial"))
 
                 // Activity calendar
                 .put(messageSpec(ActivityCalendarDeviceMessage.CLEAR_AND_DISABLE_PASSIVE_TARIFF), new OneTagMessageEntry("ClearPassiveTariff"))
-                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE), new EK280ActivityCalendarMessageEntry(calendarFinder, calendarExtractor))
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE), new EK280ActivityCalendarMessageEntry(calendarFinder, calendarExtractor, messageFileExtractor, deviceMessageFileFinder))
 
                 // Security messages
                 .put(messageSpec(SecurityMessage.CHANGE_SECURITY_KEYS), new MultipleAttributeMessageEntry("ChangeKeys", "ClientId", "WrapperKey", "NewAuthenticationKey", "NewEncryptionKey"))

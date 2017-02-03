@@ -1,11 +1,10 @@
 package com.energyict.protocolimpl.generic.messages;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -889,12 +888,8 @@ public class MessageHandler extends DefaultHandler {
         this.restoreHanParametersUserFileID = attrbs.getValue(RtuMessageConstant.RESTORE_ZIGBEE_PARAMETERS_USERFILE_ID);
     }
 
-    public int getRestoreHanParametersUserFileId() {
-        try {
-            return Integer.valueOf(this.restoreHanParametersUserFileID);
-        } catch (NumberFormatException e) {
-            return -1;
-        }
+    public String getRestoreHanParametersUserFileId() {
+        return this.restoreHanParametersUserFileID;
     }
 
     private String updateHanLinkKeyZigBeeIEEEAddress = "";
@@ -916,12 +911,8 @@ public class MessageHandler extends DefaultHandler {
         }
     }
 
-    public int getZigbeeNCPFirmwareUpgradeUserFileId() {
-        try {
-            return Integer.valueOf(this.zigbeeNCPFirmwareUpgradeUserFileID);
-        } catch (NumberFormatException e) {
-            return -1;
-        }
+    public String getZigbeeNCPFirmwareUpgradeUserFileId() {
+        return zigbeeNCPFirmwareUpgradeUserFileID;
     }
 
     private String changeHanSasExtendedPanId = "";

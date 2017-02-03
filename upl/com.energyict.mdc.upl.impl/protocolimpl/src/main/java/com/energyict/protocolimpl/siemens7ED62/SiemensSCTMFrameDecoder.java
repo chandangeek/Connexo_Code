@@ -6,10 +6,9 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 
 /**

@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *

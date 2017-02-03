@@ -6,9 +6,12 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import java.util.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.cbo.TimeZoneManager;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -85,7 +88,7 @@ public class EventLogRead  extends AbstractDataReadingCommand {
            retrieve("ELR","1,1,0");
         }
         catch(ProtocolConnectionException e) {
-            if (e.getProtocolErrorCode().compareTo(getDataReadingCommandFactory().getEnermet().COMMAND_CANNOT_BE_EXECUTED) != 0)
+            if (e.getProtocolErrorCode().compareTo(EnermetBase.COMMAND_CANNOT_BE_EXECUTED) != 0)
                 throw e;
            // if error ([4]) returned, means eventlog is empty! so, absorb
         }
@@ -102,7 +105,7 @@ public class EventLogRead  extends AbstractDataReadingCommand {
            retrieve("ELR",NR_OF_LOG_ENTRIES+",3,"+seqNr);
         }
         catch(ProtocolConnectionException e) {
-            if (e.getProtocolErrorCode().compareTo(getDataReadingCommandFactory().getEnermet().COMMAND_CANNOT_BE_EXECUTED) != 0)
+            if (e.getProtocolErrorCode().compareTo(EnermetBase.COMMAND_CANNOT_BE_EXECUTED) != 0)
                 throw e;
            // if error ([4]) returned, means eventlog is empty! so, absorb
         }

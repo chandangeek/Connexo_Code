@@ -10,11 +10,10 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -32,7 +31,7 @@ public class IntervalRecord {
         for (int i=0;i< nrOfChannels;i++) {
             int value;
             if ((nibbleOffset%2)==0) {
-                value = (int)ProtocolUtils.getNibble(data,nibbleOffset+2)<<8;
+                value = (int) ProtocolUtils.getNibble(data,nibbleOffset+2)<<8;
                 value |= (int)ProtocolUtils.getNibble(data,nibbleOffset)<<4;
                 value |= (int)ProtocolUtils.getNibble(data,nibbleOffset+1);
                 

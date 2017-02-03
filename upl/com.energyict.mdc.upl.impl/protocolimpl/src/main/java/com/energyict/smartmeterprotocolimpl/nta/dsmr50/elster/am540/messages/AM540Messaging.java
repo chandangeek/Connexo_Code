@@ -7,9 +7,10 @@ import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.dlms.g3.messaging.G3Messaging;
 import com.energyict.protocolimpl.dlms.g3.messaging.messages.PlcOfdmMacSetupMessages;
@@ -25,7 +26,7 @@ import java.util.List;
 
 /**
  * Copyrights EnergyICT
- * <p/>
+ * <p>
  * This class is a combination of the G3 PLC message functionality (using the annotated framework) and the
  * DSMR4.0 messages (using the old XML framework).
  *
@@ -75,17 +76,21 @@ public class AM540Messaging extends G3Messaging {
     protected final AM540 protocol;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final NumberLookupFinder numberLookupFinder;
+    private final NumberLookupExtractor numberLookupExtractor;
     private Dsmr40Messaging dsmr40Messaging;
 
-    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
-        this(protocol, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, ANNOTATED_MESSAGES);
+    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        this(protocol, calendarFinder, calendarExtractor, messageFileFinder, messageFileExtractor, numberLookupFinder, numberLookupExtractor, ANNOTATED_MESSAGES);
     }
 
-    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, Class<? extends AnnotatedMessage>[] messages) {
+    public AM540Messaging(AM540 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor, Class<? extends AnnotatedMessage>[] messages) {
         super(protocol.getDlmsSession(), calendarFinder, extractor, messages);
         this.protocol = protocol;
         this.messageFileFinder = messageFileFinder;
         this.messageFileExtractor = messageFileExtractor;
+        this.numberLookupFinder = numberLookupFinder;
+        this.numberLookupExtractor = numberLookupExtractor;
     }
 
     public DeviceMessageFileFinder getMessageFileFinder() {
@@ -94,6 +99,14 @@ public class AM540Messaging extends G3Messaging {
 
     public DeviceMessageFileExtractor getMessageFileExtractor() {
         return messageFileExtractor;
+    }
+
+    public NumberLookupExtractor getNumberLookupExtractor() {
+        return numberLookupExtractor;
+    }
+
+    public NumberLookupFinder getNumberLookupFinder() {
+        return numberLookupFinder;
     }
 
     @Override
@@ -166,7 +179,7 @@ public class AM540Messaging extends G3Messaging {
     }
 
     protected Dsmr50MessageExecutor getMessageExecutor() {
-        return new Dsmr50MessageExecutor(protocol, this.getCalendarFinder(), this.getCalendarExtractor(), this.messageFileFinder, this.messageFileExtractor);
+        return new Dsmr50MessageExecutor(protocol, this.getCalendarFinder(), this.getCalendarExtractor(), this.messageFileFinder, this.messageFileExtractor, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override

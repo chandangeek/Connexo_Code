@@ -10,13 +10,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import com.energyict.protocolimpl.base.ToStringBuilder;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *

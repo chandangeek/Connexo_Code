@@ -1,15 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -26,13 +27,12 @@ import java.util.logging.Level;
  */
 public class XemexMessageExecutor extends Dsmr40MessageExecutor {
 
-    public static String ENABLE_DST = "EnableDST";
-
     private static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
+    public static String ENABLE_DST = "EnableDST";
     private final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
 
-    public XemexMessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
-        super(protocol, calendarFinder, extractor, messageFileFinder, messageFileExtractor);
+    public XemexMessageExecutor(AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(protocol, calendarFinder, extractor, messageFileFinder, messageFileExtractor, numberLookupExtractor, numberLookupFinder);
     }
 
     @Override

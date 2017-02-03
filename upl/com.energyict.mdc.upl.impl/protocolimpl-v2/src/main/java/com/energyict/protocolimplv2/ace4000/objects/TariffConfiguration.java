@@ -1,12 +1,20 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
-import com.energyict.protocolimplv2.common.objectserialization.codetable.objects.*;
+import com.energyict.protocolimplv2.common.objectserialization.codetable.objects.CodeCalendarObject;
+import com.energyict.protocolimplv2.common.objectserialization.codetable.objects.CodeDayTypeDefObject;
+import com.energyict.protocolimplv2.common.objectserialization.codetable.objects.CodeDayTypeObject;
+import com.energyict.protocolimplv2.common.objectserialization.codetable.objects.CodeObject;
+import com.energyict.protocolimplv2.common.objectserialization.codetable.objects.SeasonObject;
+import com.energyict.protocolimplv2.common.objectserialization.codetable.objects.SeasonTransitionObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -16,7 +24,9 @@ import java.util.*;
 public class TariffConfiguration extends AbstractActarisObject {
 
     private CodeObject codeTable = null;
-
+    private int tariffNumber;
+    private int numberOfRates;
+    private List<CodeCalendarObject> seasonCodeCalendars = new ArrayList<>();
     public TariffConfiguration(ObjectFactory of) {
         super(of);
     }
@@ -24,10 +34,6 @@ public class TariffConfiguration extends AbstractActarisObject {
     public void setCodeTable(CodeObject codeTable) {
         this.codeTable = codeTable;
     }
-
-    private int tariffNumber;
-    private int numberOfRates;
-    private List<CodeCalendarObject> seasonCodeCalendars = new ArrayList<>();
 
     public void setNumberOfRates(int numberOfRates) {
         this.numberOfRates = numberOfRates;
@@ -45,19 +51,19 @@ public class TariffConfiguration extends AbstractActarisObject {
     private List<String> getSwitchingTimes() {
         String failMsg = "Cannot configure codetable settings, invalid arguments";
         if (codeTable == null) {
-            throw new ApplicationException(failMsg);
+            throw new IllegalArgumentException(failMsg);
         }
 
         List<String> switchingTimes = new ArrayList<String>();
         if (codeTable.getDayTypes().size() > 16) {
-            throw new ApplicationException(failMsg);
+            throw new IllegalArgumentException(failMsg);
         }
 
 
         String switchingTime;
         for (CodeDayTypeObject dayType : codeTable.getDayTypes()) {
             if (dayType.getDayTypeDefs().size() > 8) {
-                throw new ApplicationException(failMsg);
+                throw new IllegalArgumentException(failMsg);
             }
             switchingTime = "";
             for (CodeDayTypeDefObject dayTypeDefinition : dayType.getDayTypeDefs()) {
@@ -70,7 +76,7 @@ public class TariffConfiguration extends AbstractActarisObject {
                 switchingTime += pad(Integer.toString(minute, 16), 2);
                 int codeValue = dayTypeDefinition.getCodeValue();
                 if (codeValue > numberOfRates) {
-                    throw new ApplicationException(failMsg);
+                    throw new IllegalArgumentException(failMsg);
                 }
                 switchingTime += "0" + String.valueOf(codeValue);
             }
@@ -86,7 +92,7 @@ public class TariffConfiguration extends AbstractActarisObject {
         Calendar cal = Calendar.getInstance();
         List<String> seasonStrings = new ArrayList<String>();
         if (seasons.size() > 4 || seasons.size() < 1) {
-            throw new ApplicationException(failMsg);
+            throw new IllegalArgumentException(failMsg);
         }
 
         for (SeasonObject season : seasons) {
@@ -109,7 +115,7 @@ public class TariffConfiguration extends AbstractActarisObject {
                                         try {
                                             defaultCode = Integer.parseInt(codeCalendar.getDayTypeName()) - 1;
                                         } catch (NumberFormatException e) {
-                                            throw new ApplicationException(failMsg);
+                                            throw new IllegalArgumentException(failMsg);
                                         }
                                         if (!seasonCodeCalendars.contains(codeCalendar)) {
                                             seasonCodeCalendars.add(codeCalendar);
@@ -119,7 +125,7 @@ public class TariffConfiguration extends AbstractActarisObject {
                                         try {
                                             dayProfileIds.put(codeCalendar.getDayOfWeek(), Integer.parseInt(codeCalendar.getDayTypeName()) - 1);
                                         } catch (NumberFormatException e) {
-                                            throw new ApplicationException(failMsg);
+                                            throw new IllegalArgumentException(failMsg);
                                         }
                                         if (!seasonCodeCalendars.contains(codeCalendar)) {
                                             seasonCodeCalendars.add(codeCalendar);
@@ -141,7 +147,7 @@ public class TariffConfiguration extends AbstractActarisObject {
                             if (defaultCode != -1) {
                                 weekProfile = String.valueOf(defaultCode) + weekProfile;
                             } else {
-                                throw new ApplicationException(failMsg);
+                                throw new IllegalArgumentException(failMsg);
                             }
                         }
                     }
@@ -157,7 +163,7 @@ public class TariffConfiguration extends AbstractActarisObject {
     private List<String> getSpecialDays() {
         String failMsg = "Cannot configure codetable settings, invalid arguments";
         if (codeTable.getCalendars().size() - seasonCodeCalendars.size() > 36) {
-            throw new ApplicationException(failMsg);
+            throw new IllegalArgumentException(failMsg);
         }
         List<String> specialDays = new ArrayList<String>();
 
@@ -182,7 +188,7 @@ public class TariffConfiguration extends AbstractActarisObject {
                 try {
                     dayRate = Integer.parseInt(codeCalendar.getDayTypeName()) - 1;
                 } catch (NumberFormatException e) {
-                    throw new ApplicationException(failMsg);
+                    throw new IllegalArgumentException(failMsg);
                 }
 
                 specialDays.add(pad(Integer.toString(year, 16), 2) + pad(Integer.toString(month, 16), 2) + pad(Integer.toString(dayOfMonth, 16), 2) + Integer.toString(dayOfWeek, 16) + Integer.toString(dayRate, 16));

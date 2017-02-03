@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand;
 
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.coronis.amco.rtm.RTM;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.GenericHeader;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.OperatingMode;
@@ -157,7 +156,7 @@ public abstract class AbstractRadioCommand {
                     try {
                         baos.close();
                     } catch (IOException e) {
-                        getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                        getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                     }
                 }
             }
@@ -183,7 +182,7 @@ public abstract class AbstractRadioCommand {
                 try {
                     baos.close();
                 } catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -216,7 +215,7 @@ public abstract class AbstractRadioCommand {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    getRTM().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getRTM().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }

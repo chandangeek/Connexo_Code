@@ -6,16 +6,16 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.math.BigDecimal;
+import com.energyict.cbo.Quantity;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
-import com.energyict.dialer.connection.ConnectionException;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 /**
  *
  * @author  Koen
@@ -47,13 +47,13 @@ public class AllMaximumDemand extends AbstractCommand {
         return strBuff.toString();
     }
     
-    public void build() throws ConnectionException, IOException {
+    public void build() throws IOException {
         // retrieve profileStatus
         parseMaximumDemandTimestamp(ez7CommandFactory.getEz7().getEz7Connection().sendCommand(MAXDEMANDTIMESTAMPCOMMAND));
         parseMaximumDemand(ez7CommandFactory.getEz7().getEz7Connection().sendCommand(MAXDEMANDCOMMAND));
     }
 
-    private void parseMaximumDemand(byte[] data) throws ConnectionException, IOException {
+    private void parseMaximumDemand(byte[] data) throws IOException {
         if (DEBUG>=1) 
            System.out.println(new String(data)); 
         

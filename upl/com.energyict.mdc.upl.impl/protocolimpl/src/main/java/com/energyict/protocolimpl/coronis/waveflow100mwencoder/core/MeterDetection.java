@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public class MeterDetection extends AbstractRadioCommand {
 
@@ -29,7 +31,7 @@ public class MeterDetection extends AbstractRadioCommand {
 					dais.close();
 				}
 				catch(IOException e) {
-					getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getWaveFlow100mW().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}		

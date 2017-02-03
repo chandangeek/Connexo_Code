@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.itron.quantum1000.minidlms;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -43,7 +44,7 @@ abstract public class AbstractCommand {
         if (((int)data[0]&0xff) == AbstractCommandResponse.getREAD_RESPONSE()) {
             if ((data.length >=4) && ((data[2] == 0)&(data[3] == 0x0b))) {
                 
-if (DEBUG>=1) System.out.println("ReadReply "+ProtocolUtils.outputHexString(data)); 
+if (DEBUG>=1) System.out.println("ReadReply "+ ProtocolUtils.outputHexString(data));
         
                 setResponse(new ReadReply());
                 getResponse().parse(data);

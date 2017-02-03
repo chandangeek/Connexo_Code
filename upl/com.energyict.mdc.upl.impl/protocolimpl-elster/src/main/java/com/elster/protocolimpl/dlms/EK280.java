@@ -1,12 +1,5 @@
 package com.elster.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.messaging.DlmsMessageExecutor;
@@ -16,6 +9,14 @@ import com.elster.protocolimpl.dlms.registers.DlmsSimpleRegisterDefinition;
 import com.elster.protocolimpl.dlms.registers.HistoricalObisCode;
 import com.elster.protocolimpl.dlms.registers.IReadableRegister;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.ArrayList;
@@ -220,8 +221,8 @@ public class EK280 extends Dlms {
 
     private IReadableRegister[] readableRegisters;
 
-    public EK280(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService) {
-        super(calendarFinder, calendarExtractor, propertySpecService);
+    public EK280(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(calendarFinder, calendarExtractor, propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
         ocIntervalProfile = Ek280Defs.LOAD_PROFILE_60;
         ocLogProfile = Ek280Defs.EVENT_LOG;
 

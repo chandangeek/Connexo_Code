@@ -10,8 +10,8 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.protocol.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**
  *

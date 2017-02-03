@@ -1,11 +1,10 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-
-import com.energyict.cim.EndDeviceEventTypeMapping;
-import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
@@ -30,20 +29,20 @@ public class EventPOFrame extends AbstractInboundFrame {
     private static final String EVENT_TAG = "event";
     private final CollectedDataFactory collectedDataFactory;
 
-    @Override
-    protected FrameType getType() {
-        return FrameType.EVENTP0;
-    }
-
     public EventPOFrame(String frame, CallHomeIdPlaceHolder callHomeIdPlaceHolder, CollectedDataFactory collectedDataFactory) {
         super(frame, callHomeIdPlaceHolder);
         this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
+    protected FrameType getType() {
+        return FrameType.EVENTP0;
+    }
+
+    @Override
     public void doParse() {
         List<MeterProtocolEvent> meterEvents = new ArrayList<>();
-        LogBookIdentifier logBookIdentifier = new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifierByDialHomeIdPlaceHolder(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE);
+        LogBookIdentifier logBookIdentifier = new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifierByDialHomeIdPlaceHolder(), LogBook.GENERIC_LOGBOOK_TYPE_OBISCODE);
 
         for (String parameter : this.getParameters()) {
             if (parameter.contains(EVENT_TAG)) {

@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.Date;
 
 
 /**
@@ -221,7 +221,7 @@ public class PreviousSeasonTOUDataRXCommand extends AbstractCommand {
         }
         setTotalKMHInPulsesAtLastDemandReset(ParseUtils.getBCD2LongLE(data, offset, 6)); offset+=6;
         setTimestampOfMaximumKMAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;
-        setMaximumKMInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2; 
+        setMaximumKMInPulsesAtLastDemandReset(ProtocolUtils.getIntLE(data, offset, 2)); offset+=2;
 
         setAveragePowerFactorAtLastDemandReset((int)ParseUtils.getBCD2LongLE(data, offset, 2)); offset+=2; 
         setTimestampOfWorstPowerFactorAtLastDemandReset(Utils.getTimestampwwhhddYYDDMM(data, offset, getCommandFactory().getS4().getTimeZone())); offset+=6;

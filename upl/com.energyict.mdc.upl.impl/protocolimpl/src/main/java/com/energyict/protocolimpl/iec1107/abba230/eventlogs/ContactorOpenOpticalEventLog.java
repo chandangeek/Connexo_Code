@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba230.eventlogs;
 
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
 import java.io.IOException;
 import java.util.TimeZone;
-
-import com.energyict.protocol.*;
 
 public class ContactorOpenOpticalEventLog extends AbstractEventLog {
 

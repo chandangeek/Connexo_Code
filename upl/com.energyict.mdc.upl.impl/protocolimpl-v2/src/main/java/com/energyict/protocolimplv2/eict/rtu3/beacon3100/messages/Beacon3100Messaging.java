@@ -1,36 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.upl.DeviceGroupExtractor;
-import com.energyict.mdc.upl.DeviceMasterDataExtractor;
-import com.energyict.mdc.upl.ObjectMapperService;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessage;
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.cbo.ApplicationException;
+import com.energyict.ObjectMapperFactory;
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.CertificateAlias;
-import com.energyict.cbo.Password;
 import com.energyict.cbo.Quantity;
-import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.BusinessObject;
-import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -55,16 +28,42 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
+import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.keyagreement.KeyAgreementImpl;
 import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
-import com.energyict.mdw.core.CertificateWrapper;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.ECCCurve;
-import com.energyict.mdw.core.Group;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.Password;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exceptions.CodingException;
@@ -110,7 +109,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
@@ -120,6 +118,7 @@ import java.security.PublicKey;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -128,7 +127,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -180,23 +178,24 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
-
+    /**
+     * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
+     */
+    private static final Lock FIRMWARE_FILE_LOCK = new ReentrantLock();
     private final ObjectMapperService objectMapperService;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
     private final DeviceMasterDataExtractor deviceMasterDataExtractor;
     private final DeviceGroupExtractor deviceGroupExtractor;
-
-    /**
-     * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
-     */
-    private static final Lock FIRMWARE_FILE_LOCK = new ReentrantLock();
-
+    private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final DeviceExtractor deviceExtractor;
+    private final CertificateAliasFinder certificateAliasFinder;
+    private final CertificateWrapperExtractor certificateWrapperExtractor;
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
-    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor) {
+    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor, DeviceExtractor deviceExtractor, CertificateAliasFinder certificateAliasFinder, CertificateWrapperExtractor certificateWrapperExtractor) {
         super(protocol, collectedDataFactory, issueFactory);
         this.objectMapperService = objectMapperService;
         this.propertySpecService = propertySpecService;
@@ -204,120 +203,124 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         this.converter = converter;
         this.deviceMasterDataExtractor = deviceMasterDataExtractor;
         this.deviceGroupExtractor = deviceGroupExtractor;
+        this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.deviceExtractor = deviceExtractor;
+        this.certificateAliasFinder = certificateAliasFinder;
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
-        NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter),
 
-        DeviceActionMessage.SyncMasterdataForDC.get(this.propertySpecService, this.nlsService, this.converter),
-        DeviceActionMessage.SyncDeviceDataForDC.get(this.propertySpecService, this.nlsService, this.converter),
-        DeviceActionMessage.PauseDCScheduler.get(this.propertySpecService, this.nlsService, this.converter),
-        DeviceActionMessage.ResumeDCScheduler.get(this.propertySpecService, this.nlsService, this.converter),
-        DeviceActionMessage.SyncOneConfigurationForDC.get(this.propertySpecService, this.nlsService, this.converter),
-        DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.SyncMasterdataForDC.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.SyncDeviceDataForDC.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.PauseDCScheduler.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.ResumeDCScheduler.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.SyncOneConfigurationForDC.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL.get(this.propertySpecService, this.nlsService, this.converter),
 
-        PLCConfigurationDeviceMessage.PingMeter.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.PingMeter.get(this.propertySpecService, this.nlsService, this.converter),
 
-        // FirmwareDeviceMessage.BroadcastFirmwareUpgrade.get(this.propertySpecService, this.nlsService, this.converter),
-        FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
-        FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade.get(this.propertySpecService, this.nlsService, this.converter),
-        FirmwareDeviceMessage.ReadMulticastProgress.get(this.propertySpecService, this.nlsService, this.converter),
-        FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR.get(this.propertySpecService, this.nlsService, this.converter),
-        FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
-        FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
+                // FirmwareDeviceMessage.BroadcastFirmwareUpgrade.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.DataConcentratorMulticastFirmwareUpgrade.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.ReadMulticastProgress.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.TRANSFER_SLAVE_FIRMWARE_FILE_TO_DATA_CONCENTRATOR.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
+                FirmwareDeviceMessage.START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.get(this.propertySpecService, this.nlsService, this.converter),
 
-        SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.AGREE_NEW_ENCRYPTION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.CHANGE_SECURITY_SUITE.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.CHANGE_HLS_SECRET_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.EXPORT_SUB_CA_CERTIFICATES.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.IMPORT_CA_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.DELETE_CERTIFICATE_BY_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.GENERATE_KEY_PAIR.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.GENERATE_CSR.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.ACTIVATE_DLMS_SECURITY_VERSION1.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.AGREE_NEW_ENCRYPTION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_SECURITY_SUITE.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_HLS_SECRET_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.EXPORT_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.EXPORT_SUB_CA_CERTIFICATES.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.EXPORT_ROOT_CA_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.IMPORT_CA_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.IMPORT_END_DEVICE_CERTIFICATE.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.DELETE_CERTIFICATE_BY_SERIAL_NUMBER.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.DELETE_CERTIFICATE_BY_TYPE.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.GENERATE_KEY_PAIR.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.GENERATE_CSR.get(this.propertySpecService, this.nlsService, this.converter),
 
-        UplinkConfigurationDeviceMessage.EnableUplinkPing.get(this.propertySpecService, this.nlsService, this.converter),
-        UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress.get(this.propertySpecService, this.nlsService, this.converter),
-        UplinkConfigurationDeviceMessage.WriteUplinkPingInterval.get(this.propertySpecService, this.nlsService, this.converter),
-        UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout.get(this.propertySpecService, this.nlsService, this.converter),
-        // PPPConfigurationDeviceMessage.SetPPPIdleTime.get(this.propertySpecService, this.nlsService, this.converter),
-        // NetworkConnectivityMessage.PreferGPRSUpstreamCommunication.get(this.propertySpecService, this.nlsService, this.converter),
-        NetworkConnectivityMessage.EnableModemWatchdog.get(this.propertySpecService, this.nlsService, this.converter),
-        NetworkConnectivityMessage.SetModemWatchdogParameters2.get(this.propertySpecService, this.nlsService, this.converter),
-        NetworkConnectivityMessage.SetPrimaryDNSAddress.get(this.propertySpecService, this.nlsService, this.converter),
-        NetworkConnectivityMessage.SetSecondaryDNSAddress.get(this.propertySpecService, this.nlsService, this.converter),
-        NetworkConnectivityMessage.EnableNetworkInterfaces.get(this.propertySpecService, this.nlsService, this.converter),
-        NetworkConnectivityMessage.SetHttpPort.get(this.propertySpecService, this.nlsService, this.converter),
-        NetworkConnectivityMessage.SetHttpsPort.get(this.propertySpecService, this.nlsService, this.converter),
-        ConfigurationChangeDeviceMessage.EnableGzipCompression.get(this.propertySpecService, this.nlsService, this.converter),
-        ConfigurationChangeDeviceMessage.EnableSSL.get(this.propertySpecService, this.nlsService, this.converter),
-        ConfigurationChangeDeviceMessage.SetAuthenticationMechanism.get(this.propertySpecService, this.nlsService, this.converter),
-        ConfigurationChangeDeviceMessage.SetMaxLoginAttempts.get(this.propertySpecService, this.nlsService, this.converter),
-        ConfigurationChangeDeviceMessage.SetLockoutDuration.get(this.propertySpecService, this.nlsService, this.converter),
-        AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION.get(this.propertySpecService, this.nlsService, this.converter),
-        AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS.get(this.propertySpecService, this.nlsService, this.converter),
-        ConfigurationChangeDeviceMessage.SetDeviceName.get(this.propertySpecService, this.nlsService, this.converter),
-        ConfigurationChangeDeviceMessage.SetNTPAddress.get(this.propertySpecService, this.nlsService, this.converter),
-        ConfigurationChangeDeviceMessage.SyncNTPServer.get(this.propertySpecService, this.nlsService, this.converter),
-        DeviceActionMessage.RebootApplication.get(this.propertySpecService, this.nlsService, this.converter),
-        FirewallConfigurationMessage.ActivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
-        FirewallConfigurationMessage.DeactivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
-        FirewallConfigurationMessage.ConfigureFWGPRS.get(this.propertySpecService, this.nlsService, this.converter),
-        FirewallConfigurationMessage.ConfigureFWLAN.get(this.propertySpecService, this.nlsService, this.converter),
-        FirewallConfigurationMessage.ConfigureFWWAN.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2.get(this.propertySpecService, this.nlsService, this.converter),
-        SecurityMessage.CHANGE_WEBPORTAL_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetSecurityLevel.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetRoutingConfiguration.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMaxJoinWaitTime.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetPathDiscoveryTime.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMetricType.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetPanId.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetTMRTTL.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMaxFrameRetries.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetHighPriorityWindowSize.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetCSMAFairnessLimit.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMacA.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMacK.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMinimumCWAttempts.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMaxBe.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMaxCSMABackOff.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.SetMinBe.get(this.propertySpecService, this.nlsService, this.converter),
+                UplinkConfigurationDeviceMessage.EnableUplinkPing.get(this.propertySpecService, this.nlsService, this.converter),
+                UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress.get(this.propertySpecService, this.nlsService, this.converter),
+                UplinkConfigurationDeviceMessage.WriteUplinkPingInterval.get(this.propertySpecService, this.nlsService, this.converter),
+                UplinkConfigurationDeviceMessage.WriteUplinkPingTimeout.get(this.propertySpecService, this.nlsService, this.converter),
+                // PPPConfigurationDeviceMessage.SetPPPIdleTime.get(this.propertySpecService, this.nlsService, this.converter),
+                // NetworkConnectivityMessage.PreferGPRSUpstreamCommunication.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.EnableModemWatchdog.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SetModemWatchdogParameters2.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SetPrimaryDNSAddress.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SetSecondaryDNSAddress.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.EnableNetworkInterfaces.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SetHttpPort.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.SetHttpsPort.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.EnableGzipCompression.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.EnableSSL.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.SetAuthenticationMechanism.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.SetMaxLoginAttempts.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.SetLockoutDuration.get(this.propertySpecService, this.nlsService, this.converter),
+                AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION.get(this.propertySpecService, this.nlsService, this.converter),
+                AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.SetDeviceName.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.SetNTPAddress.get(this.propertySpecService, this.nlsService, this.converter),
+                ConfigurationChangeDeviceMessage.SyncNTPServer.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.RebootApplication.get(this.propertySpecService, this.nlsService, this.converter),
+                FirewallConfigurationMessage.ActivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
+                FirewallConfigurationMessage.DeactivateFirewall.get(this.propertySpecService, this.nlsService, this.converter),
+                FirewallConfigurationMessage.ConfigureFWGPRS.get(this.propertySpecService, this.nlsService, this.converter),
+                FirewallConfigurationMessage.ConfigureFWLAN.get(this.propertySpecService, this.nlsService, this.converter),
+                FirewallConfigurationMessage.ConfigureFWWAN.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_WEBPORTAL_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetSecurityLevel.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetRoutingConfiguration.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetBroadCastLogTableEntryTTLAttributeName.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMaxJoinWaitTime.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetPathDiscoveryTime.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMetricType.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetPanId.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetTMRTTL.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMaxFrameRetries.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetNeighbourTableEntryTTL.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetHighPriorityWindowSize.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetCSMAFairnessLimit.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetBeaconRandomizationWindowLength.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMacA.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMacK.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMinimumCWAttempts.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMaxBe.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMaxCSMABackOff.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMinBe.get(this.propertySpecService, this.nlsService, this.converter),
 
-        PLCConfigurationDeviceMessage.SetAutomaticRouteManagement.get(this.propertySpecService, this.nlsService, this.converter),
-        // PLCConfigurationDeviceMessage.EnableKeepAlive.get(this.propertySpecService, this.nlsService, this.converter),
-        // PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval.get(this.propertySpecService, this.nlsService, this.converter),
-        // PLCConfigurationDeviceMessage.SetKeepAliveBucketSize.get(this.propertySpecService, this.nlsService, this.converter),
-        // PLCConfigurationDeviceMessage.SetMinInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
-        // PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
-        // PLCConfigurationDeviceMessage.SetKeepAliveRetries.get(this.propertySpecService, this.nlsService, this.converter),
-        // PLCConfigurationDeviceMessage.SetKeepAliveTimeout.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.EnableG3PLCInterface.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.KickMeter.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.AddMetersToBlackList.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.RemoveMetersFromBlackList.get(this.propertySpecService, this.nlsService, this.converter),
-        PLCConfigurationDeviceMessage.PathRequestWithTimeout.get(this.propertySpecService, this.nlsService, this.converter),
-        LogBookDeviceMessage.ResetMainLogbook.get(this.propertySpecService, this.nlsService, this.converter),
-        LogBookDeviceMessage.ResetSecurityLogbook.get(this.propertySpecService, this.nlsService, this.converter),
-        LogBookDeviceMessage.ResetCoverLogbook.get(this.propertySpecService, this.nlsService, this.converter),
-        LogBookDeviceMessage.ResetCommunicationLogbook.get(this.propertySpecService, this.nlsService, this.converter),
-        LogBookDeviceMessage.ResetVoltageCutLogbook.get(this.propertySpecService, this.nlsService, this.converter));
+                PLCConfigurationDeviceMessage.SetAutomaticRouteManagement.get(this.propertySpecService, this.nlsService, this.converter),
+                // PLCConfigurationDeviceMessage.EnableKeepAlive.get(this.propertySpecService, this.nlsService, this.converter),
+                // PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval.get(this.propertySpecService, this.nlsService, this.converter),
+                // PLCConfigurationDeviceMessage.SetKeepAliveBucketSize.get(this.propertySpecService, this.nlsService, this.converter),
+                // PLCConfigurationDeviceMessage.SetMinInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
+                // PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
+                // PLCConfigurationDeviceMessage.SetKeepAliveRetries.get(this.propertySpecService, this.nlsService, this.converter),
+                // PLCConfigurationDeviceMessage.SetKeepAliveTimeout.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.EnableG3PLCInterface.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.KickMeter.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.AddMetersToBlackList.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.RemoveMetersFromBlackList.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.PathRequestWithTimeout.get(this.propertySpecService, this.nlsService, this.converter),
+                LogBookDeviceMessage.ResetMainLogbook.get(this.propertySpecService, this.nlsService, this.converter),
+                LogBookDeviceMessage.ResetSecurityLogbook.get(this.propertySpecService, this.nlsService, this.converter),
+                LogBookDeviceMessage.ResetCoverLogbook.get(this.propertySpecService, this.nlsService, this.converter),
+                LogBookDeviceMessage.ResetCommunicationLogbook.get(this.propertySpecService, this.nlsService, this.converter),
+                LogBookDeviceMessage.ResetVoltageCutLogbook.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
@@ -334,67 +337,58 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             return serializer.serializeDeviceInfo(messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.timeout)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getMilliSeconds()); //Return value in ms
+            return String.valueOf(((Duration) messageAttribute).toMillis()); //Return value in ms
         } else if (propertySpec.getName().equals(DeviceMessageConstants.modemWatchdogInterval)
                 || propertySpec.getName().equals(DeviceMessageConstants.modemWatchdogInitialDelay)
                 || propertySpec.getName().equals(DeviceMessageConstants.PPPDaemonResetThreshold)
                 || propertySpec.getName().equals(DeviceMessageConstants.modemResetThreshold)
                 || propertySpec.getName().equals(DeviceMessageConstants.systemRebootThreshold)
                 || propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds()); //Return value in seconds
+            return String.valueOf(((Duration) messageAttribute).getSeconds()); //Return value in seconds
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
-            final UserFile userFile = (UserFile) messageAttribute;
+            final DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
             final File tempFile = this.writeToTempDirectory(userFile);
-
             return tempFile.getAbsolutePath();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceGroupAttributeName)) {
-            Group group = (Group) messageAttribute;
+            DeviceGroup group = (DeviceGroup) messageAttribute;
             StringBuilder macAddresses = new StringBuilder();
-            for (BusinessObject businessObject : group.getMembers()) {
-                if (businessObject instanceof Device) {
-                    Device device = (Device) businessObject;
-                    String callHomeId = device.getProtocolProperties().getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
-                    if (!callHomeId.isEmpty()) {
-                        if (macAddresses.length() != 0) {
-                            macAddresses.append(SEPARATOR);
-                        }
-                        macAddresses.append(callHomeId);
 
-                        //Also add the java protocol class of the device, for the TRIGGER_PRELIMINARY_PROTOCOL message only
-                        if (offlineDeviceMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
-                            macAddresses.append(SEPARATOR2).append(device.getDeviceProtocolPluggableClass().getJavaClassName());
-                        }
+            for (Device device : deviceGroupExtractor.members(group)) {
+                String callHomeId = deviceExtractor.protocolProperty(device, LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+                if (!callHomeId.isEmpty()) {
+                    if (macAddresses.length() != 0) {
+                        macAddresses.append(SEPARATOR);
                     }
-                } else {
-                    //TODO throw proper exception
+                    macAddresses.append(callHomeId);
+
+                    //Also add the java protocol class of the device, for the TRIGGER_PRELIMINARY_PROTOCOL message only
+                    if (offlineDeviceMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
+                        macAddresses.append(SEPARATOR2).append(deviceExtractor.getDeviceProtocolPluggableClass(device));
+                    }
                 }
             }
             return macAddresses.toString();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateAliasAttributeName)) {
             //Load the certificate with that alias from the EIServer DLMS trust store and encode it.
             String alias = (String) messageAttribute;
-            String certificateEncoded = new CertificateAlias(alias).getCertificateEncoded();
+            CertificateAlias certificateAlias = certificateAliasFinder.from(alias);
+            String certificateEncoded = certificateAlias.getCertificateEncoded();
             if (certificateEncoded == null || certificateEncoded.isEmpty()) {
-                throw new ApplicationException("Certificate with alias '" + alias + "' does not exist in the key store");
+                throw new IllegalArgumentException("Certificate with alias '" + alias + "' does not exist in the key store");
             }
             return certificateEncoded;
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperIdAttributeName)) {
-            //Load the certificate with that id from the CertificateWrapper table and encode it.
-            int id = ((BigDecimal) messageAttribute).intValue();
-            CertificateWrapper certificateWrapper = MeteringWarehouse.getCurrent().getCertificateWrapperFactory().findById(id);
-            if (certificateWrapper == null) {
-                throw new ApplicationException("CertificateWrapper with id '" + id + "' does not exist in the EIServer database");
-            }
-            return certificateWrapper.getBase64Certificate();
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperAttributeName)) {
+            CertificateWrapper certificateWrapper = (CertificateWrapper) messageAttribute;
+            return certificateWrapperExtractor.getBase64EncodedCertificate(certificateWrapper);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.DelayAfterLastBlock)
                 || propertySpec.getName().equals(DeviceMessageConstants.DelayPerBlock)
                 || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentFast)
                 || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentSlow)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getMilliSeconds());
+            return String.valueOf(((Duration) messageAttribute).toMillis());
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
         }
@@ -421,14 +415,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
-     * Writes the given {@link UserFile} to the temp directory.
+     * Writes the given {@link DeviceMessageFile} to the temp directory.
      *
-     * @param userFile The user file to write to the temp.
+     * @param deviceMessageFile The user file to write to the temp.
      * @return The {@link File} that was written.
      */
-    private File writeToTempDirectory(final UserFile userFile) {
+    private File writeToTempDirectory(final DeviceMessageFile deviceMessageFile) {
         final File tempDirectory = new File(System.getProperty(TEMP_DIR));
-        final String fileName = "beacon-3100-firmware-" + userFile.getId();
+        final String fileName = "beacon-3100-firmware-" + deviceMessageFileExtractor.id(deviceMessageFile);
 
         try {
             FIRMWARE_FILE_LOCK.lock();
@@ -440,7 +434,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     this.getLogger().log(Level.INFO, "Already have a file called [" + tempFile + "], checking file size.");
                 }
 
-                if (tempFile.length() != userFile.getFileSize()) {
+                if (tempFile.length() != deviceMessageFileExtractor.size(deviceMessageFile)) {
                     if (this.getLogger().isLoggable(Level.INFO)) {
                         this.getLogger().log(Level.INFO, "File size differs for file [" + tempFile + "], deleting.");
                     }
@@ -460,29 +454,28 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 }
 
                 try (final OutputStream outStream = new FileOutputStream(tempFile)) {
-                    userFile.processFileAsStream(new Consumer<InputStream>() {
-                        @Override
-                        public final void accept(final InputStream inStream) {
-                            final byte[] buffer = new byte[2048];
 
-                            try {
-                                int bytesRead = inStream.read(buffer);
+                    deviceMessageFileExtractor.processFileAsStream(deviceMessageFile, inStream -> {
+                                final byte[] buffer = new byte[2048];
 
-                                while (bytesRead != -1) {
-                                    outStream.write(buffer, 0, bytesRead);
-                                    bytesRead = inStream.read(buffer);
+                                try {
+                                    int bytesRead = inStream.read(buffer);
+
+                                    while (bytesRead != -1) {
+                                        outStream.write(buffer, 0, bytesRead);
+                                        bytesRead = inStream.read(buffer);
+                                    }
+
+                                    outStream.flush();
+                                } catch (IOException e) {
+                                    if (getLogger().isLoggable(Level.WARNING)) {
+                                        getLogger().log(Level.WARNING, "IO error while writing temporary file : [" + e.getMessage() + "]", e);
+                                    }
+
+                                    throw new IllegalStateException("IO error while writing temporary file : [" + e.getMessage() + "]", e);
                                 }
-
-                                outStream.flush();
-                            } catch (IOException e) {
-                                if (getLogger().isLoggable(Level.WARNING)) {
-                                    getLogger().log(Level.WARNING, "IO error while writing temporary file : [" + e.getMessage() + "]", e);
-                                }
-
-                                throw new IllegalStateException("IO error while writing temporary file : [" + e.getMessage() + "]", e);
                             }
-                        }
-                    });
+                    );
                 }
             }
 
@@ -531,7 +524,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList)) {
                         collectedMessage = removeMetersFromBlackList(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.BroadcastFirmwareUpgrade)) {
-                        collectedMessage = new BroadcastUpgrade(this, this.propertySpecService).broadcastFirmware(pendingMessage, collectedMessage);
+                        collectedMessage = new BroadcastUpgrade(this, this.propertySpecService, this.certificateWrapperExtractor).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                         upgradeFirmware(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES)) {
@@ -687,7 +680,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                 }   //Else: throw communication exception
-            } catch (IndexOutOfBoundsException | NumberFormatException | NullPointerException | ApplicationException e) {
+            } catch (IndexOutOfBoundsException | NullPointerException | IllegalArgumentException e) {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setDeviceProtocolInformation(e.toString());
                 collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
@@ -720,7 +713,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Delete a certain certificate from the DLMS device.
      * The certificate is identified by its serial number and issuer.
-     * <p/>
+     * <p>
      * Note that this does not remove that certificate from our own persisted key store,
      * this needs to be done manually, using the API.
      */
@@ -734,7 +727,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Delete a certain certificate from the DLMS device.
      * The certificate is identified by its entity, type and common name (system title)
-     * <p/>
+     * <p>
      * Note that this does not remove that certificate from our own persisted key store,
      * this needs to be done manually, using the API.
      */
@@ -776,11 +769,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * The Beacon recognizes the entity by the Common Name (CN) of the certificate.
      * In case of client (ComServer) certificates, this is the system title of the ComServer.
      * In case of server (Beacon) certificates, this is the system title of the Beacon device.
-     * <p/>
+     * <p>
      * The Beacon recognizes the certificate type (signing/key agreement/TLS) by the certificate extension(s)
      */
     private void importEndDeviceCertificate(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperIdAttributeName).getValue();
+        String base64EncodedCertificate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.certificateWrapperAttributeName).getValue();
         byte[] derEncodedCertificate = Base64.decodeBase64(base64EncodedCertificate);
 
         getCosemObjectFactory().getSecuritySetup().importCertificate(derEncodedCertificate);
@@ -814,8 +807,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 }
 
                 String alias = "Beacon_sub_CA_" + x509Certificate.getSerialNumber();
-                CertificateAlias certificateAlias = new CertificateAlias(alias);
-                certificateAlias.setCertificateEncoded(getEncodedCertificate(x509Certificate));
+                CertificateAlias certificateAlias = certificateAliasFinder.newFrom(alias, getEncodedCertificate(x509Certificate));
                 subCACertificateAliases.add(certificateAlias);
 
                 protocolInfo.append(alias);
@@ -865,8 +857,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 }
 
                 String alias = "Beacon_root_CA_" + x509Certificate.getSerialNumber();
-                CertificateAlias certificateAlias = new CertificateAlias(alias);
-                certificateAlias.setCertificateEncoded(getEncodedCertificate(x509Certificate));
+                CertificateAlias certificateAlias = certificateAliasFinder.newFrom(alias, getEncodedCertificate(x509Certificate));
                 rootCACertificateAliases.add(certificateAlias);
 
                 protocolInfo.append(alias);
@@ -891,7 +882,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Export a server end-device certificate of type signing/key agreement/TLS from the Beacon.
      * It will be stored as a CertificateWrapper in EIServer, and the relevant property on the device will be filled in
-     * <p/>
+     * <p>
      * Note that the different security suites each have their own certificate, based on a certain elliptical curve.
      * The Beacon returns the proper certificate for the security suite it is currently operating in.
      */
@@ -1248,7 +1239,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     /**
      * Read out the progress of the multicast FW upgrade.
      * This contains information on all AM540 slave devices that are currently being upgraded.
-     * <p/>
+     * <p>
      * Note that this information will be stored on the proper AM540 slave devices in EIServer, as register 0.3.44.0.128.255
      */
     private CollectedMessage readMulticastProgress(OfflineDeviceMessage pendingMessage) throws IOException {

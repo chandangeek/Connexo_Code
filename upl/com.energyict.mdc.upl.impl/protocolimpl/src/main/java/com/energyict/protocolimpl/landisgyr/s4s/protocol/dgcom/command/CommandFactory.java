@@ -10,10 +10,12 @@
 
 package com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.command;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.landisgyr.s4s.protocol.dgcom.S4s;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *

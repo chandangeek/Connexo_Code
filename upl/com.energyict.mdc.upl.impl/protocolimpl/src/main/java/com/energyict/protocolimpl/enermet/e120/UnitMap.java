@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.enermet.e120;
 
-import java.util.HashMap;
-
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+
+import java.util.HashMap;
 
 /**
  * Contains a map linking the id's of the meter units to Unit Objects.
@@ -73,7 +72,7 @@ class UnitMap {
     public static Unit get(int id){
         Unit unit = ((UnitMap)map.get(""+id)).getUnit(); 
         if( unit == null )
-            throw new ApplicationException("Unit: " + id + " is not supported");
+            throw new IllegalArgumentException("Unit: " + id + " is not supported");
         return unit;
     }
     

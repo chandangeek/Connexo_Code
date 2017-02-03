@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis;
 
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -75,7 +74,7 @@ public class Echodis extends WaveFlow100mW {
 		        try {
 					ciField72h.parse(WaveflowProtocolUtils.getSubArray(internalData.getEncoderInternalData(),3));
 				} catch (IOException e) {
-					getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+					getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 
 		    	registerFactories[portId] = new RegisterFactory(null);
@@ -117,7 +116,7 @@ public class Echodis extends WaveFlow100mW {
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+        return "$Date: Thu Nov 3 10:34:30 2016 +0100 $";
     }
 
 }

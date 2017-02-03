@@ -10,13 +10,12 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -51,7 +50,7 @@ public class InstantaneousRegMultipliers extends AbstractBasePage {
         int offset = 0;
         BigDecimal bd;
         
-        bd = BigDecimal.valueOf((long)ProtocolUtils.getInt(data,offset,3));
+        bd = BigDecimal.valueOf((long) ProtocolUtils.getInt(data,offset,3));
         offset+=3;
         setPowerandSquare(bd.add(BigDecimal.valueOf((long)((int)data[offset]&0xff), 2)));
         offset++;

@@ -10,13 +10,13 @@
 
 package com.energyict.protocolimpl.itron.datastar.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  *
@@ -64,14 +64,14 @@ public class RealTimeBasePage extends AbstractBasePage {
             tz = ProtocolUtils.getWinterTimeZone(tz);
         
         setCalendar(ProtocolUtils.getCleanCalendar(tz));
-        getCalendar().set(Calendar.DAY_OF_WEEK,(int)ProtocolUtils.getInt(data,0,1));
-        int year = (int)ProtocolUtils.getInt(data,1, 1);
+        getCalendar().set(Calendar.DAY_OF_WEEK, ProtocolUtils.getInt(data,0,1));
+        int year = ProtocolUtils.getInt(data,1, 1);
         getCalendar().set(Calendar.YEAR,year>50?year+1900:year+2000);
-        getCalendar().set(Calendar.MONTH,(int)ProtocolUtils.getInt(data,2, 1)-1);
-        getCalendar().set(Calendar.DAY_OF_MONTH,(int)ProtocolUtils.getInt(data,3, 1));
-        getCalendar().set(Calendar.HOUR_OF_DAY,(int)ProtocolUtils.getInt(data,4, 1));
-        getCalendar().set(Calendar.MINUTE,(int)ProtocolUtils.getInt(data,5, 1));
-        getCalendar().set(Calendar.SECOND,(int)ProtocolUtils.getInt(data,6, 1));
+        getCalendar().set(Calendar.MONTH, ProtocolUtils.getInt(data,2, 1) -1);
+        getCalendar().set(Calendar.DAY_OF_MONTH, ProtocolUtils.getInt(data,3, 1));
+        getCalendar().set(Calendar.HOUR_OF_DAY, ProtocolUtils.getInt(data,4, 1));
+        getCalendar().set(Calendar.MINUTE, ProtocolUtils.getInt(data,5, 1));
+        getCalendar().set(Calendar.SECOND, ProtocolUtils.getInt(data,6, 1));
     }
 
     public Calendar getCalendar() {

@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdc.protocol.inbound.crypto.MD5Seed;
-
 import com.energyict.protocol.exceptions.DataEncryptionException;
 
 import java.security.MessageDigest;
@@ -22,7 +20,7 @@ public final class Decryptor2 {
     private byte[] md5Key;
     private int pos;
 
-    Decryptor2(MD5Seed md5Seed) {
+    Decryptor2(StringBasedMD5Seed md5Seed) {
         this.md5Seed = md5Seed.getBytes();
         pos = 0;
         getMd5Key();
@@ -42,5 +40,4 @@ public final class Decryptor2 {
     byte decrypt(byte val) {
         return (byte) (val ^ md5Key[pos++ % BYTES_IN_KEY]);
     }
-
 }

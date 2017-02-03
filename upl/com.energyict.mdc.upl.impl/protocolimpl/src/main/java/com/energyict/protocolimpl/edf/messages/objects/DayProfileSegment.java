@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class DayProfileSegment extends ComplexCosemObject {
 	
@@ -36,13 +37,13 @@ public class DayProfileSegment extends ComplexCosemObject {
 		if (starts.getLength() != 0){
 			startTime = new OctetString(starts.item(0).getFirstChild().getNodeValue());
 		} else {
-			throw new ApplicationException("Cannot create DayProfileSegment");
+			throw new IllegalArgumentException("Cannot create DayProfileSegment");
 		}
 		NodeList scripts = element.getElementsByTagName(ACTIONNAME);
 		if (scripts.getLength() != 0){
 			action = new ActionItem((Element) scripts.item(0));
 		} else {
-			throw new ApplicationException("Cannot create DayProfileSegment");
+			throw new IllegalArgumentException("Cannot create DayProfileSegment");
 		}
 
 	}

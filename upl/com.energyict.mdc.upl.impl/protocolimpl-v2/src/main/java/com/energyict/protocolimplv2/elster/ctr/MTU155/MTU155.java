@@ -33,6 +33,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -45,8 +46,6 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
-import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
@@ -79,27 +78,26 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     private final NlsService nlsService;
     private final Converter converter;
     private final TariffCalendarExtractor calendarExtractor;
-
+    private final CollectedDataFactory collectedDataFactory;
+    private final IssueFactory issueFactory;
+    private final DeviceMessageFileExtractor messageFileExtractor;
+    private final LoadProfileExtractor loadProfileExtractor;
     /**
      * The offline rtu
      */
     private OfflineDevice offlineDevice;
-
     /**
      * Collection of all TypedProperties.
      */
     private MTU155Properties properties;
-
     /**
      * The Cache of the current RTU
      */
     private DeviceProtocolCache deviceCache;
-
     /**
      * The request factory, to be used to communicate with the MTU155
      */
     private RequestFactory requestFactory;
-
     /**
      * Legacy logger
      */
@@ -109,10 +107,6 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     private GprsObisCodeMapper obisCodeMapper;
     private LoadProfileBuilder loadProfileBuilder;
     private Messaging messaging;
-    private final CollectedDataFactory collectedDataFactory;
-    private final IssueFactory issueFactory;
-    private final DeviceMessageFileExtractor messageFileExtractor;
-    private final LoadProfileExtractor loadProfileExtractor;
 
     public MTU155(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, LoadProfileExtractor loadProfileExtractor) {
         this.collectedDataFactory = collectedDataFactory;
@@ -376,7 +370,7 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
 
         for (LogBookReader logBook : logBooks) {
             collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBook.getLogBookIdentifier());
-            if (logBook.getLogBookObisCode().equals(LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
+            if (logBook.getLogBookObisCode().equals(LogBook.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
                 try {
                     Date lastLogBookReading = logBook.getLastLogBook();
                     CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());

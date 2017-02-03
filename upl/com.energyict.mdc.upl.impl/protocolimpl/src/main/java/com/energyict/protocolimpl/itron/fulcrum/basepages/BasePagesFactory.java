@@ -10,11 +10,13 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.itron.fulcrum.Fulcrum;
+import com.energyict.protocolimpl.itron.protocol.AbstractBasePageFactory;
+import com.energyict.protocolimpl.itron.protocol.ProtocolLink;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.TimeZone;
 
 /**
  *
@@ -135,7 +137,7 @@ public class BasePagesFactory extends AbstractBasePageFactory {
     }
     
     public ProtocolLink getProtocolLink() {
-        return (ProtocolLink)getFulcrum();
+        return getFulcrum();
     }
     
 
@@ -149,7 +151,7 @@ public class BasePagesFactory extends AbstractBasePageFactory {
         RealTimeBasePage o = new RealTimeBasePage(this);
         TimeZone tz = getProtocolLink().getTimeZone();
         if (!getOperatingSetUpBasePage().isDstEnabled()) {
-            tz = ProtocolUtils.getWinterTimeZone(tz);     
+            tz = ProtocolUtils.getWinterTimeZone(tz);
         }
         
         o.setCalendar(ProtocolUtils.getCalendar(tz));

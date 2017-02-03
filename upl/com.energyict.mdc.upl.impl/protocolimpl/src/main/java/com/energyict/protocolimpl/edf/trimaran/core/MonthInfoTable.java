@@ -10,11 +10,14 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *

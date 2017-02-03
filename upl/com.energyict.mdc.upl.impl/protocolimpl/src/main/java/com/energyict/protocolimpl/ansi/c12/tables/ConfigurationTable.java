@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+
 /**
  *
  * @author Koen
@@ -89,7 +90,7 @@ public class ConfigurationTable extends AbstractTable {
         strBuff.append("dimMfgProcUsed="+getDimMfgProcUsed()+", ");
         strBuff.append("dimMfgStatusUsed="+getDimMfgStatusUsed()+", ");
         strBuff.append("nrPending="+getNrPending()+"\n");
-        strBuff.append("    stdTablesUsed="+ProtocolUtils.getResponseData(getStdTablesUsed())+", "+listBitsUsed(getStdTablesUsed())+"\n"); 
+        strBuff.append("    stdTablesUsed="+ ProtocolUtils.getResponseData(getStdTablesUsed())+", "+listBitsUsed(getStdTablesUsed())+"\n");
         strBuff.append("    mfgTablesUsed="+ProtocolUtils.getResponseData(getMfgTablesUsed())+", "+listBitsUsed(getMfgTablesUsed())+"\n"); 
         strBuff.append("    stdProcUsed="+ProtocolUtils.getResponseData(getStdProcUsed())+", "+listBitsUsed(getStdProcUsed())+"\n"); 
         strBuff.append("    mfgProcUsed="+ProtocolUtils.getResponseData(getMfgProcUsed())+", "+listBitsUsed(getMfgProcUsed())+"\n"); 

@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AbstractField;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
@@ -37,7 +36,7 @@ public class RawBandsDescriptor extends AbstractField<RawBandsDescriptor> {
 
     }
 
-    public RawBandsDescriptor(CodeObject codeObject) throws BusinessException {
+    public RawBandsDescriptor(CodeObject codeObject) {
         this();
         int year = codeObject.getYearFrom();
         for (int i = 0; i < startMonth.length; i++) {
@@ -87,10 +86,10 @@ public class RawBandsDescriptor extends AbstractField<RawBandsDescriptor> {
         final StringBuilder sb = new StringBuilder();
         sb.append("rawData = ").append(ProtocolTools.getHexStringFromBytes(getBytes())).append('\n');
         for (int i = 0; i < startMonth.length; i++) {
-            sb.append("PT").append(i+1).append("_start = ").append(startDay[i]).append('/').append(startMonth[i]).append('\n');
-            sb.append("PT").append(i+1).append("_weekday = ").append(weekday[i]).append('\n');
-            sb.append("PT").append(i+1).append("_saturday = ").append(saturday[i]).append('\n');
-            sb.append("PT").append(i+1).append("_holiday = ").append(holiday[i]).append('\n');
+            sb.append("PT").append(i + 1).append("_start = ").append(startDay[i]).append('/').append(startMonth[i]).append('\n');
+            sb.append("PT").append(i + 1).append("_weekday = ").append(weekday[i]).append('\n');
+            sb.append("PT").append(i + 1).append("_saturday = ").append(saturday[i]).append('\n');
+            sb.append("PT").append(i + 1).append("_holiday = ").append(holiday[i]).append('\n');
         }
         return sb.toString();
     }

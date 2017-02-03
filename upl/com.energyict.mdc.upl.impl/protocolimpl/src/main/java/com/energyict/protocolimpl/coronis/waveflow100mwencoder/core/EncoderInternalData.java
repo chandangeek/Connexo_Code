@@ -5,8 +5,12 @@ import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class EncoderInternalData extends InternalData {
@@ -298,7 +302,7 @@ public class EncoderInternalData extends InternalData {
 					dais.close();
 				}
 				catch(IOException e) {
-					logger.severe(com.energyict.cbo.Utils.stack2string(e));
+					logger.severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}		

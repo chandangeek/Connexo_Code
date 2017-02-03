@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
-import java.math.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 /**
  *
@@ -28,7 +29,7 @@ public class Utils {
     
     static BigDecimal getS4FloatingPoint(byte[] data,int offset) throws IOException {
         byte temp = (byte)(data[offset+2] & 0x0F);
-        int digit5=ProtocolUtils.BCD2hex(temp)*10000;
+        int digit5= ProtocolUtils.BCD2hex(temp)*10000;
         int digit4to1=(int)ParseUtils.getBCD2LongLE(data, 0, 2); 
         BigDecimal bd = BigDecimal.valueOf(digit5+digit4to1,4);
         temp = (byte)((data[offset+2] >> 4)&0x0F);

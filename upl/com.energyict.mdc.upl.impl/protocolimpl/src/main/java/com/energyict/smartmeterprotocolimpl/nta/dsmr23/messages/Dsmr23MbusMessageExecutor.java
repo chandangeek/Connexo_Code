@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DlmsSession;
@@ -39,7 +38,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoad
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -116,13 +114,10 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
             } else if (msgResult.isFailed()) {
                 log(Level.SEVERE, "Message failed : " + msgResult.getInfo());
             }
-        } catch (BusinessException e) {
+        } catch (IllegalArgumentException e) {
             msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
             log(Level.SEVERE, "Message failed : " + e.getMessage());
         } catch (IOException e) {
-            msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-        } catch (SQLException e) {
             msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
             log(Level.SEVERE, "Message failed : " + e.getMessage());
         }
@@ -186,7 +181,7 @@ public class Dsmr23MbusMessageExecutor extends MessageParser {
         }
     }
 
-    private void doDecommission(final MessageHandler messageHandler, final String serialNumber) throws IOException, BusinessException, SQLException {
+    private void doDecommission(final MessageHandler messageHandler, final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage Decommission MBus device");
 
         getMBusClient(serialNumber).deinstallSlave();

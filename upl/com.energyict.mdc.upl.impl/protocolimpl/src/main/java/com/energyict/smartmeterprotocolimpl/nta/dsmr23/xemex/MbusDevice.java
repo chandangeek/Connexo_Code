@@ -1,10 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging.XemexWatchTalkMbusMessaging;
 
@@ -14,8 +16,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.messaging.XemexWatc
  */
 public class MbusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice {
 
-    public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
-        super(propertySpecService, calendarFinder, calendarExtractor, messageFileExtractor);
+    public MbusDevice(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
+        super(propertySpecService, calendarFinder, calendarExtractor, messageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor);
     }
 
     @Override
@@ -25,6 +27,6 @@ public class MbusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr23.
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-08-26 14:01:32 +0200 (Wed, 26 Aug 2015) $";
+        return "$Date: Thu Nov 26 10:45:14 2015 +0100 $";
     }
 }

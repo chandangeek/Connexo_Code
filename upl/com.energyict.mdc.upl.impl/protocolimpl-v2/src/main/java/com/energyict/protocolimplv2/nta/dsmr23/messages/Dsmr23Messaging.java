@@ -9,17 +9,16 @@ import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.NumberLookup;
+import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.cbo.Password;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.Lookup;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -75,7 +74,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
  * - Formats the device message attributes from objects to proper string values
  * - Executes a given message
  * - Has a list of all supported device message specs
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/11/13
  * Time: 11:32
@@ -241,7 +240,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
             case emergencyProfileGroupIdListAttributeName:
-                return convertLookupTable((Lookup) messageAttribute, this.numberLookupExtractor);
+                return convertLookupTable((NumberLookup) messageAttribute, this.numberLookupExtractor);
             case encryptionLevelAttributeName:
                 return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
             case overThresholdDurationAttributeName:

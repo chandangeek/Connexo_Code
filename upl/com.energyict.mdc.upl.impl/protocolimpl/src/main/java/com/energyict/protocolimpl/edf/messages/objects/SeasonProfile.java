@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.util.Calendar;
 
@@ -41,19 +42,19 @@ public class SeasonProfile extends ComplexCosemObject {
 		if (names.getLength() != 0){
 			name = new OctetString(names.item(0).getFirstChild().getNodeValue());
 		} else {
-			throw new ApplicationException("Cannot create SeasonProfile");
+			throw new IllegalArgumentException("Cannot create SeasonProfile");
 		}
 		NodeList starts = element.getElementsByTagName(STARTELEMENTNAME);
 		if (starts.getLength() != 0){
 			start = new CosemCalendar((Element) starts.item(0).getFirstChild());
 		} else {
-			throw new ApplicationException("Cannot create SeasonProfile");
+			throw new IllegalArgumentException("Cannot create SeasonProfile");
 		}
 		NodeList weeks = element.getElementsByTagName(WEEKELEMENTNAME);
 		if (weeks.getLength() != 0){
 			week = new OctetString(weeks.item(0).getFirstChild().getNodeValue());
 		} else {
-			throw new ApplicationException("Cannot create SeasonProfile");
+			throw new IllegalArgumentException("Cannot create SeasonProfile");
 		}		
 	}
         

@@ -2,8 +2,6 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff;
 
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
-import com.energyict.cbo.ApplicationException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeObject;
 import sun.misc.BASE64Encoder;
 
@@ -26,7 +24,7 @@ public class CodeTableBase64Builder {
     public static byte[] getBase64FromCodeTable(TariffCalendar calendar, TariffCalendarExtractor extractor) {
         try {
             if (calendar == null) {
-                throw new ApplicationException("Code table not found: null");
+                throw new IllegalArgumentException("Code table not found: null");
             }
             ByteArrayOutputStream out = new ByteArrayOutputStream();
 

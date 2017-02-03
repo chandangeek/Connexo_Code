@@ -6,12 +6,17 @@
 
 package com.energyict.protocolimpl.iec1107.indigo;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -187,18 +192,12 @@ if (DEBUG>=1) System.out.println("0x"+Integer.toHexString(val)+" = "+getDate());
     
     private boolean isCompressed(byte data) {
         int val = (int)data&0xFF;
-        if ((val & 0x80) == 0x80)
-            return true;
-        else
-            return false;
+        return (val & 0x80) == 0x80;
     }
     
     private boolean isNegative(byte data) {
         int val = (int)data&0xFF;
-        if ((val & 0x40) == 0x40)
-            return true;
-        else
-            return false;
+        return (val & 0x40) == 0x40;
     }
     
     /**

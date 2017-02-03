@@ -102,7 +102,7 @@ public abstract class AbstractRadioCommand {
                     baos.close();
                 }
                 catch(IOException e) {
-                    getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow100mW().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }
@@ -153,7 +153,7 @@ public abstract class AbstractRadioCommand {
                     dais.close();
                 }
                 catch(IOException e) {
-                    getWaveFlow100mW().getLogger().severe(com.energyict.cbo.Utils.stack2string(e));
+                    getWaveFlow100mW().getLogger().severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }

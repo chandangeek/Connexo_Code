@@ -15,8 +15,8 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
-import com.energyict.util.Equality;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -413,7 +413,7 @@ public class DemandData extends AbstractTable {
         for (int i=0;i<(intervalDatas.size()-1);i++) {
             intervalData2add = (IntervalData)intervalDatas.get(i);
             intervalData = (IntervalData)intervalDatas.get(i+1);
-            if (Equality.equalityHoldsFor(intervalData.getEndTime()).and(intervalData2add.getEndTime())) {
+			if (ProtocolTools.areEqual(intervalData.getEndTime(), intervalData2add.getEndTime())) {
                 ParseUtils.addIntervalValues(intervalData, intervalData2add);
                 intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
                 intervalDatas.remove(i);

@@ -1,7 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnection;
@@ -56,16 +54,15 @@ import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -95,16 +92,16 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -122,12 +119,18 @@ public class Dsmr23MessageExecutor extends MessageParser {
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final NumberLookupExtractor numberLookupExtractor;
+    private final NumberLookupFinder numberLookupFinder;
 
-    public Dsmr23MessageExecutor(final AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+    public Dsmr23MessageExecutor(final AbstractSmartNtaProtocol protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder, NumberLookupExtractor numberLookupExtractor, NumberLookupFinder numberLookupFinder) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.numberLookupExtractor = numberLookupExtractor;
+        this.numberLookupFinder = numberLookupFinder;
         this.dlmsSession = this.protocol.getDlmsSession();
     }
 
@@ -141,6 +144,10 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     protected DeviceMessageFileExtractor getMessageFileExtractor() {
         return messageFileExtractor;
+    }
+
+    protected DeviceMessageFileFinder getMessageFileFinder() {
+        return deviceMessageFileFinder;
     }
 
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
@@ -325,7 +332,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 }
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
-            } catch (BusinessException e) {
+            } catch (IllegalArgumentException e) {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
             } catch (IOException e) {
@@ -652,27 +659,26 @@ public class Dsmr23MessageExecutor extends MessageParser {
         doGlobalReset();
     }
 
-    private MessageResult testSecurityMessage(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, BusinessException, SQLException {
+    private MessageResult testSecurityMessage(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, SQLException {
         log(Level.INFO, "Handling message TestSecurityMessage");
         String userFileId = messageHandler.getTestUserFileId();
 
-        UserFile uf;
+        Optional<DeviceMessageFile> deviceMessageFile;
         try {
-            int id = Integer.parseInt(userFileId);
-            uf = mw().getUserFileFactory().find(id);
-        } catch (NumberFormatException e) {
-            log(Level.INFO, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-            return MessageResult.createFailed(messageEntry, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
+            deviceMessageFile = getMessageFileFinder().from(userFileId);
+        } catch (IllegalArgumentException e) {
+            log(Level.INFO, "Cannot find file with ID '" + userFileId + "' in the database... aborting.");
+            return MessageResult.createFailed(messageEntry, "Cannot find file with ID '" + userFileId + "' in the database... aborting.");
         }
-        if (uf == null) {
-            log(Level.INFO, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
-            return MessageResult.createFailed(messageEntry, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
+        if (!deviceMessageFile.isPresent()) {
+            log(Level.INFO, "Cannot find file with ID '" + userFileId + "' in the database... aborting.");
+            return MessageResult.createFailed(messageEntry, "Cannot find file with ID '" + userFileId + "' in the database... aborting.");
         }
 
         StringBuilder sb = new StringBuilder();
         try {
-            FileInputStream fstream = new FileInputStream(uf.getShadow().getFile());
-            DataInputStream in = new DataInputStream(fstream);
+            ByteArrayInputStream byteStream = new ByteArrayInputStream(getMessageFileExtractor().binaryContents(deviceMessageFile.get()));
+            DataInputStream in = new DataInputStream(byteStream);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String strLine;
             //Read File Line By Line
@@ -704,22 +710,19 @@ public class Dsmr23MessageExecutor extends MessageParser {
             return MessageResult.createFailed(messageEntry, "Error while parsing or sending user file: " + e.getMessage());
         }
 
-        UserFileShadow userFileShadow = ProtocolTools.createUserFileShadow(uf.getName() + "_results_" + String.valueOf(new Date().getTime()), sb.toString().getBytes(), uf.getFolderId(), "txt");
-        mw().getUserFileFactory().create(userFileShadow);
-
-        return MessageResult.createSuccess(messageEntry);
+        throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 
-    private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void testMessage(MessageHandler messageHandler) throws IOException, SQLException {
         log(Level.INFO, "Handling message TestMessage");
         int failures = 0;
         String userFileId = messageHandler.getTestUserFileId();
         Date currentTime;
         if (!userFileId.equalsIgnoreCase("")) {
             if (ParseUtils.isInteger(userFileId)) {
-                UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
-                if (uf != null) {
-                    byte[] data = uf.loadFileInByteArray();
+                Optional<DeviceMessageFile> deviceMessageFile = getMessageFileFinder().from(userFileId);
+                if (deviceMessageFile.isPresent()) {
+                    byte[] data = getMessageFileExtractor().binaryContents(deviceMessageFile.get());
                     CSVParser csvParser = new CSVParser(this.messageFileExtractor);
                     csvParser.parse(data);
                     boolean hasWritten;
@@ -781,7 +784,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                                     }
                                     break;
                                     default: {
-                                        throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
+                                        throw new IllegalArgumentException("Row " + i + " of the CSV file does not contain a valid type.");
                                     }
                                 }
                                 to.setTime(currentTime.getTime());
@@ -829,9 +832,9 @@ public class Dsmr23MessageExecutor extends MessageParser {
                     } else {
                         csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                     }
-                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
+                    throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
                 } else {
-                    throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
+                    throw new IllegalArgumentException("Userfile with ID " + userFileId + " does not exist.");
                 }
             } else {
                 throw new IOException("UserFileId is not a valid number");
@@ -1006,16 +1009,12 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
         Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
         try {
-            Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
-            if (lut == null) {
-                throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
+            Optional<NumberLookup> numberLookup = numberLookupFinder.from(messageHandler.getEpGroupIdListLookupTableId());
+            if (!numberLookup.isPresent()) {
+                throw new ProtocolException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
             } else {
-                Iterator entriesIt = lut.getEntries().iterator();
                 Array idArray = new Array();
-                while (entriesIt.hasNext()) {
-                    LookupEntry lue = (LookupEntry) entriesIt.next();
-                    idArray.addDataType(new Unsigned16(lue.getKey()));
-                }
+                numberLookupExtractor.keys(numberLookup.get()).forEach(key -> idArray.addDataType(new Unsigned16(Integer.parseInt(key))));
                 epdiLimiter.writeEmergencyProfileGroupIdList(idArray);
             }
         } catch (NumberFormatException e) {
@@ -1240,13 +1239,13 @@ public class Dsmr23MessageExecutor extends MessageParser {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
         }
-        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
-        if (!(uf instanceof UserFile)) {
+        Optional<DeviceMessageFile> deviceMessageFile = getMessageFileFinder().from(userFileID);
+        if (!deviceMessageFile.isPresent()) {
             String str = "Not a valid entry for the userfileID " + userFileID;
             throw new IOException(str);
         }
 
-        byte[] imageData = uf.loadFileInByteArray();
+        byte[] imageData = getMessageFileExtractor().binaryContents(deviceMessageFile.get());
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
         it.upgrade(imageData);
         if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
@@ -1502,22 +1501,6 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     public AbstractSmartNtaProtocol getProtocol() {
         return protocol;
-    }
-
-    /**
-     * *************************************************************************
-     */
-    /* These methods require database access ...
-    /*****************************************************************************/
-    private Device getRtuFromDatabaseBySerialNumber() {
-        String serial = this.protocol.getSerialNumber();
-        Device rtu = mw().getDeviceFactory().findBySerialNumber(serial).get(0);
-        ProtocolTools.closeConnection();
-        return rtu;
-    }
-
-    protected MeteringWarehouse mw() {
-        return ProtocolTools.mw();
     }
 
     private void mBusClientRemoteCommissioning(MessageHandler messageHandler) throws IOException {

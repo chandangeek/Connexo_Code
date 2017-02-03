@@ -6,7 +6,7 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.axdr;
 
-import com.energyict.cbo.Utils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -483,9 +483,9 @@ public class TrimaranDataContainer implements TrimaranDLMSCOSEMGlobals, Serializ
            }
            catch(TrimaranDataContainerException e) {
                if (logger == null) {
-				System.out.println(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+				System.out.println(ProtocolTools.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 			} else {
-				logger.severe(Utils.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
+				logger.severe(ProtocolTools.stack2string(e)+", probably meter data corruption! Datablock contains more elements than the axdr data encoding!");
 			}
                return; 
            }

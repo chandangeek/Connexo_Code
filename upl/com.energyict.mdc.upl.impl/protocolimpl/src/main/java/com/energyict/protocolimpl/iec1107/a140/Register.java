@@ -6,7 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107.a140;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -198,7 +197,7 @@ public abstract class Register {
             builder.append("sets=").append(getSets()).append(", ");
             builder.append("cacheable=").append(cacheable).append(", ");
         } catch( IOException ioe ) {
-            throw new ApplicationException( ioe );
+            throw new IllegalArgumentException( ioe );
         }
         return builder.toString();
     }

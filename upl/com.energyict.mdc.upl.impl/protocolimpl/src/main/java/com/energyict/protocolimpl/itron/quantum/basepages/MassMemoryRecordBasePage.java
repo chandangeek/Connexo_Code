@@ -10,14 +10,15 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /**
  *
@@ -59,9 +60,9 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
     
     protected BasePageDescriptor preparebuild() throws IOException {
         if (getRecordNr() != -1)
-            return new BasePageDescriptor(((BasePagesFactory)((BasePagesFactory)getBasePagesFactory())).getMassMemoryBasePages().getLogicalMassMemoryStartOffset()+
-                                          getRecordNr()*((BasePagesFactory)((BasePagesFactory)getBasePagesFactory())).getMassMemoryBasePages().getMassMemoryRecordLength(),
-                                          ((BasePagesFactory)((BasePagesFactory)getBasePagesFactory())).getMassMemoryBasePages().getMassMemoryRecordLength());
+            return new BasePageDescriptor(getBasePagesFactory().getMassMemoryBasePages().getLogicalMassMemoryStartOffset()+
+                                          getRecordNr()* getBasePagesFactory().getMassMemoryBasePages().getMassMemoryRecordLength(),
+                                          getBasePagesFactory().getMassMemoryBasePages().getMassMemoryRecordLength());
         else if (getAddress() != -1)
             return new BasePageDescriptor(getAddress(),
                     ((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getMassMemoryRecordLength());
@@ -71,7 +72,7 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
     
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        TimeZone tz = ((BasePagesFactory)getBasePagesFactory()).getProtocolLink().getTimeZone();
+        TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getGeneralSetUpBasePage().isDstEnabled())
             tz = ProtocolUtils.getWinterTimeZone(tz);
         setCalendar(ProtocolUtils.getCleanCalendar(tz));

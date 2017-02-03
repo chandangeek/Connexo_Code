@@ -6,13 +6,22 @@
 
 package com.energyict.protocolimpl.iec1107.abba1500;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.AbstractVDEWRegistry;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -115,8 +124,8 @@ public class ABBA1500Profile extends VDEWProfile {
             profileData.getChannelInfos().addAll(profileDataPart.getChannelInfos());
         } else {
             for (int i = 0; i < profileData.getChannelInfos().size(); i++) {
-                ChannelInfo info = (ChannelInfo) profileData.getChannelInfos().get(i);
-                ChannelInfo partInfo = (ChannelInfo) profileDataPart.getChannelInfos().get(i);
+                ChannelInfo info = profileData.getChannelInfos().get(i);
+                ChannelInfo partInfo = profileDataPart.getChannelInfos().get(i);
 
                 if (!info.getName().equals(partInfo.getName()) ||
                         !info.getUnit().equals(partInfo.getUnit()) ||

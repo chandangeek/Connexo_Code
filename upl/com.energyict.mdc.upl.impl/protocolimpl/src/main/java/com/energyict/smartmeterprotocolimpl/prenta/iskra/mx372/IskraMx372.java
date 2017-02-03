@@ -11,12 +11,16 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -61,6 +65,9 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor extractor;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final NumberLookupFinder numberLookupFinder;
+    private final NumberLookupExtractor numberLookupExtractor;
     private IskraMX372Properties properties;
     private String serialnr = null;
     private String devID = null;
@@ -76,11 +83,14 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      */
     private boolean hasBreaker = true;
 
-    public IskraMx372(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileExtractor messageFileExtractor) {
+    public IskraMx372(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor extractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
         this.propertySpecService = propertySpecService;
         this.calendarFinder = calendarFinder;
         this.extractor = extractor;
         this.messageFileExtractor = messageFileExtractor;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.numberLookupFinder = numberLookupFinder;
+        this.numberLookupExtractor = numberLookupExtractor;
     }
 
     public static ScalerUnit getScalerUnit(ObisCode obisCode) {
@@ -369,12 +379,12 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     /**
      * Check if the {@link java.util.TimeZone} is read from the DLMS device, or if the
-     * {@link java.util.TimeZone} from the {@link com.energyict.protocol.MeterProtocol} should be used.
+     * {@link java.util.TimeZone} from the {@link MeterProtocol} should be used.
      *
      * @return true is the {@link java.util.TimeZone} is read from the device
      */
     public boolean isRequestTimeZone() {
-        return (((IskraMX372Properties) getProperties()).getRequestTimeZone() == 1) ? true : false;
+        return (((IskraMX372Properties) getProperties()).getRequestTimeZone() == 1);
     }
 
     /**
@@ -420,7 +430,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
 
     public IskraMx372Messaging getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new IskraMx372Messaging(this, propertySpecService, calendarFinder, extractor, messageFileExtractor);
+            messageProtocol = new IskraMx372Messaging(this, propertySpecService, calendarFinder, extractor, messageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor);
         }
         return messageProtocol;
     }

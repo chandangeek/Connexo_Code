@@ -10,9 +10,11 @@
 
 package com.energyict.protocolimpl.edf.core;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.io.*;
+import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
@@ -122,8 +124,7 @@ public class DatalinkLayer {
         if (CRCGenerator.calcCRC(frame)!=0) return false;
         if (frame[0] != frame.length) return false;
         int temp = (frame[1]>>4) & 0xF;
-        if ((temp != TYPE_DATA) && (temp != TYPE_ACK) && (temp != TYPE_NACK)) return false;
-        return true;
+        return !((temp != TYPE_DATA) && (temp != TYPE_ACK) && (temp != TYPE_NACK));
     }
     
     private boolean is_ack(byte[] frame) {

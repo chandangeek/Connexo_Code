@@ -15,10 +15,11 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.mdc.upl.LoadProfileConfigurationException;
+import com.energyict.mdc.upl.SmartMeterProtocol;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
@@ -35,9 +36,9 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- *  Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
+ * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link SmartMeterProtocol}
  *
- *  @author sva
+ * @author sva
  * @since 11/10/13 - 16:56
  */
 public class LoadProfileBuilder {
@@ -55,33 +56,27 @@ public class LoadProfileBuilder {
      * The used meterProtocol
      */
     private final IskraMT880 meterProtocol;
-
+    /**
+     * Keep track of a list of channelMask per LoadProfileReader
+     */
+    protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
      */
     private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
-
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a list of {@link com.energyict.protocol.Register} which
      * will represent the 'data' channels of the Profile
      */
     private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<CapturedRegisterObject>>();
-
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
-
     /**
      * Keep track of a list of statusMask per LoadProfileReader
      */
     private Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<LoadProfileReader, Integer>();
-
-    /**
-     * Keep track of a list of channelMask per LoadProfileReader
-     */
-    protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
-
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
@@ -319,7 +314,7 @@ public class LoadProfileBuilder {
     /**
      * Checks if the given ObisCode/Serialnumber combination is a valid profileChannel. Checks are done based on the the StatusObisCodes and ClockObisCode
      *
-     * @param obisCode     the obiscode to check
+     * @param obisCode the obiscode to check
      * @return true if the obisCode is not a {@link com.energyict.dlms.cosem.Clock} object nor a Status object
      */
     protected boolean isDataObisCode(ObisCode obisCode) {

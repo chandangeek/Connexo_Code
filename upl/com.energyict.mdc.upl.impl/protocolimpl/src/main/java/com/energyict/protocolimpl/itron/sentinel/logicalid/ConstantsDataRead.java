@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.itron.sentinel.logicalid;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.ansi.c12.*;
-import java.io.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *

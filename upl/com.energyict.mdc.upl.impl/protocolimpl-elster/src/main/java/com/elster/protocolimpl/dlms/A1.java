@@ -1,13 +1,5 @@
 package com.elster.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.elster.dlms.cosem.applicationlayer.CosemDataAccessException;
 import com.elster.dlms.cosem.classes.common.CosemClassIds;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleClockObject;
@@ -37,6 +29,15 @@ import com.elster.protocolimpl.dlms.util.DlmsUtils;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -94,8 +95,8 @@ public class A1 extends Dlms {
     private String globalScaler = null;
     private BillingProfileReader billingProfileReader = null;
 
-    public A1(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService) {
-        super(calendarFinder, calendarExtractor, propertySpecService);
+    public A1(TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(calendarFinder, calendarExtractor, propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
         objectPool = new A1ObjectPool();
         ocIntervalProfile = OBISCODE_60MPROFILE;
         ocLogProfile = LOG_OC;

@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.ScalerUnit;
@@ -58,7 +57,7 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
                 } else {
                     getZigbeeGas().getLogger().severe("Unable to read register [" + register.getObisCode() + "]: " + e.getMessage());
                 }
-            } catch (ApplicationException e) {
+            } catch (IllegalArgumentException e) {
                 getZigbeeGas().getLogger().severe("Unable to read register [" + register.getObisCode() + "]: " + e.getMessage());
             }
         }

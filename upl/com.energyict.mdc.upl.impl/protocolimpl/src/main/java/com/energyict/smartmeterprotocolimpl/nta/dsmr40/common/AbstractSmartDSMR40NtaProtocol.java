@@ -2,10 +2,11 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -30,13 +31,17 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final NumberLookupFinder numberLookupFinder;
+    private final NumberLookupExtractor numberLookupExtractor;
 
-    protected AbstractSmartDSMR40NtaProtocol(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+    protected AbstractSmartDSMR40NtaProtocol(PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
         super(propertySpecService);
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileFinder = messageFileFinder;
         this.messageFileExtractor = messageFileExtractor;
+        this.numberLookupFinder = numberLookupFinder;
+        this.numberLookupExtractor = numberLookupExtractor;
     }
 
     public TariffCalendarFinder getCalendarFinder() {
@@ -55,9 +60,17 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
         return messageFileExtractor;
     }
 
+    public NumberLookupFinder getNumberLookupFinder() {
+        return numberLookupFinder;
+    }
+
+    public NumberLookupExtractor getNumberLookupExtractor() {
+        return numberLookupExtractor;
+    }
+
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.calendarExtractor, messageFileFinder, this.messageFileExtractor));
+        return new Dsmr40Messaging(new Dsmr40MessageExecutor(this, this.calendarFinder, this.calendarExtractor, messageFileFinder, this.messageFileExtractor, numberLookupExtractor, numberLookupFinder));
     }
 
     /**

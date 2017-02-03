@@ -1,10 +1,9 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
-import com.energyict.mdc.protocol.ServerDeviceProtocolCache;
-import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
-
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
 import com.energyict.protocol.support.FrameCounterCache;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -12,13 +11,13 @@ import java.io.Serializable;
 
 /**
  * Extension of the normal DLMSCache, it also remembers our last frame counter used in the previous session
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  *
  * @author khe
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
-public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, Serializable, FrameCounterCache {
+public class AM540Cache extends DLMSCache implements DeviceProtocolCache, Serializable, FrameCounterCache {
 
     UniversalObject[] mirrorObjectList;
     UniversalObject[] gatewayObjectList;

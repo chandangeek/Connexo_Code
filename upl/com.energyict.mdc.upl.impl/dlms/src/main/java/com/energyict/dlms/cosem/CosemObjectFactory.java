@@ -6,16 +6,15 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.methods.USBSetup;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;

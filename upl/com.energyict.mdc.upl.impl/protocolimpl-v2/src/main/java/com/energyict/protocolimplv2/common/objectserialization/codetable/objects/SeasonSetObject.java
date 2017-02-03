@@ -2,8 +2,6 @@ package com.energyict.protocolimplv2.common.objectserialization.codetable.object
 
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
-import com.energyict.cbo.BusinessException;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,13 +52,13 @@ public class SeasonSetObject implements Serializable {
         this.seasons = seasons;
     }
 
-    public SeasonObject getSeason(int period) throws BusinessException {
+    public SeasonObject getSeason(int period) {
         for (SeasonObject season : seasons) {
             if (season.isPeriod(period)) {
                 return season;
             }
         }
-        throw new BusinessException("No season found for period [" + period + "]");
+        throw new IllegalArgumentException("No season found for period [" + period + "]");
     }
 
     @Override

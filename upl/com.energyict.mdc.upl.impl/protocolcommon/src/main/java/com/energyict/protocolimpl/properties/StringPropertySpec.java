@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.properties;
 
-import com.energyict.cpo.PropertySpecPossibleValuesImpl;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -62,7 +61,7 @@ class StringPropertySpec extends AbstractPropertySpec {
 
     @Override
     public PropertySpecPossibleValues getPossibleValues() {
-        return new PropertySpecPossibleValuesImpl<>(true, constraint.getPossibleValues());
+        return new PropertySpecPossibleValuesImpl(true, constraint.getPossibleValues());
     }
 
     @Override

@@ -10,10 +10,11 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import java.io.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *

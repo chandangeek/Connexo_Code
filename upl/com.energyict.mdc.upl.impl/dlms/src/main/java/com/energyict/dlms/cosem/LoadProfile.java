@@ -8,7 +8,7 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.protocol.NotInObjectListException;
+import com.energyict.mdc.upl.NotInObjectListException;
 
 /**
  *

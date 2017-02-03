@@ -185,14 +185,14 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         return logger;
     }
 
-    protected Serializable getCache() {
+    public Serializable getCache() {
         if (dlmsCache == null) {
             dlmsCache = new DLMSCache();
         }
         return dlmsCache;
     }
 
-    protected void setCache(Serializable cacheObject) {
+    public void setCache(Serializable cacheObject) {
         this.dlmsCache = (DLMSCache) cacheObject;
     }
 

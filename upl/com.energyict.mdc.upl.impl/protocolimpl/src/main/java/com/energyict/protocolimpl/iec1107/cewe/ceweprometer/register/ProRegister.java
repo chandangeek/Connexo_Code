@@ -1,10 +1,8 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.WriteException;
 
@@ -144,7 +142,7 @@ public class ProRegister {
      */
     public String asString() throws IOException {
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
         return asString(0);
     }
@@ -154,7 +152,7 @@ public class ProRegister {
      */
     public String asCompleteString() throws IOException {
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         if (fields == null) {
@@ -190,7 +188,7 @@ public class ProRegister {
     public String asString(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         if (fields == null) {
@@ -216,7 +214,7 @@ public class ProRegister {
     public Double asDouble(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return new Double(asString(fieldIdx));
@@ -229,7 +227,7 @@ public class ProRegister {
     public Double asDouble() throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return asDouble(0);
@@ -242,7 +240,7 @@ public class ProRegister {
     public Integer asInteger(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return new Integer(asString(fieldIdx));
@@ -255,7 +253,7 @@ public class ProRegister {
     public Integer asInteger() throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return asInteger(0);
@@ -268,7 +266,7 @@ public class ProRegister {
     public int asInt(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return Integer.parseInt(asString(fieldIdx));
@@ -281,7 +279,7 @@ public class ProRegister {
     public int asInt() throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return asInt(0);
@@ -294,7 +292,7 @@ public class ProRegister {
     public Date asDate() throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         try {
@@ -311,7 +309,7 @@ public class ProRegister {
     public Date asDate(SimpleDateFormat sdf) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         try {
@@ -329,7 +327,7 @@ public class ProRegister {
     public Date asShortDate(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         try {

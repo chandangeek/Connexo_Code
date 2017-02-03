@@ -6,12 +6,12 @@
 
 package com.energyict.protocolimpl.iec1107.enermete70x;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.protocolimpl.base.DataParseException;
 import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -122,7 +122,7 @@ public class RegisterSet {
 
     static public void main(String[] args) {
         try {
-           RegisterSet registerSet = new RegisterSet(com.energyict.protocol.ProtocolUtils.readFile("GTR.txt"),TimeZone.getTimeZone("GMT"));
+           RegisterSet registerSet = new RegisterSet(ProtocolUtils.readFile("GTR.txt"),TimeZone.getTimeZone("GMT"));
            System.out.println(registerSet.toString());
         }
         catch(IOException e) {

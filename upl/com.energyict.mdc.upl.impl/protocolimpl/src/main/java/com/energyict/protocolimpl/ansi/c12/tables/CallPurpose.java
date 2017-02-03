@@ -9,12 +9,10 @@
 
 package com.energyict.protocolimpl.ansi.c12.tables;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocolimpl.ansi.c12.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
 
 /**
  *
@@ -37,7 +35,7 @@ public class CallPurpose extends AbstractTable {
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("CallPurpose:\n");
         strBuff.append("   callPurpose="+getCallPurpose()+"\n");
-        strBuff.append("   endDeviceManufacturerStatus="+ProtocolUtils.outputHexString(getEndDeviceManufacturerStatus())+"\n");
+        strBuff.append("   endDeviceManufacturerStatus="+ ProtocolUtils.outputHexString(getEndDeviceManufacturerStatus())+"\n");
         strBuff.append("   identification="+getIdentification()+"\n");
         return strBuff.toString();
     }

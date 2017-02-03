@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.elster.garnet.structure.field;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.protocolimplv2.elster.garnet.common.field.AbstractField;
 import com.energyict.protocolimplv2.elster.garnet.exception.ParsingException;
 
@@ -44,6 +43,6 @@ public class SchedulingInterval extends AbstractField<SchedulingInterval> {
 
     @Override
     public String toString() {
-        return new TimeDuration(schedulingInterval).toString();
+        return String.valueOf(schedulingInterval);
     }
 }

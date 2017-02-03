@@ -1,7 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.Array;
@@ -16,20 +14,22 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.TCPUDPSetup;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -45,7 +45,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.generic.ParseUtils;
-import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -62,13 +61,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -91,8 +90,10 @@ public class IskraMx372Messaging extends ProtocolMessages {
     private final TariffCalendarFinder calendarFinder;
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final NumberLookupFinder numberLookupFinder;
+    private final NumberLookupExtractor numberLookupExtractor;
     private IskraMx372 protocol;
-    private Device rtu;
     private ObisCode llsSecretObisCode1 = ObisCode.fromString("0.0.128.100.1.255");
     private ObisCode llsSecretObisCode2 = ObisCode.fromString("0.0.128.100.2.255");
     private ObisCode llsSecretObisCode3 = ObisCode.fromString("0.0.128.100.3.255");
@@ -113,14 +114,6 @@ public class IskraMx372Messaging extends ProtocolMessages {
             ObisCode.fromString("0.2.128.50.21.255"),
             ObisCode.fromString("0.3.128.50.21.255"),
             ObisCode.fromString("0.4.128.50.21.255")};
-    private ObisCode[] mbusUnit = {ObisCode.fromString("0.1.128.50.30.255"),
-            ObisCode.fromString("0.2.128.50.30.255"),
-            ObisCode.fromString("0.3.128.50.30.255"),
-            ObisCode.fromString("0.4.128.50.30.255")};
-    private ObisCode[] mbusMedium = {ObisCode.fromString("0.1.128.50.23.255"),
-            ObisCode.fromString("0.2.128.50.23.255"),
-            ObisCode.fromString("0.3.128.50.23.255"),
-            ObisCode.fromString("0.4.128.50.23.255")};
     private byte[] connectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x01};
     private byte[] disconnectMsg = new byte[]{AxdrType.UNSIGNED.getTag(), 0x00};
     private byte[] contractPowerLimitMsg = new byte[]{AxdrType.DOUBLE_LONG_UNSIGNED.getTag(), 0, 0, 0, 0};
@@ -129,13 +122,15 @@ public class IskraMx372Messaging extends ProtocolMessages {
     private byte[] crMeterGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
     private byte[] crGroupIDMsg = new byte[]{AxdrType.LONG_UNSIGNED.getTag(), 0, 0};
 
-    public IskraMx372Messaging(IskraMx372 protocol, PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+    public IskraMx372Messaging(IskraMx372 protocol, PropertySpecService propertySpecService, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
         this.protocol = protocol;
-//        this.properties = (IskraMX372Properties) protocol.getDlmsSession().getProperties();
         this.propertySpecService = propertySpecService;
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
+        this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.numberLookupFinder = numberLookupFinder;
+        this.numberLookupExtractor = numberLookupExtractor;
     }
 
     public List<MessageCategorySpec> getMessageCategories() {
@@ -338,8 +333,7 @@ public class IskraMx372Messaging extends ProtocolMessages {
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.MBUS_REMOVE)) {
                     infoLog("Sending Mbus_Remove message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     protocol.getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.129.255"), DLMSClassId.SCRIPT_TABLE.getClassId(), 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
-                    clearMbusGateWays();
-                    infoLog("Mbus_Remove message successful.");
+                    infoLog("Mbus_Remove message successful. Note that the gateway relation in the HES is not yet adjusted.");
                 } else if (isItThisMessage(messageEntry, RtuMessageConstant.WAKEUP_ACTIVATE)) {
                     infoLog("Sending Activate_the_wakeup_mechanism message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     activateWakeUp();
@@ -467,7 +461,7 @@ public class IskraMx372Messaging extends ProtocolMessages {
             infoLog(description);
             String apn = getMessageValue(messageEntry.getContent(), RtuMessageConstant.GPRS_APN);
             if ("".equalsIgnoreCase(apn)) {
-                throw new ApplicationException("The APN value is required for message GPRS_modem_setup.");
+                throw new IllegalArgumentException("The APN value is required for message GPRS_modem_setup.");
             }
             String userName = getMessageValue(messageEntry.getContent(), RtuMessageConstant.GPRS_USERNAME);
             String pass = getMessageValue(messageEntry.getContent(), RtuMessageConstant.GPRS_PASSWORD);
@@ -538,15 +532,15 @@ public class IskraMx372Messaging extends ProtocolMessages {
 
     private void sendActivityCalendar(MessageEntry messageEntry) throws IOException {
         infoLog("Sending new Tariff Program message to meter with serialnumber: " + messageEntry.getSerialNumber());
-        UserFile userFile = getUserFile(messageEntry.getContent());
+        DeviceMessageFile deviceMessageFile = getUserFile(messageEntry.getContent());
         ActivityCalendar activityCalendar =
                 protocol.getCosemObjectFactory().getActivityCalendar(ObisCode.fromString("0.0.13.0.0.255"));
 
         com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendar calendarData =
                 new com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.tou.ActivityCalendar();
-        ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData, protocol.getTimeZone(), getRtuFromDatabaseBySerialNumber().getTimeZone());
+        ActivityCalendarReader reader = new IskraActivityCalendarReader(calendarData, protocol.getTimeZone(), TimeZone.getDefault());
         calendarData.setReader(reader);
-        calendarData.read(new ByteArrayInputStream(userFile.loadFileInByteArray()));
+        calendarData.read(new ByteArrayInputStream(messageFileExtractor.binaryContents(deviceMessageFile)));
         CosemActivityCalendarBuilder builder = new
                 CosemActivityCalendarBuilder(calendarData);
 
@@ -574,28 +568,27 @@ public class IskraMx372Messaging extends ProtocolMessages {
         }
     }
 
-    protected UserFile getUserFile(String contents) throws IOException {
+    protected DeviceMessageFile getUserFile(String contents) throws ProtocolException {
         int id = getTouFileId(contents);
-        UserFile userFile = mw().getUserFileFactory().find(id);
-        ProtocolTools.closeConnection();
-        if (userFile == null) {
-            throw new IOException("No userfile found with id " + id);
+        Optional<DeviceMessageFile> deviceMessageFile = deviceMessageFileFinder.from(String.valueOf(id));
+        if (!deviceMessageFile.isPresent()) {
+            throw new ProtocolException("No userfile found with id " + id);
         }
-        return userFile;
+        return deviceMessageFile.get();
     }
 
-    protected int getTouFileId(String contents) throws IOException {
+    protected int getTouFileId(String contents) throws ProtocolException {
         int startIndex = 2 + RtuMessageConstant.TOU_SCHEDULE.length();  // <TOU>
         int endIndex = contents.indexOf("</" + RtuMessageConstant.TOU_SCHEDULE + ">");
         String value = contents.substring(startIndex, endIndex);
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new IOException("Invalid userfile id: " + value);
+            throw new ProtocolException("Invalid userfile id: " + value);
         }
     }
 
-    private void applyLoadLimit(MessageEntry messageEntry) throws BusinessException, IOException {
+    private void applyLoadLimit(MessageEntry messageEntry) throws IOException {
         infoLog("Setting threshold value for meter with serialnumber: " + messageEntry.getSerialNumber());
         String groupID = getMessageValue(messageEntry.getContent(), RtuMessageConstant.THRESHOLD_GROUPID);
         if ("".equalsIgnoreCase(groupID)) {
@@ -869,23 +862,15 @@ public class IskraMx372Messaging extends ProtocolMessages {
         return mbusDevices;
     }
 
-    public void checkMbusDevices() throws IOException, SQLException, BusinessException {
+    public void checkMbusDevices() throws IOException, SQLException {
         String mSerial;
-        Device rtu = getRtuFromDatabaseBySerialNumber();
-        if (!((rtu.getDownstreamDevices().isEmpty()) && (getProperties().getDeviceTypeName() == null))) {
+        if (!(getProperties().getDeviceTypeName() == null)) {
             for (int i = 0; i < MBUS_MAX; i++) {
                 int mbusAddress = (int) protocol.getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
                 if (mbusAddress > 0) {
                     mSerial = getMbusSerial(mbusCustomerID[i]);
                     if (!"".equals(mSerial)) {
-                        Unit mUnit = getMbusUnit(mbusUnit[i]);
-                        int mMedium = (int) protocol.getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
-                        Device mbusRtu = findOrCreateNewMbusDevice(mSerial);
-                        if (mbusRtu != null) {
-                            mbusDevices[i] = new MbusDevice(this.propertySpecService, this.calendarFinder, this.calendarExtractor, this.messageFileExtractor, mbusAddress, i, mSerial, mMedium, mbusRtu, mUnit, protocol);
-                        } else {
-                            mbusDevices[i] = null;
-                        }
+                        mbusDevices[i] = new MbusDevice(this.propertySpecService, this.calendarFinder, this.calendarExtractor, this.messageFileExtractor, deviceMessageFileFinder, numberLookupFinder, numberLookupExtractor, i, mSerial, protocol);
                     } else {
                         mbusDevices[i] = null;
                     }
@@ -894,7 +879,6 @@ public class IskraMx372Messaging extends ProtocolMessages {
                 }
             }
         }
-        updateMbusDevices(rtu.getDownstreamDevices());
     }
 
     private String getMbusSerial(ObisCode oc) throws IOException {
@@ -914,71 +898,6 @@ public class IskraMx372Messaging extends ProtocolMessages {
         }
     }
 
-    private Unit getMbusUnit(ObisCode obisCode) throws IOException {
-        try {
-            String vifResult = Integer.toString((int) protocol.getCosemObjectFactory().getData(obisCode).getRawValueAttr()[2], 16);
-            ValueInformationfieldCoding vif = ValueInformationfieldCoding.findPrimaryValueInformationfieldCoding(Integer.parseInt(vifResult, 16), -1);
-            return vif.getUnit();
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IOException("Could not retrieve the MBus Unit");
-        }
-    }
-
-    private Device findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException {
-        List mbusList = mw().getDeviceFactory().findBySerialNumber(customerID);
-        ProtocolTools.closeConnection();
-        if (mbusList.size() == 1) {
-            Device mbusRtu = (Device) mbusList.get(0);
-            // Check if gateway has changed, and update if it has
-            if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
-                mbusRtu.updateGateway(getRtuFromDatabaseBySerialNumber());
-            }
-            return mbusRtu;
-        }
-        if (mbusList.size() > 1) {
-            String pattern = "Multiple meters where found with serial: {0}. Data will not be read.";
-            protocol.getLogger().severe(new MessageFormat(pattern).format(customerID));
-            return null;
-        }
-        // we don't create any meters anymore!
-        return null;
-    }
-
-    private void updateMbusDevices(List<Device> downstreamRtus) throws SQLException, BusinessException {
-        Iterator<Device> it = downstreamRtus.iterator();
-        boolean missing;
-        while (it.hasNext()) {
-            Device mbus = it.next();
-            missing = true;
-            for (int i = 0; i < mbusDevices.length; i++) {
-                if (mbusDevices[i] != null) {
-                    if (mbus.getSerialNumber().equalsIgnoreCase(mbusDevices[i].getCustomerID())) {
-                        missing = false;
-                        break;
-                    }
-                }
-            }
-            if (missing) {
-                mbus.updateGateway(null);
-            }
-        }
-    }
-
-    /**
-     * NOTE: Updating the gateway of an RTU with NULL is not compatible with EIServer 7.x!!
-     *
-     * @throws SQLException      if a database exception occurred
-     * @throws BusinessException if a business exception occurred
-     */
-    private void clearMbusGateWays() throws SQLException, BusinessException {
-        List slaves = getRtuFromDatabaseBySerialNumber().getDownstreamDevices();
-        Iterator it = slaves.iterator();
-        while (it.hasNext()) {
-            Device slave = (Device) it.next();
-            slave.updateGateway(null);
-        }
-    }
     /** END OF MBUS SECTION **/
 
     //*******************************************************************************************
@@ -1088,30 +1007,5 @@ public class IskraMx372Messaging extends ProtocolMessages {
 
     private IskraMX372Properties getProperties() {
         return ((IskraMX372Properties) protocol.getProperties());
-    }
-
-    /**
-     * *************************************************************************
-     * <p>
-     * These methods require database access ...
-     * /****************************************************************************
-     */
-
-    // Retrieved the master Device, based on its serial number.
-    private Device getRtuFromDatabaseBySerialNumber() {
-        if (rtu == null) {
-            String serial = getProperties().getSerialNumber();
-            List<Device> rtuList = mw().getDeviceFactory().findBySerialNumber(serial);
-            if (rtuList.size() > 1) {
-                infoLog("Warning: There are multiple devices configured with serial number: " + getProperties().getSerialNumber() + ".");
-            }
-            rtu = rtuList.get(0);
-            ProtocolTools.closeConnection();
-        }
-        return rtu;
-    }
-
-    private MeteringWarehouse mw() {
-        return ProtocolTools.mw();
     }
 }

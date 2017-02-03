@@ -350,7 +350,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
 
-        TypedProperties p = com.energyict.cpo.TypedProperties.empty();
+        TypedProperties p = com.energyict.protocolimpl.properties.TypedProperties.empty();
         p.setProperty("SecurityLevel", "0");
         p.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         p.setProperty("IEC1107Compatible", "1");

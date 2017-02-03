@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -99,7 +100,7 @@ public class SelfReadDataRXCommand extends AbstractCommand {
         getPreviousIntervalDemandCommand().parse(ProtocolUtils.getSubArray(data, offset)); offset+=8;
         
         setPreviousSeasonTOUDataRXCommand(new PreviousSeasonTOUDataRXCommand(getCommandFactory()));
-        temp=ProtocolUtils.getSubArray2(data, offset, 300); offset+=300;
+        temp= ProtocolUtils.getSubArray2(data, offset, 300); offset+=300;
         if (getCommandFactory().getFirmwareVersionCommand().getNumericFirmwareVersion()>=3.00)
             temp=ProtocolUtils.concatByteArrays(temp, ProtocolUtils.getSubArray2(data, 770, 116));
         getPreviousSeasonTOUDataRXCommand().parse(temp);

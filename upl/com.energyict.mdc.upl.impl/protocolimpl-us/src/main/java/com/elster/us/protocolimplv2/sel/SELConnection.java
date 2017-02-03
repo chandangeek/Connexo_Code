@@ -1,12 +1,5 @@
 package com.elster.us.protocolimplv2.sel;
 
-import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.offline.OfflineRegister;
-
 import com.elster.us.protocolimplv2.sel.events.EventFormatter;
 import com.elster.us.protocolimplv2.sel.frame.RequestFrame;
 import com.elster.us.protocolimplv2.sel.frame.ResponseFrame;
@@ -22,11 +15,17 @@ import com.elster.us.protocolimplv2.sel.utility.UnitMapper;
 import com.elster.us.protocolimplv2.sel.utility.YModem;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdw.amr.RegisterIdentifierById;
+import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;

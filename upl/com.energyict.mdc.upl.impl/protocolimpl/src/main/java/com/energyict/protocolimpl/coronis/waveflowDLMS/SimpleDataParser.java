@@ -8,7 +8,9 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -111,7 +113,7 @@ public class SimpleDataParser {
 					dais.close();
 				}
 				catch(IOException e) {
-					logger.severe(com.energyict.cbo.Utils.stack2string(e));
+					logger.severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}				
@@ -178,7 +180,7 @@ public class SimpleDataParser {
 					dais.close();
 				}
 				catch(IOException e) {
-					logger.severe(com.energyict.cbo.Utils.stack2string(e));
+					logger.severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}			
@@ -228,7 +230,7 @@ public class SimpleDataParser {
 					dais.close();
 				}
 				catch(IOException e) {
-					logger.severe(com.energyict.cbo.Utils.stack2string(e));
+					logger.severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
 				}
 			}
 		}			

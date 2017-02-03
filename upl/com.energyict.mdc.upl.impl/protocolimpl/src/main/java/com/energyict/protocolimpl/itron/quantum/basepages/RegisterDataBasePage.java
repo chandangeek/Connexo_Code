@@ -10,15 +10,20 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
-import com.energyict.cbo.*;
+import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
+
 /**
  *
  * @author Koen
@@ -48,7 +53,7 @@ public class RegisterDataBasePage extends AbstractBasePage {
         }
         
         for (int i=0;i<getQuantities().size();i++) {
-            strBuff.append("       registers["+i+"]="+(Quantity)getQuantities().get(i)+"\n");
+            strBuff.append("       registers["+i+"]="+ getQuantities().get(i) +"\n");
         }
         
         return strBuff.toString();
@@ -71,7 +76,7 @@ public class RegisterDataBasePage extends AbstractBasePage {
         if (getSelfReadSet() != -1) {
             TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
             if (!((BasePagesFactory)getBasePagesFactory()).getGeneralSetUpBasePage().isDstEnabled())
-                tz = ProtocolUtils.getWinterTimeZone(tz);            
+                tz = ProtocolUtils.getWinterTimeZone(tz);
             setSelfReadDate(com.energyict.protocolimpl.itron.protocol.Utils.buildDateYearFirst(data, offset, tz));
             offset += com.energyict.protocolimpl.itron.protocol.Utils.buildDateSize();
             setNrOfRegisterReadings((int)data[offset++]&0xFF);

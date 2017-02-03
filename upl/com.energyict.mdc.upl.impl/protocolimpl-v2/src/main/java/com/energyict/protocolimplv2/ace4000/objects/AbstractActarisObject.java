@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.exceptions.DataParseException;
 import org.w3c.dom.Document;
@@ -9,7 +8,11 @@ import org.w3c.dom.Element;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
@@ -61,7 +64,7 @@ abstract public class AbstractActarisObject {
             return stringWriter.getBuffer().toString();
         } catch (TransformerException e) {
             e.printStackTrace();
-            throw new ApplicationException("Could not transform current document into String.");
+            throw new IllegalArgumentException("Could not transform current document into String.");
         }
     }
 

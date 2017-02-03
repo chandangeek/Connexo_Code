@@ -1,11 +1,9 @@
 package com.energyict.protocolimpl.iec1107.cewe.prometer;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cbo.Utils;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -21,15 +19,16 @@ import java.util.List;
  * - can read it's register counterpart in the meter ( getRawData() )
  * - if a ProRegister is cacheable, getRawData will only fetch it once
  * - is able to parse all fields in a register ( asDate(), asInt(), as...() )
- *
+ * <p>
  * If the register is cacheable, it can be parsed using all the "as...()"
  * conversion methods.  However, if it is not cacheable, only the method
  * getRawData() is supported.  Every time the getRawData() is called, it
  * will refetch the data from the meter.
- *
+ * <p>
  * To avoid this refetching it is possible to freeze a register.
  *
- * @author fbo */
+ * @author fbo
+ */
 
 class ProRegister {
 
@@ -47,15 +46,15 @@ class ProRegister {
     private String rawData;
     private List<String> fields;
 
-    ProRegister(Prometer meter, String id){
+    ProRegister(Prometer meter, String id) {
         this(meter, id, true);
     }
 
-    ProRegister(Prometer meter, String id, boolean cacheable){
+    ProRegister(Prometer meter, String id, boolean cacheable) {
         this(meter, id, cacheable, 1);
     }
 
-    ProRegister(Prometer meter, String id, boolean cacheable, int fetchSize){
+    ProRegister(Prometer meter, String id, boolean cacheable, int fetchSize) {
         this.meter = meter;
         this.id = id;
         this.cacheable = cacheable;
@@ -65,22 +64,28 @@ class ProRegister {
     ProRegister(String rawData) {
         this.rawData = rawData;
         this.cacheable = true;
-        String tmp = rawData.substring(1, rawData.length()-1); // remove braces ()
+        String tmp = rawData.substring(1, rawData.length() - 1); // remove braces ()
         fields = Arrays.asList(tmp.split(","));
     }
 
-    /** id as byte[] */
-    public byte[] getId(){
+    /**
+     * id as byte[]
+     */
+    public byte[] getId() {
         return id.getBytes();
     }
 
-    /** nr of fields */
-    int size(){
+    /**
+     * nr of fields
+     */
+    int size() {
         return fields.size();
     }
 
-    /** iterator over all the fields */
-    Iterator<String> iterator(){
+    /**
+     * iterator over all the fields
+     */
+    Iterator<String> iterator() {
         return fields.iterator();
     }
 
@@ -89,9 +94,9 @@ class ProRegister {
     }
 
     String getRawData(boolean retry) throws IOException {
-        if( rawData == null ) {
+        if (rawData == null) {
             String tmp = meter.read(id + "(" + fetchSize + ")", retry);
-            if( ! cacheable ) {
+            if (!cacheable) {
                 return tmp;
             }
             rawData = tmp;
@@ -99,38 +104,42 @@ class ProRegister {
         return rawData;
     }
 
-    ProRegister readAndFreeze( ) throws IOException {
-        ProRegister register = new ProRegister( getRawData() );
+    ProRegister readAndFreeze() throws IOException {
+        ProRegister register = new ProRegister(getRawData());
         register.meter = meter;
         register.cacheable = true;
         return register;
     }
 
-    void setCeweProMeter(Prometer meter){
+    void setCeweProMeter(Prometer meter) {
         this.meter = meter;
     }
 
-    /** parse field 0 as String */
+    /**
+     * parse field 0 as String
+     */
     String asString() throws IOException {
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new UnsupportedOperationException(NOT_SUPPORTED_EXCEPTION);
         }
         return asString(0);
     }
 
-    /** parse field: fieldIdx as String */
+    /**
+     * parse field: fieldIdx as String
+     */
     String asString(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new UnsupportedOperationException(NOT_SUPPORTED_EXCEPTION);
         }
 
-        if( fields == null ) {
+        if (fields == null) {
             String tmp = getRawData();
-            tmp = tmp.substring(1, tmp.length()-1); // remove braces ()
+            tmp = tmp.substring(1, tmp.length() - 1); // remove braces ()
             List<String> f = Arrays.asList(tmp.split(",", -1));
 
-            if( cacheable ) {
+            if (cacheable) {
                 fields = f;
             } else {
                 return f.get(fieldIdx);
@@ -142,92 +151,108 @@ class ProRegister {
 
     }
 
-    /** parse field: fieldIdx as Double */
+    /**
+     * parse field: fieldIdx as Double
+     */
     Double asDouble(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new UnsupportedOperationException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return new Double(asString(fieldIdx));
 
     }
 
-    /** parse field 0 as Double */
+    /**
+     * parse field 0 as Double
+     */
     Double asDouble() throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new UnsupportedOperationException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return asDouble(0);
 
     }
 
-    /** parse field: fieldIdx as BigDecimal */
+    /**
+     * parse field: fieldIdx as BigDecimal
+     */
     BigDecimal asBigDecimal(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new UnsupportedOperationException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return new BigDecimal(asString(fieldIdx));
 
     }
 
-    /** parse field 0 as BigDecimal */
+    /**
+     * parse field 0 as BigDecimal
+     */
     BigDecimal asBigDecimal() throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new UnsupportedOperationException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return asBigDecimal(0);
 
     }
 
-    /** parse field: fieldIdx as int */
+    /**
+     * parse field: fieldIdx as int
+     */
     int asInt(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return Integer.parseInt(asString(fieldIdx));
 
     }
 
-    /** parse field 0 as int */
+    /**
+     * parse field 0 as int
+     */
     int asInt() throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new IllegalArgumentException(NOT_SUPPORTED_EXCEPTION);
         }
 
         return asInt(0);
 
     }
 
-    /** parse field 0 as Date with sdf as DateFormat */
+    /**
+     * parse field 0 as Date with sdf as DateFormat
+     */
     Date asDate(SimpleDateFormat sdf) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new UnsupportedOperationException(NOT_SUPPORTED_EXCEPTION);
         }
 
         try {
-            return sdf.parse(asString(0)+asString(1));
+            return sdf.parse(asString(0) + asString(1));
         } catch (ParseException e) {
             throw new NestedIOException(e);
         }
 
     }
 
-    /** parse fieldas Date with short dateFormat */
+    /**
+     * parse fieldas Date with short dateFormat
+     */
     Date asShortDate(int fieldIdx) throws IOException {
 
         if (!cacheable) {
-            throw new ApplicationException(NOT_SUPPORTED_EXCEPTION);
+            throw new UnsupportedOperationException(NOT_SUPPORTED_EXCEPTION);
         }
 
         try {
@@ -238,43 +263,53 @@ class ProRegister {
 
     }
 
-    /** parse field 0 as Quantity */
-    Quantity asQuantity( ) throws IOException {
+    /**
+     * parse field 0 as Quantity
+     */
+    Quantity asQuantity() throws IOException {
         return asQuantity(0);
     }
 
-    /** parse field: fieldIdx as Quantity */
+    /**
+     * parse field: fieldIdx as Quantity
+     */
     Quantity asQuantity(int fieldIdx) throws IOException {
 
         String data = asString(fieldIdx);
 
-        if( Utils.isNull(data) ) {
+        if (ProtocolTools.isNull(data)) {
             return null;
         }
 
         int idx = data.indexOf('*');
 
         String number = data.substring(0, idx);
-        String unit = data.substring(idx+1, data.length());
+        String unit = data.substring(idx + 1, data.length());
 
-        return new Quantity( number, UnitParser.parse(unit) );
+        return new Quantity(number, UnitParser.parse(unit));
 
     }
 
-    /** parse field: fieldIdx as Unit */
+    /**
+     * parse field: fieldIdx as Unit
+     */
     Unit asUnit(int fieldIdx) throws IOException {
         return UnitParser.parse(asString(fieldIdx));
     }
 
-    /** parse field 0 as Unit */
+    /**
+     * parse field 0 as Unit
+     */
     Unit asUnit() throws IOException {
         return asUnit(0);
     }
 
-    /** 19700101,000000 symantically means no date or NULL */
-    boolean isNullDate() throws IOException{
+    /**
+     * 19700101,000000 symantically means no date or NULL
+     */
+    boolean isNullDate() throws IOException {
         String tmp = getRawData();
-        tmp = tmp.substring(1, tmp.length()-1); // remove braces ()
+        tmp = tmp.substring(1, tmp.length() - 1); // remove braces ()
         return "19700101,000000".equals(tmp);
     }
 
@@ -286,7 +321,7 @@ class ProRegister {
         return asString(fieldIdx).isEmpty();
     }
 
-    public String toString( ){
+    public String toString() {
         return "ProRegister[ " + id + "]";
     }
 }

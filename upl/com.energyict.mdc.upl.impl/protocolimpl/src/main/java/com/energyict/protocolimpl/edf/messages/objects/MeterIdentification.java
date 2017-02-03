@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class MeterIdentification extends ComplexCosemObject {
 	
@@ -28,14 +30,14 @@ public class MeterIdentification extends ComplexCosemObject {
 		super(element);
 		NodeList names = element.getElementsByTagName(IDNAME);
 		if (names.getLength() != 0){
-			Node firstChild = (Node) names.item(0).getFirstChild();
+			Node firstChild = names.item(0).getFirstChild();
 			if (firstChild != null){
 				id = new OctetString(names.item(0).getFirstChild().getNodeValue());
 			} else {
 				id = new OctetString();
 			}
 		} else {
-			throw new ApplicationException("Cannot create meterIdentification");
+			throw new IllegalArgumentException("Cannot create meterIdentification");
 		}
 	}
 

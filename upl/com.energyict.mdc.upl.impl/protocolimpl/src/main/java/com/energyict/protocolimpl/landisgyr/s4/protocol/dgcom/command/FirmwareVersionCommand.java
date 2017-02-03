@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *
@@ -58,7 +59,7 @@ public class FirmwareVersionCommand extends AbstractCommand {
         
         if (len==2) {
             setProductFamily(""+(data[0]>>4));
-            setFirmwareVersion(""+(data[0]&0x0F)+"."+ProtocolUtils.BCD2hex(data[1]));
+            setFirmwareVersion(""+(data[0]&0x0F)+"."+ ProtocolUtils.BCD2hex(data[1]));
             setDgcomVersion("3.0");
         }
         else if (len==4) {

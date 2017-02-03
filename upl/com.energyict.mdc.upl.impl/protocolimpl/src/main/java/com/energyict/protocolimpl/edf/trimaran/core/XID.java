@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.edf.trimaran.core;
 
-import com.energyict.protocol.*;
-import java.io.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  *

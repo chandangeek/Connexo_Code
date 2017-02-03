@@ -11,10 +11,15 @@
 package com.energyict.protocolimpl.ansi.c12.procedures;
 
 import com.energyict.protocolimpl.ansi.c12.C12ParseUtils;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 /**
  *
  * @author Koen

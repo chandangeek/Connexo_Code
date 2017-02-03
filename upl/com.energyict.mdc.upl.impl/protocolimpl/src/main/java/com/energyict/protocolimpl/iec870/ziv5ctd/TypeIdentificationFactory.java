@@ -6,8 +6,6 @@
 
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
-import com.energyict.cbo.NotFoundException;
-
 import java.util.Iterator;
 import java.util.TimeZone;
 import java.util.TreeMap;
@@ -131,9 +129,9 @@ public class TypeIdentificationFactory {
         return type;
     }
 
-    private NotFoundException createNotFoundException(String msg) {
+    private IllegalArgumentException createNotFoundException(String msg) {
         String completeMsg = "IEC870TypeIdentificationFactory " + msg;
-        return new NotFoundException(completeMsg);
+        return new IllegalArgumentException(completeMsg);
     }
 
     public String toString() {

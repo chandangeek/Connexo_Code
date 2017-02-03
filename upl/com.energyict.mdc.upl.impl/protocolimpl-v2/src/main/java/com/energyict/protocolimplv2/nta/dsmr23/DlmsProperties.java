@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
-import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.GeneralCipheringKeyType;
@@ -13,7 +9,8 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -75,17 +72,19 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.WAKE_UP;
 /**
  * Class that holds all DLMS device properties (general, dialect & security related)
  * Based on these properties, a DLMS session and its connection layer can be fully configured.
- * <p/>
+ * <p>
  * The list of optional and required properties that is shown in EIServer is held in {@link DlmsConfigurationSupport}
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 14-jul-2011
  * Time: 11:26:48
  */
 public class DlmsProperties implements DlmsSessionProperties {
 
-    /** The default is non-pre-established associations. */
-	private static final boolean PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT = false;
+    /**
+     * The default is non-pre-established associations.
+     */
+    private static final boolean PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT = false;
 
     private final com.energyict.protocolimpl.properties.TypedProperties properties;
     protected SecurityProvider securityProvider;
@@ -113,13 +112,6 @@ public class DlmsProperties implements DlmsSessionProperties {
 
         if (object == null) {
             return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
-        } else if (object instanceof TimeZoneInUse) {
-            TimeZoneInUse timeZoneInUse = (TimeZoneInUse) object;
-            if (timeZoneInUse.getTimeZone() == null) {
-                return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
-            } else {
-                return timeZoneInUse.getTimeZone();
-            }
         } else if (object instanceof TimeZone) {
             return (TimeZone) object;
         } else {
@@ -337,7 +329,7 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public long getTimeout() {
-        return properties.getTypedProperty(TIMEOUT, new TimeDuration(DEFAULT_TIMEOUT.intValue() / 1000)).getMilliSeconds();
+        return properties.getTypedProperty(TIMEOUT, Duration.ofMillis(DEFAULT_TIMEOUT.intValue())).toMillis();
     }
 
     @Override
@@ -423,9 +415,9 @@ public class DlmsProperties implements DlmsSessionProperties {
         return true;    // Protocols who don't want the frame counter to be increased for retries, can override this method
     }
 
-	@Override
-	public final boolean isPublicClientPreEstablished() {
-		return this.properties.getTypedProperty(PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT);
-	}
+    @Override
+    public final boolean isPublicClientPreEstablished() {
+        return this.properties.getTypedProperty(PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED, PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT);
+    }
 
 }

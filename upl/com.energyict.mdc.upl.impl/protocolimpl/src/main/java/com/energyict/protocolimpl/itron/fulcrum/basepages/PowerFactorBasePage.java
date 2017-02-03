@@ -10,14 +10,15 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.itron.protocol.Utils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *

@@ -1,15 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdc.upl.properties.TariffCalendar;
-
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
@@ -51,10 +41,16 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.NumberLookup;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.MessageParser;
@@ -69,11 +65,10 @@ import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -92,13 +87,17 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileFinder messageFileFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final NumberLookupFinder numberLookupFinder;
+    private final NumberLookupExtractor numberLookupExtractor;
 
-    public WebRTUZ3MessageExecutor(final WebRTUZ3 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor) {
+    public WebRTUZ3MessageExecutor(final WebRTUZ3 protocol, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, NumberLookupFinder numberLookupFinder, NumberLookupExtractor numberLookupExtractor) {
         this.protocol = protocol;
         this.calendarFinder = calendarFinder;
         this.messageFileFinder = messageFileFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
+        this.numberLookupFinder = numberLookupFinder;
+        this.numberLookupExtractor = numberLookupExtractor;
     }
 
     @Override
@@ -108,10 +107,10 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
     public MessageResult executeMessageEntry(final MessageEntry messageEntry) throws IOException {
 
-        if(isMbusMessage(messageEntry.getSerialNumber())){
+        if (isMbusMessage(messageEntry.getSerialNumber())) {
             MbusDeviceMessageExecutor messageExecutor = new MbusDeviceMessageExecutor(this.protocol.getSlaveMeterForSerial(messageEntry.getSerialNumber()));
             return messageExecutor.executeMessageEntry(messageEntry);
-        } else if(isEmeterMessage(messageEntry.getSerialNumber())){
+        } else if (isEmeterMessage(messageEntry.getSerialNumber())) {
             EMeterMessageExecutor messageExecutor = new EMeterMessageExecutor(this.protocol.getSlaveMeterForSerial(messageEntry.getSerialNumber()));
             return messageExecutor.executeMessageEntry(messageEntry);
         } else {
@@ -446,16 +445,12 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     Limiter epdiLimiter = getCosemObjectFactory().getLimiter();
                     try {
-                        Lookup lut = mw().getLookupFactory().find(Integer.parseInt(messageHandler.getEpGroupIdListLookupTableId()));
-                        if (lut == null) {
+                        Optional<NumberLookup> lut = numberLookupFinder.from(messageHandler.getEpGroupIdListLookupTableId());
+                        if (!lut.isPresent()) {
                             throw new IOException("No lookuptable defined with id '" + messageHandler.getEpGroupIdListLookupTableId() + "'");
                         } else {
-                            Iterator entriesIt = lut.getEntries().iterator();
                             Array idArray = new Array();
-                            while (entriesIt.hasNext()) {
-                                LookupEntry lue = (LookupEntry) entriesIt.next();
-                                idArray.addDataType(new Unsigned16(lue.getKey()));
-                            }
+                            numberLookupExtractor.keys(lut.get()).forEach(key -> idArray.addDataType(new Unsigned16(Integer.parseInt(key))));
                             epdiLimiter.writeEmergencyProfileGroupIdList(idArray);
                         }
                     } catch (NumberFormatException e) {
@@ -691,7 +686,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                                             }
                                             break;
                                             default: {
-                                                throw new ApplicationException("Row " + i + " of the CSV file does not contain a valid type.");
+                                                throw new IllegalArgumentException("Row " + i + " of the CSV file does not contain a valid type.");
                                             }
                                         }
                                         to.setTime(currentTime.getTime());
@@ -740,15 +735,14 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                             } else {
                                 csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                             }
-                            mw().getUserFileFactory().create(csvParser.convertResultToUserFile(deviceMessageFile, getRtuFromDatabaseBySerialNumber().getFolderId()));
+                            success = true;
+                            throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
                         } else {
                             throw new IOException("UserFileId is not a valid number");
                         }
                     } else {
                         throw new IOException("No userfile id is given.");
                     }
-
-                    success = true;
                 } else if (globalReset) {
 
                     log(Level.INFO, "Handling message: Global Meter Reset.");
@@ -825,7 +819,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
                     success = false;
                 }
 
-            } catch (BusinessException | IOException | SQLException e) {
+            } catch (IllegalArgumentException | IOException e) {
                 log(Level.INFO, "Message has failed. " + e.getMessage());
             }
             if (success) {
@@ -839,7 +833,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
     private boolean isEmeterMessage(final String serialNumber) {
         for (DeviceMapping deviceMapping : this.protocol.getMeterTopology().geteMeterMap()) {
-            if(deviceMapping.getSerialNumber().equalsIgnoreCase(serialNumber)){
+            if (deviceMapping.getSerialNumber().equalsIgnoreCase(serialNumber)) {
                 return true;
             }
         }
@@ -848,7 +842,7 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
     private boolean isMbusMessage(final String serialNumber) {
         for (DeviceMapping deviceMapping : this.protocol.getMeterTopology().getMbusMap()) {
-            if(deviceMapping.getSerialNumber().equalsIgnoreCase(serialNumber)){
+            if (deviceMapping.getSerialNumber().equalsIgnoreCase(serialNumber)) {
                 return true;
             }
         }
@@ -870,11 +864,6 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
     private DLMSMeterConfig getMeterConfig() {
         return this.protocol.getDlmsSession().getMeterConfig();
     }
-
-    private MeteringWarehouse mw() {
-        return ProtocolTools.mw();
-    }
-
 
     private ObisCode getDisconnectControlScheduleObis(String outputId) throws IOException {
         return ObisCode.fromString("0.0.15.0." + (1 + validateAndGetOutputId(outputId)) + ".255");
@@ -1097,10 +1086,5 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
     private int getConnectionMode() {
         return this.protocol.getDlmsSession().getProperties().getConnectionMode().getMode();
-    }
-
-    private Device getRtuFromDatabaseBySerialNumber() {
-        String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        return mw().getDeviceFactory().findBySerialNumber(serial).get(0);
     }
 }

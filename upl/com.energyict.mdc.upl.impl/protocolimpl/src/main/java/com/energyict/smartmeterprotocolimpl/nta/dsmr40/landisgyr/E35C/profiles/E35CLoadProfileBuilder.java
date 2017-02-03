@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.profiles;
 
-import com.energyict.cbo.Utils;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGDLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
@@ -41,7 +41,7 @@ public class E35CLoadProfileBuilder extends LGLoadProfileBuilder {
     @Override
     protected Calendar getCalendar(Date date) {
         // Profile data is always transmitted in standard timezone (~ winter timezone without DST)!
-        Calendar calendar = Calendar.getInstance(Utils.getStandardTimeZone(getMeterProtocol().getTimeZone()));
+        Calendar calendar = Calendar.getInstance(ProtocolTools.getStandardTimeZone(getMeterProtocol().getTimeZone()));
         calendar.setTime(date);
         return calendar;
     }

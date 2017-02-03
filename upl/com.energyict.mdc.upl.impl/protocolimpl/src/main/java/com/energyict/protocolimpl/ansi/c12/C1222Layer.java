@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.ansi.c12.EAXPrime.EAXPrimeEncoder;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -25,19 +25,19 @@ public class C1222Layer extends C12Layer2 {
     public enum SecurityModeEnum {
         SecurityClearText,
         SecurityClearTextWithAuthentication,
-        SecurityCipherTextWithAuthentication;
+        SecurityCipherTextWithAuthentication
     }
 
     public enum ResponseControlEnum {
         ResponseControlAlways,
         ResponseControlOnException,
-        ResponseControlNever;
+        ResponseControlNever
     }
 
     public enum SecurityExtensionEnum {
         ExtensionNo,
         ExtensionSeed,
-        ExtensionPassword;
+        ExtensionPassword
     }
 
     public C1222Layer(InputStream inputStream,
@@ -186,7 +186,7 @@ public class C1222Layer extends C12Layer2 {
         c1222Buffer.reset();
 
         if (responseData.getData() == null) {
-            throw new ApplicationException("Invalid message format. User Information is null.");
+            throw new ProtocolException("Invalid message format. User Information is null.");
         }
 
         return responseData;
@@ -227,7 +227,7 @@ public class C1222Layer extends C12Layer2 {
         return result;
     }
 
-    private void buildC1222Wrapper(C1222Buffer c1222Buffer) throws IOException, ApplicationException, IllegalStateException {
+    private void buildC1222Wrapper(C1222Buffer c1222Buffer) throws IOException, IllegalStateException {
         buildHeader(c1222Buffer);
         buildUserInformation(c1222Buffer);
 
@@ -291,7 +291,7 @@ public class C1222Layer extends C12Layer2 {
 
         if (c1222Buffer.getSecurityMode() == SecurityModeEnum.SecurityClearText) {
             if (c1222Buffer.getRequestParms().getEdClass() != null && c1222Buffer.getRequestParms().getEdClass().length() > 8) {    // Length = 4 bytes
-                throw new ApplicationException("ED Class Too Long");
+                throw new ProtocolException("ED Class Too Long");
             }
             if (c1222Buffer.getRequestParms().getEdClass() != null && c1222Buffer.getRequestParms().getEdClass().length() > 0) {
                 result.write(ProtocolTools.getBytesFromHexString(c1222Buffer.getRequestParms().getEdClass(), ""));
@@ -392,7 +392,7 @@ public class C1222Layer extends C12Layer2 {
 
 
 
-    private void buildEncryption(C1222Buffer c1222Buffer) throws ApplicationException, IOException {
+    private void buildEncryption(C1222Buffer c1222Buffer) throws IOException {
         byte[] clearText = c1222Buffer.getCanonifiedCleartext().toByteArray();
         byte[] plainText = c1222Buffer.getCommand().toByteArray();
 
@@ -405,7 +405,7 @@ public class C1222Layer extends C12Layer2 {
         c1222Buffer.getUserInformation().write(mac);
     }
 
-    private void buildAuthentication(C1222Buffer c1222Buffer) throws ApplicationException, IOException {    // ToDO: SecurityMode 1 needs to be tested out!
+    private void buildAuthentication(C1222Buffer c1222Buffer) throws IOException {    // ToDO: SecurityMode 1 needs to be tested out!
         byte[] clearText = c1222Buffer.getCanonifiedCleartext().toByteArray();
         byte[] plainText = null;
 
@@ -419,7 +419,7 @@ public class C1222Layer extends C12Layer2 {
 
     private void buildCallingInvocation(ByteArrayOutputStream byteArrayList, C1222Buffer c1222Buffer) throws IOException {
         if (c1222Buffer.getSecurityKeyId() > 256) {
-            throw new ApplicationException("securityKeyId too large");
+            throw new ProtocolException("securityKeyId too large");
         }
 
         byte[] initializationVector = longToByteArrayLittleEndian(c1222Buffer.getInitializationVector());
@@ -526,7 +526,7 @@ public class C1222Layer extends C12Layer2 {
         boolean firstPass = true;
 
         if (valueToEncode == null || valueToEncode.length() < 2) {
-            throw new ApplicationException("Is null or Invalid Length");
+            throw new IllegalArgumentException("Is null or Invalid Length");
         }
 
         StringTokenizer st = new StringTokenizer(valueToEncode, ".");
@@ -537,11 +537,11 @@ public class C1222Layer extends C12Layer2 {
                 if (!valueToEncode.startsWith("."))  // start with . means value is relative.
                 {
                     if (!st.hasMoreTokens()) {
-                        throw new ApplicationException("Invalid Value");
+                        throw new IllegalArgumentException("Invalid Value");
                     }
                     byteArrayList.write((byte) (Integer.parseInt(value) * 40 + Integer.parseInt(st.nextToken())));
                     if (!st.hasMoreTokens()) {
-                        throw new ApplicationException("Invalid Value");
+                        throw new IllegalArgumentException("Invalid Value");
                     }
                     value = st.nextToken();
                 }
@@ -550,7 +550,7 @@ public class C1222Layer extends C12Layer2 {
             int valueAsInt = Integer.parseInt(value);
             int mask = 0x7F << (3 * 7);
             if (mask <= valueAsInt) {
-                throw new ApplicationException("Invalid Value");
+                throw new IllegalArgumentException("Invalid Value");
             }
 
             int septet;

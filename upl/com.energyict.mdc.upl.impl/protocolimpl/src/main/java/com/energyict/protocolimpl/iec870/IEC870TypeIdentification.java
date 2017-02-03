@@ -6,11 +6,9 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -133,7 +131,7 @@ public class IEC870TypeIdentification {
             IEC870TypeIdentification tid = (IEC870TypeIdentification)it.next();
             if (tid.getId() == id) return tid;
         }
-        throw new NotFoundException("IEC870TypeIdentification, id "+id+" not found");
+        throw new IllegalArgumentException("IEC870TypeIdentification, id "+id+" not found");
     }
     
     public static IEC870TypeIdentification getTypeIdentification(String shortdescr) {
@@ -142,7 +140,7 @@ public class IEC870TypeIdentification {
             IEC870TypeIdentification tid = (IEC870TypeIdentification)it.next();
             if (tid.getShortdescr().compareTo(shortdescr) == 0) return tid;
         }
-        throw new NotFoundException("IEC870TypeIdentification, "+shortdescr+" not found");
+        throw new IllegalArgumentException("IEC870TypeIdentification, "+shortdescr+" not found");
     }
     public static int getId(String shortdescr) {
         Iterator it = typeids.iterator();
@@ -150,6 +148,6 @@ public class IEC870TypeIdentification {
             IEC870TypeIdentification tid = (IEC870TypeIdentification)it.next();
             if (tid.getShortdescr().compareTo(shortdescr) == 0) return tid.getId();
         }
-        throw new NotFoundException("IEC870TypeIdentification, "+shortdescr+" not found");
+        throw new IllegalArgumentException("IEC870TypeIdentification, "+shortdescr+" not found");
     }
 }

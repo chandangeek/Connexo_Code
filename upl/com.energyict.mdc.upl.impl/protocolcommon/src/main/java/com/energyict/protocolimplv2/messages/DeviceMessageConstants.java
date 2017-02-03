@@ -202,8 +202,8 @@ public final class DeviceMessageConstants {
     public static final String certificateEntityAttributeDefaultTranslation = "Certificate entity";
     public static final String certificateAliasAttributeName = "SecurityMessage.certificateAlias";
     public static final String certificateAliasAttributeDefaultTranslation = "Certificate alias";
-    public static final String certificateWrapperIdAttributeName = "SecurityMessage.certificateWrapperId";
-    public static final String certificateWrapperIdAttributeDefaultTranslation = "Certificate wrapper ID";
+    public static final String certificateWrapperAttributeName = "SecurityMessage.certificateWrapper";
+    public static final String certificateWrapperAttributeDefaultTranslation = "Certificate wrapper";
     public static final String certificateTypeAttributeName = "SecurityMessage.certificateType";
     public static final String certificateTypeAttributeDefaultTranslation = "Certificate type";
     public static final String certificateIssuerAttributeName = "SecurityMessage.certificateIssuer";

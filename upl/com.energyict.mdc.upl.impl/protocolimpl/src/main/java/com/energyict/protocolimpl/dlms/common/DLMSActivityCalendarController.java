@@ -20,8 +20,6 @@ import com.energyict.protocolimpl.dlms.idis.IDISMessageHandler;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -42,6 +40,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -54,7 +54,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
 
     public static final String[] errors = {"ActivityCalendar did not contain a valid SEASONName.",
             "ActivityCalendar did not contain a valid WEEKPROFILEName."};
-
+    public static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");
     // Indexes of the DateTime OctetString
     private static final int indexDtYearHigh = 0;
     private static final int indexDtYearLow = 1;
@@ -70,14 +70,12 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
     private static final int indexDtClockStatus = 11;
     private static final byte[] initialDateTimeArray = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
             0, 0, 0, 0, (byte) 0x80, 0, 0};
-
     // Indexes of the Time OctetString
     private static final int indexTHour = 0;
     private static final int indexTMinutes = 1;
     private static final int indexTSeconds = 2;
     private static final int indexTHundredsOfSeconds = 3;
     private static final byte[] initialDayTariffStartTimeArray = new byte[]{0x00, 0x00, 0x00, 0x00};
-
     // Indexes of the Date OctetString
     private static final int indexDYearHigh = 0;
     private static final int indexDYearLow = 1;
@@ -85,14 +83,40 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
     private static final int indexDDayOfMonth = 3;
     private static final int indexDDayOfWeek = 4;
     private static final byte[] initialSpecialDayDateArray = new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
-    public static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");
     private static final ObisCode SPECIAL_DAYS_TABLE_OBISCODE = ObisCode.fromString("0.0.11.0.0.255");
-
+    /**
+     * The current {@link org.apache.commons.logging.Log}
+     */
+    protected final Logger logger = Logger.getLogger(this.getClass().getName());
+    /**
+     * Boolean indicating if the xmlContent is encoded as Base64 or not.<br/>
+     * If the content is encoded as Base64, then during parsing it will be decoded back to plain content.?
+     */
+    protected final boolean xmlContentEncodedAsBase64;
+    /**
+     * A temporary Map to hold the specialDayNodes
+     */
+    protected Map<Long, Node> tempSpecialDayMap = new HashMap<Long, Node>();
+    /**
+     * Sorted list containing the specialDayEntryDatesNode ...
+     */
+    protected List<Node> sortedSpecialDayNodes = new ArrayList<Node>();
+    /**
+     * The time when to active the passive Calendar
+     */
+    protected OctetString activatePassiveCalendarTime;
+    /**
+     * The name of the passive Calendar
+     */
+    protected OctetString passiveCalendarName;
+    /**
+     * Contains a map of given DayProfile Ids and usable DayProfile Ids. The ApolloMeter does not allow a dayId starting from <b>0</b>
+     */
+    protected Map<String, Integer> tempShiftedDayIdMap = new HashMap<String, Integer>();
     private CosemObjectFactory cosemObjectFactory;
     private TimeZone timeZone;
     private ObisCode activityCalendarObisCode;
     private ObisCode specialDaysCalendarObisCode;
-
     /**
      * The {@link com.energyict.dlms.axrdencoding.Array} containing the {@link com.energyict.dlms.cosem.attributeobjects.SeasonProfiles}
      */
@@ -109,40 +133,6 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
      * The {@link com.energyict.dlms.axrdencoding.Array} containing the {@link com.energyict.dlms.cosem.SpecialDaysTable}
      */
     private Array specialDayArray;
-    /**
-     * A temporary Map to hold the specialDayNodes
-     */
-    protected Map<Long, Node> tempSpecialDayMap = new HashMap<Long, Node>();
-    /**
-     * Sorted list containing the specialDayEntryDatesNode ...
-     */
-    protected List<Node> sortedSpecialDayNodes = new ArrayList<Node>();
-
-    /**
-     * The time when to active the passive Calendar
-     */
-    protected OctetString activatePassiveCalendarTime;
-
-    /**
-     * The name of the passive Calendar
-     */
-    protected OctetString passiveCalendarName;
-
-    /**
-     * The current {@link org.apache.commons.logging.Log}
-     */
-    protected final Log logger = LogFactory.getLog(getClass());
-
-    /**
-     * Contains a map of given DayProfile Ids and usable DayProfile Ids. The ApolloMeter does not allow a dayId starting from <b>0</b>
-     */
-    protected Map<String, Integer> tempShiftedDayIdMap = new HashMap<String, Integer>();
-
-    /**
-     * Boolean indicating if the xmlContent is encoded as Base64 or not.<br/>
-     * If the content is encoded as Base64, then during parsing it will be decoded back to plain content.?
-     */
-    protected final boolean xmlContentEncodedAsBase64;
 
     public DLMSActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone) {
         this(cosemObjectFactory, timeZone, true);
@@ -255,16 +245,16 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
             NodeList specialDayList = doc.getElementsByTagName(CodeTableXml.specialDays);
             createSpecialDays(specialDayList);
 
-            logger.debug("SeasonArray : " + ParseUtils.decimalByteToString(seasonArray.getBEREncodedByteArray()));
-            logger.debug("WeekArray : " + ParseUtils.decimalByteToString(weekArray.getBEREncodedByteArray()));
-            logger.debug("DayArray : " + ParseUtils.decimalByteToString(dayArray.getBEREncodedByteArray()));
-            logger.debug("SpecialDayArray : " + ParseUtils.decimalByteToString(specialDayArray.getBEREncodedByteArray()));
+            logger.log(Level.FINEST, "SeasonArray : " + ParseUtils.decimalByteToString(seasonArray.getBEREncodedByteArray()));
+            logger.log(Level.FINEST, "WeekArray : " + ParseUtils.decimalByteToString(weekArray.getBEREncodedByteArray()));
+            logger.log(Level.FINEST, "DayArray : " + ParseUtils.decimalByteToString(dayArray.getBEREncodedByteArray()));
+            logger.log(Level.FINEST, "SpecialDayArray : " + ParseUtils.decimalByteToString(specialDayArray.getBEREncodedByteArray()));
 
         } catch (ParserConfigurationException e) {
-            logger.error("ActivityCalendar parser -> Could not create a DocumentBuilder.");
+            logger.log(Level.SEVERE, "ActivityCalendar parser -> Could not create a DocumentBuilder.");
             throw new IOException("ActivityCalendar parser -> Could not create a DocumentBuilder. ParseConfigurationException message : " + e.getLocalizedMessage());
         } catch (SAXException e) {
-            logger.error("ActivityCalendar parser -> A parse ERROR occurred.");
+            logger.log(Level.SEVERE, "ActivityCalendar parser -> A parse ERROR occurred.");
             throw new IOException("ActivityCalendar parser -> A parse ERROR occurred. SAXException message : " + e.getLocalizedMessage());
         }
     }
@@ -292,7 +282,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
             for (int j = 0; j < dayProfile.getChildNodes().getLength(); j++) {
                 if (dayProfile.getChildNodes().item(j).getNodeName().equalsIgnoreCase(CodeTableXml.dayId)) {
                     this.tempShiftedDayIdMap.put(dayProfile.getChildNodes().item(j).getTextContent(), dayIdCounter++);
-                    logger.debug("DayId : " + dayProfile.getChildNodes().item(j).getTextContent() + " is changed to " + dayIdCounter);
+                    logger.log(Level.FINEST, "DayId : " + dayProfile.getChildNodes().item(j).getTextContent() + " is changed to " + dayIdCounter);
                 }
             }
         }
@@ -334,7 +324,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
         } else if (!"0".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
             ac.writeActivatePassiveCalendarTime(this.activatePassiveCalendarTime);
         } else {
-            logger.trace("No passiveCalendar activation date was given.");
+            logger.log(Level.FINEST, "No passiveCalendar activation date was given.");
         }
     }
 
@@ -408,29 +398,29 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
             for (int j = 0; j < seasonProfile.getChildNodes().getLength(); j++) {
                 Node seasonNode = seasonProfile.getChildNodes().item(j);
                 if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonProfileName)) {
-                    logger.debug("SeasonProfileName : " + seasonId);
+                    logger.log(Level.FINEST, "SeasonProfileName : " + seasonId);
                     sp.setSeasonProfileName(createSeasonName(seasonId));
                 } else if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonStart)) {
                     byte[] startTime = initialDateTimeArray.clone();
                     //TODO it is possible that you have to give at least 1 valid value
-                    logger.debug("Entering SeasonStart Element");
+                    logger.log(Level.FINEST, "Entering SeasonStart Element");
                     for (int k = 0; k < seasonNode.getChildNodes().getLength(); k++) {
                         Node startTimeElement = seasonNode.getChildNodes().item(k);
                         if (startTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dYear)) {
-                            logger.debug("SeasonStartYear : " + startTimeElement.getTextContent());
+                            logger.log(Level.FINEST, "SeasonStartYear : " + startTimeElement.getTextContent());
                             startTime[indexDtYearLow] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0x00FF);
                             startTime[indexDtYearHigh] = (byte) ((Integer.valueOf(startTimeElement.getTextContent()) & 0xFF00) >> 8);
                         } else if (startTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dMonth)) {
-                            logger.debug("SeasonStartMonth : " + startTimeElement.getTextContent());
+                            logger.log(Level.FINEST, "SeasonStartMonth : " + startTimeElement.getTextContent());
                             startTime[indexDtMonth] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0xFF);
                         } else if (startTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dDay)) {
-                            logger.debug("SeasonStartDay : " + startTimeElement.getTextContent());
+                            logger.log(Level.FINEST, "SeasonStartDay : " + startTimeElement.getTextContent());
                             startTime[indexDtDayOfMonth] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0xFF);
                         }
                     }
                     sp.setSeasonStart(OctetString.fromByteArray(startTime));
                 } else if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonWeekName)) {
-                    logger.debug("SeasonWeekName : " + seasonId);
+                    logger.log(Level.FINEST, "SeasonWeekName : " + seasonId);
                     sp.setWeekName(createWeekName(seasonId));
                 }
             }
@@ -475,28 +465,28 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
             for (int j = 0; j < weekProfile.getChildNodes().getLength(); j++) {
                 Node weekNode = weekProfile.getChildNodes().item(j);
                 if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.weekProfileName)) {
-                    logger.debug("WeekProfileName : " + weekNode.getTextContent());
+                    logger.log(Level.FINEST, "WeekProfileName : " + weekNode.getTextContent());
                     wp.setWeekProfileName(createWeekName(weekNode.getTextContent()));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkMonday)) {
-                    logger.debug("Monday : " + weekNode.getTextContent());
+                    logger.log(Level.FINEST, "Monday : " + weekNode.getTextContent());
                     wp.setMonday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkTuesday)) {
-                    logger.debug("Tuesday : " + weekNode.getTextContent());
+                    logger.log(Level.FINEST, "Tuesday : " + weekNode.getTextContent());
                     wp.setTuesday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkWednesDay)) {
-                    logger.debug("WednesDay : " + weekNode.getTextContent());
+                    logger.log(Level.FINEST, "WednesDay : " + weekNode.getTextContent());
                     wp.setWednesday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkThursday)) {
-                    logger.debug("Thursday : " + weekNode.getTextContent());
+                    logger.log(Level.FINEST, "Thursday : " + weekNode.getTextContent());
                     wp.setThursday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkFriday)) {
-                    logger.debug("Friday : " + weekNode.getTextContent());
+                    logger.log(Level.FINEST, "Friday : " + weekNode.getTextContent());
                     wp.setFriday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkSaturday)) {
-                    logger.debug("Saturday : " + weekNode.getTextContent());
+                    logger.log(Level.FINEST, "Saturday : " + weekNode.getTextContent());
                     wp.setSaturday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkSunday)) {
-                    logger.debug("Sunday : " + weekNode.getTextContent());
+                    logger.log(Level.FINEST, "Sunday : " + weekNode.getTextContent());
                     wp.setSunday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 }
             }
@@ -507,12 +497,12 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
     /**
      * Create the Day{@link com.energyict.dlms.axrdencoding.Array}. The day Array to write to the meter should contain :<br>
      * <code>
-     * <p/>
+     * <p>
      * day_profile::=structure{
      * - day_id         : unsigned (int)
      * - day_schedule   : array of day_profile_actions
      * }
-     * <p/>
+     * <p>
      * day_profile_actions::=structure{
      * - start_time             : OctetString
      * - script_logical_name    : OctetString
@@ -531,22 +521,22 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
             DayProfiles dp = new DayProfiles();
             for (int j = 0; j < dayProfile.getChildNodes().getLength(); j++) {
                 if (dayProfile.getChildNodes().item(j).getNodeName().equalsIgnoreCase(CodeTableXml.dayId)) {
-                    logger.debug("DayId : " + dayProfile.getChildNodes().item(j).getTextContent());
+                    logger.log(Level.FINEST, "DayId : " + dayProfile.getChildNodes().item(j).getTextContent());
                     dp.setDayId(new Unsigned8(this.tempShiftedDayIdMap.get(dayProfile.getChildNodes().item(j).getTextContent())));
 
                 } else if (dayProfile.getChildNodes().item(j).getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffs)) {
                     Node dayProfileSchedules = dayProfile.getChildNodes().item(j);
-                    logger.debug("NrOfDayProfileTariffs : " + dayProfileSchedules.getChildNodes().getLength());
+                    logger.log(Level.FINEST, "NrOfDayProfileTariffs : " + dayProfileSchedules.getChildNodes().getLength());
                     Array dpsArray = new Array();
                     for (int k = 0; k < dayProfileSchedules.getChildNodes().getLength(); k++) {
                         Node dayProfileSchedule = dayProfileSchedules.getChildNodes().item(k);
-                        logger.debug("NrOfElements : " + dayProfileSchedule.getChildNodes().getLength());
+                        logger.log(Level.FINEST, "NrOfElements : " + dayProfileSchedule.getChildNodes().getLength());
                         DayProfileActions dpa = new DayProfileActions();
                         for (int l = 0; l < dayProfileSchedule.getChildNodes().getLength(); l++) {
                             byte[] dayTariffStartTime = initialDayTariffStartTimeArray.clone();
                             Node schedule = dayProfileSchedule.getChildNodes().item(l);
                             if (schedule.getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffStartTime)) {
-                                logger.debug("DayScheduleStartTime : " + schedule.getTextContent());
+                                logger.log(Level.FINEST, "DayScheduleStartTime : " + schedule.getTextContent());
                                 for (int m = 0; m < schedule.getChildNodes().getLength(); m++) {
                                     Node timeElement = schedule.getChildNodes().item(m);
                                     if (timeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dHour)) {
@@ -560,7 +550,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
                                 dpa.setStartTime(OctetString.fromByteArray(dayTariffStartTime));
 
                             } else if (schedule.getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffId)) {
-                                logger.debug("DayScheduleScriptSelector : " + schedule.getTextContent());
+                                logger.log(Level.FINEST, "DayScheduleScriptSelector : " + schedule.getTextContent());
                                 dpa.setScriptSelector(new Unsigned16(Integer.valueOf(schedule.getTextContent())));
                             }
                         }
@@ -636,7 +626,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
 
                     if (specialDayEntry.getNodeName().equalsIgnoreCase(CodeTableXml.specialDayEntryDate)) {
                         index = sortedSpecialDayNodes.indexOf(specialDayEntry);
-                        logger.debug("SpecialDayEntryIndex : " + index);
+                        logger.log(Level.FINEST, "SpecialDayEntryIndex : " + index);
                         sds.addDataType(new Unsigned16(index));
                         byte[] sdDate = initialSpecialDayDateArray.clone();
                         for (int k = 0; k < specialDayEntry.getChildNodes().getLength(); k++) {
@@ -650,10 +640,10 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
                                 sdDate[indexDDayOfMonth] = (byte) (Integer.valueOf(sdTimeElement.getTextContent()) & 0xFF);
                             }
                         }
-                        logger.debug("SpecialDayEntryDate : " + specialDayEntry.getTextContent());
+                        logger.log(Level.FINEST, "SpecialDayEntryDate : " + specialDayEntry.getTextContent());
                         sds.addDataType(OctetString.fromByteArray(sdDate));
                     } else if (specialDayEntry.getNodeName().equalsIgnoreCase(CodeTableXml.specialDayEntryDayId)) {
-                        logger.debug("SpecialDayEntryDayId : " + specialDayEntry.getTextContent());
+                        logger.log(Level.FINEST, "SpecialDayEntryDayId : " + specialDayEntry.getTextContent());
                         sds.addDataType(new Unsigned8(this.tempShiftedDayIdMap.get(specialDayEntry.getTextContent())));
                     }
                 }
@@ -699,7 +689,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
         if (content.length == 1) {
             content[0] = Integer.valueOf(index, 16).byteValue();
         } else {
-            logger.warn(errors[type]);
+            logger.log(Level.WARNING, errors[type]);
             throw new IOException(errors[type]);
         }
         return OctetString.fromByteArray(content);
@@ -772,7 +762,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
         return activatePassiveCalendarTime;
     }
 
-    public Log getLogger() {
+    public Logger getLogger() {
         return logger;
     }
 }

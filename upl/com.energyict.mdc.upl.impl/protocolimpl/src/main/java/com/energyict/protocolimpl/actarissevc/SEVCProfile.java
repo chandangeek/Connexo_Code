@@ -6,13 +6,18 @@
 
 package com.energyict.protocolimpl.actarissevc;
 
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  *
  * @author  Koen

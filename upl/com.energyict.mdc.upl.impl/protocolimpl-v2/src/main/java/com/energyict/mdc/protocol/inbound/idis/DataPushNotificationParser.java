@@ -1,20 +1,5 @@
 package com.energyict.mdc.protocol.inbound.idis;
 
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.g3.DummyComChannel;
-import com.energyict.mdc.upl.InboundDAO;
-import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.security.SecurityProperty;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -31,7 +16,20 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.g3.DummyComChannel;
+import com.energyict.mdc.upl.InboundDAO;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.SecurityProperty;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -63,16 +61,15 @@ public class DataPushNotificationParser {
 
     private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
-
-    private CollectedRegisterList collectedRegisters;
-    private ComChannel comChannel;
-    public InboundDAO inboundDAO;
     protected final ObisCode logbookObisCode;
-    protected DeviceIdentifier deviceIdentifier;
-    private DeviceProtocolSecurityPropertySet securityPropertySet;
-    protected CollectedLogBook collectedLogBook;
     private final InboundDiscoveryContext context;
     private final CollectedDataFactory collectedDataFactory;
+    public InboundDAO inboundDAO;
+    protected DeviceIdentifier deviceIdentifier;
+    protected CollectedLogBook collectedLogBook;
+    private CollectedRegisterList collectedRegisters;
+    private ComChannel comChannel;
+    private DeviceProtocolSecurityPropertySet securityPropertySet;
 
     public DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         this.comChannel = comChannel;
@@ -82,7 +79,7 @@ public class DataPushNotificationParser {
         this.context = context;
     }
 
-    protected InboundDiscoveryContext getContext(){
+    protected InboundDiscoveryContext getContext() {
         return context;
     }
 
@@ -219,8 +216,8 @@ public class DataPushNotificationParser {
         if (securityPropertySet == null) {
             List<SecurityProperty> securityProperties =
                     context
-                        .getProtocolSecurityProperties(deviceIdentifier)
-                        .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
+                            .getProtocolSecurityProperties(deviceIdentifier)
+                            .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
             if (!securityProperties.isEmpty()) {
                 this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(securityProperties);
             } else {
@@ -325,17 +322,13 @@ public class DataPushNotificationParser {
     }
 
     private TimeZone getDeviceTimeZone() {
+        TimeZone defaultTimeZOne = TimeZone.getTimeZone(DEFAULT_TIMEZONE);
         TypedProperties deviceProtocolProperties = getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
         if (deviceProtocolProperties == null) {
-            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+            return defaultTimeZOne;
         }
 
-        TimeZoneInUse timeZoneInUse = deviceProtocolProperties.getTypedProperty(TIMEZONE);
-        if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
-            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
-        } else {
-            return timeZoneInUse.getTimeZone();
-        }
+        return deviceProtocolProperties.getTypedProperty(TIMEZONE, defaultTimeZOne);
     }
 
     public CollectedRegisterList getCollectedRegisters() {

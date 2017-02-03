@@ -4,8 +4,12 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class ActarisMBusInternalData extends InternalData {
@@ -110,7 +114,7 @@ public class ActarisMBusInternalData extends InternalData {
                 try {
                     dais.close();
                 } catch (IOException e) {
-                    logger.severe(com.energyict.cbo.Utils.stack2string(e));
+                    logger.severe(com.energyict.protocolimpl.utils.ProtocolTools.stack2string((e)));
                 }
             }
         }

@@ -6,10 +6,10 @@
 
 package com.energyict.protocolimpl.iec870;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import com.energyict.protocol.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  *
@@ -69,7 +69,7 @@ public class IEC870InformationObject {
         try {
             name = AddressMap.getAddressMapping(address).getType();
         }
-        catch(NotFoundException e) {
+        catch(IllegalArgumentException e) {
             name = e.getMessage();
         }
         

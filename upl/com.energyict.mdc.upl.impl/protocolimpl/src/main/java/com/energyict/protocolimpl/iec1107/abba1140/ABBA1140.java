@@ -1,5 +1,10 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
@@ -17,12 +22,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
@@ -554,7 +553,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
-        TypedProperties properties = com.energyict.cpo.TypedProperties.empty();
+        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         properties.setProperty("SecurityLevel", "0");
         properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");

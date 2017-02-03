@@ -1,10 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.kaifa;
 
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -26,8 +27,8 @@ public class Kaifa extends AM110R {
      */
     private KaifaLoadProfileBuilder loadProfileBuilder;
 
-    public Kaifa(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public Kaifa(PropertySpecService propertySpecService, DeviceMessageFileFinder deviceMessageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+        super(propertySpecService, deviceMessageFileFinder, deviceMessageFileExtractor);
     }
 
     @Override
@@ -42,9 +43,10 @@ public class Kaifa extends AM110R {
         }
         return loadProfileBuilder;
     }
+
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-25 14:54:31 +0200 (Fri, 25 Mar 2016)$";
+        return "$Date: Mon Nov 7 16:38:22 2016 +0100 $";
     }
 
 

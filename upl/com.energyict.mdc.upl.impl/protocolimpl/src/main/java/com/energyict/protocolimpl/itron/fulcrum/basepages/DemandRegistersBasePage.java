@@ -10,12 +10,12 @@
 
 package com.energyict.protocolimpl.itron.fulcrum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.TimeZone;
 
 /**
  *
@@ -51,7 +51,7 @@ public class DemandRegistersBasePage extends AbstractBasePage {
         
         TimeZone tz = getBasePagesFactory().getProtocolLink().getTimeZone();
         if (!((BasePagesFactory)getBasePagesFactory()).getOperatingSetUpBasePage().isDstEnabled())
-            tz = ProtocolUtils.getWinterTimeZone(tz);        
+            tz = ProtocolUtils.getWinterTimeZone(tz);
         
         setWattsDemand(new DemandRegister(data, offset, tz)); offset+=DemandRegister.size();
         setLaggingVARsDemand(new DemandRegister(data, offset, tz)); offset+=DemandRegister.size();

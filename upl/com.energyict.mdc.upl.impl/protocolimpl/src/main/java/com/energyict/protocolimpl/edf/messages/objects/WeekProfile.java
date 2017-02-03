@@ -1,7 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class WeekProfile extends ComplexCosemObject {
 	
@@ -45,7 +46,7 @@ public class WeekProfile extends ComplexCosemObject {
 		if (names.getLength() != 0){
 			name = new OctetString(names.item(0).getFirstChild().getNodeValue());
 		} else {
-			throw new ApplicationException("Cannot create WeekProfile");
+			throw new IllegalArgumentException("Cannot create WeekProfile");
 		}
 		NodeList days = element.getElementsByTagName(DAYELEMENTNAME);
 		if (days.getLength() != 0){
@@ -58,7 +59,7 @@ public class WeekProfile extends ComplexCosemObject {
 			saturday = Integer.parseInt(day.getAttribute(SATURDAYATTRIBUTE));
 			sunday = Integer.parseInt(day.getAttribute(SUNDAYATTRIBUTE));
 		} else {
-			throw new ApplicationException("Cannot create WeekProfile");
+			throw new IllegalArgumentException("Cannot create WeekProfile");
 		}
 		
 	}

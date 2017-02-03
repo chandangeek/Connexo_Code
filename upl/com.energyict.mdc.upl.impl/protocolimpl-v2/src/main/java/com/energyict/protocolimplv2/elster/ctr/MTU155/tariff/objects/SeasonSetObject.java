@@ -2,8 +2,6 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects;
 
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 
-import com.energyict.cbo.BusinessException;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,12 +32,12 @@ public class SeasonSetObject implements Serializable {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     private void setId(String id) {
         this.setId(Integer.parseInt(id));
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -58,7 +56,7 @@ public class SeasonSetObject implements Serializable {
         this.seasons = seasons;
     }
 
-    public SeasonObject getSeason(int period) throws BusinessException {
+    public SeasonObject getSeason(int period) throws IllegalArgumentException {
         for (SeasonObject season : seasons) {
             if (season.isPeriod(period)) {
                 return season;

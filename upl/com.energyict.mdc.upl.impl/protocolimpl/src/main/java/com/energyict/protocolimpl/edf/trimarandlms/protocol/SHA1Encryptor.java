@@ -10,9 +10,10 @@
 
 package com.energyict.protocolimpl.edf.trimarandlms.protocol;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.security.*;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  *

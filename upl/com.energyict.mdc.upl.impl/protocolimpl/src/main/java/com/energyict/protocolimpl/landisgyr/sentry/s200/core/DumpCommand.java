@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import java.io.*;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
@@ -50,12 +51,12 @@ public class DumpCommand extends AbstractCommand {
     protected void parse(byte[] data) throws IOException {
         int offset=0;
         setLastEndingInterval(ProtocolUtils.getCleanCalendar(getCommandFactory().getS200().getTimeZone()));
-        getLastEndingInterval().set(Calendar.MONTH,((int)ProtocolUtils.BCD2hex(data[offset++])&0xFF)-1);
-        getLastEndingInterval().set(Calendar.DAY_OF_MONTH,(int)ProtocolUtils.BCD2hex(data[offset++])&0xFF);
-        getLastEndingInterval().set(Calendar.DAY_OF_WEEK,(int)ProtocolUtils.BCD2hex(data[offset++])&0xFF);
-        getLastEndingInterval().set(Calendar.HOUR_OF_DAY,(int)ProtocolUtils.BCD2hex(data[offset++])&0xFF);
-        getLastEndingInterval().set(Calendar.MINUTE,(int)ProtocolUtils.BCD2hex(data[offset++])&0xFF);
-        getLastEndingInterval().set(Calendar.SECOND,(int)ProtocolUtils.BCD2hex(data[offset++])&0xFF);
+        getLastEndingInterval().set(Calendar.MONTH,(ProtocolUtils.BCD2hex(data[offset++]) &0xFF)-1);
+        getLastEndingInterval().set(Calendar.DAY_OF_MONTH, ProtocolUtils.BCD2hex(data[offset++]) &0xFF);
+        getLastEndingInterval().set(Calendar.DAY_OF_WEEK, ProtocolUtils.BCD2hex(data[offset++]) &0xFF);
+        getLastEndingInterval().set(Calendar.HOUR_OF_DAY, ProtocolUtils.BCD2hex(data[offset++]) &0xFF);
+        getLastEndingInterval().set(Calendar.MINUTE, ProtocolUtils.BCD2hex(data[offset++]) &0xFF);
+        getLastEndingInterval().set(Calendar.SECOND, ProtocolUtils.BCD2hex(data[offset++]) &0xFF);
 
         // set the year
         Calendar calSystem = ProtocolUtils.getCalendar(getCommandFactory().getS200().getTimeZone());
