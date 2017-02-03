@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -343,5 +344,8 @@ public interface DeviceConfigurationService {
     Optional<TimeOfUseOptions> findAndLockTimeOfUseOptionsByIdAndVersion(DeviceType deviceType, long version);
 
     TimeOfUseOptions newTimeOfUseOptions(DeviceType deviceType);
+
+    Optional<KeyAccessorType> findKeyAccessorTypeById(long id);
+
 
 }
