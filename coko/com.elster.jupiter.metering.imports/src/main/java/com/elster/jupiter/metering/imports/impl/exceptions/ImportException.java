@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.imports.impl.exceptions;
 
 import com.elster.jupiter.nls.Thesaurus;
