@@ -50,7 +50,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -306,7 +305,6 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         return (Math.random() * (maxValue - minValue)) + minValue;
     }
 
-    @Ignore
     @Test
     @Transactional
     public void testLinkSlaveWithoutData() {
@@ -358,7 +356,6 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(slave.hasData()).isFalse();
     }
 
-    @Ignore
     @Test
     @Transactional
     public void testLinkSlaveWithRegistersWithoutData() {
@@ -409,7 +406,6 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(slave.hasData()).isFalse();
     }
 
-    @Ignore
     @Test
     @Transactional
     public void testLinkSlaveWithProfileData() {
