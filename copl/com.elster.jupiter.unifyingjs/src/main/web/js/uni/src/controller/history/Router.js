@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 /**
  * The router component is responsible for gathering and handling route configuration
  *
