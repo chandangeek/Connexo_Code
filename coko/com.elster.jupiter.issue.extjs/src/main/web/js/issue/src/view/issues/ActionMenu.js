@@ -3,7 +3,7 @@
  */
 
 Ext.define('Isu.view.issues.ActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     requires: [
         'Isu.privileges.Issue',
         'Isu.privileges.Device'
@@ -26,28 +26,32 @@ Ext.define('Isu.view.issues.ActionMenu', {
             privileges: Isu.privileges.Issue.assign,
             action: 'assignIssueToMe',
             itemId: 'assign-to-me',
-            hidden: true
+            hidden: true,
+            section: this.SECTION_ACTION
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.unassign', 'ISU', 'Unassign'),
             privileges: Isu.privileges.Issue.assign,
             action: 'unassign',
             itemId: 'unassign',
-            hidden: true
+            hidden: true,
+            section: this.SECTION_ACTION
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
             privileges: Isu.privileges.Issue.comment,
-            action: 'addComment'
+            action: 'addComment',
+            section: this.SECTION_ACTION
         },
         {
             text: Uni.I18n.translate('issues.actionMenu.setPriority', 'ISU', 'Set priority'),
             privileges: Isu.privileges.Issue.action,
-            action: 'setPriority'
+            action: 'setPriority',
+            section: this.SECTION_EDIT
         }
     ],
     listeners: {
-        show: {
+        beforeshow: {
             fn: function () {
                 var me = this;
 
@@ -137,25 +141,30 @@ Ext.define('Isu.view.issues.ActionMenu', {
 
         // add dynamic actions
         me.store.each(function (record) {
-            var privileges;
+            var privileges,
+                section;
             switch (record.get('name')) {
                 case 'Assign issue':
                     privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.assign;
+                    section = this.SECTION_ACTION;
                     break;
                 case 'Close issue':
                     privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.close;
+                    section = this.SECTION_REMOVE;
                     break;
                 case 'Retry now':
                     privileges = Isu.privileges.Device.canOperateDeviceCommunication() && Isu.privileges.Issue.canDoAction();
+                    section = this.SECTION_ACTION;
                     break;
                 case 'Retry estimation':
                     privileges = Isu.privileges.Issue.runTask;
+                    section = this.SECTION_ACTION;
                     break;
             }
 
             var menuItem = {
                 text: record.get('name'),
-                section: this.SECTION_ACTION,
+                section: section,
                 privileges: privileges
             };
 
@@ -255,6 +264,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             me.add({
                 text: Uni.I18n.translate('issues.actionMenu.startProcess', 'ISU', 'Start process'),
                 action: 'startProcess',
+                section: this.SECTION_ACTION,
                 href: me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/startProcess').buildUrl({issueId: issueId} , {details: false, issueType: issueType}),
                 details: false
             });
@@ -292,6 +302,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                                 logLevels: ['Error', 'Warning', 'Information']
                             }
                         ),
+                        section: this.SECTION_VIEW,
                         hrefTarget: '_blank'
                     });
                 }
@@ -309,6 +320,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                                 communications: ['Connections', 'Communications']
                             }
                         ),
+                        section: this.SECTION_VIEW,
                         hrefTarget: '_blank'
                     });
                 }
