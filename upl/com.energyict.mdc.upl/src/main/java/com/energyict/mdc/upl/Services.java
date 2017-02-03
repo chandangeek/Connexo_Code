@@ -4,12 +4,15 @@ import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
 import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
@@ -44,6 +47,7 @@ public class Services {
     private static AtomicReference<RegisterExtractor> REGISTER_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<LoadProfileExtractor> LOAD_PROFILE_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<NumberLookupExtractor> NUMBER_LOOKUP_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<NumberLookupFinder> NUMBER_LOOKUP_FINDER = new AtomicReference<>();
     private static AtomicReference<DeviceMessageFileExtractor> DEVICE_MESSAGE_FILE_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<TariffCalendarExtractor> TARIFF_CALENDAR_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<TariffCalendarFinder> TARIFF_CALENDAR_FINDER = new AtomicReference<>();
@@ -53,6 +57,8 @@ public class Services {
     private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
     private static AtomicReference<X509Service> X509 = new AtomicReference<>();
     private static AtomicReference<KeyStoreService> KEY_STORE_SERVICE = new AtomicReference<>();
+    private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<CertificateAliasFinder> CERTIFICATE_ALIAS_FINDER = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
@@ -71,6 +77,12 @@ public class Services {
             return converter();
         } else if (NumberLookupExtractor.class.equals(serviceType)) {
             return numberLookupExtractor();
+        } else if (NumberLookupFinder.class.equals(serviceType)) {
+            return numberLookupFinder();
+        } else if (CertificateWrapperExtractor.class.equals(serviceType)) {
+            return certificateWrapperExtractor();
+        } else if (CertificateAliasFinder.class.equals(serviceType)) {
+            return certificateAliasFinder();
         } else if (LoadProfileExtractor.class.equals(serviceType)) {
             return loadProfileExtractor();
         } else if (DeviceMasterDataExtractor.class.equals(serviceType)) {
@@ -180,6 +192,30 @@ public class Services {
 
     public static void numberLookupExtractor(NumberLookupExtractor extractor) {
         NUMBER_LOOKUP_EXTRACTOR.set(extractor);
+    }
+
+    public static NumberLookupFinder numberLookupFinder() {
+        return NUMBER_LOOKUP_FINDER.get();
+    }
+
+    public static void numberLookupFinder(NumberLookupFinder extractor) {
+        NUMBER_LOOKUP_FINDER.set(extractor);
+    }
+
+    public static CertificateWrapperExtractor certificateWrapperExtractor() {
+        return CERTIFICATE_WRAPPER_EXTRACTOR.get();
+    }
+
+    public static void certificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
+        CERTIFICATE_WRAPPER_EXTRACTOR.set(certificateWrapperExtractor);
+    }
+
+    public static CertificateAliasFinder certificateAliasFinder() {
+        return CERTIFICATE_ALIAS_FINDER.get();
+    }
+
+    public static void certificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
+        CERTIFICATE_ALIAS_FINDER.set(certificateAliasFinder);
     }
 
     public static DeviceMasterDataExtractor deviceMasterDataExtractor() {

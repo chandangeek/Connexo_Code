@@ -2,7 +2,6 @@ package com.energyict.mdc.upl.messages.legacy;
 
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.Register;
-
 import com.energyict.obis.ObisCode;
 
 import java.util.Optional;
@@ -23,6 +22,8 @@ public interface DeviceExtractor {
      * @return The serial number
      */
     String serialNumber(Device device);
+
+    String getDeviceProtocolPluggableClass(Device device);
 
     /**
      * Gets the value of the protocol property with the specified name.

@@ -12,5 +12,8 @@ import java.security.cert.CertificateException;
  */
 public interface CertificateAlias {
     String getAlias();
+
     Certificate getCertificate() throws CertificateException;
+
+    String getCertificateEncoded();
 }

@@ -4,6 +4,8 @@ import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -79,6 +81,10 @@ public interface InboundDiscoveryContext {
     DeviceMessageFileExtractor getMessageFileExtractor();
 
     KeyStoreService getKeyStoreService();
+
+    CertificateWrapperExtractor getCertificateWrapperExtractor();
+
+    CertificateAliasFinder getCertificateAliasFinder();
 
     X509Service getX509Service();
 

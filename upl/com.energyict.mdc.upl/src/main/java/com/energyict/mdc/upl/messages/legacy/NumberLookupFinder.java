@@ -1,8 +1,8 @@
 package com.energyict.mdc.upl.messages.legacy;
 
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.NumberLookup;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -11,10 +11,6 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-12-30 (08:46)
  */
-public interface DeviceMessageFileFinder {
-
-    Optional<DeviceMessageFile> from(String identifier);
-
-    List<? extends DeviceMessageFile> fromName(String name);
-
+public interface NumberLookupFinder {
+    Optional<NumberLookup> from(String identifier);
 }
