@@ -185,6 +185,10 @@ public class ActivityCalendar extends AbstractCosemObject {
         this.seasonProfilePassive = seasonProfilePassive;
     }
 
+    public void writeSeasonProfilePassive(byte[] berEncodedSeasonProfilePassive) throws IOException {
+        write(ActivityCalendarAttributes.SEASON_PROFILE_PASSIVE, berEncodedSeasonProfilePassive);
+    }
+
     /**
      * Read the <b>Passive</b> seasonProfile from the device
      *
@@ -209,6 +213,10 @@ public class ActivityCalendar extends AbstractCosemObject {
         this.weekProfileTablePassive = weekProfileTablePassive;
     }
 
+    public void writeWeekProfileTablePassive(byte[] berEncodedWeekProfileTablePassive) throws IOException {
+        write(ActivityCalendarAttributes.WEEK_PROFILE_TABLE_PASSIVE, berEncodedWeekProfileTablePassive);
+    }
+
     /**
      * Read the <b>Passive</b> weekProfileTable from the device
      *
@@ -231,6 +239,10 @@ public class ActivityCalendar extends AbstractCosemObject {
     public void writeDayProfileTablePassive(Array dayProfileTablePassive) throws IOException {
         write(ActivityCalendarAttributes.DAY_PROFILE_TABLE_PASSIVE, dayProfileTablePassive.getBEREncodedByteArray());
         this.dayProfileTablePassive = dayProfileTablePassive;
+    }
+
+    public void writeDayProfileTablePassive(byte[] berEncodedDayProfileTablePassive) throws IOException {
+        write(ActivityCalendarAttributes.DAY_PROFILE_TABLE_PASSIVE, berEncodedDayProfileTablePassive);
     }
 
     /**

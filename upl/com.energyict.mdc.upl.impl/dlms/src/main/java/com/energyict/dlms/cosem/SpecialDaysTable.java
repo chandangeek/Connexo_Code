@@ -39,6 +39,10 @@ public class SpecialDaysTable extends AbstractCosemObject {
         this.specialDays = specialDays;
     }
 
+    public void writeSpecialDays(byte[] berEncodedSpecialDays) throws IOException {
+        write(SpecialDaysTableAttributes.ENTRIES, berEncodedSpecialDays);
+    }
+
     /**
      * Read the specialDayTable Array from the device
      *

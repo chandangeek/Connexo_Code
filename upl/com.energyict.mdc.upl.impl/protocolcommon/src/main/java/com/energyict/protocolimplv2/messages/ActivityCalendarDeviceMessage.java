@@ -62,13 +62,14 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
             PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName),
             PropertySpecFactory.bigDecimalPropertySpecWithValues(defaultTariffCodeAttrributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3))),
-    ACTIVITY_CALENDER_WITH_DATETIME_AND_DAY_PROFILE_DEFINITION(15, PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
+    ACTIVITY_CALENDAR_WITH_DATETIME_FROM_XML(15, PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
             PropertySpecFactory.stringPropertySpec(activityCalendarObiscodeAttributeName),
-            PropertySpecFactory.stringPropertySpec(dayProfileTableDefinitionAttributeName),
-            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
+            PropertySpecFactory.userFileReferencePropertySpec(dayProfileXmlUserFileAttributeName),
+            PropertySpecFactory.userFileReferencePropertySpec(weekProfileXmlUserFileAttributeName),
+            PropertySpecFactory.userFileReferencePropertySpec(seasonProfileXmlUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
-    SPECIAL_DAY_CALENDAR_SEND_FOR_GIVEN_TABLE_OBIS(16, PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName),
-            PropertySpecFactory.stringPropertySpec(specialDaysTableObiscodeAttributeName))
+    SPECIAL_DAY_CALENDAR_WITH_GIVEN_TABLE_OBIS_FROM_XML(16, PropertySpecFactory.stringPropertySpec(specialDaysTableObiscodeAttributeName),
+            PropertySpecFactory.userFileReferencePropertySpec(specialDaysXmlUserFileAttributeName))
     ;
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;

@@ -4,6 +4,7 @@ import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.SecurityPolicy;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.dlms.cosem.attributeobjects.dataprotection.DataProtectionFactory;
@@ -28,6 +29,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
@@ -48,9 +50,6 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
     private static final ObisCode WIRELESS_MBUS_SEARCH_RESULT = ObisCode.fromString("0.1.96.70.0.255");
     private static final ObisCode WIRED_MBUS_PORT_REFERENCE = ObisCode.fromString("0.0.24.6.0.255");
     private static final ObisCode WIRELESS_MBUS_PORT_REFERENCE = ObisCode.fromString("0.1.24.6.0.255");
-    private static final ObisCode TIMED_CONNECTOR_ACTION_OBISCODE = ObisCode.fromString("0.0.15.0.1.255");
-    private static ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");
-    private static ObisCode SPECIAL_DAYS_TABLE_OBISCODE = ObisCode.fromString("0.0.11.0.0.255");
     private static final long SUPERVISION_MAXIMUM_THRESHOLD_VALUE = 0x80000000l;
     private final String undefined_hour = "FF"; //not defined
     private final String undefined_minute = "FF"; //not defined
@@ -103,12 +102,12 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
             remoteReconnectWithDataProtection();
         } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.FIRMWARE_IMAGE_ACTIVATION_WITH_DATA_PROTECTION)) {
             firmwareImageActivationWithDataProtection();
-        } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_WITH_DATETIME_AND_DAY_PROFILE_DEFINITION)) {
+        } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDAR_WITH_DATETIME_FROM_XML)) {
             writeActivityCalendarOverconsumptions();
-        } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_FOR_GIVEN_TABLE_OBIS)) {
+        } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_WITH_GIVEN_TABLE_OBIS_FROM_XML)) {
             writeSpecialDaysForGivenTableObis();
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP)) {
-            setDataProtectionRequiredProtection();
+            setDataProtectionRequiredProtection(); //currently this message is disabled and not shown in UI
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
         }
@@ -117,35 +116,49 @@ public class T210DMessageExecutor extends AM540MessageExecutor{
 
     private void writeSpecialDaysForGivenTableObis() throws IOException {
         ObisCode specialDaysTableObisCode = ObisCode.fromString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.specialDaysTableObiscodeAttributeName).getDeviceMessageAttributeValue());
-        ACTIVITY_CALENDAR_OBISCODE.setB(specialDaysTableObisCode.getB());
-        activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone(), ACTIVITY_CALENDAR_OBISCODE, specialDaysTableObisCode);
-        writeSpecialDays(pendingMessage);
+        String specialDaysTable = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.specialDaysXmlUserFileAttributeName).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getSpecialDaysTable(specialDaysTableObisCode).writeSpecialDays(ProtocolTools.getBytesFromHexString(specialDaysTable, ""));
     }
 
     private void writeActivityCalendarOverconsumptions() throws IOException {
         ObisCode activityCalendarObisCode = ObisCode.fromString(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarObiscodeAttributeName).getDeviceMessageAttributeValue());
-        String dayProfileTableStringDefinition = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dayProfileTableDefinitionAttributeName).getDeviceMessageAttributeValue();
-        SPECIAL_DAYS_TABLE_OBISCODE.setB(activityCalendarObisCode.getB());
-        activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone(), activityCalendarObisCode, SPECIAL_DAYS_TABLE_OBISCODE, getDayProfileTable(dayProfileTableStringDefinition));
-        writeActivityCalendar(pendingMessage);
+        String dayProfileTable = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dayProfileXmlUserFileAttributeName).getDeviceMessageAttributeValue();
+        String weekProfileTable = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.weekProfileXmlUserFileAttributeName).getDeviceMessageAttributeValue();
+        String seasonProfileTable = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.seasonProfileXmlUserFileAttributeName).getDeviceMessageAttributeValue();
+        Long epoch = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue());
+        writeCalendar(activityCalendarObisCode, seasonProfileTable, weekProfileTable, dayProfileTable, convertUnixToGMTDateTime(epoch));
     }
 
     /**
+     * Convert a given epoch timestamp in MILLISECONDS to an {@link com.energyict.dlms.axrdencoding.util.AXDRDateTime} object
      *
-     * @param dayProfileTableStringDefinition the string definition of the day_profile_table as described bellow
-     *                                        day1_id, <start_time, script_logical_name, threshold><start_time, script_logical_name, threshold>etc;
-     *                                        day2_id, <start_time, script_logical_name, threshold><start_time, script_logical_name, threshold>etc;
-     *                                        etc
-     * @return
+     * @param time - the time in milliSeconds sins 1th jan 1970 00:00:00 GMT
+     * @return the AXDRDateTime of the given time
+     * @throws java.io.IOException when the entered time could not be parsed to a long value
      */
-    private Array getDayProfileTable(String dayProfileTableStringDefinition){
-        String[] dayProfilesStringDefinition = dayProfileTableStringDefinition.split(";");
-        Array dayProfileTable = new Array();
-        for(String dayProfileDefinition: dayProfilesStringDefinition){
-            DayProfile dayProfile = new DayProfile(dayProfileDefinition);
-            dayProfileTable.addDataType(dayProfile);
+    public AXDRDateTime convertUnixToGMTDateTime(Long time) throws IOException {
+        AXDRDateTime dateTime;
+        Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
+        cal.setTimeInMillis(time);
+        dateTime = new AXDRDateTime(cal);
+        return dateTime;
+    }
+
+    /**
+     * Write the complete ActivityCalendar to the device
+     */
+    public void writeCalendar(ObisCode calendarObisCode, String seasonProfileHex, String weekProfilHex, String dayProfileHex, AXDRDateTime passiveCalendarTimeActivation) throws IOException {
+
+        ActivityCalendar ac = getCosemObjectFactory().getActivityCalendar(calendarObisCode);
+        ac.writeSeasonProfilePassive(ProtocolTools.getBytesFromHexString(seasonProfileHex, ""));
+        ac.writeWeekProfileTablePassive(ProtocolTools.getBytesFromHexString(weekProfilHex, ""));
+        ac.writeDayProfileTablePassive(ProtocolTools.getBytesFromHexString(dayProfileHex, ""));
+
+        if(passiveCalendarTimeActivation != null){
+            ac.writeActivatePassiveCalendarTime(new OctetString(passiveCalendarTimeActivation.getBEREncodedByteArray(), 0));
+        } else {
+            ac.activateNow();
         }
-        return dayProfileTable;
     }
 
     protected int getMaxMBusSlaves() {

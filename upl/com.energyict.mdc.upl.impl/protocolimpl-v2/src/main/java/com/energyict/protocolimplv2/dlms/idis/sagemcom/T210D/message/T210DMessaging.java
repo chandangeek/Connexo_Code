@@ -1,12 +1,21 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message;
 
+import com.energyict.cpo.PropertySpec;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.common.messaging.xmlparser.XMLtoAXDRParser;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.messages.*;
 
 import java.util.List;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Created by cisac on 8/1/2016.
@@ -57,11 +66,25 @@ public class T210DMessaging extends AM540Messaging {
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_DATA_PROTECTION);
 
         supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
-        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_WITH_DATETIME_AND_DAY_PROFILE_DEFINITION);
         supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
-        supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND_FOR_GIVEN_TABLE_OBIS);
+        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDAR_WITH_DATETIME_FROM_XML);
+        supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_WITH_GIVEN_TABLE_OBIS_FROM_XML);
         supportedMessages.add(MBusSetupDeviceMessage.ScanAndInstallWiredMbusDevices);
         supportedMessages.add(MBusSetupDeviceMessage.InstallWirelessMbusDevices);
+    }
+
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        if (propertySpec.getName().equals(dayProfileXmlUserFileAttributeName)
+                || propertySpec.getName().equals(weekProfileXmlUserFileAttributeName)
+                || propertySpec.getName().equals(seasonProfileXmlUserFileAttributeName)
+                || propertySpec.getName().equals(specialDaysXmlUserFileAttributeName)) {
+            UserFile userFile = (UserFile) messageAttribute;
+            XMLtoAXDRParser xmlToAXDRParser = new XMLtoAXDRParser();
+            AbstractDataType abstractDataType = xmlToAXDRParser.parseXml(userFile.loadFileInByteArray());
+            return ProtocolTools.getHexStringFromBytes(abstractDataType.getBEREncodedByteArray(), "");
+        }
+        return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
 }

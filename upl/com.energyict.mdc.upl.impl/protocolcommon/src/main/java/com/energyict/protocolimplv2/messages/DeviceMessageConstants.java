@@ -71,6 +71,10 @@ public class DeviceMessageConstants {
     public static final String contractsXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.contractsxmluserfile";
     public static final String specialDaysCodeTableAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
     public static final String XmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.userfile";
+    public static final String dayProfileXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.dayprofiletable";
+    public static final String weekProfileXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.weekprofiletable";
+    public static final String seasonProfileXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.seasonprofiletable";
+    public static final String specialDaysXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.specialdaystable";
     public static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
     public static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
     public static final String authenticationLevelAttributeName = "SecurityMessage.dlmsauthentication.authenticationlevel";
