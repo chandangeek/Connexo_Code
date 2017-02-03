@@ -32,14 +32,14 @@ public enum DefaultReadingTypeTemplate {
     GAS_TEMPERATURE(TemplateTranslation.GAS_TEMPERATURE),
     GAS_PRESSURE(TemplateTranslation.GAS_PRESSURE),
     GAS_FLOW(TemplateTranslation.GAS_FLOW),
-    GAS_FLOW_BILLING(TemplateTranslation.GAS_FLOW_BILLING),
     GAS_NORMALIZED_FLOW(TemplateTranslation.GAS_NORMALIZED_FLOW),
     GAS_CONVERSION_FACTOR(TemplateTranslation.GAS_CONVERSION_FACTOR),
     WATER_VOLUME(TemplateTranslation.WATER_VOLUME),
     WATER_VOLUME_BACKFLOW(TemplateTranslation.WATER_VOLUME_BACKFLOW),
     WATER_FLOW(TemplateTranslation.WATER_FLOW),
     BULK_A_PLUS(TemplateTranslation.BULK_A_PLUS),
-    BATTERY_STATUS(TemplateTranslation.BATTERY_STATUS),;
+    BATTERY_STATUS(TemplateTranslation.BATTERY_STATUS),
+    GAS_FLOW_BILLING(TemplateTranslation.GAS_FLOW_BILLING),;
 
     DefaultReadingTypeTemplate(TemplateTranslation nameTranslation) {
         this.nameTranslation = nameTranslation;
