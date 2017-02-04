@@ -72,7 +72,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     private static final ObisCode POWER_FAILURE_EVENT_LOG = ObisCode.fromString("1.0.99.97.0.255");
 
     List<T210DPushObjectListEntry> pushObjectList;
-    int dataObjectsOffset = 1;
+    int dataObjectsOffset = 0;
     private CollectedDeviceInfo collectedDeviceIpAddress;
     private List<CollectedLoadProfile> collectedLoadProfileList;
     private ObisCode pushObjectListObisCode;
@@ -180,13 +180,14 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
 
         if(pushObjectList.get(1).getObisCode().equals(LOGICAL_NAME_OBIS)) {
             parseLogicalDeviceName(structure.getNextDataType());
-            dataObjectsOffset++;
         }
 
         //TODO: make this parsing generic. That would be usefull if the push objects will change over time and not remain fixed
-        if(pushObjectListObisCode.equals(PUSH_ON_INSTALLATION_OBJECT_LIST_OBIS) || pushObjectListObisCode.equals(PUSH_ON_CONNECTIVITY_OBJECT_LIST_OBIS)){
+        if(pushObjectListObisCode.equals(PUSH_ON_INSTALLATION_OBJECT_LIST_OBIS)) {
             //the structure will contain 7 elements in case of a Push on Installation Data Notification
             parsePushOnInstallatioEvent(structure);
+        } else if(pushObjectListObisCode.equals(PUSH_ON_CONNECTIVITY_OBJECT_LIST_OBIS)) {
+            parsePushOnConnectivityEvent(structure);
         } else if(pushObjectListObisCode.equals(PUSH_ON_INTERVAL_1_OBJECT_LIST_OBIS)) {
             parsePushOnInterval1(structure);
         } else if(pushObjectListObisCode.equals(PUSH_ON_INTERVAL_2_OBJECT_LIST_OBIS)) {
@@ -200,6 +201,14 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
             throw DataParseException.ioException(new ProtocolException("Expected the event-payload to be a structure with 3, or 7 elements, but received a structure with " + structure.nrOfDataTypes() + " element(s)"));
         }
 
+    }
+
+    private void incrementElementOffset() {
+        dataObjectsOffset++;
+    }
+
+    private int getElementOffset() {
+        return dataObjectsOffset;
     }
 
     private void parsePushOnAlarm(Structure structure) {
@@ -269,6 +278,13 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         parseClockTime(structure.getNextDataType());
     }
 
+    private void parsePushOnConnectivityEvent(Structure structure) {
+        parseMobileNetworkIMSI(structure.getNextDataType());
+        parseMobileNetworkMSISDN(structure.getNextDataType());
+        parseIPAddress(structure.getNextDataType());
+        parsePortNumber(structure.getNextDataType());
+    }
+
     private void parseAlarmRegister(AbstractDataType nextDataType, Date eventDate, int alarmRegister) {
         long alarmDescriptor = nextDataType.getUnsigned32().getValue();
         printDebugMessageToConsole("AlarmDescriptor = "+alarmDescriptor);
@@ -284,6 +300,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     private void parsePushObjectList(AbstractDataType dataType) {
+        incrementElementOffset();
         if (!(dataType instanceof Array)) {
             throw DataParseException.ioException(new ProtocolException("The first element of the Data-notification body should be the of type Array"));
         }
@@ -307,8 +324,9 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     private void parseLogicalDeviceName(AbstractDataType dataType) {
+        incrementElementOffset();
         if (!(dataType instanceof OctetString)) {
-            throw DataParseException.ioException(new ProtocolException("The second element of the Data-notification body should be the of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type OctetString"));
         }
         String logicalDeviceName = dataType.getOctetString().stringValue();
         deviceIdentifier = getDeviceIdentifierBasedOnLogicalDeviceName(logicalDeviceName);
@@ -316,32 +334,36 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     private void parseEquipementType(AbstractDataType dataType) {
+        incrementElementOffset();
         if (!(dataType instanceof TypeEnum)) {
-            throw DataParseException.ioException(new ProtocolException("The third element of the Data-notification body should be the of type TypeEnum"));
+            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type TypeEnum"));
         }
         int equipementType = dataType.getTypeEnum().getValue();
         printDebugMessageToConsole("equipementType = "+ equipementType);
     }
 
     private void parseMobileNetworkIMSI(AbstractDataType dataType) {
+        incrementElementOffset();
         if (!(dataType instanceof OctetString)) {
-            throw DataParseException.ioException(new ProtocolException("The fourth element of the Data-notification body should be the of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type OctetString"));
         }
         String mobileNetworkIdentifierIMSI = dataType.getOctetString().stringValue();
         printDebugMessageToConsole("mobileNetworkIdentifierIMSI = "+ mobileNetworkIdentifierIMSI);
     }
 
     private void parseMobileNetworkMSISDN(AbstractDataType dataType) {
+        incrementElementOffset();
         if (!(dataType instanceof OctetString)) {
-            throw DataParseException.ioException(new ProtocolException("The fifth element of the Data-notification body should be the of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type OctetString"));
         }
         String mobileNetworkIdentifierMSISDN = dataType.getOctetString().stringValue();
         printDebugMessageToConsole("mobileNetworkIdentifierMSISDN = "+ mobileNetworkIdentifierMSISDN);
     }
 
     private void parseIPAddress(AbstractDataType dataType) {
+        incrementElementOffset();
         if (!(dataType instanceof Unsigned32)) {
-            throw DataParseException.ioException(new ProtocolException("The sixth element of the Data-notification body should be the of type Unsigned32"));
+            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be the of type Unsigned32"));
         }
         String ipAddress = getIpAddress(dataType.getUnsigned32().longValue());
         createCollectedDeviceIpAddres(ipAddress);
@@ -349,12 +371,22 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
     }
 
     private Date parseClockTime(AbstractDataType dataType) {
+        incrementElementOffset();
         if (!(dataType instanceof OctetString)) {
-            throw DataParseException.ioException(new ProtocolException("The seventh element of the Data-notification body should be of type OctetString"));
+            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be of type OctetString"));
         }
         Date clockTime = parseDateTime(dataType.getOctetString());
         printDebugMessageToConsole("clockTime = "+ clockTime.toString());
         return clockTime;
+    }
+
+    private void parsePortNumber(AbstractDataType dataType) {
+        incrementElementOffset();
+        if (!(dataType instanceof Unsigned16)) {
+            throw DataParseException.ioException(new ProtocolException("Element "+getElementOffset()+" of the Data-notification body should be of type OctetString"));
+        }
+        Unsigned16 portNumber = dataType.getUnsigned16();
+        printDebugMessageToConsole("portNumber = "+ portNumber.getValue());
     }
 
     private void getCollectedMbusChannelValue(AbstractDataType dataType, ObisCode obisCode) {
@@ -364,6 +396,8 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         }
         Unsigned32 mbusValueChannel = dataType.getUnsigned32();
         printDebugMessageToConsole("MBus Channel "+channel+" value 1 = "+ mbusValueChannel.getValue());
+        Date dateTime = Calendar.getInstance().getTime();
+        addCollectedRegister(obisCode, mbusValueChannel.longValue(), null, dateTime, null);
         //TODO: see if we should store Mbus Channel values
     }
 
