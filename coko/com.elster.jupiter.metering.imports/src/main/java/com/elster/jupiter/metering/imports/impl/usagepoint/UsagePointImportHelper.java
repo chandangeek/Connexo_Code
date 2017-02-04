@@ -161,22 +161,11 @@ public class UsagePointImportHelper {
         return builder;
     }
 
+
     public void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
-        data.getMetrologyConfiguration().ifPresent(metrologyConfigurationName -> {
-            UsagePointMetrologyConfiguration metrologyConfiguration = context.getMetrologyConfigurationService()
-                    .findMetrologyConfiguration(metrologyConfigurationName)
-                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
-                    .map(UsagePointMetrologyConfiguration.class::cast)
-                    .filter(UsagePointMetrologyConfiguration::isActive)
-                    .orElseThrow(() -> new ProcessorException(MessageSeeds.BAD_METROLOGY_CONFIGURATION, data.getLineNumber()));
-            if (!metrologyConfiguration.getServiceCategory().equals(usagePoint.getServiceCategory())) {
-                throw new ProcessorException(MessageSeeds.SERVICE_CATEGORIES_DO_NOT_MATCH, data.getLineNumber());
-            }
-            if (!data.getMetrologyConfigurationApplyTime().isPresent()) {
-                throw new ProcessorException(MessageSeeds.EMPTY_METROLOGY_CONFIGURATION_TIME, data.getLineNumber());
-            }
+        UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) context.getMetrologyConfigurationService()
+                .findMetrologyConfiguration(data.getMetrologyConfiguration().get()).get();
             usagePoint.apply(metrologyConfiguration, data.getMetrologyConfigurationApplyTime().get());
-        });
     }
 
     private void addCustomPropertySetsValues(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
