@@ -1,4 +1,7 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.impl.UsagePointStateChangeRequestInfo;
