@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -457,6 +458,7 @@ public enum TableSpecs {
             table.column("RESCHEDULERETRYDELAY").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.count").add();
             Column comportpool = table.column("COMPORTPOOL").number().add();
             table.column("RESCHEDULERETRYDELAYCODE").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.timeUnitCode").add();
+            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add().since(Version.version(10, 3));
             table.setJournalTableName("DTC_PARTIALCONNECTIONTASKJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("PK_DTC_PARTIALCONNTASK").on(id).add();
@@ -486,6 +488,12 @@ public enum TableSpecs {
                     .on(initiator)
                     .references(DTC_PARTIALCONNECTIONTASK.name())
                     .map("initiator")
+                    .add();
+            table.foreignKey("FK_DTC_PARTIALCT_PDCP")
+                    .on(dialectConfigurationProperties)
+                    .references(DTC_DIALECTCONFIGPROPERTIES.name())
+                    .map(PartialConnectionTaskImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName())
+                    .since(Version.version(10,3))
                     .add();
             table.unique("UQ_DTC_PARTIALCT_NAME").on(deviceConfiguration, nameColumn).add();
         }
@@ -614,7 +622,7 @@ public enum TableSpecs {
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             table.column("USEDEFAULTCONNECTIONTASK").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.USE_DEFAULT_CONNECTION_TASK.fieldName()).add();
             table.column("PRIORITY").number().notNull().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.PRIORITY.fieldName()).add();
-            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add();
+            Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
             table.foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT")
                     .on(partialConnectionTask)
@@ -642,8 +650,9 @@ public enum TableSpecs {
             table.foreignKey("FK_DTC_COMTASKENABLMNT_PDCP")
                     .on(dialectConfigurationProperties)
                     .references(DTC_DIALECTCONFIGPROPERTIES.name())
-                    .map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName())
+                    .map("protocolDialectConfigurationProperties")
                     .onDelete(CASCADE)
+                    .upTo(Version.version(10,2))
                     .add();
             table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask, deviceCommunicationConfigation).add();
             table.primaryKey("PK_DTC_COMTASKENABLEMENT").on(id).add();

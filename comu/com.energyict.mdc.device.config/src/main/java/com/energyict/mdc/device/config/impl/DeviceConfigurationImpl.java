@@ -102,9 +102,6 @@ import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DeviceConfiguration} interface.
- * <p>
- * User: gde
- * Date: 5/11/12
  */
 @DeviceFunctionsAreSupportedByProtocol(groups = {Save.Update.class, Save.Create.class})
 @ImmutablePropertiesCanNotChangeForActiveConfiguration(groups = {Save.Update.class, Save.Create.class})
@@ -1173,27 +1170,30 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy) {
+    public PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy, ProtocolDialectConfigurationProperties configurationProperties) {
         return new PartialScheduledConnectionTaskBuilderImpl(this.getDataModel(), this, this.schedulingService, this.getEventService())
                 .name(name)
                 .pluggableClass(connectionType)
                 .rescheduleDelay(rescheduleRetryDelay)
-                .connectionStrategy(connectionStrategy);
+                .connectionStrategy(connectionStrategy)
+                .setProtocolDialectConfigurationProperties(configurationProperties);
     }
 
     @Override
-    public PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType) {
+    public PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType, ProtocolDialectConfigurationProperties configurationProperties) {
         return new PartialInboundConnectionTaskBuilderImpl(this.getDataModel(), this)
                 .name(name)
-                .pluggableClass(connectionType);
+                .pluggableClass(connectionType)
+                .setProtocolDialectConfigurationProperties(configurationProperties);
     }
 
     @Override
-    public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay) {
+    public PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ProtocolDialectConfigurationProperties configurationProperties) {
         return new PartialConnectionInitiationTaskBuilderImpl(this.getDataModel(), this, this.schedulingService, this.getEventService())
                 .name(name)
                 .pluggableClass(connectionType)
-                .rescheduleDelay(rescheduleRetryDelay);
+                .rescheduleDelay(rescheduleRetryDelay)
+                .setProtocolDialectConfigurationProperties(configurationProperties);
     }
 
     void addPartialConnectionTask(ServerPartialConnectionTask partialConnectionTask) {
@@ -1202,10 +1202,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties) {
+    public ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet) {
         ComTaskEnablementImpl underConstruction = this.getDataModel()
                 .getInstance(ComTaskEnablementImpl.class)
-                .initialize(this, comTask, securityPropertySet, configurationProperties);
+                .initialize(this, comTask, securityPropertySet);
         return new ComTaskEnablementBuilderImpl(underConstruction);
     }
 
@@ -1379,7 +1379,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             }
         }
         return null;
-
     }
 
     @Override
@@ -1648,13 +1647,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         public ComTaskEnablementBuilder setPartialConnectionTask(PartialConnectionTask partialConnectionTask) {
             this.mode.verify();
             this.underConstruction.setPartialConnectionTask(partialConnectionTask);
-            return this;
-        }
-
-        @Override
-        public ComTaskEnablementBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
-            this.mode.verify();
-            this.underConstruction.setProtocolDialectConfigurationProperties(properties);
             return this;
         }
 

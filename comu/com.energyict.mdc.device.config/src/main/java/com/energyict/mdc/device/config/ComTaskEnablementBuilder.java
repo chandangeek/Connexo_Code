@@ -20,7 +20,7 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ComTaskEnablementBuilder {
 
-    public ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound (boolean flag);
+    ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound (boolean flag);
 
     /**
      * Sets the {@link com.energyict.mdc.device.config.PartialConnectionTask} that specifies
@@ -31,9 +31,7 @@ public interface ComTaskEnablementBuilder {
      * @return The ComTaskEnablementBuilder
      * @see ComTaskEnablement#setPartialConnectionTask(PartialConnectionTask)
      */
-    public ComTaskEnablementBuilder setPartialConnectionTask(PartialConnectionTask partialConnectionTask);
-
-    public ComTaskEnablementBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+     ComTaskEnablementBuilder setPartialConnectionTask(PartialConnectionTask partialConnectionTask);
 
     /**
      * Sets the flag that indicates if the execution of the related {@link ComTask}
@@ -44,7 +42,7 @@ public interface ComTaskEnablementBuilder {
      * @return The ComTaskEnablementBuilder
      * @see ComTaskEnablement#useDefaultConnectionTask(boolean)
      */
-    public ComTaskEnablementBuilder useDefaultConnectionTask(boolean flagValue);
+     ComTaskEnablementBuilder useDefaultConnectionTask(boolean flagValue);
 
     /**
      * Gets the preferred execution priority for the execution
@@ -57,7 +55,7 @@ public interface ComTaskEnablementBuilder {
      * @return The ComTaskEnablementBuilder
      * @see ComTaskEnablement#setPriority(int)
      */
-    public ComTaskEnablementBuilder setPriority(int priority);
+     ComTaskEnablementBuilder setPriority(int priority);
 
     /**
      * Completes the building process, i.e. enables the {@link com.energyict.mdc.tasks.ComTask}
@@ -65,5 +63,5 @@ public interface ComTaskEnablementBuilder {
      *
      * @return The ComTaskEnablement
      */
-    public ComTaskEnablement add();
+     ComTaskEnablement add();
 }

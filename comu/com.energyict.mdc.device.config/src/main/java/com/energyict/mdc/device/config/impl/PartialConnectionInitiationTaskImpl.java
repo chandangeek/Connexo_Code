@@ -65,7 +65,7 @@ public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnecti
 
     @Override
     public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
-        PartialConnectionInitiationTaskBuilder builder = deviceConfiguration.newPartialConnectionInitiationTask(getName(), getPluggableClass(), getRescheduleDelay());
+        PartialConnectionInitiationTaskBuilder builder = deviceConfiguration.newPartialConnectionInitiationTask(getName(), getPluggableClass(), getRescheduleDelay(), getProtocolDialectConfigurationProperties());
         getProperties().forEach(partialConnectionTaskProperty -> builder.addProperty(partialConnectionTaskProperty.getName(), partialConnectionTaskProperty.getValue()));
         builder.comPortPool(getComPortPool());
         return builder.build();

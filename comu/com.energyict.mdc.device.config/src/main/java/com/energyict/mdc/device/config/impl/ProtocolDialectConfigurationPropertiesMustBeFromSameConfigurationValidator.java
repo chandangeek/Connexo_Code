@@ -17,7 +17,7 @@ import static com.elster.jupiter.util.Checks.is;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-18 (11:36)
  */
-public class ProtocolDialectConfigurationPropertiesMustBeFromSameConfigurationValidator implements ConstraintValidator<ProtocolDialectConfigurationPropertiesMustBeFromSameConfiguration, ComTaskEnablementImpl> {
+public class ProtocolDialectConfigurationPropertiesMustBeFromSameConfigurationValidator implements ConstraintValidator<ProtocolDialectConfigurationPropertiesMustBeFromSameConfiguration, PartialConnectionTaskImpl> {
 
     @Override
     public void initialize(ProtocolDialectConfigurationPropertiesMustBeFromSameConfiguration constraintAnnotation) {
@@ -25,20 +25,20 @@ public class ProtocolDialectConfigurationPropertiesMustBeFromSameConfigurationVa
     }
 
     @Override
-    public boolean isValid(ComTaskEnablementImpl comTaskEnablement, ConstraintValidatorContext context) {
-        ProtocolDialectConfigurationProperties dialectConfigurationProperties = comTaskEnablement.getProtocolDialectConfigurationProperties();
-        if (dialectConfigurationProperties != null && this.notSameConfiguration(dialectConfigurationProperties, comTaskEnablement)) {
+    public boolean isValid(PartialConnectionTaskImpl partialConnectionTask, ConstraintValidatorContext context) {
+        ProtocolDialectConfigurationProperties dialectConfigurationProperties = partialConnectionTask.getProtocolDialectConfigurationProperties();
+        if (dialectConfigurationProperties != null && this.notSameConfiguration(dialectConfigurationProperties, partialConnectionTask)) {
             context.disableDefaultConstraintViolation();
             context
                 .buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-                .addPropertyNode(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).addConstraintViolation();
+                .addPropertyNode(PartialConnectionTaskImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).addConstraintViolation();
         }
         return true;
     }
 
-    private boolean notSameConfiguration(ProtocolDialectConfigurationProperties dialectConfigurationProperties, ComTaskEnablementImpl comTaskEnablement) {
+    private boolean notSameConfiguration(ProtocolDialectConfigurationProperties dialectConfigurationProperties, PartialConnectionTaskImpl partialConnectionTask) {
         long dialectConfigurationId = dialectConfigurationProperties.getDeviceConfiguration().getId();
-        long configurationId = comTaskEnablement.getDeviceConfiguration().getId();
+        long configurationId = partialConnectionTask.getConfiguration().getId();
         return !is(configurationId).equalTo(dialectConfigurationId);
     }
 

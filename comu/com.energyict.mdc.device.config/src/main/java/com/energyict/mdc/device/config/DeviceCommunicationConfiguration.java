@@ -32,11 +32,11 @@ public interface DeviceCommunicationConfiguration {
 
     void addSecurityPropertySet(SecurityPropertySet securityPropertySet);
 
-    PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy);
+    PartialScheduledConnectionTaskBuilder newPartialScheduledConnectionTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ConnectionStrategy connectionStrategy, ProtocolDialectConfigurationProperties configurationProperties);
 
-    PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType);
+    PartialInboundConnectionTaskBuilder newPartialInboundConnectionTask(String name, ConnectionTypePluggableClass connectionType, ProtocolDialectConfigurationProperties configurationProperties);
 
-    PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay);
+    PartialConnectionInitiationTaskBuilder newPartialConnectionInitiationTask(String name, ConnectionTypePluggableClass connectionType, TimeDuration rescheduleRetryDelay, ProtocolDialectConfigurationProperties configurationProperties);
 
     List<PartialConnectionTask> getPartialConnectionTasks();
 
@@ -84,7 +84,7 @@ public interface DeviceCommunicationConfiguration {
      * @param securityPropertySet The SecurityPropertySet
      * @return The ComTaskEnablementBuilder that builds the enablement
      */
-    ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet, ProtocolDialectConfigurationProperties configurationProperties);
+    ComTaskEnablementBuilder enableComTask(ComTask comTask, SecurityPropertySet securityPropertySet);
 
     /**
      * Disables the execution of the specified {@link ComTask}

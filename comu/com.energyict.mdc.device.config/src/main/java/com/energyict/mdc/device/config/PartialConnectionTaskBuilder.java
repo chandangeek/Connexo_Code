@@ -20,5 +20,7 @@ public interface PartialConnectionTaskBuilder<S, T extends ComPortPool, U extend
 
     S name(String name);
 
+    S setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
     U build();
 }

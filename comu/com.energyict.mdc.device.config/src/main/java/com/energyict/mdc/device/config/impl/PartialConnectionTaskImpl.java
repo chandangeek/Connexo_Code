@@ -10,6 +10,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
@@ -18,6 +19,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -47,12 +49,15 @@ import java.util.Optional;
  * @author sva
  * @since 21/01/13 - 16:44
  */
+@ProtocolDialectConfigurationPropertiesMustBeFromSameConfiguration(groups = {Save.Create.class, Save.Update.class})
 abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask {
 
     public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialScheduledConnectionTaskImpl.class);
 
     enum Fields {
-        CONNECTION_TYPE_PLUGGABLE_CLASS("pluggableClass");
+        CONNECTION_TYPE_PLUGGABLE_CLASS("pluggableClass"),
+        PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES("protocolDialectConfigurationProperties");
+
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -82,6 +87,8 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
      * an edit session to be published as part of the update event.
      */
     private List<String> addedOrRemovedRequiredProperties = new ArrayList<>();
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    private Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -259,6 +266,21 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     public void clearDefault() {
         this.isDefault = false;
         this.post();
+    }
+
+    @Override
+    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
+        /* Since this is a required property,
+         * we could actually use get() but we
+         * want the javax.validation components
+         * to validate that this property is not null
+         * so we are using orElse(null) instead. */
+        return this.protocolDialectConfigurationProperties.orElse(null);
+    }
+
+    @Override
+    public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
+        this.protocolDialectConfigurationProperties.set(properties);
     }
 
     final void doSetComportPool(ComPortPool comPortPool) {

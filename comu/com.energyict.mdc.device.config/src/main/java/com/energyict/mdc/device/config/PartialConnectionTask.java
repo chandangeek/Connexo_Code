@@ -38,7 +38,7 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return The ComPortPool
      */
-    public ComPortPool getComPortPool ();
+    ComPortPool getComPortPool ();
 
     /**
      * Tests if this PartialConnectionTask is marked as the default
@@ -47,7 +47,7 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return A flag that indicates if this is the default
      */
-    public boolean isDefault();
+    boolean isDefault();
 
     /**
      * Gets the list of {@link PartialConnectionTaskProperty PartialConnectionTaskProperties}
@@ -55,14 +55,14 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return The List of PartialConnectionTaskProperties
      */
-    public List<PartialConnectionTaskProperty> getProperties();
+    List<PartialConnectionTaskProperty> getProperties();
 
     /**
      * Provides the current properties ({@link #getProperties()} in the TypedProperties format.
      *
      * @return the TypedProperties
      */
-    public TypedProperties getTypedProperties();
+    TypedProperties getTypedProperties();
 
     /**
      * Gets the {@link PartialConnectionTaskProperty} with the specified name
@@ -71,14 +71,14 @@ public interface PartialConnectionTask extends HasName, HasId {
      * @param name The property name
      * @return The PartialConnectionTaskProperty
      */
-    public PartialConnectionTaskProperty getProperty(String name);
+    PartialConnectionTaskProperty getProperty(String name);
 
     /**
      * Gets the {@link DeviceCommunicationConfiguration} that owns this {@link PartialConnectionTask}.
      *
      * @return The DeviceConfiguration
      */
-    public DeviceConfiguration getConfiguration ();
+    DeviceConfiguration getConfiguration ();
 
     /**
      * Gets the {@link ConnectionType} that knows exactly how to connect
@@ -86,7 +86,7 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return The ConnectionType
      */
-    public ConnectionType getConnectionType();
+    ConnectionType getConnectionType();
 
     /**
      * Gets the {@link ConnectionTypePluggableClass} that knows exactly how to connect
@@ -94,7 +94,7 @@ public interface PartialConnectionTask extends HasName, HasId {
      *
      * @return The ConnectionTypePluggableClass
      */
-    public ConnectionTypePluggableClass getPluggableClass ();
+    ConnectionTypePluggableClass getPluggableClass ();
 
     void save();
 
@@ -107,4 +107,14 @@ public interface PartialConnectionTask extends HasName, HasId {
     void setName(String name);
 
     long getVersion();
+
+    /**
+     * Gets the ProtocolDialectConfigurationProperties.
+     *
+     * @return the ProtocolDialectConfigurationProperties
+     */
+    ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties();
+
+    void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
 }

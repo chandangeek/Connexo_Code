@@ -59,7 +59,7 @@ public class DeviceConfigurationImplWithRealProtocolPluggableServiceTest extends
                         "cannotSwitchOffDirectlyAddressableWithPartialConnectionTasks",
                         connectionTypePluggableClass,
                         TimeDuration.minutes(5),
-                        ConnectionStrategy.MINIMIZE_CONNECTIONS).
+                        ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0)).
                 nextExecutionSpec().temporalExpression(TimeDuration.hours(1)).set().
                 build();
 

@@ -18,6 +18,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
@@ -70,8 +71,8 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     @Override
     protected void validateDelete() {
         this.getEventService().postEvent(EventType.PROTOCOLCONFIGURATIONPROPS_VALIDATEDELETE.topic(), this);
-        List<ComTaskEnablement> comTaskEnablements = this.dataModel.mapper(ComTaskEnablement.class).find(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName(), this);
-        if (!comTaskEnablements.isEmpty()) {
+        List<PartialConnectionTask> partialConnectionTasks = this.dataModel.mapper(PartialConnectionTask.class).find(PartialConnectionTaskImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName(), this);
+        if (!partialConnectionTasks.isEmpty()) {
             throw new CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException(this, this.getThesaurus(), MessageSeeds.PROTOCOLDIALECT_CONF_PROPS_IN_USE);
         }
     }

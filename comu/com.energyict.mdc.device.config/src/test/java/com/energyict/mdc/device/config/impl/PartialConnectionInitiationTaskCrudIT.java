@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -71,6 +72,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -91,6 +93,7 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.AfterClass;
@@ -114,6 +117,8 @@ public class PartialConnectionInitiationTaskCrudIT {
 
     @Rule
     public final TestRule transactional = new TransactionalRule(transactionService);
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     private static InMemoryBootstrapModule bootstrapModule;
     private static EventAdmin eventAdmin;
@@ -134,6 +139,8 @@ public class PartialConnectionInitiationTaskCrudIT {
     private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private DeviceProtocol deviceProtocol;
+    @Mock
+    private DeviceProtocolDialect deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -234,6 +241,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         when(licensedProtocolService.isValidJavaClassName(anyString(), any(License.class))).thenReturn(true);
         connectionTypeService = mock(ConnectionTypeService.class);
         when(connectionTypeService.createConnectionType(OutboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new OutboundNoParamsConnectionTypeImpl());
+        when(connectionTypeService.createConnectionType(InboundNoParamsConnectionTypeImpl.class.getName())).thenReturn(new InboundNoParamsConnectionTypeImpl());
     }
 
     private static void setupMasterData() {
@@ -259,6 +267,12 @@ public class PartialConnectionInitiationTaskCrudIT {
 
     @Before
     public void initializeMocks() {
+        when(deviceProtocolDialect1.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 1");
+        when(deviceProtocolDialect2.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 2");
+        when(deviceProtocolDialect3.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 3");
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Collections.<DeviceProtocolCapabilities>emptyList());
+        when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
     }
@@ -278,7 +292,8 @@ public class PartialConnectionInitiationTaskCrudIT {
                 .newPartialConnectionInitiationTask(
                         "MyInitiation",
                         connectionTypePluggableClass,
-                        TimeDuration.seconds(60))
+                        TimeDuration.seconds(60),
+                        deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .build();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -298,6 +313,31 @@ public class PartialConnectionInitiationTaskCrudIT {
         assertThat(partialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(partialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialConnectionInitiationTask.getName()).isEqualTo("MyInitiation");
+        assertThat(partialConnectionInitiationTask.getProtocolDialectConfigurationProperties()).isNotNull();
+        assertThat(partialConnectionInitiationTask.getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName()).isEqualTo("Device Protocol Dialect 1");
+    }
+
+    /**
+     * Tests that saving a {@link PartialConnectionTask} without protocol dialect properties, produces a constraint violation.
+     */
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}" , property = "protocolDialectConfigurationProperties")
+    public void testCreateWithoutProtocolDialect() {
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
+
+        deviceConfiguration.newPartialConnectionInitiationTask(
+                        "MyInitiation",
+                        connectionTypePluggableClass,
+                        TimeDuration.seconds(60),
+                        null)     // No protocoldialect
+                .comPortPool(outboundComPortPool)
+                .build();
     }
 
     @Test
@@ -315,7 +355,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                 .newPartialConnectionInitiationTask(
                         "MyInitiation",
                         connectionTypePluggableClass,
-                        TimeDuration.seconds(60))
+                        TimeDuration.seconds(60), deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .build();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -358,7 +398,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                 .newPartialConnectionInitiationTask(
                         "MyOutbound",
                         connectionTypePluggableClass,
-                        TimeDuration.seconds(60))
+                        TimeDuration.seconds(60), deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .build();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -370,7 +410,6 @@ public class PartialConnectionInitiationTaskCrudIT {
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(connectionInitiationTask.getId());
         assertThat(found.isPresent()).isFalse();
-
     }
 
     @Test
@@ -378,8 +417,8 @@ public class PartialConnectionInitiationTaskCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD + "}")
     public void createWithIncorrectConnectionTypeTest() {
         DeviceConfiguration deviceConfiguration;
-        ConnectionTypePluggableClass inboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("OutboundNoParamsConnectionType", OutboundNoParamsConnectionTypeImpl.class.getName());
-        inboundConnectionTypePluggableClass.save();
+        ConnectionTypePluggableClass inboundConnectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass("InboundNoParamsConnectionType", InboundNoParamsConnectionTypeImpl.class.getName());
+
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
 
         deviceConfiguration = deviceType.newConfiguration("Normal").add();
@@ -390,7 +429,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                 .newPartialConnectionInitiationTask(
                         "MyInitiation",
                         inboundConnectionTypePluggableClass,
-                        TimeDuration.seconds(60))
+                        TimeDuration.seconds(60), deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .build();
         deviceConfiguration.setDirectlyAddressable(true);
@@ -420,7 +459,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                 .newPartialConnectionInitiationTask(
                         "MyInitiation",
                         connectionTypePluggableClass,
-                        TimeDuration.seconds(60))
+                        TimeDuration.seconds(60), deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .build();
         deviceConfiguration.setDirectlyAddressable(true);
