@@ -12,6 +12,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -100,6 +101,10 @@ public class CalendarInMemoryBootstrapModule {
 
     public TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
+    }
+
+    public OrmService getOrmService() {
+        return injector.getInstance(OrmService.class);
     }
 
     public ThreadPrincipalService getThreadPrincipalService() {

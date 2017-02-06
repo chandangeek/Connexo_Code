@@ -50,7 +50,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Year;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -375,9 +374,11 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     private void createPartitions() {
-        Instant start = LocalDate.now(this.clock).withDayOfYear(1).minusYears(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        LocalDate startOfThisYear = LocalDate.now(this.clock).withDayOfYear(1);
+        LocalDate startOfNextYear = startOfThisYear.plusYears(1);
+        Instant start = startOfThisYear.minusYears(1).atStartOfDay(ZoneOffset.UTC).toInstant();
         this.vault.activate(start);
-        this.vault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));
+        this.vault.extendTo(startOfNextYear.atStartOfDay(ZoneOffset.UTC).toInstant(), Logger.getLogger(getClass().getPackage().getName()));
     }
 
     @Override

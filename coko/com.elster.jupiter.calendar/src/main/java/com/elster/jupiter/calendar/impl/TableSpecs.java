@@ -318,7 +318,7 @@ public enum TableSpecs {
             Table<CalendarTimeSeries> table = dataModel.addTable(name(), CalendarTimeSeries.class);
             table.since(version(10, 3));
             table.map(CalendarTimeSeriesImpl.class);
-            Column calendar = table.column("CALENDAR").number().notNull().map("calendar").add();
+            Column calendar = table.column("CALENDAR").number().notNull().add();
             Column zoneId = table.column("ZONEID").varChar().notNull().map("zoneIdString").add();
             Column intervalValue = table.column("INTERVAL_VALUE").number().conversion(NUMBER2INT).notNull().map("interval.count").add();
             Column intervalUnit = table.column("INTERVAL_UNIT").number().conversion(NUMBER2INT).notNull().map("interval.timeUnitCode").add();
@@ -345,4 +345,5 @@ public enum TableSpecs {
     };
 
     public abstract void addTo(DataModel component);
+
 }

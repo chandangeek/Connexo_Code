@@ -21,6 +21,4 @@ public interface CalendarTimeSeries {
     ServerCalendar calendar();
 
     boolean matches(TemporalAmount interval, ZoneId zoneId);
-    CalendarTimeSeriesImpl initialize(ServerCalendar calendar, TemporalAmount interval, ZoneId zoneId);
-    CalendarTimeSeries generate();
 }

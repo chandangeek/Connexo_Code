@@ -532,7 +532,7 @@ public class CalendarImpl implements ServerCalendar {
     private CalendarTimeSeries createTimeSeries(TemporalAmount interval, ZoneId zoneId) {
         CalendarTimeSeries generated = this.calendarService
                 .getDataModel()
-                .getInstance(CalendarTimeSeries.class)
+                .getInstance(CalendarTimeSeriesImpl.class)
                 .initialize(this, interval, zoneId)
                 .generate();
         this.timeSeries.add(generated);
