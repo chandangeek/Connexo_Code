@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.slp.importers.impl.correctionfactor;
+package com.elster.jupiter.slp.importers.impl.syntheticloadprofile;
 
 import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
@@ -14,24 +14,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class CorrectionFactorImportRecord extends FileImportRecord {
+public class SyntheticLoadProfileImportRecord extends FileImportRecord {
 
-    public CorrectionFactorImportRecord() {
+    public SyntheticLoadProfileImportRecord() {
     }
 
-    public CorrectionFactorImportRecord(long lineNumber) {
+    public SyntheticLoadProfileImportRecord(long lineNumber) {
         super(lineNumber);
     }
 
     private Optional<Instant> timeStamp;
-    private Map<String, BigDecimal> correctionFactors = new HashMap<>();
+    private Map<String, BigDecimal> syntheticLoadProfiles = new HashMap<>();
 
-    public void addCorrectionFactorValue(String correctionFactorName, BigDecimal value) {
-        correctionFactors.put(correctionFactorName, value);
+    public void addSyntheticLoadProfileValue(String syntheticLoadProfileName, BigDecimal value) {
+        syntheticLoadProfiles.put(syntheticLoadProfileName, value);
     }
 
-    public Map<String, BigDecimal> getCorrectionFactors() {
-        return correctionFactors;
+    public Map<String, BigDecimal> getSyntheticLoadProfiles() {
+        return syntheticLoadProfiles;
     }
 
     public Instant getTimeStamp() {

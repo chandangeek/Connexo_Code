@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.slp.importers.impl.correctionfactor;
+package com.elster.jupiter.slp.importers.impl.syntheticloadprofile;
 
 import com.elster.jupiter.fileimport.csvimport.FileImportParser;
 import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CorectionFactorFileImportParser implements FileImportParser<CorrectionFactorImportRecord> {
+public class SyntheticLoadProfileParser implements FileImportParser<SyntheticLoadProfileImportRecord> {
 
 
     private List<String> headers;
@@ -27,7 +27,7 @@ public class CorectionFactorFileImportParser implements FileImportParser<Correct
     private InstantParser instantParser;
     private BigDecimalParser bigDecimalParser;
 
-    public CorectionFactorFileImportParser(SyntheticLoadProfileDataImporterContext context, InstantParser instantParser, BigDecimalParser bigDecimalParser) {
+    public SyntheticLoadProfileParser(SyntheticLoadProfileDataImporterContext context, InstantParser instantParser, BigDecimalParser bigDecimalParser) {
         this.instantParser = instantParser;
         this.bigDecimalParser = bigDecimalParser;
         this.context = context;
@@ -39,12 +39,12 @@ public class CorectionFactorFileImportParser implements FileImportParser<Correct
     }
 
     @Override
-    public CorrectionFactorImportRecord parse(CSVRecord csvRecord) throws FileImportParserException {
-        CorrectionFactorImportRecord record = new CorrectionFactorImportRecord();
+    public SyntheticLoadProfileImportRecord parse(CSVRecord csvRecord) throws FileImportParserException {
+        SyntheticLoadProfileImportRecord record = new SyntheticLoadProfileImportRecord();
         record.setLineNumber(csvRecord.getRecordNumber());
         record.setTimeStamp(this.instantParser.parse(csvRecord.get("timeStamp")));
         headers.stream().filter(header -> !header.equalsIgnoreCase("timeStamp"))
-                .forEach(header -> record.addCorrectionFactorValue(header, bigDecimalParser.parse(csvRecord.get(header))));
+                .forEach(header -> record.addSyntheticLoadProfileValue(header, bigDecimalParser.parse(csvRecord.get(header))));
 
         return record;
     }
@@ -62,13 +62,13 @@ public class CorectionFactorFileImportParser implements FileImportParser<Correct
         if (headers.stream().noneMatch(e -> e.equalsIgnoreCase("timeStamp"))) {
             throw new FileImportParserException(MessageSeeds.CORRECTIONFACTOR_TIMESTAMP_COLUMN_NOT_DEFINED);
         }
-        validateCorrectionFactorDurations();
+        validateDurations();
     }
 
-    private void validateCorrectionFactorDurations() {
+    private void validateDurations() {
         List<DurationAttribute> durationAttributes = headers.stream()
                 .filter(header -> !header.equalsIgnoreCase("timeStamp"))
-                .map(header -> context.getSyntheticLoadProfileService().findCorrectionFactor(header)
+                .map(header -> context.getSyntheticLoadProfileService().findSyntheticLoadProfile(header)
                         .orElseThrow(() -> new FileImportParserException(MessageSeeds.CORRECTIONFACTOR_HEADER_NOT_FOUND, header)).getDuration())
                 .collect(Collectors.toList());
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.slp.importers.impl.correctionfactor;
+package com.elster.jupiter.slp.importers.impl.syntheticloadprofile;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
@@ -32,21 +32,21 @@ import static com.elster.jupiter.slp.importers.impl.DataImporterProperty.NUMBER_
 import static com.elster.jupiter.slp.importers.impl.DataImporterProperty.TIME_ZONE;
 import static com.elster.jupiter.slp.importers.impl.TranslationKeys.Labels.CORRECTION_FACTOR_FILE_IMPORTER;
 
-@Component(name = "com.elster.jupiter.slp.importers.impl.correctionfactor.CorrectionFactorImporterFactory",
+@Component(name = "com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory",
         service = FileImporterFactory.class,
         immediate = true)
-public class CorrectionFactorImporterFactory extends AbstractFileImporterFactory {
+public class SyntheticLoadProfileImporterFactory extends AbstractFileImporterFactory {
 
-    public static final String NAME = "CorrectionFactorImporterFactory";
+    public static final String NAME = "SyntheticLoadProfileImporterFactory";
 
     private volatile SyntheticLoadProfileDataImporterContext context;
 
     @SuppressWarnings("unused")
-    public CorrectionFactorImporterFactory() {
+    public SyntheticLoadProfileImporterFactory() {
     }
 
     @Inject
-    public CorrectionFactorImporterFactory(SyntheticLoadProfileDataImporterContext context) {
+    public SyntheticLoadProfileImporterFactory(SyntheticLoadProfileDataImporterContext context) {
         setSyntheticLoadProfileDataImporterContext(context);
     }
 
@@ -57,11 +57,11 @@ public class CorrectionFactorImporterFactory extends AbstractFileImporterFactory
         String timeZone = (String) properties.get(TIME_ZONE.getPropertyKey());
         SupportedNumberFormat numberFormat = ((SupportedNumberFormat.SupportedNumberFormatInfo) properties.get(NUMBER_FORMAT.getPropertyKey())).getFormat();
 
-        FileImportParser<CorrectionFactorImportRecord> parser = new CorectionFactorFileImportParser(context, new InstantParser(dateFormat, timeZone), new BigDecimalParser(numberFormat));
+        FileImportParser<SyntheticLoadProfileImportRecord> parser = new SyntheticLoadProfileParser(context, new InstantParser(dateFormat, timeZone), new BigDecimalParser(numberFormat));
 
-        FileImportProcessor<CorrectionFactorImportRecord> processor = new CorrectionFactorImportProcessor(context);
+        FileImportProcessor<SyntheticLoadProfileImportRecord> processor = new SyntheticLoadProfileImportProcessor(context);
 
-        FileImportLogger<FileImportRecord> logger = new CorrectionFactorImportLogger(getContext());
+        FileImportLogger<FileImportRecord> logger = new SyntheticLoadProfileImportLogger(getContext());
         return CsvImporter.withParser(parser)
                 .withProcessor(processor)
                 .withLogger(logger)

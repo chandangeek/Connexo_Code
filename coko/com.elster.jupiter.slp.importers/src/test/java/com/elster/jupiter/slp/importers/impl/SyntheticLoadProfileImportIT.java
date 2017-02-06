@@ -20,12 +20,12 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.slp.CorrectionFactorBuilder;
+import com.elster.jupiter.slp.SyntheticLoadProfileBuilder;
 import com.elster.jupiter.slp.DurationAttribute;
 import com.elster.jupiter.slp.IntervalAttribute;
 import com.elster.jupiter.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.slp.impl.SyntheticLoadProfileModule;
-import com.elster.jupiter.slp.importers.impl.correctionfactor.CorrectionFactorImporterFactory;
+import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
 import com.elster.jupiter.slp.importers.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
@@ -68,7 +68,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CorrectionFactorImportIT {
+public class SyntheticLoadProfileImportIT {
 
     private final Instant DATE = ZonedDateTime.of(2017, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
     @Mock
@@ -106,7 +106,6 @@ public class CorrectionFactorImportIT {
                     new MockModule(),
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
-
                     new IdsModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
@@ -137,12 +136,14 @@ public class CorrectionFactorImportIT {
             when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
             when(fileImportOccurrenceIncorrectInterval.getLogger()).thenReturn(logger);
             when(fileImportOccurrenceIncorrectDuration.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("correctionfactor_correct.csv").getPath()));
+            when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
+                    .getResource("slp_syntheticloadprofile_correct.csv")
+                    .getPath()));
             when(fileImportOccurrenceIncorrectInterval.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
-                    .getResource("correctionfactor_incorrectinterval.csv")
+                    .getResource("slp_syntheticloadprofile_incorrectinterval.csv")
                     .getPath()));
             when(fileImportOccurrenceIncorrectDuration.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader()
-                    .getResource("correctionfactor_incorrectduration.csv")
+                    .getResource("slp_syntheticloadprofile_incorrectduration.csv")
                     .getPath()));
 
         } catch (FileNotFoundException e) {
@@ -151,8 +152,8 @@ public class CorrectionFactorImportIT {
 
         try (TransactionContext context = transactionService.getContext()) {
             for (int i = 1; i < 4; i++) {
-                CorrectionFactorBuilder builder = syntheticLoadProfileService.newCorrectionFactor("corr" + i);
-                builder.withDescription("correction factor description");
+                SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile("slp" + i);
+                builder.withDescription("synthetic load profile description");
                 builder.withInterval(IntervalAttribute.MINUTE15);
                 builder.withDuration(DurationAttribute.DAY1);
                 builder.withStartTime(DATE);
@@ -165,7 +166,7 @@ public class CorrectionFactorImportIT {
     @Test
     public void testImportCorrect() {
         try (TransactionContext context = transactionService.getContext()) {
-            FileImporter importer = createCorrectionFactorImporter();
+            FileImporter importer = createSyntheticLoadProfileImporter();
             importer.process(fileImportOccurrenceCorrect);
             verify(logger, never()).info(Matchers.anyString());
             verify(logger, never()).warning(Matchers.anyString());
@@ -176,7 +177,7 @@ public class CorrectionFactorImportIT {
     @Test
     public void testImportIncorrectInterval() {
         try (TransactionContext context = transactionService.getContext()) {
-            FileImporter importer = createCorrectionFactorImporter();
+            FileImporter importer = createSyntheticLoadProfileImporter();
             importer.process(fileImportOccurrenceIncorrectInterval);
             verify(fileImportOccurrenceIncorrectInterval).markFailure("Import failed.");
             verify(logger, never()).info(Matchers.anyString());
@@ -190,8 +191,8 @@ public class CorrectionFactorImportIT {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private FileImporter createCorrectionFactorImporter() {
-        CorrectionFactorImporterFactory factory = new CorrectionFactorImporterFactory(context);
+    private FileImporter createSyntheticLoadProfileImporter() {
+        SyntheticLoadProfileImporterFactory factory = new SyntheticLoadProfileImporterFactory(context);
         Map<String, Object> properties = new HashMap<>();
         properties.put(DataImporterProperty.DELIMITER.getPropertyKey(), ";");
         properties.put(DataImporterProperty.DATE_FORMAT.getPropertyKey(), "dd/MM/yyyy HH:mm");

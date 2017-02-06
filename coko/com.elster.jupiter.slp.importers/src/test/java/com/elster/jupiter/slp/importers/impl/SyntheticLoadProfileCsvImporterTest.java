@@ -14,8 +14,8 @@ import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.slp.importers.impl.correctionfactor.CorrectionFactorImportLogger;
-import com.elster.jupiter.slp.importers.impl.correctionfactor.CorrectionFactorImportRecord;
+import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImportLogger;
+import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImportRecord;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import org.apache.commons.csv.CSVRecord;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CorrectionFactorCsvImporterTest {
+public class SyntheticLoadProfileCsvImporterTest {
 
     @Mock
     private Thesaurus thesaurus;
@@ -66,7 +66,7 @@ public class CorrectionFactorCsvImporterTest {
 
     public FileImportParser<FileImportRecord> mockParserWithExceptionOnLine(Integer lineNumber) {
         FileImportParser<FileImportRecord> parser = mock(FileImportParser.class);
-        doAnswer(invocationOnMock -> new CorrectionFactorImportRecord(((CSVRecord) invocationOnMock.getArguments()[0]).getRecordNumber()))
+        doAnswer(invocationOnMock -> new SyntheticLoadProfileImportRecord(((CSVRecord) invocationOnMock.getArguments()[0]).getRecordNumber()))
                 .when(parser).parse(Matchers.any(CSVRecord.class));
         if (lineNumber != null) {
             doThrow(new FileImportParserException(MessageSeeds.FILE_FORMAT_ERROR, 0, 0, 0))
@@ -102,14 +102,14 @@ public class CorrectionFactorCsvImporterTest {
     private CsvImporter<FileImportRecord> mockImporter(FileImportParser<FileImportRecord> parser, FileImportProcessor<FileImportRecord> processor) {
         return CsvImporter.withParser(parser)
                 .withProcessor(processor)
-                .withLogger(new CorrectionFactorImportLogger(context))
+                .withLogger(new SyntheticLoadProfileImportLogger(context))
                 .withDelimiter(';')
                 .build();
     }
 
     @Test
     // No cfs were processed (No cfs in file)
-    public void testNoCorrectionFactorsInFile() throws Exception {
+    public void testNoSyntheticLoadProfilesInFile() throws Exception {
         String csv = "timeStamp;someCF";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
@@ -140,8 +140,8 @@ public class CorrectionFactorCsvImporterTest {
     @Test
     // Parser fails on cf 1
     // 0 success, 0 warning, 0 error
-    public void testFailOnCorrectionFactor1() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
+    public void testFailOnSyntheticLoadProfile1() throws Exception {
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(2);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(null, null);
@@ -153,8 +153,8 @@ public class CorrectionFactorCsvImporterTest {
     @Test
     // Parser fails on cf 2
     // 1 success, 0 warning, 0 error
-    public void testFailOnCorrectionFactor2() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
+    public void testFailOnSyntheticLoadProfile2() throws Exception {
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(3);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(null, null);
@@ -170,8 +170,8 @@ public class CorrectionFactorCsvImporterTest {
     @Test
     // Parser fails on cf 2
     // 1 success, 1 warning, 0 error
-    public void testFailOnCorrectionFactor2WithWarningOnCorrectionFactor1() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
+    public void testFailOnSyntheticLoadProfile2WithWarningOnSyntheticLoadProfile1() throws Exception {
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(3);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(null, 2);
@@ -187,8 +187,8 @@ public class CorrectionFactorCsvImporterTest {
     @Test
     // Parser fails on cf 2
     // 0 success, 0 warning, 1 error
-    public void testFailOnCorrectionFactor2WithErrorOnCorrectionFactor1() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
+    public void testFailOnSyntheticLoadProfile2WithErrorOnSyntheticLoadProfile1() throws Exception {
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(3);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(2, null);
@@ -204,8 +204,8 @@ public class CorrectionFactorCsvImporterTest {
     @Test
     // Parser fails on cf 3
     // 1 success, 1 warning, 1 error
-    public void testFailOnCorrectionFactor3WithErrorOnCorrectionFactor1AndWarningOnCorrectionFactor2() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3\n01/01/2017 00:30;1;2;3\n01/01/2017 00:45;1;2;3";
+    public void testFailOnSyntheticLoadProfile3WithErrorOnSyntheticLoadProfile1AndWarningOnSyntheticLoadProfile2() throws Exception {
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3\n01/01/2017 00:30;1;2;3\n01/01/2017 00:45;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(4);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(2, 3);
@@ -221,8 +221,8 @@ public class CorrectionFactorCsvImporterTest {
     @Test
     // Parser fails on cf 3
     // 1 success, 0 warning, 1 error
-    public void testFailOnCorrectionFactor3WithErrorOnCorrectionFactor1() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3\n01/01/2017 00:30;1;2;3\n01/01/2017 00:45;1;2;3";
+    public void testFailOnSyntheticLoadProfile3WithErrorOnSyntheticLoadProfile1() throws Exception {
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3\n01/01/2017 00:30;1;2;3\n01/01/2017 00:45;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(4);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(2, null);
@@ -238,8 +238,8 @@ public class CorrectionFactorCsvImporterTest {
     @Test
     // Parser successfully finished
     // 2 success, 0 warning, 0 error
-    public void testSuccessWithTwoCorrectionFactors() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
+    public void testSuccessWithTwoSyntheticLoadProfiles() throws Exception {
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(null, null);
@@ -256,7 +256,7 @@ public class CorrectionFactorCsvImporterTest {
     // Parser successfully finished
     // 1 success, 1 warning, 0 error
     public void testSuccessWithWarn() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(null, 2);
@@ -273,7 +273,7 @@ public class CorrectionFactorCsvImporterTest {
     // Parser successfully finished
     // 0 success, 0 warning, 1 error
     public void testSuccessWithErrors() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(2, null);
@@ -290,7 +290,7 @@ public class CorrectionFactorCsvImporterTest {
     // Parser successfully finished
     // 1 success, 1 warning, 1 error
     public void testSuccessWithWarnAndErrors() throws Exception {
-        String csv = "timeStamp;cf1;cf2;cf3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
+        String csv = "timeStamp;slp1;slp2;slp3\n01/01/2017 00:00;1;2;3\n01/01/2017 00:15;1;2;3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImportParser<FileImportRecord> parser = mockParserWithExceptionOnLine(null);
         FileImportProcessor<FileImportRecord> processor = mockProcessor(3, 2);

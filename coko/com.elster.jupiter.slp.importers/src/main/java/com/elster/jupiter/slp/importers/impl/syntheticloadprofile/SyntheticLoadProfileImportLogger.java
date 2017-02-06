@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.slp.importers.impl.correctionfactor;
+package com.elster.jupiter.slp.importers.impl.syntheticloadprofile;
 
 import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 import com.elster.jupiter.nls.TranslationKey;
@@ -16,18 +16,18 @@ import java.util.Collection;
 import java.util.List;
 
 
-public class CorrectionFactorImportLogger extends FileImportLoggerImpl<FileImportRecord> {
+public class SyntheticLoadProfileImportLogger extends FileImportLoggerImpl<FileImportRecord> {
 
     private int linesProcessed = 0;
 
-    private List<String> correctionFactors = new ArrayList<>();
+    private List<String> syntheticLoadProfiles = new ArrayList<>();
 
-    public CorrectionFactorImportLogger(SyntheticLoadProfileDataImporterContext context) {
+    public SyntheticLoadProfileImportLogger(SyntheticLoadProfileDataImporterContext context) {
         super(context);
     }
 
-    public void addImportedCorrectionFactors(Collection<String> correctionFactorNames){
-        correctionFactors.addAll(correctionFactorNames);
+    public void addImportedSyntheticLoadProfiles(Collection<String> syntheticLoadProfileNames){
+        syntheticLoadProfiles.addAll(syntheticLoadProfileNames);
     }
 
     @Override
@@ -65,9 +65,9 @@ public class CorrectionFactorImportLogger extends FileImportLoggerImpl<FileImpor
     }
 
     protected void summarizeSuccessImport() {
-            // No failures. All data is imported from the file for all of the correction factors
+            // No failures. All data is imported from the file for all of the synthetic load profiles
             fileImportOccurrence.markSuccess(this.context.getThesaurus()
                     .getFormat(TranslationKeys.Labels.CF_IMPORT_RESULT_SUCCESS)
-                    .format(linesProcessed, String.join(", ", correctionFactors)));
+                    .format(linesProcessed, String.join(", ", syntheticLoadProfiles)));
     }
 }
