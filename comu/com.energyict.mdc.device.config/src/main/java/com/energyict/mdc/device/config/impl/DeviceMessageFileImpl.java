@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceType;
-
 import com.google.common.base.MoreObjects;
 
 import javax.inject.Inject;
@@ -107,6 +106,11 @@ class DeviceMessageFileImpl implements ServerDeviceMessageFile {
     @Override
     public Instant getCreateTime() {
         return createTime;
+    }
+
+    @Override
+    public long getSize() {
+        return contents.length();
     }
 
     @Override
