@@ -23,10 +23,6 @@ import java.util.Optional;
  */
 public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public PasswordWithUserIdentificationSecuritySupport() {
-        super();
-    }
-
     @Inject
     public PasswordWithUserIdentificationSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);

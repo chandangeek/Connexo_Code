@@ -8,7 +8,6 @@ import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
@@ -20,17 +19,9 @@ import javax.inject.Inject;
  */
 public class SerialDeviceProtocolDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SerialDeviceProtocolDialectProperties> {
 
-    private volatile PropertySpecService propertySpecService;
-
     @Inject
     public SerialDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        super(thesaurus);
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(thesaurus, propertySpecService);
     }
 
     @Override

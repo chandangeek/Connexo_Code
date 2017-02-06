@@ -21,10 +21,6 @@ import java.util.Optional;
  */
 public class WavenisSecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public WavenisSecuritySupport() {
-        super();
-    }
-
     @Inject
     public WavenisSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);

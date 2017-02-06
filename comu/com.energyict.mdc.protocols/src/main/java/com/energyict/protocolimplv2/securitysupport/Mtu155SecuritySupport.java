@@ -18,10 +18,6 @@ import java.util.Optional;
  */
 public class Mtu155SecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public Mtu155SecuritySupport() {
-        super();
-    }
-
     @Inject
     public Mtu155SecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);

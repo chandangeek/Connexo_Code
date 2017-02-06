@@ -21,10 +21,6 @@ import java.util.Optional;
  */
 public class DsmrSecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public DsmrSecuritySupport() {
-        super();
-    }
-
     // For unit testing purposes
     @Inject
     public DsmrSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {

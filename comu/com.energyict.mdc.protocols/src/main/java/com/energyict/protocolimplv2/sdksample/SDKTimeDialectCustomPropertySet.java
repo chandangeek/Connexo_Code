@@ -5,7 +5,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
-
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 import test.com.energyict.protocolimplv2.sdksample.SDKTimeDeviceProtocolDialectProperties;
 
@@ -20,8 +20,8 @@ import javax.inject.Inject;
 class SDKTimeDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKTimeDialectProperties> {
 
     @Inject
-    SDKTimeDialectCustomPropertySet(Thesaurus thesaurus) {
-        super(thesaurus);
+    SDKTimeDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super(thesaurus, propertySpecService);
     }
 
     @Override
@@ -31,6 +31,6 @@ class SDKTimeDialectCustomPropertySet extends AbstractDialectCustomPropertySet i
 
     @Override
     protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new SDKTimeDeviceProtocolDialectProperties();
+        return new SDKTimeDeviceProtocolDialectProperties(propertySpecService);
     }
 }

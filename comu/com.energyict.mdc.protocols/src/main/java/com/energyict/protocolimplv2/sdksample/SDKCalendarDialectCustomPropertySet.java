@@ -5,7 +5,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
-
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 import test.com.energyict.protocolimplv2.sdksample.SDKCalendarTaskProtocolDialectProperties;
 
@@ -20,8 +20,8 @@ import javax.inject.Inject;
 class SDKCalendarDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKCalendarDialectProperties> {
 
     @Inject
-    SDKCalendarDialectCustomPropertySet(Thesaurus thesaurus) {
-        super(thesaurus);
+    SDKCalendarDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super(thesaurus, propertySpecService);
     }
 
     @Override
@@ -31,6 +31,6 @@ class SDKCalendarDialectCustomPropertySet extends AbstractDialectCustomPropertyS
 
     @Override
     protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new SDKCalendarTaskProtocolDialectProperties();
+        return new SDKCalendarTaskProtocolDialectProperties(propertySpecService);
     }
 }

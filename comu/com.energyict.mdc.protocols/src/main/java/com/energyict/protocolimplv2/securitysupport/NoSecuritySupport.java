@@ -19,10 +19,6 @@ import java.util.Optional;
  */
 public class NoSecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public NoSecuritySupport() {
-        super();
-    }
-
     @Inject
     public NoSecuritySupport(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(propertySpecService, thesaurus);

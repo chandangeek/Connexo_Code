@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,16 +24,23 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractDialectCustomPropertySet {
 
+    protected volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
 
     @Inject
-    public AbstractDialectCustomPropertySet(Thesaurus thesaurus) {
+    public AbstractDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
     }
 
     @Reference
     public void setThesaurus(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     /**

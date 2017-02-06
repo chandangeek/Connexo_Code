@@ -7,7 +7,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
@@ -19,17 +18,9 @@ import javax.inject.Inject;
  */
 public class AbntTransparentTCPDeviceProtocolDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, AbntDeviceProtocolDialectProperties> {
 
-    private volatile PropertySpecService propertySpecService;
-
     @Inject
     public AbntTransparentTCPDeviceProtocolDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        super(thesaurus);
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
+        super(thesaurus, propertySpecService);
     }
 
     @Override

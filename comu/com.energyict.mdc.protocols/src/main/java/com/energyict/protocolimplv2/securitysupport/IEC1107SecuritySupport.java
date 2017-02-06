@@ -20,10 +20,6 @@ import java.util.Optional;
  */
 public class IEC1107SecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public IEC1107SecuritySupport() {
-        super();
-    }
-
     @Inject
     public IEC1107SecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);

@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
@@ -21,10 +22,12 @@ import java.util.stream.Collectors;
 public class DlmsSecurityPerClientCustomPropertySet extends SecurityCustomPropertySet<DlmsSecurityPerClientProperties> {
 
     private final Thesaurus thesaurus;
+    private final PropertySpecService propertySpecService;
 
     @Inject
-    public DlmsSecurityPerClientCustomPropertySet(Thesaurus thesaurus) {
+    public DlmsSecurityPerClientCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
+        this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
 
@@ -51,7 +54,7 @@ public class DlmsSecurityPerClientCustomPropertySet extends SecurityCustomProper
     @Override
     public List<PropertySpec> getPropertySpecs() {
         //The property specs for this security set are defined in the 9.1 protocol code base
-        DeviceProtocolSecurityCapabilities securitySupport = new com.energyict.protocolimplv2.security.DlmsSecuritySupportPerClient();
+        DeviceProtocolSecurityCapabilities securitySupport = new com.energyict.protocolimplv2.security.DlmsSecuritySupportPerClient(propertySpecService);
 
         return securitySupport.getSecurityProperties()
                 .stream()

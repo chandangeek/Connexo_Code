@@ -1,7 +1,7 @@
 package com.energyict.protocols.impl.channels;
 
-import com.energyict.mdc.io.ConnectionType;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
+import com.energyict.mdc.upl.io.ConnectionType;
 
 /**
  * List all existing ConnectionType pluggable classes
@@ -31,9 +31,9 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
     RxTxSerialConnectionType(com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType.class),
     InboundProximusSmsConnectionType(com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType.class);
 
-    private final Class<? extends com.energyict.mdc.io.ConnectionType> connectionTypeClass;
+    private final Class<? extends com.energyict.mdc.upl.io.ConnectionType> connectionTypeClass;
 
-    ConnectionTypeRule(Class<? extends com.energyict.mdc.io.ConnectionType> connectionTypeClass) {
+    ConnectionTypeRule(Class<? extends com.energyict.mdc.upl.io.ConnectionType> connectionTypeClass) {
         this.connectionTypeClass = connectionTypeClass;
     }
 
@@ -42,7 +42,7 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
         return this.name();
     }
 
-    public Class<? extends com.energyict.mdc.io.ConnectionType> getProtocolTypeClass() {
+    public Class<? extends com.energyict.mdc.upl.io.ConnectionType> getProtocolTypeClass() {
         return connectionTypeClass;
     }
 }

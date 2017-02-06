@@ -21,10 +21,6 @@ import java.util.Optional;
  */
 public class ExtendedAnsiC12SecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public ExtendedAnsiC12SecuritySupport() {
-        super();
-    }
-
     @Inject
     public ExtendedAnsiC12SecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);

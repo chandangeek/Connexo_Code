@@ -24,10 +24,6 @@ import java.util.Optional;
  */
 public class NoOrPasswordSecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public NoOrPasswordSecuritySupport() {
-        super();
-    }
-
     @Inject
     public NoOrPasswordSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);

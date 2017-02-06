@@ -10,12 +10,11 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocols.impl.channels.ServerConnectionType;
 import com.energyict.protocols.mdc.adapter.cps.ConnectionTypeCustomPropertySetNameDetective;
 import com.energyict.protocols.mdc.adapter.cps.UnableToCreateCustomPropertySet;
 import com.energyict.protocols.mdc.adapter.cps.UnableToLoadCustomPropertySetClass;
-
-import com.energyict.protocol.exceptions.ConnectionException;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
@@ -37,9 +36,9 @@ public class UPLConnectionTypeAdapter implements ServerConnectionType {
     private static ConnectionTypeCustomPropertySetNameDetective connectionTypeCustomPropertySetNameDetective;
 
     private final Injector injector;
-    private final com.energyict.mdc.io.ConnectionType uplConnectionType;
+    private final com.energyict.mdc.upl.io.ConnectionType uplConnectionType;
 
-    public UPLConnectionTypeAdapter(com.energyict.mdc.io.ConnectionType uplConnectionType, Injector injector) {
+    public UPLConnectionTypeAdapter(com.energyict.mdc.upl.io.ConnectionType uplConnectionType, Injector injector) {
         this.uplConnectionType = uplConnectionType;
         this.injector = injector;
     }

@@ -21,10 +21,6 @@ import java.util.Optional;
  */
 public class DlmsSecuritySupportPerClient extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public DlmsSecuritySupportPerClient() {
-        super();
-    }
-
     @Inject
     public DlmsSecuritySupportPerClient(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
@@ -32,12 +28,12 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupportAdapter
 
     @Override
     public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.of(new DlmsSecurityPerClientCustomPropertySet(this.thesaurus));
+        return Optional.of(new DlmsSecurityPerClientCustomPropertySet(propertySpecService, this.thesaurus));
     }
 
     protected com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (securitySupport == null) {
-            securitySupport = new com.energyict.protocolimplv2.security.DlmsSecuritySupportPerClient();
+            securitySupport = new com.energyict.protocolimplv2.security.DlmsSecuritySupportPerClient(propertySpecService);
         }
         return securitySupport;
     }

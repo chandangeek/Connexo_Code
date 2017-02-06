@@ -20,10 +20,6 @@ import java.util.Optional;
  */
 public class DlmsSecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public DlmsSecuritySupport() {
-        super();
-    }
-
     // For unit testing purposes
     @Inject
     public DlmsSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {

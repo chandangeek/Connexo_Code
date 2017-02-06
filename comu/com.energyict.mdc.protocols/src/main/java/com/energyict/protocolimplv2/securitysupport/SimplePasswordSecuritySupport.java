@@ -21,10 +21,6 @@ import java.util.Optional;
  */
 public class SimplePasswordSecuritySupport extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public SimplePasswordSecuritySupport() {
-        super();
-    }
-
     @Inject
     public SimplePasswordSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);

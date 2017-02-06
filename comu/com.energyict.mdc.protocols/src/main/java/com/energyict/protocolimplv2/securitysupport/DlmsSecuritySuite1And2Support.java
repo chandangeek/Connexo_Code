@@ -25,10 +25,6 @@ import java.util.Optional;
  */
 public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter, AdvancedDeviceProtocolSecurityCapabilities {
 
-    public DlmsSecuritySuite1And2Support() {
-        super();
-    }
-
     @Inject
     public DlmsSecuritySuite1And2Support(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);

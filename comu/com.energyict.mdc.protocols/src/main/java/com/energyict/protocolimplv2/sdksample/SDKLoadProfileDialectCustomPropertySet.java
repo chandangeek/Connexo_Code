@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.common.AbstractDialectCustomPropertySet;
 import test.com.energyict.protocolimplv2.sdksample.SDKLoadProfileProtocolDialectProperties;
 
@@ -19,13 +20,13 @@ import javax.inject.Inject;
 public class SDKLoadProfileDialectCustomPropertySet extends AbstractDialectCustomPropertySet implements CustomPropertySet<DeviceProtocolDialectPropertyProvider, SDKLoadProfileDialectProperties> {
 
     @Inject
-    public SDKLoadProfileDialectCustomPropertySet(Thesaurus thesaurus) {
-        super(thesaurus);
+    public SDKLoadProfileDialectCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super(thesaurus, propertySpecService);
     }
 
     @Override
     protected DeviceProtocolDialect getDeviceProtocolDialect() {
-        return new SDKLoadProfileProtocolDialectProperties();
+        return new SDKLoadProfileProtocolDialectProperties(propertySpecService);
     }
 
     @Override
