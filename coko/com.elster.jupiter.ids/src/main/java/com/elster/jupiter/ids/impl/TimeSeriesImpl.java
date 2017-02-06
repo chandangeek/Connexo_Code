@@ -127,6 +127,14 @@ public final class TimeSeriesImpl implements TimeSeries {
         	this.intervalLength = (int) months;
     		this.intervalLengthUnit = IntervalLengthUnit.MONTH;
     	}
+    	if (unit.equals(ChronoUnit.YEARS)) {
+    		long years = interval.get(unit);
+        	if (years != 1) {
+        		throw new IllegalArgumentException("For Year only 1 as length is supported.");
+        	}
+        	this.intervalLength = (int) years;
+    		this.intervalLengthUnit = IntervalLengthUnit.YEAR;
+    	}
     }
 
     @Override
@@ -273,17 +281,30 @@ public final class TimeSeriesImpl implements TimeSeries {
 			if (dateTime.getMinute() % intervalLength != 0) {
 				dateTime = dateTime.withMinute((dateTime.getMinute() / intervalLength) * intervalLength);
 			}
-			return next(dateTime.toInstant(),1);
-		}
-		if (dateTime.getHour() < getOffset()) {
-			dateTime = dateTime.minusDays(1);
-		}
-		dateTime = dateTime.withHour(getOffset()).truncatedTo(ChronoUnit.HOURS);
-		if (!MONTH.equals(intervalLengthUnit)) {
-			return next(dateTime.toInstant(),1);
-		}
-		dateTime = dateTime.withDayOfMonth(1);
-		return next(dateTime.toInstant(),1);
+			return next(dateTime.toInstant(), 1);
+		} else {
+            if (dateTime.getHour() < getOffset()) {
+                dateTime = dateTime.minusDays(1);
+            }
+            dateTime = dateTime.withHour(getOffset()).truncatedTo(ChronoUnit.HOURS);
+            switch (intervalLengthUnit) {
+                case DAY: {
+                    return next(dateTime.toInstant(), 1);
+                }
+                case MONTH: {
+                    dateTime = dateTime.withDayOfMonth(1);
+                    return next(dateTime.toInstant(), 1);
+                }
+                case YEAR: {
+                    dateTime = dateTime.withDayOfYear(1);
+                    return next(dateTime.toInstant(), 1);
+                }
+                default: {
+                    // Can only be minute but that is already taken care of
+                    throw new IllegalArgumentException("Minute case should already have been taken care of");
+                }
+            }
+        }
 	}
 
     private boolean validTimeOfDay(ZonedDateTime dateTime) {
@@ -331,7 +352,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 		return Objects.hashCode(id);
 	}
 
-	Instant next(Instant instant , int numberOfEntries) {
+	Instant next(Instant instant, int numberOfEntries) {
 		if (!isRegular()) {
 			throw new UnsupportedOperationException("Unsupported operation on non-regular timeseries");
 		}
@@ -345,7 +366,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 		if (numberOfEntries > 0) {
 			dateTime = dateTime.plus(this.intervalLengthUnit.amount(numberOfEntries * intervalLength));
 		} else {
-			dateTime = dateTime.minus(intervalLengthUnit.amount(-numberOfEntries * intervalLength));
+			dateTime = dateTime.minus(this.intervalLengthUnit.amount(-numberOfEntries * intervalLength));
 		}
         return dateTime.toInstant();
 	}
