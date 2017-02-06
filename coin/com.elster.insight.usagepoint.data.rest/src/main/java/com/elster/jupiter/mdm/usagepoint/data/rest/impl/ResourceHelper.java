@@ -26,10 +26,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.Pair;
-
-import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -39,7 +36,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ResourceHelper {
@@ -214,13 +210,5 @@ public class ResourceHelper {
             default:
                 return new IdWithNameInfo(system.name(), system.name());
         }
-    }
-
-    public <T> Predicate<T> getSuspectsFilter(JsonQueryFilter filter, Predicate<T> hasSuspects) {
-        ImmutableList.Builder<Predicate<T>> list = ImmutableList.builder();
-        if (filter.hasProperty("suspect")) {
-            list.add(hasSuspects);
-        }
-        return info -> list.build().stream().allMatch(p -> p.test(info));
     }
 }

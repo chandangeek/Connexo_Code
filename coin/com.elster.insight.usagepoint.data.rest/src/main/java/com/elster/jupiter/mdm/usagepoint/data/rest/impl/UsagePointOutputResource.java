@@ -74,6 +74,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -266,7 +267,7 @@ public class UsagePointOutputResource {
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
                         .map(outputChannelDataInfoFactory::createChannelDataInfo)
-                        .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
+                        .filter(getSuspectsFilter(filter, this::hasSuspects))
                         .collect(Collectors.toList());
             }
         }
@@ -471,7 +472,7 @@ public class UsagePointOutputResource {
                         .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
                         .map(Map.Entry::getValue)
                         .map(reading -> outputRegisterDataInfoFactory.createRegisterDataInfo(reading, readingTypeDeliverable))
-                        .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
+                        .filter(getSuspectsFilter(filter, this::hasSuspects))
                         .collect(Collectors.toList());
             }
         }
@@ -729,5 +730,9 @@ public class UsagePointOutputResource {
                 .select(Where.where("id").isEqualTo(usagePoint.getId())
                         .and(ListOperator.IN.contains(usagePointGroup.toSubQuery("id"), "id")), 1, 1)
                 .isEmpty();
+    }
+
+    private <T> Predicate<T> getSuspectsFilter(JsonQueryFilter filter, Predicate<T> hasSuspects) {
+        return filter.hasProperty("suspect") ? hasSuspects : info -> true;
     }
 }

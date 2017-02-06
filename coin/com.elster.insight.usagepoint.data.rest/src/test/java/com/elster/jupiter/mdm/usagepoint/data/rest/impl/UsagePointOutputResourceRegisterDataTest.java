@@ -265,6 +265,10 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(jsonModel.<String>get("$registerData[1].validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<Integer>get("$registerData[1].validationRules[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$registerData[1].validationRules[0].name")).isEqualTo("MinMax");
+        assertThat(jsonModel.<Boolean>get("$registerData[2].dataValidated")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$registerData[2].validationResult")).isEqualTo("validationStatus.ok");
+        assertThat(jsonModel.<Integer>get("$registerData[2].validationRules[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$registerData[2].validationRules[0].name")).isEqualTo("MinMax");
     }
 
     @Test
@@ -292,8 +296,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(jsonModel.<List<Number>>get("$registerData[*].reportedDateTime")).containsExactly(
                 readingTimeStamp3.toEpochMilli(), readingTimeStamp2.toEpochMilli());
         assertThat(jsonModel.<List<String>>get("$registerData[*].value")).containsExactly("250", "206");
-        assertThat(jsonModel.<String>get("$registerData[0].validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<String>get("$registerData[1].validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<List<String>>get("$registerData[*].validationResult")).containsExactly("validationStatus.suspect", "validationStatus.suspect");
     }
 
     @Test
@@ -405,7 +408,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(channel.getPersistedRegisterReadings(interval)).thenReturn(Collections.singletonList(readingRecord1));
         when(channel.getCalculatedRegisterReadings(interval)).thenReturn(Collections.emptyList());
         when(effectiveMC.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
-        DataValidationStatus dataValidationStatus = mockValidationStatus(readingTimeStamp1, mockValidationRule(1, "MinMax"));
+        DataValidationStatus dataValidationStatus = mockSuspectValidationStatus(readingTimeStamp1, mockValidationRule(1, "MinMax"));
         when(evaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.singletonList(readingRecord1), interval))
                 .thenReturn(Collections.singletonList(dataValidationStatus));
 
@@ -436,15 +439,16 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     private void mockReadingsWithValidationResult(Channel channel) {
         ValidationRule minMax = mockValidationRule(1, "MinMax");
 
-        DataValidationStatus dataValidationStatus_2 = mockValidationStatus(readingTimeStamp2, minMax);
-        DataValidationStatus dataValidationStatus_3 = mockValidationStatus(readingTimeStamp3, minMax);
+        DataValidationStatus dataValidationStatus_1 = mockValidationStatus(readingTimeStamp1, minMax);
+        DataValidationStatus dataValidationStatus_2 = mockSuspectValidationStatus(readingTimeStamp2, minMax);
+        DataValidationStatus dataValidationStatus_3 = mockSuspectValidationStatus(readingTimeStamp3, minMax);
 
         List<ReadingRecord> readings = Arrays.asList(readingRecord1, readingRecord2, readingRecord3);
         when(channel.getRegisterReadings(any())).thenReturn(readings);
 
         when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM)),
                 eq(channel), any(), eq(Range.openClosed(readingTimeStamp1, readingTimeStamp3))))
-                .thenReturn(Arrays.asList(dataValidationStatus_2, dataValidationStatus_3));
+                .thenReturn(Arrays.asList(dataValidationStatus_1, dataValidationStatus_2, dataValidationStatus_3));
     }
 
     private ValidationRule mockValidationRule(long id, String name) {
@@ -460,7 +464,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         return validationRule;
     }
 
-    private DataValidationStatus mockValidationStatus(Instant timeStamp, ValidationRule validationRule) {
+    private DataValidationStatus mockSuspectValidationStatus(Instant timeStamp, ValidationRule validationRule) {
         DataValidationStatus validationStatus = mock(DataValidationStatus.class);
 
         when(validationStatus.getReadingTimestamp()).thenReturn(timeStamp);
@@ -470,6 +474,20 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(quality.getType()).thenReturn(qualityType);
         doReturn(Collections.singletonList(quality)).when(validationStatus).getReadingQualities();
         when(validationStatus.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
+        when(validationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
+        return validationStatus;
+    }
+
+    private DataValidationStatus mockValidationStatus(Instant timeStamp, ValidationRule validationRule) {
+        DataValidationStatus validationStatus = mock(DataValidationStatus.class);
+
+        when(validationStatus.getReadingTimestamp()).thenReturn(timeStamp);
+        when(validationStatus.completelyValidated()).thenReturn(true);
+        ReadingQualityType qualityType = new ReadingQualityType("3.1.0");
+        ReadingQualityRecord quality = mock(ReadingQualityRecord.class);
+        when(quality.getType()).thenReturn(qualityType);
+        doReturn(Collections.singletonList(quality)).when(validationStatus).getReadingQualities();
+        when(validationStatus.getValidationResult()).thenReturn(ValidationResult.VALID);
         when(validationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
         return validationStatus;
     }
