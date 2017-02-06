@@ -203,6 +203,11 @@
             <artifactId>datavault</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.upl</artifactId>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.json</groupId>
