@@ -37,7 +37,7 @@ import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
-import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+import com.energyict.protocolimplv2.security.DlmsSecuritySupportCryptography;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -85,7 +85,7 @@ public class SDKDeviceProtocolWithCryptoProperties extends SDKDeviceProtocol {
     @Inject
     public SDKDeviceProtocolWithCryptoProperties(Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService,
                                                  IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
-                                                 DlmsSecuritySupport dlmsSecuritySupport) {
+                                                 DlmsSecuritySupportCryptography dlmsSecuritySupport) {
         super(protocolPluggableService, thesaurus, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
         this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;

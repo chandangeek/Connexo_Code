@@ -110,7 +110,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     public SDKDeviceProtocol(
             ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus, PropertySpecService propertySpecService,
             IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
-            DlmsSecuritySupport dlmsSecuritySupport) {
+            DeviceProtocolSecurityCapabilities dlmsSecuritySupport) {
         super();
         this.protocolPluggableService = protocolPluggableService;
         this.thesaurus = thesaurus;
