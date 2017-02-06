@@ -6,13 +6,13 @@ package com.elster.jupiter.slp.importers.impl;
 
 
 import com.elster.jupiter.fileimport.FileImporterProperty;
-import com.elster.jupiter.slp.importers.impl.properties.DateFormatPropertySpec;
-import com.elster.jupiter.slp.importers.impl.properties.SupportedNumberFormat;
-import com.elster.jupiter.slp.importers.impl.properties.TimeZonePropertySpec;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.slp.importers.impl.properties.DateFormatPropertySpec;
+import com.elster.jupiter.slp.importers.impl.properties.SupportedNumberFormat;
+import com.elster.jupiter.slp.importers.impl.properties.TimeZonePropertySpec;
 import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;

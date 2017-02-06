@@ -4,9 +4,9 @@
 
 package com.elster.jupiter.slp.importers.impl.correctionfactor;
 
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.slp.importers.impl.FileImportLoggerImpl;
-import com.elster.jupiter.slp.importers.impl.FileImportRecord;
 import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterContext;
 import com.elster.jupiter.slp.importers.impl.TranslationKeys;
 import com.elster.jupiter.util.exception.MessageSeed;

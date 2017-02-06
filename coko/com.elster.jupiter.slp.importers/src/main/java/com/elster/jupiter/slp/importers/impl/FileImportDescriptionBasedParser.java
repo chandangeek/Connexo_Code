@@ -4,13 +4,12 @@
 
 package com.elster.jupiter.slp.importers.impl;
 
-import com.elster.jupiter.slp.importers.impl.exceptions.FileImportLineException;
-import com.elster.jupiter.slp.importers.impl.exceptions.FileImportParserException;
-import com.elster.jupiter.slp.importers.impl.exceptions.ValueParserException;
-import com.elster.jupiter.slp.importers.impl.fields.FieldSetter;
-import com.elster.jupiter.slp.importers.impl.fields.FileImportField;
-import com.elster.jupiter.slp.importers.impl.parsers.InstantParser;
-import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.fileimport.csvimport.FileImportDescription;
+import com.elster.jupiter.fileimport.csvimport.FileImportParser;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportLineException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
+import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.elster.jupiter.util.Checks;
 
 import org.apache.commons.csv.CSVParser;
@@ -18,10 +17,8 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class FileImportDescriptionBasedParser<T extends FileImportRecord> implements FileImportParser<T> {

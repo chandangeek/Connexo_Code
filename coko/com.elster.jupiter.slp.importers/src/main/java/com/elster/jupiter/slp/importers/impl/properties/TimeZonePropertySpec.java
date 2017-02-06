@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.slp.importers.impl.properties;
 
-import com.elster.jupiter.slp.importers.impl.MessageSeeds;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.slp.importers.impl.MessageSeeds;
 import com.elster.jupiter.util.Checks;
 
 import java.time.Clock;

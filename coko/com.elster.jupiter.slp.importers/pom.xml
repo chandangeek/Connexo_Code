@@ -2,7 +2,8 @@
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -58,8 +59,8 @@
             <artifactId>domain.util</artifactId>
         </dependency>
         <dependency>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>fileimport</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -72,7 +73,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>slp</artifactId>
-            <version>1.0.0${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

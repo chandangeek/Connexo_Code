@@ -6,8 +6,12 @@ package com.elster.jupiter.slp.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.slp.importers.impl.exceptions.FileImportParserException;
-import com.elster.jupiter.slp.importers.impl.exceptions.ProcessorException;
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.FileImportParser;
+import com.elster.jupiter.fileimport.csvimport.FileImportProcessor;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;

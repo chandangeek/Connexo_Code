@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.slp.importers.impl.correctionfactor;
 
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.slp.CorrectionFactor;
 import com.elster.jupiter.slp.importers.impl.AbstractImportProcessor;
-import com.elster.jupiter.slp.importers.impl.FileImportLogger;
 import com.elster.jupiter.slp.importers.impl.MessageSeeds;
 import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterContext;
-import com.elster.jupiter.slp.importers.impl.exceptions.ProcessorException;
 
 import java.math.BigDecimal;
 import java.time.Instant;

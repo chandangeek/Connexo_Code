@@ -4,8 +4,7 @@
 
 package com.elster.jupiter.slp.importers.impl.parsers;
 
-
-import com.elster.jupiter.slp.importers.impl.exceptions.ValueParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 import com.elster.jupiter.slp.importers.impl.properties.SupportedNumberFormat;
 
 import java.math.BigDecimal;

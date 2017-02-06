@@ -4,10 +4,6 @@
 
 package com.elster.jupiter.slp.importers.impl;
 
-import com.elster.jupiter.slp.SyntheticLoadProfileService;
-import com.elster.jupiter.slp.impl.SyntheticLoadProfileServiceImpl;
-import com.elster.jupiter.slp.importers.impl.correctionfactor.CorrectionFactorImporterFactory;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 

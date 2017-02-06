@@ -5,13 +5,17 @@
 package com.elster.jupiter.slp.importers.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.FileImportParser;
+import com.elster.jupiter.fileimport.csvimport.FileImportProcessor;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.slp.importers.impl.correctionfactor.CorrectionFactorImportLogger;
 import com.elster.jupiter.slp.importers.impl.correctionfactor.CorrectionFactorImportRecord;
-import com.elster.jupiter.slp.importers.impl.exceptions.FileImportParserException;
-import com.elster.jupiter.slp.importers.impl.exceptions.ProcessorException;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import org.apache.commons.csv.CSVRecord;

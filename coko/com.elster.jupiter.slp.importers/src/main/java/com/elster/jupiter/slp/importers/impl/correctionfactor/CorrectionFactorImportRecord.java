@@ -4,9 +4,9 @@
 
 package com.elster.jupiter.slp.importers.impl.correctionfactor;
 
-import com.elster.jupiter.slp.importers.impl.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.slp.importers.impl.MessageSeeds;
-import com.elster.jupiter.slp.importers.impl.exceptions.ProcessorException;
 
 import java.math.BigDecimal;
 import java.time.Instant;

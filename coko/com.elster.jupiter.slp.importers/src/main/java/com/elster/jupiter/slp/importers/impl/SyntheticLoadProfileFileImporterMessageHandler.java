@@ -21,8 +21,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Collections;
 
-import static com.elster.jupiter.orm.Version.version;
-
 @Component(name = "com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileFileImporterMessageHandler",
         property = {"subscriber=" + SyntheticLoadProfileFileImporterMessageHandler.SUBSCRIBER_NAME,
                 "destination=" + SyntheticLoadProfileFileImporterMessageHandler.DESTINATION_NAME,

@@ -6,13 +6,13 @@ package com.elster.jupiter.slp.importers.impl.correctionfactor;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.FileImportParser;
+import com.elster.jupiter.fileimport.csvimport.FileImportProcessor;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 import com.elster.jupiter.slp.importers.impl.AbstractFileImporterFactory;
 import com.elster.jupiter.slp.importers.impl.CsvImporter;
 import com.elster.jupiter.slp.importers.impl.DataImporterProperty;
-import com.elster.jupiter.slp.importers.impl.FileImportLogger;
-import com.elster.jupiter.slp.importers.impl.FileImportParser;
-import com.elster.jupiter.slp.importers.impl.FileImportProcessor;
-import com.elster.jupiter.slp.importers.impl.FileImportRecord;
 import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterContext;
 import com.elster.jupiter.slp.importers.impl.parsers.BigDecimalParser;
 import com.elster.jupiter.slp.importers.impl.parsers.InstantParser;
@@ -61,7 +61,7 @@ public class CorrectionFactorImporterFactory extends AbstractFileImporterFactory
 
         FileImportProcessor<CorrectionFactorImportRecord> processor = new CorrectionFactorImportProcessor(context);
 
-        FileImportLogger <FileImportRecord> logger = new CorrectionFactorImportLogger(getContext());
+        FileImportLogger<FileImportRecord> logger = new CorrectionFactorImportLogger(getContext());
         return CsvImporter.withParser(parser)
                 .withProcessor(processor)
                 .withLogger(logger)

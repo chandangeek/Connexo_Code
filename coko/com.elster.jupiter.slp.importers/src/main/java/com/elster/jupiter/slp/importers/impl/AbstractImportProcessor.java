@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.slp.importers.impl;
 
-import java.time.Clock;
-import java.util.Optional;
+import com.elster.jupiter.fileimport.csvimport.FileImportProcessor;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 
 public abstract class AbstractImportProcessor<T extends FileImportRecord> implements FileImportProcessor<T> {
 

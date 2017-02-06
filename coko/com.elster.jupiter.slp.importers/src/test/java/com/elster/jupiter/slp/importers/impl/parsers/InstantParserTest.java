@@ -5,8 +5,7 @@
 package com.elster.jupiter.slp.importers.impl.parsers;
 
 
-
-import com.elster.jupiter.slp.importers.impl.exceptions.ValueParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 
 import java.time.Instant;
 import java.time.ZoneOffset;

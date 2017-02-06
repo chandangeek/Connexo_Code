@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.slp.importers.impl.correctionfactor;
 
+import com.elster.jupiter.fileimport.csvimport.FileImportParser;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
 import com.elster.jupiter.slp.DurationAttribute;
-import com.elster.jupiter.slp.importers.impl.FileImportParser;
 import com.elster.jupiter.slp.importers.impl.MessageSeeds;
 import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterContext;
-import com.elster.jupiter.slp.importers.impl.exceptions.FileImportParserException;
 import com.elster.jupiter.slp.importers.impl.parsers.BigDecimalParser;
 import com.elster.jupiter.slp.importers.impl.parsers.InstantParser;
 
