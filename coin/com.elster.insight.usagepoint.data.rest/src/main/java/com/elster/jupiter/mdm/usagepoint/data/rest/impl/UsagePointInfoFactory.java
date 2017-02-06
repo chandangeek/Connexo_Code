@@ -436,7 +436,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     }
 
     private List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
-        if(usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()){
+        if (usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()) {
             return getMetersOnUsagePointWithMetrologyConfigurationInfo(usagePoint, authorization);
         }
         return usagePoint.getMeterActivations(clock.instant())
