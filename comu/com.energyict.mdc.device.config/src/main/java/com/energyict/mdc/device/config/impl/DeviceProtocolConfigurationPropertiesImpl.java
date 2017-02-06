@@ -4,11 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
@@ -52,18 +48,10 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
                     .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs())
                     .orElse(Collections.emptyList())
                     .stream()
-                    .map(this::wrapPropertySpecWithPossibleValues)
+                    .map(ps -> PropertySpecWithPossibleValues.addValuesIfApplicable(() -> deviceConfiguration.getDeviceType().getKeyAccessorTypes(), ps))
                     .collect(toList());
         }
         return this.propertySpecs;
-    }
-
-    private PropertySpec wrapPropertySpecWithPossibleValues(PropertySpec propertySpec) {
-        if (propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()))) {
-            return new WrappedPropertySpec(propertySpec);
-        } else {
-            return propertySpec;
-        }
     }
 
     private Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass() {
@@ -142,82 +130,6 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
                         .get(), name, this.deviceConfiguration.getThesaurus(), MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY));
         if (this.deviceConfiguration.removeProtocolProperty(name)) {
             this.properties.removeProperty(name);
-        }
-    }
-
-    /**
-     * Adds values to an existing property spec, all other methods are delegated to the original
-     */
-    private class WrappedPropertySpec implements PropertySpec {
-        private final PropertySpec propertySpec;
-
-        WrappedPropertySpec(PropertySpec propertySpec) {
-            this.propertySpec = propertySpec;
-        }
-
-        public String getName() {
-            return propertySpec.getName();
-        }
-
-        public ValueFactory getValueFactory() {
-            return propertySpec.getValueFactory();
-        }
-
-        public String getDisplayName() {
-            return propertySpec.getDisplayName();
-        }
-
-        public boolean validateValue(Object value) throws InvalidValueException {
-            return propertySpec.validateValue(value);
-        }
-
-        public PropertySpecPossibleValues getPossibleValues() {
-            return new PropertySpecPossibleValues() {
-                @Override
-                public PropertySelectionMode getSelectionMode() {
-                    return PropertySelectionMode.COMBOBOX;
-                }
-
-                @Override
-                public List getAllValues() {
-                    return getDeviceConfiguration().getDeviceType().getKeyAccessorTypes(); // TODO limit on KeyType
-                }
-
-                @Override
-                public boolean isExhaustive() {
-                    return true;
-                }
-
-                @Override
-                public boolean isEditable() {
-                    return false;
-                }
-
-                @Override
-                public Object getDefault() {
-                    return null;
-                }
-            };
-        }
-
-        public String getDescription() {
-            return propertySpec.getDescription();
-        }
-
-        public boolean validateValueIgnoreRequired(Object value) throws InvalidValueException {
-            return propertySpec.validateValueIgnoreRequired(value);
-        }
-
-        public boolean isReference() {
-            return propertySpec.isReference();
-        }
-
-        public boolean supportsMultiValues() {
-            return propertySpec.supportsMultiValues();
-        }
-
-        public boolean isRequired() {
-            return propertySpec.isRequired();
         }
     }
 
