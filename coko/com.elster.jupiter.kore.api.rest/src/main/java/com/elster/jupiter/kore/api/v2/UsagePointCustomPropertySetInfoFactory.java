@@ -104,7 +104,7 @@ public class UsagePointCustomPropertySetInfoFactory extends SelectableFieldFacto
             if (usagePointCustomPropertySet.getCustomPropertySet()
                     .isVersioned() && usagePointCustomPropertySet.getValues() != null) {
                 usagePointCustomPropertySetInfo.isActive = !usagePointCustomPropertySet.getValues().isEmpty() &&
-                        usagePointCustomPropertySet.getValues().getEffectiveRange().contains(clock.instant());
+                        usagePointCustomPropertySet.getValues().isEffectiveAt(clock.instant());
             }
         });
         map.put("startTime", (usagePointCustomPropertySetInfo, usagePointCustomPropertySet, uriInfo) -> {
