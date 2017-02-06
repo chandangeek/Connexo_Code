@@ -6,7 +6,7 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
-
+import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -94,6 +94,34 @@ public class LoadProfileExtractorImpl implements LoadProfileExtractor {
                 .collect(Collectors.toList());
     }
 
+    private static class ExtractedRegister implements Register {
+        private final Device device;
+        private final com.energyict.mdc.device.data.Channel channel;
+
+        private ExtractedRegister(Device device, com.energyict.mdc.device.data.Channel channel) {
+            this.device = device;
+            this.channel = channel;
+        }
+
+        @Override
+        public String deviceSerialNumber() {
+            return this.device.getSerialNumber();
+        }
+
+        @Override
+        public String obisCode() {
+            return this.channel.getChannelSpec().getDeviceObisCode().toString();
+        }
+
+        @Override
+        public int getRegisterId() {
+            ObisCode deviceObisCode = this.channel.getChannelSpec().getDeviceObisCode();
+            return device.getRegisterWithDeviceObisCode(deviceObisCode)
+                    .map(register -> ((int) register.getRegisterSpecId()))
+                    .orElse(0);
+        }
+    }
+
     private class ExtractedChannel implements Channel {
         private final Device device;
         private final com.energyict.mdc.device.data.Channel channel;
@@ -118,25 +146,4 @@ public class LoadProfileExtractorImpl implements LoadProfileExtractor {
             return readingTypeUtilService.getMdcUnitFor(this.channel.getChannelSpec().getReadingType()).toString();
         }
     }
-
-    private static class ExtractedRegister implements Register {
-        private final Device device;
-        private final com.energyict.mdc.device.data.Channel channel;
-
-        private ExtractedRegister(Device device, com.energyict.mdc.device.data.Channel channel) {
-            this.device = device;
-            this.channel = channel;
-        }
-
-        @Override
-        public String deviceSerialNumber() {
-            return this.device.getSerialNumber();
-        }
-
-        @Override
-        public String obisCode() {
-            return this.channel.getChannelSpec().getDeviceObisCode().toString();
-        }
-    }
-
 }

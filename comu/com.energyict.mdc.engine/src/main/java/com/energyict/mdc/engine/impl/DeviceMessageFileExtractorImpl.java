@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.UnderlyingIOException;
 import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -13,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.sql.SQLException;
 import java.util.function.Consumer;
 
 /**
@@ -66,26 +66,22 @@ public class DeviceMessageFileExtractorImpl implements DeviceMessageFileExtracto
         return DeviceMessageFileByteContentConsumer.readFrom((DeviceMessageFile) deviceMessageFile);
     }
 
+    @Override
+    public long size(com.energyict.mdc.upl.properties.DeviceMessageFile deviceMessageFile) throws SQLException {
+        return ((DeviceMessageFile) deviceMessageFile).getSize();
+    }
+
+    @Override
+    public void processFileAsStream(com.energyict.mdc.upl.properties.DeviceMessageFile deviceMessageFile, Consumer<InputStream> consumer) throws SQLException {
+        ((DeviceMessageFile) deviceMessageFile).readWith(consumer);
+    }
+
     private static class DeviceMessageFileStringContentConsumer implements Consumer<InputStream> {
         private static final int DEFAULT_BUFFER_SIZE = 1024;
         private static final String DEFAULT_CHAR_SET = "UTF-8";
-        private StringBuilder builder = new StringBuilder();
         private final int bufferSize;
         private final Charset charset;
-
-        public static String readFrom(com.energyict.mdc.protocol.api.DeviceMessageFile deviceMessageFile, String charSetName) {
-            return readFrom(deviceMessageFile, Charset.forName(charSetName));
-        }
-
-        public static String readFrom(com.energyict.mdc.protocol.api.DeviceMessageFile deviceMessageFile, Charset charSet) {
-            DeviceMessageFileStringContentConsumer consumer = new DeviceMessageFileStringContentConsumer(DEFAULT_BUFFER_SIZE, charSet);
-            deviceMessageFile.readWith(consumer);
-            return consumer.getContents();
-        }
-
-        String getContents() {
-            return this.builder.toString();
-        }
+        private StringBuilder builder = new StringBuilder();
 
         DeviceMessageFileStringContentConsumer() {
             this(DEFAULT_BUFFER_SIZE);
@@ -99,6 +95,20 @@ public class DeviceMessageFileExtractorImpl implements DeviceMessageFileExtracto
             super();
             this.bufferSize = bufferSize;
             this.charset = charset;
+        }
+
+        public static String readFrom(com.energyict.mdc.protocol.api.DeviceMessageFile deviceMessageFile, String charSetName) {
+            return readFrom(deviceMessageFile, Charset.forName(charSetName));
+        }
+
+        public static String readFrom(com.energyict.mdc.protocol.api.DeviceMessageFile deviceMessageFile, Charset charSet) {
+            DeviceMessageFileStringContentConsumer consumer = new DeviceMessageFileStringContentConsumer(DEFAULT_BUFFER_SIZE, charSet);
+            deviceMessageFile.readWith(consumer);
+            return consumer.getContents();
+        }
+
+        String getContents() {
+            return this.builder.toString();
         }
 
         @Override
@@ -127,8 +137,17 @@ public class DeviceMessageFileExtractorImpl implements DeviceMessageFileExtracto
 
     private static class DeviceMessageFileByteContentConsumer implements Consumer<InputStream> {
         private static final int DEFAULT_BUFFER_SIZE = 1024;
-        private byte[] bytes;
         private final int bufferSize;
+        private byte[] bytes;
+
+        DeviceMessageFileByteContentConsumer() {
+            this(DEFAULT_BUFFER_SIZE);
+        }
+
+        DeviceMessageFileByteContentConsumer(int bufferSize) {
+            super();
+            this.bufferSize = bufferSize;
+        }
 
         public static byte[] readFrom(com.energyict.mdc.protocol.api.DeviceMessageFile deviceMessageFile) {
             DeviceMessageFileByteContentConsumer consumer = new DeviceMessageFileByteContentConsumer();
@@ -138,15 +157,6 @@ public class DeviceMessageFileExtractorImpl implements DeviceMessageFileExtracto
 
         byte[] getBytes() {
             return this.bytes;
-        }
-
-        DeviceMessageFileByteContentConsumer() {
-            this(DEFAULT_BUFFER_SIZE);
-        }
-
-        DeviceMessageFileByteContentConsumer(int bufferSize) {
-            super();
-            this.bufferSize = bufferSize;
         }
 
         @Override

@@ -5,7 +5,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -13,12 +12,13 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link DeviceMessageFileFinder} interface
  * that redirects to the {@link DeviceConfigurationService}.
- *
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-19 (15:33)
@@ -74,4 +74,14 @@ public class DeviceMessageFileFinderImpl implements DeviceMessageFileFinder {
                 .findAny();
     }
 
+    @Override
+    public List<? extends DeviceMessageFile> fromName(String name) {
+        return this.service.findAllDeviceTypes()
+                .stream()
+                .map(DeviceType::getDeviceMessageFiles)
+                .flatMap(Collection::stream)
+                .filter(each -> each.getName().equals(name))
+                .map(DeviceMessageFile.class::cast)
+                .collect(Collectors.toList());
+    }
 }
