@@ -1015,7 +1015,6 @@ public class UsagePointResource {
             usagePoint = usagePointBuilder.create();
             info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
             if (info.metrologyConfiguration != null) {
-
                 usagePoint.apply((UsagePointMetrologyConfiguration)resourceHelper
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id));
             }
