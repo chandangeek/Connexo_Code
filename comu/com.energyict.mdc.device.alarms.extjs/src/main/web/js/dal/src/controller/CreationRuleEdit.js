@@ -7,10 +7,16 @@ Ext.define('Dal.controller.CreationRuleEdit', {
         'Dal.store.DueinTypes',
         'Dal.store.Clipboard',
         'Dal.store.CreationRuleActionPhases',
-        'Dal.store.AlarmReasons'
+        'Dal.store.AlarmReasons',
+        'Dal.store.eventType.EventTypesForAlarmRule',
+        'Dal.store.eventType.DeviceTypes',
+        'Dal.store.eventType.DeviceDomains',
+        'Dal.store.eventType.DeviceSubDomains',
+        'Dal.store.eventType.DeviceEventOrActions'
     ],
     views: [
-        'Dal.view.creationrules.Edit'
+        'Dal.view.creationrules.Edit',
+        'Dal.view.eventType.EventTypeWindow'
     ],
 
     models: [
@@ -30,8 +36,30 @@ Ext.define('Dal.controller.CreationRuleEdit', {
         {
             ref: 'actionsGrid',
             selector: 'alarms-creation-rules-edit alarms-creation-rules-actions-list'
+        },
+        {
+            ref: 'raisedEventTypesGrid',
+            selector: '#raisedEventTypesGridPanel'
+        },
+        {
+            ref: 'clearedEventTypesGrid',
+            selector: '#clearedEventTypesGridPanel'
+        },
+        {
+            ref: 'eventTypeWindow',
+            selector: '#eventTypeWindow'
+        },
+        {
+            ref: 'noRaisedEventTypesLabel',
+            selector: '#raisedNoEventTypesLabel'
+        },
+        {
+            ref: 'noClearedEventTypesLabel',
+            selector: '#clearedNoEventTypesLabel'
         }
     ],
+
+    comboBoxValueForAll: -1,
 
     init: function () {
         this.control({
@@ -40,6 +68,15 @@ Ext.define('Dal.controller.CreationRuleEdit', {
             },
             'alarms-creation-rules-edit button[action=addAction]': {
                 click: this.addAction
+            },
+            'alarms-creation-rules-edit #addRaisedOnEventTypeButton': {
+                click: this.showAddRaisedEventTypePopUp
+            },
+            'alarms-creation-rules-edit #addClearedOnEventTypeButton': {
+                click: this.showAddClearedEventTypePopUp
+            },
+            '#addEventTypeToAlarmRule': {
+                click: this.addEventTypeToAlarmRule
             }
         });
     },
@@ -90,6 +127,30 @@ Ext.define('Dal.controller.CreationRuleEdit', {
         }
 
         me.loadDependencies(dependenciesOnLoad);
+
+        if (me.deviceTypesStore) { // store(s) was/were already loaded previously
+            return;
+        }
+        var modelEntry = Ext.create('Dal.model.eventType.EndDeviceEventTypePart', {
+            value: me.comboBoxValueForAll,
+            displayName: Uni.I18n.translate('general.all', 'DAL', 'All')
+        });
+        me.deviceTypesStore = Ext.getStore('Dal.store.eventType.DeviceTypes');
+        me.deviceDomainsStore = Ext.getStore('Dal.store.eventType.DeviceDomains');
+        me.deviceSubDomainsStore = Ext.getStore('Dal.store.eventType.DeviceSubDomains');
+        me.deviceEventOrActionsStore = Ext.getStore('Dal.store.eventType.DeviceEventOrActions');
+        me.deviceTypesStore.load(function () {
+            me.deviceTypesStore.insert(0, modelEntry);
+        });
+        me.deviceDomainsStore.load(function () {
+            me.deviceDomainsStore.insert(0, modelEntry);
+        });
+        me.deviceSubDomainsStore.load(function () {
+            me.deviceSubDomainsStore.insert(0, modelEntry);
+        });
+        me.deviceEventOrActionsStore.load(function () {
+            me.deviceEventOrActionsStore.insert(0, modelEntry);
+        });
     },
 
     loadDependencies: function (callback) {
@@ -151,5 +212,73 @@ Ext.define('Dal.controller.CreationRuleEdit', {
         me.getStore('Dal.store.Clipboard').set('alarmsCreationRuleState', form.getRecord());
 
         router.getRoute(router.currentRoute + '/addaction').forward();
+    },
+
+    showAddRaisedEventTypePopUp: function () {
+        Ext.create('Dal.view.eventType.EventTypeWindow', {
+            title: Uni.I18n.translate('general.addEventType', 'Dal', 'Add event type'),
+            type: 'raised'
+        });
+    },
+
+    showAddClearedEventTypePopUp: function () {
+        Ext.create('Dal.view.eventType.EventTypeWindow', {
+            title: Uni.I18n.translate('general.addEventType', 'Dal', 'Add event type'),
+            type: 'cleared'
+        });
+    },
+
+    addEventTypeToAlarmRule: function (button) {
+        if (button.type == 'raised'){
+            if (!this.getEventTypeWindow().isFormValid(this.getRaisedEventTypesGrid().getStore())) {
+                return;
+            }
+
+            var eventType = this.getEventTypeWindow().getEventType(),
+                eventTypeModel;
+
+            eventTypeModel = Ext.create('Dal.model.eventType.EventTypeForAddAlarmRuleGrid',
+                {
+                    eventFilterCode: eventType,
+                    deviceTypeName: this.getEventTypeWindow().getDeviceTypeName(),
+                    deviceDomainName: this.getEventTypeWindow().getDeviceDomainName(),
+                    deviceSubDomainName: this.getEventTypeWindow().getDeviceSubDomainName(),
+                    deviceEventOrActionName: this.getEventTypeWindow().getDeviceEventOrActionName(),
+                    deviceCode: this.getEventTypeWindow().getDeviceCode()
+                });
+            this.getRaisedEventTypesGrid().getStore().add(eventTypeModel);
+
+            if (this.getRaisedEventTypesGrid().getStore().count() > 0) {
+                this.getNoRaisedEventTypesLabel().hide();
+                this.getRaisedEventTypesGrid().show();
+            }
+            //this.validateEventsGrid(false);
+            button.up('window').close();
+        } else{
+            if (!this.getEventTypeWindow().isFormValid(this.getClearedEventTypesGrid().getStore())) {
+                return;
+            }
+
+            var eventType = this.getEventTypeWindow().getEventType(),
+                eventTypeModel;
+
+            eventTypeModel = Ext.create('Dal.model.eventType.EventTypeForAddAlarmRuleGrid',
+                {
+                    eventFilterCode: eventType,
+                    deviceTypeName: this.getEventTypeWindow().getDeviceTypeName(),
+                    deviceDomainName: this.getEventTypeWindow().getDeviceDomainName(),
+                    deviceSubDomainName: this.getEventTypeWindow().getDeviceSubDomainName(),
+                    deviceEventOrActionName: this.getEventTypeWindow().getDeviceEventOrActionName(),
+                    deviceCode: this.getEventTypeWindow().getDeviceCode()
+                });
+            this.getClearedEventTypesGrid().getStore().add(eventTypeModel);
+
+            if (this.getClearedEventTypesGrid().getStore().count() > 0) {
+                this.getNoClearedEventTypesLabel().hide();
+                this.getClearedEventTypesGrid().show();
+            }
+            //this.validateEventsGrid(false);
+            button.up('window').close();
+        }
     }
 });

@@ -4,7 +4,8 @@ Ext.define('Dal.view.creationrules.EditForm', {
         'Dal.view.creationrules.ActionsList',
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
-        'Dal.model.CreationRuleTemplate'
+        'Dal.model.CreationRuleTemplate',
+        'Dal.store.eventType.EventTypesForAlarmRule'
     ],
     alias: 'widget.alarms-creation-rule-edit-form',
     router: null,
@@ -81,6 +82,123 @@ Ext.define('Dal.view.creationrules.EditForm', {
                                 this.hide();
                             }
                         }
+                    }
+                ]
+            },
+            {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('general.raisedOnEventTypes', 'DAL', 'Raised on event types'),
+                itemId: 'raisedOnventTypesFieldContainer',
+                required: true,
+                layout: 'hbox',
+                msgTarget: 'under',
+                width: 1000,
+                items: [
+                    {
+                        xtype: 'component',
+                        html: Uni.I18n.translate('dataExport.noEventTypes','DAL','No event types have been added'),
+                        itemId: 'raisedNoEventTypesLabel',
+                        style: {
+                            'font': 'italic 13px/17px Lato',
+                            'color': '#686868',
+                            'margin-top': '6px',
+                            'margin-right': '10px'
+                        }
+                    },
+                    {
+                        xtype: 'gridpanel',
+                        itemId: 'raisedEventTypesGridPanel',
+                        store: new Ext.create('Dal.store.eventType.EventTypesForAlarmRule'),
+                        hideHeaders: true,
+                        padding: 0,
+                        scroll: 'vertical',
+                        viewConfig: {
+                            disableSelection: true,
+                            enableTextSelection: true
+                        },
+                        columns: [
+                            {
+                                xtype: 'event-type-column',
+                                dataIndex: 'eventFilterCode',
+                                flex: 1
+                            },
+                            {
+                                xtype: 'uni-actioncolumn-remove',
+                                align: 'right',
+                                handler: function (grid, rowIndex) {
+                                    grid.getStore().removeAt(rowIndex);
+                                    if (grid.getStore().count() === 0) {
+                                        me.updateEventTypesGrid();
+                                    }
+                                }
+                            }
+                        ],
+                        width: 500,
+                        height: 220
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'addRaisedOnEventTypeButton',
+                        text: Uni.I18n.translate('general.addEventTypes', 'DAL', 'Add event types'),
+                        margin: '0 0 0 10'
+                    }
+                ]
+            },
+            {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('general.clearedOnEventTypes', 'DAL', 'Cleared on event types'),
+                itemId: 'clearedOnventTypesFieldContainer',
+                layout: 'hbox',
+                msgTarget: 'under',
+                width: 1000,
+                items: [
+                    {
+                        xtype: 'component',
+                        html: Uni.I18n.translate('dataExport.noEventTypes','DAL','No event types have been added'),
+                        itemId: 'clearedNoEventTypesLabel',
+                        style: {
+                            'font': 'italic 13px/17px Lato',
+                            'color': '#686868',
+                            'margin-top': '6px',
+                            'margin-right': '10px'
+                        }
+                    },
+                    {
+                        xtype: 'gridpanel',
+                        itemId: 'clearedEventTypesGridPanel',
+                        store: new Ext.create('Dal.store.eventType.EventTypesForAlarmRule'),
+                        hideHeaders: true,
+                        padding: 0,
+                        scroll: 'vertical',
+                        viewConfig: {
+                            disableSelection: true,
+                            enableTextSelection: true
+                        },
+                        columns: [
+                            {
+                                xtype: 'event-type-column',
+                                dataIndex: 'eventFilterCode',
+                                flex: 1
+                            },
+                            {
+                                xtype: 'uni-actioncolumn-remove',
+                                align: 'right',
+                                handler: function (grid, rowIndex) {
+                                    grid.getStore().removeAt(rowIndex);
+                                    if (grid.getStore().count() === 0) {
+                                        me.updateEventTypesGrid();
+                                    }
+                                }
+                            }
+                        ],
+                        width: 500,
+                        height: 220
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'addClearedOnEventTypeButton',
+                        text: Uni.I18n.translate('general.addEventTypes', 'DAL', 'Add event types'),
+                        margin: '0 0 0 10'
                     }
                 ]
             },
@@ -370,6 +488,7 @@ Ext.define('Dal.view.creationrules.EditForm', {
             actionsGrid.hide();
             me.down('#alarms-creation-rule-no-actions').show();
         }
+        me.updateEventTypesGrid();
         template = templateCombo.findRecordByValue(templateCombo.getValue());
         if (template) {
             me.down('#rule-template-info').setInfoTooltip(template.get('description'));
@@ -545,6 +664,28 @@ Ext.define('Dal.view.creationrules.EditForm', {
         }
         if (value > field.maxValue) {
             field.setValue(field.maxValue);
+        }
+    },
+    updateEventTypesGrid: function() {
+        var me = this,
+            raisedEventTypesGrid = me.down('#raisedEventTypesGridPanel'),
+            clearedEventTypesGrid = me.down('#clearedEventTypesGridPanel'),
+            clearedEmptyEventTypesLabel = me.down('#clearedNoEventTypesLabel'),
+            raisedEmptyEventTypesLabel = me.down('#raisedNoEventTypesLabel');
+        if (raisedEventTypesGrid.getStore().count() === 0) {
+            raisedEmptyEventTypesLabel.show();
+            raisedEventTypesGrid.hide();
+        } else {
+            raisedEmptyEventTypesLabel.hide();
+            raisedEventTypesGrid.show();
+        }
+
+        if (clearedEventTypesGrid.getStore().count() === 0) {
+            clearedEmptyEventTypesLabel.show();
+            clearedEventTypesGrid.hide();
+        } else {
+            clearedEmptyEventTypesLabel.hide();
+            clearedEventTypesGrid.show();
         }
     }
 });
