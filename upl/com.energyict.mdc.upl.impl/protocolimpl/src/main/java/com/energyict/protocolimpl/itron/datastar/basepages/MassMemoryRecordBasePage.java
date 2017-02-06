@@ -70,9 +70,9 @@ public class MassMemoryRecordBasePage extends AbstractBasePage {
     
     protected BasePageDescriptor preparebuild() throws IOException {
         if (getRecordNr() != -1)
-            return new BasePageDescriptor(getBasePagesFactory().getMassMemoryBasePages().getMassMemoryStartOffset()+
-                                          getRecordNr()* getBasePagesFactory().getMassMemoryBasePages().getMassMemoryRecordLength(),
-                                          onlyRegisters? 35: getBasePagesFactory().getMassMemoryBasePages().getMassMemoryRecordLength());
+            return new BasePageDescriptor(((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getMassMemoryStartOffset()+
+                    getRecordNr()* ((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getMassMemoryRecordLength(),
+                    onlyRegisters? 35: ((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getMassMemoryRecordLength());
         else if (getOffset() != -1)
             return new BasePageDescriptor(getOffset(),
                     onlyRegisters? 35:((BasePagesFactory)getBasePagesFactory()).getMassMemoryBasePages().getMassMemoryRecordLength());

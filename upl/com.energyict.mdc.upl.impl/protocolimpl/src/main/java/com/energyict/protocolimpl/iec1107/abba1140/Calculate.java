@@ -89,7 +89,7 @@ public class Calculate {
         if ((lE > 0) && (lE < 255)) {
             flVal = (float) lS * (float) Math.pow(2, lE - 127) * (((float) lF) + 1);
         } else if (lE == 0) {
-            flVal = (float) lS * (float) Math.pow(2, lE - 127) * lF;
+            flVal = (float) lS * (float) Math.pow(2, lE - 127) * (float) lF;
         }
 
         // KV 17032006 changed to return float value! only 4 decimals... values are rounded!
