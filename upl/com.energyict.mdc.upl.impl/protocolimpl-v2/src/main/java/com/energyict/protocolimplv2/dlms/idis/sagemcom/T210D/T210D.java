@@ -38,7 +38,6 @@ public class T210D extends AM130 {
             getDeviceCache().saveObjectList(objectList);
         }
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
-
     }
 
     @Override
@@ -110,6 +109,6 @@ public class T210D extends AM130 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-09-07 16:54:19 +0300 (Wed, 07 Sep 2016)$";
+        return "$Date: 2017-02-06 10:24:41 +0200 (Mon, 06 Feb 2017)$";
     }
 }
