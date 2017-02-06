@@ -5,6 +5,7 @@
 package com.elster.jupiter.kore.api.v2;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.impl.PublicRestAppServiceImpl;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
 import com.elster.jupiter.messaging.MessageService;
@@ -52,6 +53,7 @@ public class PublicRestApplication extends Application {
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile LocationService locationService;
+    private volatile IssueService issueService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -63,7 +65,8 @@ public class PublicRestApplication extends Application {
                 EndDeviceResource.class,
                 EffectiveMetrologyConfigurationResource.class,
                 RestExceptionMapper.class,
-                ConstraintViolationExceptionMapper.class
+                ConstraintViolationExceptionMapper.class,
+                IssueResource.class
         );
     }
 
@@ -131,6 +134,11 @@ public class PublicRestApplication extends Application {
         this.thesaurus = nlsService.getThesaurus(PublicRestAppServiceImpl.COMPONENT_NAME, Layer.REST);
     }
 
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -147,6 +155,7 @@ public class PublicRestApplication extends Application {
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bind(locationService).to(LocationService.class);
+            bind(issueService).to(IssueService.class);
 
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
@@ -159,6 +168,7 @@ public class PublicRestApplication extends Application {
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ElectricityDetailInfoFactory.class).to(ElectricityDetailInfoFactory.class);
             bind(ElectricityDetailResource.class).to(ElectricityDetailResource.class);
+            bind(IssueResource.class).to(IssueResource.class);
             bind(GasDetailInfoFactory.class).to(GasDetailInfoFactory.class);
             bind(GasDetailResource.class).to(GasDetailResource.class);
             bind(HeatDetailInfoFactory.class).to(HeatDetailInfoFactory.class);
@@ -173,6 +183,12 @@ public class PublicRestApplication extends Application {
             bind(MeterReadingsFactory.class).to(MeterReadingsFactory.class);
             bind(MetrologyConfigurationPurposeInfoFactory.class).to(MetrologyConfigurationPurposeInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
+            bind(IssueInfoFactory.class).to(IssueInfoFactory.class);
+            bind(IssueStatusInfoFactory.class).to(IssueStatusInfoFactory.class);
+            bind(IssueAssigneeInfoFactory.class).to(IssueAssigneeInfoFactory.class);
+            bind(IssueTypeInfoFactory.class).to(IssueTypeInfoFactory.class);
+            bind(IssueReasonInfoFactory.class).to(IssueReasonInfoFactory.class);
+            bind(IssuePriorityInfoFactory.class).to(IssuePriorityInfoFactory.class);
         }
     }
 }
