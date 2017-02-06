@@ -293,6 +293,8 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 	@Override
 	public Optional<TemporalAmount> getIntervalLength() {
         switch (getMacroPeriod()) {
+	        case YEARLY:
+                return Optional.of(Period.ofYears(1));
             case MONTHLY:
                 return Optional.of(Period.ofMonths(1));
             case DAILY:
