@@ -304,21 +304,15 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
         return minutes == 0 ? Optional.empty() : Optional.of(Duration.ofMinutes(minutes));
     }
 
-	boolean hasMacroPeriod() {
-		return !macroPeriod.equals(MacroPeriod.NOTAPPLICABLE);
-	}
+    boolean hasMacroPeriod() {
+        return !macroPeriod.equals(MacroPeriod.NOTAPPLICABLE);
+    }
 
     @Override
     public final boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ReadingTypeImpl)) {
-            return false;
-        }
-
-        return mRID.equals(((ReadingTypeImpl) o).mRID);
-
+        return this == o
+                || o instanceof ReadingTypeImpl
+                && mRID.equals(((ReadingTypeImpl) o).mRID);
     }
 
     @Override
