@@ -5,7 +5,7 @@
 package com.elster.jupiter.metering.imports.impl.parsers;
 
 
-import com.elster.jupiter.metering.imports.impl.exceptions.ValueParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ValueParserException;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 
 import java.math.BigDecimal;

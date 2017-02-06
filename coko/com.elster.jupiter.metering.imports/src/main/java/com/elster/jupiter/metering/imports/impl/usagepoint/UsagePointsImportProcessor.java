@@ -25,10 +25,10 @@ import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
-import com.elster.jupiter.metering.imports.impl.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
-import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
@@ -66,6 +66,11 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             }
             throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_INVALIDDATA, data.getLineNumber());
         }
+    }
+
+    @Override
+    public void complete(FileImportLogger logger) {
+
     }
 
     private void validate(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {

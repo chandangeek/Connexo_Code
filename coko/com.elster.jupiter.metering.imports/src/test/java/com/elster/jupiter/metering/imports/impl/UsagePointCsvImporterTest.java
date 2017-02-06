@@ -5,8 +5,12 @@
 package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.metering.imports.impl.exceptions.FileImportParserException;
-import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.FileImportParser;
+import com.elster.jupiter.fileimport.csvimport.FileImportProcessor;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointImportRecord;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImportLogger;
 import com.elster.jupiter.nls.NlsMessageFormat;

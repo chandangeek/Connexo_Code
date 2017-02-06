@@ -9,10 +9,10 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.imports.impl.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
-import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -36,6 +36,11 @@ public class UsagePointsImportProcessorForMultisense extends AbstractImportProce
             }
             throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_INVALIDDATA, data.getLineNumber());
         }
+    }
+
+    @Override
+    public void complete(FileImportLogger logger) {
+
     }
 
     private UsagePoint processUsagePoint(UsagePointImportRecord data) {

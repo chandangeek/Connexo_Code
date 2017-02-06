@@ -6,8 +6,8 @@ package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
-import com.elster.jupiter.metering.imports.impl.FileImportRecord;
+import com.elster.jupiter.fileimport.csvimport.FileImportProcessor;
+import com.elster.jupiter.fileimport.csvimport.FileImportRecord;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 
 import java.time.Clock;
