@@ -343,19 +343,6 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
         assertThat(comTaskEnablement.getSecurityPropertySet().getId()).isEqualTo(this.securityPropertySet1.getId());
     }
 
-//    /**
-//     * Tests that saving a {@link ComTask} without protocol dialect properties, produces a constraint violation.
-//     */
-//    @Test
-//    @Transactional
-//    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "protocolDialectConfigurationProperties")
-//    public void testEnableWithoutProtocolDialect() {
-//        // Business method
-//        this.deviceConfiguration1.enableComTask(this.comTask1, this.securityPropertySet1).add();
-//
-//        // Asserts: see ExpectedConstraintViolation
-//    }
-
     /**
      * Tests that enabling the same {@link ComTask} twice, produces a constraint violation.
      */

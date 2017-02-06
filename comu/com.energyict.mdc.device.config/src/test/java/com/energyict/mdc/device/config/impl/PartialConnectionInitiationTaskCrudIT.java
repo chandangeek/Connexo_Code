@@ -32,6 +32,8 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -55,6 +57,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -110,6 +113,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -141,6 +145,9 @@ public class PartialConnectionInitiationTaskCrudIT {
     private DeviceProtocol deviceProtocol;
     @Mock
     private DeviceProtocolDialect deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3;
+    @Mock
+    private PropertySpec deviceProtocolDialectSpec1, deviceProtocolDialectSpec2, deviceProtocolDialectSpec3, deviceProtocolDialectSpec4;
+
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -267,7 +274,20 @@ public class PartialConnectionInitiationTaskCrudIT {
 
     @Before
     public void initializeMocks() {
+        when(deviceProtocolDialectSpec1.getName()).thenReturn("deviceProtocolDialectSpec1");
+        when(deviceProtocolDialectSpec1.getValueFactory()).thenReturn(new StringFactory());
+
+        when(deviceProtocolDialectSpec2.getName()).thenReturn("deviceProtocolDialectSpec2");
+        when(deviceProtocolDialectSpec2.getValueFactory()).thenReturn(new StringFactory());
+
+        when(deviceProtocolDialectSpec3.getName()).thenReturn("deviceProtocolDialectSpec3");
+        when(deviceProtocolDialectSpec3.getValueFactory()).thenReturn(new StringFactory());
+
+        when(deviceProtocolDialectSpec4.getName()).thenReturn("deviceProtocolDialectSpec4");
+        when(deviceProtocolDialectSpec4.getValueFactory()).thenReturn(new StringFactory());
+
         when(deviceProtocolDialect1.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 1");
+        when(deviceProtocolDialect1.getPropertySpecs()).thenReturn(Arrays.asList(deviceProtocolDialectSpec1, deviceProtocolDialectSpec2, deviceProtocolDialectSpec3, deviceProtocolDialectSpec4));
         when(deviceProtocolDialect2.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 2");
         when(deviceProtocolDialect3.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 3");
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
@@ -381,6 +401,65 @@ public class PartialConnectionInitiationTaskCrudIT {
         assertThat(reloadedPartialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
         assertThat(reloadedPartialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(reloadedPartialConnectionInitiationTask.getName()).isEqualTo("Changed");
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateProtocolDialectProperties() {
+        PartialConnectionInitiationTaskImpl connectionInitiationTask;
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
+
+        connectionInitiationTask = deviceConfiguration
+                .newPartialConnectionInitiationTask(
+                        "MyInitiation",
+                        connectionTypePluggableClass,
+                        TimeDuration.seconds(60),
+                        deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+                .comPortPool(outboundComPortPool)
+                .build();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
+
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec1","test property 1");
+        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec2","test property 2");
+        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec3","test property 3");
+        protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec4","test property 4");
+
+        PartialConnectionInitiationTask partialConnectionInitiationTask = deviceConfiguration.getPartialConnectionInitiationTasks().get(0);
+        partialConnectionInitiationTask.setComportPool(outboundComPortPool1);
+        partialConnectionInitiationTask.setConnectionTypePluggableClass(connectionTypePluggableClass2);
+        partialConnectionInitiationTask.setName("Changed");
+        partialConnectionInitiationTask.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
+        partialConnectionInitiationTask.save();
+
+        Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(connectionInitiationTask.getId());
+        assertThat(found.isPresent()).isTrue();
+
+        PartialConnectionTask partialConnectionTask = found.get();
+
+        assertThat(partialConnectionTask).isInstanceOf(PartialConnectionInitiationTaskImpl.class);
+
+        PartialConnectionInitiationTaskImpl reloadedPartialConnectionInitiationTask = (PartialConnectionInitiationTaskImpl) partialConnectionTask;
+
+        assertThat(reloadedPartialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
+        assertThat(reloadedPartialConnectionInitiationTask.isDefault()).isFalse();
+        assertThat(reloadedPartialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
+        assertThat(reloadedPartialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
+        assertThat(reloadedPartialConnectionInitiationTask.getName()).isEqualTo("Changed");
+        ProtocolDialectConfigurationProperties dialectConfigurationProperties = reloadedPartialConnectionInitiationTask.getProtocolDialectConfigurationProperties();
+        ProtocolDialectConfigurationProperties spyDialectConfigurationProperties = spy(dialectConfigurationProperties);
+        when(spyDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect1); // Need to force this
+        assertThat(spyDialectConfigurationProperties.getPropertySpecs()).hasSize(4);
+        assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec1")).isEqualTo("test property 1");
+        assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec2")).isEqualTo("test property 2");
+        assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec3")).isEqualTo("test property 3");
+        assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec4")).isEqualTo("test property 4");
     }
 
     @Test

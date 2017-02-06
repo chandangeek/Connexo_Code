@@ -35,6 +35,8 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -64,6 +66,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
@@ -134,6 +137,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -175,6 +179,8 @@ public class PartialOutboundConnectionTaskCrudIT {
     private DeviceProtocol deviceProtocol;
     @Mock
     private DeviceProtocolDialect deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3;
+    @Mock
+    private PropertySpec deviceProtocolDialectSpec1, deviceProtocolDialectSpec2, deviceProtocolDialectSpec3, deviceProtocolDialectSpec4;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -329,12 +335,26 @@ public class PartialOutboundConnectionTaskCrudIT {
 
     @Before
     public void initializeMocks() throws SQLException {
+        when(deviceProtocolDialectSpec1.getName()).thenReturn("deviceProtocolDialectSpec1");
+        when(deviceProtocolDialectSpec1.getValueFactory()).thenReturn(new StringFactory());
+
+        when(deviceProtocolDialectSpec2.getName()).thenReturn("deviceProtocolDialectSpec2");
+        when(deviceProtocolDialectSpec2.getValueFactory()).thenReturn(new StringFactory());
+
+        when(deviceProtocolDialectSpec3.getName()).thenReturn("deviceProtocolDialectSpec3");
+        when(deviceProtocolDialectSpec3.getValueFactory()).thenReturn(new StringFactory());
+
+        when(deviceProtocolDialectSpec4.getName()).thenReturn("deviceProtocolDialectSpec4");
+        when(deviceProtocolDialectSpec4.getValueFactory()).thenReturn(new StringFactory());
+
         when(deviceProtocolDialect1.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 1");
+        when(deviceProtocolDialect1.getPropertySpecs()).thenReturn(Arrays.asList(deviceProtocolDialectSpec1, deviceProtocolDialectSpec2, deviceProtocolDialectSpec3, deviceProtocolDialectSpec4));
         when(deviceProtocolDialect2.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 2");
         when(deviceProtocolDialect3.getDeviceProtocolDialectName()).thenReturn("Device Protocol Dialect 3");
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
+        when(deviceProtocolPluggableClass.getId()).thenReturn(1L);
         when(deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(deviceProtocolDialect1, deviceProtocolDialect2, deviceProtocolDialect3));
+        when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
     }
 
     @Test
@@ -348,7 +368,8 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+        outboundConnectionTask = deviceConfiguration
+                .newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
@@ -374,6 +395,8 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(partialOutboundConnectionTask.getName()).isEqualTo("MyOutbound");
         assertThat(partialOutboundConnectionTask.getRescheduleDelay()).isEqualTo(SIXTY_SECONDS);
         assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        assertThat(partialOutboundConnectionTask.getProtocolDialectConfigurationProperties()).isNotNull();
+        assertThat(partialOutboundConnectionTask.getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName()).isEqualTo("Device Protocol Dialect 1");
 
         verify(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_CREATED.topic(), outboundConnectionTask);
     }
@@ -438,6 +461,28 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(foundTheDefault.get().isDefault()).isTrue();
     }
 
+    /**
+     * Tests that saving a {@link PartialConnectionTask} without protocol dialect properties, produces a constraint violation.
+     */
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}" , property = "protocolDialectConfigurationProperties")
+    public void testCreateWithoutProtocolDialect() {
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.setDirectlyAddressable(true);
+        deviceConfiguration.save();
+
+        deviceConfiguration
+                .newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, null)
+                .comPortPool(outboundComPortPool)
+                .comWindow(COM_WINDOW)
+                .nextExecutionSpec().temporalExpression(TimeDuration.days(1), NINETY_MINUTES).set()
+                .asDefault(true).build();
+    }
+
     @Test
     @Transactional
     public void testUpdate() {
@@ -449,7 +494,11 @@ public class PartialOutboundConnectionTaskCrudIT {
         deviceConfiguration.setDirectlyAddressable(true);
         deviceConfiguration.save();
 
-        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
+        outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask(
+                                                        "MyOutbound",
+                                                        connectionTypePluggableClass,
+                                                        SIXTY_SECONDS,
+                                                        ConnectionStrategy.MINIMIZE_CONNECTIONS, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS), new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
@@ -458,8 +507,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         reset(eventService.getSpy());
 
         ComWindow newComWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 2, DateTimeConstants.SECONDS_PER_HOUR * 3);
-        PartialScheduledConnectionTask task;
-        task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+        PartialScheduledConnectionTask task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
         task.setDefault(false);
         task.setComportPool(outboundComPortPool1);
         task.setConnectionTypePluggableClass(connectionTypePluggableClass2);
@@ -486,6 +534,64 @@ public class PartialOutboundConnectionTaskCrudIT {
         verify(eventService.getSpy()).postEvent(eq(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_UPDATED.topic()), updateDetailsArgumentCaptor.capture());
         PartialConnectionTaskUpdateDetails updateDetails = updateDetailsArgumentCaptor.getValue();
         assertThat(updateDetails.getPartialConnectionTask()).isEqualTo(task);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateProtocolDialectProperties() {
+        PartialScheduledConnectionTaskImpl outboundConnectionTask;
+         DeviceConfiguration deviceConfiguration;
+         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+         deviceConfiguration = deviceType.newConfiguration("Normal").add();
+         deviceConfiguration.setDirectlyAddressable(true);
+         deviceConfiguration.save();
+
+         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+         protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec1","test property 1");
+         protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec2","test property 2");
+         protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec3","test property 3");
+         protocolDialectConfigurationProperties.setProperty("deviceProtocolDialectSpec4","test property 4");
+
+         outboundConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, SIXTY_SECONDS, ConnectionStrategy.MINIMIZE_CONNECTIONS, protocolDialectConfigurationProperties)
+                 .comPortPool(outboundComPortPool)
+                 .comWindow(COM_WINDOW)
+                 .nextExecutionSpec().temporalExpression(new TimeDuration(6, TimeDuration.TimeUnit.HOURS), new TimeDuration(1, TimeDuration.TimeUnit.HOURS)).set()
+                 .asDefault(true).build();
+         deviceConfiguration.save();
+         reset(eventService.getSpy());
+
+         ComWindow newComWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 2, DateTimeConstants.SECONDS_PER_HOUR * 3);
+         PartialScheduledConnectionTask task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
+         task.setDefault(false);
+         task.setComportPool(outboundComPortPool1);
+         task.setConnectionTypePluggableClass(connectionTypePluggableClass2);
+         task.setTemporalExpression(new TemporalExpression(TWELVE_HOURS, TWO_HOURS));
+         task.setComWindow(newComWindow);
+         task.setName("Changed");
+         task.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
+         task.save();
+
+         Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());
+         assertThat(found.isPresent()).isTrue();
+         PartialConnectionTask partialConnectionTask = found.get();
+         assertThat(partialConnectionTask).isInstanceOf(PartialScheduledConnectionTaskImpl.class);
+         PartialScheduledConnectionTaskImpl reloadedPartialOutboundConnectionTask = (PartialScheduledConnectionTaskImpl) partialConnectionTask;
+         assertThat(reloadedPartialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
+         assertThat(reloadedPartialOutboundConnectionTask.isDefault()).isFalse();
+         assertThat(reloadedPartialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
+         assertThat(reloadedPartialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
+         assertThat(reloadedPartialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
+         assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getCount()).isEqualTo(12);
+         assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
+         assertThat(reloadedPartialOutboundConnectionTask.getName()).isEqualTo("Changed");
+         ProtocolDialectConfigurationProperties dialectConfigurationProperties = reloadedPartialOutboundConnectionTask.getProtocolDialectConfigurationProperties();
+         ProtocolDialectConfigurationProperties spyDialectConfigurationProperties = spy(dialectConfigurationProperties);
+         when(spyDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect1); // Need to force this
+         assertThat(spyDialectConfigurationProperties.getPropertySpecs()).hasSize(4);
+         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec1")).isEqualTo("test property 1");
+         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec2")).isEqualTo("test property 2");
+         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec3")).isEqualTo("test property 3");
+         assertThat(spyDialectConfigurationProperties.getProperty("deviceProtocolDialectSpec4")).isEqualTo("test property 4");
     }
 
     @Test
@@ -1132,7 +1238,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     }
 
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
-
     }
 
 }
