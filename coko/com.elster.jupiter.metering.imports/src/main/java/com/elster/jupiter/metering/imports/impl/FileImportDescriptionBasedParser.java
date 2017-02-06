@@ -24,6 +24,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +96,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         }
 
         context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
+                .sorted(Comparator.comparingInt(LocationTemplate.TemplateField::getRanking))
                 .map(LocationTemplate.TemplateField::getName)
                 .forEach(s -> {
                     fields.entrySet().stream()
@@ -195,7 +196,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         headers = parser.getHeaderMap().entrySet()
                 .stream()
                 .filter(entry -> entry.getKey() != null && !entry.getKey().isEmpty() && entry.getValue() != null)
-                .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
+                .sorted(Comparator.comparing(Map.Entry::getValue))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         long numberOfMandatoryColumns = getNumberOfMandatoryColumns();
@@ -227,7 +228,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
     private List<MeterRoleWithMeterAndActivationDate> getMeterRoles(CSVRecord csvRecord) {
         Map<Integer, MeterRoleWithMeterAndActivationDate> roles = new HashMap<>();
         Map<String, String> recordMap = csvRecord.toMap();
-        recordMap.keySet().stream().forEach(key -> {
+        recordMap.keySet().forEach(key -> {
             String header = key.toLowerCase();
             String value = recordMap.get(key);
             if (header.startsWith("meterrole")) {
@@ -288,7 +289,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
     private Map<String, String> getTransitionAttributes(CSVRecord csvRecord) {
         Map<String, String> recordMap = csvRecord.toMap();
         Map<String, String> transitions = new HashMap<>();
-        recordMap.keySet().stream().forEach(key -> {
+        recordMap.keySet().forEach(key -> {
             String header = key.toLowerCase();
             if (header.startsWith("transition")
                     && !header.equalsIgnoreCase("transition")
