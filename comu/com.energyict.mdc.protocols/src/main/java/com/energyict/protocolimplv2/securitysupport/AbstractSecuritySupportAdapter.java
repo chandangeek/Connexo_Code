@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -37,6 +38,10 @@ public abstract class AbstractSecuritySupportAdapter {
         super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
+    }
+
+    protected PropertySpecService getPropertySpecService() {
+        return propertySpecService;
     }
 
     @Reference
