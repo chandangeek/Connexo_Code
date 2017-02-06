@@ -16,6 +16,8 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
@@ -59,12 +61,13 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10,3));
         metrologyConfigurationsInstaller.createMetrologyConfigurations();
-        upgradeResidentionalNetMeteringConsumption();
+        upgradeResidentialNetMeteringConsumption();
+        upgradeResidentialNetMeteringProduction();
         upgradeResidentialProsumerWith1Meter();
         userService.addModulePrivileges(this);
     }
 
-    private void upgradeResidentionalNetMeteringConsumption() {
+    private void upgradeResidentialNetMeteringConsumption() {
         Optional<MetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (consumption)");
         if (metrologyConfiguration.isPresent() && metrologyConfiguration.get()
                 .getDeliverables()
@@ -97,9 +100,62 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
         }
     }
 
-    @Override
-    public String getModuleName() {
-        return UsagePointConfigurationService.COMPONENTNAME;
+    private void upgradeResidentialNetMeteringProduction() {
+        metrologyConfigurationService.findMetrologyConfiguration("Residential net metering (production)")
+                .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
+                .ifPresent(mc -> {
+                    Optional<MetrologyPurpose> purposeInformationOptional = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+                    Optional<MeterRole> meterRoleOptional = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey());
+                    Optional<ReadingTypeTemplate> readingTypeTemplateOptional = metrologyConfigurationService.findReadingTypeTemplate(
+                            DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat());
+                    if (purposeInformationOptional.isPresent() && meterRoleOptional.isPresent() && readingTypeTemplateOptional.isPresent()) {
+                        MetrologyPurpose purposeInformation = purposeInformationOptional.get();
+                        MeterRole meterRole = meterRoleOptional.get();
+                        ReadingTypeTemplate readingTypeTemplate = readingTypeTemplateOptional.get();
+                        // add meter role if not present yet
+                        mc.addMeterRole(meterRole);
+                        // add information contract if not found
+                        MetrologyContract contractInformation = mc.getContracts().stream()
+                                .filter(contract -> purposeInformation.equals(contract.getMetrologyPurpose()))
+                                .findAny()
+                                .orElseGet(() -> mc.addMandatoryMetrologyContract(purposeInformation));
+                        // add first reading type if not found
+                        ReadingType readingType15minAMinusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MIN15_A_MINUS_WH))
+                                .stream()
+                                .findFirst()
+                                .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MIN15_A_MINUS_WH, "A-"));
+                        // add first deliverable if not found
+                        ReadingTypeDeliverable min15Deliverable = contractInformation.getDeliverables().stream()
+                                .filter(deliverable -> readingType15minAMinusWh.equals(deliverable.getReadingType()))
+                                .findAny()
+                                .orElseGet(() -> {
+                                    // find or add requirement
+                                    ReadingTypeRequirement requirementAMinus = mc.getRequirements(meterRole).stream()
+                                            .filter(requirement -> requirement instanceof PartiallySpecifiedReadingTypeRequirement)
+                                            .map(PartiallySpecifiedReadingTypeRequirement.class::cast)
+                                            .filter(requirement -> readingTypeTemplate.equals(requirement.getReadingTypeTemplate()))
+                                            .findAny()
+                                            .orElseGet(() -> mc.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat(), meterRole)
+                                                    .withReadingTypeTemplate(readingTypeTemplate));
+                                    ReadingTypeDeliverable min15 = metrologyConfigurationsInstaller.buildFormulaSingleRequirement(
+                                            mc, readingType15minAMinusWh, requirementAMinus, "15-min A- kWh");
+                                    contractInformation.addDeliverable(min15);
+                                    return min15;
+                                });
+                        // add second reading type if not found
+                        ReadingType readingTypeHourlyAMinusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.HOURLY_A_MINUS_WH))
+                                .stream()
+                                .findFirst()
+                                .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.HOURLY_A_MINUS_WH, "A-"));
+                        // add second deliverable if not found
+                        if (contractInformation.getDeliverables().stream()
+                                .noneMatch(deliverable -> readingTypeHourlyAMinusWh.equals(deliverable.getReadingType()))) {
+                            contractInformation.addDeliverable(metrologyConfigurationsInstaller.buildFormulaSingleDeliverable(
+                                    mc, readingTypeHourlyAMinusWh, min15Deliverable, "Hourly A- kWh"));
+                        }
+                    }
+                });
     }
 
     private void upgradeResidentialProsumerWith1Meter() {
@@ -152,6 +208,11 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     }
             );
         }
+    }
+
+    @Override
+    public String getModuleName() {
+        return UsagePointConfigurationService.COMPONENTNAME;
     }
 
     @Override
