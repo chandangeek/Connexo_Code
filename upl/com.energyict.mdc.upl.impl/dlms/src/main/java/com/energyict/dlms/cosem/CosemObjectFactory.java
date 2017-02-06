@@ -81,16 +81,32 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new DeviceTypeManager(protocolLink, getObjectReference(DeviceTypeManager.getDefaultObisCode(), DLMSClassId.DEVICE_TYPE_MANAGER.getClassId()));
     }
 
+    public DeviceTypeManager getDeviceTypeManager(ObisCode obisCode) throws NotInObjectListException {
+        return new DeviceTypeManager(protocolLink, getObjectReference(obisCode, DLMSClassId.DEVICE_TYPE_MANAGER.getClassId()));
+    }
+
     public ScheduleManager getScheduleManager() throws NotInObjectListException {
         return new ScheduleManager(protocolLink, getObjectReference(ScheduleManager.getDefaultObisCode(), DLMSClassId.SCHEDULE_MANAGER.getClassId()));
+    }
+
+    public ScheduleManager getScheduleManager(ObisCode obisCode) throws NotInObjectListException {
+        return new ScheduleManager(protocolLink, getObjectReference(obisCode, DLMSClassId.SCHEDULE_MANAGER.getClassId()));
     }
 
     public ClientTypeManager getClientTypeManager() throws NotInObjectListException {
         return new ClientTypeManager(protocolLink, getObjectReference(ClientTypeManager.getDefaultObisCode(), DLMSClassId.CLIENT_TYPE_MANAGER.getClassId()));
     }
 
+    public ClientTypeManager getClientTypeManager(ObisCode obisCode) throws NotInObjectListException {
+        return new ClientTypeManager(protocolLink, getObjectReference(obisCode, DLMSClassId.CLIENT_TYPE_MANAGER.getClassId()));
+    }
+
     public MulticastIC getMulticastIC() throws NotInObjectListException {
         return new MulticastIC(protocolLink, getObjectReference(MulticastIC.getDefaultObisCode(), DLMSClassId.MULTICAST_IC.getClassId()));
+    }
+
+    public MulticastIC getMulticastIC(ObisCode obisCode) throws NotInObjectListException {
+        return new MulticastIC(protocolLink, getObjectReference(obisCode, DLMSClassId.MULTICAST_IC.getClassId()));
     }
 
     public Clock getClock(ObisCode obisCode) throws NotInObjectListException {
@@ -228,6 +244,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new NTPServerAddress(protocolLink, getObjectReference(NTPServerAddress.getDefaultObisCode()));
     }
 
+    public NTPServerAddress getNTPServerAddress(ObisCode obisCode) throws NotInObjectListException {
+        return new NTPServerAddress(protocolLink, getObjectReference(obisCode));
+    }
+
     public EventPushNotificationConfig getEventPushNotificationConfig() throws NotInObjectListException {
         return new EventPushNotificationConfig(protocolLink, getObjectReference(EventPushNotificationConfig.getDefaultObisCode()));
     }
@@ -244,16 +264,32 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new WebPortalConfig(protocolLink, getObjectReference(WebPortalConfig.getDefaultObisCode()));
     }
 
+    public WebPortalConfig getWebPortalConfig(ObisCode obisCode) throws NotInObjectListException {
+        return new WebPortalConfig(protocolLink, getObjectReference(obisCode));
+    }
+
     public RemoteShellSetup getRemoteShellSetup() throws NotInObjectListException {
         return new RemoteShellSetup(protocolLink, getObjectReference(RemoteShellSetup.getDefaultObisCode()));
+    }
+
+    public RemoteShellSetup getRemoteShellSetup(ObisCode customObisCode) throws NotInObjectListException {
+        return new RemoteShellSetup(protocolLink, getObjectReference(customObisCode));
     }
 
     public RTUDiscoverySetup getRtuDiscoverySetup() throws NotInObjectListException {
         return new RTUDiscoverySetup(protocolLink, getObjectReference(RTUDiscoverySetup.getDefaultObisCode()));
     }
 
+    public RTUDiscoverySetup getRtuDiscoverySetup(ObisCode obisCode) throws NotInObjectListException {
+        return new RTUDiscoverySetup(protocolLink, getObjectReference(obisCode));
+    }
+
     public SNMPSetup getSNMPSetup() throws NotInObjectListException {
         return new SNMPSetup(protocolLink, getObjectReference(SNMPSetup.getDefaultObisCode()));
+    }
+
+    public SNMPSetup getSNMPSetup(ObisCode obisCode) throws NotInObjectListException {
+        return new SNMPSetup(protocolLink, getObjectReference(obisCode));
     }
 
     public PrivacyEnhancingDataAggregation getPrivacyEnhancingDataAggregation(ObisCode obisCode) throws NotInObjectListException {
@@ -350,10 +386,6 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public GPRSModemSetup getGPRSModemSetup(final ObisCode obisCode) throws NotInObjectListException {
         return new GPRSModemSetup(protocolLink, getObjectReference(obisCode));
-    }
-
-    public USBSetup getUSBSetup() throws NotInObjectListException {
-        return new USBSetup(protocolLink, getObjectReference(USBSETUP, protocolLink.getMeterConfig().getUSBSetupSN()));
     }
 
     public USBSetup getUSBSetup(final ObisCode obisCode) throws NotInObjectListException {
@@ -653,6 +685,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new LifeCycleManagement(protocolLink, getObjectReference(LifeCycleManagement.getDefaultObisCode()));
     }
 
+
     /**
      * Returns the firewall setup object.
      *
@@ -667,8 +700,16 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new UplinkPingConfiguration(this.protocolLink, this.getObjectReference(UplinkPingConfiguration.getDefaultObisCode()));
     }
 
+    public final UplinkPingConfiguration getUplinkPingConfiguration(ObisCode obisCode) throws NotInObjectListException {
+        return new UplinkPingConfiguration(this.protocolLink, this.getObjectReference(obisCode));
+    }
+
     public final ModemWatchdogConfiguration getModemWatchdogConfiguration() throws NotInObjectListException {
         return new ModemWatchdogConfiguration(this.protocolLink, this.getObjectReference(ModemWatchdogConfiguration.getDefaultObisCode()));
+    }
+
+    public final ModemWatchdogConfiguration getModemWatchdogConfiguration(ObisCode obisCode) throws NotInObjectListException {
+        return new ModemWatchdogConfiguration(this.protocolLink, this.getObjectReference(obisCode));
     }
 
     public final G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
@@ -705,6 +746,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public final LoggerSettings getLoggerSettings() throws NotInObjectListException {
         return new LoggerSettings(this.protocolLink, this.getObjectReference(LoggerSettings.getDefaultObisCode()));
+    }
+
+    public final LoggerSettings getLoggerSettings(ObisCode obisCode) throws NotInObjectListException {
+        return new LoggerSettings(this.protocolLink, this.getObjectReference(obisCode));
     }
 
     public final MasterboardSetup getMasterboardSetup() throws NotInObjectListException {

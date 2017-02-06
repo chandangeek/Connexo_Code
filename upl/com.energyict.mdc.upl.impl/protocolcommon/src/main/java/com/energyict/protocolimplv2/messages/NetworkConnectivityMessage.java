@@ -263,10 +263,14 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     }
 
     public enum BeaconSetupObject {
-        Remote_Shell("0.16.128.0.0.255"),
-        SNMP("0.17.128.0.0.255"),
-        RTU_Discovery("0.18.128.0.0.255"),
-        Web_Portal_Config("0.0.128.0.13.255");
+        Remote_Shell_Old_ObisCode("0.16.128.0.0.255"),
+        Remote_Shell_New_ObisCode("0.128.96.193.0.255"),
+        SNMP_Old_ObisCode("0.17.128.0.0.255"),
+        SNMP_New_ObisCode("0.128.96.194.0.255"),
+        RTU_Discovery_Old_ObisCode("0.18.128.0.0.255"),
+        RTU_Discovery_New_ObisCode("0.18.128.0.0.255 "),
+        Web_Portal_Config_Old_ObisCode("0.0.128.0.13.255"),
+        Web_Portal_Config_New_ObisCode("0.0.128.0.13.255");
 
         private final String obis;
 

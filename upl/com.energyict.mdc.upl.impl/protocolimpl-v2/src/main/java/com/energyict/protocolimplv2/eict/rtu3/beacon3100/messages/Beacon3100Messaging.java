@@ -46,6 +46,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobject
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -91,10 +92,27 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode MULTICAST_FIRMWARE_UPGRADE_OBISCODE = ObisCode.fromString("0.0.44.0.128.255");
     private static final ObisCode MULTICAST_METER_PROGRESS = ProtocolTools.setObisCodeField(MULTICAST_FIRMWARE_UPGRADE_OBISCODE, 1, (byte) (-1 * ImageTransfer.ATTRIBUTE_UPGRADE_PROGRESS));
     private static final String TEMP_DIR = "java.io.tmpdir";
-    private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
-    private static final ObisCode DEVICE_HOST_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.24.255");
-    private static final ObisCode DEVICE_LOCATION_OBISCODE = ObisCode.fromString("0.0.128.0.32.255");
-    private static final ObisCode MULTI_APN_COFIG_OBISCODE = ObisCode.fromString("0.128.25.3.0.255");
+    private static final ObisCode DEVICE_NAME_OLD_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
+    private static final ObisCode DEVICE_NAME_NEW_OBISCODE = ObisCode.fromString("0.136.96.128.0.255");
+    private static final ObisCode DEVICE_HOST_NAME_OLD_OBISCODE = ObisCode.fromString("0.0.128.0.24.255");
+    private static final ObisCode DEVICE_HOST_NAME_NEW_OBISCODE = ObisCode.fromString("0.128.96.128.0.255");
+    private static final ObisCode DEVICE_LOCATION_OLD_OBISCODE = ObisCode.fromString("0.0.128.0.32.255");
+    private static final ObisCode DEVICE_LOCATION_NEW_OBISCODE = ObisCode.fromString("0.136.96.160.0.255");
+    private static final ObisCode MULTI_APN_COFIG_OLD_OBISCODE = ObisCode.fromString("0.128.25.3.0.255");
+    private static final ObisCode MULTI_APN_COFIG_NEW_OBISCODE = ObisCode.fromString("0.162.96.160.0.255");
+    private static final ObisCode LIFE_CYCLEMANAGEMENT_NEW_OBISCODE = ObisCode.fromString("0.128.96.160.0.255");
+    public static final ObisCode REMOTE_SHELL_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.193.0.255");
+    public static final ObisCode SNMP_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.194.0.255");
+    public static final ObisCode RTU_DISCOVERY_SETUP_NEW_OBISCODE = ObisCode.fromString("0.128.96.195.0.255");
+    public static final ObisCode TIME_SERVER_NEW_OBISCODE = ObisCode.fromString("0.0.128.0.10.255");
+    public static final ObisCode WEB_PORTAL_CONFIG_NEW_OBISCODE = ObisCode.fromString("0.128.96.197.0.255");
+    public static final ObisCode PING_SERVICE_NEW_OBISCODE = ObisCode.fromString("0.160.96.144.0.255");
+    public static final ObisCode SCHEDULE_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.160.0.255");
+    public static final ObisCode CLIENT_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.170.0.255");
+    public static final ObisCode DEVICE_TYPE_MANAGER_NEW_OBISCODE = ObisCode.fromString("0.187.96.171.0.255");
+    public static final ObisCode MODEM_WATCHDOG_NEW_OBISCODE = ObisCode.fromString("0.162.96.128.0.255");
+    public static final ObisCode G3_NETWORK_MANAGEMENT_NEW_OBISCODE = ObisCode.fromString("0.168.96.128.0.255");
+
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
 
@@ -1542,7 +1560,15 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void setSchedulerState(SchedulerState state) throws IOException {
-        getCosemObjectFactory().getScheduleManager().writeSchedulerState(state.toDLMSEnum());
+        getScheduleManager().writeSchedulerState(state.toDLMSEnum());
+    }
+
+    private ScheduleManager getScheduleManager() throws NotInObjectListException {
+        if(readOldObisCodes()) {
+            return getCosemObjectFactory().getScheduleManager();
+        }else{
+            return getCosemObjectFactory().getScheduleManager(SCHEDULE_MANAGER_NEW_OBISCODE);
+        }
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1646,17 +1672,29 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void enableInterfacesOnBeaconSetupObject(NetworkConnectivityMessage.BeaconSetupObject beaconSetupObject, Array interfacesArray) throws IOException {
         switch (beaconSetupObject){
-            case Remote_Shell:
+            case Remote_Shell_Old_ObisCode:
                 getCosemObjectFactory().getRemoteShellSetup().enableInterfaces(interfacesArray);
                 break;
-            case SNMP:
+            case Remote_Shell_New_ObisCode:
+                getCosemObjectFactory().getRemoteShellSetup(REMOTE_SHELL_SETUP_NEW_OBISCODE).enableInterfaces(interfacesArray);
+                break;
+            case SNMP_Old_ObisCode:
                 getCosemObjectFactory().getSNMPSetup().enableInterfaces(interfacesArray);
                 break;
-            case RTU_Discovery:
+            case SNMP_New_ObisCode:
+                getCosemObjectFactory().getSNMPSetup(SNMP_SETUP_NEW_OBISCODE).enableInterfaces(interfacesArray);
+                break;
+            case RTU_Discovery_Old_ObisCode:
                 getCosemObjectFactory().getRtuDiscoverySetup().enableInterfaces(interfacesArray);
                 break;
-            case Web_Portal_Config:
+            case RTU_Discovery_New_ObisCode:
+                getCosemObjectFactory().getRtuDiscoverySetup(RTU_DISCOVERY_SETUP_NEW_OBISCODE).enableInterfaces(interfacesArray);
+                break;
+            case Web_Portal_Config_Old_ObisCode:
                 getCosemObjectFactory().getWebPortalConfig().enableInterfaces(interfacesArray);
+                break;
+            case Web_Portal_Config_New_ObisCode:
+                getCosemObjectFactory().getWebPortalConfig(WEB_PORTAL_CONFIG_NEW_OBISCODE).enableInterfaces(interfacesArray);
                 break;
         }
     }
@@ -1814,23 +1852,47 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void setNTPAddress(OfflineDeviceMessage pendingMessage) throws IOException {
         String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getNTPServerAddress().writeNTPServerName(address);
+        getNtpServerAddress().writeNTPServerName(address);
+    }
+
+    private NTPServerAddress getNtpServerAddress() throws NotInObjectListException {
+        if(readOldObisCodes()){
+            return getCosemObjectFactory().getNTPServerAddress();
+        }else {
+            return getCosemObjectFactory().getNTPServerAddress(TIME_SERVER_NEW_OBISCODE);
+        }
     }
 
     private void syncNTPServer(OfflineDeviceMessage pendingMessage) throws IOException {
-        getCosemObjectFactory().getNTPServerAddress().ntpSync();
+        getNtpServerAddress().ntpSync();
     }
 
     private void setDeviceName(OfflineDeviceMessage pendingMessage) throws IOException {
-        writeOctetStringData(pendingMessage, DEVICE_NAME_OBISCODE);
+        if(readOldObisCodes()) {
+            writeOctetStringData(pendingMessage, DEVICE_NAME_OLD_OBISCODE);
+        }else{
+            writeOctetStringData(pendingMessage, DEVICE_NAME_NEW_OBISCODE);
+        }
     }
 
     private void setDeviceHostName(OfflineDeviceMessage pendingMessage) throws IOException {
-        writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_OBISCODE);
+        if(readOldObisCodes()){
+            writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_OLD_OBISCODE);
+        }else {
+            writeOctetStringData(pendingMessage, DEVICE_HOST_NAME_NEW_OBISCODE);
+        }
+    }
+
+    public boolean readOldObisCodes() {
+        return ((Beacon3100Properties)getProtocol().getDlmsSessionProperties()).getReadOldObisCodes();
     }
 
     private void setDeviceLocation(OfflineDeviceMessage pendingMessage) throws IOException {
-        writeOctetStringData(pendingMessage, DEVICE_LOCATION_OBISCODE);
+        if(readOldObisCodes()) {
+            writeOctetStringData(pendingMessage, DEVICE_LOCATION_OLD_OBISCODE);
+        }else{
+            writeOctetStringData(pendingMessage, DEVICE_LOCATION_NEW_OBISCODE);
+        }
     }
 
     private void writeOctetStringData(OfflineDeviceMessage pendingMessage, ObisCode objectObisCode) throws IOException {
@@ -1839,7 +1901,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void rebootApplication(OfflineDeviceMessage pendingMessage) throws IOException {
-        getCosemObjectFactory().getLifeCycleManagement().restartApplication();
+        if(readOldObisCodes()){
+            getCosemObjectFactory().getLifeCycleManagement().restartApplication();
+        }else {
+            getCosemObjectFactory().getLifeCycleManagement(LIFE_CYCLEMANAGEMENT_NEW_OBISCODE).restartApplication();
+        }
     }
 
     private void rebootDevice(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1860,7 +1926,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         int modemResetThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.modemResetThreshold).getDeviceMessageAttributeValue());
         int systemRebootThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.systemRebootThreshold).getDeviceMessageAttributeValue());
 
-        getCosemObjectFactory().getModemWatchdogConfiguration().writeExtendedConfigParameters(
+        getModemWatchdogConfiguration().writeExtendedConfigParameters(
                 modemWatchdogInterval,
                 modemWatchdogInitialDelay,
                 pppDaemonResetThreshold,
@@ -1871,7 +1937,16 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void enableModemWatchdog(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        getCosemObjectFactory().getModemWatchdogConfiguration().enableWatchdog(enable);
+        getModemWatchdogConfiguration().enableWatchdog(enable);
+    }
+
+    private ModemWatchdogConfiguration getModemWatchdogConfiguration() throws NotInObjectListException {
+        if(readOldObisCodes()){
+            return getCosemObjectFactory().getModemWatchdogConfiguration();
+        }else{
+            return getCosemObjectFactory().getModemWatchdogConfiguration(MODEM_WATCHDOG_NEW_OBISCODE);
+        }
+
     }
 
     private void configurePushEventNotification(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1888,7 +1963,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void writeUplinkPingTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
         Integer timeout = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        getCosemObjectFactory().getUplinkPingConfiguration().writeTimeout(timeout);
+        getUplinkPingConfiguration().writeTimeout(timeout);
     }
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1910,17 +1985,25 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {
         Integer interval = Integer.valueOf(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        getCosemObjectFactory().getUplinkPingConfiguration().writeInterval(interval);
+        getUplinkPingConfiguration().writeInterval(interval);
     }
 
     private void writeUplinkPingDestinationAddress(OfflineDeviceMessage pendingMessage) throws IOException {
         String destinationAddress = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getUplinkPingConfiguration().writeDestAddress(destinationAddress);
+        getUplinkPingConfiguration().writeDestAddress(destinationAddress);
+    }
+
+    private UplinkPingConfiguration getUplinkPingConfiguration() throws NotInObjectListException {
+        if(readOldObisCodes()) {
+            return getCosemObjectFactory().getUplinkPingConfiguration();
+        }else{
+            return getCosemObjectFactory().getUplinkPingConfiguration(PING_SERVICE_NEW_OBISCODE);
+        }
     }
 
     private void enableUplinkPing(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enable = Boolean.parseBoolean(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        getCosemObjectFactory().getUplinkPingConfiguration().enableUplinkPing(enable);
+        getUplinkPingConfiguration().enableUplinkPing(enable);
     }
 
     private int getSingleIntegerAttribute(OfflineDeviceMessage pendingMessage) {
@@ -1994,7 +2077,11 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void configureAPNs(OfflineDeviceMessage pendingMessage) throws IOException {
         final long activeApn = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activeAPN).getDeviceMessageAttributeValue());
         final String apnConfigurations = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.apnConfigurations).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getData(MULTI_APN_COFIG_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
+        if(readOldObisCodes()) {
+            getCosemObjectFactory().getData(MULTI_APN_COFIG_OLD_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
+        }else{
+            getCosemObjectFactory().getData(MULTI_APN_COFIG_NEW_OBISCODE).setValueAttr(createApnConfigs(activeApn, apnConfigurations));
+        }
     }
 
     private Structure createApnConfigs(final long activeApn, final String providedAPNConfigurations) throws ProtocolException {
