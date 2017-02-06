@@ -50,8 +50,8 @@ public class IssueInfoFactory  extends SelectableFieldFactory<IssueInfo, Issue> 
         return info;
     }
 
-    public List<LinkInfo> asLink(Collection<? extends Issue> endDevices, Relation relation, UriInfo uriInfo) {
-        return endDevices.stream().map(i -> asLink(i, relation, uriInfo)).collect(toList());
+    public List<LinkInfo> asLink(Collection<? extends Issue> issues, Relation relation, UriInfo uriInfo) {
+        return issues.stream().map(i -> asLink(i, relation, uriInfo)).collect(toList());
     }
     private Link link(Issue issue, Relation relation, UriInfo uriInfo) {
         return Link.fromUriBuilder(getUriBuilder(uriInfo))
@@ -80,7 +80,7 @@ public class IssueInfoFactory  extends SelectableFieldFactory<IssueInfo, Issue> 
         map.put("reason", (issueInfo, issue, uriInfo) -> issueInfo.reason = issueReasonInfoFactory.asInfo(issue.getReason()));
         map.put("priority", (issueInfo, issue, uriInfo) -> issueInfo.priority = issuePriorityInfoFactory.asInfo(issue.getPriority()));
         map.put("priorityValue", (issueInfo, issue, uriInfo) -> issueInfo.priorityValue = issue.getPriority().getImpact() + issue.getPriority().getUrgency());
-        map.put("status", (issueInfo, issue, uriInfo) -> issueInfo.status = issueStatusInfoFactory.asInfo(issue.getStatus()));
+        map.put("status", (issueInfo, issue, uriInfo) -> issueInfo.status = issueStatusInfoFactory.from(issue.getStatus(), uriInfo, null));
         map.put("dueDate", (issueInfo, issue, uriInfo) -> issueInfo.dueDate = issue.getDueDate() != null ? issue.getDueDate().toEpochMilli() : 0);
         map.put("assignee", (issueInfo, issue, uriInfo) -> issueInfo.assignee = issueAssigneeInfoFactory.asInfo(issue.getAssignee()));
         map.put("workGroupAssignee", (issueInfo, issue, uriInfo) -> issueInfo.workGroupAssignee = issueAssigneeInfoFactory.asInfo("WORKGROUP", issue.getAssignee()));
