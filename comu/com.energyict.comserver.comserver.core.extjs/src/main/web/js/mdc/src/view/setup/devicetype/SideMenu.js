@@ -5,6 +5,7 @@
 Ext.define('Mdc.view.setup.devicetype.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.deviceTypeSideMenu',
+    uniqueMenuId: 'device-type-side-menu',
     title: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
     deviceTypeId: null,
     isDataLoggerSlave: undefined,

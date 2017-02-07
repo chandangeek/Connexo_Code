@@ -5,6 +5,7 @@
 Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
     extend: 'Uni.view.menu.SideMenu',
     xtype: 'device-configuration-menu',
+    uniqueMenuId: 'device-configuration-menu',
 
     deviceTypeId: null,
     deviceConfigurationId: null,

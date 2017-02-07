@@ -5,6 +5,7 @@
 Ext.define('Mdc.view.setup.device.DeviceMenu', {
     extend: 'Uni.view.menu.SideMenu',
     xtype: 'deviceMenu',
+    uniqueMenuId: 'device-side-menu',
 
     // TODO See what impact removing the 'toggleById' function has.
 //    toggleId: null,
