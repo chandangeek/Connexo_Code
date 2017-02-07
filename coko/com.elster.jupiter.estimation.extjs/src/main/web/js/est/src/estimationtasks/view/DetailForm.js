@@ -4,12 +4,11 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
 
     requires: [
         'Uni.form.field.Duration',
-        'Uni.store.TaskLogLevels'
+        'Uni.form.field.LogLevelDisplay'
     ],
 
     initComponent: function () {
-        var me = this,
-            logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
+        var me = this;
 
         me.items = [
             {
@@ -19,17 +18,8 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                 labelWidth: 250
             },
             {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.logLevel', 'EST', 'Log level'),
-                name: 'logLevel',
-                labelWidth: 250,
-                renderer: function(value) {
-                    if (Ext.isEmpty(value)) {
-                        return '-';
-                    }
-                    var storeIndex = logLevelsStore.findExact('id', value);
-                    return storeIndex === -1 ? '-' : logLevelsStore.getAt(storeIndex).get('displayValue');
-                }
+                xtype: 'log-level-displayfield',
+                labelWidth: 250
             },
             {
                 xtype: 'fieldcontainer',

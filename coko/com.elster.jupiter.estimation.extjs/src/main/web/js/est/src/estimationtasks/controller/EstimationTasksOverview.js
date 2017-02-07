@@ -4,8 +4,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksOverview', {
     requires: [],
 
     stores: [
-        'Est.estimationtasks.store.EstimationTasks',
-        'Uni.store.TaskLogLevels'
+        'Est.estimationtasks.store.EstimationTasks'
     ],
 
     views: [
@@ -19,9 +18,6 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksOverview', {
     ],
 
     init: function () {
-        var logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
-        logLevelsStore.load();
-
         this.control({
             'estimationtasks-grid': {
                 select: this.showPreview

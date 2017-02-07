@@ -3,7 +3,8 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
     alias: 'widget.estimationtasks-history-preview-form',
 
     requires: [
-        'Uni.form.field.Duration'
+        'Uni.form.field.Duration',
+        'Uni.form.field.LogLevelDisplay'
     ],
 
 
@@ -14,6 +15,10 @@ Ext.define('Est.estimationtasks.view.HistoryPreviewForm', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
                 name: 'name',
+                labelWidth: 250
+            },
+            {
+                xtype: 'log-level-displayfield',
                 labelWidth: 250
             },
             {

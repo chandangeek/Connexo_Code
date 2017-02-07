@@ -45,6 +45,13 @@ Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
             }
         },
         {
+            name: 'logLevel',
+            persist: false,
+            mapping: function (data) {
+                return data.task.logLevel;
+            }
+        },
+        {
             name: 'statusOnDate',
             persist: false,
             mapping: function (data) {
