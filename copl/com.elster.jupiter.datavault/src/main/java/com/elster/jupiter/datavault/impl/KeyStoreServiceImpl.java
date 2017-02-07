@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -44,7 +43,8 @@ import java.util.Optional;
 @Component(
         name = "com.elster.jupiter.keystore.service",
         service = ServerKeyStoreService.class,
-        property = "name=" + DataVaultService.COMPONENT_NAME)
+        property = "name=" + DataVaultService.COMPONENT_NAME,
+        immediate = true)
 @SuppressWarnings("unused")
 public class KeyStoreServiceImpl implements ServerKeyStoreService {
 
