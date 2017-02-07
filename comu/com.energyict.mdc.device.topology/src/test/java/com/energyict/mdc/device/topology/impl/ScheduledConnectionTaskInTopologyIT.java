@@ -87,7 +87,6 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     private OnlineComServer otherOnlineComServer;
     private String COM_TASK_NAME = "TheNameOfMyComTask";
     private int maxNrOfTries = 5;
-    private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
 
     @BeforeClass
     public static void registerConnectionTypePluggableClasses() {
@@ -129,11 +128,6 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     }
 
     @Before
-    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
-    }
-
-    @Before
     public void initializeMocks() {
         super.initializeMocks();
         this.device = createSimpleDevice(this.getClass().getSimpleName());
@@ -142,11 +136,11 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         ComTask comTaskWithLogBooks = createComTaskWithLogBooks();
         ComTask comTaskWithRegisters = createComTaskWithRegisters();
 
-        this.comTaskEnablement1 = enableComTask(true, configDialect, comTaskWithBasicCheck);
-        this.comTaskEnablement2 = enableComTask(true, configDialect, comTaskWithLogBooks);
-        this.comTaskEnablement3 = enableComTask(true, configDialect, comTaskWithRegisters);
+        this.comTaskEnablement1 = enableComTask(true, comTaskWithBasicCheck);
+        this.comTaskEnablement2 = enableComTask(true, comTaskWithLogBooks);
+        this.comTaskEnablement3 = enableComTask(true, comTaskWithRegisters);
 
-        partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+        partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", outboundNoParamsConnectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configDialect).
                 comWindow(new ComWindow(0, 7200)).
                 build();
         deviceConfiguration.save();
@@ -661,8 +655,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         return inMemoryPersistence.getTaskService().findComTask(comTask.getId()).get(); // to make sure all elements in the composition are properly loaded
     }
 
-    private ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, ComTask comTask) {
-        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet, configDialect);
+    private ComTaskEnablement enableComTask(boolean useDefault, ComTask comTask) {
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();
