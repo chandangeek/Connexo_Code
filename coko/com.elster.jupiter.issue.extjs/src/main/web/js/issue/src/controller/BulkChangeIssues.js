@@ -305,12 +305,12 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                                 } else if ((userId > -1) && (workGroupId == -1)) {
                                     successMessage = (successCount == 0) ? Uni.I18n.translate('issues.assign.success.result520', 'ISU', "There were no issues to assigned to {0} user", record.get('assignee').title) :
                                         (successCount == 1) ? Uni.I18n.translate('issues.assign.success.result521', 'ISU', "Successfully assigned one issue to {0} user", record.get('assignee').title) :
-                                            Uni.I18n.translate('issues.assign.success.result522', 'ISU', "Successfully assigned {0} issues to {1} user", successCount, record.get('assignee').title);
+                                            Uni.I18n.translate('issues.assign.success.result522', 'ISU', "Successfully assigned {0} issues to {1} user", [successCount, record.get('assignee').title]);
                                     successMessage = '\<h3\>' + successMessage + '\</h3\>\<br\>';
                                 } else if ((userId == -1) && (workGroupId > -1)) {
                                     successMessage = (successCount == 0) ? Uni.I18n.translate('issues.assign.success.result530', 'ISU', "There were no issues to assigned to {0} workgroup", record.get('assignee').workGroupTitle) :
                                         (successCount == 1) ? Uni.I18n.translate('issues.assign.success.result531', 'ISU', "Successfully assigned one issue to {0} workgroup", record.get('assignee').workGroupTitle) :
-                                            Uni.I18n.translate('issues.assign.success.result532', 'ISU', "Successfully assigned {0} issues to {1} workgroup", successCount, record.get('assignee').workGroupTitle);
+                                            Uni.I18n.translate('issues.assign.success.result532', 'ISU', "Successfully assigned {0} issues to {1} workgroup", [successCount, record.get('assignee').workGroupTitle]);
                                     successMessage = '\<h3\>' + successMessage + '\</h3\>\<br\>';
                                 } else if ((userId > -1) && (workGroupId > -1)) {
                                     successMessage = (successCount == 0) ? Uni.I18n.translate('issues.assign.success.result540', 'ISU', "There were no issues to assigned to {0} user and {1} workgroup", [record.get('assignee').title, record.get('assignee').workGroupTitle]) :
