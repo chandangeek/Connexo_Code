@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
 import com.google.common.collect.Range;
 
@@ -31,6 +32,8 @@ public interface MetrologyContractCalculationIntrospector {
      */
     interface ChannelUsage {
         Channel getChannel();
+
+        ReadingTypeRequirement getRequirement();
 
         /**
          * The Range during which the Channel was used in the calculation of aggregated data.

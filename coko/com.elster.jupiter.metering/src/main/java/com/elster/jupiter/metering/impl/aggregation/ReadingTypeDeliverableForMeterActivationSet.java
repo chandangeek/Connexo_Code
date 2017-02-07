@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
@@ -398,11 +399,11 @@ class ReadingTypeDeliverableForMeterActivationSet {
         }
     }
 
-    Collection<ChannelContract> getPreferredChannels() {
+    Collection<Pair<ReadingTypeRequirement, ChannelContract>> getPreferredChannels() {
         return this.expressionNode
                     .accept(new RequirementsFromExpressionNode())
                     .stream()
-                    .map(VirtualRequirementNode::getPreferredChannel)
+                    .map(node -> Pair.of(node.getRequirement(), node.getPreferredChannel()))
                     .collect(Collectors.toList());
     }
 

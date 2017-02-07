@@ -9,7 +9,9 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.ChannelContract;
+import com.elster.jupiter.util.Pair;
 
 import com.google.common.collect.Range;
 
@@ -66,22 +68,29 @@ class MetrologyContractCalculationIntrospectorImpl implements MetrologyContractC
         return readingTypeDeliverableForMeterActivationSet
                 .getPreferredChannels()
                 .stream()
-                .map(channel -> new ChannelUsageImpl(channel, readingTypeDeliverableForMeterActivationSet.getRange()))
+                .map(requirementAndChannel -> new ChannelUsageImpl(requirementAndChannel, readingTypeDeliverableForMeterActivationSet.getRange()))
                 .collect(Collectors.toList());
     }
 
     private static class ChannelUsageImpl implements ChannelUsage {
+        private final ReadingTypeRequirement requirement;
         private final ChannelContract channel;
         private final Range<Instant> range;
 
-        private ChannelUsageImpl(ChannelContract channel, Range<Instant> range) {
-            this.channel = channel;
+        private ChannelUsageImpl(Pair<ReadingTypeRequirement, ChannelContract> requirementAndChannel, Range<Instant> range) {
+            this.requirement = requirementAndChannel.getFirst();
+            this.channel = requirementAndChannel.getLast();
             this.range = range;
         }
 
         @Override
         public Channel getChannel() {
             return channel;
+        }
+
+        @Override
+        public ReadingTypeRequirement getRequirement() {
+            return requirement;
         }
 
         @Override
