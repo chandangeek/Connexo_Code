@@ -23,8 +23,7 @@ Ext.define('Cfg.controller.Tasks', {
         'Cfg.store.ValidationTasks',
         'Cfg.store.ValidationTasksHistory',
         'Cfg.store.MetrologyContracts',
-        'Cfg.store.MetrologyConfigurations',
-        'Uni.util.LogLevel'
+        'Cfg.store.MetrologyConfigurations'
     ],
 
     models: [
@@ -75,8 +74,6 @@ Ext.define('Cfg.controller.Tasks', {
     INSIGHT_KEY: 'MdmApp',
 
     init: function () {
-        //debugger;
-        //Uni.util.LogLevel.loadLogLevels();
         this.control({
             'cfg-validation-tasks-add #rgr-validation-tasks-recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange

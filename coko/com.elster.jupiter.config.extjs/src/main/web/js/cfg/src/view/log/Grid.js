@@ -9,9 +9,7 @@ Ext.define('Cfg.view.log.Grid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.DateTime',
-        'Uni.grid.column.LogLevel',
-        'Uni.util.LogLevel',
-        'Uni.store.LogLevels'
+        'Uni.grid.column.LogLevel'
     ],
     initComponent: function () {
         var me = this;
@@ -53,7 +51,6 @@ Ext.define('Cfg.view.log.Grid', {
             }
         ];
 
-        Uni.util.LogLevel.loadLogLevels();
         me.callParent(arguments);
     }
 });

@@ -19,6 +19,15 @@ Ext.define('Cfg.controller.Log', {
         }
     ],
 
+    requires: [
+        'Uni.util.LogLevel'
+    ],
+
+    init: function () {
+        Uni.util.LogLevel.loadLogLevels();
+        this.callParent(arguments);
+    },
+
     showLog: function (taskId, occurrenceId) {
         var me = this,
             taskModel = me.getModel('Cfg.model.ValidationTask'),
