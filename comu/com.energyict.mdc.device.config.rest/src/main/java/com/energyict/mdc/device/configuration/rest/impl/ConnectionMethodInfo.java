@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -14,6 +15,7 @@ import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -56,6 +58,7 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public TemporalExpressionInfo temporalExpression;
     public long version;
     public VersionInfo<Long> parent;
+    public ProtocolDialectConfigurationPropertiesInfo protocolDialectConfigurationProperties;
 
     public ConnectionMethodInfo() {
     }
@@ -106,5 +109,27 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     }
 
 
-    public abstract PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils);
+    public abstract PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils);
+
+    public static class ProtocolDialectConfigurationPropertiesInfo {
+         public static final Long DEFAULT_PROTOCOL_DIALECT_ID = -1L;
+         public static final String DEFAULT_PROTOCOL_DIALECT_NAME_KEY = "default.protocol.dialect.name";
+         public Long id;
+         public String name;
+
+         public ProtocolDialectConfigurationPropertiesInfo() {}
+
+         public static ProtocolDialectConfigurationPropertiesInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, Thesaurus thesaurus) {
+             ProtocolDialectConfigurationPropertiesInfo protocolDialectConfigurationPropertiesInfo = new ProtocolDialectConfigurationPropertiesInfo();
+             if(protocolDialectConfigurationProperties == null) {
+                 protocolDialectConfigurationPropertiesInfo.id = DEFAULT_PROTOCOL_DIALECT_ID;
+                 protocolDialectConfigurationPropertiesInfo.name = thesaurus.getString(DEFAULT_PROTOCOL_DIALECT_NAME_KEY, DEFAULT_PROTOCOL_DIALECT_NAME_KEY);
+             } else {
+                 protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId();
+                 protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
+             }
+             return protocolDialectConfigurationPropertiesInfo;
+         }
+     }
+
 }

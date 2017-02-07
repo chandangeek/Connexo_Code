@@ -15,7 +15,6 @@ import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -92,11 +91,7 @@ public class ComTaskEnablementResource {
 
         ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = info.partialConnectionTask;
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = info.protocolDialectConfigurationProperties != null
-                && info.protocolDialectConfigurationProperties.id != null ?
-                resourceHelper.findProtocolDialectConfigurationPropertiesByIdOrThrowException(info.protocolDialectConfigurationProperties.id) : null;
-
-        ComTaskEnablementBuilder comTaskEnablementBuilder = deviceConfiguration.enableComTask(comTask, securityPropertySet, protocolDialectConfigurationProperties)
+        ComTaskEnablementBuilder comTaskEnablementBuilder = deviceConfiguration.enableComTask(comTask, securityPropertySet)
                 .setPriority(info.priority)
                 .setIgnoreNextExecutionSpecsForInbound(info.ignoreNextExecutionSpecsForInbound);
 

@@ -13,6 +13,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -72,13 +73,13 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
     }
 
     @Override
-    public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
+    public PartialConnectionTask createPartialTask(DeviceConfiguration deviceConfiguration, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         ConnectionTypePluggableClass connectionTypePluggableClass = findConnectionTypeOrThrowException(this.connectionTypePluggableClass, protocolPluggableService);
         TimeDuration rescheduleDelay = this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration();
         PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder =
                 deviceConfiguration
-                        .newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, getConnectionStrategy())
+                        .newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, getConnectionStrategy(), protocolDialectConfigurationProperties)
                         .comPortPool(engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).orElse(null))
                         .asDefault(this.isDefault)
                         .setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);

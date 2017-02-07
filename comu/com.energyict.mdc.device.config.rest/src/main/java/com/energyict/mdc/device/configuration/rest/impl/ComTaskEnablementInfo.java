@@ -9,7 +9,6 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -27,8 +26,6 @@ public class ComTaskEnablementInfo {
     public SecurityPropertySetInfo securityPropertySet;
     @JsonProperty("partialConnectionTask")
     public PartialConnectionTaskInfo partialConnectionTask;
-    @JsonProperty("protocolDialectConfigurationProperties")
-    public ProtocolDialectConfigurationPropertiesInfo protocolDialectConfigurationProperties;
     @JsonProperty("priority")
     public Integer priority;
     @JsonProperty("suspended")
@@ -50,7 +47,6 @@ public class ComTaskEnablementInfo {
                         .getPartialConnectionTask()
                         .map(pct -> PartialConnectionTaskInfo.from(pct, comTaskEnablement.usesDefaultConnectionTask(), thesaurus))
                         .orElse(PartialConnectionTaskInfo.defaultPartialConnectionTaskInfo(thesaurus));
-        comTaskEnablementInfo.protocolDialectConfigurationProperties = ProtocolDialectConfigurationPropertiesInfo.from(comTaskEnablement.getProtocolDialectConfigurationProperties(), thesaurus);
         comTaskEnablementInfo.priority = comTaskEnablement.getPriority();
         comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended();
         comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
@@ -133,27 +129,6 @@ public class ComTaskEnablementInfo {
             partialConnectionTaskInfo.id = DEFAULT_PARTIAL_CONNECTION_TASK_ID;
             partialConnectionTaskInfo.name = thesaurus.getFormat(TranslationKeys.DEFAULT).format();
             return partialConnectionTaskInfo;
-        }
-    }
-
-    public static class ProtocolDialectConfigurationPropertiesInfo {
-        public static final Long DEFAULT_PROTOCOL_DIALECT_ID = -1L;
-        public static final String DEFAULT_PROTOCOL_DIALECT_NAME_KEY = "default.protocol.dialect.name";
-        public Long id;
-        public String name;
-
-        public ProtocolDialectConfigurationPropertiesInfo() {}
-
-        public static ProtocolDialectConfigurationPropertiesInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, Thesaurus thesaurus) {
-            ProtocolDialectConfigurationPropertiesInfo protocolDialectConfigurationPropertiesInfo = new ProtocolDialectConfigurationPropertiesInfo();
-            if(protocolDialectConfigurationProperties == null) {
-                protocolDialectConfigurationPropertiesInfo.id = DEFAULT_PROTOCOL_DIALECT_ID;
-                protocolDialectConfigurationPropertiesInfo.name = thesaurus.getString(DEFAULT_PROTOCOL_DIALECT_NAME_KEY, DEFAULT_PROTOCOL_DIALECT_NAME_KEY);
-            } else {
-                protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId();
-                protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getDeviceProtocolDialect().getDisplayName();
-            }
-            return protocolDialectConfigurationPropertiesInfo;
         }
     }
 

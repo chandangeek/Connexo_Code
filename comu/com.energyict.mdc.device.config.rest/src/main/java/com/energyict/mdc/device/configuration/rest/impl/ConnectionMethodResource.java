@@ -13,6 +13,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -130,7 +131,12 @@ public class ConnectionMethodResource {
                                            @Context UriInfo uriInfo,
                                            ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
-        PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, engineConfigurationService, protocolPluggableService, mdcPropertyUtils);
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = connectionMethodInfo.protocolDialectConfigurationProperties != null
+                && connectionMethodInfo.protocolDialectConfigurationProperties.id != null ?
+                resourceHelper.findProtocolDialectConfigurationPropertiesByIdOrThrowException(connectionMethodInfo.protocolDialectConfigurationProperties.id) : null;
+
+
+        PartialConnectionTask created = connectionMethodInfo.createPartialTask(deviceConfiguration, protocolDialectConfigurationProperties, engineConfigurationService, protocolPluggableService, mdcPropertyUtils);
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(created, uriInfo)).build();
     }
 
