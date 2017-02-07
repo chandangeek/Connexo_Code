@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.view.setup.comservercomports.AddComPortPoolsGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     xtype: 'add-com-port-pools-grid',

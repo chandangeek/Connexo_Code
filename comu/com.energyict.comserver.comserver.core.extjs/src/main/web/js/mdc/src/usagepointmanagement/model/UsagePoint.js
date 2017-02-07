@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
     extend: 'Uni.model.Version',
     requires: ['Mdc.usagepointmanagement.model.MeterActivations'],
