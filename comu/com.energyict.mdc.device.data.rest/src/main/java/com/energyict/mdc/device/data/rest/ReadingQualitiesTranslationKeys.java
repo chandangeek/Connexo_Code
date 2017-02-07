@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 13/06/2016 - 17:05
- */
 public enum ReadingQualitiesTranslationKeys implements TranslationKey {
 
     DATAVALID("ReadingQualityDataValid", "Data valid"),

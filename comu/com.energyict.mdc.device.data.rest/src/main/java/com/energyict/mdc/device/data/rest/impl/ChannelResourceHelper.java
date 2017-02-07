@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -6,7 +10,6 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.TopologyService;
 
 import com.google.common.collect.Range;
 

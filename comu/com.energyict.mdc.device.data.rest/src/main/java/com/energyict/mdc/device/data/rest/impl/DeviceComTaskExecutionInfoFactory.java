@@ -1,9 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.CollectionUtil;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ConnectionStrategyInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -11,7 +13,6 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.ComTask;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 

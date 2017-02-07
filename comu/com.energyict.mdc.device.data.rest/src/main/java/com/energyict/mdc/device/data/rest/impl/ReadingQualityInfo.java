@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -6,12 +10,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 20/05/2016 - 14:58
- */
 @XmlRootElement
 public class ReadingQualityInfo {
 
