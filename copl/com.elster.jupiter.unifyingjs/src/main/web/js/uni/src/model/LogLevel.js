@@ -1,4 +1,7 @@
-Ext.define('Uni.model.TaskLogLevel', {
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+Ext.define('Uni.model.LogLevel', {
     extend: 'Ext.data.Model',
     fields: [
         {
