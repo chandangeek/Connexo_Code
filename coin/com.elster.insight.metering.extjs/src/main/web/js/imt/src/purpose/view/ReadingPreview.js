@@ -147,7 +147,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         generalItems.push(
             generalTimeField,
             {
-                fieldLabel: Uni.I18n.translate('reading.readingTime', 'IMT', 'Reading time'),
+                fieldLabel: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
                 name: 'reportedDateTime',
                 itemId: 'reading-time-field',
                 renderer: function (value) {

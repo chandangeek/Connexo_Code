@@ -28,6 +28,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                 data: purposes || [],
                 totalCount: !Ext.isEmpty(purposes) ? purposes.length : 0
             }),
+            remoteMeterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
             mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
             canModify = me.usagePoint.get('state').stage === 'PRE_OPERATIONAL';
 
@@ -196,8 +197,8 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
         me.callParent(arguments);
         purposesStore.fireEvent('load');
         if (!mcIsLinked) {
-            Ext.getStore('Imt.usagepointmanagement.store.MeterRoles').getProxy().setExtraParam('usagePointId', me.usagePoint.get('name'));
-            Ext.getStore('Imt.usagepointmanagement.store.MeterRoles').load();
+            remoteMeterRolesStore.getProxy().setExtraParam('usagePointId', me.usagePoint.get('name'));
+            remoteMeterRolesStore.load();
         } else {
             meterRolesStore.fireEvent('load', meterRolesStore.getRange());
         }

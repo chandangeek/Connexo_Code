@@ -41,6 +41,15 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 emptyText: ' '
             },
             {
+                header: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
+                dataIndex: 'reportedDateTime',
+                flex: 1,
+                renderer: function(value){
+                    var date = new Date(value);
+                    return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 itemId: 'register-data-grid-action-column',
                 privileges: Imt.privileges.UsagePoint.admin,
