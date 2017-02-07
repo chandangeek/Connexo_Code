@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.launcher;
 
 import org.osgi.framework.Bundle;
@@ -21,11 +25,6 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 21/01/2015
- * Time: 16:15
- */
 public class ConnexoLauncher {
 
 
