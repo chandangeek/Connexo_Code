@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -13,6 +14,7 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
@@ -25,6 +27,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +53,9 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
      * The Device which <i>owns</i> this Register.
      */
     protected final DeviceImpl device;
+
+    private final List<Aggregate> aggregatesWithEventDate = Arrays.asList(Aggregate.MAXIMUM, Aggregate.FIFTHMAXIMIMUM,
+            Aggregate.FOURTHMAXIMUM, Aggregate.MINIMUM, Aggregate.SECONDMAXIMUM, Aggregate.SECONDMINIMUM, Aggregate.THIRDMAXIMUM);
 
     public RegisterImpl(DeviceImpl device, RS registerSpec) {
         this.registerSpec = registerSpec;
@@ -186,6 +192,11 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     @Override
     public boolean hasData() {
         return this.device.hasData(this);
+    }
+
+    @Override
+    public boolean hasEventDate() {
+        return aggregatesWithEventDate.contains(getReadingType().getAggregate());
     }
 
     @Override

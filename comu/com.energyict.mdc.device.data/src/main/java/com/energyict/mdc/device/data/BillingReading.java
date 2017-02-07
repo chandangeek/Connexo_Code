@@ -19,11 +19,4 @@ import java.util.Optional;
 @ProviderType
 public interface BillingReading extends NumericalReading {
 
-    /**
-     * Returns the Interval to which the event applies.
-     *
-     * @return The Interval
-     */
-    Optional<Range<Instant>> getRange();
-
 }

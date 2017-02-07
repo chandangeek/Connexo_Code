@@ -1,10 +1,14 @@
 package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
+
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Optional;
 
 /**
  * Models a {@link Reading} for numerical data.
@@ -21,4 +25,12 @@ public interface NumericalReading extends Reading {
 
     BigDecimal getValue();
 
+    Optional<BigDecimal> getDelta();
+
+    /**
+     * Returns the Interval to which the event applies.
+     *
+     * @return The Interval
+     */
+    Optional<Range<Instant>> getRange();
 }

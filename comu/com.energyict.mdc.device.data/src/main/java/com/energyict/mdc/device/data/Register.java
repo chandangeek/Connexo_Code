@@ -77,6 +77,8 @@ public interface Register<R extends Reading, RS extends RegisterSpec> extends Ba
 
     boolean hasData();
 
+    boolean hasEventDate();
+
     RegisterDataUpdater startEditingData();
 
     /**
