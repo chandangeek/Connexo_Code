@@ -114,6 +114,15 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         thirdPartyQualityField.setValue('');
 
         if (!Ext.isEmpty(dataQualities)) {
+            dataQualities.sort(function (a, b) {
+                if (a.indexName > b.indexName) {
+                    return 1;
+                }
+                if (a.indexName < b.indexName) {
+                    return -1;
+                }
+                return 0;
+            });
             Ext.Array.forEach(dataQualities, function (readingQuality) {
                 switch (readingQuality.cimCode.slice(0,2)) {
                     case '1.':

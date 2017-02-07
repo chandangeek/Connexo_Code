@@ -1,7 +1,8 @@
 Ext.define('Imt.purpose.util.TooltipRenderer', {
     singleton: true,
     prepareIcon: function (record) {
-        var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),            
+        var readingQualities = record.get('readingQualities'),
+            readingQualitiesPresent = !Ext.isEmpty(readingQualities),
             tooltipContent = '',
             groups = [
                 {
@@ -24,7 +25,16 @@ Ext.define('Imt.purpose.util.TooltipRenderer', {
             icon = '';
 
         if (readingQualitiesPresent) {
-            Ext.Array.forEach(record.get('readingQualities'), function (readingQuality) {
+            readingQualities.sort(function (a, b) {
+                if (a.indexName > b.indexName) {
+                    return 1;
+                }
+                if (a.indexName < b.indexName) {
+                    return -1;
+                }
+                return 0;
+            });
+            Ext.Array.forEach(readingQualities, function (readingQuality) {
                 var cimCode = readingQuality.cimCode,
                     indexName = readingQuality.indexName;
 
