@@ -92,7 +92,7 @@ Ext.define('Dal.view.Grid', {
                      xtype: 'button',
                      itemId: 'alarms-bulk-action',
                      text: Uni.I18n.translate('general.title.bulkActions', 'DAL', 'Bulk action'),
-                     privileges: Dal.privileges.Alarm.adminDevice,
+                     privileges: Dal.privileges.Alarm.closeOrAssing,
                      action: 'alarmsBulkAction',
                      handler: function () {
                          me.router.getRoute(me.router.currentRoute + '/bulkaction').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));
