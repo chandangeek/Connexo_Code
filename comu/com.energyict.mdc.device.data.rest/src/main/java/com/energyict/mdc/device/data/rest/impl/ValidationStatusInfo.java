@@ -9,6 +9,7 @@ public class ValidationStatusInfo {
     public Long lastChecked;
     public boolean hasValidation;
     public Boolean allDataValidated = true;
+    public Boolean validateOnStorageConfiguration;
 
     public ValidationStatusInfo() {
     }
@@ -26,5 +27,10 @@ public class ValidationStatusInfo {
     public ValidationStatusInfo(boolean isActive, boolean isStorage, Optional<Instant> lastChecked, boolean hasValidation) {
         this(isActive, lastChecked, hasValidation);
         this.isStorage = isStorage;
+    }
+
+    public ValidationStatusInfo(boolean isActive, boolean isStorage, Optional<Instant> lastChecked, boolean hasValidation, boolean validateOnStorageConfiguration) {
+        this(isActive, isStorage, lastChecked, hasValidation);
+        this.validateOnStorageConfiguration = validateOnStorageConfiguration;
     }
 }
