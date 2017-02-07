@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.property.view.property.deviceconfigurations.AddDeviceConfigurationsView', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.uni-add-device-configurations-view',
