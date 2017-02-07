@@ -196,6 +196,7 @@ $ui-body-color: $form-error-msg-color
 @import "TilePanel2";
 @import "Detail";
 @import "NoItemsFound";
+@import "Tool";
 
 .error-border .#{$prefix}panel-body {
   border-color: $color-red !important;

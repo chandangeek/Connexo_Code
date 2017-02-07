@@ -1,0 +1,38 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+.#{$prefix}tool {
+  .#{$prefix}tool-img {
+    font-family: 'icomoon' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 16px;
+  }
+}
+
+.#{$prefix}tool-expand-top, .#{$prefix}tool-collapse-top {
+  background: none;
+  opacity: 1;
+  &:before {
+    content: "\ede7";
+  }
+}
+
+.#{$prefix}tool-expand-bottom, .#{$prefix}tool-collapse-bottom {
+  background: none;
+  opacity: 1;
+  &:before {
+    content: "\ede9";
+  }
+}
