@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Scs.view.ServiceCallPreviewContainer', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.service-call-preview-container',

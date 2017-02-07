@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Scs.model.Log', {
     extend: 'Ext.data.Model',
     requires: ['Uni.DateTime'],

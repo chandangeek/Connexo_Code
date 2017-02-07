@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Scs.store.object.ServiceCallHistory', {
     extend: 'Ext.data.Store',
     model: 'Scs.model.ServiceCall',
