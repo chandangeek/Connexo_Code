@@ -20,7 +20,7 @@ Ext.define('Dal.view.bulk.AlarmsSelectionGrid', {
         items: [
             {
                 itemId: 'alarms-grid-id',
-                header: Uni.I18n.translate('general.title.alarmId', 'DAL', 'Id'),
+                header: Uni.I18n.translate('general.title.alarmId', 'DAL', 'ID'),
                 dataIndex: 'alarmId'
             },
             {

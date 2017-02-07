@@ -51,7 +51,7 @@ Ext.define('Dal.view.Preview', {
                     {
                         xtype: 'displayfield',
                         itemId: 'alarm-id',
-                        fieldLabel: Uni.I18n.translate('general.title.alarmId', 'DAL', 'Id'),
+                        fieldLabel: Uni.I18n.translate('general.title.alarmId', 'DAL', 'ID'),
                         name: 'alarmId'
                     },
                     {
