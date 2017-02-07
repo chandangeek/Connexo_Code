@@ -216,14 +216,14 @@ Ext.define('Dal.controller.CreationRuleEdit', {
 
     showAddRaisedEventTypePopUp: function () {
         Ext.create('Dal.view.eventType.EventTypeWindow', {
-            title: Uni.I18n.translate('general.addEventType', 'Dal', 'Add event type'),
+            title: Uni.I18n.translate('general.addEventType', 'DAL', 'Add event type'),
             type: 'raised'
         });
     },
 
     showAddClearedEventTypePopUp: function () {
         Ext.create('Dal.view.eventType.EventTypeWindow', {
-            title: Uni.I18n.translate('general.addEventType', 'Dal', 'Add event type'),
+            title: Uni.I18n.translate('general.addEventType', 'DAL', 'Add event type'),
             type: 'cleared'
         });
     },
