@@ -115,11 +115,8 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                         ReadingTypeTemplate readingTypeTemplate = readingTypeTemplateOptional.get();
                         // add meter role if not present yet
                         mc.addMeterRole(meterRole);
-                        // add information contract if not found
-                        MetrologyContract contractInformation = mc.getContracts().stream()
-                                .filter(contract -> purposeInformation.equals(contract.getMetrologyPurpose()))
-                                .findAny()
-                                .orElseGet(() -> mc.addMandatoryMetrologyContract(purposeInformation));
+                        // add information contract if not present yet
+                        MetrologyContract contractInformation = mc.addMandatoryMetrologyContract(purposeInformation);
                         // add first reading type if not found
                         ReadingType readingType15minAMinusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MIN15_A_MINUS_WH))
                                 .stream()
