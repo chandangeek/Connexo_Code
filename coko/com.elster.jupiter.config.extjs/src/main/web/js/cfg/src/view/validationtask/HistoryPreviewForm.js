@@ -5,7 +5,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
     requires: [        
         'Uni.form.field.Duration',
         'Cfg.view.validationtask.DataSourcesPreviewContainer',
-        'Uni.store.TaskLogLevels'
+        'Uni.form.field.LogLevelDisplay'
     ],
     appName: null,
 
@@ -14,8 +14,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
     }),
 
     initComponent: function () {
-        var me = this,
-            logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
+        var me = this;
         me.items = [
             {
                 xtype: 'displayfield',
@@ -24,17 +23,8 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
                 labelWidth: 250
             },
             {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.logLevel', 'CFG', 'Log level'),
-                name: 'logLevel',
-                labelWidth: 250,
-                renderer: function(value) {
-                    if (Ext.isEmpty(value)) {
-                        return '-';
-                    }
-                    var storeIndex = logLevelsStore.findExact('id', value);
-                    return storeIndex === -1 ? '-' : logLevelsStore.getAt(storeIndex).get('displayValue');
-                }
+                xtype: 'log-level-displayfield',
+                labelWidth: 250
             },
             {
                 xtype: 'cfg-data-sources-preview-container',

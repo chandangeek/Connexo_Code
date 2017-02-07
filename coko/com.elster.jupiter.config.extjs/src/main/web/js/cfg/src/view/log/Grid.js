@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('Cfg.view.log.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.cfg-log-grid',
@@ -6,13 +9,13 @@ Ext.define('Cfg.view.log.Grid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.DateTime',
-        'Uni.store.TaskLogLevels'
+        'Uni.grid.column.LogLevel',
+        'Uni.util.LogLevel',
+        'Uni.store.LogLevels'
     ],
     initComponent: function () {
         var me = this;
 
-        me.logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
-        me.logLevelsStore.load();
         me.columns = [
             {
                 header: Uni.I18n.translate('validationTasks.general.timestamp', 'CFG', 'Timestamp'),
@@ -23,14 +26,8 @@ Ext.define('Cfg.view.log.Grid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('validationTasks.general.logLevel', 'CFG', 'Log level'),
-                dataIndex: 'loglevel',
-                flex: 1,
-                renderer: function(value) {
-                    debugger;
-                    var storeIndex = me.logLevelsStore.findExact('id', value);
-                    return storeIndex==-1 ? value : me.logLevelsStore.getAt(storeIndex).displayValue;
-                }
+                xtype: 'log-level-column',
+                dataIndex: 'loglevel'
             },
             {
                 header: Uni.I18n.translate('validationTasks.general.message', 'CFG', 'Message'),
@@ -56,6 +53,7 @@ Ext.define('Cfg.view.log.Grid', {
             }
         ];
 
+        Uni.util.LogLevel.loadLogLevels();
         me.callParent(arguments);
     }
 });
