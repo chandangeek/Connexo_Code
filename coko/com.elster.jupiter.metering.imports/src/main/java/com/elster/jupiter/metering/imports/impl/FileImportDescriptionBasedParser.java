@@ -101,7 +101,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
         }
 
         context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
-                .sorted((t1, t2) -> Integer.compare(t1.getRanking(), t2.getRanking()))
+                .sorted(Comparator.comparingInt(LocationTemplate.TemplateField::getRanking))
                 .map(LocationTemplate.TemplateField::getName)
                 .forEach(s -> {
                     fields.entrySet().stream()
@@ -233,7 +233,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
     private List<MeterRoleWithMeterAndActivationDate> getMeterRoles(CSVRecord csvRecord) {
         Map<Integer, MeterRoleWithMeterAndActivationDate> roles = new HashMap<>();
         Map<String, String> recordMap = csvRecord.toMap();
-        recordMap.keySet().stream().forEach(key -> {
+        recordMap.keySet().forEach(key -> {
             String header = key.toLowerCase();
             String value = recordMap.get(key);
             if (getMatcher(header).matches()) {
