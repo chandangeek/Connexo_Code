@@ -106,6 +106,15 @@ public abstract class CommonBaseDeviceSecurityProperties extends AbstractVersion
                         propertySpec.getValueFactory().valueFromDatabase(propertyValue)));
     }
 
+    protected void setTypedReferencePropertyValueTo(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
+        propertySpecProvider.get()
+                .getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getName().equals(propertyName))
+                .findAny()
+                .ifPresent(propertySpec -> propertySetValues.setProperty(propertyName, propertyValue));
+    }
+
     @SuppressWarnings("unchecked")
     protected Object getTypedPropertyValue(CustomPropertySetValues propertySetValues, String propertyName) {
         Optional<PropertySpec> propertySpec = propertySpecProvider.get()
@@ -123,6 +132,12 @@ public abstract class CommonBaseDeviceSecurityProperties extends AbstractVersion
     protected void setPropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
         if (propertyValue != null) {
             setTypedPropertyValueTo(propertySetValues, propertyName, propertyValue);
+        }
+    }
+
+    protected void setReferencePropertyIfNotNull(CustomPropertySetValues propertySetValues, String propertyName, Reference<?> propertyValueReference) {
+        if (propertyValueReference.isPresent()) {
+            setTypedReferencePropertyValueTo(propertySetValues, propertyName, propertyValueReference.get());
         }
     }
 }
