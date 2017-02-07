@@ -159,7 +159,7 @@ public class CreateA3DeviceCommand {
         addChannelsOnLoadProfileToDeviceConfiguration(configuration, channels);
         ConnectionTypePluggableClass pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName("OutboundTcpIp").get();
         configuration
-                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+                .newPartialScheduledConnectionTask("Outbound TCP", pluggableClass, new TimeDuration(5, TimeDuration.TimeUnit.MINUTES), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configuration.getProtocolDialectConfigurationPropertiesList().get(0))
                 .comPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
                 .setNumberOfSimultaneousConnections(1)
                 .addProperty("portNumber", new BigDecimal(1153))
@@ -207,7 +207,7 @@ public class CreateA3DeviceCommand {
     private void addComTasksToDeviceConfiguration(DeviceConfiguration configuration, ComTaskTpl... names) {
         if (names != null) {
             for (ComTaskTpl comTaskTpl : names) {
-                configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0), configuration.getProtocolDialectConfigurationPropertiesList().get(0))
+                configuration.enableComTask(comTasks.get(comTaskTpl), configuration.getSecurityPropertySets().get(0))
                         .setIgnoreNextExecutionSpecsForInbound(false)
                         .setPriority(100).add().save();
             }
@@ -224,7 +224,6 @@ public class CreateA3DeviceCommand {
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
         addComTasksToDevice(device);
-        addProtocolPropertiesToDevice(device);
         device.save();
     }
 
@@ -267,12 +266,5 @@ public class CreateA3DeviceCommand {
         typedProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.getKey(), "1.3.6.1.4.1.33507.1919.42327");
         typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("00000000000000000000"));
         device.setSecurityProperties(securityPropertySet, typedProperties);
-    }
-
-    private void addProtocolPropertiesToDevice(Device device) {
-        //device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "CalledAPTitle", "1.3.6.1.4.1.33507.1919.29674");
-        //device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityKey", "93B6F29D64C9AD7331DCCAABBB7D4680");
-        //device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityMode", "2");
-        //device.setProtocolDialectProperty(device.getProtocolDialects().get(0).getDeviceProtocolDialectName(), "SecurityLevel", "2");
     }
 }
