@@ -7,7 +7,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
         'Uni.form.field.Duration',
         'Uni.property.form.GroupedPropertyForm',
         'Dxp.view.tasks.DestinationsField',
-        'Uni.store.TaskLogLevels'
+        'Uni.form.field.LogLevelDisplay'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -15,8 +15,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
     }),
 
     initComponent: function () {
-        var me = this,
-            logLevelsStore = Ext.getStore('Uni.store.TaskLogLevels');
+        var me = this;
 
         me.items = [
             {
@@ -26,17 +25,9 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                 labelWidth: 250
             },
             {
-                xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('general.logLevel', 'DES', 'Log level'),
-                name: 'logLevel',
-                labelWidth: 250,
-                renderer: function(value) {
-                    if (Ext.isEmpty(value)) {
-                        return '-';
-                    }
-                    var storeIndex = logLevelsStore.findExact('id', value);
-                    return storeIndex === -1 ? '-' : logLevelsStore.getAt(storeIndex).get('displayValue');
-                }
+                xtype: 'log-level-displayfield',
+                itemId: 'dxp-task-preview-log-level',
+                labelWidth: 250
             },
             {
                 xtype: 'fieldcontainer',

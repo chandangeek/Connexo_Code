@@ -6,7 +6,8 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
         'Uni.property.form.Property',
         'Uni.form.field.Duration',
         'Uni.property.form.GroupedPropertyForm',
-        'Dxp.view.tasks.DestinationsField'
+        'Dxp.view.tasks.DestinationsField',
+        'Uni.form.field.LogLevelDisplay'
     ],
 
     myTooltip: Ext.create('Ext.tip.ToolTip', {
@@ -20,6 +21,10 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
                 name: 'name',
+                labelWidth: 250
+            },
+            {
+                xtype: 'log-level-displayfield',
                 labelWidth: 250
             },
             {

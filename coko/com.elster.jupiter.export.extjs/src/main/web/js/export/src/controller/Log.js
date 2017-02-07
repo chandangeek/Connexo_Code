@@ -12,12 +12,15 @@ Ext.define('Dxp.controller.Log', {
         'Dxp.model.DataExportTask',
         'Dxp.model.DataExportTaskHistory'
     ],
-    refs: [
-        {
-            ref: 'page',
-            selector: 'log-setup'
-        }
+
+    requires: [
+        'Uni.util.LogLevel'
     ],
+
+    //init: function () {
+        //Uni.util.LogLevel.loadLogLevels();
+        //this.callParent(arguments);
+    //},
 
     showLog: function (taskId, occurrenceId) {
         var me = this,
@@ -26,7 +29,6 @@ Ext.define('Dxp.controller.Log', {
             historyStore = me.getStore('Dxp.store.DataExportTasksHistory'),
             router = me.getController('Uni.controller.history.Router'),
             view,
-            runStartedOn,
             runStartedOnFormatted,
             taskLink,
             occurrenceTask;
@@ -40,9 +42,8 @@ Ext.define('Dxp.controller.Log', {
                         r.set(Ext.apply({}, r.raw, record.raw));
                     });
                     occurrenceTask = this.getById(parseInt(occurrenceId));
-                    //runStartedOn = moment(occurrenceTask.startedOn).valueOf();
                     runStartedOnFormatted = occurrenceTask.data.startedOn_formatted;
-                    view = Ext.widget('log-setup', {
+                    view = Ext.widget('export-log-setup', {
                         router: router,
                         task: record,
                         runStartedOn: runStartedOnFormatted
