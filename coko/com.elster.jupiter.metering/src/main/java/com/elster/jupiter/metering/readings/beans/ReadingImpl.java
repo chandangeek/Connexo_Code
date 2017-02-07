@@ -32,6 +32,13 @@ public class ReadingImpl extends BaseReadingImpl implements Reading {
     public static ReadingImpl of(String mrid, String text, Instant timeStamp) {
     	return new ReadingImpl(mrid,null,text,timeStamp);
     }
+
+    public static ReadingImpl of(String mrid, BigDecimal value, Instant timestamp, Instant from, Instant to){
+        ReadingImpl reading = new ReadingImpl(mrid,value,null, timestamp);
+        reading.setTimePeriod(from,to);
+        return reading;
+    }
+
     @Override
     public String getReason() {
         return reason;
