@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -270,11 +274,12 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("contractId") long contractId) {
         MetrologyContract metrologyContract = resourceHelper.findContractByIdOrThrowException(contractId);
+        List<ValidationRuleSet> linkedValidationRuleSets = usagePointConfigurationService.getValidationRuleSets(metrologyContract);
         List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
                 .stream()
                 .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
                 .filter(validationRuleSet -> !usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet).isEmpty())
-                .filter(validationRuleSet -> !usagePointConfigurationService.getValidationRuleSets(metrologyContract).contains(validationRuleSet))
+                .filter(validationRuleSet -> !linkedValidationRuleSets.contains(validationRuleSet))
                 .map(ValidationRuleSetInfo::new)
                 .collect(Collectors.toList());
         List<EstimationRuleSetInfo> linkableEstimationRuleSets = estimationService.getEstimationRuleSets()

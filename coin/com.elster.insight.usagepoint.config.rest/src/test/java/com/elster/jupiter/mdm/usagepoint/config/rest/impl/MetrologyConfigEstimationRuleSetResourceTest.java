@@ -19,7 +19,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -28,6 +30,7 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,14 +53,16 @@ public class MetrologyConfigEstimationRuleSetResourceTest extends UsagePointConf
 
     private static final long ESTIMATION_RULE_SET_ID = 555;
     private static final long METROLOGY_CONTRACT_ID = 12;
-    private static final long METORLOGY_CONTRACT_VERSION = 27;
+    private static final long METROLOGY_CONTRACT_VERSION = 27;
 
     @Test
     public void testGetLinkedMetrologyConfigurationPurposes() throws IOException {
         initMocks();
-        doReturn(Optional.of(estimationRuleSet)).when(estimationService).getEstimationRuleSet(ESTIMATION_RULE_SET_ID);
-        when(usagePointConfigurationService.getMetrologyContractsLinkedToEstimationnRuleSet(estimationRuleSet))
-                .thenReturn(Collections.singletonList(metrologyContract));
+
+        when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Collections.singletonList(metrologyConfiguration));
+        when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
+        when(usagePointConfigurationService.getEstimationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(estimationRuleSet));
+        when(usagePointConfigurationService.getMatchingDeliverablesOnEstimationRuleSet(metrologyContract, estimationRuleSet)).thenReturn(Collections.singletonList(readingTypeDeliverable));
 
         Response response = target("/estimationrulesets/" + ESTIMATION_RULE_SET_ID + "/purposes").request().get();
 
@@ -76,14 +81,11 @@ public class MetrologyConfigEstimationRuleSetResourceTest extends UsagePointConf
 
     @Test
     public void testRemoveMetrologyConfigurationPurpose() {
-        doReturn(Optional.of(estimationRuleSet)).when(estimationService).getEstimationRuleSet(ESTIMATION_RULE_SET_ID);
-        doReturn(Optional.of(metrologyContract)).when(metrologyConfigurationService)
-                .findAndLockMetrologyContract(METROLOGY_CONTRACT_ID, METORLOGY_CONTRACT_VERSION);
-        when(metrologyContract.getVersion()).thenReturn(METORLOGY_CONTRACT_VERSION);
+        initMocks();
+        when(metrologyContract.getVersion()).thenReturn(METROLOGY_CONTRACT_VERSION);
         when(metrologyContract.getId()).thenReturn(METROLOGY_CONTRACT_ID);
         when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
-        when(metrologyConfigurationService.findAndLockMetrologyContract(METROLOGY_CONTRACT_ID, METORLOGY_CONTRACT_VERSION))
-                .thenReturn(Optional.of(metrologyContract));
+        when(metrologyConfigurationService.findAndLockMetrologyContract(METROLOGY_CONTRACT_ID, METROLOGY_CONTRACT_VERSION)).thenReturn(Optional.of(metrologyContract));
 
         LinkableMetrologyContractInfo metrologyContractInfo = new LinkableMetrologyContractInfo();
         metrologyContractInfo.setVersion(metrologyContract.getVersion());
@@ -99,21 +101,28 @@ public class MetrologyConfigEstimationRuleSetResourceTest extends UsagePointConf
     @Test
     public void testGetLinkablePurposes() throws Exception {
         initMocks();
-        doReturn(Optional.of(estimationRuleSet)).when(estimationService).getEstimationRuleSet(ESTIMATION_RULE_SET_ID);
+        ReadingTypeDeliverable unmatchedDeliverable = mock(ReadingTypeDeliverable.class);
+        List<ReadingTypeDeliverable> contractDeliverables = new ArrayList<>();
+        when(unmatchedDeliverable.getName()).thenReturn("Monthly A-");
+        when(unmatchedDeliverable.getReadingType()).thenReturn(mock(ReadingType.class));
+        contractDeliverables.add(readingTypeDeliverable);
+        contractDeliverables.add(unmatchedDeliverable);
+        when(metrologyContract.getDeliverables()).thenReturn(contractDeliverables);
+        when(usagePointConfigurationService.getMetrologyContractsLinkedToEstimationRuleSet(estimationRuleSet)).thenReturn(Collections.emptyList());
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Collections.singletonList(metrologyConfiguration));
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         when(usagePointConfigurationService.getEstimationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(estimationRuleSet));
-        when(usagePointConfigurationService.isLinkableEstimationRuleSet(metrologyContract, estimationRuleSet, Collections
-                .singletonList(estimationRuleSet))).thenReturn(true);
+        when(usagePointConfigurationService.getMatchingDeliverablesOnEstimationRuleSet(metrologyContract, estimationRuleSet)).thenReturn(Collections.singletonList(readingTypeDeliverable));
 
-        Response response = target("/estimationrulesets/" + ESTIMATION_RULE_SET_ID + "/purposes/overview").request()
-                .get();
+        Response response = target("/estimationrulesets/" + ESTIMATION_RULE_SET_ID + "/purposes/overview").request().get();
 
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<String>get("$.purposes[0].outputs[0].outputName")).isEqualTo("Monthly A+");
-        assertThat(model.<Boolean>get("$..purposes[0].outputs[0].isMatched")).isEqualTo(true);
+        assertThat(model.<Boolean>get("$.purposes[0].outputs[0].isMatched")).isEqualTo(true);
+        assertThat(model.<String>get("$.purposes[0].outputs[1].outputName")).isEqualTo("Monthly A-");
+        assertThat(model.<Boolean>get("$.purposes[0].outputs[1].isMatched")).isEqualTo(false);
         assertThat(model.<String>get("$.purposes[0].name")).isEqualTo("Billing");
         assertThat(model.<Boolean>get("$.purposes[0].active")).isEqualTo(true);
         assertThat(model.<String>get("$.purposes[0].metrologyConfigurationInfo.name")).isEqualTo("Residential prosumer with 1 meter");
@@ -124,13 +133,13 @@ public class MetrologyConfigEstimationRuleSetResourceTest extends UsagePointConf
 
     @Test
     public void testLinkMetrologyPurposeToEstimationRuleSet() {
-        doReturn(Optional.of(estimationRuleSet)).when(estimationService).getEstimationRuleSet(ESTIMATION_RULE_SET_ID);
+        initMocks();
         when(metrologyConfigurationService.findMetrologyContract(1)).thenReturn(Optional.of(metrologyContract));
         doNothing().when(usagePointConfigurationService).addEstimationRuleSet(metrologyContract, estimationRuleSet);
-        when(metrologyContract.getVersion()).thenReturn(METORLOGY_CONTRACT_VERSION);
+        when(metrologyContract.getVersion()).thenReturn(METROLOGY_CONTRACT_VERSION);
         when(metrologyContract.getId()).thenReturn(METROLOGY_CONTRACT_ID);
         when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
-        when(metrologyConfigurationService.findAndLockMetrologyContract(METROLOGY_CONTRACT_ID, METORLOGY_CONTRACT_VERSION))
+        when(metrologyConfigurationService.findAndLockMetrologyContract(METROLOGY_CONTRACT_ID, METROLOGY_CONTRACT_VERSION))
                 .thenReturn(Optional.of(metrologyContract));
 
         MetrologyContractInfos metrologyContractInfos = new MetrologyContractInfos();
@@ -143,6 +152,9 @@ public class MetrologyConfigEstimationRuleSetResourceTest extends UsagePointConf
     }
 
     private void initMocks() {
+        doReturn(Optional.of(estimationRuleSet)).when(estimationService).getEstimationRuleSet(ESTIMATION_RULE_SET_ID);
+        when(usagePointConfigurationService.getMetrologyContractsLinkedToEstimationRuleSet(estimationRuleSet))
+                .thenReturn(Collections.singletonList(metrologyContract));
         when(metrologyContract.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(metrologyContract.getId()).thenReturn(METROLOGY_CONTRACT_ID);
         when(metrologyConfiguration.getId()).thenReturn(13L);

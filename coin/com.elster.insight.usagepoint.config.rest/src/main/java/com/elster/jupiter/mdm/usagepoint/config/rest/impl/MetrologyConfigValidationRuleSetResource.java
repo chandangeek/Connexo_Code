@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
@@ -5,7 +9,6 @@ import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -56,7 +59,7 @@ public class MetrologyConfigValidationRuleSetResource {
                 .stream()
                 .map(metrologyContract ->  {
                     List<ReadingTypeDeliverable> matchedDeliverables = usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, foundValidationRuleSet);
-                    return getLinkableMetrologyContractInfo(metrologyContract, metrologyContract.getDeliverables()
+                    return resourceHelper.getLinkableMetrologyContractInfo(metrologyContract, metrologyContract.getDeliverables()
                             .stream()
                             .map(deliverable -> new OutputMatchesInfo(deliverable.getName(), matchedDeliverables.contains(deliverable)))
                             .sorted(Comparator.comparing(outputMatchesInfo -> !outputMatchesInfo.isMatched))
@@ -89,11 +92,12 @@ public class MetrologyConfigValidationRuleSetResource {
     public PagedInfoList getLinkablePurposes(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
         ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetId)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<MetrologyContract> linkedPurposes = usagePointConfigurationService.getMetrologyContractsLinkedToValidationRuleSet(validationRuleSet);
         List<LinkableMetrologyContractInfo> linkablePurposes = metrologyConfigurationService.findAllMetrologyConfigurations()
                 .stream()
                 .flatMap(metrologyConfiguration -> metrologyConfiguration.getContracts().stream())
                 .filter(metrologyContract -> !usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet).isEmpty())
-                .filter(metrologyContract -> !usagePointConfigurationService.getMetrologyContractsLinkedToValidationRuleSet(validationRuleSet).contains(metrologyContract))
+                .filter(metrologyContract -> !linkedPurposes.contains(metrologyContract))
                 .map(metrologyContract -> {
                     List<ReadingTypeDeliverable> matchedDeliverables = usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet);
                     List<OutputMatchesInfo> outputMatchesInfos = metrologyContract.getDeliverables()
@@ -101,7 +105,7 @@ public class MetrologyConfigValidationRuleSetResource {
                             .map(deliverable -> new OutputMatchesInfo(deliverable.getName(), matchedDeliverables.contains(deliverable)))
                             .sorted(Comparator.comparing((outputMatchesInfo -> !outputMatchesInfo.isMatched)))
                             .collect(Collectors.toList());
-                    return getLinkableMetrologyContractInfo(metrologyContract, outputMatchesInfos);
+                    return resourceHelper.getLinkableMetrologyContractInfo(metrologyContract, outputMatchesInfos);
                 }).collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", linkablePurposes, queryParameters);
@@ -122,18 +126,5 @@ public class MetrologyConfigValidationRuleSetResource {
         });
 
         return Response.status(Response.Status.OK).build();
-    }
-
-    private LinkableMetrologyContractInfo getLinkableMetrologyContractInfo(MetrologyContract contract, List<OutputMatchesInfo> matchedOutputs) {
-        LinkableMetrologyContractInfo info = new LinkableMetrologyContractInfo();
-        info.setMetrologyConfigurationInfo(new IdWithNameInfo(contract.getMetrologyConfiguration().getId(),
-                contract.getMetrologyConfiguration().getName()));
-        info.setActive(contract.getMetrologyConfiguration().isActive());
-        info.setOutputs(matchedOutputs);
-        info.setVersion(contract.getVersion());
-        info.setId(contract.getId());
-        info.setName(contract.getMetrologyPurpose().getName());
-
-        return info;
     }
 }
