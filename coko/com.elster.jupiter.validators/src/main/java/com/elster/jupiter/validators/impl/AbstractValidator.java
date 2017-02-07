@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
@@ -17,11 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/07/2014
- * Time: 14:33
- */
 abstract class AbstractValidator implements IValidator {
 
     private final Thesaurus thesaurus;
