@@ -9,7 +9,7 @@ Ext.define('Uni.grid.column.LogLevel', {
     align: 'left',
 
     requires: [
-        'Uni.util.LogLevel'
+        'Uni.form.field.LogLevelDisplay'
     ],
 
     renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {

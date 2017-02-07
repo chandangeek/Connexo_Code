@@ -35,14 +35,12 @@ Ext.define('Uni.util.LogLevel', {
         }
         if (me.logLevelsStore.getCount()===0) {
             me.logLevelsStore.on('load', function() {
-                if (Ext.isDefined(field)) {
-                    if (field.xtype === 'log-level-displayfield') {
-                        field.setValue(field.getValue()); // = trigger the rendering once again
-                    }
+                if (Ext.isDefined(field) && field.xtype === 'log-level-displayfield') {
+                    field.setValue(field.getValue()); // = trigger the rendering once again
                 }
             }, me, {single: true});
             me.logLevelsStore.load();
-            return me.emptyText; // show this while waiting for the store loading
+            return me.emptyText; // show the empty text while waiting for the store loading
         } else {
             if (Ext.isEmpty(me.logLevelIds)) {
                 me.logLevelIds = [];
