@@ -106,7 +106,7 @@ public interface IssueService {
 
     Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers);
 
-    Finder<? extends Issue> findAlarms(Class<?>... eagers);
+    Finder<? extends Issue> findAlarms(IssueFilter filter, Class<?>... eagers);
 
     Optional<? extends Issue> findAndLockIssueByIdAndVersion(long id, long version);
 

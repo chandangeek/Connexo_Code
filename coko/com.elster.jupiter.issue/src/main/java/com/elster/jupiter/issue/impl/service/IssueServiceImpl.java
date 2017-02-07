@@ -560,7 +560,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public Finder<? extends Issue> findAlarms(Class<?>... eagers) {
+    public Finder<? extends Issue> findAlarms(IssueFilter filter, Class<?>... eagers) {
         Condition condition = Condition.TRUE;
         Optional<IssueType> alarmIssueType = getAllIssueTypes().stream()
                 .filter(issueType -> issueType.getPrefix().equals("ALM"))
@@ -570,8 +570,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }else{
             condition = Condition.FALSE;
         }
-        List<Class<?>> eagerClasses = new ArrayList<>();
-        eagerClasses.add(OpenIssue.class);
+        List<Class<?>> eagerClasses = determineMainApiClass(filter);
         if (eagers != null && eagers.length > 0) {
             eagerClasses.addAll(Arrays.asList(eagers));
         }
