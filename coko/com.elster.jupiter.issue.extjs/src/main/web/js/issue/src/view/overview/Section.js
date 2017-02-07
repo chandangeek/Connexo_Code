@@ -48,7 +48,7 @@ Ext.define('Isu.view.overview.Section', {
 
                 queryString[section] = record.get('id');
                 queryString.groupingType = 'none';
-                queryString.sort = ['dueDate'];
+                queryString.sort = ['-priority'];
                 if (me.up(me.parentItemId)) {
                     var href = me.up(me.parentItemId).router.getRoute(me.route).buildUrl(null, queryString);
                     record.set('href', href);
