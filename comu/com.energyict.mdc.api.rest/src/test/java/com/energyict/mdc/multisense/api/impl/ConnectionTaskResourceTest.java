@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -49,9 +50,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by bvn on 7/13/15.
- */
 public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
 
     @Test
@@ -181,7 +179,14 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
 
         DeviceType elec1 = mockDeviceType(101, "Electricity 1", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1101L, "Default configuration", elec1, 3333L);
-        PartialInboundConnectionTask pct1 = mockPartialInboundConnectionTask(333L, "new inbound", deviceConfiguration, 3333L);
+
+        ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
+        when(properties.getId()).thenReturn(31L);
+        when(properties.getName()).thenReturn("west vloms");
+        when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getProtocolDialectConfigurationPropertiesList()).thenReturn(Collections.singletonList(properties));
+
+        PartialInboundConnectionTask pct1 = mockPartialInboundConnectionTask(333L, "new inbound", deviceConfiguration, 3333L, properties);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.singletonList(pct1));
         Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 233L);
 
@@ -221,7 +226,14 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
 
         DeviceType elec1 = mockDeviceType(101, "Electricity 1", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1101L, "Default configuration", elec1, 3333L);
-        PartialInboundConnectionTask pct1 = mockPartialInboundConnectionTask(333L, "new inbound", deviceConfiguration, 3333L);
+
+        ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
+        when(properties.getId()).thenReturn(31L);
+        when(properties.getName()).thenReturn("west vloms");
+        when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getProtocolDialectConfigurationPropertiesList()).thenReturn(Collections.singletonList(properties));
+
+        PartialInboundConnectionTask pct1 = mockPartialInboundConnectionTask(333L, "new inbound", deviceConfiguration, 3333L, properties);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.singletonList(pct1));
         Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 233L);
 
@@ -260,7 +272,14 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
 
         DeviceType elec1 = mockDeviceType(101, "Electricity 1", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1101L, "Default configuration", elec1, 3333L);
-        PartialInboundConnectionTask pct1 = mockPartialInboundConnectionTask(333L, "new inbound", deviceConfiguration, 3333L);
+
+        ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
+        when(properties.getId()).thenReturn(31L);
+        when(properties.getName()).thenReturn("west vloms");
+        when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getProtocolDialectConfigurationPropertiesList()).thenReturn(Collections.singletonList(properties));
+
+        PartialInboundConnectionTask pct1 = mockPartialInboundConnectionTask(333L, "new inbound", deviceConfiguration, 3333L, properties);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Collections.singletonList(pct1));
         Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 233L);
 
