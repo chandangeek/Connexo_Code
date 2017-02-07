@@ -9,6 +9,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
         'Imt.util.ServiceCategoryTranslations'
     ],
     alias: 'widget.usage-point-management-side-menu',
+    uniqueMenuId: 'usage-point-management-side-menu',
     router: null,
     usagePoint: null,
     

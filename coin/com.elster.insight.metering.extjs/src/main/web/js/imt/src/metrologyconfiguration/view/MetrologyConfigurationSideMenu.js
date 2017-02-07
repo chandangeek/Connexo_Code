@@ -5,6 +5,7 @@
 Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.metrology-configuration-side-menu',
+    uniqueMenuId: 'metrology-configuration-side-menu',
     title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
 
     router: null,
