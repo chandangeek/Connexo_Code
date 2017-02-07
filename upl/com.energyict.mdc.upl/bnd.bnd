@@ -23,11 +23,12 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.channels.serial.modem,\
                 com.energyict.mdc.channels.serial.modem.postdialcommand,\
                 com.energyict.mdc.channels.ip.socket,\
-                com.energyict.mdc.channels.ip.diagrams,\
+                com.energyict.mdc.channels.ip.datagrams,\
                 com.energyict.mdc.io,\
                 com.energyict.mdc.io.serial,\
                 com.energyict.mdc.ports,\
                 com.energyict.mdc.protocol,\
+                com.energyict.mdc.protocol.security,\
                 com.energyict.cbo,\
                 com.energyict.cim,\
                 com.energyict.dialer.connection,\
