@@ -1,17 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-/**
- * Models the exceptional situation that occurs when an attempt is made to try and serialize
- * and object, but for some reason that failed
- * <p/>
- * Copyrights EnergyICT
- * Date: 20/03/14
- * Time: 14:47
- */
 public class SerializationException extends LocalizedException {
 
     private SerializationException(Thesaurus thesaurus, MessageSeed messageSeed, Object... objects) {

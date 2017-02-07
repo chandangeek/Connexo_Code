@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
@@ -10,20 +14,16 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.util.Arrays;
+
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/2/13
- * Time: 1:28 PM
- */
 public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonCommandImplTests {
 
     @Mock

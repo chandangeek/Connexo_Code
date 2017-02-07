@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -8,11 +12,6 @@ import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- * Date: 22/10/12
- * Time: 11:14
- */
 public class InboundComPortExecutorImpl implements InboundComPortExecutor {
 
     public interface ServiceProvider extends InboundCommunicationHandler.ServiceProvider {

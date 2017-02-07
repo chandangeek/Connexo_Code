@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -19,11 +23,6 @@ import com.energyict.mdc.tasks.TopologyTask;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 10.08.15
- * Time: 14:20
- */
 public class InboundCollectedTopologyCommandImpl extends TopologyCommandImpl {
 
     private final List<ServerCollectedData> collectedData;

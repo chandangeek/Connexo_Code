@@ -1,18 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelType;
 
-/**
- * Provides an implementation of the {@link ComChannel} interface
- * that can be handled by the ComServer framework, but that basically does nothing.
- * It will mostly be created when exceptions occur during the creation of Inbound connections.
- * <p/>
- * Copyrights EnergyICT
- * Date: 18/10/12
- * Time: 14:06
- */
 public class VoidTestComChannel implements ComChannel {
 
     private TypedProperties connectionTaskProperties = TypedProperties.empty();

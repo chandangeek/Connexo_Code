@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -14,7 +18,11 @@ import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCom
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOnCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.*;
+import com.energyict.mdc.engine.impl.commands.store.common.AddPropertiesCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolInitializeCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolSetCacheCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolTerminateCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolUpdateCacheCommand;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
@@ -25,6 +33,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+
+import java.time.Clock;
+import java.util.Collections;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,21 +47,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.logging.Logger;
-
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-/**
- * Tests the DeviceProtocolCommandCreator
- * <p>
- * Copyrights EnergyICT
- * Date: 10/10/12
- * Time: 8:49
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceProtocolCommandCreatorTest {
 

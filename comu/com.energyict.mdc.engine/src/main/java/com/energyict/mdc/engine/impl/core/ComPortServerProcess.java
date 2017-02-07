@@ -1,18 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.config.ComPort;
 
 import java.time.Instant;
 
-/**
- * Models the fact that a {@link com.energyict.mdc.engine.config.ComPort ComPort}
- * <i>(in- or outbound)</i> is a {@link ServerProcess} and is easily
- * wrappable by AOP.
- * <p/>
- * Copyrights EnergyICT
- * Date: 26/10/12
- * Time: 12:07
- */
 interface ComPortServerProcess extends ServerProcess {
 
     /**

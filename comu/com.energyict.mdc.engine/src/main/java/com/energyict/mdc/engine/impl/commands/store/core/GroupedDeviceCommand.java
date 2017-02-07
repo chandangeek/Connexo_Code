@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.orm.MacException;
@@ -6,9 +10,60 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.*;
+import com.energyict.mdc.engine.impl.commands.collect.AlreadyExecutedComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
+import com.energyict.mdc.engine.impl.commands.collect.FirmwareManagementCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MessagesCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
+import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
+import com.energyict.mdc.engine.impl.commands.collect.SetClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.StatusInformationCommand;
+import com.energyict.mdc.engine.impl.commands.collect.SynchronizeClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.TopologyCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
+import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolInitializeCommand;
-import com.energyict.mdc.engine.impl.commands.store.deviceactions.*;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.AlreadyExecutedComCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.BasicCheckCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateMeterEventsFromStatusFlagsCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.FirmwareManagementCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.ForceClockCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.LegacyLoadProfileLogBooksCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.LogBooksCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.MarkIntervalsAsBadTimeCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.MessagesCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLegacyLoadProfileLogBooksDataCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLoadProfileDataCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadLogBooksCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.ReadRegistersCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.RegisterCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.SetClockCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.StatusInformationCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.SynchronizeClockCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.TimeDifferenceCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyLoadProfilesCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifySerialNumberCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDifferenceCommandImpl;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.issues.Problem;
@@ -16,16 +71,21 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
+import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.TopologyTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 11/07/2016 - 14:12
- */
 public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommandImpl>, CanProvideDescriptionTitle {
 
     private final OfflineDevice offlineDevice;

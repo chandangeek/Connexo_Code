@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
@@ -80,11 +84,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
 
-/**
- * Copyrights EnergyICT
- * Date: 08/05/14
- * Time: 13:17
- */
 @Component(name = "com.energyict.mdc.engine",
         service = {EngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + EngineService.COMPONENTNAME,

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.Category;
@@ -13,15 +17,6 @@ import org.json.JSONWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Base class for all {@link CollectedDataProcessingEvent}s
- * Carrier for collected data
- * @param <T> Type of collected data that is stored
- *
- * Copyrights EnergyICT
- * Date: 16/02/2016
- * Time: 9:15
- */
 public abstract class AbstractCollectedDataProcessingEventImpl<T extends CollectedData> extends AbstractComServerEventImpl implements CollectedDataProcessingEvent {
 
     private T payload;

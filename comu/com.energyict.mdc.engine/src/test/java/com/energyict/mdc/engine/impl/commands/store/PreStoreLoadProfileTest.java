@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -64,13 +68,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the store functionality of the {@link CollectedLoadProfileDeviceCommand}.
- * <p>
- * Copyrights EnergyICT
- * Date: 13/01/14
- * Time: 15:30
- */
 @RunWith(MockitoJUnitRunner.class)
 public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTest {
 

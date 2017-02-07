@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -19,11 +23,6 @@ import com.energyict.mdc.tasks.MessagesTask;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 11/17/14
- * Time: 3:33 PM
- */
 public class InboundCollectedMessageListCommandImpl extends MessagesCommandImpl {
 
     private final List<ServerCollectedData> collectedData;

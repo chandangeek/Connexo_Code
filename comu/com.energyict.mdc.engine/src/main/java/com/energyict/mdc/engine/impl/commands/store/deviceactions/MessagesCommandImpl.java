@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
@@ -29,12 +33,6 @@ import java.util.stream.Collectors;
 
 import static com.energyict.mdc.engine.impl.commands.MessageSeeds.MESSAGE_NO_LONGER_VALID;
 
-/**
- * Implementation of a {@link MessagesCommand}
- * Copyrights EnergyICT
- * Date: 11/17/14
- * Time: 2:39 PM
- */
 public class MessagesCommandImpl extends SimpleComCommand implements MessagesCommand {
 
     private List<OfflineDeviceMessage> pendingMessages;

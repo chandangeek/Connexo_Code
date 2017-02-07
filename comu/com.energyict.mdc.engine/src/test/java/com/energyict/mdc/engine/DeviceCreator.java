@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine;
 
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -30,13 +34,6 @@ import java.util.Optional;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Provides functionality to create an serve a Device for testing purposes.
- * <p>
- * Copyrights EnergyICT
- * Date: 22/05/14
- * Time: 14:49
- */
 public final class DeviceCreator implements DeviceBuilderForTesting {
 
     public static final int CHANNEL_OVERFLOW_VALUE = 999999;

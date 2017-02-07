@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine;
 
 import com.energyict.mdc.protocol.api.device.BaseChannel;
@@ -7,11 +11,6 @@ import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/4/14
- * Time: 1:43 PM
- */
 public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
 
     private final String serialNumber;

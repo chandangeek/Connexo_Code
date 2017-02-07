@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.orm.Column;
@@ -8,11 +12,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 
-/**
- * Copyrights EnergyICT
- * Date: 08/05/14
- * Time: 11:53
- */
 public enum TableSpecs {
 
     CES_DEVICECACHE {

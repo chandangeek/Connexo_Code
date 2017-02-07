@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
@@ -11,11 +15,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import java.util.Collections;
 import java.util.List;
 
-/**
-* Copyrights EnergyICT
-* Date: 22/03/13
-* Time: 15:20
-*/
 public class NoOpCollectedMessageList extends CollectedDeviceData implements CollectedMessageList {
 
     @Override

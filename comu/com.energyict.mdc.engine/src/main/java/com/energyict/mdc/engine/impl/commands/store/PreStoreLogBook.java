@@ -1,13 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -17,13 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Performs several actions on the given LogBook which are required before storing.
- *
- * Copyrights EnergyICT
- * Date: 9/18/14
- * Time: 11:46 AM
- */
 public class PreStoreLogBook {
 
     private final Clock clock;

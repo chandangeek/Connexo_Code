@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -30,11 +34,6 @@ import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.util.EnumSet;
@@ -43,17 +42,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-/**
- * Tests for the {@link HandHeldUnitEnablerCommand} component
- * <p>
- * Copyrights EnergyICT
- * Date: 24/08/12
- * Time: 11:50
- */
 @RunWith(MockitoJUnitRunner.class)
 public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTest {
 

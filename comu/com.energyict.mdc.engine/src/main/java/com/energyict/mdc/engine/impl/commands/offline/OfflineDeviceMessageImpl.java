@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -18,13 +21,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Straightforward implementation of an OfflineDeviceMessage
- *
- * Copyrights EnergyICT
- * Date: 11/6/14
- * Time: 8:55 AM
- */
 public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
     private final DeviceMessage deviceMessage;

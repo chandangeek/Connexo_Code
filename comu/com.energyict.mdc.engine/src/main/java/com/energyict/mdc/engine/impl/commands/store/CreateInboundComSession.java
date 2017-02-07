@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.util.time.StopWatch;
@@ -16,18 +20,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Provides an implementation for the {@link DeviceCommand} interface
- * that will create a ComSession
- * for inbound communication.
- * Note that this task should be executed as late as possible
- * as the ComSession statistics include the execution time
- * of all DeviceCommands.
- * <p>
- * Copyrights EnergyICT
- * Date: 25/10/12
- * Time: 14:34
- */
 public class CreateInboundComSession extends ExecutionLoggerImpl implements CreateComSessionDeviceCommand {
 
     private final InboundComPort comPort;

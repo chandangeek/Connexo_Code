@@ -1,22 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Refers to a Device with his to-Be-Executed ComTask references
- * and the connectionSteps required for the ComTaskExecution,
- * including the required securityProperties.
- * <p/>
- * Copyrights EnergyICT
- * Date: 7/06/13
- * Time: 16:45
- */
 public class DeviceOrganizedComTaskExecution {
 
     private final Device device;

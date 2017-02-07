@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.util.Pair;
@@ -33,13 +37,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link com.energyict.mdc.engine.impl.core.RescheduleBehaviorForAsap} component
- * <p>
- * Copyrights EnergyICT
- * Date: 5/06/13
- * Time: 9:08
- */
 @RunWith(MockitoJUnitRunner.class)
 public class RescheduleBehaviorForAsapTest extends AbstractRescheduleBehaviorTest {
 

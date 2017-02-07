@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.mdc.io.BaudrateValue;
@@ -17,13 +21,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 
-/**
- * Serves as an Adapter between a {@link SerialCommunicationChannel} and a {@link ServerSerialPort}.
- *
- * Copyrights EnergyICT
- * Date: 21/08/12
- * Time: 14:39
- */
 public class SerialCommunicationChannelAdapter implements SerialCommunicationChannel {
 
     private final ServerSerialPort serialPort;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.device.data.Device;
@@ -28,13 +32,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link CollectedMessageListDeviceCommand} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 25/03/13
- * Time: 9:37
- */
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedMessageListDeviceCommandTest extends AbstractCollectedDataIntegrationTest {
 

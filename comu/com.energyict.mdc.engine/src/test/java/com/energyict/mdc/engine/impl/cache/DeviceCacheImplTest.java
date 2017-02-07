@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.cache;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
@@ -5,7 +9,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.ImmutableList;
+
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -13,11 +19,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 24.09.15
- * Time: 14:08
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceCacheImplTest extends EqualsContractTest {
 

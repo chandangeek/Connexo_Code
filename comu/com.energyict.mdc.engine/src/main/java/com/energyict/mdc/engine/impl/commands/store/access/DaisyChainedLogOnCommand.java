@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.access;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -11,13 +15,6 @@ import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 
-/**
- * A Daisy chained SignOn command
- * <p>
- * Copyrights EnergyICT
- * Date: 9/10/12
- * Time: 16:23
- */
 public class DaisyChainedLogOnCommand extends SimpleComCommand {
 
     public DaisyChainedLogOnCommand(final GroupedDeviceCommand groupedDeviceCommand) {

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.common;
 
 import com.energyict.mdc.common.TypedProperties;
@@ -10,13 +14,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 
-/**
- * Sets the specific Typed Properties to a {@link DeviceProtocol}
- * <p>
- * Copyrights EnergyICT
- * Date: 8/08/12
- * Time: 15:20
- */
 public class AddPropertiesCommand extends SimpleComCommand {
 
     private final TypedProperties deviceProperties;

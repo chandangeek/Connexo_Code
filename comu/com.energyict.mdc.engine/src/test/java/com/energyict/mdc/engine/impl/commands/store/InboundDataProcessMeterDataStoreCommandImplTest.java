@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -47,11 +51,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 07.08.15
- * Time: 13:25
- */
 @RunWith(MockitoJUnitRunner.class)
 public class InboundDataProcessMeterDataStoreCommandImplTest {
 

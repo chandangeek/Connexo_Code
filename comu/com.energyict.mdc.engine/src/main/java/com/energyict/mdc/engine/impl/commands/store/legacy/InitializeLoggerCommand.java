@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.mdc.engine.exceptions.ComCommandException;
@@ -16,13 +20,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-/**
- * Command to initialize the logger on a {@link DeviceProtocolAdapter}.
- * <p>
- * Copyrights EnergyICT
- * Date: 9/08/12
- * Time: 11:01
- */
 public class InitializeLoggerCommand extends SimpleComCommand {
 
     public InitializeLoggerCommand(final GroupedDeviceCommand groupedDeviceCommand) {

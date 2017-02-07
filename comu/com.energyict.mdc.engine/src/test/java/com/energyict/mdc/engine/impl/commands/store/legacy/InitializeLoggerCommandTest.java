@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.elster.jupiter.util.time.StopWatch;
@@ -14,22 +18,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
-import org.junit.Test;
 
 import java.util.logging.Logger;
+
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/**
- * Tests for the {@link InitializeLoggerCommand} component.
- * <p>
- * Copyrights EnergyICT
- * Date: 9/08/12
- * Time: 15:57
- */
 public class InitializeLoggerCommandTest extends AbstractComCommandExecuteTest {
 
     @Test
