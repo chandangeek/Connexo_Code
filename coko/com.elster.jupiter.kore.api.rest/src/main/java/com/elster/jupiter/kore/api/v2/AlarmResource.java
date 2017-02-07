@@ -50,10 +50,10 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
-@Path("/issues")
-public class IssueResource {
+@Path("/alarms")
+public class AlarmResource {
 
-    private final IssueInfoFactory issueInfoFactory;
+    private final AlarmInfoFactory alarmInfoFactory;
     private final EndDeviceInfoFactory endDeviceInfoFactory;
     private final IssueStatusInfoFactory issueStatusInfoFactory;
     private final IssueAssigneeInfoFactory issueAssigneeInfoFactory;
@@ -66,8 +66,8 @@ public class IssueResource {
     private final UserService userService;
 
     @Inject
-    public IssueResource(IssueInfoFactory issueInfoFactory, EndDeviceInfoFactory endDeviceInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssueTypeInfoFactory issueTypeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory, IssueCommentInfoFactory issueCommentInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory, UserService userService) {
-        this.issueInfoFactory = issueInfoFactory;
+    public AlarmResource(AlarmInfoFactory alarmInfoFactory, EndDeviceInfoFactory endDeviceInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssueTypeInfoFactory issueTypeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory, IssueCommentInfoFactory issueCommentInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory, UserService userService) {
+        this.alarmInfoFactory = alarmInfoFactory;
         this.endDeviceInfoFactory = endDeviceInfoFactory;
         this.issueStatusInfoFactory = issueStatusInfoFactory;
         this.issueAssigneeInfoFactory = issueAssigneeInfoFactory;
@@ -83,15 +83,13 @@ public class IssueResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<IssueInfo> getAllIssues(@BeanParam FieldSelection fieldSelection,
+    public PagedInfoList<AlarmInfo> getAllAlarms(@BeanParam FieldSelection fieldSelection,
                                                  @Context UriInfo uriInfo,
                                                  @BeanParam JsonQueryParameters queryParameters) {
         //validateMandatory(params, START, LIMIT);
-        IssueFilter filter = issueService.newIssueFilter();
-        Arrays.asList("datacollection", "datavalidation").stream().forEach(listItem -> issueService.findIssueType(listItem).ifPresent(filter::addIssueType));
-        Arrays.asList(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).stream().forEach(listItem -> issueService.findStatus(listItem).ifPresent(filter::addStatus));
-        List<IssueInfo> infos = issueService.findIssues(filter).find().stream()
-                .map(isu -> issueInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
+        List<AlarmInfo> infos = issueService.findAlarms().find().stream()
+                .filter(alarm -> (alarm.getStatus().getKey().equals(IssueStatus.OPEN) || alarm.getStatus().getKey().equals(IssueStatus.IN_PROGRESS)))
+                .map(isu -> alarmInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                 .path(IssueResource.class);
@@ -105,9 +103,9 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/status/{id}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public IssueStatusInfo getEndDevice(@PathParam("id") long issueId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        IssueStatus issueStatus = issueService.findIssue(issueId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, issueId)).getStatus();
+    public IssueStatusInfo getEndDevice(@PathParam("id") long alarmId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        IssueStatus issueStatus = issueService.findAlarms().find().stream().filter(alarm -> alarm.getId() == alarmId).findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, alarmId)).getStatus();
         return issueStatusInfoFactory.from(issueStatus, uriInfo, fieldSelection.getFields());
     }
 
@@ -117,16 +115,16 @@ public class IssueResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}/close")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public IssueInfo closeIssue(@PathParam("id") long issueId, IssueStatusInfo issueStatusInfo, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Issue issue = issueService.findIssue(issueId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, issueId));
+    public AlarmInfo closeIssue(@PathParam("id") long alarmId, IssueStatusInfo issueStatusInfo, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        Issue alarm = issueService.findAlarms().find().stream().filter(alm -> alm.getId() == alarmId).findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, alarmId));
         //and lock by version?
         Optional<IssueStatus> status = issueService.findStatus(IssueStatus.RESOLVED);
-        HistoricalIssue closedIssue = null;
-        if (!issue.getStatus().isHistorical() && status.isPresent()) {
-            closedIssue = ((OpenIssue) issue).close(status.get());
+        HistoricalIssue closedAlarm = null;
+        if (!alarm.getStatus().isHistorical() && status.isPresent()) {
+            closedAlarm = ((OpenIssue) alarm).close(status.get());
         }
-        return closedIssue != null ? issueInfoFactory.from(closedIssue, uriInfo, fieldSelection.getFields()) : null;
+        return closedAlarm != null ? alarmInfoFactory.from(closedAlarm, uriInfo, fieldSelection.getFields()) : null;
     }
 
 
@@ -136,15 +134,16 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public Response addComment(@PathParam("id") long issueId, IssueCommentInfo issueCommentInfo, @Context UriInfo uriInfo) {
-        Issue issue = issueService.findIssue(issueId).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, issueId));
+    public Response addComment(@PathParam("id") long alarmId, IssueCommentInfo issueCommentInfo, @Context UriInfo uriInfo) {
+        Issue alarm = issueService.findAlarms().find().stream().filter(alm -> alm.getId() == alarmId).findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, alarmId));
         User user = userService.findUser(issueCommentInfo.author.name).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, issueCommentInfo.author.id));
-        issue.addComment(issueCommentInfo.comment, user).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        alarm.addComment(issueCommentInfo.comment, user).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
 
         URI uri = uriInfo.getBaseUriBuilder().
                 path(IssueResource.class).
                 path(IssueResource.class, "getComments").
-                build(issue.getId());
+                build(alarm.getId());
 
         return Response.created(uri).build();
     }
@@ -155,12 +154,13 @@ public class IssueResource {
     @Path("/{id}/comments")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public PagedInfoList<IssueCommentInfo> getComments(@PathParam("id") long issueId,
+    public PagedInfoList<IssueCommentInfo> getComments(@PathParam("id") long alarmId,
                                                        @BeanParam FieldSelection fieldSelection,
                                                        @Context UriInfo uriInfo,
                                                        @BeanParam JsonQueryParameters queryParameters) {
-        Issue issue = issueService.findIssue(issueId).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, issueId));
-        Condition condition = where("issueId").isEqualTo(issue.getId());
+        Issue alarm = issueService.findAlarms().find().stream().filter(alm -> alm.getId() == alarmId).findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ALARM, alarmId));
+        Condition condition = where("issueId").isEqualTo(alarm.getId());
         Query<IssueComment> query = issueService.query(IssueComment.class, User.class);
         List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
         List<IssueCommentInfo> infos = commentsList.stream().map(isu -> issueCommentInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
@@ -176,6 +176,6 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
-        return issueInfoFactory.getAvailableFields().stream().sorted().collect(toList());
+        return alarmInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 }

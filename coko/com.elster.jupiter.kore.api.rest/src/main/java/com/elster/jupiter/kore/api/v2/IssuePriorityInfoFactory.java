@@ -11,4 +11,8 @@ public class IssuePriorityInfoFactory {
         return info;
     }
 
+    public int getValue(Priority priority){
+        return priority.getUrgency() + priority.getImpact();
+    }
+
 }

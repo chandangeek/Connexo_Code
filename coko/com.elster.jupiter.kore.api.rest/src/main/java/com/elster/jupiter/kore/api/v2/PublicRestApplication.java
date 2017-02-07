@@ -23,6 +23,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -54,6 +55,7 @@ public class PublicRestApplication extends Application {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile LocationService locationService;
     private volatile IssueService issueService;
+    private volatile UserService userService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -66,7 +68,8 @@ public class PublicRestApplication extends Application {
                 EffectiveMetrologyConfigurationResource.class,
                 RestExceptionMapper.class,
                 ConstraintViolationExceptionMapper.class,
-                IssueResource.class
+                IssueResource.class,
+                AlarmResource.class
         );
     }
 
@@ -139,6 +142,11 @@ public class PublicRestApplication extends Application {
         this.issueService = issueService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -156,6 +164,7 @@ public class PublicRestApplication extends Application {
             bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bind(locationService).to(LocationService.class);
             bind(issueService).to(IssueService.class);
+            bind(userService).to(UserService.class);
 
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
@@ -169,6 +178,7 @@ public class PublicRestApplication extends Application {
             bind(ElectricityDetailInfoFactory.class).to(ElectricityDetailInfoFactory.class);
             bind(ElectricityDetailResource.class).to(ElectricityDetailResource.class);
             bind(IssueResource.class).to(IssueResource.class);
+            bind(AlarmResource.class).to(AlarmResource.class);
             bind(GasDetailInfoFactory.class).to(GasDetailInfoFactory.class);
             bind(GasDetailResource.class).to(GasDetailResource.class);
             bind(HeatDetailInfoFactory.class).to(HeatDetailInfoFactory.class);
@@ -184,11 +194,14 @@ public class PublicRestApplication extends Application {
             bind(MetrologyConfigurationPurposeInfoFactory.class).to(MetrologyConfigurationPurposeInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(IssueInfoFactory.class).to(IssueInfoFactory.class);
+            bind(AlarmInfoFactory.class).to(AlarmInfoFactory.class);
             bind(IssueStatusInfoFactory.class).to(IssueStatusInfoFactory.class);
             bind(IssueAssigneeInfoFactory.class).to(IssueAssigneeInfoFactory.class);
             bind(IssueTypeInfoFactory.class).to(IssueTypeInfoFactory.class);
             bind(IssueReasonInfoFactory.class).to(IssueReasonInfoFactory.class);
             bind(IssuePriorityInfoFactory.class).to(IssuePriorityInfoFactory.class);
+            bind(UserInfoFactory.class).to(UserInfoFactory.class);
+            bind(IssueCommentInfoFactory.class).to(IssueCommentInfoFactory.class);
         }
     }
 }

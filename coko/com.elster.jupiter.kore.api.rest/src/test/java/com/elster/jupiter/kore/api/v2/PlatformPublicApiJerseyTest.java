@@ -23,6 +23,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCustomPropertySet;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
@@ -54,6 +55,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.Range;
 
@@ -107,6 +109,10 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     ThreadPrincipalService threadPrincipalService;
     @Mock
     LocationService locationService;
+    @Mock
+    IssueService issueService;
+    @Mock
+    UserService userService;
 
     @Override
     protected Application getApplication() {
@@ -122,6 +128,9 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setThreadPrincipalService(threadPrincipalService);
         application.setLocationService(locationService);
+        application.setIssueService(issueService);
+        application.setUserService(userService);
+
         return application;
     }
 
