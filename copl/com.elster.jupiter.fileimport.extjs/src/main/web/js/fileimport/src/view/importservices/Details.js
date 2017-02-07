@@ -23,6 +23,7 @@ Ext.define('Fim.view.importservices.Details', {
             items: [
                 {
                     ui: 'large',
+                    itemId: 'frm-import-service-details-panel',
                     title: Uni.I18n.translate('general.overview', 'FIM', 'Overview'),
                     flex: 1,
                     items: {
