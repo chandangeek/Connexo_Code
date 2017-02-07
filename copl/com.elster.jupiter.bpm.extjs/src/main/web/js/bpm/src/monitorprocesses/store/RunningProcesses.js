@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.monitorprocesses.store.RunningProcesses', {
     extend: 'Ext.data.Store',
     model: 'Bpm.monitorprocesses.model.RunningProcess',

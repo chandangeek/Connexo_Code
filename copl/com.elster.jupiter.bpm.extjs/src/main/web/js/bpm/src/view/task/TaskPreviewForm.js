@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.view.task.TaskPreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.bpm-task-preview-form',
