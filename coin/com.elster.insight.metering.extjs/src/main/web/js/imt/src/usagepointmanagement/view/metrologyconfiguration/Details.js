@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usage-point-metrology-configuration-details',
@@ -43,7 +47,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         xtype: 'button',
                         itemId: 'unlink-metrology-configuration-button',
                         text: Uni.I18n.translate('usagePoint.metrologyConfiguration.unlink', 'IMT', 'Unlink metrology configuration'),
-                        privileges: mcIsLinked && canModify,
+                        privileges: mcIsLinked && canModify && Imt.privileges.UsagePoint.canAdministrate(),
                         usagePoint: me.usagePoint
                     }
                 ],

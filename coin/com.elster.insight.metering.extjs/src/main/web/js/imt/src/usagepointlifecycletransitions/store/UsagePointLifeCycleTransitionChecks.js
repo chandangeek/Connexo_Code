@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycletransitions.store.UsagePointLifeCycleTransitionChecks', {
     extend: 'Ext.data.Store',
     model: 'Imt.usagepointlifecycletransitions.model.UsagePointLifeCycleTransitionCheck',

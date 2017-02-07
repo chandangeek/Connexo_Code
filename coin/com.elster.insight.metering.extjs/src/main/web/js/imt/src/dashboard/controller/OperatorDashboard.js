@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.dashboard.controller.OperatorDashboard', {
     extend: 'Ext.app.Controller',
     models: [],

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.controller.View', {
     extend: 'Ext.app.Controller',
 
@@ -24,7 +28,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.store.Purposes',
         'Imt.usagepointmanagement.store.DataCompletion',
         'Imt.usagepointmanagement.store.Periods',
-        'Imt.usagepointmanagement.store.UsagePointTransitions'
+        'Imt.usagepointmanagement.store.UsagePointTransitions',
+        'Imt.usagepointmanagement.store.MeterRoles'
     ],
 
     models: [
@@ -108,6 +113,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                             }
                         })
                     }));
+                    mainView.down('whatsgoingon').setLoading();
                     mainView.down('usage-point-setup-action-menu').setActions(transitionsStore, router);
                     mainView.setLoading(false);
                 });
