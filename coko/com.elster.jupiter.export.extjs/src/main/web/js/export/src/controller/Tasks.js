@@ -306,6 +306,7 @@ Ext.define('Dxp.controller.Tasks', {
                 actionsMenu.record = record;
                 Ext.suspendLayouts();
                 view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
+                view.down('#tasks-details-panel').setTitle(Ext.String.htmlEncode(record.get('name')));
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
                 if (record.get('status') !== 'Busy') {
