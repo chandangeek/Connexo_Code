@@ -645,8 +645,8 @@ public class InboundCommunicationHandlerTest {
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getDevice()).thenReturn(device);
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+//        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+//        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         when(this.comServerDAO.findExecutableInboundComTasks(offlineDevice, this.comPort)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution));
         DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));

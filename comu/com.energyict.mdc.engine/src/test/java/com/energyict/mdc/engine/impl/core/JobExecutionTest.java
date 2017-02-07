@@ -245,7 +245,7 @@ public class JobExecutionTest {
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(ct));
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getComTask()).thenReturn(this.comTask);
-        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
+      //  when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(mock(ProtocolDialectConfigurationProperties.class));
         when(connectionTask.getDevice()).thenReturn(device);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         when(connectionTask.connect(eq(comPort), anyList())).thenReturn(new VoidTestComChannel());
@@ -445,11 +445,10 @@ public class JobExecutionTest {
     @Test
     public void testGetProtocolDialectProperties() {
         prepareMocksForProtocolDialectProperties();
-        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         // make sur no protocoldialect properties set on device
         when(device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
 
-        TypedProperties typedProperties = JobExecution.getProtocolDialectTypedProperties(comTaskExecution);
+        TypedProperties typedProperties = JobExecution.getProtocolDialectTypedProperties(device, protocolDialectConfigurationProperties );
         assertThat(typedProperties.getProperty(MY_PROPERTY)).isEqualTo(MY_PROPERTY_VALUE);
     }
 
