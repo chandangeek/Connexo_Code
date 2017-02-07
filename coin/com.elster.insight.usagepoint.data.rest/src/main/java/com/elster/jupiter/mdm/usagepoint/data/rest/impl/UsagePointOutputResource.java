@@ -613,7 +613,6 @@ public class UsagePointOutputResource {
         return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
     }
 
-
     @PUT
     @Path("/{contractId}/deactivate")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
