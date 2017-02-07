@@ -23,7 +23,9 @@ public class TaskLogHandlerImpl extends Handler implements TaskLogHandler {
 
     @Override
     public void publish(LogRecord record) {
-        taskOccurrence.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
+        if (isLoggable(record)) {
+            taskOccurrence.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
+        }
     }
 
     @Override
