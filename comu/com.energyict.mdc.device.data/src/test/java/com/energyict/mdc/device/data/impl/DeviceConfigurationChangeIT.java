@@ -1447,9 +1447,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     private ComTaskEnablement createComTaskEnablement(ComTask comTaskForTesting, DeviceConfiguration firstDeviceConfiguration, SecurityPropertySet firstSecurityPropertySet) {
-        return firstDeviceConfiguration.enableComTask(comTaskForTesting, firstSecurityPropertySet, firstDeviceConfiguration
-                .getProtocolDialectConfigurationPropertiesList()
-                .get(0))
+        return firstDeviceConfiguration.enableComTask(comTaskForTesting, firstSecurityPropertySet)
                 .useDefaultConnectionTask(true)
                 .add();
     }
@@ -1474,7 +1472,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     private PartialScheduledConnectionTaskImpl createPartialConnectionTask(DeviceConfiguration deviceConfiguration, String connectionTaskName, OutboundComPortPool comPortPool) {
-        final PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName, outboundIpConnectionTypePluggableClass, scheduledConnectionTaskInterval, ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        final PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName, outboundIpConnectionTypePluggableClass, scheduledConnectionTaskInterval, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0));
         partialScheduledConnectionTaskBuilder.comPortPool(comPortPool);
         return partialScheduledConnectionTaskBuilder.build();
     }

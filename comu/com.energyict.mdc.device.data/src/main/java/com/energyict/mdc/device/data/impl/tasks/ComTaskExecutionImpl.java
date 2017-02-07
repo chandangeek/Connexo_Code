@@ -17,7 +17,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
@@ -84,7 +83,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public enum ComTaskExecType {
         SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR,
         MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR,
-        FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR;
+        FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR
     }
 
     private final Clock clock;
@@ -98,8 +97,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private Reference<Device> device = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.COMTASK_IS_REQUIRED + "}")
     protected Reference<ComTask> comTask = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
-    protected Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
 
     private long connectionTaskId;  // Required for performance of ComTaskExecution query to avoid loading the ConnectionTask to only get the id
     private Reference<ConnectionTask<?, ?>> connectionTask = ValueReference.absent();
@@ -162,7 +159,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         this.executionPriority = comTaskEnablement.getPriority();
         this.plannedPriority = comTaskEnablement.getPriority();
-        this.setProtocolDialectConfigurationProperties(comTaskEnablement.getProtocolDialectConfigurationProperties());
         this.setUseDefaultConnectionTask(comTaskEnablement.usesDefaultConnectionTask());
         if (!comTaskEnablement.usesDefaultConnectionTask()) {
             setConnectionTaskIfExists(device, comTaskEnablement);
@@ -1031,15 +1027,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.comTask.get();
     }
 
-    protected void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        this.protocolDialectConfigurationProperties.set(protocolDialectConfigurationProperties);
-    }
-
-    @Override
-    public ProtocolDialectConfigurationProperties getProtocolDialectConfigurationProperties() {
-        return protocolDialectConfigurationProperties.orNull();
-    }
-
     @Override
     public Optional<ComSchedule> getComSchedule() {
         return this.comSchedule.getOptional();
@@ -1553,12 +1540,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         public ComTaskExecutionImpl updateFields(String... fieldNames) {
             this.comTaskExecution.update(fieldNames);
             return this.comTaskExecution;
-        }
-
-        @Override
-        public ComTaskExecutionUpdater protocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-            this.comTaskExecution.setProtocolDialectConfigurationProperties(protocolDialectConfigurationProperties);
-            return this;
         }
 
         @Override

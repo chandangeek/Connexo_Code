@@ -9,7 +9,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
@@ -407,7 +406,7 @@ Irrelevant as delete is not supported any more
     @Transactional
     public void setNullProtocolDialectTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        ComTaskEnablement comTaskEnablement = enableComTask(true, null, COM_TASK_NAME);
+        ComTaskEnablement comTaskEnablement = enableComTask(true, COM_TASK_NAME);
         Device device = inMemoryPersistence.getDeviceService()
                 .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
         ComTaskExecutionBuilder comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
@@ -419,29 +418,29 @@ Irrelevant as delete is not supported any more
         // Asserts: see expected constraint violation rule
     }
 
-    @Test
-    @Transactional
-    public void setProtocolDialectOnUpdaterTest() {
-        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        ProtocolDialectConfigurationProperties otherDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new OtherComTaskExecutionDialect());
-        deviceConfiguration.save();
-        ComTaskEnablement comTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
-        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
-
-        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
-
-        // Business method
-        comTaskExecutionUpdater.update();
-
-        // Asserts
-        ComTaskExecution reloadedComTaskExecution = this.reloadComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(otherDialect.getId());
-    }
+//    @Test
+//    @Transactional
+//    public void setProtocolDialectOnUpdaterTest() {
+//        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
+//        ProtocolDialectConfigurationProperties otherDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new OtherPartialConnectionTaskDialect());
+//        deviceConfiguration.save();
+//        ComTaskEnablement comTaskEnablement = enableComTask(true);
+//        Device device = inMemoryPersistence.getDeviceService()
+//                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
+//        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
+//        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
+//        device.save();
+//
+//        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
+//        comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
+//
+//        // Business method
+//        comTaskExecutionUpdater.update();
+//
+//        // Asserts
+//        ComTaskExecution reloadedComTaskExecution = this.reloadComTaskExecution(device, comTaskExecution);
+//        assertThat(reloadedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(otherDialect.getId());
+//    }
 
     @Test
     @Transactional

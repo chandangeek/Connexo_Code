@@ -53,20 +53,13 @@ import static org.mockito.Mockito.when;
  */
 public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegrationTest {
 
-    protected static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
-    protected static final String OTHER_DEVICE_PROTOCOL_DIALECT_NAME = "WestVloams";
-
     protected String COM_TASK_NAME = "TheNameOfMyComTask";
     protected int maxNrOfTries = 27;
     protected int comTaskEnablementPriority = 213;
-    protected ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
     private ConnectionTask.ConnectionTaskLifecycleStatus status = ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE;
 
     @Before
     public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration () {
-        deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
-        deviceConfiguration.save();
-        this.protocolDialectConfigurationProperties = this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
         IssueStatus wontFix = mock(IssueStatus.class);
         when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
     }
@@ -81,14 +74,12 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected ComTaskEnablement enableComTask(boolean useDefault) {
-        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
-        deviceConfiguration.save();
-        return enableComTask(useDefault, configDialect, COM_TASK_NAME);
+        return enableComTask(useDefault,COM_TASK_NAME);
     }
 
-    protected ComTaskEnablement enableComTask(boolean useDefault, ProtocolDialectConfigurationProperties configDialect, String comTaskName) {
+    protected ComTaskEnablement enableComTask(boolean useDefault,String comTaskName) {
         ComTask comTaskWithBasicCheck = createComTaskWithBasicCheck(comTaskName);
-        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet, configDialect);
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTaskWithBasicCheck, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();
@@ -145,6 +136,8 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected PartialScheduledConnectionTask createPartialScheduledConnectionTask(TimeDuration frequency) {
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new PartialConnectionTaskProtocolDialect());
+        deviceConfiguration.save();
         ConnectionTypePluggableClass connectionTypePluggableClass =
                 inMemoryPersistence.getProtocolPluggableService()
                     .newConnectionTypePluggableClass(
@@ -156,7 +149,8 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
                         "Outbound (1)",
                         connectionTypePluggableClass,
                         frequency,
-                        ConnectionStrategy.AS_SOON_AS_POSSIBLE).
+                        ConnectionStrategy.AS_SOON_AS_POSSIBLE,
+                        configDialect).
                 comWindow(new ComWindow(0, 7200)).
                 build();
     }
@@ -190,6 +184,8 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected PartialInboundConnectionTask createPartialInboundConnectionTask() {
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new PartialConnectionTaskProtocolDialect());
+        deviceConfiguration.save();
         ConnectionTypePluggableClass connectionTypePluggableClass =
                 inMemoryPersistence.getProtocolPluggableService()
                     .newConnectionTypePluggableClass(
@@ -199,7 +195,8 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         return deviceConfiguration.
                 newPartialInboundConnectionTask(
                         "Inbound (1)",
-                        connectionTypePluggableClass)
+                        connectionTypePluggableClass,
+                        configDialect)
                 .build();
     }
 
@@ -270,7 +267,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         return calendar.getTime().toInstant();
     }
 
-    protected class ComTaskExecutionDialect implements DeviceProtocolDialect {
+    class PartialConnectionTaskProtocolDialect implements DeviceProtocolDialect {
 
         @Override
         public String getDeviceProtocolDialectName() {
@@ -286,15 +283,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
             return Optional.empty();
         }
-
     }
 
-    protected class OtherComTaskExecutionDialect extends ComTaskExecutionDialect {
-
-        @Override
-        public String getDeviceProtocolDialectName() {
-            return OTHER_DEVICE_PROTOCOL_DIALECT_NAME;
-        }
-    }
 
 }

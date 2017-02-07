@@ -2251,14 +2251,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         deviceConfiguration.enableComTask(
                 comTask_1,
-                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
-                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get())
                 .setIgnoreNextExecutionSpecsForInbound(false)
                 .add();
         deviceConfiguration.enableComTask(
                 comTask_2,
-                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
-                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get())
                 .setIgnoreNextExecutionSpecsForInbound(false)
                 .add();
 
@@ -2281,14 +2279,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         deviceConfiguration.enableComTask(
                 comTask_1,
-                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
-                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get())
                 .setIgnoreNextExecutionSpecsForInbound(false)
                 .add();
         deviceConfiguration.enableComTask(
                 comTask_2,
-                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get(),
-                deviceConfiguration.getProtocolDialectConfigurationPropertiesList().stream().findFirst().get())
+                deviceConfiguration.getSecurityPropertySets().stream().findFirst().get())
                 .setIgnoreNextExecutionSpecsForInbound(true)
                 .add();
 
@@ -2589,12 +2585,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         comTask2.save();
         ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
         deviceConfiguration.save();
-        enableComTask(comTask1, configDialect);
-        enableComTask(comTask2, configDialect);
+        enableComTask(comTask1);
+        enableComTask(comTask2);
     }
 
-    private void enableComTask(ComTask comTask1, ProtocolDialectConfigurationProperties configDialect) {
-        deviceConfiguration.enableComTask(comTask1, this.securityPropertySet, configDialect)
+    private void enableComTask(ComTask comTask1) {
+        deviceConfiguration.enableComTask(comTask1, this.securityPropertySet)
                 .useDefaultConnectionTask(true)
                 .setPriority(213)
                 .add();

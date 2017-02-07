@@ -27,7 +27,6 @@ public enum ComTaskExecutionFields implements ImplField {
     LASTEXECUTIONFAILED("lastExecutionFailed"),
     IGNORENEXTEXECUTIONSPECSFORINBOUND("ignoreNextExecutionSpecsForInbound"),
     COMPORT("comPort"),
-    PROTOCOLDIALECTCONFIGURATIONPROPERTIES("protocolDialectConfigurationProperties"),
     COM_SCHEDULE("comSchedule"),
     LAST_SESSION("lastSession"),
     LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE("lastSessionHighestPriorityCompletionCode"),

@@ -8,12 +8,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Instant;
@@ -100,32 +98,32 @@ public class FirmwareBehaviorComTaskExecutionImplTest extends AbstractComTaskExe
         device.save();
     }
 
-    @Test
-    @Transactional
-    public void updateProtocolDialectTest() {
-        ComTaskEnablement firmwareComTaskEnablement = enableFirmwareComTask();
-
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "updateProtocolDialectTest", "updateProtocolDialectTest", Instant.now());
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newFirmwareComTaskExecution(firmwareComTaskEnablement);
-        ComTaskExecution firmwareComTaskExecution = comTaskExecutionBuilder.add();
-
-        // Business method
-        device.save();
-
-        ProtocolDialectConfigurationProperties otherDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new OtherComTaskExecutionDialect());
-
-        ComTaskExecution reloadedFirmwareComTaskExecution = this.reloadFirmwareComTaskExecution(device, firmwareComTaskExecution);
-        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(reloadedFirmwareComTaskExecution);
-        comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
-        ComTaskExecution updatedComTaskExecution = comTaskExecutionUpdater.update();
-
-        ComTaskExecution reloadedUpdatedComTaskExecution = this.reloadFirmwareComTaskExecution(device, updatedComTaskExecution);
-
-        //Asserts
-        assertThat(reloadedUpdatedComTaskExecution.getProtocolDialectConfigurationProperties()).isNotNull();
-        assertThat(reloadedUpdatedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(otherDialect.getId());
-    }
+//    @Test
+//    @Transactional
+//    public void updateProtocolDialectTest() {
+//        ComTaskEnablement firmwareComTaskEnablement = enableFirmwareComTask();
+//
+//        Device device = inMemoryPersistence.getDeviceService()
+//                .newDevice(deviceConfiguration, "updateProtocolDialectTest", "updateProtocolDialectTest", Instant.now());
+//        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newFirmwareComTaskExecution(firmwareComTaskEnablement);
+//        ComTaskExecution firmwareComTaskExecution = comTaskExecutionBuilder.add();
+//
+//        // Business method
+//        device.save();
+//
+//        ProtocolDialectConfigurationProperties otherDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new OtherPartialConnectionTaskDialect());
+//
+//        ComTaskExecution reloadedFirmwareComTaskExecution = this.reloadFirmwareComTaskExecution(device, firmwareComTaskExecution);
+//        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(reloadedFirmwareComTaskExecution);
+//        comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
+//        ComTaskExecution updatedComTaskExecution = comTaskExecutionUpdater.update();
+//
+//        ComTaskExecution reloadedUpdatedComTaskExecution = this.reloadFirmwareComTaskExecution(device, updatedComTaskExecution);
+//
+//        //Asserts
+//        assertThat(reloadedUpdatedComTaskExecution.getProtocolDialectConfigurationProperties()).isNotNull();
+//        assertThat(reloadedUpdatedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(otherDialect.getId());
+//    }
 
     protected ComTaskExecution reloadFirmwareComTaskExecution(Device device, ComTaskExecution comTaskExecution) {
         Device reloadedDevice = getReloadedDevice(device);
@@ -140,8 +138,7 @@ public class FirmwareBehaviorComTaskExecutionImplTest extends AbstractComTaskExe
 
     private ComTaskEnablement enableFirmwareComTask() {
         ComTask firmwareComTask = inMemoryPersistence.getTaskService().findFirmwareComTask().get();
-        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
-        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(firmwareComTask, this.securityPropertySet, configDialect);
+        ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(firmwareComTask, this.securityPropertySet);
         builder.useDefaultConnectionTask(true);
         builder.setPriority(this.comTaskEnablementPriority);
         return builder.add();

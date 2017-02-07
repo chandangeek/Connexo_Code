@@ -19,6 +19,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -908,6 +909,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         protected ScheduledConnectionTaskImpl getScheduledConnectionTask() {
             return scheduledConnectionTask;
+        }
+
+        @Override
+        public Device.ScheduledConnectionTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
+            scheduledConnectionTask.setProtocolDialectConfigurationProperties(properties);
+            return this;
         }
 
         @Override

@@ -24,6 +24,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.IpConnectionProperties;
@@ -194,7 +195,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     }
 
     private void addPartialOutboundConnectionTaskFor(DeviceConfiguration communicationConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
-        PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = communicationConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+        ProtocolDialectConfigurationProperties dialectProperties = communicationConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+        PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = communicationConfiguration.newPartialScheduledConnectionTask("MyOutbound", connectionTypePluggableClass, TimeDuration.seconds(60), ConnectionStrategy.AS_SOON_AS_POSSIBLE, dialectProperties )
                 .comPortPool(outboundComPortPool)
                 .comWindow(COM_WINDOW)
                 .asDefault(true);
@@ -207,7 +209,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     }
 
     private void addPartialInboundConnectionTaskFor(DeviceConfiguration deviceConfiguration, ConnectionTypePluggableClass connectionTypePluggableClass) {
-        PartialInboundConnectionTaskBuilder partialInboundConnectionTaskBuilder = deviceConfiguration.newPartialInboundConnectionTask("MyInboundConnectionTask", connectionTypePluggableClass)
+        ProtocolDialectConfigurationProperties dialectProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+        PartialInboundConnectionTaskBuilder partialInboundConnectionTaskBuilder = deviceConfiguration.newPartialInboundConnectionTask("MyInboundConnectionTask", connectionTypePluggableClass, dialectProperties)
                 .comPortPool(inboundComPortPool)
                 .asDefault(false);
         partialInboundConnectionTask = partialInboundConnectionTaskBuilder.build();
@@ -215,12 +218,15 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     }
 
     private void addPartialConnectionInitiationConnectionTask(DeviceConfiguration deviceConfiguration) {
+        ProtocolDialectConfigurationProperties dialectProperties = deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
         PartialConnectionInitiationTaskBuilder partialConnectionInitiationTaskBuilder = deviceConfiguration.newPartialConnectionInitiationTask("MyConnectionInitiationTask", outboundNoParamsPluggableClass, TimeDuration
-                .seconds(60))
+                .seconds(60), dialectProperties)
                 .comPortPool(outboundComPortPool);
         partialConnectionInitiationTask = partialConnectionInitiationTaskBuilder.build();
         deviceConfiguration.save();
     }
+
+
 
     @Test
     @Transactional

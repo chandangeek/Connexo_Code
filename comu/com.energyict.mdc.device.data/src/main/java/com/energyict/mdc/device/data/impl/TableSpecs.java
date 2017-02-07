@@ -262,6 +262,7 @@ public enum TableSpecs {
             table.column("PRIORITY").number().conversion(NUMBER2INT).map(ConnectionTaskFields.PRIORITY.fieldName()).add();
             table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2INT).map(ConnectionTaskFields.ALLOW_SIMULTANEOUS_CONNECTIONS.fieldName()).add();
             Column initiator = table.column("INITIATOR").number().add();
+            Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().since(Version.version(10,3));
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment
             table.primaryKey("PK_DDC_CONNECTIONTASK").on(id).add();
@@ -300,6 +301,12 @@ public enum TableSpecs {
                     references(PartialConnectionTask.class).
                     map(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).
                     add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_DIALECT")
+                    .on(protocolDialectConfigurationProperties)
+                    .since(Version.version(10,3))
+                    .references(ProtocolDialectConfigurationProperties.class)
+                    .map(ConnectionTaskFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName())
+                    .add();
         }
     },
 
@@ -359,7 +366,7 @@ public enum TableSpecs {
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).add();
             table.column("ONHOLD").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.ONHOLD.fieldName()).since(version(10, 2)).add();
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
-            Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add();
+            Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().upTo(Version.version(10,2));
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
             table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT")
@@ -390,8 +397,9 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_DDC_COMTASKEXEC_DIALECT")
                     .on(protocolDialectConfigurationProperties)
+                    .upTo(Version.version(10,2))
                     .references(ProtocolDialectConfigurationProperties.class)
-                    .map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName())
+                    .map("protocolDialectConfigurationProperties")
                     .add();
             table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE")
                     .on(device).references(DDC_DEVICE.name())

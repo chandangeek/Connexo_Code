@@ -195,7 +195,7 @@ public class ComSessionCrudIT {
     private ComTaskExecution comTaskExecution;
     private ProtocolDialectConfigurationProperties configDialectProps;
 
-    private class ComTaskExecutionDialect implements DeviceProtocolDialect {
+    private class PartialConnectionTaskProtocolDialect implements DeviceProtocolDialect {
 
         @Override
         public String getDeviceProtocolDialectName() {
@@ -324,7 +324,7 @@ public class ComSessionCrudIT {
             DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
             deviceConfigurationBuilder.isDirectlyAddressable(true);
             deviceConfiguration = deviceConfigurationBuilder.add();
-            configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+            configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new PartialConnectionTaskProtocolDialect());
             deviceConfiguration.save();
             deviceConfiguration.activate();
             device = this.deviceDataModelService.deviceService()
@@ -333,7 +333,7 @@ public class ComSessionCrudIT {
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
             connectionTypePluggableClass.save();
 
-            partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE)
+            partialScheduledConnectionTask = deviceConfiguration.newPartialScheduledConnectionTask("Outbound (1)", connectionTypePluggableClass, TimeDuration.minutes(5), ConnectionStrategy.AS_SOON_AS_POSSIBLE, configDialectProps )
                     .
                             comWindow(new ComWindow(0, 7200))
                     .
@@ -373,9 +373,8 @@ public class ComSessionCrudIT {
 
             SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet("sec").encryptionLevel(0).authenticationLevel(0).build();
 
-            ComTaskEnablement comTaskEnablement = deviceConfiguration.enableComTask(comTask, securityPropertySet, configDialectProps)
+            ComTaskEnablement comTaskEnablement = deviceConfiguration.enableComTask(comTask, securityPropertySet)
                     .useDefaultConnectionTask(true)
-                    .setProtocolDialectConfigurationProperties(configDialectProps)
                     .add();
 
             comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement)

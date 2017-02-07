@@ -504,6 +504,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         ScheduledConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+        ScheduledConnectionTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
         /**
          * Creates the actual ScheduledConnectionTask with the objects set in this builder.
          *
@@ -524,6 +526,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         InboundConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+        InboundConnectionTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
+
         /**
          * Creates the actual InboundConnectionTask with the objects set in this builder.
          *
@@ -541,6 +545,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
         ConnectionInitiationTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status);
 
+        ConnectionInitiationTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
 
         /**
          * Creates the actual ConnectionInitiationTask with the objects set in this builder.
