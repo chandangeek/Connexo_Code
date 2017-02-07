@@ -85,7 +85,7 @@ Ext.define('Dal.controller.history.Workspace', {
             title: Uni.I18n.translate('device.alarms.overview', 'DAL', 'Alarms overview'),
             route: 'workspace/alarmsoverview',
             controller: 'Dal.controller.Overview',
-            action: 'showIssuesOverview',
+            action: 'showAlarmOverview',
             privileges: Dal.privileges.Alarm.viewAdminAlarm
         }
 
