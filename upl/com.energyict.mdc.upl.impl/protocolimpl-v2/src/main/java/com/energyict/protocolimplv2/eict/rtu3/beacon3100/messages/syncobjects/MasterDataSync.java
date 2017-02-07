@@ -105,17 +105,42 @@ public class MasterDataSync {
     private MasterDataAnalyser analyseWhatToSync(AllMasterData allMasterData) throws IOException {
         MasterDataAnalyser masterDataAnalyser = new MasterDataAnalyser();
 
-        masterDataAnalyser.analyseClientTypes( getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager().readClients(),
+        masterDataAnalyser.analyseClientTypes( getClientTypeManager().readClients(),
                 allMasterData.getClientTypes(),
                 getIsFirmwareVersion140OrAbove());
 
-        masterDataAnalyser.analyseDeviceTypes(getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().readDeviceTypes(),
+        masterDataAnalyser.analyseDeviceTypes(getDeviceTypeManager().readDeviceTypes(),
                 allMasterData.getDeviceTypes());
 
-        masterDataAnalyser.analyseSchedules(getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager().readSchedules(),
+        masterDataAnalyser.analyseSchedules(getScheduleManager().readSchedules(),
                 allMasterData.getSchedules());
 
         return masterDataAnalyser;
+    }
+
+    private DeviceTypeManager getDeviceTypeManager() throws NotInObjectListException {
+        if(beacon3100Messaging.readOldObisCodes()) {
+            return getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
+        }else{
+            return getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager(Beacon3100Messaging.DEVICE_TYPE_MANAGER_NEW_OBISCODE);
+        }
+    }
+
+    private ClientTypeManager getClientTypeManager() throws NotInObjectListException {
+        if(beacon3100Messaging.readOldObisCodes()) {
+            return getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
+        }else{
+            return getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager(Beacon3100Messaging.CLIENT_MANAGER_NEW_OBISCODE);
+        }
+    }
+
+    private ScheduleManager getScheduleManager() throws NotInObjectListException {
+        if(beacon3100Messaging.readOldObisCodes()) {
+            return getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
+        }else{
+            return getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager(Beacon3100Messaging.SCHEDULE_MANAGER_NEW_OBISCODE);
+        }
+
     }
 
 
@@ -158,7 +183,7 @@ public class MasterDataSync {
 
             for (Long beacon3100DeviceTypeId : beacon3100DeviceTypeIds) {
                 if (shouldBeRemoved(eiServerDeviceTypeIds, beacon3100DeviceTypeId)) {
-                    getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().removeDeviceType(beacon3100DeviceTypeId);
+                    getDeviceTypeManager().removeDeviceType(beacon3100DeviceTypeId);
                 }
             }
         }
@@ -175,7 +200,7 @@ public class MasterDataSync {
      */
     private List<Long> readDeviceTypesIDs() throws IOException {
         List<Long> deviceTypesIDs = new ArrayList<>();
-        for (AbstractDataType deviceType : getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().readDeviceTypes()) {
+        for (AbstractDataType deviceType : getDeviceTypeManager().readDeviceTypes()) {
             if (deviceType.isStructure() && deviceType.getStructure().nrOfDataTypes() > 0) {
                 final long deviceTypeId = deviceType.getStructure().getDataType(0).longValue();     //First element of the structure is the deviceType ID
                 deviceTypesIDs.add(deviceTypeId);
@@ -207,13 +232,13 @@ public class MasterDataSync {
     private void syncDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
         boolean isFirmwareVersion140OrAbove = getIsFirmwareVersion140OrAbove();
         for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
-            getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().assignDeviceType(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
+            getDeviceTypeManager().assignDeviceType(beacon3100MeterDetails.toStructure(isFirmwareVersion140OrAbove));
         }
     }
 
 
     private void createSchedules(List<Beacon3100Schedule> schedulesToAdd) throws NotInObjectListException {
-        ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
+        ScheduleManager scheduleManager = getScheduleManager();
 
         info.append("*** CREATING Schedules ***\n");
         for (Beacon3100Schedule beacon3100Schedule : schedulesToAdd){
@@ -228,7 +253,7 @@ public class MasterDataSync {
     }
 
     private void updateSchedules(List<Beacon3100Schedule> schedulesToUpdate) throws IOException {
-        ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
+        ScheduleManager scheduleManager = getScheduleManager();
 
         info.append("*** UPDATING Schedules ***\n");
         for (Beacon3100Schedule beacon3100Schedule : schedulesToUpdate){
@@ -242,7 +267,7 @@ public class MasterDataSync {
     }
 
     private void deleteSchedules(List<Long> schedulesToDelete) throws IOException {
-        ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
+        ScheduleManager scheduleManager = getScheduleManager();
 
         info.append("*** DELETING Schedules ***\n");
         for (Long beacon3100ScheduleId : schedulesToDelete){
@@ -257,7 +282,7 @@ public class MasterDataSync {
 
 
     private void createClientTypes(List<Beacon3100ClientType> clientTypesToAdd) throws NotInObjectListException {
-        ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
+        ClientTypeManager clientTypeManager = getClientTypeManager();
 
         info.append("*** CREATING ClientTypes ***\n");
         for (Beacon3100ClientType beacon3100ClientType : clientTypesToAdd){
@@ -272,7 +297,7 @@ public class MasterDataSync {
 
 
     private void updateClientTypes(List<Beacon3100ClientType> clientTypesToUpdate) throws NotInObjectListException {
-        ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
+        ClientTypeManager clientTypeManager = getClientTypeManager();
 
         info.append("*** UPDATING ClientTypes ***\n");
         for (Beacon3100ClientType beacon3100ClientType : clientTypesToUpdate){
@@ -287,7 +312,7 @@ public class MasterDataSync {
 
 
     private void deleteClientTypes(List<Long> clientTypesToDelete) throws NotInObjectListException {
-        ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
+        ClientTypeManager clientTypeManager = getClientTypeManager();
 
         info.append("*** DELETING ClientTypes ***\n");
         for (Long beacon3100ClientTypeId : clientTypesToDelete){
@@ -301,7 +326,7 @@ public class MasterDataSync {
     }
 
     private void createDeviceTypes(List<Beacon3100DeviceType> devicesTypesToAdd) throws NotInObjectListException {
-        DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
+        DeviceTypeManager deviceTypeManager = getDeviceTypeManager();
 
         info.append("*** CREATING DeviceTypes ***\n");
         for (Beacon3100DeviceType beacon3100DeviceType : devicesTypesToAdd){
@@ -315,7 +340,7 @@ public class MasterDataSync {
     }
 
     private void updateDeviceTypes(List<Beacon3100DeviceType> devicesTypesToUpdate) throws NotInObjectListException {
-        DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
+        DeviceTypeManager deviceTypeManager = getDeviceTypeManager();
 
         info.append("*** UPDATING DeviceTypes ***\n");
         for (Beacon3100DeviceType beacon3100DeviceType : devicesTypesToUpdate){
@@ -330,7 +355,7 @@ public class MasterDataSync {
 
 
     private void deleteDeviceTypes(List<Long> devicesTypesToDelete) throws NotInObjectListException {
-        DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
+        DeviceTypeManager deviceTypeManager = getDeviceTypeManager();
 
         info.append("*** DELETING DeviceTypes ***\n");
         for (Long beacon3100DeviceTypeId : devicesTypesToDelete){

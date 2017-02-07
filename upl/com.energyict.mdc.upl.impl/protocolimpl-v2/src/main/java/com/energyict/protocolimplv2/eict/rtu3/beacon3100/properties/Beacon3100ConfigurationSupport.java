@@ -34,6 +34,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String FRAME_COUNTER_RECOVERY_RETRIES = "FrameCounterRecoveryRetries";
     public static final String FRAME_COUNTER_RECOVERY_STEP = "FrameCounterRecoveryStep";
     public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
+    public static final String READ_OLD_OBIS_CODES = "ReadOldObisCodes";
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
@@ -57,6 +58,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(frameCounterRecoveryRetries());
         optionalProperties.add(frameCounterRecoveryStep());
         optionalProperties.add(initialFrameCounter());
+        optionalProperties.add(readOldObisCodes());
 
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
@@ -65,6 +67,10 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.remove(deviceId());
 
         return optionalProperties;
+    }
+
+    private PropertySpec readOldObisCodes() {
+        return PropertySpecFactory.booleanPropertySpec(READ_OLD_OBIS_CODES);
     }
 
     private PropertySpec frameCounterRecoveryRetries() {

@@ -9,6 +9,7 @@ import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -33,6 +34,7 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -473,7 +475,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         final Array nodeList;
         try {
             sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
-            nodeList = this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().getNodeList();
+            nodeList = getG3NetworkManagement().getNodeList();
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
@@ -540,6 +542,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
             }
         }
         return deviceTopology;
+    }
+
+    private G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
+        if(getDlmsSessionProperties().getReadOldObisCodes()) {
+            return this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement();
+        }else{
+            return this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement(Beacon3100Messaging.G3_NETWORK_MANAGEMENT_NEW_OBISCODE);
+        }
     }
 
     /**
