@@ -75,6 +75,7 @@ import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +109,6 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         validateMandatory(params, "start", "limit");
         DeviceAlarmFilter alarmFilter = buildFilterFromQueryParameters(filter);
         Finder<? extends DeviceAlarm> finder = getDeviceAlarmService().findAlarms(alarmFilter);
-        addSorting(finder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
@@ -116,6 +116,7 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         List<DeviceAlarmInfo> deviceAlarmInfos = deviceAlarms.stream()
                 .map(deviceAlarmInfoFactory::asInfo)
                 .collect(Collectors.toList());
+        deviceAlarmInfos = deviceAlarmInfos.stream().sorted(getPriorityComparator(params)).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", deviceAlarmInfos, queryParams);
     }
 
@@ -492,12 +493,22 @@ public class DeviceAlarmResource extends BaseAlarmResource{
         }
     }
 
-    private Finder<? extends DeviceAlarm> addSorting(Finder<? extends DeviceAlarm> finder, StandardParametersBean parameters) {
-        Order[] orders = parameters.getOrder("");
-        for (Order order : orders) {
-            finder.sorted("baseIssue." + order.getName(), order.ascending());
+    private Comparator<DeviceAlarmInfo> getPriorityComparator(StandardParametersBean params){
+        Order[] orders = params.getOrder("");
+        if(Arrays.asList(orders).stream().anyMatch(order -> order.getName().equals("priority"))){
+            Optional<Order> priorityOrder = Arrays.asList(orders)
+                    .stream()
+                    .filter(order -> order.getName().equals("priority"))
+                    .findFirst();
+            if(priorityOrder.isPresent()){
+                if(priorityOrder.get().ascending()){
+                    return (a1, a2) -> Integer.compare(a1.priority.impact + a1.priority.urgency, a2.priority.impact + a2.priority.urgency);
+                } else {
+                    return (a1, a2) -> Integer.compare(a2.priority.impact + a2.priority.urgency, a1.priority.impact + a1.priority.urgency);
+                }
+            }
         }
-        return finder;
+        return (a1, a2) -> Long.compare(a2.id, a1.id);
     }
 
     private DeviceAlarmFilter buildFilterFromQueryParameters(JsonQueryFilter jsonFilter) {
