@@ -6,6 +6,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyAccessorType;
@@ -22,7 +23,7 @@ import static com.elster.jupiter.util.Checks.is;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-19 (14:19)
  */
-public class DlmsSecurityCryptogaphicProperties extends CommonBaseDeviceSecurityProperties {
+public class DlmsSecurityPkiProperties extends CommonBaseDeviceSecurityProperties {
 
     public enum ActualFields {
         PASSWORD {
@@ -35,6 +36,15 @@ public class DlmsSecurityCryptogaphicProperties extends CommonBaseDeviceSecurity
             public String databaseName() {
                 return "PASSWORD";
             }
+
+            public void addTo(Table table) {
+                table
+                        .column(this.databaseName())
+                        .varChar()
+                        .map(this.javaName())
+                        .add();
+            }
+
         },
         CLIENT_MAC_ADDRESS {
             @Override
@@ -84,9 +94,12 @@ public class DlmsSecurityCryptogaphicProperties extends CommonBaseDeviceSecurity
         public abstract String databaseName();
 
         public void addTo(Table table) {
-            table
-                    .column(this.databaseName())
-                    .varChar()
+            Column keyAccessorType = table.column(this.databaseName())
+                    .number()
+                    .add();
+            table.foreignKey("FK_PKI_CPS_"+this.databaseName())
+                    .on(keyAccessorType)
+                    .references(KeyAccessorType.class)
                     .map(this.javaName())
                     .add();
         }
@@ -104,8 +117,8 @@ public class DlmsSecurityCryptogaphicProperties extends CommonBaseDeviceSecurity
         this.password = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.PASSWORD.javaName());
         this.clientMacAddress = (BigDecimal) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.CLIENT_MAC_ADDRESS
                 .javaName());
-        this.authenticationKey.set((KeyAccessorType) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.AUTHENTICATION_KEY.javaName()));
-        this.encryptionKey.set((KeyAccessorType) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.ENCRYPTION_KEY.javaName()));
+        this.authenticationKey.set((KeyAccessorType) propertyValues.getProperty(DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.javaName()));
+        this.encryptionKey.set((KeyAccessorType) propertyValues.getProperty(DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.javaName()));
     }
 
     @Override
@@ -114,8 +127,8 @@ public class DlmsSecurityCryptogaphicProperties extends CommonBaseDeviceSecurity
             setTypedPropertyValueTo(propertySetValues, DeviceSecurityProperty.PASSWORD.javaName(), this.password);
         }
         this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.CLIENT_MAC_ADDRESS.javaName(), this.clientMacAddress);
-        this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.AUTHENTICATION_KEY.javaName(), this.authenticationKey);
-        this.setPropertyIfNotNull(propertySetValues, DeviceSecurityProperty.ENCRYPTION_KEY.javaName(), this.encryptionKey);
+        this.setReferencePropertyIfNotNull(propertySetValues, DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.javaName(), this.authenticationKey);
+        this.setReferencePropertyIfNotNull(propertySetValues, DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.javaName(), this.encryptionKey);
     }
 
     @Override

@@ -4,6 +4,8 @@
 
 package com.energyict.protocolimplv2.sdksample;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
@@ -14,13 +16,19 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
@@ -31,12 +39,16 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
+import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupportCryptography;
 
 import javax.inject.Inject;
@@ -47,6 +59,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,10 +68,15 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.Checks.is;
 import static java.util.stream.Collectors.toList;
 
-public class SDKDeviceProtocolWithCryptoProperties extends SDKDeviceProtocol {
+public class SDKDeviceProtocolWithCryptoProperties implements DeviceProtocol {
 
-    private Logger logger = Logger.getLogger(SDKDeviceProtocol.class.getSimpleName());
-
+    private final Thesaurus thesaurus;
+    private final String delayAfterRequest = "DelayAfterRequest";
+    private final ProtocolPluggableService protocolPluggableService;
+    private final PropertySpecService propertySpecService;
+    private final IdentificationService identificationService;
+    private final CollectedDataFactory collectedDataFactory;
+    private Logger logger = Logger.getLogger(SDKDeviceProtocolWithCryptoProperties.class.getSimpleName());
     /**
      * The {@link OfflineDevice} that holds all <i>necessary</i> information to perform the relevant ComTasks for this <i>session</i>
      */
@@ -70,6 +88,11 @@ public class SDKDeviceProtocolWithCryptoProperties extends SDKDeviceProtocol {
      */
     private ComChannel comChannel;
     /**
+     * Will group this protocols' security features.
+     * As an example the {@link DlmsSecuritySupport} component is used
+     */
+    private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
+    /**
      * Will hold the cache object of the Device related to this protocol
      */
     private DeviceProtocolCache deviceProtocolCache;
@@ -77,20 +100,22 @@ public class SDKDeviceProtocolWithCryptoProperties extends SDKDeviceProtocol {
      * Keeps track of all the protocol properties <b>AND</b> the current deviceProtocolDialectProperties
      */
     private TypedProperties typedProperties = TypedProperties.empty();
-    private final ProtocolPluggableService protocolPluggableService;
-    private final PropertySpecService propertySpecService;
-    private final IdentificationService identificationService;
-    private final CollectedDataFactory collectedDataFactory;
+    /**
+     * The securityPropertySet that will be used for this session
+     */
+    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
     @Inject
     public SDKDeviceProtocolWithCryptoProperties(Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService,
                                                  IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
                                                  DlmsSecuritySupportCryptography dlmsSecuritySupport) {
-        super(protocolPluggableService, thesaurus, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
+        super();
         this.protocolPluggableService = protocolPluggableService;
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
+        this.deviceProtocolSecurityCapabilities = dlmsSecuritySupport;
     }
 
     @Override
@@ -350,4 +375,78 @@ public class SDKDeviceProtocolWithCryptoProperties extends SDKDeviceProtocol {
         return connectionTypes;
     }
 
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    @Override
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.deviceProtocolSecurityCapabilities.getCustomPropertySet();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return this.deviceProtocolSecurityCapabilities.getAuthenticationAccessLevels();
+    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        return this.deviceProtocolSecurityCapabilities.getEncryptionAccessLevels();
+    }
+
+    @Override
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
+        return this.deviceProtocolSecurityCapabilities.getSecurityPropertySpec(name);
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions() {
+        CollectedFirmwareVersion firmwareVersionsCollectedData = this.collectedDataFactory.createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
+        firmwareVersionsCollectedData.setActiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.ACTIVE_METER_FIRMWARE_VERSION.propertySpecName(), ""));
+        firmwareVersionsCollectedData.setPassiveMeterFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.PASSIVE_METER_FIRMWARE_VERSION.propertySpecName(), ""));
+        firmwareVersionsCollectedData.setActiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.ACTIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName(), ""));
+        firmwareVersionsCollectedData.setPassiveCommunicationFirmwareVersion((String) this.typedProperties.getProperty(SDKFirmwareDialectProperties.ActualFields.PASSIVE_COMMUNICATION_FIRMWARE_VERSION.propertySpecName(), ""));
+        simulateRealCommunicationIfApplicable();
+        return firmwareVersionsCollectedData;
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        CollectedCalendar collectedCalendar = this.collectedDataFactory.createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
+        collectedCalendar.setActiveCalendar((String) this.typedProperties.getProperty(SDKCalendarDialectProperties.ActualFields.ACTIVE_CALENDAR_NAME.propertySpecName(), ""));
+        collectedCalendar.setPassiveCalendar((String) this.typedProperties.getProperty(SDKCalendarDialectProperties.ActualFields.PASSIVE_CALENDAR_NAME.propertySpecName(), ""));
+        this.simulateRealCommunicationIfApplicable();
+        return collectedCalendar;
+    }
+
+    private void simulateRealCommunicationIfApplicable(){
+        TimeDuration delayAfterRequest = getDelayAfterRequest();
+        if (!delayAfterRequest.isEmpty()) {
+            try {
+                logger.info("Simulating real communication, waiting for " + delayAfterRequest + " ...");
+                Thread.sleep(delayAfterRequest.getMilliSeconds());
+            } catch (InterruptedException e) {
+                logger.severe("Something really horrible occurred during the simulation of real communication ...");
+                logger.severe(e.getMessage());
+            }
+        }
+    }
+
+    private TimeDuration getDelayAfterRequest(){
+        return (TimeDuration) this.typedProperties.getProperty(delayAfterRequest, TimeDuration.NONE);
+    }
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        CollectedBreakerStatus breakerStatusCollectedData = collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
+        String breakerStatus = (String) this.typedProperties.getProperty(SDKBreakerDialectProperties.ActualFields.BREAKER_STATUS.propertySpecName(), "CONNECTED");
+        breakerStatusCollectedData.setBreakerStatus(BreakerStatus.valueOf(breakerStatus.toUpperCase()));
+        simulateRealCommunicationIfApplicable();
+        return breakerStatusCollectedData;
+    }
 }

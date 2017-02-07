@@ -92,7 +92,7 @@ public class DlmsSecuritySupportCryptography implements DeviceProtocolSecurityCa
 
     @Override
     public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(new DlmsSecurityCustomPropertySet(this.thesaurus, this.propertySpecService));
+        return Optional.of(new DlmsSecurityPkiCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override

@@ -20,12 +20,12 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-19 (14:23)
  */
-public class DlmsSecurityCryptographicCustomPropertySet extends SecurityCustomPropertySet<DlmsSecurityCryptogaphicProperties> {
+public class DlmsSecurityPkiCustomPropertySet extends SecurityCustomPropertySet<DlmsSecurityPkiProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
-    public DlmsSecurityCryptographicCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public DlmsSecurityPkiCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -37,18 +37,13 @@ public class DlmsSecurityCryptographicCustomPropertySet extends SecurityCustomPr
     }
 
     @Override
-    public DlmsSecurityCryptographyPersistenceSupport getPersistenceSupport() {
-        return new DlmsSecurityCryptographyPersistenceSupport();
-    }
-
-    @Override
-    public String getId() {
-        return CustomPropertySetTranslationKeys.DLMS_SECURITY_CUSTOM_PROPERTY_SET_NAME.getKey();
+    public DlmsSecurityPkiPersistenceSupport getPersistenceSupport() {
+        return new DlmsSecurityPkiPersistenceSupport();
     }
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.DLMS_SECURITY_CUSTOM_PROPERTY_SET_NAME).format();
+        return "DLMS PKI Security";
     }
 
     @Override
