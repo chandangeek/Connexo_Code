@@ -49,8 +49,7 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.DataSelectors',
         'Dxp.store.UpdateWindows',
         'Dxp.store.UpdateTimeframes',
-        'Dxp.store.SelectedReadingTypes',
-        'Uni.util.LogLevel'
+        'Dxp.store.SelectedReadingTypes'
     ],
 
     models: [
@@ -150,8 +149,6 @@ Ext.define('Dxp.controller.Tasks', {
     comboBoxValueForAll: -1,
 
     init: function () {
-        //debugger;
-        //Uni.util.LogLevel.loadLogLevels();
         this.control({
             'data-export-tasks-add': {
                 render: this.populateStores

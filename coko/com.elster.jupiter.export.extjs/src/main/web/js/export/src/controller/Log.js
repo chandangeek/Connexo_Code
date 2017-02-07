@@ -17,10 +17,10 @@ Ext.define('Dxp.controller.Log', {
         'Uni.util.LogLevel'
     ],
 
-    //init: function () {
-        //Uni.util.LogLevel.loadLogLevels();
-        //this.callParent(arguments);
-    //},
+    init: function () {
+        Uni.util.LogLevel.loadLogLevels();
+        this.callParent(arguments);
+    },
 
     showLog: function (taskId, occurrenceId) {
         var me = this,
