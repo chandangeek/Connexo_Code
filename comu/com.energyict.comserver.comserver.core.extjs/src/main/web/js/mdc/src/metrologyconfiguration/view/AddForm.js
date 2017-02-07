@@ -56,8 +56,7 @@ Ext.define('Mdc.metrologyconfiguration.view.AddForm', {
                 name: 'readingTypes',
                 itemId: 'mc-readingTypes-reading-types-field',
                 fieldLabel: Uni.I18n.translate('general.readingTypes', 'MDC', 'Reading types'),
-                required: true,
-                isEquidistant: true
+                required: true
             },
             {
                 xtype: 'fieldcontainer',
