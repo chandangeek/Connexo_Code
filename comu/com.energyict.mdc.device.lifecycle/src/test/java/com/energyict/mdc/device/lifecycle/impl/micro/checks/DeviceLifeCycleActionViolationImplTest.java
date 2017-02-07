@@ -1,14 +1,17 @@
-package com.energyict.mdc.device.lifecycle.impl.micro.checks;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
+package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

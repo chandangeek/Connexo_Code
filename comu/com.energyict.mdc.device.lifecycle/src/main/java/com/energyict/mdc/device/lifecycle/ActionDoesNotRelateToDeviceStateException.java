@@ -1,12 +1,15 @@
-package com.energyict.mdc.device.lifecycle;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+package com.energyict.mdc.device.lifecycle;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made to execute

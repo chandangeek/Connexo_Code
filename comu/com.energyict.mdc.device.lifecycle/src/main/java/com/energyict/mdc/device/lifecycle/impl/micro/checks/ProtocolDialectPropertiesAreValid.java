@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,7 +13,6 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import java.time.Instant;
 import java.util.Optional;

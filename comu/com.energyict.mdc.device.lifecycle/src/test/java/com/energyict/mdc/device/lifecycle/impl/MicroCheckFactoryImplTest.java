@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -8,6 +12,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -8,19 +13,16 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-
-import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
