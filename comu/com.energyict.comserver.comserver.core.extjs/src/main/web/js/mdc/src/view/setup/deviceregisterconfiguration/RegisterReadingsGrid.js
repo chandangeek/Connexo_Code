@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                             icon = '';
                         if (record.get('isConfirmed')) {
                             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
-                                + Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed') + '"></span>'
+                                + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>'
                         } else if (status === 'suspect') {
                             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;" data-qtip="'
                                 + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';

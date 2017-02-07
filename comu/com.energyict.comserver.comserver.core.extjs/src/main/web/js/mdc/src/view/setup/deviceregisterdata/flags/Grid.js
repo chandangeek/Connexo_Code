@@ -30,6 +30,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Grid', {
                 emptyText: ' '
             },
             {
+                header: Uni.I18n.translate('device.registerData.lastUpdate', 'MDC', 'Last update'),
+                dataIndex: 'reportedDateTime',
+                flex: 1,
+                renderer: function(value){
+                    var date = new Date(value);
+                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.Device.administrateDeviceData,
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
