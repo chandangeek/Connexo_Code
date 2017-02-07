@@ -138,7 +138,7 @@ public final class IssueGroupFilterImpl implements IssueGroupFilter {
      */
     @Override
     public IssueGroupFilterImpl withStatuses(Collection<String> statuses) {
-        if (statuses != null) {
+        if (statuses != null && !statuses.isEmpty()) {
             this.statuses = statuses.stream().map(this::getSafeString).collect(Collectors.toSet());
         }
         return this;
