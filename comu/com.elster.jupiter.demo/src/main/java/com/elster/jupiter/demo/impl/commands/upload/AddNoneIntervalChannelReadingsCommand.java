@@ -35,4 +35,14 @@ public class AddNoneIntervalChannelReadingsCommand extends AddChannelReadingsCom
     protected Instant getTimeForReading(ReadingType readingType, Instant startDate, String controlValue) {
         return this.timeProvider.getTimeForReading(readingType, startDate, controlValue);
     }
+
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, String value) {
+        //todo
+    }
+
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, Double value, String from, String to) {
+        //todo
+    }
 }

@@ -31,6 +31,7 @@ public abstract class ReadDataFromFileCommand {
     private Meter meter;
 
     private List<ReadingType> readingTypes;
+    private boolean hasPeriod = false;
 
     public ReadDataFromFileCommand(MeteringService meteringService) {
         this.meteringService = meteringService;
@@ -106,8 +107,13 @@ public abstract class ReadDataFromFileCommand {
         if (columns.length < 2) {
             throw new UnableToCreate("You source for import has incorrect header format");
         }
-        this.readingTypes = new ArrayList<>(columns.length - 1);
-        for (int i = 1; i < columns.length; i++){
+        int i = 1;
+        if ("from".equals(columns[1]) && "to".equals(columns[2])){
+            this.hasPeriod = true;
+            i = 3;
+        }
+        this.readingTypes = new ArrayList<>(columns.length - i);
+        for (;i < columns.length; i++){
             Optional<ReadingType> readingTypeRef = meteringService.getReadingType(columns[i]);
             if (readingTypeRef.isPresent()){
                 readingTypes.add(readingTypeRef.get());
@@ -134,13 +140,47 @@ public abstract class ReadDataFromFileCommand {
 
     protected void parseRecord(String record){
         String[] columns = record.split(";");
-        String controlValue = columns[0];
+        if(!hasPeriod){
+            String controlValue = columns[0];
+            addNumericalOrText(columns, controlValue);
+        } else {
+            String controlValue = columns[0];
+            String from = columns[1];
+            String to = columns[2];
+            addBilling(columns,controlValue,from,to);
+        }
+
+    }
+
+    private void addBilling(String[] columns, String controlValue, String from, String to) {
         try {
             for (int i = 1; i < columns.length && i <= this.readingTypes.size() ; i++) {
                 String stringValue = columns[i].replace(",", ".").replace(" ", "");
                 if (!is(stringValue).emptyOrOnlyWhiteSpace()) {
-                    double doubleValue = Double.valueOf(stringValue);
-                    saveRecord(this.readingTypes.get(i-1), controlValue, doubleValue);
+                    try {
+                        double doubleValue = Double.valueOf(stringValue);
+                        saveRecord(this.readingTypes.get(i-1), controlValue, doubleValue);
+                    } catch (NumberFormatException e){
+                        saveRecord(this.readingTypes.get(i-1), controlValue, stringValue);
+                    }
+                }
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addNumericalOrText(String[] columns, String controlValue) {
+        try {
+            for (int i = 1; i < columns.length && i <= this.readingTypes.size() ; i++) {
+                String stringValue = columns[i].replace(",", ".").replace(" ", "");
+                if (!is(stringValue).emptyOrOnlyWhiteSpace()) {
+                    try {
+                        double doubleValue = Double.valueOf(stringValue);
+                        saveRecord(this.readingTypes.get(i-1), controlValue, doubleValue);
+                    } catch (NumberFormatException e){
+                        saveRecord(this.readingTypes.get(i-1), controlValue, stringValue);
+                    }
                 }
             }
         } catch (NumberFormatException e) {
@@ -149,6 +189,10 @@ public abstract class ReadDataFromFileCommand {
     }
 
     protected abstract void saveRecord(ReadingType readingType, String controlValue, Double value);
+
+    protected abstract void saveRecord(ReadingType readingType, String controlValue, String value);
+
+    protected abstract void saveRecord(ReadingType readingType, String controlValue, Double value, String from, String to);
 
     protected void afterParse(){
         // do nothing by default

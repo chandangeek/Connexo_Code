@@ -11,6 +11,8 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,8 +50,27 @@ public class AddRegisterReadingsCommand extends ReadDataFromFileCommand {
     protected void saveRecord(ReadingType readingType, String controlValue, Double value) {
         Instant timeForReading = this.timeProvider.getTimeForReading(readingType, getStart(), controlValue);
         meterReading.addReading(ReadingImpl.of(readingType.getMRID(), BigDecimal.valueOf(value), timeForReading));
-
         //System.out.println("\t" + timeForReading + " - (" + readingType.getMRID() + ") -\tvalue = " + value);
+    }
+
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, String value) {
+        Instant timeForReading = this.timeProvider.getTimeForReading(readingType, getStart(), controlValue);
+        meterReading.addReading(ReadingImpl.of(readingType.getMRID(), value, timeForReading));
+    }
+
+    @Override
+    protected void saveRecord(ReadingType readingType, String controlValue, Double value, String from, String to) {
+        Instant timeForReading = this.timeProvider.getTimeForReading(readingType, getStart(), controlValue);
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        Instant fromInstant = null;
+        try {
+            fromInstant = format.parse(from).toInstant();
+            Instant toInstant = format.parse(from).toInstant();
+            meterReading.addReading(ReadingImpl.of(readingType.getMRID(), BigDecimal.valueOf(value), timeForReading, fromInstant, toInstant));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
