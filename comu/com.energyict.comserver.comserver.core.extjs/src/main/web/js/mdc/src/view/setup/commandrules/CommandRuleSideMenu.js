@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.commandrules.CommandRuleSideMenu', {
         var me = this;
         me.menuItems = [
             {
+                //TODO: change title
                 text: Ext.isEmpty(me.commandRuleName) ? Uni.I18n.translate('general.overview', 'MDC', 'Overview') : me.commandRuleName,
                 itemId: 'mdc-command-rule-sidemenu-overviewLink',
                 href: me.router.getRoute('administration/commandrules/view').buildUrl()

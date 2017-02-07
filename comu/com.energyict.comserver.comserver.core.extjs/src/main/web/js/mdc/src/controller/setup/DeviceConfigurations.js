@@ -282,6 +282,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             success: function (deviceConfiguration) {
                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                 widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfiguration.get('name'));
+                widget.down('#device-configuration-detail-panel').setTitle(Ext.String.htmlEncode(deviceConfiguration.get('name')));
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(devicetype, {
                     success: function (deviceType) {
                         var deviceConfigurationId = deviceConfiguration.get('id'),

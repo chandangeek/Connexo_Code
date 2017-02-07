@@ -28,6 +28,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                 items: [
                     {
                         ui: 'large',
+                        itemId: 'device-type-detail-panel',
                         title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                         flex: 1
                     },

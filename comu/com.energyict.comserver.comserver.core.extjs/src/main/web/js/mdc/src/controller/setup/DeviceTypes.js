@@ -182,6 +182,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     if (widget.rendered) {
 
                         widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                        widget.down('#device-type-detail-panel').setTitle(Ext.String.htmlEncode(deviceType.get('name')));
                         widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(
                         Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', deviceType.get('deviceConflictsCount'))
                     );

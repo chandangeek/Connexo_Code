@@ -120,7 +120,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications">'
             + connectionHistory.get('status') + '</a>');
 
-        me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('comPort'), '<a href="#/administration/comservers/' + connectionHistory.get('comServer').id + '/overview">' + connectionHistory.get('comServer').name + '</a>'));
+        me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('comPort'), '<a href="#/administration/comservers/' + connectionHistory.get('comServer').id + '">' + connectionHistory.get('comServer').name + '</a>'));
         me.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('connectionMethod').name, me.device.get('name')));
         me.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.comtasksTitle', 'MDC', 'Communications of {0} connection on {1}'), connectionHistory.get('connectionMethod').name, this.device.get('name')));
 

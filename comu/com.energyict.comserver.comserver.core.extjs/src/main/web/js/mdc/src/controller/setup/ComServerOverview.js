@@ -83,6 +83,7 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
                         form.loadRecord(record);
                         form.up('container').down('container').down('button').menu.record = record;
                         widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
+                        widget.down('#comserver-overview-panel').setTitle(Ext.String.htmlEncode(record.get('name')));
                         me.getApplication().fireEvent('comServerOverviewLoad', record);
                     },
                     callback: function () {

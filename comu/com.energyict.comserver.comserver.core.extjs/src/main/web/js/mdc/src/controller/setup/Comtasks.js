@@ -278,6 +278,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 me.getApplication().fireEvent('loadCommunicationTask', communicationTask);
                 widget.down('#mdc-comtask-overview-sidemenu #mdc-comtask-sidemenu-overviewLink').setText(taskName);
                 widget.down('#mdc-comtask-overview-form').loadRecord(communicationTask);
+                widget.down('#mdc-comtask-overview-panel').setTitle(Ext.String.htmlEncode(communicationTask.get('name')));
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.goToTaskOverview = true;
                 me.comTaskBeingEdited = communicationTask;

@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.comserver.SideMenu', {
         me.menuItems = [
             {
                 itemId: 'comserverLink',
-                href: '#/administration/comservers/' + serverId + '/overview'
+                href: '#/administration/comservers/' + serverId
             },
             {
                 text: Uni.I18n.translate('comserver.sidemenu.comports', 'MDC', 'Communication ports'),

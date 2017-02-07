@@ -20,6 +20,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerOverview', {
             items: [
                 {
                     ui: 'large',
+                    itemId: 'comserver-overview-panel',
                     title: Uni.I18n.translate('general.overview','MDC','Overview'),
                     flex: 1
                 },
