@@ -19,7 +19,8 @@ public class GroupByWorkGroupAssigneeImpl extends IssuesGroupOperation {
         builder.append("SELECT " + GROUP_KEY + ", " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.*");
         builder.append(" FROM (SELECT NVL(isu.ASSIGNEE_WORKGROUP_ID, -1) as " + GROUP_KEY + ", NVL(workgroup.NAME, \'" + DatabaseConst.UNASSIGNED + "\') as " + GROUP_TITLE + ", count(NVL(isu.ASSIGNEE_WORKGROUP_ID, -1)) as " + GROUP_COUNT);
         builder.append(" FROM " + getTableName() + " isu ");
-        builder.append(" LEFT JOIN DAL_ALARM_OPEN dal ON isu.ID = dal.ID ");
+        builder.append(" LEFT JOIN DAL_ALARM_OPEN dal ON isu." + getIssueIdColumnName(getTableName()) + " = dal.ID ");
+        builder.append(" LEFT JOIN DAL_ALARM_HISTORY dalH ON isu." + getIssueIdColumnName(getTableName()) + " = dalH.ID ");
         builder.append(" LEFT JOIN MTR_ENDDEVICE device ON isu.DEVICE_ID = device.ID JOIN " + TableSpecs.ISU_REASON.name());
         builder.append(" reason ON isu.REASON_ID = reason.\"KEY\" JOIN " + TableSpecs.ISU_STATUS.name() + " status ON isu.STATUS = status.\"KEY\"");
         builder.append(" LEFT JOIN USR_WORKGROUP workgroup ON isu.ASSIGNEE_WORKGROUP_ID=workgroup.ID WHERE 1=1 ");
