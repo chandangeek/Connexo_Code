@@ -29,7 +29,7 @@ Ext.define('Imt.usagepointlifecycle.view.Overview', {
                     },
                     {
                         xtype: 'uni-button-action',
-                        privileges: Imt.privileges.UsagePointLifeCycle.configure,                        
+                        privileges: Imt.privileges.UsagePointLifeCycle.configure,
                         itemId: 'usagepoint-life-cycles-action-menu-btn',
                         margin: '20 0 0 0',
                         menu: {

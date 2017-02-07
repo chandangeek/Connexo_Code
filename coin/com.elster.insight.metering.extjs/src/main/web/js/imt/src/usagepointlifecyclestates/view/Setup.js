@@ -50,7 +50,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Setup', {
                                 xtype: 'button',
                                 itemId: 'add-state-button',
                                 text: Uni.I18n.translate('usagePointLifeCycleStates.add', 'IMT', 'Add state'),
-                                action: 'addState'                                
+                                action: 'addState'
                             }
                         ]
                     },

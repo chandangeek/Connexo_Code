@@ -34,7 +34,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Grid', {
                 }
             },
             {
-                xtype: 'uni-actioncolumn',                
+                xtype: 'uni-actioncolumn',
                 privileges: Imt.privileges.UsagePointLifeCycle.configure,
                 menu: {
                     xtype: 'usagepoint-life-cycle-states-action-menu',
@@ -56,7 +56,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Grid', {
                         xtype: 'button',
                         itemId: 'add-state-button',
                         text: Uni.I18n.translate('usagePointLifeCycleStates.add', 'IMT', 'Add state'),
-                        action: 'addState',                        
+                        action: 'addState',
                         privileges: Imt.privileges.UsagePointLifeCycle.configure
                     }
                 ]

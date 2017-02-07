@@ -61,7 +61,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                         {
                             xtype: 'displayfield-with-info-icon',
                             itemId: 'usagepoint-life-cycle-stage-info-icon',
-                            infoTooltip: Uni.I18n.translate('general.addUsagePointLifeCycleState.stage.tooltip', 'IMT', 'Stage in a usage point life cycle impacts the available actions on the usage point that is in the current state.'),
+                            infoTooltip: Uni.I18n.translate('general.addUsagePointLifeCycleState.stage.qtip1', 'IMT', 'The stage of the usage point life cycle influences the available actions for the usage point in that state.'),
                             onlyIcon: true
                         }
                     ]
@@ -225,7 +225,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                     var createBtn = this.down('#createEditButton');
                     this.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", record.get('name')));
                     createBtn.setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
-                    createBtn.action = 'save';                   
+                    createBtn.action = 'save';
                 }
                 this.getForm().loadRecord(record);
                 var processOnEntryStore = this.down('#processesOnEntryGrid').getStore();

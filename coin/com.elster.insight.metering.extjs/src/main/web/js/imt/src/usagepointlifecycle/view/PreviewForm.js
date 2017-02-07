@@ -17,7 +17,7 @@ Ext.define('Imt.usagepointlifecycle.view.PreviewForm', {
                 name: 'name'
             },
             {
-                itemId: 'cycle-default',                
+                itemId: 'cycle-default',
                 fieldLabel: Uni.I18n.translate('general.default', 'IMT', 'Default'),
                 name: 'isDefault',
                 renderer: function (value) {
@@ -39,11 +39,10 @@ Ext.define('Imt.usagepointlifecycle.view.PreviewForm', {
                     {
                         xtype: 'container',
                         itemId: 'states-container',
-                        items: [
-                        ]
+                        items: []
                     }
                 ]
-            }            
+            }
         ];
 
         me.callParent(arguments);
