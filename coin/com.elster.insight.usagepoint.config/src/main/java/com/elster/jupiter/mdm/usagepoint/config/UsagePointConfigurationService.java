@@ -55,8 +55,20 @@ public interface UsagePointConfigurationService {
 
     boolean isValidationRuleSetInUse(ValidationRuleSet ruleset);
 
+    /**
+     *
+     * @param metrologyContract
+     * @param validationRuleSet
+     * @return list of reading matched reading type deliverables of metrology contract and validation rule set
+     */
     List<ReadingTypeDeliverable> getMatchingDeliverablesOnValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet);
-
+    /**
+     *
+     * @param metrologyContract
+     * @param estimationRuleSet
+     * @return list of reading matched reading type deliverables of metrology contract and estimation rule set
+     */
+    List<ReadingTypeDeliverable> getMatchingDeliverablesOnEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet);
     /**
      * Gets the {@link EstimationRuleSet}s that are being used by the specified {@link MetrologyContract}.
      *
@@ -103,5 +115,5 @@ public interface UsagePointConfigurationService {
      * @return list of {@link MetrologyContract} linked to specified estimation rule set
      * @param estimationRuleSet Estimation rule set
      */
-    List<MetrologyContract> getMetrologyContractsLinkedToEstimationnRuleSet(EstimationRuleSet estimationRuleSet);
+    List<MetrologyContract> getMetrologyContractsLinkedToEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 }

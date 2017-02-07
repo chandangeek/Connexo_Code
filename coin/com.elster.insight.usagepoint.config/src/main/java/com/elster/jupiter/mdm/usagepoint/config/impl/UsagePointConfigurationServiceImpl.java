@@ -56,6 +56,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -299,30 +300,34 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<ReadingTypeDeliverable> getMatchingDeliverablesOnValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
-        if (!validationRuleSet.getRuleSetVersions().isEmpty()) {
-            ValidationRuleSetVersion activeRuleSetVersion = validationRuleSet.getRuleSetVersions()
+        Optional<? extends ValidationRuleSetVersion> activeRuleSetVersion = validationRuleSet.getRuleSetVersions()
+                .stream()
+                .filter(validationRuleSetVersion -> validationRuleSetVersion.getStatus() == ValidationVersionStatus.CURRENT)
+                .findFirst();
+        if (activeRuleSetVersion.isPresent() && !activeRuleSetVersion.get().getRules().isEmpty()) {
+            List<ReadingType> ruleSetReadingTypes = activeRuleSetVersion.get().getRules()
                     .stream()
-                    .filter(validationRuleSetVersion -> validationRuleSetVersion.getStatus() == ValidationVersionStatus.CURRENT)
-                    .findFirst()
-                    .get();
-            if (!activeRuleSetVersion.getRules().isEmpty()) {
-                List<ReadingType> ruleSetReadingTypes = activeRuleSetVersion
-                        .getRules()
-                        .stream()
-                        .flatMap(rule -> rule.getReadingTypes().stream())
-                        .collect(Collectors.toList());
-                if (!metrologyContract.getDeliverables().isEmpty()) {
-                    return metrologyContract.getDeliverables()
-                            .stream()
-                            .filter(deliverable -> ruleSetReadingTypes.contains(deliverable.getReadingType()))
-                            .collect(Collectors.toList());
-                }
-            }
+                    .flatMap(rule -> rule.getReadingTypes().stream())
+                    .collect(Collectors.toList());
+            return metrologyContract.getDeliverables()
+                    .stream()
+                    .filter(deliverable -> ruleSetReadingTypes.contains(deliverable.getReadingType()))
+                    .collect(Collectors.toList());
         }
 
         return Collections.emptyList();
     }
 
+    @Override
+    public List<ReadingTypeDeliverable> getMatchingDeliverablesOnEstimationRuleSet(MetrologyContract metrologyContract, EstimationRuleSet estimationRuleSet) {
+        Set<ReadingType> ruleSetReadingTypes = estimationRuleSet.getRules().stream()
+                .flatMap(rule -> rule.getReadingTypes().stream())
+                .collect(Collectors.toSet());
+        return metrologyContract.getDeliverables()
+                .stream()
+                .filter(deliverable -> ruleSetReadingTypes.contains(deliverable.getReadingType()))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
@@ -344,7 +349,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public List<MetrologyContract> getMetrologyContractsLinkedToEstimationnRuleSet(EstimationRuleSet estimationRuleSet) {
+    public List<MetrologyContract> getMetrologyContractsLinkedToEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         return this.dataModel
                 .query(MetrologyContractEstimationRuleSetUsage.class, MetrologyContract.class)
                 .select(where("estimationRuleSet").isEqualTo(estimationRuleSet))
