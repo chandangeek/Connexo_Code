@@ -427,7 +427,7 @@ public enum TableSpecs {
                     .number()
                     .conversion(NUMBER2INT)
                     .notNull()
-                    .as(urgencyColumn.getFieldName() + impactColumn.getFieldName())
+                    .as(urgencyColumn.getName() + " + " + impactColumn.getName())
                     .alias("priorityTotal")
                     .add()
                     .since(Version.version(10, 3));
