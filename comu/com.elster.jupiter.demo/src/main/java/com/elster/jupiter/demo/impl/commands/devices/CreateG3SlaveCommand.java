@@ -16,8 +16,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
@@ -75,7 +73,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+                        .setProperty("ClientMacAddress", BigDecimal.ONE);
             }
         },
         AS220 {
@@ -93,7 +91,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+                        .setProperty("ClientMacAddress", BigDecimal.ONE);
             }
         };
 
@@ -110,7 +108,7 @@ public class CreateG3SlaveCommand {
 
     @Inject
     public CreateG3SlaveCommand(Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
-        this.lifecyclePostBuilder = lifecyclePostBuilder;;
+        this.lifecyclePostBuilder = lifecyclePostBuilder;
     }
 
     public void setName(String name) {
@@ -193,8 +191,8 @@ public class CreateG3SlaveCommand {
 
         TypedProperties getSecuritySetProperties(){
             TypedProperties securitySetProperties = TypedProperties.empty();
-            securitySetProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), props.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey()));
-            securitySetProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password((String) props.getProperty("HLSsecretASCII")));
+            securitySetProperties.setProperty("ClientMacAddress", props.getProperty("ClientMacAddress"));
+            securitySetProperties.setProperty("Password", new Password((String) props.getProperty("HLSsecretASCII")));
             return securitySetProperties;
         }
 

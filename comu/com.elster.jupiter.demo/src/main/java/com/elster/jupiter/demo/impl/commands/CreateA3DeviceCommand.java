@@ -35,7 +35,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
@@ -256,12 +255,12 @@ public class CreateA3DeviceCommand {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().stream().filter(sps -> SECURITY_PROPERTY_NAME.equals(sps.getName())).findFirst().orElseThrow(() -> new UnableToCreate(""));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.getKey(), "0");
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER.getKey(), "          ");
-        securityPropertySet.getPropertySpecs().stream().filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName())).findFirst().ifPresent(
+        typedProperties.setProperty("C12UserId", "0");
+        typedProperties.setProperty("C12User", "          ");
+        securityPropertySet.getPropertySpecs().stream().filter(ps -> "EncryptionKey".equals(ps.getName())).findFirst().ifPresent(
                 ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("F2FE78E33DF19786BBD2E56F9E93BE88")));
-        typedProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.getKey(), "1.3.6.1.4.1.33507.1919.42327");
-        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("00000000000000000000"));
+        typedProperties.setProperty("CalledAPTitle", "1.3.6.1.4.1.33507.1919.42327");
+        typedProperties.setProperty("Password", new Password("00000000000000000000"));
         device.setSecurityProperties(securityPropertySet, typedProperties);
     }
 

@@ -29,7 +29,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
@@ -195,18 +194,18 @@ public class CreateDataLoggerCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName() + "."));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
-        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("ntaSim"));
+        typedProperties.setProperty("ClientMacAddress", BigDecimal.ONE);
+        typedProperties.setProperty("Password", new Password("ntaSim"));
         securityPropertySetHigh
                 .getPropertySpecs()
                 .stream()
-                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(ps.getName()))
+                .filter(ps -> "AuthenticationKey".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
         securityPropertySetHigh
                 .getPropertySpecs()
                 .stream()
-                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName()))
+                .filter(ps -> "EncryptionKey".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
         device.setSecurityProperties(securityPropertySetHigh, typedProperties);
@@ -219,7 +218,7 @@ public class CreateDataLoggerCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.NO_SECURITY.getName() + "."));
         TypedProperties typedPropertiesNone = TypedProperties.empty();
-        typedPropertiesNone.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+        typedPropertiesNone.setProperty("ClientMacAddress", BigDecimal.ONE);
         device.setSecurityProperties(securityPropertySetNone, typedProperties);
         device.save();
     }
