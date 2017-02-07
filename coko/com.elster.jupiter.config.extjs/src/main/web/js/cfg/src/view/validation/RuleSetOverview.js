@@ -22,6 +22,7 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
             items: [
                 {
                     title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
+                    itemId: 'ruleset-overview-panel',
                     ui: 'large',
                     flex: 1,
                     items: [

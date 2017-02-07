@@ -136,6 +136,7 @@ Ext.define('Cfg.controller.Tasks', {
                 actionsMenu.record = record;
                 actionsMenu.down('#view-history').hide();
                 view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
+                view.down('#frm-validation-task-details-panel').setTitle(Ext.String.htmlEncode(record.get('name')));
                 me.getApplication().fireEvent('changecontentevent', view);
                 me.getApplication().fireEvent('validationtaskload', record);
                 detailsForm.loadRecord(record);

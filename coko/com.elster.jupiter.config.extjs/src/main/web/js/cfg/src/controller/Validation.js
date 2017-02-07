@@ -700,6 +700,7 @@ Ext.define('Cfg.controller.Validation', {
 
                 me.getRulesetOverviewForm().loadRecord(ruleSet);
                 rulesContainerWidget.down('#stepsMenu #ruleSetOverviewLink').setText(ruleSet.get('name'));
+                rulesContainerWidget.down('#ruleset-overview-panel').setTitle(Ext.String.htmlEncode(ruleSet.get('name')));
 
                 me.getApplication().fireEvent('loadRuleSet', ruleSet);
                 var actionMenu = rulesContainerWidget.down('ruleset-action-menu');
