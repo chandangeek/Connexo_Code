@@ -728,6 +728,9 @@ public enum IntervalLength {
             case MONTHLY: {
                 return MONTH1;
             }
+            case YEARLY: {
+                return YEAR1;
+            }
             case WEEKLYS: {
                 return WEEK1;
             }

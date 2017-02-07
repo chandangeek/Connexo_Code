@@ -12,7 +12,6 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.metering.MeteringService;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -106,7 +105,11 @@ class ReadingTypeGeneratorForGas extends AbstractReadingTypeGenerator {
         MONTHLY_GAS_VOLUME_M3("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
         MONTHLY_GAS_VOLUME_LITRE("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
         MONTHLY_GAS_VOLUME_NORM_M3("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
-        MONTHLY_GAS_VOLUME_NORM_LITRE("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),;
+        MONTHLY_GAS_VOLUME_NORM_LITRE("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.MONTHLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED)),
+        YEARLY_GAS_VOLUME_M3("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.YEARLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETER)),
+        YEARLY_GAS_VOLUME_LITRE("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.YEARLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRE)),
+        YEARLY_GAS_VOLUME_NORM_M3("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.YEARLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.CUBICMETERCOMPENSATED)),
+        YEARLY_GAS_VOLUME_NORM_LITRE("Gas volume", ReadingTypeCodeBuilder.of(Commodity.NATURALGAS).period(MacroPeriod.YEARLY).flow(FlowDirection.FORWARD).measure(MeasurementKind.VOLUME).in(ReadingTypeUnit.LITRECOMPENSATED));
 
         final String name;
         final ReadingTypeCodeBuilder readingTypeCodeBuilder;
