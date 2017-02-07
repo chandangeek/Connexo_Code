@@ -30,6 +30,7 @@ public class DeviceConnectionTaskInfo extends ConnectionTaskVersionInfo {
     public ConnectionStrategyInfo connectionStrategy;
     public Instant nextExecution;
     public long comSessionId;
+    public String protocolDialect;
 
     public static class LatestStatusInfo {
         public String id;

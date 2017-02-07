@@ -11,7 +11,6 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -142,9 +141,9 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecution.getNextExecutionTimestamp()).thenReturn(nextCommunicationTime);
         DeviceProtocolDialect deviceProtocolDialect = mock(DeviceProtocolDialect.class);
         when(deviceProtocolDialect.getDisplayName()).thenReturn("WebRTU KP");
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
-        when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
-        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+ //       ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+ //       when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(deviceProtocolDialect);
+ //       when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         return comTaskExecution;
     }
 

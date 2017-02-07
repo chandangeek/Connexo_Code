@@ -30,8 +30,6 @@ public class DeviceComTaskInfo {
     public int urgency;
     @JsonProperty("securitySettings")
     public String securitySettings;
-    @JsonProperty("protocolDialect")
-    public String protocolDialect;
     @JsonProperty("temporalExpression")
     public TemporalExpressionInfo temporalExpression;
     @JsonProperty("scheduleType")

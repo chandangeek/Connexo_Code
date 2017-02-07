@@ -74,6 +74,7 @@ public class DeviceConnectionTaskInfoFactory {
         info.name = info.connectionMethod.name; // need it for concurrency check
         info.connectionMethod.status = connectionTask.getStatus();
         info.connectionMethod.isDefault = connectionTask.isDefault();
+        info.protocolDialect = connectionTask.getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName();
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
             if (scheduledConnectionTask.getTaskStatus()!=null) {

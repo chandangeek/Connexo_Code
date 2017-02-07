@@ -9,9 +9,9 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.rest.LogLevelAdapter;
@@ -43,6 +43,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toList;
@@ -477,18 +478,47 @@ public class DeviceComTaskResource {
     }
 
     private Consumer<ComTaskExecution> updateProtocolDialect(ComTaskProtocolDialectInfo comTaskProtocolDialectInfo, Device device) {
-        return comTaskExecution -> {
-            List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = device.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
-            Optional<ProtocolDialectConfigurationProperties> dialectConfigurationPropertiesOptional = protocolDialectConfigurationPropertiesList.stream()
-                    .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getDeviceProtocolDialect()
-                            .getDisplayName()
-                            .equals(comTaskProtocolDialectInfo.protocolDialect))
-                    .findFirst();
-            if (comTaskExecution.isScheduledManually() && dialectConfigurationPropertiesOptional.isPresent()) {
-                device.getComTaskExecutionUpdater(comTaskExecution).protocolDialectConfigurationProperties(dialectConfigurationPropertiesOptional.get()).update();
-            } else {
-                throw exceptionFactory.newException(MessageSeeds.UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED);
-            }
+//        return comTaskExecution -> {
+//            List<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiesList = device.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
+//            Optional<ProtocolDialectConfigurationProperties> dialectConfigurationPropertiesOptional = protocolDialectConfigurationPropertiesList.stream()
+//                    .filter(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getDeviceProtocolDialect()
+//                            .getDisplayName()
+//                            .equals(comTaskProtocolDialectInfo.protocolDialect))
+//                    .findFirst();
+//            if (dialectConfigurationPropertiesOptional.isPresent())
+//            if (comTaskExecution.isScheduledManually() && dialectConfigurationPropertiesOptional.isPresent()) {
+//                device.getComTaskExecutionUpdater(comTaskExecution).protocolDialectConfigurationProperties(dialectConfigurationPropertiesOptional.get()).update();
+//            } else {
+//                throw exceptionFactory.newException(MessageSeeds.UPDATE_DIALECT_PROPERTIES_NOT_ALLOWED);
+//            }
+//        };
+        // TODO: CXO-5339
+        return comTaskExecution -> {throw exceptionFactory.newException(new MessageSeed() {
+                @Override
+                public String getModule() {
+                    return null;
+                }
+
+                @Override
+                public int getNumber() {
+                    return 0;
+                }
+
+                @Override
+                public String getKey() {
+                    return null;
+                }
+
+                @Override
+                public String getDefaultFormat() {
+                    return "Connection taks should update instead of the comtaskExecution";
+                }
+
+                @Override
+                public Level getLevel() {
+                    return null;
+                }
+            });
         };
     }
 
