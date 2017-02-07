@@ -5,7 +5,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import org.osgi.service.component.annotations.Reference;

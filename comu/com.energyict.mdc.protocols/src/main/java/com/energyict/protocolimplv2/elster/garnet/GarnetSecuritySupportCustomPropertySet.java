@@ -4,7 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.protocolimplv2.securitysupport.CustomPropertySetTranslationKeys;

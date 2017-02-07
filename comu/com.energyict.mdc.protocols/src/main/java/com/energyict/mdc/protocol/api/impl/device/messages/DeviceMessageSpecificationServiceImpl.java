@@ -9,13 +9,14 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLDeviceMessageCategoryAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLDeviceMessageSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageCategoryAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageSpecAdapter;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.protocolimplv2.messages.DeviceMessageCategories;
 import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
-import com.energyict.protocols.mdc.adapter.PropertyConverter;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,10 +36,10 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (13:33)
  */
-@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageSpecificationService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=" + DeviceMessageSpecificationService.COMPONENT_NAME, immediate = true)
+@Component(name = "com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService", service = {DeviceMessageSpecificationService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=" + DeviceMessageSpecificationService.COMPONENT_NAME, immediate = true)
 public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpecificationService, TranslationKeyProvider, MessageSeedProvider {
 
-    private PropertyConverter converter;
+    private volatile Converter converter;
     private volatile com.energyict.mdc.upl.nls.NlsService uplNlsService;
     private volatile com.energyict.mdc.upl.properties.PropertySpecService uplPropertySpecService;
 
@@ -50,15 +51,26 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
 
     // For unit testing purposes
     @Inject
-    public DeviceMessageSpecificationServiceImpl(com.energyict.mdc.upl.nls.NlsService uplNlsService, com.energyict.mdc.upl.properties.PropertySpecService uplPropertySpecService) {
+    public DeviceMessageSpecificationServiceImpl(Converter converter, com.energyict.mdc.upl.nls.NlsService uplNlsService, com.energyict.mdc.upl.properties.PropertySpecService uplPropertySpecService) {
         super();
+        this.setConverter(converter);
         this.setUplNlsService(uplNlsService);
         this.setUplPropertySpecService(uplPropertySpecService);
+    }
+
+    @Activate
+    public void activate() {
+        //
     }
 
     @Reference
     public void setUplNlsService(com.energyict.mdc.upl.nls.NlsService uplNlsService) {
         this.uplNlsService = uplNlsService;
+    }
+
+    @Reference
+    public void setConverter(Converter converter) {
+        this.converter = converter;
     }
 
     @Reference
@@ -81,7 +93,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         EnumSet<DeviceMessageCategories> included = EnumSet.complementOf(excluded);
 
         return included.stream()
-                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, getConverter()))
+                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, converter))
                 .map(UPLDeviceMessageCategoryAdapter::new).collect(Collectors.toList());
     }
 
@@ -92,14 +104,14 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         included.add(DeviceMessageCategories.ACTIVITY_CALENDAR);
 
         return included.stream()
-                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, getConverter()))
+                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, converter))
                 .map(UPLDeviceMessageCategoryAdapter::new).collect(Collectors.toList());
     }
 
     @Override
     public List<DeviceMessageCategory> allCategories() {
         return Stream.of(DeviceMessageCategories.values())
-                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, getConverter()))
+                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, converter))
                 .map(UPLDeviceMessageCategoryAdapter::new).collect(Collectors.toList());
     }
 
@@ -114,7 +126,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     private List<com.energyict.mdc.upl.messages.DeviceMessageSpec> allMessageSpecs() {
         return Stream
                 .of(DeviceMessageCategories.values())
-                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, getConverter()))
+                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, converter))
                 .map(com.energyict.mdc.upl.messages.DeviceMessageCategory::getMessageSpecifications)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
@@ -123,7 +135,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     @Override
     public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId) {
         return Stream.of(com.energyict.protocolimplv2.messages.FirmwareDeviceMessage.values())
-                .map(provider -> provider.get(uplPropertySpecService, uplNlsService, getConverter()))
+                .map(provider -> provider.get(uplPropertySpecService, uplNlsService, converter))
                 .filter(spec -> spec.getId() == deviceMessageId.dbValue())
                 .map(com.energyict.protocolimplv2.messages.FirmwareDeviceMessage.class::cast)
                 .map(com.energyict.protocolimplv2.messages.FirmwareDeviceMessage::getProtocolSupportedFirmwareOption)
@@ -133,7 +145,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     @Override
     public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOptionsFor(DeviceMessageId deviceMessageId) {
         return Stream.of(com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage.values())
-                .map(provider -> provider.get(uplPropertySpecService, uplNlsService, getConverter()))
+                .map(provider -> provider.get(uplPropertySpecService, uplNlsService, converter))
                 .filter(spec -> spec.getId() == deviceMessageId.dbValue())
                 .map(com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage.class::cast)
                 .map(com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage::getProtocolSupportedCalendarOption)
@@ -142,7 +154,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
 
     @Override
     public DeviceMessageCategory getFirmwareCategory() {
-        return new UPLDeviceMessageCategoryAdapter(DeviceMessageCategories.FIRMWARE.get(uplPropertySpecService, uplNlsService, getConverter()));
+        return new UPLDeviceMessageCategoryAdapter(DeviceMessageCategories.FIRMWARE.get(uplPropertySpecService, uplNlsService, converter));
     }
 
     @Override
@@ -163,13 +175,6 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         return Collections.emptyList();
     }
 
-    public PropertyConverter getConverter() {
-        if (converter == null) {
-            converter = new PropertyConverter();
-        }
-        return converter;
-    }
-
     /**
      * Get the translation keys for all categories, all messages and all their message attributes.
      */
@@ -179,7 +184,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
 
         //All categories
         Stream.of(DeviceMessageCategories.values())
-                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, getConverter()))
+                .map(supplier -> supplier.get(uplPropertySpecService, uplNlsService, converter))
                 .map(category -> new TranslationKeyImpl(category.getNameResourceKey(), category.getName()))
                 .forEach(keys::add);
 
@@ -232,13 +237,13 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
      */
     private void addAllTranslationKeys(List<TranslationKey> keys, DeviceMessageSpecSupplier[] values) {
         Stream.of(values)
-                .map(deviceMessageSpecSupplier -> deviceMessageSpecSupplier.get(uplPropertySpecService, uplNlsService, getConverter()))
+                .map(deviceMessageSpecSupplier -> deviceMessageSpecSupplier.get(uplPropertySpecService, uplNlsService, converter))
                 .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getNameTranslationKey)
                 .map(ConnexoTranslationKeyAdapter::new)
                 .forEach(keys::add);
 
         Stream.of(values)
-                .map(deviceMessageSpecSupplier -> deviceMessageSpecSupplier.get(uplPropertySpecService, uplNlsService, getConverter()))
+                .map(deviceMessageSpecSupplier -> deviceMessageSpecSupplier.get(uplPropertySpecService, uplNlsService, converter))
                 .flatMap(deviceMessageSpec -> deviceMessageSpec.getPropertySpecs().stream())
                 .map(propertySpec -> new TranslationKeyImpl(propertySpec.getName(), propertySpec.getDisplayName()))
                 .forEach(keys::add);
