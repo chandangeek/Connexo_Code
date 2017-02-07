@@ -1455,6 +1455,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @SuppressWarnings("unchecked")
         public ComTaskExecution add() {
             this.comTaskExecution.prepareForSaving();
+            this.comTaskExecution.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this.comTaskExecution));
             return this.comTaskExecution;
         }
 
@@ -1505,6 +1506,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
         @Override
         public ComTaskExecutionUpdater forceNextExecutionTimeStampAndPriority(Instant nextExecutionTimestamp, int priority) {
+            this.connectionTaskSchedulingMayHaveChanged = true;
             this.comTaskExecution.setNextExecutionTimestamp(nextExecutionTimestamp);
             this.comTaskExecution.setExecutingPriority(priority);
             return this;
@@ -1532,7 +1534,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         @SuppressWarnings("unchecked")
         public ComTaskExecutionImpl update() {
-            //hier
             this.comTaskExecution.update();
             if (this.connectionTaskSchedulingMayHaveChanged) {
                 this.comTaskExecution.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this.comTaskExecution));
