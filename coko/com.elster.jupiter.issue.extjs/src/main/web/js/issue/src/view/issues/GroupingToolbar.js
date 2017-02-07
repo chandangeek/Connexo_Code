@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Isu.view.issues.GroupingToolbar', {
     extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.issues-grouping-toolbar',
