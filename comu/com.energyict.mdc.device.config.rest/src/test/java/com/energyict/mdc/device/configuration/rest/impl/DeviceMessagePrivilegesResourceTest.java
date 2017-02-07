@@ -1,20 +1,23 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;

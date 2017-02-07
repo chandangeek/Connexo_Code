@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -39,11 +43,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Copyrights EnergyICT
- * Date: 1/04/14
- * Time: 8:59
- */
 public class ConnectionMethodResource {
     private final ResourceHelper resourceHelper;
     private final ProtocolPluggableService protocolPluggableService;
