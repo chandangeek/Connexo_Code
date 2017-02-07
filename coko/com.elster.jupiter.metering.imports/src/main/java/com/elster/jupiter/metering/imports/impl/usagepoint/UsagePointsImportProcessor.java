@@ -23,7 +23,6 @@ import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FileImportLogger;
@@ -111,13 +110,10 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             }
             UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint(identifier, data.getInstallationTime()
                     .orElse(getClock().instant())).validate();
-//            getContext().getTransactionService().getContext();
-//            UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint(identifier, data.getInstallationTime().orElse(getClock().instant())).create();
             createDetails(dummyUsagePoint, data, logger).validate();
             validateMandatoryCustomProperties(dummyUsagePoint, data);
             validateCustomPropertySetValues(dummyUsagePoint, data);
             validateMeterConfigurationAndTransition(dummyUsagePoint, data);
-//            getContext().getTransactionService().getContext().close();
         }
     }
 
@@ -261,24 +257,14 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     private void validateMeterConfigurationAndTransition(UsagePoint usagePoint, UsagePointImportRecord data) {
         data.getMetrologyConfiguration().ifPresent(metrologyConfigurationName -> {
-            MetrologyConfiguration metrologyConfiguration = getContext().getMetrologyConfigurationService()
-                    .findMetrologyConfiguration(metrologyConfigurationName)
-                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
-                    .map(UsagePointMetrologyConfiguration.class::cast)
-                    .filter(UsagePointMetrologyConfiguration::isActive)
-                    .orElseThrow(() -> new ProcessorException(MessageSeeds.BAD_METROLOGY_CONFIGURATION, data.getLineNumber()));
-            if (!metrologyConfiguration.getServiceCategory().equals(usagePoint.getServiceCategory())) {
-                throw new ProcessorException(MessageSeeds.SERVICE_CATEGORIES_DO_NOT_MATCH, data.getLineNumber());
-            }
-            if (!data.getMetrologyConfigurationApplyTime().isPresent()) {
-                throw new ProcessorException(MessageSeeds.EMPTY_METROLOGY_CONFIGURATION_TIME, data.getLineNumber());
-            }
+            usagePointImportHelper.validateMetrologyConfiguration(metrologyConfigurationName, usagePoint, data);
             usagePoint.apply((UsagePointMetrologyConfiguration) getContext().getMetrologyConfigurationService().findMetrologyConfiguration(data.getMetrologyConfiguration().get()).get(), data.getMetrologyConfigurationApplyTime().get());
 
             validateMeterActivation(usagePoint, data);
             validateUsagePointTransitionValues(usagePoint, data);
         });
     }
+
 
     private void activateMeters(UsagePointImportRecord record, UsagePoint usagePoint) {
         UsagePointMeterActivator usagePointMeterActivator = usagePoint.linkMeters();

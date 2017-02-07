@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
@@ -90,7 +91,11 @@ public class UsagePointImportHelper {
         UsagePoint usagePoint = usagePointBuilder.create();
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant()));
         usagePoint.update();
-        setMetrologyConfigurationForUsagePoint(data, usagePoint);
+
+        if(data.getMetrologyConfiguration().isPresent()) {
+            validateMetrologyConfiguration(data.getMetrologyConfiguration().get(), usagePoint, data);
+            setMetrologyConfigurationForUsagePoint(data, usagePoint);
+        }
         return usagePoint;
     }
 
@@ -210,6 +215,21 @@ public class UsagePointImportHelper {
             return Range.closedOpen(
                     customPropertySetRecord.getStartTime().get(),
                     customPropertySetRecord.getEndTime().get());
+        }
+    }
+
+    public void validateMetrologyConfiguration(String metrologyConfigurationName, UsagePoint usagePoint, UsagePointImportRecord data) {
+        MetrologyConfiguration metrologyConfiguration = context.getMetrologyConfigurationService()
+                .findMetrologyConfiguration(metrologyConfigurationName)
+                .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
+                .filter(UsagePointMetrologyConfiguration::isActive)
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.BAD_METROLOGY_CONFIGURATION, data.getLineNumber()));
+        if (!metrologyConfiguration.getServiceCategory().equals(usagePoint.getServiceCategory())) {
+            throw new ProcessorException(MessageSeeds.SERVICE_CATEGORIES_DO_NOT_MATCH, data.getLineNumber());
+        }
+        if (!data.getMetrologyConfigurationApplyTime().isPresent()) {
+            throw new ProcessorException(MessageSeeds.EMPTY_METROLOGY_CONFIGURATION_TIME, data.getLineNumber());
         }
     }
 
