@@ -388,6 +388,7 @@ public class IssueResource extends BaseResource {
         for (Order order : orders) {
             finder.sorted(order.getName(), order.ascending());
         }
+        finder.sorted("id", false);
         return finder;
     }
 }
