@@ -449,7 +449,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                         if (parameter.name === 'loadprofiletypeids') {
                             Ext.Array.each(parameter.value, function(value) {
-                                loadProfileTypes += Ext.String.htmlEncode(loadProfileTypesStore.findRecord('id', value.value).get('name'));
+                                var indexInStore = loadProfileTypesStore.findExact('id', value.value);
+                                var storeRecord = indexInStore === -1 ? null : loadProfileTypesStore.getAt(indexInStore);
+                                loadProfileTypes += Ext.String.htmlEncode(storeRecord.get('name'));
                                 loadProfileTypes += '\n'
                             });
                             if (Ext.isEmpty(loadProfileTypes)) {
@@ -503,7 +505,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                             if (parameter.name === 'logbooktypeids') {
                                 Ext.Array.each(parameter.value, function(value) {
-                                    logbookTypes += Ext.String.htmlEncode(logbookTypesStore.findRecord('id', value.value).get('name'));
+                                    var indexInStore = logbookTypesStore.findExact('id', value.value);
+                                    var storeRecord = indexInStore === -1 ? null : logbookTypesStore.getAt(indexInStore);
+                                    logbookTypes += Ext.String.htmlEncode(storeRecord.get('name'));
                                     logbookTypes += '\n'
                                 });
                                 if (Ext.isEmpty(logbookTypes)) {
@@ -529,7 +533,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         Ext.Array.each(actionRecord.get('parameters'), function (parameter) {
                             if (parameter.name === 'registergroupids') {
                                 Ext.Array.each(parameter.value, function(value) {
-                                    registerGroups += Ext.String.htmlEncode(registerGroupsStore.findRecord('id', value.value).get('name'));
+                                    var indexInStore = registerGroupsStore.findExact('id', value.value);
+                                    var storeRecord = indexInStore === -1 ? null : registerGroupsStore.getAt(indexInStore);
+                                    registerGroups += Ext.String.htmlEncode(storeRecord.get('name'));
                                     registerGroups += '\n'
                                 });
                                 if (Ext.isEmpty(registerGroups)) {

@@ -20,18 +20,16 @@ Ext.define('Mdc.model.RegisterReading', {
         {name: 'register', type: 'auto'},
         {name: 'dataValidated', type: 'auto', persist: false},
         {name: 'interval', type: 'auto'},  // for billing registers
+        {name: 'eventDate', type:'number', useNull: true},
+        {name: 'deltaValue', type:'string', useNull: true},
         {
             name: 'valueAndUnit',
             useNull: true,
             convert: function (v, record) {
-                if (Ext.isEmpty(record.get('value')) && Ext.isEmpty(record.get('calculatedValue'))) {
+                if (Ext.isEmpty(record.get('value'))) {
                     return '-';
                 }
-                if (record.get('type') === 'billing') {
-                    return Ext.isEmpty(record.get('calculatedValue'))
-                        ? record.get('value') + ' ' + record.get('unit')
-                        : record.get('calculatedValue') + ' ' + record.get('calculatedUnit');
-                } else if (record.get('type') === 'numerical') {
+                if (record.get('type') === 'numerical' || record.get('type') === 'billing') {
                     return Ext.isEmpty(record.get('calculatedValue'))
                         ? Uni.Number.formatNumber(record.get('value'), -1) + ' ' + record.get('unit')
                         : Uni.Number.formatNumber(record.get('calculatedValue'), -1) + ' ' + record.get('calculatedUnit');

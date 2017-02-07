@@ -27,33 +27,36 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 flex: 15
             },
             {
-                header: Uni.I18n.translate('general.measurementTime', 'MDC', 'Measurement time'),
-                flex: 10,
-                dataIndex: 'timeStamp',
-                renderer: me.renderMeasurementTime
+                header: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
+                dataIndex: 'interval',
+                itemId: 'mdc-interval-column',
+                renderer: function (value) {
+                    var startDate,endDate;
+                    if (!Ext.isEmpty(value) && !!value.start) {
+                        startDate = new Date(value.start);
+                        endDate = new Date(value.end);
+                        return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                    } else if (!Ext.isEmpty(value) && !!value.end){
+                        endDate = new Date(value.end);
+                        return Uni.DateTime.formatDateTimeShort(endDate)
+                    }
+                    return '-';
+                },
+                flex: 20
+              //  hidden: true
             },
             {
-                header: Uni.I18n.translate('general.from', 'MDC', 'From'),
+                header: Uni.I18n.translate('general.eventDate', 'MDC', 'Event time'),
                 flex: 10,
-                dataIndex: 'intervalStart',
-                itemId: 'mdc-readings-grid-from-column',
+                dataIndex: 'eventDate',
+                itemId: 'mdc-event-date-column',
                 renderer: function (value) {
                     return Ext.isEmpty(value) || value === 0 ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                 },
-                hidden: true
+               // hidden: true
             },
             {
-                header: Uni.I18n.translate('general.to', 'MDC', 'To'),
-                flex: 10,
-                dataIndex: 'intervalEnd',
-                itemId: 'mdc-readings-grid-to-column',
-                renderer: function (value) {
-                    return Ext.isEmpty(value) || value === 0 ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
-                },
-                hidden: true
-            },
-            {
-                header: Uni.I18n.translate('general.value', 'MDC', 'Value'),
+                header: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected'),
                 flex: 10,
                 dataIndex: 'valueAndUnit',
                 renderer: function (data, metaData, record) {
@@ -70,6 +73,32 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                         }
                         return data + icon;
                     }
+                },
+            },
+            {
+                header: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated'),
+                flex: 10,
+                dataIndex: 'calculatedValue',
+                renderer: function (data, metaData, record) {
+                    if (!Ext.isEmpty(data)) {
+                        return record.data.calculatedValue?record.data.calculatedValue + ' ' + record.data.calculatedUnit:'-';
+                    } else {
+                        return '-'
+                    }
+                }
+            },
+            {
+                header: Uni.I18n.translate('general.deltaValue', 'MDC', 'Delta value'),
+                flex: 10,
+                dataIndex: 'deltaValue'
+            },
+            {
+                header: Uni.I18n.translate('device.registerData.reportedTime', 'MDC', 'Last updated'),
+                dataIndex: 'reportedDateTime',
+                flex: 15,
+                renderer: function(value){
+                    var date = new Date(value);
+                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]);
                 }
             }
         ];
@@ -141,19 +170,19 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
         return Uni.DateTime.formatDateTimeShort(date) + icon;
     },
 
-    showOrHideBillingColumns: function (showThem) {
+    customizeColumns: function (billing,cumulative,event,multiplier) {
         var fromColumn = this.down('#mdc-readings-grid-from-column'),
             toColumn = this.down('#mdc-readings-grid-to-column');
 
         if (fromColumn) {
-            if (showThem) {
+            if (billing) {
                 fromColumn.show();
             } else {
                 fromColumn.hide();
             }
         }
         if (toColumn) {
-            if (showThem) {
+            if (billing) {
                 toColumn.show();
             } else {
                 toColumn.hide();

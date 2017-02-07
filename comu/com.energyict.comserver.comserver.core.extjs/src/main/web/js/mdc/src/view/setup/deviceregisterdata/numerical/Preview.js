@@ -19,13 +19,30 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                 renderer: me.renderDateTimeLong
             },
             {
-                fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
-                name: 'reportedDateTime',
-                renderer: me.renderDateTimeLong
+                fieldLabel: Uni.I18n.translate('device.registerData.measurementPeriod', 'MDC', 'Measurement period'),
+                labelWidth: 200,
+                name: 'interval',
+                renderer: function (value) {
+                    var startDate,endDate;
+                    if (!Ext.isEmpty(value) && !!value.start) {
+                        startDate = new Date(value.start);
+                        endDate = new Date(value.end);
+                        return Uni.DateTime.formatDateTimeShort(startDate) + ' - ' + Uni.DateTime.formatDateTimeShort(endDate);
+                    } else if (!Ext.isEmpty(value) && !!value.end){
+                        endDate = new Date(value.end);
+                        return Uni.DateTime.formatDateTimeShort(endDate)
+                    }
+                    return '-';
+                }
             },
+            //{
+            //    fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
+            //    name: 'reportedDateTime',
+            //    renderer: me.renderDateTimeLong
+            //},
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected'),
                 layout: {
                     type: 'hbox'
                 },
@@ -53,7 +70,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
             {
                 xtype: 'fieldcontainer',
                 itemId: 'mdc-calculated-value-field',
-                fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
+                fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated'),
                 layout: {
                     type: 'hbox'
                 },
@@ -82,6 +99,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                 fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),
                 name: 'deltaValue',
                 renderer: function (value) {
+                    debugger;
                     var record = this.up('form').getRecord();
                     if (record && value) {
                         var me = this.up('form').up('#deviceregisterreportpreview'),
@@ -97,6 +115,16 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
                 fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
                 itemId: 'mdc-register-preview-numerical-multiplier',
                 name: 'multiplier'
+            },
+            {
+                fieldLabel: Uni.I18n.translate('device.registerData.lastUpdated', 'MDC', 'Last updated'),
+                name: 'reportedDateTime',
+                renderer: function(value){
+                    if(value) {
+                        var date = new Date(value);
+                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]);
+                    }
+                }
             }
         ];
     },

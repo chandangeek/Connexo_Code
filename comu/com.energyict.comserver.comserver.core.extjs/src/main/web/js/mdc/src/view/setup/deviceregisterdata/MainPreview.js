@@ -147,7 +147,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         me.callParent(arguments);
     },
 
-    updateContent: function (registerRecord) {
+
+    updateContent: function (registerRecord, registerBeingViewed) {
+        debugger;
         var me = this,
             measurementDate = new Date(registerRecord.get('timeStamp')),
             title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
@@ -155,6 +157,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                 false),
             calculatedValueField = me.down('#mdc-calculated-value-field'),
             deltaValueField = me.down('displayfield[name=deltaValue]'),
+            measurementTime = me.down('displayfield[name=timeStamp]'),
+            intervalField = me.down('displayfield[name=interval]'),
             multiplierField = me.down('#mdc-register-preview-' + registerRecord.get('type') + '-multiplier'),
             hasCalculatedValue = !Ext.isEmpty(registerRecord.get('calculatedValue')),
             hasDeltaValue = !Ext.isEmpty(registerRecord.get('deltaValue'));
@@ -169,6 +173,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
 
         if (calculatedValueField) {
             calculatedValueField.setVisible(hasCalculatedValue);
+            debugger;
+ //           calculatedValueField.setValue(registerRecord.get('calculatedValue'));
         }
         if (deltaValueField) {
             deltaValueField.setVisible(hasDeltaValue);
@@ -178,6 +184,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                 multiplierField.setValue(registerRecord.get('multiplier'));
             }
             multiplierField.setVisible(hasCalculatedValue);
+        }
+        if(!!intervalField) {
+            if (!Ext.isDefined(registerBeingViewed) || registerBeingViewed.get('isCumulative')) {
+                measurementTime.hide();
+                intervalField.show();
+            } else {
+                measurementTime.show();
+                intervalField.hide();
+            }
         }
 
         me.setDataQualities(registerRecord.get('readingQualities'));

@@ -64,7 +64,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     },
 
     loadGridItemDetail: function (rowmodel, record) {
-        this.getDeviceregisterreportpreview().updateContent(record);
+        this.getDeviceregisterreportpreview().updateContent(record,registerBeingViewed);
     },
 
     showDeviceRegisterDataView: function (deviceId, registerId, tabController) {
@@ -148,18 +148,22 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     },
 
     onDataStoreLoad: function(store, records) {
+        debugger;
         var me = this,
             type = registerBeingViewed.get('type'),
             collectedReadingType = registerBeingViewed.get('readingType'),
             collectedUnit = collectedReadingType.names.unitOfMeasure,
             calculatedUnit = 'NY',
             isCumulative = registerBeingViewed.get('isCumulative'),
+            hasEvent = registerBeingViewed.get('hasEvent'),
             multiplier = registerBeingViewed.get('multiplier'),
             hasCalculatedValue = false,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             calculatedValueColumn = contentPanel.down('grid').down('[dataIndex=calculatedValue]'),
             deltaValueColumn = contentPanel.down('grid').down('[dataIndex=deltaValue]'),
-            valueColumn = contentPanel.down('grid').down('[dataIndex=value]');
+            valueColumn = contentPanel.down('grid').down('[dataIndex=value]'),
+            measurementTimeColumn = contentPanel.down('grid').down('[dataIndex=timeStamp]'),
+            eventTimeColumn = contentPanel.down('grid').down('#eventTime');
 
         Ext.Array.each(records, function(record) {
             hasCalculatedValue = hasCalculatedValue || !Ext.isEmpty(record.get('calculatedValue'));
@@ -168,6 +172,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                 return false; // Stop the iteration
             }
         }, me);
+
 
         if (valueColumn) {
             valueColumn.setText(Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + collectedUnit + ')');
@@ -185,7 +190,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                     + ' (' + (calculatedUnit != 'NY' ? calculatedUnit : collectedUnit) + ')'
                 );
                 deltaValueColumn.setVisible(true);
+                measurementTimeColumn.setVisible(false);
             }
+            if(!hasEvent){
+                eventTimeColumn.setVisible(false);
+            }
+
         }
     },
 
