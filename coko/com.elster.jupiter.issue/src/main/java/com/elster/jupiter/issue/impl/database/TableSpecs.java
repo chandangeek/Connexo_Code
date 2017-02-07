@@ -69,6 +69,7 @@ import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_DUE_DATE;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_IMPACT;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_OVERDUE;
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_PRIORITY;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_REASON_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_RULE_ID;
 import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_COLUMN_STATUS_ID;
@@ -406,8 +407,30 @@ public enum TableSpecs {
             Column workGroupRefIdColumn = table.column(ISSUE_COLUMN_WORKGROUP_ID).number().conversion(NUMBER2LONG).add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
             Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull().add();
-            table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT).notNull().installValue("25").add().since(Version.version(10, 3));
-            table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).notNull().installValue("25").add().since(Version.version(10, 3));
+            Column urgencyColumn = table.column(ISSUE_COLUMN_URGENCY)
+                    .map("priority.urgency")
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .notNull()
+                    .installValue("25")
+                    .add()
+                    .since(Version.version(10, 3));
+            Column impactColumn = table.column(ISSUE_COLUMN_IMPACT)
+                    .map("priority.impact")
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .notNull()
+                    .installValue("25")
+                    .add()
+                    .since(Version.version(10, 3));
+            table.column(ISSUE_COLUMN_PRIORITY)
+                    .number()
+                    .conversion(NUMBER2INT)
+                    .notNull()
+                    .as(urgencyColumn.getFieldName() + impactColumn.getFieldName())
+                    .alias("priorityTotal")
+                    .add()
+                    .since(Version.version(10, 3));
 
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH) {
