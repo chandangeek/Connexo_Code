@@ -21,8 +21,6 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.slp.SyntheticLoadProfileBuilder;
-import com.elster.jupiter.slp.DurationAttribute;
-import com.elster.jupiter.slp.IntervalAttribute;
 import com.elster.jupiter.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.slp.impl.SyntheticLoadProfileModule;
 import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
@@ -45,7 +43,9 @@ import org.osgi.service.event.EventAdmin;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -154,8 +154,8 @@ public class SyntheticLoadProfileImportIT {
             for (int i = 1; i < 4; i++) {
                 SyntheticLoadProfileBuilder builder = syntheticLoadProfileService.newSyntheticLoadProfile("slp" + i);
                 builder.withDescription("synthetic load profile description");
-                builder.withInterval(IntervalAttribute.MINUTE15);
-                builder.withDuration(DurationAttribute.DAY1);
+                builder.withInterval(Duration.ofMinutes(15));
+                builder.withDuration(Period.ofDays(1));
                 builder.withStartTime(DATE);
                 builder.build();
             }

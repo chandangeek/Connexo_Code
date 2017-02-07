@@ -6,7 +6,6 @@ package com.elster.jupiter.slp.importers.impl.syntheticloadprofile;
 
 import com.elster.jupiter.fileimport.csvimport.FileImportParser;
 import com.elster.jupiter.fileimport.csvimport.exceptions.FileImportParserException;
-import com.elster.jupiter.slp.DurationAttribute;
 import com.elster.jupiter.slp.importers.impl.MessageSeeds;
 import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterContext;
 import com.elster.jupiter.slp.importers.impl.parsers.BigDecimalParser;
@@ -15,6 +14,7 @@ import com.elster.jupiter.slp.importers.impl.parsers.InstantParser;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import java.time.Period;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,7 +66,7 @@ public class SyntheticLoadProfileParser implements FileImportParser<SyntheticLoa
     }
 
     private void validateDurations() {
-        List<DurationAttribute> durationAttributes = headers.stream()
+        List<Period> durationAttributes = headers.stream()
                 .filter(header -> !header.equalsIgnoreCase("timeStamp"))
                 .map(header -> context.getSyntheticLoadProfileService().findSyntheticLoadProfile(header)
                         .orElseThrow(() -> new FileImportParserException(MessageSeeds.CORRECTIONFACTOR_HEADER_NOT_FOUND, header)).getDuration())

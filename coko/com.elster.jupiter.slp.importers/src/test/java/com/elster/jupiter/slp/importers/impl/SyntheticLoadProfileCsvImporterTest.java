@@ -330,10 +330,7 @@ public class SyntheticLoadProfileCsvImporterTest {
 
         @Override
         public boolean matches(Object argument) {
-            if (argument instanceof FileImportRecord) {
-                return ((FileImportRecord) argument).getLineNumber() == line;
-            }
-            return false;
+            return argument instanceof FileImportRecord && ((FileImportRecord) argument).getLineNumber() == line;
         }
     }
 }

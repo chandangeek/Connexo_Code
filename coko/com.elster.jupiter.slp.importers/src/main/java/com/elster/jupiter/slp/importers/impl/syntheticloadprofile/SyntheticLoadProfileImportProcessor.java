@@ -62,7 +62,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
             }
         }
         //Check for wrong interval of data (current timestamp minus previous timestamp is not equal to 'Interval' of all of the synthetic load profiles specified in the file)
-        if (previousTimeStamp != null && !previousTimeStamp.plus(findSyntheticLoadProfile(data.getSyntheticLoadProfiles().keySet().iterator().next()).getInterval().getTemporalAmount()).equals(data.getTimeStamp())) {
+        if (previousTimeStamp != null && !previousTimeStamp.plus(findSyntheticLoadProfile(data.getSyntheticLoadProfiles().keySet().iterator().next()).getInterval()).equals(data.getTimeStamp())) {
             throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_INTERVAL, data.getLineNumber());
         } else {
             previousTimeStamp = data.getTimeStamp();
@@ -75,7 +75,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
             SyntheticLoadProfile syntheticLoadProfile = findSyntheticLoadProfile(entry.getKey());
             Instant startTime = entry.getValue().keySet().stream().min(Instant::compareTo).get();
             Instant endTime = entry.getValue().keySet().stream().max(Instant::compareTo).get();
-            if (startTime.plus(syntheticLoadProfile.getDuration().getTemporalAmount()).isAfter(endTime.plus(syntheticLoadProfile.getInterval().getTemporalAmount()))) {
+            if (startTime.plus(syntheticLoadProfile.getDuration()).isAfter(endTime.plus(syntheticLoadProfile.getInterval()))) {
                 throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_NOT_ENOUGH_DATA);
             }
         }
