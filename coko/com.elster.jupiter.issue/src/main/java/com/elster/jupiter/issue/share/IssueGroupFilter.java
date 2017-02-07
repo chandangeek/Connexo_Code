@@ -37,9 +37,13 @@ public interface IssueGroupFilter {
 
     Collection<String> getStatuses();
 
+    Collection<String> getReasons();
+
     Collection<String> getClearedStatuses();
 
     IssueGroupFilter withStatuses(Collection<String> statuses);
+
+    IssueGroupFilter withReasons(Collection<String> reasons);
 
     IssueGroupFilter withClearedStatuses(Collection<String> clearedStatuses);
 
