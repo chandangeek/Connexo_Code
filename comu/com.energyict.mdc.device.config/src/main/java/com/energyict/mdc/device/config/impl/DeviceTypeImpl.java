@@ -1318,6 +1318,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         @Override
+        public DeviceConfigurationBuilder validateOnStore(boolean validateOnStore) {
+            underConstruction.setValidateOnStore(validateOnStore);
+            return this;
+        }
+
+        @Override
         public DeviceConfigurationBuilder gatewayType(GatewayType gatewayType) {
             if (gatewayType != null && !GatewayType.NONE.equals(gatewayType)) {
                 canActAsGateway(true);

@@ -118,7 +118,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         SECURITY_PROPERTY_SETS("securityPropertySets"),
         DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements"),
         DEVICECONF_ESTIMATIONRULESET_USAGES("deviceConfigurationEstimationRuleSetUsages"),
-        DATALOGGER_ENABLED("dataloggerEnabled"),;
+        DATALOGGER_ENABLED("dataloggerEnabled"),
+        VALIDATE_ON_STORE("validateOnStore");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -182,6 +183,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private List<DeviceConfigurationEstimationRuleSetUsage> deviceConfigurationEstimationRuleSetUsages = new ArrayList<>();
     private final Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
     private boolean dataloggerEnabled;
+    private boolean validateOnStore;
 
     private PropertySpecService propertySpecService;
 
@@ -1483,6 +1485,15 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         return this.dataloggerEnabled;
     }
 
+    public boolean getValidateOnStore() {
+        return validateOnStore;
+    }
+
+    @Override
+    public void setValidateOnStore(boolean validateOnStore) {
+        this.validateOnStore = validateOnStore;
+    }
+
     List<DeviceProtocolConfigurationProperty> getProtocolPropertyList() {
         return protocolProperties;
     }
@@ -1685,6 +1696,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 .gatewayType(getGatewayType())
                 .isDirectlyAddressable(isDirectlyAddressable())
                 .dataloggerEnabled(isDataloggerEnabled())
+                .validateOnStore(getValidateOnStore())
                 .add();
         this.getDeviceProtocolProperties().getPropertySpecs().forEach(cloneDeviceProtocolProperties(clone));
         this.getProtocolDialectConfigurationPropertiesList().forEach(cloneDeviceProtocolDialectProperties(clone));
