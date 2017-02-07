@@ -53,6 +53,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -517,6 +518,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
         privileges.add(viewPrivilege);
         when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
+        when(inMemoryPersistence.getMockedUser().getPrivileges(anyString())).thenReturn(privileges);
     }
 
     private class ComTaskExecutionDialect implements DeviceProtocolDialect {
