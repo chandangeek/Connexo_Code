@@ -14,6 +14,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.kore.api.security.Privileges;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -42,10 +43,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
@@ -54,26 +53,16 @@ import static java.util.stream.Collectors.toList;
 public class IssueResource {
 
     private final IssueInfoFactory issueInfoFactory;
-    private final EndDeviceInfoFactory endDeviceInfoFactory;
     private final IssueStatusInfoFactory issueStatusInfoFactory;
-    private final IssueAssigneeInfoFactory issueAssigneeInfoFactory;
-    private final IssueTypeInfoFactory issueTypeInfoFactory;
-    private final IssuePriorityInfoFactory issuePriorityInfoFactory;
-    private final IssueReasonInfoFactory issueReasonInfoFactory;
     private final IssueCommentInfoFactory issueCommentInfoFactory;
     private final IssueService issueService;
     private final ExceptionFactory exceptionFactory;
     private final UserService userService;
 
     @Inject
-    public IssueResource(IssueInfoFactory issueInfoFactory, EndDeviceInfoFactory endDeviceInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueAssigneeInfoFactory issueAssigneeInfoFactory, IssueTypeInfoFactory issueTypeInfoFactory, IssuePriorityInfoFactory issuePriorityInfoFactory, IssueReasonInfoFactory issueReasonInfoFactory, IssueCommentInfoFactory issueCommentInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory, UserService userService) {
+    public IssueResource(IssueInfoFactory issueInfoFactory, IssueStatusInfoFactory issueStatusInfoFactory, IssueCommentInfoFactory issueCommentInfoFactory, IssueService issueService, ExceptionFactory exceptionFactory, UserService userService) {
         this.issueInfoFactory = issueInfoFactory;
-        this.endDeviceInfoFactory = endDeviceInfoFactory;
         this.issueStatusInfoFactory = issueStatusInfoFactory;
-        this.issueAssigneeInfoFactory = issueAssigneeInfoFactory;
-        this.issueTypeInfoFactory = issueTypeInfoFactory;
-        this.issuePriorityInfoFactory = issuePriorityInfoFactory;
-        this.issueReasonInfoFactory = issueReasonInfoFactory;
         this.issueCommentInfoFactory = issueCommentInfoFactory;
         this.issueService = issueService;
         this.exceptionFactory = exceptionFactory;
@@ -89,8 +78,8 @@ public class IssueResource {
         //validateMandatory(params, START, LIMIT);
         IssueFilter filter = issueService.newIssueFilter();
         Arrays.asList("datacollection", "datavalidation").stream().forEach(listItem -> issueService.findIssueType(listItem).ifPresent(filter::addIssueType));
-        Arrays.asList(IssueStatus.OPEN, IssueStatus.IN_PROGRESS).stream().forEach(listItem -> issueService.findStatus(listItem).ifPresent(filter::addStatus));
         List<IssueInfo> infos = issueService.findIssues(filter).find().stream()
+                .filter(isu -> !isu.getStatus().isHistorical())
                 .map(isu -> issueInfoFactory.from(isu, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
@@ -103,11 +92,11 @@ public class IssueResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/status/{id}")
+    @Path("/{id}/status")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public IssueStatusInfo getEndDevice(@PathParam("id") long issueId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+    public IssueStatusInfo getStatus(@PathParam("id") long issueId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         IssueStatus issueStatus = issueService.findIssue(issueId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, issueId)).getStatus();
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId))).getStatus();
         return issueStatusInfoFactory.from(issueStatus, uriInfo, fieldSelection.getFields());
     }
 
@@ -117,14 +106,22 @@ public class IssueResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{id}/close")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public IssueInfo closeIssue(@PathParam("id") long issueId, IssueStatusInfo issueStatusInfo, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        Issue issue = issueService.findIssue(issueId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, issueId));
-        //and lock by version?
-        Optional<IssueStatus> status = issueService.findStatus(IssueStatus.RESOLVED);
+    public IssueInfo closeIssue(@PathParam("id") long issueId, IssueShortInfo issueShortInfo, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        if (issueShortInfo == null || issueShortInfo.version == null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.VERSION_MISSING, "version");
+        }
+        Issue issue = issueService.findAndLockIssueByIdAndVersion(issueId, issueShortInfo.version).filter(isu -> !isu.getStatus().isHistorical())
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
+        if (issueShortInfo.status == null || issueShortInfo.status.id == null || issueShortInfo.status.id.isEmpty()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_MISSING, "status.id");
+        }
+        IssueStatus status = issueService.findStatus(issueShortInfo.status.id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_STATUS, issueShortInfo.status.id));
         HistoricalIssue closedIssue = null;
-        if (!issue.getStatus().isHistorical() && status.isPresent()) {
-            closedIssue = ((OpenIssue) issue).close(status.get());
+        if (!status.isHistorical()) {
+            closedIssue = ((OpenIssue) issue).close(status);
+        } else {
+            throw new LocalizedFieldValidationException(MessageSeeds.BAD_FIELD_VALUE, "status.id");
         }
         return closedIssue != null ? issueInfoFactory.from(closedIssue, uriInfo, fieldSelection.getFields()) : null;
     }
@@ -137,8 +134,9 @@ public class IssueResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response addComment(@PathParam("id") long issueId, IssueCommentInfo issueCommentInfo, @Context UriInfo uriInfo) {
-        Issue issue = issueService.findIssue(issueId).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, issueId));
-        User user = userService.findUser(issueCommentInfo.author.name).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, issueCommentInfo.author.id));
+        Issue issue = issueService.findIssue(issueId).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
+        User user = userService.findUser(issueCommentInfo.author.name)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USER, issueCommentInfo.author.id));
         issue.addComment(issueCommentInfo.comment, user).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
 
         URI uri = uriInfo.getBaseUriBuilder().
@@ -159,7 +157,7 @@ public class IssueResource {
                                                        @BeanParam FieldSelection fieldSelection,
                                                        @Context UriInfo uriInfo,
                                                        @BeanParam JsonQueryParameters queryParameters) {
-        Issue issue = issueService.findIssue(issueId).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, issueId));
+        Issue issue = issueService.findIssue(issueId).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_ISSUE, String.valueOf(issueId)));
         Condition condition = where("issueId").isEqualTo(issue.getId());
         Query<IssueComment> query = issueService.query(IssueComment.class, User.class);
         List<IssueComment> commentsList = query.select(condition, Order.ascending("createTime"));
