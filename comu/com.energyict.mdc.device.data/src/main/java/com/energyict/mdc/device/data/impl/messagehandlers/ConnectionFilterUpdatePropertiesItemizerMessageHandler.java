@@ -1,5 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.messagehandlers;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -7,12 +16,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterUpdatePropertiesQueueMessage;
 import com.energyict.mdc.device.data.tasks.UpdateConnectionTaskPropertiesQueueMessage;
-
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.util.json.JsonService;
 
 import java.util.List;
 import java.util.Optional;

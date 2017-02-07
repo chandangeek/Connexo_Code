@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -31,15 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * Provides an implementation of a Register of a {@link com.energyict.mdc.device.data.Device},
- * which is actually a wrapping around a {@link com.energyict.mdc.device.config.RegisterSpec}
- * of the {@link com.energyict.mdc.device.config.DeviceConfiguration}
- * <p/>
- * Copyrights EnergyICT
- * Date: 11/03/14
- * Time: 11:19
- */
 public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> implements Register<R, RS> {
 
     /**

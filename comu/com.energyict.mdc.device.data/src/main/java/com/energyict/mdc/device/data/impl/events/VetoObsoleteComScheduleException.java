@@ -1,10 +1,13 @@
-package com.energyict.mdc.device.data.impl.events;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 
 /**
  * Models the exceptional situation that occurs when a {@link ComSchedule}

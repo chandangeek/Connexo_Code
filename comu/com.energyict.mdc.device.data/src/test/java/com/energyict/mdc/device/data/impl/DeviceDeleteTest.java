@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -75,11 +79,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 01/07/15
- * Time: 10:37
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceDeleteTest {
 

@@ -1,7 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.MacException;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
@@ -9,10 +16,6 @@ import com.energyict.mdc.device.command.impl.constraintvalidators.HasUniqueComma
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits;
 import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.elster.jupiter.dualcontrol.PendingUpdate;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.MacException;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 
 import com.google.inject.Inject;
 

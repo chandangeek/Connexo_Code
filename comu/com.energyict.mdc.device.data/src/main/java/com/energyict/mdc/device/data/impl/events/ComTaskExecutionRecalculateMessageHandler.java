@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.messaging.Message;
@@ -7,13 +11,14 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import java.util.Optional;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.device.data.comschedule.recalculate.messagehandler", service = MessageHandler.class, immediate = true)
 public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler {

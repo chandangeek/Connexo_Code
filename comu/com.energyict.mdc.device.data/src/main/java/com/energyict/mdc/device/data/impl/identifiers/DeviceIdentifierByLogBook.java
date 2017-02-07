@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.Device;
@@ -6,11 +10,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/23/15
- * Time: 3:16 PM
- */
 public class DeviceIdentifierByLogBook implements DeviceIdentifier<Device> {
 
     private final LogBookIdentifier logBookIdentifier;

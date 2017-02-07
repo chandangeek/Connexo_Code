@@ -1,12 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.ImplField;
 
-/**
- * Copyrights EnergyICT
- * Date: 17/04/14
- * Time: 15:12
- */
 public enum ConnectionTaskFields implements ImplField {
 
     ID("id"),

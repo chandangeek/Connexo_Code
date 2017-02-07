@@ -1,12 +1,17 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Optional;
 
 public class MustHaveUniqueEndDeviceGroupValidator implements ConstraintValidator<MustHaveUniqueEndDeviceGroup, DataCollectionKpi> {
 

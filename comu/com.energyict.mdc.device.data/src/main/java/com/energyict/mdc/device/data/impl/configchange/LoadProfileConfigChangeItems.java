@@ -1,6 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.DeviceConfigChangeAction;
+import com.energyict.mdc.device.config.DeviceConfigChangeActionType;
+import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.LoadProfile;
 
 import java.util.List;

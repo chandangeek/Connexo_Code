@@ -1,6 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl;
 
-import com.elster.jupiter.datavault.DataVault;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.dualcontrol.DualControlService;
 import com.elster.jupiter.nls.NlsService;
@@ -8,15 +11,12 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
-
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-
-import java.time.Clock;
 
 public class CommandRuleModule extends AbstractModule {
     @Override

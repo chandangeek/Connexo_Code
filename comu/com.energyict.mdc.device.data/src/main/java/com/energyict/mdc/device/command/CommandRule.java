@@ -1,10 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command;
 
 import com.energyict.mdc.device.command.impl.CommandRuleCounter;
 
-import com.google.common.collect.Range;
-
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 

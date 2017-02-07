@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
@@ -9,7 +13,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.runner.*;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 

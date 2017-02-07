@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.EditPrivilege;
@@ -85,11 +89,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- * Date: 15.09.15
- * Time: 11:58
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 

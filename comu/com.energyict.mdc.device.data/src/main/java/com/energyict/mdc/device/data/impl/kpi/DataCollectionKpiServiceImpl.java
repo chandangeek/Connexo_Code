@@ -1,13 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.kpi.KpiBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;

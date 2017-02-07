@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -11,11 +15,6 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/1/14
- * Time: 2:59 PM
- */
 public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProfileIdentifier<LoadProfile> {
 
     private final LoadProfile loadProfile;

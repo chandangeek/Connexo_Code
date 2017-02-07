@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.command.impl;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -5,10 +9,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.MacException;
-
 import com.energyict.mdc.device.command.CommandRuleService;
-import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandLimitationRulesMacException;
 
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;

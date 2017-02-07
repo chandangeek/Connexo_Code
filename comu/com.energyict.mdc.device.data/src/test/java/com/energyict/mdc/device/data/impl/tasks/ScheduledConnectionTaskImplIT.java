@@ -1,4 +1,8 @@
 
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -40,7 +44,6 @@ import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -48,7 +51,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

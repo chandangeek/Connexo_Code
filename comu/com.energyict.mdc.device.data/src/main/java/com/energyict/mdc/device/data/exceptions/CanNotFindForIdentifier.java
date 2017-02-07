@@ -1,21 +1,16 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.exceptions;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 
-import com.elster.jupiter.util.exception.MessageSeed;
-
-/**
- * Generate exceptions for situations where an identifier could not find a corresponding object based on
- * the parameters in the identifier
- * <p>
- * Copyrights EnergyICT
- * Date: 12/18/14
- * Time: 1:15 PM
- */
 public class CanNotFindForIdentifier extends ComServerRuntimeException {
 
     private CanNotFindForIdentifier(MessageSeed messageSeed, Object... messageArguments) {

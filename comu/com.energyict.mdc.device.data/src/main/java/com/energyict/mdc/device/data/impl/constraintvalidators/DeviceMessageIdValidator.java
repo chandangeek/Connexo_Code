@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
@@ -7,11 +11,6 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Collections;
 
-/**
- * Copyrights EnergyICT
- * Date: 10/29/14
- * Time: 11:59 AM
- */
 public class DeviceMessageIdValidator implements ConstraintValidator<ValidDeviceMessageId, DeviceMessageImpl> {
 
     @Override

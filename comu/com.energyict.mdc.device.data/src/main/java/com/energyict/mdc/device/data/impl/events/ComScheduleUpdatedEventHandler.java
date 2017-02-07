@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
@@ -7,6 +11,7 @@ import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.events.VetoComTaskAdditionException;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComTaskComScheduleLink;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

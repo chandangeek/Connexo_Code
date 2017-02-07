@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -46,11 +50,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * Date: 01/07/15
- * Time: 08:22
- */
 public class TestProtocol implements DeviceProtocol {
 
     private final PropertySpecService propertySpecService;

@@ -1,13 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import java.math.BigDecimal;
 
-/**
- * Interface holding expected 'Behaviour' when syncing a (MDC) {@link Device} with a (Kore) {}@link Meter}
- * Copyrights EnergyICT
- * Date: 21/04/2016
- * Time: 9:07
- */
 public interface SyncDeviceWithKoreMeter {
 
     String MULTIPLIER_TYPE = "Default";

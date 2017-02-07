@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.estimation.EstimationResolver;
@@ -12,6 +16,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

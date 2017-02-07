@@ -1,9 +1,13 @@
-package com.energyict.mdc.device.data.impl;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.device.data.BillingReading;
+package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.device.data.BillingReading;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;

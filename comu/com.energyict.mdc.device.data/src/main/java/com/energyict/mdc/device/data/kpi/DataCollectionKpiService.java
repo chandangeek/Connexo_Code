@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.kpi;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;

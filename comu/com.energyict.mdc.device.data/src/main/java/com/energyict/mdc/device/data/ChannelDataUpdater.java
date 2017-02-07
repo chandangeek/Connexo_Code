@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.readings.BaseReading;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.identifiers;
 
 import com.energyict.mdc.device.data.Device;
@@ -7,11 +11,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 
 import javax.xml.bind.annotation.XmlElement;
 
-/**
- * Copyrights EnergyICT
- * Date: 2/23/15
- * Time: 3:11 PM
- */
 public class DeviceIdentifierByLoadProfile implements DeviceIdentifier<Device> {
 
     private final LoadProfileIdentifier loadProfileIdentifier;

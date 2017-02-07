@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.data.Device;
@@ -6,11 +10,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.ComPort;
+
 import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -21,16 +22,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/08/2016 - 15:53
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ServerConnectionTaskStatusTest {
 

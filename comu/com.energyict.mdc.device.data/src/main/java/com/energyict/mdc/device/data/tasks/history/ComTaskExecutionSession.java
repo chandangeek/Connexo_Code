@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
@@ -14,12 +18,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Copyrights EnergyICT
- * User: sva
- * Date: 23/04/12
- * Time: 14:25
- */
 @ProviderType
 public interface ComTaskExecutionSession extends HasId {
 
