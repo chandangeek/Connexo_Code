@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.rest.UnitAdapter;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Set;
 
 public class NumericalReadingInfo extends ReadingInfo {
@@ -50,6 +52,10 @@ public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("multiplier")
     public BigDecimal multiplier;
     public NumericalReadingInfo() {}
+    @JsonProperty("interval")
+    public IntervalInfo interval;
+    @JsonProperty("eventDate")
+    public Instant eventDate;
 
     @Override
     protected BaseReading createNew(Register<?, ?> register) {

@@ -34,6 +34,8 @@ import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 import com.energyict.mdc.device.topology.TopologyService;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -291,10 +293,15 @@ public class DeviceDataInfoFactory {
         setCalculatedValueIfApplicable(reading, register, billingReadingInfo, numberOfFractionDigits);
         if (reading.getRange().isPresent()) {
             billingReadingInfo.interval = IntervalInfo.from(reading.getRange().get());
+        } else {
+            billingReadingInfo.interval = IntervalInfo.from(Range.atMost(reading.getTimeStamp()));
         }
         addValidationInfo(reading, billingReadingInfo, isValidationStatusActive);
         if (dataLoggerSlave != null) {
             billingReadingInfo.slaveRegister = SlaveRegisterInfo.from(dataLoggerSlave, register);
+        }
+        if(register.hasEventDate()){
+            billingReadingInfo.eventDate = reading.getTimeStamp();
         }
         return billingReadingInfo;
     }
@@ -306,7 +313,7 @@ public class DeviceDataInfoFactory {
         if (timeStamp != null) {
             numericalReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         }
-
+        numericalReadingInfo.interval =  IntervalInfo.from(Range.atMost(reading.getTimeStamp()));
         Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
         int numberOfFractionDigits = ((NumericalRegister) register).getNumberOfFractionDigits();
         if (collectedValue != null) {
@@ -318,6 +325,9 @@ public class DeviceDataInfoFactory {
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
         if (dataLoggerSlave != null) {
             numericalReadingInfo.slaveRegister = SlaveRegisterInfo.from(dataLoggerSlave, register);
+        }
+        if(register.hasEventDate()){
+            numericalReadingInfo.eventDate = reading.getTimeStamp();
         }
         return numericalReadingInfo;
     }
@@ -394,6 +404,8 @@ public class DeviceDataInfoFactory {
         registerInfo.overruledObisCode = register.getDeviceObisCode();
         registerInfo.obisCodeDescription = register.getDeviceObisCode().getDescription();
         registerInfo.isCumulative = register.getReadingType().isCumulative();
+        registerInfo.hasEvent = register.hasEventDate();
+      //  register.getLastReading().isPresent(reading -> registerInfo.hasEvent = reading.)
         registerInfo.deviceName = device.getName();
         registerInfo.version = device.getVersion();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();

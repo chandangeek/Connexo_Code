@@ -16,6 +16,8 @@ import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -50,7 +52,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class RegisterResource {
+public class RegisterResource extends AbstractRegisterResource{
 
     private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
@@ -63,6 +65,7 @@ public class RegisterResource {
 
     @Inject
     public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService, MasterDataService masterDataService) {
+        super(clock);
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
         this.registerDataResourceProvider = registerDataResourceProvider;
@@ -185,7 +188,13 @@ public class RegisterResource {
         final List<ReadingType> filteredReadingTypes = getElegibleReadingTypes(jsonQueryFilter, device);
         List<SummarizedRegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
                 .filter(register -> filteredReadingTypes.size() == 0 || filteredReadingTypes.contains(register.getReadingType()))
-                .map(register -> new SummarizedRegisterInfo(register.getRegisterSpecId(), register.getReadingType().getFullAliasName(), register instanceof BillingRegister))
+                .map(register -> new SummarizedRegisterInfo(register.getRegisterSpecId(),
+                        register.getReadingType().getFullAliasName(),
+                        register instanceof BillingRegister,
+                        register.hasEventDate(),
+                        register.getReadingType().isCumulative(),
+                        register instanceof NumericalRegister && ((NumericalRegister) register).getRegisterSpec()
+                                .isUseMultiplier()))
                 .collect(Collectors.toList());
         Collections.sort(registerInfos, this::compareSummarizedRegisterInfos);
         return Response.ok(registerInfos).build();
@@ -234,19 +243,21 @@ public class RegisterResource {
                     List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()))
                             .stream()
                             .filter(reading -> {
-                                if ( toTimeFilterAvailable && !(register1 instanceof BillingRegister) ) {
+                                if (toTimeFilterAvailable && !(register1 instanceof NumericalReading)) {
                                      return false;
                                 }
-                                if (!toTimeFilterAvailable || !(register1 instanceof BillingRegister)) {
+                                if (!toTimeFilterAvailable || !(register1 instanceof NumericalReading)) {
                                     return true;
                                 }
-                                BillingReading billingReading = (BillingReading) reading;
-                                return billingReading.getRange().isPresent() && toTimeRange.contains(billingReading.getRange().get().upperEndpoint());
+                                NumericalReading reading1 = (NumericalReading) reading;
+                                return reading1.getRange().isPresent() && toTimeRange.contains(reading1.getRange().get().upperEndpoint());
                             })
                             .collect(Collectors.toList());
                     List<ReadingInfo> infoList = deviceDataInfoFactory.asReadingsInfoList(readings, register1, device.forValidation()
                             .isValidationActive(register1, this.clock.instant()), registers.contains(register1) ? null : register1.getDevice());
                     infoList.stream().forEach(readingInfo -> readingInfo.register = new IdWithNameInfo(register1.getRegisterSpecId(), register1.getReadingType().getFullAliasName()));
+                    Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
+                    addDeltaCalculationIfApplicableAndUpdateInterval(register1, infoList);
                     return infoList;
                 })
                 .flatMap(Collection::stream)

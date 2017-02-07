@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -50,19 +49,18 @@ import java.util.stream.Collectors;
         value = {DefaultState.DECOMMISSIONED},
         methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE},
         ignoredUserRoles = {Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-public class RegisterDataResource {
+public class RegisterDataResource extends AbstractRegisterResource{
 
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
-    private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
     private final TopologyService topologyService;
 
     @Inject
     public RegisterDataResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService) {
+        super(clock);
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
-        this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.topologyService = topologyService;
     }
@@ -91,7 +89,7 @@ public class RegisterDataResource {
                             .isValidationActive(register1, this.clock.instant()), register.equals(register1) ? null : register1.getDevice());
                     // sort the list of readings
                     Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
-                    addDeltaCalculationIfApplicable(register1, infoList);
+                    addDeltaCalculationIfApplicableAndUpdateInterval(register1, infoList);
                     return infoList.stream()
                             // filter the list of readings based on user parameters
                             .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects));
@@ -100,34 +98,6 @@ public class RegisterDataResource {
 
         List<ReadingInfo> paginatedReadingInfo = ListPager.of(readingInfos).from(queryParameters).find();
         return PagedInfoList.fromPagedList("data", paginatedReadingInfo, queryParameters);
-    }
-
-    private void addDeltaCalculationIfApplicable(Register<?, ?> register, List<ReadingInfo> readingInfos) {
-    /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
-       The Delta value won't be stored in the database yet, as it has a performance impact */
-        if (!register.getRegisterSpec().isTextual()) {
-            ReadingType readingTypeForCalculation = register.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant()))
-                    .isPresent() ? register.getCalculatedReadingType(register.getLastReadingDate().orElse(clock.instant())).get() : register.getReadingType();
-            boolean cumulative = readingTypeForCalculation.isCumulative();
-            if (cumulative) {
-                List<NumericalReadingInfo> numericalReadingInfos = readingInfos.stream().map(readingInfo -> ((NumericalReadingInfo) readingInfo)).collect(Collectors.toList());
-                for (int i = 0; i < numericalReadingInfos.size() - 1; i++) {
-                    NumericalReadingInfo previous = numericalReadingInfos.get(i + 1);
-                    NumericalReadingInfo current = numericalReadingInfos.get(i);
-                    if (register.getCalculatedReadingType(current.timeStamp).isPresent() && previous.calculatedValue != null && current.calculatedValue != null) {
-                        calculateDelta(current, previous.calculatedValue, current.calculatedValue);
-                    } else if (previous.value != null && current.value != null) {
-                        calculateDelta(current, previous.value, current.value);
-
-                    }
-                }
-            }
-        }
-    }
-
-    private void calculateDelta(NumericalReadingInfo current, BigDecimal previousVale, BigDecimal currentValue) {
-        current.deltaValue = currentValue.subtract(previousVale);
-        current.deltaValue = current.deltaValue.setScale(currentValue.scale(), BigDecimal.ROUND_UP);
     }
 
     @GET

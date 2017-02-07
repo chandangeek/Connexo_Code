@@ -11,8 +11,10 @@ import java.time.Instant;
 
 public class BillingReadingInfo extends NumericalReadingInfo {
 
-    @JsonProperty("interval")
-    public IntervalInfo interval;
+//    @JsonProperty("interval")
+//    public IntervalInfo interval;
+    @JsonProperty("eventDate")
+    public Instant eventDate;
 
     public BillingReadingInfo() {
     }
