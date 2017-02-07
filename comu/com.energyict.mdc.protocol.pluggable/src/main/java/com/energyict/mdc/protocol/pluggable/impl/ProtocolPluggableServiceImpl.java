@@ -62,6 +62,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactoryImpl;
@@ -73,7 +74,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessa
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -100,7 +100,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateAlias;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;

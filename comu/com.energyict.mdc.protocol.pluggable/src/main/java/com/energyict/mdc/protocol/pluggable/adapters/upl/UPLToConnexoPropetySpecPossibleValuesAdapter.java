@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
+package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;

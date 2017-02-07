@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
+package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.ReadingType;
@@ -7,7 +7,6 @@ import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.FirmwareVersion;
 import com.energyict.mdc.upl.properties.HexString;
-
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;

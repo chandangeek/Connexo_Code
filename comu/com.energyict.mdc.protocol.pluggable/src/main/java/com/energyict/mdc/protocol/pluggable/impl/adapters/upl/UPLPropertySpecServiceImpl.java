@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ServerProtocolPluggableService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.FirmwareVersion;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySelectionMode;
@@ -19,7 +20,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.obis.ObisCode;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -43,7 +43,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-28 (09:43)
  */
-@Component(name = "com.energyict.mdc.protocol.pluggable.upl.propertyspecservice", service = {UPLPropertySpecServiceImpl.class})
+@Component(name = "com.energyict.mdc.protocol.pluggable.upl.propertyspecservice", service = {PropertySpecService.class}, immediate = true)
 @SuppressWarnings("unused")
 public class UPLPropertySpecServiceImpl implements PropertySpecService {
     private volatile com.energyict.mdc.dynamic.PropertySpecService actual;
@@ -479,7 +479,8 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
         DEVICE_MESSAGE_FILE("com.energyict.mdc.upl.properties.DeviceMessageFile", DeviceMessageFile.class),
         DEVICE_GROUP("com.energyict.mdc.upl.properties.DeviceGroup", EndDeviceGroup.class),
         LOAD_PROFILE("com.energyict.mdc.upl.properties.LoadProfile", LoadProfile.class),
-        TARRIFF_CALENDAR("com.energyict.mdc.upl.properties.TariffCalendar", Calendar.class);
+        TARRIFF_CALENDAR("com.energyict.mdc.upl.properties.TariffCalendar", Calendar.class),
+        FIRMWARE_VERSION("com.energyict.mdc.upl.properties.FirmwareVersion",FirmwareVersion.class); //TODO temporary
 
         private final String uplClassName;
         private final Class connexoClass;

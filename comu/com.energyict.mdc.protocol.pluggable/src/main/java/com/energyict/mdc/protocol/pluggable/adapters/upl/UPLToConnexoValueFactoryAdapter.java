@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
+package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
