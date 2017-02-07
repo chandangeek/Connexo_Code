@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  */
 public class T210DEventPushNotificationParser extends DataPushNotificationParser {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
     public static final String IP_ADDRESS_PROPERTY_NAME = "host";
     private static final ObisCode LOGICAL_NAME_OBIS = ObisCode.fromString("0.0.42.0.0.255");
     private static final ObisCode LOAD_PROFILE_1_OBIS = ObisCode.fromString("1.0.99.1.0.255");
