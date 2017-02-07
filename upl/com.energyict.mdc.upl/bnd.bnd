@@ -37,4 +37,5 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.protocol,\
                 com.energyict.protocol.exceptions,\
                 com.energyict.protocol.meteridentification,\
+                com.energyict.mdc.protocol.security,\
                 com.energyict.protocol.tools
