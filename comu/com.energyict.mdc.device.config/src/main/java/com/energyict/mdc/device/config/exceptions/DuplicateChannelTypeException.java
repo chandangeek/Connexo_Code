@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -10,15 +14,6 @@ import com.energyict.mdc.masterdata.MeasurementType;
 
 import javax.validation.constraints.NotNull;
 
-/**
- * Models the exceptional situation that occurs when an attempt is made
- * to create an entity while there already exists an entity with that specific
- * {@link com.energyict.mdc.masterdata.MeasurementType}
- * <p/>
- * Copyrights EnergyICT
- * Date: 07/02/14
- * Time: 10:57
- */
 public class DuplicateChannelTypeException extends LocalizedException {
 
     private DuplicateChannelTypeException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {

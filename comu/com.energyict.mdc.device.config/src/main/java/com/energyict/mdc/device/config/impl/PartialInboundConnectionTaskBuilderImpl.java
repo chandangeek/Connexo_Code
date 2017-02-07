@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
@@ -5,11 +9,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 
-/**
- * Copyrights EnergyICT
- * Date: 14/03/14
- * Time: 10:09
- */
 class PartialInboundConnectionTaskBuilderImpl extends AbstractPartialConnectionTaskBuilder<PartialInboundConnectionTaskBuilder, InboundComPortPool, PartialInboundConnectionTaskImpl> implements PartialInboundConnectionTaskBuilder {
 
     PartialInboundConnectionTaskBuilderImpl(DataModel dataModel, DeviceConfigurationImpl configuration) {

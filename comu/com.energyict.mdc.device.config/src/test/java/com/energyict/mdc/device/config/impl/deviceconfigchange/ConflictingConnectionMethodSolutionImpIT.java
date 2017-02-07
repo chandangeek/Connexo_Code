@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -21,11 +25,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 
-/**
- * Copyrights EnergyICT
- * Date: 14.09.15
- * Time: 11:57
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT{
 

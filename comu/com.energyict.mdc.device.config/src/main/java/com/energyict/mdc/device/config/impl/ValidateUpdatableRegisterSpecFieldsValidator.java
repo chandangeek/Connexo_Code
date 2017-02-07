@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -9,11 +13,6 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 30.11.15
- * Time: 12:01
- */
 public class ValidateUpdatableRegisterSpecFieldsValidator implements ConstraintValidator<ValidateUpdatableRegisterSpecFields, NumericalRegisterSpecImpl> {
 
     private final DeviceConfigurationService deviceConfigurationService;

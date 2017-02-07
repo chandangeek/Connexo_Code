@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -6,11 +10,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-/**
- * Copyrights EnergyICT
- * Date: 6/17/14
- * Time: 10:52 AM
- */
 public class ConnectionTaskTypeDirectionValidator implements ConstraintValidator<ConnectionTypeDirectionValidForConnectionTask, PartialConnectionTask> {
 
     private ConnectionType.Direction direction;

@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.common.TypedProperties;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.properties.HasDynamicProperties;
 
 /**
  * Models the general protocol properties that can be specified on the

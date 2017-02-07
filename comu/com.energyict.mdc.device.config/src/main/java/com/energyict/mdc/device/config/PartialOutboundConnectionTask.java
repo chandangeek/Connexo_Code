@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.config;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.elster.jupiter.time.TemporalExpression;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Partial version of a OutboundConnectionTask.
