@@ -10,6 +10,8 @@ Ext.define('Dal.privileges.Alarm', {
     viewAdminProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
     viewAdminAlarm: ['privilege.view.alarm', 'privilege.comment.alarm', 'privilege.close.alarm', 'privilege.assign.alarm', 'privilege.action.alarm'],
     adminDevice: ['privilege.comment.alarm', 'privilege.close.alarm', 'privilege.assign.alarm', 'privilege.action.alarm'],
+    commentOrAssing: ['privilege.comment.alarm', 'privilege.assign.alarm'],
+    closeOrAssing: ['privilege.close.alarm', 'privilege.assign.alarm'],
     comment: ['privilege.comment.alarm'],
     assign: ['privilege.assign.alarm'],
     close: ['privilege.close.alarm'],

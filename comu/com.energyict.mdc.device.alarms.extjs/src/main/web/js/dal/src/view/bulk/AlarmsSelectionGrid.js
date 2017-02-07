@@ -9,7 +9,7 @@ Ext.define('Dal.view.bulk.AlarmsSelectionGrid', {
     },
 
     allLabel: Uni.I18n.translate('workspace.alarms.bulk.AlarmsSelectionGrid.allLabel', 'DAL', 'All alarms'),
-    allDescription: Uni.I18n.translate('workspace.alarms.bulk.AlarmsSelectionGrid.allDescription', 'DAL', 'Select all alarms (related to filters and grouping on the alarms screen)'),
+    allDescription: Uni.I18n.translate('workspace.alarms.bulk.AlarmsSelectionGrid.allDescription', 'DAL', 'Select all alarms (related to filters on the alarms screen)'),
 
     selectedLabel: Uni.I18n.translate('workspace.alarms.bulk.AlarmsSelectionGrid.selectedLabel', 'DAL', 'Selected alarms'),
     selectedDescription: Uni.I18n.translate('workspace.alarms.bulk.AlarmsSelectionGrid.selectedDescription', 'DAL', 'Select alarms in table'),
@@ -20,7 +20,7 @@ Ext.define('Dal.view.bulk.AlarmsSelectionGrid', {
         items: [
             {
                 itemId: 'alarms-grid-id',
-                header: Uni.I18n.translate('general.title.alarmId', 'DAL', 'ID'),
+                header: Uni.I18n.translate('general.title.alarmBulkId', 'DAL', 'ID'),
                 dataIndex: 'alarmId'
             },
             {
@@ -50,22 +50,7 @@ Ext.define('Dal.view.bulk.AlarmsSelectionGrid', {
                 dataIndex: 'workGroupAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    var result;
-
-                    if (!Ext.isEmpty(value) && value.hasOwnProperty('id')) {
-                        result = '';
-
-                        result += '<span class="isu-icon-GROUP isu-assignee-type-icon" data-qtip="';
-                        result += Uni.I18n.translate('assignee.tooltip.workgroup', 'DAL', 'Workgroup');
-                        result += '"></span>';
-
-                        if (value.name) {
-                            result += Ext.String.htmlEncode(value.name);
-                        }
-                    } else {
-                        result = '-'
-                    }
-                    return result || this.columns[colIndex].emptyText;
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'DAL', 'Unassigned');
                 }
             },
             {
@@ -74,23 +59,7 @@ Ext.define('Dal.view.bulk.AlarmsSelectionGrid', {
                 dataIndex: 'userAssignee',
                 flex: 1,
                 renderer: function (value, metaData, record, rowIndex, colIndex) {
-                    var result
-
-                    if (value && value.hasOwnProperty('id')) {
-                        var result = '';
-
-                        result += '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="';
-                        result += Uni.I18n.translate('assignee.tooltip.USER', 'DAL', 'User');
-                        result += '"></span>';
-
-                        if (value.name) {
-                            result += Ext.String.htmlEncode(value.name);
-                        }
-                    } else {
-                        result = '-';
-                    }
-
-                    return result || this.columns[colIndex].emptyText;
+                    return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'DAL', 'Unassigned');
                 }
             }
         ]
