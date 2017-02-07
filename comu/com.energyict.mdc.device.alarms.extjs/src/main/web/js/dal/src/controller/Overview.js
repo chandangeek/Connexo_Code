@@ -11,7 +11,8 @@ Ext.define('Dal.controller.Overview', {
     ],
 
     views: [
-        'Dal.view.overview.Overview'
+        'Dal.view.overview.Overview',
+        'Dal.view.overview.HistoryGraph'
     ],
 
     sections: ['status', 'userAssignee', 'reason', 'workGroupAssignee'],

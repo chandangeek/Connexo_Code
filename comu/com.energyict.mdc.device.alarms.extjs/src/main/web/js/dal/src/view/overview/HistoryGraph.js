@@ -1,12 +1,3 @@
-/*Ext.define('Ext.chart.theme.ColumnTheme', {
- extend: 'Ext.chart.theme.Base',
- constructor: function(config) {
- this.callParent([Ext.apply({
- colors: ['#eb5642','#70bb52']
- }, config)]);
- }
- });
- */
 Ext.define('Dal.view.overview.HistoryGraph', {
     extend: 'Ext.panel.Panel',
     ui: 'tile',
