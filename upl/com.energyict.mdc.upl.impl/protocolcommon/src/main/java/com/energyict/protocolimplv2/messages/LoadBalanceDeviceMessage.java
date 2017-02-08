@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
@@ -75,8 +74,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.power
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.powerLimitThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readFrequencyInMinutesAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readingTypeAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.readingTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.tariffAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.tariffAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.thresholdInAmpereAttributeDefaultTranslation;
@@ -255,12 +252,14 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecSupplier {
                             .finish());
         }
     },
-    SET_LOAD_LIMIT_MEASUREMENT_VALUE(2018, "Set load limit measurement reading type") {
+/*
+  SET_LOAD_LIMIT_MEASUREMENT_VALUE(2018, "Set load limit measurement reading type") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.readingTypeSpec(service, readingTypeAttributeName, readingTypeAttributeDefaultTranslation));
         }
     },
+*/
     CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION(12018, "Configure the load limit threshold and duration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
