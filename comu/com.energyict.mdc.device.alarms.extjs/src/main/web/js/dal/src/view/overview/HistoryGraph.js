@@ -1,7 +1,8 @@
 Ext.define('Dal.view.overview.HistoryGraph', {
     extend: 'Ext.panel.Panel',
     requires: [
-        'Ext.chart.*'
+        'Ext.chart.*',
+        'Ext.data.JsonStore'
     ],
     ui: 'tile',
     alias: 'widget.history-graph',
