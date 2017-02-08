@@ -424,7 +424,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if(reason.isPresent()){
             return reason.get();
         }else{
-           return createReason(key, issueType, new SimpleTranslationKey(key,key), null);
+            if(!key.isEmpty()) {
+                return createReason(key, issueType, new SimpleTranslationKey(key, key), null);
+            }else{
+                return null;
+            }
         }
     }
 
