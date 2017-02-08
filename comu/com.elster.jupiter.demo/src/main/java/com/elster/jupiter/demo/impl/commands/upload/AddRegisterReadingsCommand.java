@@ -62,11 +62,11 @@ public class AddRegisterReadingsCommand extends ReadDataFromFileCommand {
     @Override
     protected void saveRecord(ReadingType readingType, String controlValue, Double value, String from, String to) {
         Instant timeForReading = this.timeProvider.getTimeForReading(readingType, getStart(), controlValue);
-        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         Instant fromInstant = null;
         try {
             fromInstant = format.parse(from).toInstant();
-            Instant toInstant = format.parse(from).toInstant();
+            Instant toInstant = format.parse(to).toInstant();
             meterReading.addReading(ReadingImpl.of(readingType.getMRID(), BigDecimal.valueOf(value), timeForReading, fromInstant, toInstant));
         } catch (ParseException e) {
             e.printStackTrace();

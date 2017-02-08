@@ -154,14 +154,14 @@ public abstract class ReadDataFromFileCommand {
 
     private void addBilling(String[] columns, String controlValue, String from, String to) {
         try {
-            for (int i = 1; i < columns.length && i <= this.readingTypes.size() ; i++) {
+            for (int i = 3; i < columns.length && i <= this.readingTypes.size() ; i++) {
                 String stringValue = columns[i].replace(",", ".").replace(" ", "");
                 if (!is(stringValue).emptyOrOnlyWhiteSpace()) {
                     try {
                         double doubleValue = Double.valueOf(stringValue);
-                        saveRecord(this.readingTypes.get(i-1), controlValue, doubleValue);
+                        saveRecord(this.readingTypes.get(i-3), controlValue, doubleValue, from, to);
                     } catch (NumberFormatException e){
-                        saveRecord(this.readingTypes.get(i-1), controlValue, stringValue);
+                        e.printStackTrace();
                     }
                 }
             }
