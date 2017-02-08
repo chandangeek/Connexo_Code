@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.view.DefineMetrologyConfiguration', {
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'define-metrology-configuration',
@@ -28,7 +32,7 @@ Ext.define('Imt.metrologyconfiguration.view.DefineMetrologyConfiguration', {
                     ui: 'medium',
                     padding: '0 0 0 0',
                     itemId: 'define-metrology-configuration-navigation',
-                    title: Uni.I18n.translate('defineMetrologyConfiguration.wizard.menu', 'IMT', 'Define metrology configuration'),
+                    title: Uni.I18n.translate('usagePoint.metrologyConfiguration.link', 'IMT', 'Link metrology configuration'),
                     items: [
                         {
                             itemId: 'define-metrology-configuration-navigation-step-1',

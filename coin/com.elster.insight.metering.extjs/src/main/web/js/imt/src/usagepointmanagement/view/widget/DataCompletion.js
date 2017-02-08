@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.data-completion-widget',
@@ -90,12 +94,14 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                         forceSelection: true,
                         value: defaultPurposeId,
                         listeners: {
-                            change: function (combo, newvalue) {
-                                me.setPurpose(purposesStore.getById(newvalue));
-                                me.loadPeriodsStore({
-                                    usagePointId: me.usagePoint.get('name'),
-                                    purposeId: newvalue
-                                });
+                            change: function (combo, newValue) {
+                                me.setPurpose(purposesStore.getById(newValue));
+                                if (!Ext.isEmpty(newValue)) {
+                                    me.loadPeriodsStore({
+                                        usagePointId: me.usagePoint.get('name'),
+                                        purposeId: newValue
+                                    });
+                                }
                             }
                         }
                     },

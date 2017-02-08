@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithRuleSetsGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.purpose-with-rule-sets-grid',

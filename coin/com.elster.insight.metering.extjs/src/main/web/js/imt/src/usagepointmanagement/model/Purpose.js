@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.model.Purpose', {
     extend: 'Uni.model.Version',
     fields: [
@@ -15,7 +19,6 @@ Ext.define('Imt.usagepointmanagement.model.Purpose', {
             type: 'json'
         }
     },
-
     triggerActivation: function (usagePoint, options) {
         var me = this,
             url = me.getProxy().url.replace('{usagePointId}', usagePoint.get('name'))

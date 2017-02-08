@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.metrologyconfiguration.view.estimation.AddEstimationRuleSetsToPurposeGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.add-estimation-rule-sets-to-purpose-grid',

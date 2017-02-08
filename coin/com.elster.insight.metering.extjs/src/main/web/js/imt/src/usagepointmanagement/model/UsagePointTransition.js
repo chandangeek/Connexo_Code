@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.model.UsagePointTransition', {
     extend: 'Ext.data.Model',
     fields: [
@@ -9,7 +13,8 @@ Ext.define('Imt.usagepointmanagement.model.UsagePointTransition', {
     ],
 
     associations: [
-        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
+        {
+            name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
                 return 'Uni.property.model.Property';
             }

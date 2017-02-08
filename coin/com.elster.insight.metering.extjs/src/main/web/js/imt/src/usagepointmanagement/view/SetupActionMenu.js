@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.usage-point-setup-action-menu',
@@ -21,14 +25,14 @@ Ext.define('Imt.usagepointmanagement.view.SetupActionMenu', {
         me.callParent(arguments);
     },
 
-    setActions: function(actionsStore, router) {
+    setActions: function (actionsStore, router) {
         var me = this;
 
-        actionsStore.each(function(item) {
+        actionsStore.each(function (item) {
             me.add({
                 itemId: 'action-menu-item' + item.get('id'),
                 text: item.get('name'),
-                handler: function() {
+                handler: function () {
                     router.getRoute('usagepoints/view/transitions').forward({transitionId: item.get('id')});
                 },
                 section: me.SECTION_ACTION

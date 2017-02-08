@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates', {
     extend: 'Ext.app.Controller',
 
@@ -71,7 +75,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
             },
             'usagepoint-life-cycle-state-edit #addOnExitTransitionBusinessProcess': {
                 click: this.addExitTransitionBusinessProcessesToState
-            },            
+            },
             'add-processes-to-state button[name=cancel]': {
                 click: this.forwardToPreviousPage
             },
@@ -186,7 +190,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
     },
 
     setAsInitial: function () {
-        var me = this,            
+        var me = this,
             page = this.getPage(),
             router = this.getController('Uni.controller.history.Router'),
             record = this.getLifeCycleStatesGrid().getSelectionModel().getLastSelected(),
@@ -202,7 +206,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
             callback: function () {
                 page.setLoading(false);
             }
-        });        
+        });
     },
 
     moveToEditPage: function () {
@@ -379,7 +383,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             editForm = me.getLifeCycleStatesEditForm();
-        
+
         editForm.updateRecord();
         router.getRoute(router.currentRoute + (storeToUpdate === 'onEntry' ? '/addEntryProcesses' : '/addExitProcesses')).forward();
     },
@@ -402,7 +406,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
             this.getApplication().fireEvent('changecontentevent', widget);
         }
     },
-    
+
     forwardToPreviousPage: function () {
         var me = this;
         var router = me.getController('Uni.controller.history.Router'),

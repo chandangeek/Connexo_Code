@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.model.Reading', {
     extend: 'Uni.model.Version',
     requires: [],
     fields: [
         {name: 'value', type: 'auto', useNull: true},
         {name: 'interval', type: 'auto', useNull: true},
-        {name: 'readingTime', dateFormat: 'time', type: 'date'},
+        {name: 'reportedDateTime', dateFormat: 'time', type: 'date'},
         {name: 'dataValidated', type: 'auto'},
         {name: 'action', type: 'auto'},
         {name: 'validationResult', type: 'auto'},

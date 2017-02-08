@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.model.RegisterReading', {
     extend: 'Ext.data.Model',
     idProperty: 'timeStamp',
@@ -7,6 +11,7 @@ Ext.define('Imt.purpose.model.RegisterReading', {
         {name: 'timeStamp', type: 'auto', useNull: true},
         {name: 'type', type: 'auto'},
         {name: 'validationResult', type: 'auto', useNull: true, persist: false},
+        {name: 'dataValidated', type: 'auto'},
         {name: 'validationRules', type: 'auto', useNull: true, persist: false},
         {name: 'isConfirmed', type: 'auto'},
         {name: 'calculatedValue', type: 'auto'},

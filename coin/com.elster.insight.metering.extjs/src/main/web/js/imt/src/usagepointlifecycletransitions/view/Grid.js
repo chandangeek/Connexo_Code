@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycletransitions.view.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.usagepoint-life-cycle-transitions-grid',
@@ -25,7 +29,7 @@ Ext.define('Imt.usagepointlifecycletransitions.view.Grid', {
                 header: Uni.I18n.translate('general.to', 'IMT', 'To'),
                 dataIndex: 'toState_name',
                 flex: 1
-            },            
+            },
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Imt.privileges.UsagePointLifeCycle.configure,

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.bulk.CalendarsSelectionGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.calendars-selection-grid',

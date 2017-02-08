@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycle.model.UsagePointLifeCycle', {
     extend: 'Uni.model.Version',
     fields: [
@@ -22,7 +26,7 @@ Ext.define('Imt.usagepointlifecycle.model.UsagePointLifeCycle', {
         type: 'rest',
         url: '/api/upl/lifecycle',
         reader: {
-            type: 'json'            
+            type: 'json'
         }
     }
 });

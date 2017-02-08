@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycle.view.Preview', {
     extend: 'Ext.panel.Panel',
     frame: true,
     alias: 'widget.usagepoint-life-cycles-preview',
     xtype: 'usagepoint-life-cycles-preview',
-    
+
     requires: [
         'Imt.usagepointlifecycle.view.PreviewForm',
         'Imt.usagepointlifecycle.view.ActionMenu'

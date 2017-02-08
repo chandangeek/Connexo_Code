@@ -1,11 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.meter-roles-grid',
     store: null,
-    ui: 'medium',
-    title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
-    maxHeight: 408,
     router: null,
+    hasLinkMetersButton: true,
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -19,7 +21,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                 dataIndex: 'required',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.no', 'IMT', 'No');
+                    return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : '-';
                 }
             },
             {
@@ -54,13 +56,15 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.meterRolesCount', 'IMT', '{0} meter role(s)', me.store.getCount()),
+                displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.meterRolesCount', 'IMT', '{2} meter role(s)'),
+                isFullTotalCount: true,
+                noBottomPaging: true,
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.editMeters', 'IMT', 'Edit meters'),
+                        text: Uni.I18n.translate('general.linkMeters', 'IMT', 'Link meters'),
                         itemId: 'edit-meters',
-                        privileges: Imt.privileges.UsagePoint.canAdministrate,
+                        privileges: me.hasLinkMetersButton && Imt.privileges.UsagePoint.canAdministrate(),
                         href: me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl()
                     }
                 ]

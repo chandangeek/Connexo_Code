@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycletransitions.view.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usagepoint-life-cycle-transitions-preview-form',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycle.view.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagepoint-life-cycles-overview',
@@ -29,7 +33,7 @@ Ext.define('Imt.usagepointlifecycle.view.Overview', {
                     },
                     {
                         xtype: 'uni-button-action',
-                        privileges: Imt.privileges.UsagePointLifeCycle.configure,                        
+                        privileges: Imt.privileges.UsagePointLifeCycle.configure,
                         itemId: 'usagepoint-life-cycles-action-menu-btn',
                         margin: '20 0 0 0',
                         menu: {

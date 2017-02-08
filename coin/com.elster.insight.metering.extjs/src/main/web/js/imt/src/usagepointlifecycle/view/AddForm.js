@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecycle.view.AddForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usagepoint-life-cycles-add-form',
@@ -11,7 +15,7 @@ Ext.define('Imt.usagepointlifecycle.view.AddForm', {
     btnAction: null,
     btnText: null,
     route: null,
-    hideInfoMsg: false,    
+    hideInfoMsg: false,
     ui: 'large',
     width: '100%',
     title: Uni.I18n.translate('general.addUsagePointLifeCycle', 'IMT', 'Add usage point life cycle'),
@@ -50,7 +54,7 @@ Ext.define('Imt.usagepointlifecycle.view.AddForm', {
                 enforceMaxLength: true,
                 maxLength: 80,
                 listeners: {
-                    afterrender: function(field) {
+                    afterrender: function (field) {
                         field.focus(false, 200);
                     }
                 }

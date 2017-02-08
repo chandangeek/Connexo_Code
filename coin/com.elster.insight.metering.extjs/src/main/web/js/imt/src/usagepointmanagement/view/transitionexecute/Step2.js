@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.transitionexecute.Step2', {
     extend: 'Ext.panel.Panel',
     xtype: 'usagepointtransitionexecute-wizard-step2',
@@ -28,12 +32,12 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.Step2', {
         var me = this;
 
         Ext.suspendLayouts();
-        me.removeAll(true);        
+        me.removeAll(true);
         me.add({
                 xtype: 'transition-result-panel',
                 itemId: 'transition-result-panel',
                 response: response,
-                router: router                
+            router: router
             }
         );
         Ext.resumeLayouts(true);

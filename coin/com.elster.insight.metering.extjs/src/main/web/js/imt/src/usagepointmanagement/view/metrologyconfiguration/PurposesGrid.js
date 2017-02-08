@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.purposes-grid',
@@ -67,7 +71,9 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid', 
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.purposesCount', 'IMT', '{0} purpose(s)', me.store.getCount())
+                isFullTotalCount: true,
+                noBottomPaging: true,
+                displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.purposesCount', 'IMT', '{2} purpose(s)')
             }
         ];
         me.callParent(arguments);

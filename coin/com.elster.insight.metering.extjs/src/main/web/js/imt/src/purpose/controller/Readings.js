@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.purpose.controller.Readings', {
     extend: 'Ext.app.Controller',
 
@@ -42,6 +46,10 @@ Ext.define('Imt.purpose.controller.Readings', {
         {
             ref: 'readingsList',
             selector: '#output-readings #readings-list'
+        },
+        {
+            ref: 'outputReadings',
+            selector: '#output-readings'
         },
         {
             ref: 'readingsGraph',
@@ -148,11 +156,14 @@ Ext.define('Imt.purpose.controller.Readings', {
                         rec.set('confirmedNotSaved', true);
                         chart.get(rec.get('interval').start).update({color: 'rgba(112,187,81,0.3)'});
                         grid.getView().refreshNode(grid.getStore().indexOf(rec));
+                        chart.get(rec.get('interval').start).select(false);
+                        me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', record);
                         rec.set('confirmed', true);
                     }
                 }
             };
 
+        Ext.suspendLayouts(true);
         if (isBulk) {
             Ext.Array.each(record, function (reading) {
                 func(reading);
@@ -161,6 +172,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             func(record);
         }
 
+        Ext.resumeLayouts();
         me.getReadingsList().down('#save-changes-button').isDisabled() && me.showButtons();
     },
 
@@ -185,7 +197,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
 
         if (menu.down('#reset-value')) {
-            menu.down('#reset-value').setVisible(menu.record.get('calculatedValue'));
+            menu.down('#reset-value').setVisible(menu.record.get('calculatedValue') || menu.record.get('modificationFlag') == "EDITED" || menu.record.get('modificationFlag') == "ADDED");
         }
         Ext.resumeLayouts();
     },
@@ -207,6 +219,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (event.record.isModified('value')) {
             grid.down('#save-changes-button').isDisabled() && me.showButtons();
 
+            Ext.suspendLayouts(true);
             if (!value) {
                 point.update({y: null});
                 event.record.set('value', '0');
@@ -221,6 +234,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                     value: value
                 };
                 point.update(updatedObj);
+                point.select(false);
+                me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record);
             }
 
             if (event.column) {
@@ -228,6 +243,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                 event.record.get('confirmed') && event.record.set('confirmed', false);
             }
+            Ext.resumeLayouts();
         } else if (condition) {
             me.resetChanges(event.record, point);
         }
@@ -249,8 +265,9 @@ Ext.define('Imt.purpose.controller.Readings', {
         } else if (properties.informative) {
             color = '#dedc49';
         }
-
         record.get('confirmed') && record.set('confirmed', false);
+
+        Ext.suspendLayouts(true);
         grid.getView().refreshNode(store.indexOf(record));
         point.update({
             y: parseFloat(record.get('value')),
@@ -262,6 +279,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             grid.down('#save-changes-button').disable();
             grid.down('#undo-button').disable();
         }
+        Ext.resumeLayouts();
     },
 
     undoChannelDataChanges: function () {
@@ -338,7 +356,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     canConfirm = true;
                 }
             }
-            if (!canReset && record.get('calculatedValue')) {
+            if (!canReset && (record.get('calculatedValue') || record.get('modificationFlag') == "EDITED" || record.get('modificationFlag') == "ADDED")) {
                 canReset = true;
             }
         });
@@ -363,23 +381,22 @@ Ext.define('Imt.purpose.controller.Readings', {
         Ext.suspendLayouts();
         Ext.Array.each(records, function (record) {
             calculatedValue = record.get('calculatedValue');
-            if (calculatedValue) {
-                record.beginEdit();
-                record.set('removedNotSaved', true);
-                record.set('value', calculatedValue);
-                if (record.get('confirmed')) {
-                    record.set('confirmed', false);
-                }
-                record.set('validationResult', 'validationStatus.ok');
-                record.endEdit(true);
-                gridView.refreshNode(store.indexOf(record));
-                point = chart.get(record.get('interval').start);
-                point.update({y: parseFloat(calculatedValue), color: 'rgba(112,187,81,0.3)', value: calculatedValue});
+            record.beginEdit();
+            record.set('removedNotSaved', true);
+            record.set('value', calculatedValue);
+            if (record.get('confirmed')) {
+                record.set('confirmed', false);
             }
+            record.set('validationResult', 'validationStatus.ok');
+            record.endEdit(true);
+            gridView.refreshNode(store.indexOf(record));
+            point = chart.get(record.get('interval').start);
+            point.update({y: parseFloat(calculatedValue), color: 'rgba(112,187,81,0.3)', value: calculatedValue});
+
         });
         chart.redraw();
-        me.showButtons();
         Ext.resumeLayouts(true);
+        me.showButtons();
     },
 
     estimateValue: function (record) {

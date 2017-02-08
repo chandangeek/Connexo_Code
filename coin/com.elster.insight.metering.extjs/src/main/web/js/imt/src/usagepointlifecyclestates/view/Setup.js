@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Imt.usagepointlifecyclestates.view.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagepoint-life-cycle-states-setup',
@@ -50,7 +54,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Setup', {
                                 xtype: 'button',
                                 itemId: 'add-state-button',
                                 text: Uni.I18n.translate('usagePointLifeCycleStates.add', 'IMT', 'Add state'),
-                                action: 'addState'                                
+                                action: 'addState'
                             }
                         ]
                     },
