@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.impl.templates;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
@@ -6,8 +10,6 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
@@ -25,12 +27,11 @@ public abstract class AbstractDeviceAlarmTemplate implements CreationRuleTemplat
     }
 
     @Inject
-    protected AbstractDeviceAlarmTemplate(IssueService issueService, DeviceAlarmService deviceAlarmService, Thesaurus thesaurus, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    protected AbstractDeviceAlarmTemplate(IssueService issueService, DeviceAlarmService deviceAlarmService, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.issueService = issueService;
         this.deviceAlarmService = deviceAlarmService;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
-
     }
     
     public Thesaurus getThesaurus() {
