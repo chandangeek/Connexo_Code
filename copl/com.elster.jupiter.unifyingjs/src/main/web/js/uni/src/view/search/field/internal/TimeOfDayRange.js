@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Uni.view.search.field.internal.TimeOfDayRange', {
     extend: 'Uni.view.search.field.internal.DateRange',
     alias: 'widget.uni-search-internal-timeOfDayRange',
