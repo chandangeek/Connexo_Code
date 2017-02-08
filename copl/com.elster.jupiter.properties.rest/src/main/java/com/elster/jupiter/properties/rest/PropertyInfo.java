@@ -1,21 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.properties.rest;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * The <i>ROOT</i> Property object.
- * This contains a:
- * <ul>
- *     <li>Key: the name of the property</li>
- *     <li>PropertyValueInfo: the value (userDefined, inherited or default) for this property</li>
- *     <li>PropertyTypeInfo: additional information regarding the type of this property</li>
- *     <li>Required: indicating whether or not this is a required property</li>
- * </ul>
- *
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 11:37
- */
 @XmlRootElement
 public class PropertyInfo {
 

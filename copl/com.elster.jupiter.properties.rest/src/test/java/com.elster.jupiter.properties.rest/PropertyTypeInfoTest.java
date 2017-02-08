@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.properties.rest;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -20,11 +24,6 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-/**
- * Copyrights EnergyICT
- * Date: 11.12.15
- * Time: 16:15
- */
 public class PropertyTypeInfoTest {
 
     private static ObjectMapper mapper = new ObjectMapper();
