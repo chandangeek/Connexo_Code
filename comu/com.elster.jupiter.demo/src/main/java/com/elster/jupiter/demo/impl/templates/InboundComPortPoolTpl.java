@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.templates;
 
-import com.energyict.mdc.engine.config.InboundComPortPool;
-
 import com.elster.jupiter.demo.impl.builders.InboundComPortPoolBuilder;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 
 public class InboundComPortPoolTpl implements Template<InboundComPortPool, InboundComPortPoolBuilder>{
 

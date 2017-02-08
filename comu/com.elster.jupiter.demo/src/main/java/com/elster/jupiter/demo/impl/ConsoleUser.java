@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.cps.EditPrivilege;
@@ -154,7 +158,7 @@ public class ConsoleUser implements User {
 
     @Override
     public Set<Privilege> getPrivileges(String applicationName) {
-        return Collections.emptySet();
+        return getPrivileges();
     }
 
     @Override

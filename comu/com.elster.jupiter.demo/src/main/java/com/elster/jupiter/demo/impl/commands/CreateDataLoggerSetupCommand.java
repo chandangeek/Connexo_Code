@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -21,12 +25,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Optional;
 
-/**
- * Setup for a 'realistic' Data Logger/ Data Logger Slave
- * Copyrights EnergyICT
- * Date: 20/06/2016
- * Time: 9:13
- */
 public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
 
     private final DeviceService deviceService;
