@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Dsh.view.connectionsbulk.Step5', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.connections-bulk-step5',
