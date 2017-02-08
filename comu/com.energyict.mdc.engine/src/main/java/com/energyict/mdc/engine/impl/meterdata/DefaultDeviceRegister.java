@@ -1,9 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-
-import com.elster.jupiter.metering.ReadingType;
 
 import java.time.Instant;
 

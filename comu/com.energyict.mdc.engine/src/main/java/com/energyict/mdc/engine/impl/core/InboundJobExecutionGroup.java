@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -8,24 +12,12 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * An {@link InboundJobExecutionGroup} is responsible for execution
- * a group of inbound ComTasks.
- * A logical <i>connect</i> can be skipped as the
- * {@link ComChannel ComChannl}
- * will already be created by the ComPortListener
- * <p>
- * Copyrights EnergyICT
- * Date: 25/10/12
- * Time: 16:06
- */
 public class InboundJobExecutionGroup extends JobExecution {
 
     private final InboundDiscoveryContext inboundDiscoveryContext;

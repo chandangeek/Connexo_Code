@@ -1,9 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
+
 import java.util.List;
 
 /**

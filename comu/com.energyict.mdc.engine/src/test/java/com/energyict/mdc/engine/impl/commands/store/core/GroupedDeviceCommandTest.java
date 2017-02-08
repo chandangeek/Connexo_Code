@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -5,7 +9,16 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.impl.commands.collect.*;
+import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.MessagesCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
+import com.energyict.mdc.engine.impl.commands.collect.RegisterCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
@@ -29,7 +42,20 @@ import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
-import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.ClockTaskType;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.RegistersTask;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,14 +63,17 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link GroupedDeviceCommand} component

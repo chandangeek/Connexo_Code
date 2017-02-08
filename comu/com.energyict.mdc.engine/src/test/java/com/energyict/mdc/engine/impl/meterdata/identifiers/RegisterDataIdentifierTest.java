@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -11,8 +15,8 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -20,13 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Tests the {@link RegisterDataIdentifier} component.
- * <p/>
- * Copyrights EnergyICT
- * Date: 16/10/12
- * Time: 15:06
- */
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterDataIdentifierTest {
 

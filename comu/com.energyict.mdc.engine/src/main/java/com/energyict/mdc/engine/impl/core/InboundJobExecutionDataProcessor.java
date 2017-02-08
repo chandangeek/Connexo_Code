@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.metering.MeteringService;
@@ -26,7 +30,6 @@ import com.energyict.mdc.engine.impl.core.inbound.ComPortDiscoveryLogger;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -45,7 +48,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -66,17 +68,6 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * An {@link InboundJobExecutionDataProcessor} is responsible for
- * processing collected data which was received during inbound communication.
- * A logical <i>connect</i> can be skipped as the
- * {@link ComChannel ComChannl}
- * will already be created by the ComPortListener
- * <p/>
- * Copyrights EnergyICT
- * Date: 9/3/13
- * Time: 3:38 PM
- */
 public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private static final byte REGISTER_DATA = 0x01;

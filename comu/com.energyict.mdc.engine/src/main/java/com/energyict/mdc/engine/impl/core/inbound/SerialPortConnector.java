@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.NestedIOException;
@@ -16,21 +20,11 @@ import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.SerialPortException;
 import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.services.HexService;
 
 import java.io.IOException;
 import java.time.Clock;
 
-/**
- * Implementation of an {@link InboundComPortConnector}
- * for a {@link com.energyict.mdc.engine.config.ComPort}
- * of the type {@link ComPortType#SERIAL}
- * <p/>
- * Copyrights EnergyICT
- * Date: 18/10/12
- * Time: 13:49
- */
 public class SerialPortConnector implements InboundComPortConnector {
 
     private final ModemBasedInboundComPort comPort;

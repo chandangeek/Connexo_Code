@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
@@ -108,13 +112,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
-/**
- * Tests for the {@link ScheduledJobImpl} component.
- * <p>
- * Copyrights EnergyICT
- * Date: 10/07/12
- * Time: 15:42
- */
 @RunWith(MockitoJUnitRunner.class)
 public class ScheduledJobImplTest {
 

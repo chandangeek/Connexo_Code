@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
@@ -11,7 +16,6 @@ import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
-import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.Range;
 
 import java.time.Instant;

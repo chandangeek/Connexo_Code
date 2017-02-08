@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.common;
 
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -11,20 +15,13 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
-import org.junit.*;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-/**
- * Tests for the {@link DeviceProtocolSetCacheCommand} component
- * <p/>
- * Copyrights EnergyICT
- * Date: 3/09/12
- * Time: 14:18
- */
 public class DeviceProtocolSetCacheCommandTest extends AbstractComCommandExecuteTest {
 
     @Test

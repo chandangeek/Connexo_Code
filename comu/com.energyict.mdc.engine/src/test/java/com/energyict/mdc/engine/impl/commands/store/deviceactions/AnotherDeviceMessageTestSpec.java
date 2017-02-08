@@ -1,11 +1,8 @@
-package com.energyict.mdc.engine.impl.commands.store.deviceactions;
-
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 26/07/2016 - 10:30
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
+
+package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -25,13 +22,6 @@ import java.util.Optional;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Test enum implementing DeviceMessageSpec
- * <p>
- * Copyrights EnergyICT
- * Date: 8/02/13
- * Time: 15:16
- */
 public enum AnotherDeviceMessageTestSpec implements DeviceMessageSpec {
 
     TEST_SPEC_WITH_SIMPLE_SPECS(

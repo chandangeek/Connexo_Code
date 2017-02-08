@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -31,12 +35,6 @@ import static junit.framework.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 15/07/2016 - 17:44
- */
 public class TimeDifferenceCommandImplTest extends CommonCommandImplTests {
 
     @Rule

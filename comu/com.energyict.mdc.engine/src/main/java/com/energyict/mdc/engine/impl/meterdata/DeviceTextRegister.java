@@ -1,13 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/16/14
- * Time: 2:19 PM
- */
 public class DeviceTextRegister extends DeviceRegister {
 
     /**

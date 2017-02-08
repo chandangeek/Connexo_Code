@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -10,11 +14,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 
-/**
- * Copyrights EnergyICT
- * Date: 19/09/16
- * Time: 11:47
- */
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceCalendarTest {
 

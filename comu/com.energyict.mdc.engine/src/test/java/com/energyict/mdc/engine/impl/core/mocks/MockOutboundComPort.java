@@ -1,9 +1,13 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.util.Collections;
 import java.util.List;

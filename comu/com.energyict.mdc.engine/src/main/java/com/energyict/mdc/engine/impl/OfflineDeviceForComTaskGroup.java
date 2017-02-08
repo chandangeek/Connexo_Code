@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -8,13 +12,6 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provides the OfflineContext for a group of ComTasks
- *
- * Copyrights EnergyICT
- * Date: 11/06/13
- * Time: 10:04
- */
 public class OfflineDeviceForComTaskGroup implements OfflineDeviceContext {
 
     private final List<ComTaskExecution> comTaskGroup = new ArrayList<>();

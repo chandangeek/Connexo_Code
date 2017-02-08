@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.meterdata.identifiers;
 
 import com.energyict.mdc.common.ObisCode;
@@ -8,15 +12,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
 
 import java.util.List;
 
-/**
- * Implementation of a {@link RegisterIdentifier} that uniquely identifies an {@link com.energyict.mdc.protocol.api.device.BaseRegister} based on the ObisCode
- * of the RegisterType or the
- * {@link com.energyict.mdc.device.config.RegisterSpec#getDeviceObisCode() RegisterSpec.getDeviceObisCode}
- * <p/>
- * Copyrights EnergyICT
- * Date: 15/10/12
- * Time: 16:29
- */
 public class RegisterDataIdentifier implements RegisterIdentifier {
 
     private final ObisCode registerObisCode;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
@@ -15,13 +19,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Provides code reuse in RescheduleBehaviors
- * <p>
- * Copyrights EnergyICT
- * Date: 4/06/13
- * Time: 16:44
- */
 abstract class AbstractRescheduleBehavior {
 
     protected final Clock clock;

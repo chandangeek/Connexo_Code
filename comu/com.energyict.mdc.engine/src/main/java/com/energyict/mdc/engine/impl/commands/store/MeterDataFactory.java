@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -24,14 +28,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Creates {@link Reading Readings} and {@link com.elster.jupiter.metering.readings.IntervalReading}s
- * based on a specific <i>CollectedData</i>.
- * <p>
- * Copyrights EnergyICT
- * Date: 26/11/13
- * Time: 09:49
- */
 public final class MeterDataFactory {
 
     /**

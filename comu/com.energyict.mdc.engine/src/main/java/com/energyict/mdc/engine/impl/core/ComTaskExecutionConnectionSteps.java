@@ -1,17 +1,9 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.core;
 
-/**
- * <li>A logOn is only required when the ComTaskExecution is the FIRST_OF_CONNECTION_SERIES ComTaskExecution</li>
- * <li>A logOff is only required when the ComTaskExecution is the LAST_OF_CONNECTION_SERIES ComTaskExecution</li>
- * <li>A daisyChainedLogOn is only required for the FIRST_OF_SAME_CONNECTION_BUT_NOT_FIRST_DEVICE ComTaskExecution of another Device in a series of ComTaskExecutions</li>
- * <li>A daisyChainedLogOff is only required for the LAST_OF_SAME_CONNECTION_BUT_NOT_LAST_DEVICE ComTaskExecution of a Device, when other ComTaskExecutions of another
- * Device will follow</li>
- * </p>
- * </p>
- * Copyrights EnergyICT
- * Date: 4/04/13
- * Time: 15:35
- */
 public class ComTaskExecutionConnectionSteps {
 
     public static final int FIRST_OF_CONNECTION_SERIES = 0b0000_0000_0000_0001;

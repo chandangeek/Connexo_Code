@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.commands.store.access;
 
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -15,13 +19,6 @@ import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import static com.energyict.mdc.engine.impl.commands.MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE;
 
-/**
- * A LogOn command performs a logical signOn with the device.
- * <p>
- * Copyrights EnergyICT
- * Date: 9/08/12
- * Time: 11:12
- */
 public class LogOnCommand extends SimpleComCommand {
 
     public LogOnCommand(final GroupedDeviceCommand groupedDeviceCommand) {
