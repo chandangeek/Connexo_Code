@@ -20,8 +20,8 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.channels.serial,\
                 com.energyict.mdc.channels.serial.direct.rxtx,\
                 com.energyict.mdc.channels.serial.direct.serialio,\
-                com.energyict.mdc.channels.serial.modem,\
-                com.energyict.mdc.channels.serial.modem.postdialcommand,\
+                com.energyict.mdc.channels.serial.modemproperties,\
+                com.energyict.mdc.channels.serial.modemproperties.postdialcommand,\
                 com.energyict.mdc.channels.ip.socket,\
                 com.energyict.mdc.channels.ip.datagrams,\
                 com.energyict.mdc.io,\
