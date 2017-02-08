@@ -1,3 +1,7 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
 <project basedir=".">
     <!--
     This file can be freely edited, so long as the <import file="${sencha.workspace.config.dir}/plugin.xml"/>
