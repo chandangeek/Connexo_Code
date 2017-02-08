@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.alarms.rest;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -177,6 +181,10 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(nlsService).to(NlsService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(bpmService).to(BpmService.class);
+            bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
+            bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
+            bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
+            bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
         }
     }
 }

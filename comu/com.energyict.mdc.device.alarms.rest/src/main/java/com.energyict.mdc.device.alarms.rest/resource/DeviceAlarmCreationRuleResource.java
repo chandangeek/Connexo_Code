@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.alarms.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.impl.resource.BaseResource;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
@@ -51,7 +50,7 @@ import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/creationrules")
-public class DeviceAlarmCreationRuleResource extends BaseResource {
+public class DeviceAlarmCreationRuleResource extends BaseAlarmResource {
 
     private final CreationRuleInfoFactory ruleInfoFactory;
     private final PropertyValueInfoService propertyValueInfoService;
@@ -75,7 +74,7 @@ public class DeviceAlarmCreationRuleResource extends BaseResource {
                 .collect(Collectors.toList());
 
         Query<CreationRule> query =
-                getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
+                getIssueService().getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
         List<CreationRule> rules;
         Condition conditionIssue = where("reason").in(alarmReasons);
         if (queryParams.getStart().isPresent()) {
@@ -96,7 +95,7 @@ public class DeviceAlarmCreationRuleResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ALARM_CREATION_RULE, Privileges.Constants.VIEW_ALARM_CREATION_RULE})
     public Response getCreationRule(@PathParam(ID) long id) {
         CreationRule rule =
-                getIssueCreationService().findCreationRuleById(id)
+                getIssueService().getIssueCreationService().findCreationRuleById(id)
                         .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return
                 Response.ok(ruleInfoFactory.asInfo(rule)).build();
@@ -118,9 +117,9 @@ public class DeviceAlarmCreationRuleResource extends BaseResource {
     }
 
     public CreationRule findAndLockCreationRule(CreationRuleInfo info) {
-        return getIssueCreationService().findAndLockCreationRuleByIdAndVersion(info.id, info.version)
+        return getIssueService().getIssueCreationService().findAndLockCreationRuleByIdAndVersion(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> getIssueCreationService().findCreationRuleById(info.id).map(CreationRule::getVersion).orElse(null))
+                        .withActualVersion(() -> getIssueService().getIssueCreationService().findCreationRuleById(info.id).map(CreationRule::getVersion).orElse(null))
                         .supplier());
     }
 
@@ -130,7 +129,7 @@ public class DeviceAlarmCreationRuleResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response addCreationRule(CreationRuleInfo rule) {
         try (TransactionContext context = getTransactionService().getContext()) {
-            CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
+            CreationRuleBuilder builder = getIssueService().getIssueCreationService().newCreationRule();
             setBaseFields(rule, builder);
             setActions(rule, builder);
             setTemplate(rule, builder);
@@ -165,7 +164,7 @@ public class DeviceAlarmCreationRuleResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response validateAction(CreationRuleActionInfo info) {
-        CreationRuleActionBuilder actionBuilder = getIssueCreationService().newCreationRule().newCreationRuleAction();
+        CreationRuleActionBuilder actionBuilder = getIssueService().getIssueCreationService().newCreationRule().newCreationRuleAction();
         setAction(info, actionBuilder);
         actionBuilder.complete().validate();
         return Response.ok().build();
@@ -189,7 +188,7 @@ public class DeviceAlarmCreationRuleResource extends BaseResource {
         if (rule.template == null) {
             return;
         }
-        Optional<CreationRuleTemplate> template = getIssueCreationService().findCreationRuleTemplate(rule.template.name);
+        Optional<CreationRuleTemplate> template = getIssueService().getIssueCreationService().findCreationRuleTemplate(rule.template.name);
         if (template.isPresent()) {
             builder.setTemplate(template.get().getName());
             Map<String, Object> properties = new LinkedHashMap<>();
