@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
@@ -65,12 +64,6 @@ enum ValueType {
         }
     },
     FIRMWARE_VERSION("com.energyict.mdc.upl.properties.FirmwareVersion", FirmwareVersion.class, Types.NUMERIC) {
-        @Override
-        boolean isReference() {
-            return true;
-        }
-    },
-    READING_TYPE("com.energyict.mdc.upl.properties.ReadingType", ReadingType.class, Types.NUMERIC) {
         @Override
         boolean isReference() {
             return true;

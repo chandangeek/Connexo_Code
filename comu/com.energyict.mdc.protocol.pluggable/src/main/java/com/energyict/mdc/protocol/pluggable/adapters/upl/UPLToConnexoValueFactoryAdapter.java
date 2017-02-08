@@ -34,7 +34,6 @@ public class UPLToConnexoValueFactoryAdapter implements ValueFactory {
     private static final String LOAD_PROFILE = "com.energyict.mdc.upl.properties.LoadProfile";
     private static final String TARRIFF_CALENDAR = "com.energyict.mdc.upl.properties.TariffCalendar";
     private static final String FIRMWARE_VERSION = "com.energyict.mdc.upl.properties.FirmwareVersion";
-    private static final String READING_TYPE = "com.energyict.mdc.upl.properties.ReadingType";
     private static final String OBIS_CODE = "com.energyict.obis.ObisCode";
 
     private final com.energyict.mdc.upl.properties.ValueFactory actual;
