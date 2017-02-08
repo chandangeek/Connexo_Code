@@ -33,7 +33,7 @@ public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCh
 
     @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        Set<PropertySpec> requiredPropertySpecs = device.getDeviceConfiguration().getPartialConnectionInitiationTasks().stream().map(PartialConnectionTask::getProtocolDialectConfigurationProperties)
+        Set<PropertySpec> requiredPropertySpecs = device.getDeviceConfiguration().getPartialConnectionTasks().stream().map(PartialConnectionTask::getProtocolDialectConfigurationProperties)
                 .flatMap(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getPropertySpecs().stream())
                 .filter(PropertySpec::isRequired)
                 .collect(Collectors.toSet());
