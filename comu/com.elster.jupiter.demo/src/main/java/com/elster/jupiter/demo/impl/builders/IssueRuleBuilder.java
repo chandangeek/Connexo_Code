@@ -7,6 +7,7 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -29,6 +30,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -161,34 +163,19 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENTTYPE).get().getValueFactory().fromStringValue(type));
             properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
             properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
-           /* properties.put(
-                    BasicDeviceAlarmRuleTemplate.DEVICE_TYPE,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_TYPE).get().getValueFactory().fromStringValue("0"));
-            */
-            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES, getOneRandomeviceType());
+            properties.put(
+                    BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS,
+                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("1-1-1"));
+            properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_TYPES, getAllDeviceTypes());
             properties.put(
                     BasicDeviceAlarmRuleTemplate.DEVICE_CODES,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_CODES).get().getValueFactory().fromStringValue("1"));
             properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE, getAllDeviceStates());
-            /* properties.put(
-                    BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE).get().getValueFactory().fromStringValue("18"));
-            */
-            properties.put(
-                    BasicDeviceAlarmRuleTemplate.LOG_ON_SAME_ALARM, true);
             properties.put(
                     BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.EVENT_OCCURENCE_COUNT).get().getValueFactory().fromStringValue("2"));
-           /* properties.put(
-                    BasicDeviceAlarmRuleTemplate.THRESHOLD,
-                    template.getPropertySpec(BasicDeviceAlarmRuleTemplate.THRESHOLD).get().getValueFactory().fromStringValue(String.valueOf(System.currentTimeMillis() + 5 * 60 * 1000)));
-            */
             properties.put(
-                    BasicDeviceAlarmRuleTemplate.THRESHOLD, timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days").get() : timeService.getAllRelativePeriod() );
-            properties.put(
-                    BasicDeviceAlarmRuleTemplate.UP_URGENCY_ON_RAISE, true);
-            properties.put(
-                    BasicDeviceAlarmRuleTemplate.DOWN_URGENCY_ON_CLEAR, true);
+                    BasicDeviceAlarmRuleTemplate.THRESHOLD, timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days").get() : timeService.getAllRelativePeriod());
         }
         return properties;
     }
@@ -257,6 +244,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().find()
                 .stream().map(lifecycle -> lifecycle.getFiniteStateMachine().getStates())
                 .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(State::getId))
                 .forEach(value -> listValue.add(new HasIdAndName() {
                             @Override
                             public Object getId() {
@@ -273,15 +261,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     }
 
 
-    private List<HasIdAndName> getOneRandomeviceType() {
+    private List<HasIdAndName> getAllDeviceTypes() {
         List<HasIdAndName> listValue = new ArrayList<>();
         deviceConfigurationService.findAllDeviceTypes().find()
                 .stream()
-                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
-                    Collections.shuffle(collected);
-                    return collected.stream();
-                }))
-                .limit(1).forEach(value -> listValue.add(new HasIdAndName() {
+                .sorted(Comparator.comparing(DeviceType::getId))
+                .forEach(value -> listValue.add(new HasIdAndName() {
                     @Override
                     public Object getId() {
                         return value.getId();
