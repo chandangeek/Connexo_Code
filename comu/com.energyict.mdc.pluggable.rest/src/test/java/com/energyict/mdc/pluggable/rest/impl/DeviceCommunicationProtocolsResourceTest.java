@@ -5,6 +5,17 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -12,21 +23,27 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
+import com.jayway.jsonpath.JsonModel;
+
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -136,6 +153,58 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
     }
 
     @Test
+    public void getConnectionTypesKeyAccessorTypePossibleValueInjectionTest() throws IOException {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.isReference()).thenReturn(true);
+        ValueFactory referenceValueFactory = mock(ValueFactory.class);
+        when(referenceValueFactory.getValueType()).thenReturn(KeyAccessorType.class);
+        when(propertySpec.getValueFactory()).thenReturn(referenceValueFactory);
+
+        ConnectionType tlsConnectionType = mock(ConnectionType.class);
+        when(tlsConnectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(tlsConnectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
+        List<ConnectionType> deviceProtocolSupportedConnectionTypes = Collections.singletonList(tlsConnectionType);
+        when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(deviceProtocolSupportedConnectionTypes);
+        DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
+        DeviceType deviceType = mock(DeviceType.class);
+        KeyAccessorType kat1 = mockKeyAccessorType("key1", 1L);
+        KeyAccessorType kat2 = mockKeyAccessorType("key2", 2L);
+        KeyAccessorType kat3 = mockKeyAccessorType("key3", 3L);
+        when(deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(kat1, kat2, kat3));
+        when(deviceConfig.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfigurationService.findDeviceConfiguration(12345)).thenReturn(Optional.of(deviceConfig));
+        ConnectionTypePluggableClass connectionTypePluggableCass = createMockedConnectionTypePluggableCass(tlsConnectionType);
+        when(connectionTypePluggableCass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(Collections.singletonList(connectionTypePluggableCass));
+        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenReturn(new PropertyInfo("someProperty", "Key", new PropertyValueInfo<Object>(), new PropertyTypeInfo(), false));
+        PropertyValueConverter propertyValueConverter = mock(PropertyValueConverter.class);
+        when(propertyValueConverter.convertValueToInfo(any(PropertySpec.class), any(KeyAccessorType.class))).thenAnswer(invocationOnMock -> {
+            return new IdWithNameInfo(((KeyAccessorType)invocationOnMock.getArguments()[1]).getId(),((KeyAccessorType)invocationOnMock.getArguments()[1]).getName());
+        });
+        when(propertyValueInfoService.getConverter(any(PropertySpec.class))).thenReturn(propertyValueConverter);
+        when(connectionTypePluggableCass.getProperties(any(List.class))).thenReturn(TypedProperties.empty());
+
+        Response response = target("/devicecommunicationprotocols/1/connectiontypes").queryParam("filter", ExtjsFilter.filter().property("direction", "outbound").property("deviceConfigId", 12345L).create()).request().get();
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+
+        assertThat(jsonModel.<String>get("[0].name")).startsWith("com.energyict.mdc.protocol.api.ConnectionType");
+        assertThat(jsonModel.<List>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues")).hasSize(3);
+        assertThat(jsonModel.<Integer>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[0].name")).isEqualTo("key1");
+        assertThat(jsonModel.<Integer>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[1].id")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[1].name")).isEqualTo("key2");
+        assertThat(jsonModel.<Integer>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[2].id")).isEqualTo(3);
+        assertThat(jsonModel.<String>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[2].name")).isEqualTo("key3");
+    }
+
+    private KeyAccessorType mockKeyAccessorType(String name, long id) {
+        KeyAccessorType kat1 = mock(KeyAccessorType.class);
+        when(kat1.getName()).thenReturn(name);
+        when(kat1.getId()).thenReturn(id);
+        return kat1;
+    }
+
+    @Test
     public void testDeleteProtocolOkVersion(){
         DeviceProtocolPluggableClass protocolClass = mock(DeviceProtocolPluggableClass.class);
         when(protocolPluggableService.findAndLockDeviceProtocolPluggableClassByIdAndVersion(1L, 1L)).thenReturn(Optional.of(protocolClass));
@@ -168,6 +237,8 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
         when(connectionTypePluggableClass.getConnectionType()).thenReturn(connectionType);
         when(connectionTypePluggableClass.getJavaClassName()).thenReturn(connectionType.getClass().getCanonicalName());
+        when(connectionTypePluggableClass.getName()).thenReturn(connectionType.getClass().getCanonicalName());
+        when(connectionTypePluggableClass.getId()).thenReturn((long) connectionType.getClass().hashCode());
         return connectionTypePluggableClass;
     }
 
