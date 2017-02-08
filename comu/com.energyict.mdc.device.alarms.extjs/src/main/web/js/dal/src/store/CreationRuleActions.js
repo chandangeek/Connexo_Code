@@ -7,7 +7,7 @@ Ext.define('Dal.store.CreationRuleActions', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/isu/actions',
+        url: '/api/dal/actions',
         reader: {
             type: 'json',
             root: 'ruleActionTypes'

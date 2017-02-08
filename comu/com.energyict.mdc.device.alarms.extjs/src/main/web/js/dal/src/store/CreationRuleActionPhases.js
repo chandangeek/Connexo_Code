@@ -5,7 +5,7 @@ Ext.define('Dal.store.CreationRuleActionPhases', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/actions/phases',
+        url: '/api/dal/actions/phases',
         reader: {
             type: 'json',
             root: 'creationRuleActionPhases'
