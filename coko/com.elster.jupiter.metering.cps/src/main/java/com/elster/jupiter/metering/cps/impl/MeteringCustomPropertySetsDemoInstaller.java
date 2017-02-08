@@ -32,6 +32,8 @@ import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaCPS;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointContDomainExtension;
+import com.elster.jupiter.metering.cps.impl.metrology.UsagePointCorrectionFactorsCPS;
+import com.elster.jupiter.metering.cps.impl.metrology.UsagePointCorrectionFactorsDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdCustomPropertySet;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointDecentProdDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointMetrologyGeneralCPS;
@@ -55,6 +57,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -83,11 +86,18 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
     private volatile Thesaurus thesaurus;
     private MetrologyConfigurationService metrologyConfigurationService;
     private volatile UpgradeService upgradeService;
+    private volatile SyntheticLoadProfileService syntheticLoadProfileService;
 
     @Reference
     @SuppressWarnings("unused") // Used by OSGi framework
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused") // Used by OSGi framework
+    public void setSyntheticLoadProfileService(SyntheticLoadProfileService syntheticLoadProfileService){
+        this.syntheticLoadProfileService = syntheticLoadProfileService;
     }
 
     @Reference
@@ -168,6 +178,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         customPropertySetsMap.put(UsagePointTechInstEGDomExt.class.getName(), new UsagePointTechInstEGCustomPropertySet(propertySpecService, thesaurus));
         customPropertySetsMap.put(UsagePointTechInstElectrDE.class.getName(), new UsagePointTechInstElectrCPS(propertySpecService, thesaurus));
         customPropertySetsMap.put(UsagePointAntennaDomExt.class.getName(), new UsagePointAntennaCPS(propertySpecService, thesaurus));
+        customPropertySetsMap.put(UsagePointCorrectionFactorsDomExt.class.getName(), new UsagePointCorrectionFactorsCPS(propertySpecService, syntheticLoadProfileService, thesaurus));
 
         return customPropertySetsMap;
     }
@@ -271,6 +282,55 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAplusWh, requirementAplus, "Active energy+"));
+    }
+
+    void correctionFactors() {
+        if (metrologyConfigurationService.findMetrologyConfiguration("Residential consumer with correction").isPresent()) {
+            return;
+        }
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
+                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential consumer with correction", serviceCategory)
+                .withDescription("Residential consumer with correction based on loss factor").create();
+
+        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()));
+
+        ReadingType readingTypeDailyApluskWh = meteringService.getReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
+                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+
+        ReadingType readingTypeDailyAplusWh = meteringService.getReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "A+"));
+
+        MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
+                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+        MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
+
+        MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
+        MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
+
+        RegisteredCustomPropertySet registeredCorrectionFactorCPS = customPropertySetService.findActiveCustomPropertySet("com.elster.jupiter.metering.cps.impl.metrology.UsagePointCorrectionFactorsDomExt")
+                .orElseThrow(() -> new NoSuchElementException("Correction factors custom property set not found"));
+        config.addCustomPropertySet(registeredCorrectionFactorCPS);
+
+        MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
+                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+        config.addMeterRole(meterRole);
+
+        ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
+
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Corrected Daily A+ kWh", readingTypeDailyApluskWh, Formula.Mode.AUTO);
+        CustomPropertySet correctionFactorCPS = registeredCorrectionFactorCPS.getCustomPropertySet();
+        List<PropertySpec> propertySpecs = correctionFactorCPS.getPropertySpecs();
+        FormulaBuilder lossFactor = builder.property(correctionFactorCPS, propertySpecs.stream()
+                .filter(propertySpec -> "lossFactor".equals(propertySpec.getName())).findFirst()
+                .orElseThrow(() -> new NoSuchElementException("lossFactor property spec not found")));
+
+
+        contractBilling.addDeliverable(builder.build(builder.multiply(builder.requirement(requirementAplus), lossFactor)));
+        contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAplus, "Daily A+ kWh"));
     }
 
     private SearchablePropertyValue.ValueBean getUsagePointRequirement(String property, SearchablePropertyOperator operator, String... values) {

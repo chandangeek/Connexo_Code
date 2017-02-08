@@ -63,6 +63,7 @@ class Installer implements FullInstaller {
 
         meteringCustomPropertySetsDemoInstaller.unmeasuredAntennaInstallation();
         meteringCustomPropertySetsDemoInstaller.residentialPrepay();
+        meteringCustomPropertySetsDemoInstaller.correctionFactors();
     }
 
     private void assign(String cps, Consumer<RegisteredCustomPropertySet> action) {

@@ -140,7 +140,11 @@ public enum TranslationKeys implements TranslationKey {
 
     CPS_ANTENNA_NAME("usage.point.cps.antenna.name", "Antenna"),
     CPS_ANTENNA_POWER_NAME("usage.point.cps.antenna.power.name", "Antenna power"),
-    CPS_ANTENNA_COUNT_NAME("usage.point.cps.antenna.count.name", "Number of antennas");
+    CPS_ANTENNA_COUNT_NAME("usage.point.cps.antenna.count.name", "Number of antennas"),
+
+    CPS_CORRECTIONFACTORS_NAME("usage.point.cps.correction.factors.name", "Correction factors"),
+    CPS_CORRECTIONFACTOR_LOSS_FACTOR("usage.point.cps.loss.factor", "Loss factor"),
+    ;
 
     private String key;
     private String defaultFormat;
