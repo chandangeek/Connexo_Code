@@ -10,6 +10,8 @@ import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -25,6 +27,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.alarms.rest.i18n.MessageSeeds;
+import com.energyict.mdc.device.alarms.rest.resource.AlarmRuleResource;
+import com.energyict.mdc.device.alarms.rest.resource.BaseAlarmResource;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmCreationRuleResource;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmPriorityResorce;
 import com.energyict.mdc.device.alarms.rest.resource.DeviceAlarmResource;
@@ -61,14 +65,17 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile DeviceService deviceService;
     private volatile LogBookService logBookService;
-    private volatile IssueService issueService;
     private volatile MeteringService meteringService;
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
+    private volatile IssueCreationService issueCreationService;
+    private volatile IssueAssignmentService issueAssignmentService;
     private volatile BpmService bpmService;
+
 
     public DeviceAlarmApplication(){
 
@@ -85,7 +92,8 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
                 DeviceAlarmPriorityResorce.class,
                 TopAlarmsResource.class,
                 UserResource.class,
-                DeviceAlarmCreationRuleResource.class);
+                DeviceAlarmCreationRuleResource.class,
+                AlarmRuleResource.class);
     }
 
     @Override
@@ -155,6 +163,8 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
     public void setIssueService(IssueService issueService){
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
+        this.issueCreationService = issueService.getIssueCreationService();
+        this.issueAssignmentService = issueService.getIssueAssignmentService();
     }
 
     @Reference
@@ -168,6 +178,8 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -179,6 +191,8 @@ public class DeviceAlarmApplication extends Application implements MessageSeedPr
             bind(logBookService).to(LogBookService.class);
             bind(issueService).to(IssueService.class);
             bind(issueActionService).to(IssueActionService.class);
+            bind(issueAssignmentService).to(IssueAssignmentService.class);
+            bind(issueCreationService).to(IssueCreationService.class);
             bind(meteringService).to(MeteringService.class);
             bind(userService).to(UserService.class);
             bind(thesaurus).to(Thesaurus.class);
