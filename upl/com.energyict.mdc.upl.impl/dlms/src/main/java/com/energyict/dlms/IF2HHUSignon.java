@@ -3,7 +3,7 @@ package com.energyict.dlms;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 

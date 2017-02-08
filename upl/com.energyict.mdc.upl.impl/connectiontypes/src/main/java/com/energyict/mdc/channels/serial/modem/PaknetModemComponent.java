@@ -1,7 +1,9 @@
 package com.energyict.mdc.channels.serial.modem;
 
 import com.energyict.mdc.channels.serial.SignalController;
-import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
+import com.energyict.mdc.channels.serial.modemproperties.AbstractPaknetModemProperties;
+import com.energyict.mdc.channels.serial.modemproperties.AtModemComponent;
+import com.energyict.mdc.channels.serial.modemproperties.postdialcommand.ModemComponent;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ModemException;
@@ -219,7 +221,7 @@ public class PaknetModemComponent implements ModemComponent {
     /**
      * The validateResponse will check if the answer we received from the meter contains:
      * <ul>
-     * <li>Any error messages (see {@link com.energyict.mdc.channels.serial.modem.AtModemComponent.ExceptionAnswers}</li>
+     * <li>Any error messages (see {@link AtModemComponent.ExceptionAnswers}</li>
      * <li>The expected Answer</li>
      * <li>A copy of our request</li>
      * <li>Any other value ...</li>

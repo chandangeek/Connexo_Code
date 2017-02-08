@@ -1,7 +1,7 @@
 package com.elster.protocolimpl.dsfg.telegram;
 
 import com.elster.protocolimpl.dsfg.util.DsfgBlockInputStream;
-import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connections.Connection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -1,13 +1,12 @@
 package com.elster.us.protocolimplv2.mercury.minimax;
 
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.elster.us.protocolimplv2.mercury.minimax.frame.RequestFrame;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.ResponseFrame;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.data.BasicData;
 import com.elster.us.protocolimplv2.mercury.minimax.frame.data.ExtendedData;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

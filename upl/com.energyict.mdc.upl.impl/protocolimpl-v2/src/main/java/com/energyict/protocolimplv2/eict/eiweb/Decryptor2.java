@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exception.DataEncryptionException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

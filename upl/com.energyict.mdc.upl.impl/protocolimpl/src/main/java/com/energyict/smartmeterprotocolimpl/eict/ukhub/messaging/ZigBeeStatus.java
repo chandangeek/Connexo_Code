@@ -12,7 +12,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ZigBeeSASStartup;
 import com.energyict.dlms.cosem.ZigBeeSETCControl;
 import com.energyict.dlms.cosem.ZigbeeHanManagement;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
 
 import java.io.IOException;

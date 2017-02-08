@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.landisgyr.sentry.s200.core;
 
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;

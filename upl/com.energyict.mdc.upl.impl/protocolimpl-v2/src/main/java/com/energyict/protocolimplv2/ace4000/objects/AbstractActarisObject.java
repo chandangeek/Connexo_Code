@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exception.DataParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

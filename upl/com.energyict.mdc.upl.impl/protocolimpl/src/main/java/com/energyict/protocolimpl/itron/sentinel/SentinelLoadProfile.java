@@ -13,7 +13,7 @@ package com.energyict.protocolimpl.itron.sentinel;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.ansi.c12.tables.EventEntry;
 import com.energyict.protocolimpl.ansi.c12.tables.EventLog;
 import com.energyict.protocolimpl.ansi.c12.tables.HistoryEntry;
@@ -286,7 +286,7 @@ public class SentinelLoadProfile {
 
                 block++;
 
-                if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+                if (System.currentTimeMillis() - timeout > 0) {
                     throw new IOException("SentinelLoadProfile, buildIntervalData(), 60 minutes limit exceed!");
                 }
             } // while(true)
@@ -302,7 +302,7 @@ public class SentinelLoadProfile {
                 }
             }
 
-            if (((long) (System.currentTimeMillis() - timeout)) > 0) {
+            if (System.currentTimeMillis() - timeout > 0) {
                 throw new IOException("SentinelLoadProfile, buildIntervalData(), 60 minutes limit exceed!");
             }
 

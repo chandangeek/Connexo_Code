@@ -7,7 +7,7 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -187,9 +187,9 @@ public class MeteorCommunicationsFactory{
 			checkSum=checkSum+(int) dataToBeVerified[i];
 		}
 		checkSumFinal=(byte) (256-(checkSum%256));
-		if (checkSumFinal==dataToBeVerified[dataToBeVerified.length-1]){
-			return true; // checksum is ok
-		}else return false; // checksum is not ok => reject
+		// checksum is ok
+// checksum is not ok => reject
+		return checkSumFinal == dataToBeVerified[dataToBeVerified.length - 1];
 	}
 
 	// blocks received are to be merged in one byte array block
@@ -212,7 +212,7 @@ public class MeteorCommunicationsFactory{
 		}
 		// add header
 		ident = block[0][0];
-		ident = buildIdent((ident & 0x80)==0x80,true,true,(byte) ((byte) ident & 0x1F));
+		ident = buildIdent((ident & 0x80)==0x80,true,true,(byte) (ident & 0x1F));
 		header= buildHeader(ident,((1+b.length)%256));
 		for(int i=0; i<10; i++){
 			b[i]=header[i];
@@ -321,7 +321,7 @@ public class MeteorCommunicationsFactory{
 				if((br[br.length-1][0]&0x20)==0x20){
 					ack=true;
 				}
-				if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+				if (System.currentTimeMillis() - interFrameTimeout > 0) {
 					throw new ProtocolConnectionException("Interframe timeout error");
 				}
 				pr2=buildCommand(blockMerging(br),pr);
@@ -633,7 +633,7 @@ public class MeteorCommunicationsFactory{
 				}
 				counter++;
 			}
-	        if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+	        if (System.currentTimeMillis() - interFrameTimeout > 0) {
 	            throw new ProtocolConnectionException("Interframe timeout error");
 	        }
 			if((s.charAt(0) & 0x0020)==0x20){ // check ident on last block to transmit

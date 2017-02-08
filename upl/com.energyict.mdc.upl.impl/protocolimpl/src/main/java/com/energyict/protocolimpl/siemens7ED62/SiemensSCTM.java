@@ -6,10 +6,9 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayInputStream;

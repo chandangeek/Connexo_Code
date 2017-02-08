@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.topology;
 
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;

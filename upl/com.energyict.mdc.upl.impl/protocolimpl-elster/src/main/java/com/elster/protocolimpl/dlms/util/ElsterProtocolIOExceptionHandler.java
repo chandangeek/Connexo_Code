@@ -2,10 +2,9 @@ package com.elster.protocolimpl.dlms.util;
 
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ProtocolRuntimeException;
 
 import java.io.IOException;
 

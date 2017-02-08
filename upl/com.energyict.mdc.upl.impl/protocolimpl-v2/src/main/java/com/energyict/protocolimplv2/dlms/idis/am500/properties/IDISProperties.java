@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.properties;
 
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;

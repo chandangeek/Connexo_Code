@@ -19,8 +19,8 @@ import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
-import com.energyict.protocol.exceptions.CodingException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 
 import java.security.cert.CertificateEncodingException;

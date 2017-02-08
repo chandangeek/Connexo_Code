@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.CTREncryption;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRCipheringException;

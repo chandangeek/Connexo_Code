@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba230;
 
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.AbstractContactorController;
 
 import java.io.IOException;

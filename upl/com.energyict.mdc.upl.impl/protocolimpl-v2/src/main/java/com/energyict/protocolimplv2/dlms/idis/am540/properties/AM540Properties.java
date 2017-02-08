@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
-import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider;

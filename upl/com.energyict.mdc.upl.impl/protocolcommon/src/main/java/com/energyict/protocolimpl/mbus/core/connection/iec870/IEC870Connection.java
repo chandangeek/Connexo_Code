@@ -6,10 +6,9 @@
 
 package com.energyict.protocolimpl.mbus.core.connection.iec870;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connections.Connection;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocolimpl.mbus.core.ApplicationData;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 

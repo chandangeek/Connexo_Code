@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.InboundFrameException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.InboundFrameException;
 
 import java.io.IOException;
 import java.util.ArrayList;

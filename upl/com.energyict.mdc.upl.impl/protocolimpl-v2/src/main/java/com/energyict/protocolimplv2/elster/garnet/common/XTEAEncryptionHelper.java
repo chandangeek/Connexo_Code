@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.elster.garnet.common;
 
-import com.energyict.protocol.exceptions.CodingException;
+import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
 import com.energyict.protocolimplv2.elster.garnet.exception.CipheringException;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;

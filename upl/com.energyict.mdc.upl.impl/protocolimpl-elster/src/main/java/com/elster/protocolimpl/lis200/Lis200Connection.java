@@ -1,9 +1,8 @@
 package com.elster.protocolimpl.lis200;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;

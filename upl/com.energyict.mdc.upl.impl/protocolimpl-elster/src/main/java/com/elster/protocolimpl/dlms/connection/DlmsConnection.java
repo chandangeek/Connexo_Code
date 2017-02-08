@@ -4,9 +4,9 @@ import com.elster.coding.CodingUtils;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
 import com.elster.dlms.cosem.profiles.hdlc.EictDlmsHdlcStack;
 import com.elster.protocolimpl.dlms.SecurityData;
-import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.dialer.connections.Connection;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.InputStream;

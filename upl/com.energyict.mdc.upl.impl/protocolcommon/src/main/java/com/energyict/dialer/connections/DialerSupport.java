@@ -1,4 +1,8 @@
-package com.energyict.dialer.connection;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.dialer.connections;
 
 /**
  * Provides support for dialer classes.

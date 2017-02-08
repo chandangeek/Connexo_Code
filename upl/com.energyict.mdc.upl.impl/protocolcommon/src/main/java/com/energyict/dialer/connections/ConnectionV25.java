@@ -1,16 +1,20 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * Connection.java
  *
  * Created on 1 juli 2003, 17:03
  */
 
-package com.energyict.dialer.connection;
+package com.energyict.dialer.connections;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import serialio.xmodemapi.XGet;

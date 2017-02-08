@@ -1,13 +1,13 @@
 package com.elster.us.protocolimplv2.sel.frame;
 
-import static com.elster.us.protocolimplv2.sel.Consts.CR;
-import static com.elster.us.protocolimplv2.sel.utility.ByteArrayHelper.*;
+import com.elster.us.protocolimplv2.sel.frame.data.BasicData;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import com.elster.us.protocolimplv2.sel.frame.data.BasicData;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import static com.elster.us.protocolimplv2.sel.Consts.CR;
+import static com.elster.us.protocolimplv2.sel.utility.ByteArrayHelper.getBytes;
 
 public class Frame {
   

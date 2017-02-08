@@ -1,10 +1,9 @@
 package com.energyict.dlms;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -298,32 +297,24 @@ public class UniversalObject implements Serializable {
 
     public boolean equals(DLMSConfig config) {
 
-        if (((getLNA() == config.getLNA()) || (config.getLNA() == -1)) &&
+        return ((getLNA() == config.getLNA()) || (config.getLNA() == -1)) &&
                 ((getLNB() == config.getLNB()) || (config.getLNB() == -1)) &&
                 ((getLNC() == config.getLNC()) || (config.getLNC() == -1)) &&
                 ((getLND() == config.getLND()) || (config.getLND() == -1)) &&
                 ((getLNE() == config.getLNE()) || (config.getLNE() == -1)) &&
                 ((getLNF() == config.getLNF()) || (config.getLNF() == -1)) &&
-                (getClassID() == config.getClassID())) {
-            return true;
-        } else {
-            return false;
-        }
+                (getClassID() == config.getClassID());
     }
 
     public boolean equals(DLMSObis dlmsObis) {
         try {
-            if ((getLNA() == dlmsObis.getLNA()) &&
+            return (getLNA() == dlmsObis.getLNA()) &&
                     (getLNB() == dlmsObis.getLNB()) &&
                     (getLNC() == dlmsObis.getLNC()) &&
                     (getLND() == dlmsObis.getLND()) &&
                     (getLNE() == dlmsObis.getLNE()) &&
                     (getLNF() == dlmsObis.getLNF()) &&
-                    (getClassID() == dlmsObis.getDLMSClass())) {
-                return true;
-            } else {
-                return false;
-            }
+                    (getClassID() == dlmsObis.getDLMSClass());
         } catch (ProtocolException e) {
             return false;
         }
@@ -337,15 +328,11 @@ public class UniversalObject implements Serializable {
         if (obisCode == null) {
             return false;
         }
-        if (((getLNA() & 0xFF) == obisCode.getA()) &&
+        return ((getLNA() & 0xFF) == obisCode.getA()) &&
                 ((getLNB() & 0xFF) == obisCode.getB()) &&
                 ((getLNC() & 0xFF) == obisCode.getC()) &&
                 ((getLND() & 0xFF) == obisCode.getD()) &&
-                ((getLNE() & 0xFF) == obisCode.getE())) {
-            return true;
-        } else {
-            return false;
-        }
+                ((getLNE() & 0xFF) == obisCode.getE());
     }
 
     /*
@@ -356,14 +343,10 @@ public class UniversalObject implements Serializable {
         if (obisCode == null) {
             return false;
         }
-        if (((getLNA() & 0xFF) == obisCode.getA()) &&
+        return ((getLNA() & 0xFF) == obisCode.getA()) &&
                 ((getLNC() & 0xFF) == obisCode.getC()) &&
                 ((getLND() & 0xFF) == obisCode.getD()) &&
-                ((getLNE() & 0xFF) == obisCode.getE())) {
-            return true;
-        } else {
-            return false;
-        }
+                ((getLNE() & 0xFF) == obisCode.getE());
     }
 
     public ObisCode getObisCode() {
@@ -405,41 +388,25 @@ public class UniversalObject implements Serializable {
     }
 
     public boolean isCapturedObjectNotAbstract() {
-        if ((this.fields[COL_LN_A] >= 1) && (this.fields[COL_LN_B] >= 1) && (this.fields[COL_LN_B] <= 64)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (this.fields[COL_LN_A] >= 1) && (this.fields[COL_LN_B] >= 1) && (this.fields[COL_LN_B] <= 64);
     }
 
     // 1,4 5 6 7 8 9
     public boolean isCapturedObjectElectricity() {
-        if ((this.fields[COL_LN_A] == 1) && (this.fields[COL_LN_B] >= 1) && (this.fields[COL_LN_B] <= 64)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (this.fields[COL_LN_A] == 1) && (this.fields[COL_LN_B] >= 1) && (this.fields[COL_LN_B] <= 64);
     }
 
     public boolean isCapturedObjectPulses() {
-        if (this.fields[COL_LN_C] == 82) {
-            return true;
-        } else {
-            return false;
-        }
+        return this.fields[COL_LN_C] == 82;
     }
 
     public boolean isCapturedObjectCumulative() {
-        if ((this.fields[COL_LN_C] != 0) &&
+        return (this.fields[COL_LN_C] != 0) &&
                 (this.fields[COL_LN_C] != 96) &&
                 (this.fields[COL_LN_C] != 97) &&
                 (this.fields[COL_LN_C] != 98) &&
                 (this.fields[COL_LN_C] != 99) &&
-                (this.fields[COL_LN_D] == 8)) {
-            return true;
-        } else {
-            return false;
-        }
+                (this.fields[COL_LN_D] == 8);
     }
 
     public String getDescription() {

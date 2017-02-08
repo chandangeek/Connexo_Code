@@ -10,11 +10,10 @@
 
 package test.com.energyict.protocolimpl.sdksample;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.Connection;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -78,7 +77,7 @@ public class SDKSampleProtocolConnection extends Connection implements ProtocolC
         logger.info("call connection class disconnectMAC(...)");
     }
 
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         logger.info("call connection class connectMAC(...)");
         return null;
     }

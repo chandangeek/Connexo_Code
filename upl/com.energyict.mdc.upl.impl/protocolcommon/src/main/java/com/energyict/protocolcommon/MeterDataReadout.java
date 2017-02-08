@@ -1,10 +1,14 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * MeterDataReadout.java
  *
  * Created on 31 oktober 2003, 11:04
  */
 
-package com.energyict.protocol;
+package com.energyict.protocolcommon;
 
 import com.energyict.mdc.upl.io.NestedIOException;
 

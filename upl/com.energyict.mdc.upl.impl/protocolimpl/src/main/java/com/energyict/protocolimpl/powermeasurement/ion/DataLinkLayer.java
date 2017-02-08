@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connections.Connection;
+import com.energyict.protocolimpl.base.CRCGenerator;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.base.CRCGenerator;
 
 /**
  * The data-link layer is responsible for the transmission and reception of 
@@ -113,7 +113,7 @@ class DataLinkLayer extends Connection {
         
     }
 
-    private void sendRawData(Frame sFrame) throws IOException, ConnectionException {
+    private void sendRawData(Frame sFrame) throws IOException {
         sendRawData( sFrame.toByteArray().getBytes() );
     }
     
@@ -181,7 +181,7 @@ class DataLinkLayer extends Connection {
         
     }
     
-    void sendTime( ByteArray ba ) throws IOException, ConnectionException {
+    void sendTime( ByteArray ba ) throws IOException {
         Frame sFrame = createFrame( ba ).setCounter(1);
         sFrame.setCounter(0);
         sFrame.setIsFirstFrame(true);

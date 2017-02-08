@@ -3,15 +3,14 @@ package com.energyict.mdc.channels.serial.modem.rxtx;
 import com.energyict.mdc.channels.nls.MessageSeeds;
 import com.energyict.mdc.channels.nls.Thesaurus;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
-import com.energyict.mdc.channels.serial.modem.AtModemComponent;
-import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
+import com.energyict.mdc.channels.serial.modemproperties.AtModemComponent;
+import com.energyict.mdc.channels.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.io.ModemException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.xml.bind.annotation.XmlRootElement;

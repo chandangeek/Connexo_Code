@@ -1,10 +1,10 @@
 package com.elster.us.protocolimplv2.sel.frame.data;
 
-import java.io.IOException;
-
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
 
 public abstract class Data {
   

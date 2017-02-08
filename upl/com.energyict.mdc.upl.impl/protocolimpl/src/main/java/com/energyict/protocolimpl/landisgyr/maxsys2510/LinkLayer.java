@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
-import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.dialer.connections.Connection;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 

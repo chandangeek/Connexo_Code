@@ -6,12 +6,11 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.Connection;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;

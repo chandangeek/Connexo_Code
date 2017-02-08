@@ -7,7 +7,7 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 

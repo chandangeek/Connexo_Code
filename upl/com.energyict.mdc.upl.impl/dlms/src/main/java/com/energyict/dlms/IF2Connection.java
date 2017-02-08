@@ -1,7 +1,7 @@
 package com.energyict.dlms;
 
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.InputStream;

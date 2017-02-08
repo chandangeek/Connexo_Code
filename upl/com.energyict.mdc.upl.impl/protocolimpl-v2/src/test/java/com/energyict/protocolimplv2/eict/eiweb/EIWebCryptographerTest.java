@@ -6,18 +6,16 @@ import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.tasks.InboundConnectionTask;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.DeviceFactoryProvider;
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocol.exception.identifier.NotFoundException;
 import com.energyict.protocolimpl.properties.TypedProperties;
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.Optional;
-
-import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;

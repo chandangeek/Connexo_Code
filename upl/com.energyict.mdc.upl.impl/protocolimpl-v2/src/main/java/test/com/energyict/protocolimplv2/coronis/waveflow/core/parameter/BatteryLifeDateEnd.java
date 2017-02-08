@@ -1,6 +1,6 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter;
 
-import com.energyict.protocol.exceptions.CodingException;
+import com.energyict.protocolcommon.exceptions.CodingException;
 import test.com.energyict.protocolimplv2.coronis.common.TimeDateRTCParser;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 

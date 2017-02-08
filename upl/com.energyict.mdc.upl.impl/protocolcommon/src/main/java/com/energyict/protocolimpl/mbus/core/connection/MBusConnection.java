@@ -10,12 +10,11 @@
 
 package com.energyict.protocolimpl.mbus.core.connection;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -74,7 +73,7 @@ public class MBusConnection extends IEC870Connection implements ProtocolConnecti
     public void disconnectMAC() throws NestedIOException, ProtocolConnectionException {
 
     }
-    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID,String strPassword,int securityLevel,String nodeId) throws IOException {
         return null;
     }
     public byte[] dataReadout(String strID,String nodeId) throws NestedIOException, ProtocolConnectionException {

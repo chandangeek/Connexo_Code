@@ -9,11 +9,10 @@ import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.SecurityProperty;
-
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DataParseException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.identifier.NotFoundException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.DataParseException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocol.exception.identifier.NotFoundException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -76,7 +75,7 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
+        return "$Date: Thu Dec 29 16:16:55 2016 +0100 $";
     }
 
     @Override

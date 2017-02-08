@@ -1,6 +1,12 @@
-package com.energyict.protocol;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.protocolcommon;
 
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterData;
 
 /**
  * A MessageResult created by the Protocol driver with additional MeterData information.

@@ -1,10 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.kaifa;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 import com.energyict.protocolimpl.utils.ProtocolUtils;

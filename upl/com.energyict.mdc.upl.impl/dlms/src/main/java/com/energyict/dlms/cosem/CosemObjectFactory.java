@@ -15,7 +15,7 @@ import com.energyict.dlms.cosem.methods.USBSetup;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.util.List;

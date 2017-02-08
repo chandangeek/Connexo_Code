@@ -12,8 +12,8 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocol.exception.DataEncryptionException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

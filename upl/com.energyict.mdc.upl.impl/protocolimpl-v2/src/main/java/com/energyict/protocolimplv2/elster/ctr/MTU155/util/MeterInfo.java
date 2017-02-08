@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;

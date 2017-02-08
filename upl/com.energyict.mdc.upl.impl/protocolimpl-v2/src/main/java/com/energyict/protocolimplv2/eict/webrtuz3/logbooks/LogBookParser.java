@@ -11,7 +11,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.exception.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.events.EventsLog;
 

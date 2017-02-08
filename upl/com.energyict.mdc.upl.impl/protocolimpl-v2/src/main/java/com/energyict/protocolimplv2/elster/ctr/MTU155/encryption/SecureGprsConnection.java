@@ -1,14 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
 import com.energyict.mdc.protocol.ComChannel;
-
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRCipheringException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.Frame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
 
 import java.util.logging.Logger;
@@ -60,7 +58,7 @@ public class SecureGprsConnection extends GprsConnection {
             }
             GPRSFrame encryptedFrame = (GPRSFrame) ctrEncryption.encryptFrame(requestFrame);
             GPRSFrame responseFrame = super.sendFrameGetResponse(encryptedFrame);
-            GPRSFrame unencryptedResponseFrame = (GPRSFrame) ctrEncryption.decryptFrame((Frame) responseFrame);
+            GPRSFrame unencryptedResponseFrame = (GPRSFrame) ctrEncryption.decryptFrame(responseFrame);
             if (isDebug()) {
                 getLogger().finest("RX[" + System.currentTimeMillis() +  "] " + ProtocolTools.getHexStringFromBytes(unencryptedResponseFrame.getBytes()));
             }

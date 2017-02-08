@@ -1,10 +1,9 @@
 package com.energyict.protocolimpl.coronis.core;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.Connection;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
@@ -66,7 +65,7 @@ public class WaveFlowConnect extends Connection implements ProtocolConnection, P
         escapeCommandFactory = new EscapeCommandFactory(this);
     }
 
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         // Set the RF response timeout
         escapeCommandFactory.setWavenisStackConfigRFResponseTimeout(timeout);
         return null;
@@ -132,7 +131,7 @@ public class WaveFlowConnect extends Connection implements ProtocolConnection, P
         return data;
     }
 
-    public byte[] sendData(byte[] bs) throws IOException, ConnectionException {
+    public byte[] sendData(byte[] bs) throws IOException {
 
         int communicationAttemptNr = 0;
         int retry = 0;

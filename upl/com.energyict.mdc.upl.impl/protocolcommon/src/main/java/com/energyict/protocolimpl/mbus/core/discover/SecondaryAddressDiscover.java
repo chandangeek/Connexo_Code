@@ -1,8 +1,7 @@
 package com.energyict.protocolimpl.mbus.core.discover;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.mbus.core.ApplicationData;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.MBus;
@@ -286,7 +285,7 @@ public class SecondaryAddressDiscover {
 
 						boolean found=false;
 						for (int i=0;i<cIField72hs.size();i++) {
-							CIField72h comp = (CIField72h)cIField72hs.get(i);
+							CIField72h comp = cIField72hs.get(i);
 							if (comp.getDeviceSerialNumberSecundaryAddress().compareTo(o.getDeviceSerialNumberSecundaryAddress())==0) {
 								found=true;
 								break;

@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.coronis.core.wavecell;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
@@ -171,7 +170,7 @@ public class WaveCellConnect extends WaveFlowConnect {
     }
 
     @Override
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         return null;
     }
 

@@ -6,11 +6,10 @@
 
 package com.energyict.protocolimpl.gmc.base;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.Connection;
+import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -84,7 +83,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
         iProtocolTimeout=iTimeout;
     }
 
-    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException, ProtocolConnectionException {
+    public MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws IOException {
         this.strID=strID;
         return null;
     }
@@ -439,7 +438,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
 
 
 
-    public byte[] receiveRawData() throws NestedIOException, ConnectionException, ProtocolConnectionException {
+    public byte[] receiveRawData() throws NestedIOException, ConnectionException {
         return doReceiveData();
     }
 
@@ -453,7 +452,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
 
 
 
-    public byte[] doReceiveData() throws NestedIOException, ConnectionException, ProtocolConnectionException {
+    public byte[] doReceiveData() throws NestedIOException, ConnectionException {
         long lMSTimeout,lMSTimeoutInterFrame;
         int iNewKar;
         int iState;
@@ -527,10 +526,10 @@ public class EclConnection extends Connection implements ProtocolConnection {
 
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ProtocolConnectionException("doReceiveData() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeoutInterFrame > 0) {
                 throw new ProtocolConnectionException("doReceiveData() interframe timeout error",TIMEOUT_ERROR);
             }
 
@@ -538,7 +537,7 @@ public class EclConnection extends Connection implements ProtocolConnection {
         } // while(true)
 
     } // public byte[] doReceiveData(String str) throws ProtocolConnectionException
-    public void receiveSUB() throws NestedIOException, ConnectionException, ProtocolConnectionException {
+    public void receiveSUB() throws NestedIOException, ConnectionException {
         long lMSTimeout,lMSTimeoutInterFrame;
         int iNewKar;
         lMSTimeout = System.currentTimeMillis() + TIMEOUT;
@@ -555,10 +554,10 @@ public class EclConnection extends Connection implements ProtocolConnection {
                 }
             } // if ((iNewKar = readIn()) != -1)
 
-            if (((long) (System.currentTimeMillis() - lMSTimeout)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeout > 0) {
                 throw new ProtocolConnectionException("doReceiveData() response timeout error",TIMEOUT_ERROR);
             }
-            if (((long) (System.currentTimeMillis() - lMSTimeoutInterFrame)) > 0) {
+            if (System.currentTimeMillis() - lMSTimeoutInterFrame > 0) {
                 throw new ProtocolConnectionException("doReceiveData() interframe timeout error",TIMEOUT_ERROR);
             }
         } // while(true)

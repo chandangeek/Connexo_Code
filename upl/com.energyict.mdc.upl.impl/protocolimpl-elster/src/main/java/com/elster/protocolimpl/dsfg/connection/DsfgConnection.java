@@ -1,10 +1,9 @@
 package com.elster.protocolimpl.dsfg.connection;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
 import com.elster.protocolimpl.dsfg.telegram.DataBlock;
-import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connections.Connection;
+import com.energyict.mdc.upl.io.NestedIOException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

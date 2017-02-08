@@ -5,8 +5,7 @@ import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;

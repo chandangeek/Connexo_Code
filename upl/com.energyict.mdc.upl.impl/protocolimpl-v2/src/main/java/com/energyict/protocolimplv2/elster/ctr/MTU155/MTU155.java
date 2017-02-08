@@ -50,7 +50,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;

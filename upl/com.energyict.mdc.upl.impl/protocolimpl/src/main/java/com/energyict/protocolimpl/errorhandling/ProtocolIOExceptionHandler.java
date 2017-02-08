@@ -1,9 +1,8 @@
 package com.energyict.protocolimpl.errorhandling;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.IOException;
 

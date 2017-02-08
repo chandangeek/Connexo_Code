@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.common.Connection;
 import com.energyict.protocolimplv2.elster.garnet.common.GPRSConnection;

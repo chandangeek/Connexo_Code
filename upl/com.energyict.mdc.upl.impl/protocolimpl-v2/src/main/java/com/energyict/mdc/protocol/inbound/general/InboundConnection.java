@@ -9,9 +9,9 @@ import com.energyict.mdc.protocol.inbound.general.frames.RegisterFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RequestFrame;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.InboundFrameException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.InboundFrameException;
+import com.energyict.protocol.exception.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
 
 import java.util.ArrayList;
@@ -92,7 +92,7 @@ public class InboundConnection {
      * Read in a frame after the I request was sent.
      * This method reads in bytes until a timeout occurs and returns the result.
      *
-     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException when no bytes were received after a certain time
+     * @throws ProtocolRuntimeException when no bytes were received after a certain time
      */
     public String readVariableFrame() throws InboundTimeOutException {
         return readVariableLength(null, null);   //Read in a frame until a timeout occurs
@@ -123,7 +123,7 @@ public class InboundConnection {
      *
      * @param retryRequest this is what we send in case of timeouts. Nothing is sent if the request is null.
      * @return the full inbound frame
-     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException if a timeout occurs
+     * @throws ProtocolRuntimeException if a timeout occurs
      */
     public AbstractInboundFrame readInboundFrame(byte[] retryRequest) throws InboundTimeOutException {
         StringBuilder sb = new StringBuilder();
@@ -143,7 +143,7 @@ public class InboundConnection {
      *
      * @param frame the received string
      * @return the parsing result
-     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException when an unknown frame type was received
+     * @throws ProtocolRuntimeException when an unknown frame type was received
      */
     private AbstractInboundFrame parseInboundFrame(String frame) {
         if (frame.contains(REQUEST_TAG)) {
@@ -175,7 +175,7 @@ public class InboundConnection {
      * @param retryRequest in case of timeouts, send a retry.
      * @param endString    Stop reading in bytes when this string is found. If null, read in bytes until a timeout occurs.
      * @return the partial frame
-     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException in case of timeout after x retries
+     * @throws ProtocolRuntimeException in case of timeout after x retries
      */
     private String readVariableLength(String endString, byte[] retryRequest) throws InboundTimeOutException {
         comChannel.startReading();
@@ -217,7 +217,7 @@ public class InboundConnection {
      * @param length       the number of bytes that should be read
      * @param retryRequest in case of timeouts, send a retry.
      * @return the bytes that were read out
-     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException in case of timeout after x retries
+     * @throws ProtocolRuntimeException in case of timeout after x retries
      */
     private String readFixedLength(int length, byte[] retryRequest) {
         StringBuilder sb = new StringBuilder();

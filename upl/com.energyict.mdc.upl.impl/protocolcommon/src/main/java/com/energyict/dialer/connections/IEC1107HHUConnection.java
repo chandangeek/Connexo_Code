@@ -1,15 +1,21 @@
 /*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+/*
  * IEC1107Connection.java
  *
  * Created on 17 september 2003, 9:31
  */
 
-package com.energyict.dialer.connection;
+package com.energyict.dialer.connections;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.protocol.MeterDataReadout;
 import com.energyict.protocol.meteridentification.MeterType;
+import com.energyict.protocolcommon.MeterDataReadout;
 import com.energyict.protocolimpl.meteridentification.MeterTypeImpl;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import org.apache.commons.logging.Log;

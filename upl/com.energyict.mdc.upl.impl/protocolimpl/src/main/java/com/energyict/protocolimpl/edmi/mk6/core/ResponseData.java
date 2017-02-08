@@ -10,7 +10,7 @@
 
 package com.energyict.protocolimpl.edmi.mk6.core;
 
-import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connections.Connection;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 /**

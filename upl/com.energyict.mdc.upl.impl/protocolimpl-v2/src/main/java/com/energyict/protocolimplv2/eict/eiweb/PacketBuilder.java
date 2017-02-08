@@ -6,8 +6,8 @@ import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 

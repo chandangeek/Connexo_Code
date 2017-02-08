@@ -1,5 +1,7 @@
 package test.com.energyict.protocolimplv2.coronis.muc;
 
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.ExchangeMode;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -15,10 +17,7 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.ExchangeMode;
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;

@@ -1,6 +1,6 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand;
 
-import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exception.CommunicationException;
 import test.com.energyict.protocolimplv2.coronis.common.TimeDateRTCParser;
 import test.com.energyict.protocolimplv2.coronis.common.WaveflowProtocolUtils;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;

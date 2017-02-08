@@ -1,24 +1,28 @@
 package com.energyict.mdc.channels.serial.modem.rxtx;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
-import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
-import com.energyict.mdc.channels.serial.modem.AtModemComponent;
-import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
+import com.energyict.mdc.channels.serial.modemproperties.AbstractAtModemProperties;
+import com.energyict.mdc.channels.serial.modemproperties.AtModemComponent;
+import com.energyict.mdc.channels.serial.modemproperties.TypedAtModemProperties;
 import com.energyict.mdc.io.SerialComponentFactory;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
-
-import com.energyict.cbo.TimeDuration;
+import com.energyict.protocol.exception.ModemException;
+import com.energyict.protocol.exception.ProtocolExceptionReference;
 import com.energyict.protocol.exceptions.ConnectionException;
-import com.energyict.protocol.exceptions.ModemException;
-import com.energyict.protocol.exceptions.ProtocolExceptionReference;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,12 +30,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;

@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.iec870.ziv5ctd;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connections.Connection;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
 
 /**
  * The link layer accepts, performs and controls transmission service functions
@@ -131,7 +131,7 @@ public class LinkLayer extends Connection {
                 send(setFcb(sFrame));
 
                 // step 4 
-                return (VariableFrame)receive();
+                return receive();
             }
             
             throw new IOException( "Severed connection. ");

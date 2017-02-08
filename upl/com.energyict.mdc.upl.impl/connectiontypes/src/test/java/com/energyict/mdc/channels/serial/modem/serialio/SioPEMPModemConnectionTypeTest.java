@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.serial.modem.serialio;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
@@ -7,31 +8,28 @@ import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
-import com.energyict.mdc.channels.serial.modem.AbstractPEMPModemProperties;
 import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
-import com.energyict.mdc.channels.serial.modem.PEMPModemConfiguration;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
+import com.energyict.mdc.channels.serial.modemproperties.AbstractPEMPModemProperties;
+import com.energyict.mdc.channels.serial.modemproperties.PEMPModemConfiguration;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.SerialComponentFactory;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.cbo.TimeDuration;
 import com.energyict.protocol.exceptions.ConnectionException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;

@@ -6,7 +6,7 @@
  */
 package com.energyict.protocolimpl.edmi.mk10.parsers;
 
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 

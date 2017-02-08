@@ -4,9 +4,8 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocol.ProtocolInstantiator;
-import com.energyict.protocol.exceptions.InboundFrameException;
+import com.energyict.protocol.exception.InboundFrameException;
 import com.energyict.protocol.meteridentification.IdentificationFactory;
 
 /**
@@ -47,7 +46,7 @@ public class DoubleIframeDiscover extends AbstractDiscover {
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: Thu Dec 29 16:16:55 2016 +0100 $";
     }
 
 }

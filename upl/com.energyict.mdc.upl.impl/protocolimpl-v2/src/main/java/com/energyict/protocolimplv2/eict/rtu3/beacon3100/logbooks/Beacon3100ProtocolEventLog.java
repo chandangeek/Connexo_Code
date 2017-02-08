@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exception.DataParseException;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -61,7 +60,7 @@ public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
         Date eventTimeStamp = new Date();
         String serialNumber = null;
         Result taskResult = Result.UNKNOWN;
-        List<JournalEntry> journalEntry = null;;
+        List<JournalEntry> journalEntry = null;
 
         for (int i = 0; i <= (size - 1); i++) {
             DataStructure eventStructure = this.dcEvents.getRoot().getStructure(i);
@@ -186,7 +185,7 @@ public class Beacon3100ProtocolEventLog extends Beacon3100AbstractEventLog {
             eventDescription = getDefaultEventDescription(0, (int) deviceId, message);
         }
 
-        meterEvents.add(new MeterEvent((Date) eventTimeStamp, 0, 0, eventDescription));
+        meterEvents.add(new MeterEvent(eventTimeStamp, 0, 0, eventDescription));
     }
 
     public class JournalEntry{

@@ -1,5 +1,6 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow;
 
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
 import com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType;
@@ -35,12 +36,10 @@ import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
-
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocol.support.SerialNumberSupport;
+import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;

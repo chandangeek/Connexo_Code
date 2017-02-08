@@ -1,14 +1,13 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.DataEncryptionException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 
 import java.io.IOException;
 

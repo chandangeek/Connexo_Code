@@ -8,9 +8,9 @@ import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.InboundFrameException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.InboundFrameException;
+import com.energyict.protocol.exception.ProtocolRuntimeException;
 import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -84,7 +84,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
      * implemented by reading bytes until a timeout occurs.
      *
      * @return the partial frame
-     * @throws com.energyict.protocol.exceptions.ProtocolRuntimeException in case of timeout after x retries
+     * @throws ProtocolRuntimeException in case of timeout after x retries
      */
     private byte[] readFrame() {
         getComChannel().startReading();
@@ -155,7 +155,7 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
+        return "$Date: Mon Nov 14 14:20:36 2016 +0100 $";
     }
 
     @Override

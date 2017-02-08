@@ -1,10 +1,9 @@
 package com.elster.protocolimpl.lis100.connection;
 
-import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.dialer.connections.Connection;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

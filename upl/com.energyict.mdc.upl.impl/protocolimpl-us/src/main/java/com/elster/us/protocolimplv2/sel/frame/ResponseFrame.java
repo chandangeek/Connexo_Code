@@ -1,28 +1,26 @@
 package com.elster.us.protocolimplv2.sel.frame;
 
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_EM;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_RD;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_RE;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_RG;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_SF;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_SN;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_LP;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_TIME;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_DATE;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_REG;
-import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_ID;
-
-import java.io.IOException;
-
 import com.elster.us.protocolimplv2.sel.frame.data.BasicResponseData;
 import com.elster.us.protocolimplv2.sel.frame.data.DeviceIDReadResponseData;
 import com.elster.us.protocolimplv2.sel.frame.data.EventResponseData;
 import com.elster.us.protocolimplv2.sel.frame.data.RegisterReadResponseData;
-import com.elster.us.protocolimplv2.sel.frame.data.TimeReadResponseData;
-//import com.elster.us.protocolimplv2.sel.frame.data.EventResponseDataRE;
-import com.elster.us.protocolimplv2.sel.frame.data.MultiReadResponseData;
 import com.elster.us.protocolimplv2.sel.frame.data.SingleReadResponseData;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.elster.us.protocolimplv2.sel.frame.data.TimeReadResponseData;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+
+import java.io.IOException;
+
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_DATE;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_EM;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_ID;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_LP;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_RD;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_REG;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_SF;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_SN;
+import static com.elster.us.protocolimplv2.sel.Consts.COMMAND_TIME;
+
+//import com.elster.us.protocolimplv2.sel.frame.data.EventResponseDataRE;
 
 public class ResponseFrame {
   private BasicResponseData data;

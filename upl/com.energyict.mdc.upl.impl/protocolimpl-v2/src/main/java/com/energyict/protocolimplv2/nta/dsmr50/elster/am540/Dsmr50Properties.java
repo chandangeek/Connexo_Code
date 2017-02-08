@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;

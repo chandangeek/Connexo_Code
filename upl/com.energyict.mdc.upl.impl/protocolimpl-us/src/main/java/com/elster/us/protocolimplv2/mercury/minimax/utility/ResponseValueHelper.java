@@ -1,8 +1,7 @@
 package com.elster.us.protocolimplv2.mercury.minimax.utility;
 
-import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exception.CommunicationException;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
 /**

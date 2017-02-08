@@ -2,7 +2,7 @@ package com.energyict.mdc.channels;
 
 import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.mdc.protocol.ComChannelType;
-import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exception.CommunicationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

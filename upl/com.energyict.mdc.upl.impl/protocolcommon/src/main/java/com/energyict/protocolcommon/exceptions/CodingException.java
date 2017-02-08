@@ -1,4 +1,11 @@
-package com.energyict.protocol.exceptions;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.protocolcommon.exceptions;
+
+import com.energyict.protocol.exception.ProtocolExceptionReference;
+import com.energyict.protocol.exception.ProtocolRuntimeException;
 
 /**
  * Provides functionality to generate exceptions based on the parsing of some data

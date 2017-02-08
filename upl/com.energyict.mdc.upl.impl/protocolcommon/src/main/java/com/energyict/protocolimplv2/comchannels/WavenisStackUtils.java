@@ -8,10 +8,10 @@ import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisPar
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisProtocolTimeoutException;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackImpl;
-import com.energyict.protocol.exceptions.CodingException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocol.exceptions.ProtocolRuntimeException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocol.exception.ProtocolRuntimeException;
+import com.energyict.protocolcommon.exceptions.CodingException;
 
 import java.io.IOException;
 import java.io.InputStream;

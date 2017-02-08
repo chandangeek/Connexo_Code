@@ -11,11 +11,10 @@
 package com.energyict.protocolimpl.edf.core;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.ConnectionV25;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.ConnectionV25;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocolimpl.base.ProtocolConnection;
-import com.energyict.protocolimpl.base.ProtocolConnectionException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -63,7 +62,7 @@ public class TrimeranConnectionLayering extends ConnectionV25  implements Protoc
 
     } // EZ7Connection(...)
 
-    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException, ProtocolConnectionException {
+    public com.energyict.protocol.meteridentification.MeterType connectMAC(String strID, String strPassword, int securityLevel, String nodeId) throws java.io.IOException {
         this.nodeId=nodeId;
         return null;
     }
