@@ -402,47 +402,6 @@ Irrelevant as delete is not supported any more
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{field.required}", property = "protocolDialectConfigurationProperties")
-    @Transactional
-    public void setNullProtocolDialectTest() {
-        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-        ComTaskEnablement comTaskEnablement = enableComTask(true, COM_TASK_NAME);
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
-        comTaskExecutionBuilder.add();
-
-        // Business method
-        device.save();
-
-        // Asserts: see expected constraint violation rule
-    }
-
-//    @Test
-//    @Transactional
-//    public void setProtocolDialectOnUpdaterTest() {
-//        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
-//        ProtocolDialectConfigurationProperties otherDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new OtherPartialConnectionTaskDialect());
-//        deviceConfiguration.save();
-//        ComTaskEnablement comTaskEnablement = enableComTask(true);
-//        Device device = inMemoryPersistence.getDeviceService()
-//                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
-//        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
-//        ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
-//        device.save();
-//
-//        ComTaskExecutionUpdater comTaskExecutionUpdater = device.getComTaskExecutionUpdater(comTaskExecution);
-//        comTaskExecutionUpdater.protocolDialectConfigurationProperties(otherDialect);
-//
-//        // Business method
-//        comTaskExecutionUpdater.update();
-//
-//        // Asserts
-//        ComTaskExecution reloadedComTaskExecution = this.reloadComTaskExecution(device, comTaskExecution);
-//        assertThat(reloadedComTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(otherDialect.getId());
-//    }
-
-    @Test
     @Transactional
     public void makeSuccessfulObsoleteTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));

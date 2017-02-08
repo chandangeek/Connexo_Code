@@ -436,6 +436,16 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         }
     }
 
+    protected ProtocolDialectConfigurationProperties dialectConfigurationPropertiesToUpdate(){
+        ProtocolDialectConfigurationProperties propertiesToUpdate = createDialectConfigProperties();
+        propertiesToUpdate.setProperty("capitalA", "A");
+        propertiesToUpdate.setProperty("capitalB", "B");
+        propertiesToUpdate.setProperty("capitalC", "C");
+        propertiesToUpdate.setProperty("capitalD", "D");
+        return propertiesToUpdate;
+
+    }
+
     private ComTaskEnablement enableComTask(boolean useDefault, ComTask comTask) {
         ComTaskEnablementBuilder builder = this.deviceConfiguration.enableComTask(comTask, this.securityPropertySet);
         builder.useDefaultConnectionTask(useDefault);

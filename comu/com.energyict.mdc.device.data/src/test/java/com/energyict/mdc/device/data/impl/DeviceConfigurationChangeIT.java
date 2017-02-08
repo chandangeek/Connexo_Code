@@ -165,10 +165,10 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
                             final List<ComTask> comTasks = dc.getComTaskEnablements().stream().map(ComTaskEnablement::getComTask).collect(Collectors.toList());
                             comTasks.forEach(dc::disableComTask);
 
-                            final List<PartialConnectionTask> partialConnectionTasks = dc.getPartialConnectionTasks();
-                            for (int i = 0; i < partialConnectionTasks.size(); i++) {
-                                dc.remove(partialConnectionTasks.get(i));
-                            }
+//                            final List<PartialConnectionTask> partialConnectionTasks = dc.getPartialConnectionTasks();
+//                            for (int i = 0; i < partialConnectionTasks.size(); i++) {
+//                                dc.remove(partialConnectionTasks.get(i));
+//                            }
                             final List<SecurityPropertySet> securityPropertySets = dc.getSecurityPropertySets();
                             for (int i = 0; i < securityPropertySets.size(); i++) {
                                 dc.removeSecurityPropertySet(securityPropertySets.get(i));

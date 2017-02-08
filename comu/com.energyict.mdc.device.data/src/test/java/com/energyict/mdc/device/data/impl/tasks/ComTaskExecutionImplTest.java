@@ -442,20 +442,20 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(reloadedComTaskExecution.isIgnoreNextExecutionSpecsForInbound()).isTrue();
     }
 
-    @Test
-    @ExpectedConstraintViolation(messageId = "{field.required}", property = "protocolDialectConfigurationProperties")
-    @Transactional
-    public void setNullProtocolDialectTest() {
-        deviceConfiguration.save();
-        ComTaskEnablement comTaskEnablement = enableComTask(true, COM_TASK_NAME);
-        Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
-
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
-        comTaskExecutionBuilder.add();
-
-        // Asserts: see expected constraint violation rule
-    }
+//    @Test
+//    @ExpectedConstraintViolation(messageId = "{field.required}", property = "protocolDialectConfigurationProperties")
+//    @Transactional
+//    public void setNullProtocolDialectTest() {
+//        deviceConfiguration.save();
+//        ComTaskEnablement comTaskEnablement = enableComTask(true, COM_TASK_NAME);
+//        Device device = inMemoryPersistence.getDeviceService()
+//                .newDevice(deviceConfiguration, "Dialect", "Dialect", Instant.now());
+//
+//        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
+//        comTaskExecutionBuilder.add();
+//
+//        // Asserts: see expected constraint violation rule
+//    }
 
 //    @Test
 //    @Transactional

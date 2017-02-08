@@ -49,6 +49,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(inboundConnectionTask.getComPortPool()).isEqualTo(inboundTcpipComPortPool);
         assertThat(inboundConnectionTask.getLastCommunicationStart()).isNull();
         assertThat(inboundConnectionTask.getLastSuccessfulCommunicationEnd()).isNull();
+        assertThat(inboundConnectionTask.getProtocolDialectConfigurationProperties()).isEqualTo(this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0));
     }
 
     @Test

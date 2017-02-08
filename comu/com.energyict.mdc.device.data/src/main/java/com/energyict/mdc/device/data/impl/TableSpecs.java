@@ -303,6 +303,7 @@ public enum TableSpecs {
                     add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_DIALECT")
                     .on(protocolDialectConfigurationProperties)
+                    .onDelete(DeleteRule.CASCADE)
                     .since(Version.version(10,3))
                     .references(ProtocolDialectConfigurationProperties.class)
                     .map(ConnectionTaskFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName())

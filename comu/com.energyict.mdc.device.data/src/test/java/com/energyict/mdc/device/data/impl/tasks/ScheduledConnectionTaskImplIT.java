@@ -22,6 +22,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
+import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
@@ -104,6 +105,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getRescheduleDelay()).isEqualTo(TimeDuration.minutes(5));
         assertThat(connectionTask.lastExecutionFailed()).isEqualTo(false);
         assertThat(connectionTask.getExecutingComServer()).isNull();
+        assertThat(connectionTask.getProtocolDialectConfigurationProperties()).isEqualTo(this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0));
     }
 
     @Test
@@ -418,6 +420,35 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
+    @Transactional
+    public void testUpdateNullDialectProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
+        partialScheduledConnectionTask.save();
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
+        device.save();
+
+        connectionTask.setProtocolDialectConfigurationProperties(null);
+        // Business method
+        device.save();
+    }
+
+    @Test(expected= NoSuchPropertyOnDialectException.class)
+    @Transactional
+    public void testUpdateBadDialectProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+        partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
+        partialScheduledConnectionTask.save();
+        ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
+        device.save();
+
+        connectionTask.setProtocolDialectConfigurationProperties(dialectConfigurationPropertiesToUpdate());
+        // Business method
+        device.save();
+    }
+
+    @Test
     @Transactional
     public void testAddIpConnectionTypeProperty() {
         this.grantAllViewAndEditPrivilegesToPrincipal();
@@ -508,7 +539,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Business method
         scheduledConnectionTask.update();
-
         // See expected constraint violation rule
     }
 
