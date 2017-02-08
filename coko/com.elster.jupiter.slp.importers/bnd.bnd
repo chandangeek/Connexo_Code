@@ -2,5 +2,4 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.slp.importers.impl,\
     com.elster.jupiter.slp.importers.impl.*
-Export-Package: com.elster.jupiter.slp.importers,\
-	com.elster.jupiter.slp.importers.security
+Export-Package: com.elster.jupiter.slp.importers
