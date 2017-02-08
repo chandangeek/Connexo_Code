@@ -10,9 +10,3 @@ Import-Package: !test.wsdl.import2.types,\
     !org.apache.commons.net.smtp,\
     !org.exolab.castor.xml,\
     *
-Private-Package:  \
-    com.energyict.protocols.mdc.io.impl,\
-    com.energyict.mdc.protocol.api.impl.device.messages,\
-    com.energyict.mdc.protocolimplv2.*,\
-    com.energyict.mdc.protocols.impl.channels.*,\
-    com.energyict.mdc.protocols.mdc.*

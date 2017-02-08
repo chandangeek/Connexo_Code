@@ -14,8 +14,8 @@ import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
-import com.energyict.mdc.channels.serial.modem.AbstractModemProperties;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
+import com.energyict.mdc.channels.serial.modemproperties.AbstractModemProperties;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.constraints.Size;

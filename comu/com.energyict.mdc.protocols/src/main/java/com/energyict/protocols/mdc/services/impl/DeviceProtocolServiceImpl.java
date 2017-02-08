@@ -8,17 +8,42 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
-import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
-import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
-import com.energyict.protocols.mdc.protocoltasks.CTRTranslationKeys;
-import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialectProperties;
-
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.RuntimeEnvironment;
+import com.energyict.mdc.upl.crypto.KeyStoreService;
+import com.energyict.mdc.upl.crypto.X509Service;
+import com.energyict.mdc.upl.io.UPLSocketService;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Formatter;
+import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.SecurityService;
 import com.energyict.protocolimplv2.abnt.AbntTranslationKeys;
 import com.energyict.protocolimplv2.ace4000.ACE4000Properties;
 import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 import com.energyict.protocolimplv2.elster.garnet.GarnetTranslationKeys;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
+import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
+import com.energyict.protocols.mdc.protocoltasks.CTRTranslationKeys;
+import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialectProperties;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +67,111 @@ import java.util.stream.Stream;
 public class DeviceProtocolServiceImpl implements DeviceProtocolService, MessageSeedProvider, TranslationKeyProvider {
 
     private static final Map<String, InstanceFactory> uplFactories = new ConcurrentHashMap<>();
+
+    /**
+     * Below are dummy references with all the UPL services that can be used in the constructors of the 9.1 protocols.
+     * Before a protocol can be instantiated by this service (@link com.energyict.mdc.protocol.api.services.DeviceProtocolService),
+     * the other UPL services must be activated.
+     */
+    @Reference
+    public void setRuntimeEnvironment(RuntimeEnvironment runtimeEnvironment) {
+    }
+
+    @Reference
+    public void setObjectMapperService(ObjectMapperService objectMapperService) {
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+    }
+
+    @Reference
+    public void setSecurityService(SecurityService securityService) {
+    }
+
+    @Reference
+    public void setUplSocketService(UPLSocketService uplSocketService) {
+    }
+
+    @Reference
+    public void setConverter(Converter converter) {
+    }
+
+    @Reference
+    public void setDeviceMasterDataExtractor(DeviceMasterDataExtractor deviceMasterDataExtractor) {
+    }
+
+    @Reference
+    public void setDeviceExtractor(DeviceExtractor deviceExtractor) {
+    }
+
+    @Reference
+    public void setDeviceGroupExtractor(DeviceGroupExtractor deviceGroupExtractor) {
+    }
+
+    @Reference
+    public void setRegisterExtractor(RegisterExtractor registerExtractor) {
+    }
+
+    @Reference
+    public void setLoadProfileExtractor(LoadProfileExtractor loadProfileExtractor) {
+    }
+
+    @Reference
+    public void setNumberLookupExtractor(NumberLookupExtractor numberLookupExtractor) {
+    }
+
+    @Reference
+    public void setNumberLookupFinder(NumberLookupFinder numberLookupFinder) {
+    }
+
+    @Reference
+    public void setDeviceMessageFileExtractor(DeviceMessageFileExtractor deviceMessageFileExtractor) {
+    }
+
+    @Reference
+    public void setTariffCalendarExtractor(TariffCalendarExtractor tariffCalendarExtractor) {
+    }
+
+    @Reference
+    public void setTariffCalendarFinder(TariffCalendarFinder tariffCalendarFinder) {
+    }
+
+    @Reference
+    public void setDeviceMessageFileFinder(DeviceMessageFileFinder deviceMessageFileFinder) {
+    }
+
+    @Reference
+    public void setCollectedDataFactory(CollectedDataFactory collectedDataFactory) {
+    }
+
+    @Reference
+    public void setIssueFactory(IssueFactory issueFactory) {
+    }
+
+    @Reference
+    public void setFormatter(Formatter formatter) {
+    }
+
+    @Reference
+    public void setX509Service(X509Service x509Service) {
+    }
+
+    @Reference
+    public void setKeyStoreService(KeyStoreService keyStoreService) {
+    }
+
+    @Reference
+    public void setCertificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
+    }
+
+    @Reference
+    public void setCertificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
+    }
 
     @Override
     public Object createProtocol(String className) {
@@ -76,15 +206,15 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                    Stream.of(EiWebPlusDialectProperties.TranslationKeys.values()),
-                    Stream.of(SecurityPropertySpecName.values()).map(ConnexoTranslationKeyAdapter::new),
-                    Stream.of(CustomPropertySetTranslationKeys.values()),
-                    Stream.of(AbntTranslationKeys.values()),
-                    Stream.of(CTRTranslationKeys .values()),
-                    Stream.of(GarnetTranslationKeys.values()),
-                    Stream.of(CommonV2TranslationKeys.values()),
-                    Stream.of(ACE4000Properties.TranslationKeys.values()),
-                    Stream.of(TranslationKeys.values()))
+                Stream.of(EiWebPlusDialectProperties.TranslationKeys.values()),
+                Stream.of(SecurityPropertySpecName.values()).map(ConnexoTranslationKeyAdapter::new),
+                Stream.of(CustomPropertySetTranslationKeys.values()),
+                Stream.of(AbntTranslationKeys.values()),
+                Stream.of(CTRTranslationKeys.values()),
+                Stream.of(GarnetTranslationKeys.values()),
+                Stream.of(CommonV2TranslationKeys.values()),
+                Stream.of(ACE4000Properties.TranslationKeys.values()),
+                Stream.of(TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }

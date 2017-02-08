@@ -8,6 +8,8 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpCustomPropertySet;
 
+import javax.inject.Inject;
+
 /**
  * Provides an implementation for the {@link CustomPropertySet} interface
  * for the {@link OutboundTcpIpConnectionType}.
@@ -17,6 +19,7 @@ import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpCustomProper
  */
 public class OutboundUdpCustomPropertySet extends OutboundTcpIpCustomPropertySet {
 
+    @Inject
     public OutboundUdpCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }

@@ -5,14 +5,13 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.channels.serial.SerialComChannelImpl;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
-import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
-import com.energyict.mdc.channels.serial.modem.AtModemComponent;
-import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
+import com.energyict.mdc.channels.serial.modemproperties.AbstractAtModemProperties;
+import com.energyict.mdc.channels.serial.modemproperties.AtModemComponent;
+import com.energyict.mdc.channels.serial.modemproperties.postdialcommand.ModemComponent;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.io.SerialComponentService;
-
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;

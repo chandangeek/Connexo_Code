@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 
+import javax.inject.Inject;
+
 /**
  * Provides an implementation for the {@link CustomPropertySet} interface
  * for the {@link TcpIpPostDialConnectionType}.
@@ -16,6 +18,7 @@ import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
  */
 public class TcpIpPostDialCustomPropertySet extends OutboundTcpIpCustomPropertySet {
 
+    @Inject
     public TcpIpPostDialCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
