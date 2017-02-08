@@ -11,6 +11,8 @@ import com.elster.jupiter.properties.rest.AssignPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,8 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && HasIdAndName.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
+        return propertySpec != null && (HasIdAndName.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())
+                || (HasId.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()) && HasName.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())));
     }
 
     @Override
@@ -35,11 +38,11 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
 
     @Override
     public Object convertInfoToValue(PropertySpec propertySpec, Object infoValue) {
-        List<HasIdAndName> listValue = new ArrayList<>();
+        List<HasName> listValue = new ArrayList<>();
         if (infoValue instanceof List) {
             List<?> list = (List<?>) infoValue;
             for (Object listItem : list) {
-                listValue.add((HasIdAndName) propertySpec.getValueFactory().fromStringValue((String) listItem));
+                listValue.add((HasName) propertySpec.getValueFactory().fromStringValue((String) listItem));
             }
             return listValue;
         } else if (infoValue != null) {
@@ -50,7 +53,14 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        return domainValue != null ? ((HasIdAndName) domainValue).getId() : null;
+        if(domainValue!=null){
+            if (domainValue instanceof HasIdAndName){
+                return ((HasIdAndName) domainValue).getId();
+            } else {
+                return ((HasId) domainValue).getId();
+            }
+        }
+        return null;
     }
 
 }

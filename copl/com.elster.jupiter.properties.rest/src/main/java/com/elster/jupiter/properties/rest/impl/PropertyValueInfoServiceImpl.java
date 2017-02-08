@@ -15,6 +15,8 @@ import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -154,8 +156,10 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
                 } else if (propertyType == SimplePropertyType.IDWITHNAME) {
-                    HasIdAndName idWithName = (HasIdAndName) possibleValues.getAllValues().get(i);
-                    possibleObjects[i] = asInfo(idWithName.getId(), idWithName.getName());
+                    Object idWithName = possibleValues.getAllValues().get(i);
+                    possibleObjects[i] = idWithName instanceof HasIdAndName
+                            ? asInfo(((HasIdAndName)idWithName).getId(), ((HasIdAndName)idWithName).getName())
+                            : asInfo(((HasId)idWithName).getId(), ((HasName)idWithName).getName()) ;
                 } else {
                     possibleObjects[i] = converter.convertValueToInfo(propertySpec, possibleValues.getAllValues().get(i));
                 }
