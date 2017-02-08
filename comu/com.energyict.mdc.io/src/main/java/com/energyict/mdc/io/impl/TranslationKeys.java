@@ -1,7 +1,7 @@
 package com.energyict.mdc.io.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.channels.serial.modem.AbstractModemProperties;
+import com.energyict.mdc.channels.serial.modemproperties.AbstractModemProperties;
 import com.energyict.mdc.io.naming.ModemPropertySpecNames;
 import com.energyict.mdc.io.naming.PEMPModemPropertySpecNames;
 import com.energyict.mdc.io.naming.SerialPortConfigurationPropertySpecNames;

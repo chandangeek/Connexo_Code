@@ -1,6 +1,7 @@
 package com.energyict.mdc.io.naming;
 
-import com.energyict.mdc.channels.serial.modem.PEMPModemConfiguration;
+
+import com.energyict.mdc.channels.serial.modemproperties.PEMPModemConfiguration;
 
 /**
  * Contains the names of {@link com.elster.jupiter.properties.PropertySpec}s
