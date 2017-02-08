@@ -213,17 +213,17 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
-        assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(2, 1);
-        assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("Vmoihobyatiah", "Ityvbelomplatye");
-        assertThat(jsonModel.<List<Number>>get("$.outputs[*].total")).containsExactly(22, 18);
-        assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].key")).contains("valid", "statisticsNotValidated");
-        assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].displayName")).contains("Valid", "Not validated");
-        assertThat(jsonModel.<List<Number>>get("$.outputs[0].statistics[*].count")).contains(9, 13);
-        assertThat(jsonModel.<List<String>>get("$.outputs[1].statistics[*].key"))
+        assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(1, 2);
+        assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("Ityvbelomplatye", "Vmoihobyatiah");
+        assertThat(jsonModel.<List<Number>>get("$.outputs[*].total")).containsExactly(18, 22);
+        assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].key"))
                 .contains("statisticsSuspect", "valid");
-        assertThat(jsonModel.<List<String>>get("$.outputs[1].statistics[*].displayName"))
+        assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].displayName"))
                 .contains("Suspect", "Valid");
-        assertThat(jsonModel.<List<Number>>get("$.outputs[1].statistics[*].count")).contains(12, 6);
+        assertThat(jsonModel.<List<Number>>get("$.outputs[0].statistics[*].count")).contains(12, 6);
+        assertThat(jsonModel.<List<String>>get("$.outputs[1].statistics[*].key")).contains("valid", "statisticsNotValidated");
+        assertThat(jsonModel.<List<String>>get("$.outputs[1].statistics[*].displayName")).contains("Valid", "Not validated");
+        assertThat(jsonModel.<List<Number>>get("$.outputs[1].statistics[*].count")).contains(9, 13);
     }
 
     @Test

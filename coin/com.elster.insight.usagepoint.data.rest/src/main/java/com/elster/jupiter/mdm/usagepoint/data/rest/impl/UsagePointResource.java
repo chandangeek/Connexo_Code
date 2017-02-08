@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -745,6 +744,7 @@ public class UsagePointResource {
                 List<ChannelDataValidationSummaryInfo> result = usagePointDataCompletionService
                         .getDataCompletionStatistics(effectiveMC, metrologyContract, interval).entrySet().stream()
                         .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
+                        .sorted(Comparator.comparing(info -> info.name))
                         .collect(Collectors.toList());
                 return PagedInfoList.fromCompleteList("outputs", result, queryParameters);
             }
