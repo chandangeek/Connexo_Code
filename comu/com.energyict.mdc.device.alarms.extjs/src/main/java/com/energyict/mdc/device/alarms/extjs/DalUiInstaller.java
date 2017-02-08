@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.alarms.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
