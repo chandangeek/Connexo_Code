@@ -5,7 +5,7 @@ Ext.define('Dal.store.CreationRuleTemplates', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/rules/templates',
+        url: '/api/dal/rules/templates',
         reader: {
             type: 'json',
             root: 'creationRuleTemplates'
