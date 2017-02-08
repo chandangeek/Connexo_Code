@@ -6,7 +6,7 @@ Ext.define('Isu.view.overview.Section', {
         'Uni.view.widget.Bar'
     ],
     title: null,
-    minHeight: 235,
+    minHeight: 230,
     itemsInCollapsedMode: 5,
     buttonAlign: 'left',
     parentItemId: 'overview-of-issues',
@@ -63,8 +63,8 @@ Ext.define('Isu.view.overview.Section', {
                 tpl: '<table width="100%">' +
                 '<tpl for=".">' +
                 '<tbody class="item item-{#}">' +
-                '<tr>' +
-                '<td width="50%">' +
+                '<tr >' +
+                '<td width="50%" >' +
                 '<div style="overflow: hidden; text-overflow: ellipsis">' +
                 '<a href="{href}">{description}</a>' +
                 '</div>' +

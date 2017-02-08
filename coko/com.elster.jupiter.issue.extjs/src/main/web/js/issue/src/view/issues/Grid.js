@@ -104,7 +104,7 @@ Ext.define('Isu.view.issues.Grid', {
                         xtype: 'button',
                         itemId: 'issues-bulk-action',
                         text: Uni.I18n.translate('general.title.bulkActions', 'ISU', 'Bulk action'),
-                        privileges: Isu.privileges.Issue.commentOrAssing,
+                        privileges: Isu.privileges.Issue.closeOrAssing,
                         action: 'issuesBulkAction',
                         handler: function () {
                             me.router.getRoute(me.router.currentRoute + '/bulkaction').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));
