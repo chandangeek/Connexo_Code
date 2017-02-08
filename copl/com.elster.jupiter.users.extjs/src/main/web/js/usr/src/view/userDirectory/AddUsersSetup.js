@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Usr.view.userDirectory.AddUsersSetup', {
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'usr-add-users-setup',

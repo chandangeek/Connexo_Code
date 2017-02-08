@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Usr.view.userDirectory.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usr-user-directory-preview-form',
