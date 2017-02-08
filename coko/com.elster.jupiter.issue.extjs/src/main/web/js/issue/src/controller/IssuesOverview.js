@@ -156,7 +156,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         if (previewActionMenu) {
             previewActionMenu.record = record;
         }
-        preview.setTitle(record.get('title'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('title')));
         Ext.resumeLayouts(true);
     },
 

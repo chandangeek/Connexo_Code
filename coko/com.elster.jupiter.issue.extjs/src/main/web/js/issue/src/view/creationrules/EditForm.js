@@ -410,8 +410,8 @@ Ext.define('Isu.view.creationrules.EditForm', {
 
         if(reason === -1){
             var rec = {
-                id: reasonEditedValue,
-                name: reasonEditedValue
+                id: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
+                name: reasonEditedValue.trim()
             };
             comboReason.store.add(rec);
             comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
