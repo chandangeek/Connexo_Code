@@ -1,14 +1,11 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.rest.api.util.v1.properties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Defines rules/options to validate a <i>Number</i>
- * <p>
- * Copyrights EnergyICT
- * Date: 19/11/13
- * Time: 13:28
- */
 @XmlRootElement
 public class NumberValidationRules<T> implements PropertyValidationRule {
 
