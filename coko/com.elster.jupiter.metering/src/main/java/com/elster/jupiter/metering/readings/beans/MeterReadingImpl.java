@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.readings.beans;
 
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
@@ -9,13 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Our default implementation of a MeterReading
- * <p/>
- * Copyrights EnergyICT
- * Date: 25/11/13
- * Time: 15:13
- */
 public class MeterReadingImpl implements MeterReading {
 
     private List<EndDeviceEvent> endDeviceEvents = new ArrayList<>();

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -33,6 +37,7 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -125,7 +130,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     @Override
     public Optional<CimChannel> getCimChannel(ReadingType readingType) {
         if (!getMainReadingType().equals(readingType)) {
-            throw new IllegalArgumentException("Incorrect reading type. This channel supports only " + this.deliverable.getReadingType().getMRID());
+            return Optional.empty();
         }
         return persistedChannel.getCimChannel(readingType);
     }
@@ -174,15 +179,19 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
-        return this.dataAggregationService.calculate(
-                usagePoint,
-                metrologyContract,
-                interval)
-                .getCalculatedDataFor(this.deliverable)
-                .stream()
-                .map(mapper::apply)
-                .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
-                        .identity()));
+        if(usagePoint.getEffectiveMetrologyConfigurations(interval).stream().anyMatch(emc -> emc.getMetrologyConfiguration().getContracts().contains(metrologyContract))) {
+            return this.dataAggregationService.calculate(
+                    usagePoint,
+                    metrologyContract,
+                    interval)
+                    .getCalculatedDataFor(this.deliverable)
+                    .stream()
+                    .map(mapper::apply)
+                    .collect(Collectors.toMap((Function<BaseReadingRecord, Instant>) BaseReadingRecord::getTimeStamp, Function
+                            .identity()));
+        } else {
+            return new HashMap<>();
+        }
     }
 
     @Override

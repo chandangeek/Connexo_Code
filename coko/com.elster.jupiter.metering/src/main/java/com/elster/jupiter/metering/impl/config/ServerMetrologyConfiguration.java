@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.metering.ReadingType;
@@ -17,4 +21,5 @@ interface ServerMetrologyConfiguration extends MetrologyConfiguration {
     ReadingTypeDeliverable addReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula);
     void deliverableUpdated(ReadingTypeDeliverableImpl deliverable);
     void contractUpdated(MetrologyContractImpl contract);
+    void invalidateCache();
 }
