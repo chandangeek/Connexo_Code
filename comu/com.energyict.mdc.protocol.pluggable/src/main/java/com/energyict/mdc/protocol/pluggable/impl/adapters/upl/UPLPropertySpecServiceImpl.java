@@ -479,7 +479,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
     private enum SupportedReferenceClass {
         DEVICE_MESSAGE_FILE("com.energyict.mdc.upl.properties.DeviceMessageFile", DeviceMessageFile.class),
         DEVICE_GROUP("com.energyict.mdc.upl.properties.DeviceGroup", EndDeviceGroup.class),
-        LOAD_PROFILE("com.energyict.mdc.upl.properties.LoadProfile", LoadProfile.class),
+        LOAD_PROFILE("com.energyict.mdc.upl.meterdata.LoadProfile", LoadProfile.class),
         TARRIFF_CALENDAR("com.energyict.mdc.upl.properties.TariffCalendar", Calendar.class),
         FIRMWARE_VERSION("com.energyict.mdc.upl.properties.FirmwareVersion",FirmwareVersion.class),     //TODO temporary
         NUMBER_LOOKUP("com.energyict.mdc.upl.properties.NumberLookup",NumberLookup.class);              //TODO temporary
