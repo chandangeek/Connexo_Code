@@ -158,6 +158,7 @@ public class UsagePointResource {
     private final UsagePointDataCompletionService usagePointDataCompletionService;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
+    private final HistoricalMeterActivationInfoFactory historicalMeterActivationInfoFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService,
@@ -184,7 +185,8 @@ public class UsagePointResource {
                               Provider<GoingOnResource> goingOnResourceProvider,
                               Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
                               ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
-                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
+                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                              HistoricalMeterActivationInfoFactory historicalMeterActivationInfoFactory) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -210,6 +212,7 @@ public class UsagePointResource {
         this.usagePointOutputResourceProvider = usagePointOutputResourceProvider;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
+        this.historicalMeterActivationInfoFactory = historicalMeterActivationInfoFactory;
     }
 
     @GET
@@ -907,5 +910,20 @@ public class UsagePointResource {
                 .select(Where.where("id").isEqualTo(usagePoint.getId())
                         .and(ListOperator.IN.contains(usagePointGroup.toSubQuery("id"), "id")), 1, 1)
                 .isEmpty();
+    }
+
+    @GET
+    @Path("/{name}/history/meters")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getHistoryOfMeters(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        List<HistoricalMeterActivationInfo> meterActivationInfoList = usagePoint.getMeterActivations().stream()
+                .map(ma -> historicalMeterActivationInfoFactory.from(ma, usagePoint, auth))
+                .sorted(Comparator.reverseOrder())
+                .sorted(Comparator.comparing(info -> info.meterRole))
+                .sorted(Comparator.comparing(info -> info.meter))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("meters", meterActivationInfoList, queryParameters);
     }
 }
