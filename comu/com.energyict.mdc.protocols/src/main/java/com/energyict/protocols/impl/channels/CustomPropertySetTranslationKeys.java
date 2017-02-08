@@ -25,6 +25,7 @@ public enum CustomPropertySetTranslationKeys implements TranslationKey {
     INBOUND_PROXIMUS_CUSTOM_PROPERTY_SET_NAME("InboundProximusSmsCustomPropertySet", "Inbound proximus"),
     OUTBOUND_PROXIMUS_CUSTOM_PROPERTY_SET_NAME("OutboundProximusSmsCustomPropertySet", "Outbound proximus"),
     OUTBOUND_TCP_CUSTOM_PROPERTY_SET_NAME("OutboundIpCustomPropertySet", "Outbound TCP/IP"),
+    OUTBOUND_TLS_CUSTOM_PROPERTY_SET_NAME("OutboundTlsCustomPropertySet", "Outbound TLS"),
     OUTBOUND_TCP_POST_DIAL_CUSTOM_PROPERTY_SET_NAME("OutboundIpPostDialCustomPropertySet", "Outbound TCP/IP (post dial)"),
     OUTBOUND_UDP_CUSTOM_PROPERTY_SET_NAME("OutboundUdpCustomPropertySet", "Outbound UDP");
 

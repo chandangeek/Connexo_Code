@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
@@ -81,6 +82,15 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     @Override
     public Set<EditPrivilege> defaultEditPrivileges() {
         return EnumSet.allOf(EditPrivilege.class);
+    }
+
+    protected PropertySpec tlsClientCertificate() {
+        return this.getPropertySpecService()
+                .referenceSpec(KeyAccessorType.class)
+                .named(OutboundIpConnectionProperties.Fields.TLS_CLIENT_CERTIFICATE.propertySpecName(), ConnectionTypePropertySpecName.TLS_CLIENT_CERTIFICATE)
+                .fromThesaurus(this.thesaurus)
+                .markEditable()
+                .finish();
     }
 
     protected PropertySpec hostPropertySpec() {

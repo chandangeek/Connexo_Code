@@ -11,6 +11,7 @@ import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 import com.energyict.protocols.impl.channels.ip.InboundIpConnectionType;
 import com.energyict.protocols.impl.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTlsConnectionType;
 import com.energyict.protocols.impl.channels.ip.socket.TcpIpPostDialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
@@ -32,6 +33,7 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
     OutboundProximusSms(OutboundProximusSmsConnectionType.class),
     OutboundUdp(OutboundUdpConnectionType.class),
     OutboundTcpIp(OutboundTcpIpConnectionType.class),
+    OutboundTls(OutboundTlsConnectionType.class),
     TcpIpPostDial(TcpIpPostDialConnectionType.class),
     RxTxSerial(RxTxPlainSerialConnectionType.class),
     RxTxAtModem(RxTxAtModemConnectionType.class),

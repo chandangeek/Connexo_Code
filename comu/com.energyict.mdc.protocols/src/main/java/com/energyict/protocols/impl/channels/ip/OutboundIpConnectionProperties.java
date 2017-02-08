@@ -11,6 +11,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
@@ -132,6 +133,18 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
             public String databaseName() {
                 return "POSTDIALCOMMAND";
             }
+        },
+
+        TLS_CLIENT_CERTIFICATE {
+            @Override
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.TLS_CLIENT_CERTIFICATE.propertySpecName();
+            }
+
+            @Override
+            public String databaseName() {
+                return "TLS_CL_CERT";
+            }
         };
 
         public String javaName() {
@@ -157,6 +170,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     private BigDecimal postDialCommandAttempts;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String postDialCommand;
+    private Reference<KeyAccessorType> tlsClientCertificate = Reference.empty();
 
     @Override
     public void postLoad() {

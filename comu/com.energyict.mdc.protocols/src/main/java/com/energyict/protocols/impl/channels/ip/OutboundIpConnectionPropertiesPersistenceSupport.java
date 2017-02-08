@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
@@ -97,6 +98,14 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
             .conversion(ColumnConversion.NUMBER2INT)
             .map(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName() + ".timeUnitCode")
             .add();
+        Column keyAccessorType = table.column(OutboundIpConnectionProperties.Fields.TLS_CLIENT_CERTIFICATE.databaseName())
+                .number()
+                .add();
+        table.foreignKey("FK_CONN_TLS_CERT")
+                .on(keyAccessorType)
+                .references(KeyAccessorType.class)
+                .map(OutboundIpConnectionProperties.Fields.TLS_CLIENT_CERTIFICATE.javaName())
+                .add();
         Stream
             .of(
                 OutboundIpConnectionProperties.Fields.BUFFER_SIZE,
