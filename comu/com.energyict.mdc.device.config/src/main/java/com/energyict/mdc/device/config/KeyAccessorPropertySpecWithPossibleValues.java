@@ -1,8 +1,7 @@
 /*
  * Copyright (c) 2017 by Honeywell Inc. All rights reserved.
  */
-
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.InvalidValueException;
@@ -16,12 +15,13 @@ import java.util.List;
 
 /**
  * Adds possible values to an existing property spec, all other methods are delegated to the original
+ * We need to add these values in the backend, because FrontEnd can't handle looking them up on other rest resource.
  */
-public class PropertySpecWithPossibleValues implements PropertySpec {
+public class KeyAccessorPropertySpecWithPossibleValues implements PropertySpec {
     private final Provider<List<KeyAccessorType>> keyAccessorTypeProvider;
     private final PropertySpec propertySpec;
 
-    PropertySpecWithPossibleValues(Provider<List<KeyAccessorType>> keyAccessorTypeProvider, PropertySpec propertySpec) {
+    private KeyAccessorPropertySpecWithPossibleValues(Provider<List<KeyAccessorType>> keyAccessorTypeProvider, PropertySpec propertySpec) {
         this.keyAccessorTypeProvider = keyAccessorTypeProvider;
         this.propertySpec = propertySpec;
     }
@@ -30,9 +30,9 @@ public class PropertySpecWithPossibleValues implements PropertySpec {
      * If the PropertySpec is a reference to a KeyAccessorType, the possible values will be retrieved from the DeviceType
      * and added to as a wrapped version of the original PropertySpec
      */
-    static PropertySpec addValuesIfApplicable(Provider<List<KeyAccessorType>> keyAccessorTypeProvider, PropertySpec propertySpec) {
+    public static PropertySpec addValuesIfApplicable(Provider<List<KeyAccessorType>> keyAccessorTypeProvider, PropertySpec propertySpec) {
         if (propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()))) {
-            return new PropertySpecWithPossibleValues(keyAccessorTypeProvider, propertySpec);
+            return new KeyAccessorPropertySpecWithPossibleValues(keyAccessorTypeProvider, propertySpec);
         } else {
             return propertySpec;
         }

@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.events.EventType;
@@ -278,7 +279,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         return result.values()
                 .stream()
-                .map(ps -> PropertySpecWithPossibleValues.addValuesIfApplicable(() -> this.getDeviceConfiguration().getDeviceType().getKeyAccessorTypes(), ps))
+                .map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> this.getDeviceConfiguration().getDeviceType().getKeyAccessorTypes(), ps))
                 .collect(toSet());
     }
 

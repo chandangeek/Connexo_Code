@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
@@ -48,7 +49,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
                     .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs())
                     .orElse(Collections.emptyList())
                     .stream()
-                    .map(ps -> PropertySpecWithPossibleValues.addValuesIfApplicable(() -> deviceConfiguration.getDeviceType().getKeyAccessorTypes(), ps))
+                    .map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> deviceConfiguration.getDeviceType().getKeyAccessorTypes(), ps))
                     .collect(toList());
         }
         return this.propertySpecs;
