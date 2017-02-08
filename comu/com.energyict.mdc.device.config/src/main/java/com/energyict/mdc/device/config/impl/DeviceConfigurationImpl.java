@@ -372,14 +372,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.logBookSpecs.clear();
         this.loadProfileSpecs.forEach(LoadProfileSpec::prepareDelete);
         this.loadProfileSpecs.clear();
+        this.partialConnectionTasks.forEach(ServerPartialConnectionTask::prepareDelete);
+        this.partialConnectionTasks.clear();
         this.configurationPropertiesList.forEach(ProtocolDialectConfigurationPropertiesImpl::prepareDelete);
         this.configurationPropertiesList.clear();
         this.deviceConfValidationRuleSetUsages.clear();
         this.deviceConfigurationEstimationRuleSetUsages.clear();
         this.deleteChannelSpecs();
         this.deleteDeviceMessageEnablements();
-        this.partialConnectionTasks.forEach(ServerPartialConnectionTask::prepareDelete);
-        this.partialConnectionTasks.clear();
         this.protocolProperties.clear();
         this.securityPropertySets.forEach(ServerSecurityPropertySet::prepareDelete);
         this.securityPropertySets.clear();
