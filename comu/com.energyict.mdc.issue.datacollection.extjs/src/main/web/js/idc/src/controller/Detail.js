@@ -21,7 +21,8 @@ Ext.define('Idc.controller.Detail', {
         'Idc.view.CommunicationIssueDetailsForm',
         'Idc.view.InboundIssueDetailsForm',
         'Idc.view.OutboundIssueDetailsForm',
-        'Idc.view.ConnectionIssueDetailsForm'
+        'Idc.view.ConnectionIssueDetailsForm',
+        'Idc.view.DefaultIssueDetailsForm'
     ],
 
     constructor: function () {
