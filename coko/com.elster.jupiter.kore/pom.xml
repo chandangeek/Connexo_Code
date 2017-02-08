@@ -338,6 +338,8 @@
                 <module>../com.elster.jupiter.issue.rest</module>
                 <module>../com.elster.jupiter.kore.api.rest</module>
                 <module>../com.elster.jupiter.kpi</module>
+                <module>../com.elster.jupiter.slp</module>
+                <module>../com.elster.jupiter.slp.importers</module>
                 <module>../com.elster.jupiter.metering</module>
                 <module>../com.elster.jupiter.metering.bpm</module>
                 <module>../com.elster.jupiter.metering.cim</module>
