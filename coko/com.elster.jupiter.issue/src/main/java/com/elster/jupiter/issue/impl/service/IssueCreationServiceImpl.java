@@ -16,7 +16,6 @@ import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -24,17 +23,13 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -51,6 +46,7 @@ import org.kie.internal.utils.CompositeClassLoader;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -186,19 +182,10 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
 
     @Override
-    public void processAlarmCreationEvent(long ruleId, IssueEvent event, int logOnSameAlarm) {
-
-       /* Condition condition = Operator.EQUALIGNORECASE.compare("enddeviceId", event.getEndDevice().get().getId());
-        dataModel.query(EndDeviceEventRecord.class).select(condition); */
+    public void processAlarmCreationEvent(int ruleId, IssueEvent event, String logOnSameAlarm) {
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
                     CreationRuleTemplate template = firedRule.getTemplate();
-            /*Optional<CreationRuleProperty> creationRuleProperty = firedRule.getCreationRuleProperties()
-                    .stream()
-                    .filter(property -> property.getName().endsWith(LOG_ON_SAME_ALARM))
-                    .findFirst(); */
-                    //  creationRuleProperty.ifPresent(logOnSameAlarm -> {
-                    // if (Boolean.parseBoolean(logOnSameAlarm)) {
-                    if (logOnSameAlarm == 1) {
+                    if (Integer.parseInt(Arrays.asList(logOnSameAlarm.split("-")).get(0)) == 1) {
                         Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
                         if (existingIssue.isPresent()) {
                             template.updateIssue(existingIssue.get(), event);
