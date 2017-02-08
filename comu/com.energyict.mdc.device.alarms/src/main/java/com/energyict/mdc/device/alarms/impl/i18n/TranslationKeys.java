@@ -26,16 +26,14 @@ public enum TranslationKeys implements TranslationKey {
     ALARM_REASON_DESCRIPTION(ModuleConstants.ALARM_REASON_DESCRIPTION, "Alarm reason {0}"),
     ACTION_ASSIGN_ALARM("alarm.action.assignAlarm", "Assign alarm"),
     EVENT_TEMPORAL_THRESHOLD(ModuleConstants.EVENT_TEMPORAL_THRESHOLD, "Event time threshold"),
-    LOG_ON_SAME_ALARM(ModuleConstants.LOG_ON_SAME_ALARM, "Log on the same alarm"),
+    RAISE_EVENT_PROPS(ModuleConstants.RAISE_EVENT_PROPS, "On new raise event"),
     TRIGGERING_EVENTS(ModuleConstants.TRIGGERING_EVENTS, "Alarm triggering events"),
     CLEARING_EVENTS(ModuleConstants.CLEARING_EVENTS, "Alarm clearing events"),
     EVENT_OCCURENCE_COUNT(ModuleConstants.EVENT_OCCURENCE_COUNT, "Event occurence count"),
-    UP_URGENCY_ON_RAISE(ModuleConstants.UP_URGENCY_ON_RAISE, "Increase alarm urgency on subsequent triggering event raise"),
-    DOWN_URGENCY_ON_CLEAR(ModuleConstants.DOWN_URGENCY_ON_CLEAR, "Decrease alarm urgency on clearing event"),
     DEVICE_LIFECYCLE_STATE(ModuleConstants.DEVICE_LIFECYCLE_STATE, "Device lifecycle state"),
     DEVICE_TYPE(ModuleConstants.DEVICE_TYPE, "Device type"),
     DEVICE_CODE(ModuleConstants.DEVICE_CODE, "Device code"),
-    ALARM_RELATIVE_PERIOD_CATEGORY (ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Alarms");
+    ALARM_RELATIVE_PERIOD_CATEGORY(ModuleConstants.ALARM_RELATIVE_PERIOD_CATEGORY, "Alarms");
     ;
     //TODO - update list
 

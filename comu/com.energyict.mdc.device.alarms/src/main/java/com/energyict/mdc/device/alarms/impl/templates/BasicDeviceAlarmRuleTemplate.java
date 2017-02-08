@@ -23,6 +23,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
 import com.elster.jupiter.properties.rest.LifecycleStatePropertyFactory;
+import com.elster.jupiter.properties.rest.RaiseEventPropertyFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -49,6 +50,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -62,12 +64,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     protected static final Logger LOG = Logger.getLogger(BasicDeviceAlarmRuleTemplate.class.getName());
     static final String NAME = "BasicDeviceAlarmRuleTemplate";
     public static final String EVENTTYPE = NAME + ".eventType";
-    public static final String LOG_ON_SAME_ALARM = NAME + ".logOnSameAlarm";
+    public static final String RAISE_EVENT_PROPS = NAME + ".raiseEventProps";
     public static final String TRIGGERING_EVENTS = NAME + ".triggeringEvents";
     public static final String CLEARING_EVENTS = NAME + ".clearingEvents";
     public static final String THRESHOLD = NAME + ".threshold";
-    public static final String UP_URGENCY_ON_RAISE = NAME + ".upUrgencyOnRaise";
-    public static final String DOWN_URGENCY_ON_CLEAR = NAME + ".downUrgencyOnClear";
     public static final String EVENT_OCCURENCE_COUNT = NAME + ".eventCount";
     public static final String DEVICE_LIFECYCLE_STATE = NAME + ".deviceLifecyle";
     public static final String DEVICE_TYPES = NAME + ".deviceTypes";
@@ -77,9 +77,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile TimeService timeService;
     private volatile MeteringService meteringService;
-    public static final boolean LOG_ON_SAME_ALARM_DEFAULT_VALUE = false;
-    public static final boolean DOWN_URGENCY_ON_CLEAR_DEFAULT_VALUE = false;
-    public static final boolean UP_URGENCY_ON_RAISE_DEFAULT_VALUE = false;
 
     //for OSGI
     public BasicDeviceAlarmRuleTemplate() {
@@ -163,12 +160,12 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "rule \"Basic device alarm rule @{ruleId}\"\n" +
                 "when\n" +
                 "\tevent : DeviceAlarmEvent( eventType == \"@{" + EVENTTYPE + "}\" )\n" +
-                "\teval( event.computeOccurenceCount(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + LOG_ON_SAME_ALARM + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\", \"@{" + DEVICE_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
+                "\teval( event.computeOccurenceCount(@{ruleId}, \"@{" + THRESHOLD + "}\", \"@{" + RAISE_EVENT_PROPS + "}\", \"@{" + TRIGGERING_EVENTS + "}\", \"@{" + CLEARING_EVENTS + "}\", \"@{" + DEVICE_CODES + "}\") >= @{" + EVENT_OCCURENCE_COUNT + "} )\n" +
                 "\teval( event.hasAssociatedDeviceLifecycleStateIn(\"@{" + DEVICE_LIFECYCLE_STATE + "}\") == true )\n" +
                 "\teval( event.hasAssociatedDeviceTypeIn(\"@{" + DEVICE_TYPES + "}\") == true )\n" +
                 "then\n" +
                 "\tSystem.out.println(\"Processing device alarm based on rule template number @{ruleId}\");\n" +
-                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "@{" + LOG_ON_SAME_ALARM + "});\n" +
+                "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event," + "\"@{" + RAISE_EVENT_PROPS + "}\");\n" +
                 "end";
     }
 
@@ -216,13 +213,11 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish());
         builder.add(propertySpecService
-                .booleanSpec()
-                .named(LOG_ON_SAME_ALARM, TranslationKeys.LOG_ON_SAME_ALARM)
+                .stringSpec()
+                .named(RAISE_EVENT_PROPS, TranslationKeys.RAISE_EVENT_PROPS)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .addValues(true, false)
-                .setDefaultValue(LOG_ON_SAME_ALARM_DEFAULT_VALUE)
-                .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .setDefaultValue("0-0-0")
                 .finish());
         builder.add(propertySpecService
                 .relativePeriodSpec()
@@ -278,23 +273,8 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 .named(DEVICE_CODES, TranslationKeys.DEVICE_CODE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                // .markExhaustive()
-                .finish());
-        builder.add(propertySpecService
-                .booleanSpec()
-                .named(UP_URGENCY_ON_RAISE, TranslationKeys.UP_URGENCY_ON_RAISE)
-                .fromThesaurus(this.getThesaurus())
-                .addValues(true, false)
-                .setDefaultValue(UP_URGENCY_ON_RAISE_DEFAULT_VALUE)
-                .markExhaustive(PropertySelectionMode.COMBOBOX)
-                .finish());
-        builder.add(propertySpecService
-                .booleanSpec()
-                .named(DOWN_URGENCY_ON_CLEAR, TranslationKeys.DOWN_URGENCY_ON_CLEAR)
-                .fromThesaurus(this.getThesaurus())
-                .addValues(true, false)
-                .setDefaultValue(DOWN_URGENCY_ON_CLEAR_DEFAULT_VALUE)
-                .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .markMultiValued(",")
+             //   .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         return builder.build();
     }
@@ -311,25 +291,21 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
                     .findFirst().ifPresent(element ->
                     ((ArrayList) (element.getValue())).forEach(value -> clearingEvents.add(((EventTypeInfo) value).getName())));
-            Optional<Boolean> upUrgencyOnRaise = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(UP_URGENCY_ON_RAISE))
-                    .findFirst().map(found -> (Boolean) found.getValue());
-            Optional<Boolean> downUrgencyOnClear = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(DOWN_URGENCY_ON_CLEAR))
-                    .findFirst().map(found -> (Boolean) found.getValue());
+            Optional<RaiseEventPropsInfo> newEventProps = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(RAISE_EVENT_PROPS))
+                    .findFirst().map(found -> new RaiseEventPropsInfo(String.valueOf(found.getValue())));
+
             if (!clearingEvents.isEmpty() && ((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
                 if (!alarm.isStatusCleared()) {
                     alarm.setClearedStatus();
                 }
-                if (downUrgencyOnClear.isPresent() && downUrgencyOnClear.get()) {
+                if (newEventProps.isPresent() && newEventProps.get().hasDecreaseUrgency()) {
                     alarm.setPriority(Priority.get(alarm.getPriority().lowerUrgency(), alarm.getPriority().getImpact()));
                     /*if (!alarm.getPriority().lowerUrgency()) {
                         LOG.log(Level.SEVERE, "Urgency is minimum [" + alarm.getPriority().getUrgency() +"]. Unable to decrement anymore");
                     }*/
                 }
-            } else if (upUrgencyOnRaise.isPresent() && upUrgencyOnRaise.get() && !((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
+            } else if (newEventProps.isPresent() && newEventProps.get().hasIncreaseUrgency() && !((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
                 alarm.setPriority(Priority.get(alarm.getPriority().increaseUrgency(), alarm.getPriority().getImpact()));
-               /* if (!alarm.getPriority().increaseUrgency()) {
-                    LOG.log(Level.SEVERE, "Urgency is maximum [" + alarm.getPriority().getUrgency() +"]. Unable to increment anymore");
-                }*/
             }
             alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent) event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
             return alarm;
@@ -663,6 +639,103 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return result;
         }
     }
+
+
+    private class RaiseEventPropsInfoValueFactory implements ValueFactory<HasName>, RaiseEventPropertyFactory {
+        @Override
+        public HasName fromStringValue(String stringValue) {
+            return new RaiseEventPropsInfo(stringValue);
+        }
+
+        @Override
+        public String toStringValue(HasName object) {
+            return String.valueOf(object.getName());
+        }
+
+        @Override
+        public Class<HasName> getValueType() {
+            return HasName.class;
+        }
+
+        @Override
+        public HasName valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(HasName object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, HasName value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            } else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, HasName value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            } else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+    }
+
+    @XmlRootElement
+    static class RaiseEventPropsInfo implements HasName {
+
+        private transient String value;
+
+        RaiseEventPropsInfo(String value) {
+            this.value = value;
+        }
+
+
+        @Override
+        public String getName() {
+            return value;
+        }
+
+        public boolean logOnSameAlarm(){
+            return Integer.parseInt(Arrays.asList(value.split("-")).get(0)) == 1;
+        }
+
+        public boolean hasIncreaseUrgency(){
+            return Integer.parseInt(Arrays.asList(value.split("-")).get(1)) == 1;
+        }
+
+        public boolean hasDecreaseUrgency(){
+            return Integer.parseInt(Arrays.asList(value.split("-")).get(2)) == 1;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof RaiseEventPropsInfo)) {
+                return false;
+            }
+
+            RaiseEventPropsInfo that = (RaiseEventPropsInfo) o;
+
+            return value.equals(that.value);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return value.hashCode();
+        }
+    }
+
+
+
 
 
     //TODO - write a check method to avoid number format exceptions

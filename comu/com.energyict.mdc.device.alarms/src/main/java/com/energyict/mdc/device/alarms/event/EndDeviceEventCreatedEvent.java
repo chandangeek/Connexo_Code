@@ -28,6 +28,7 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
     private long endDeviceId;
     private String endDeviceEventType;
     private Instant eventTimestamp;
+    private String deviceCode;
 
 
     @Inject
@@ -41,6 +42,7 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
             this.endDeviceId = ((Number) jsonPayload.get(ModuleConstants.DEVICE_IDENTIFIER)).longValue();
             this.eventTimestamp = Instant.ofEpochSecond(((Number) jsonPayload.get(ModuleConstants.EVENT_TIMESTAMP)).longValue());
             this.endDeviceEventType = (String) jsonPayload.get(ModuleConstants.END_DEVICE_EVENT_TYPE);
+            this.deviceCode = (String) jsonPayload.get(ModuleConstants.DEVICE_EVENT_TYPE);
         } catch (Exception e) {
             throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
         }
