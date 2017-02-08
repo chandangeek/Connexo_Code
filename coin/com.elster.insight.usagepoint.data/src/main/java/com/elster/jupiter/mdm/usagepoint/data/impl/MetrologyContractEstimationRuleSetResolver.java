@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.estimation.EstimationResolver;
@@ -6,9 +10,7 @@ import com.elster.jupiter.estimation.Priority;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
 import org.osgi.service.component.annotations.Component;
@@ -36,15 +38,14 @@ public class MetrologyContractEstimationRuleSetResolver implements EstimationRes
     @Override
     public List<EstimationRuleSet> resolve(ChannelsContainer channelsContainer) {
         if (channelsContainer.getUsagePoint().isPresent()) {
-            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = channelsContainer
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = channelsContainer
                     .getUsagePoint()
                     .get()
-                    .getCurrentEffectiveMetrologyConfiguration()
-                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
+                    .getCurrentEffectiveMetrologyConfiguration();
             if (metrologyConfiguration.isPresent()) {
-                return DecoratedStream.decorate(metrologyConfiguration.get().getContracts().stream())
-                        .flatMap(contract -> this.usagePointConfigurationService.getEstimationRuleSets(contract)
-                                .stream())
+                return DecoratedStream.decorate(metrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream())
+                        .filter(metrologyContract -> channelsContainer.equals(metrologyConfiguration.get().getChannelsContainer(metrologyContract).orElse(null)))
+                        .flatMap(contract -> this.usagePointConfigurationService.getEstimationRuleSets(contract).stream())
                         .distinct(EstimationRuleSet::getId)
                         .collect(Collectors.toList());
             }

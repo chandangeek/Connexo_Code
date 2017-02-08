@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -60,6 +64,7 @@ public class MetrologyContractEstimationRuleSetResolverTest {
         doReturn(Optional.of(metrologyConfiguration)).when(usagePoint).getEffectiveMetrologyConfiguration(any());
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfigurationOnUsagePoint.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
 
