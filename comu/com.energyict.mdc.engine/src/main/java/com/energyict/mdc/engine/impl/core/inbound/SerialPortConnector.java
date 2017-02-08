@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
-import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
+import com.energyict.mdc.channels.serial.modemproperties.postdialcommand.ModemComponent;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.data.DeviceMessageService;
