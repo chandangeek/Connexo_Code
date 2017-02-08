@@ -170,7 +170,7 @@ public class CreationRuleResource extends BaseResource {
         if (rule.issueType != null) {
             getIssueService().findIssueType(rule.issueType.uid).ifPresent(builder::setIssueType);
             if (rule.reason != null) {
-                builder.setReason(getIssueService().findOrCreateReason(rule.reason.id, getIssueService().findIssueType(rule.issueType.uid)
+                builder.setReason(getIssueService().findOrCreateReason(rule.reason.id.equals("12222e48-9afb-4c76-a41e-d3c40f16ac76")? rule.reason.name: rule.reason.id, getIssueService().findIssueType(rule.issueType.uid)
                         .get()));
             }
         }
