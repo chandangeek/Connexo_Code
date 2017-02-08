@@ -11,6 +11,8 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
         'Uni.form.field.LastEventTypeDisplay'
     ],
     eventsView: true,
+    dynamicallyAddedComponents: [],
+
     initComponent: function () {
         var me = this,
             itemsLeft = [
@@ -28,20 +30,6 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                     name: 'message',
                     renderer: function(value) {
                         return Ext.isEmpty(value) ? '-' : value;
-                    }
-                },
-                {
-                    fieldLabel: Uni.I18n.translate('deviceevents.eventAttributes', 'MDC', 'Event attributes'),
-                    name: 'eventData',
-                    renderer: function (value) {
-                        if (Ext.isEmpty(value)) {
-                            return '-';
-                        }
-                        var result = '';
-                        for(var propertyName in value) {
-                            result += propertyName + ': ' + value[propertyName] + '</br>';
-                        }
-                        return result;
                     }
                 }
             ];
@@ -91,6 +79,13 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                 }
+            },
+            {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('deviceevents.eventAttributes', 'MDC', 'Event attributes'),
+                itemId: 'mdc-event-attributes-label',
+                hidden: true,
+                labelAlign: 'top'
             }
         );
 
@@ -110,6 +105,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                 },
                 items: [
                     {
+                        itemId: 'mdc-events-preview-left-container',
                         items: itemsLeft
                     },
                     {
@@ -119,6 +115,37 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
             }
         ];
         me.callParent(arguments)
+    },
+
+    loadData: function(record) {
+        var me = this,
+            eventAttributes = record.get('eventData'),
+            eventAttributesLabel = me.down('#mdc-event-attributes-label'),
+            leftContainer = me.down('#mdc-events-preview-left-container'),
+            attributesFound = false;
+
+        me.setTitle(Uni.DateTime.formatDateTimeLong(record.get('eventDate')));
+        me.down('#deviceLogbookDataPreviewForm').loadRecord(record);
+
+        // 1. Remove the previously added components:
+        Ext.Array.forEach(me.dynamicallyAddedComponents, function(component2Remove) {
+            leftContainer.remove(component2Remove);
+        });
+        me.dynamicallyAddedComponents = [];
+
+        // 2. Add the new components:
+        for (var propertyName in eventAttributes) {
+            attributesFound = true;
+            me.dynamicallyAddedComponents.push(
+                leftContainer.add(
+                    {
+                        fieldLabel: propertyName,
+                        value: eventAttributes[propertyName]
+                    }
+                )
+            );
+        }
+        eventAttributesLabel.setVisible(attributesFound);
     }
 
 });
