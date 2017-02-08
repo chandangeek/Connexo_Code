@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
@@ -47,7 +51,7 @@ public class OutputInfoFactory {
         if (readingTypeDeliverable.getReadingType().isRegular()) {
             return asFullChannelOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
         } else {
-            return asRegisterOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
+            return asFullRegisterOutputInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
         }
     }
 
@@ -71,6 +75,18 @@ public class OutputInfoFactory {
                             .get()
                             .getRange());
                 });
+        return outputInfo;
+    }
+
+    private RegisterOutputInfo asFullRegisterOutputInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+        RegisterOutputInfo outputInfo = new RegisterOutputInfo();
+        setCommonFields(outputInfo, readingTypeDeliverable);
+        outputInfo.deliverableType = readingTypeDeliverable.getType().getName();
+        effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
+                .flatMap(container -> container.getChannel(readingTypeDeliverable.getReadingType()))
+                .ifPresent(outputChannel ->
+                        outputInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, Collections.singletonList(outputChannel))
+                );
         return outputInfo;
     }
 

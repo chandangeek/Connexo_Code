@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
@@ -118,7 +122,11 @@ public class MetrologyConfigurationInfo {
         metrologyContractStatus.id = metrologyContract.getStatus(usagePoint).getKey().equals("COMPLETE") ? "complete" : "incomplete";
         metrologyContractStatus.name = metrologyContract.getStatus(usagePoint).getName();
         info.status = metrologyContractStatus;
-        info.readingTypeDeliverables = metrologyContract.getDeliverables().stream().sorted((a, b) -> a.getName().compareTo(b.getName())).map(readingTypeDeliverableFactory::asInfo).collect(Collectors.toList());
+        info.readingTypeDeliverables = metrologyContract.getDeliverables()
+                .stream()
+                .sorted((a, b) -> a.getName().compareTo(b.getName()))
+                .map(readingTypeDeliverableFactory::asInfo)
+                .collect(Collectors.toList());
         return info;
     }
 

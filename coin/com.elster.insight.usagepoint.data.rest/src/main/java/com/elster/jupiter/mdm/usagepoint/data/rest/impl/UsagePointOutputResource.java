@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -612,7 +616,6 @@ public class UsagePointOutputResource {
         effectiveMC.activateOptionalMetrologyContract(metrologyContract, clock.instant());
         return Response.status(Response.Status.OK).entity(purposeInfoFactory.asInfo(effectiveMC, metrologyContract, false)).build();
     }
-
 
     @PUT
     @Path("/{contractId}/deactivate")
