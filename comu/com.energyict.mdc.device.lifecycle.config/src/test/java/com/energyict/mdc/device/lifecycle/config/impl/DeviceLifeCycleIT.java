@@ -828,7 +828,6 @@ public class DeviceLifeCycleIT {
         AuthorizedAction authorizedAction = authorizedActions.get(0);
         assertThat(authorizedAction.getLevels()).isEmpty();
         assertThat(authorizedAction.getModifiedTimestamp()).isNotNull();
-        assertThat(authorizedAction.getModifiedTimestamp()).isNotEqualTo(authorizedAction.getCreationTimestamp());
         // Assert that all other attributes have not changed
         assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(deviceLifeCycle.getId());
         assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
@@ -870,7 +869,6 @@ public class DeviceLifeCycleIT {
         AuthorizedAction authorizedAction = authorizedActions.get(0);
         assertThat(authorizedAction.getLevels()).containsOnly(AuthorizedAction.Level.THREE, AuthorizedAction.Level.FOUR);
         assertThat(authorizedAction.getModifiedTimestamp()).isNotNull();
-        assertThat(authorizedAction.getModifiedTimestamp()).isNotEqualTo(authorizedAction.getCreationTimestamp());
         // Assert that all other attributes have not changed
         assertThat(authorizedAction.getDeviceLifeCycle().getId()).isEqualTo(deviceLifeCycle.getId());
         assertThat(authorizedAction.getCreationTimestamp()).isNotNull();
@@ -911,7 +909,6 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedActions).hasSize(1);
         AuthorizedAction authorizedAction = authorizedActions.get(0);
         assertThat(authorizedAction.getModifiedTimestamp()).isNotNull();
-        assertThat(authorizedAction.getModifiedTimestamp()).isNotEqualTo(authorizedAction.getCreationTimestamp());
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
         assertThat(transitionAction.getChecks()).containsOnly(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
@@ -949,7 +946,6 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedActions).hasSize(1);
         AuthorizedAction authorizedAction = authorizedActions.get(0);
         assertThat(authorizedAction.getModifiedTimestamp()).isNotNull();
-        assertThat(authorizedAction.getModifiedTimestamp()).isNotEqualTo(authorizedAction.getCreationTimestamp());
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
         assertThat(transitionAction.getActions()).isEmpty();
@@ -991,7 +987,6 @@ public class DeviceLifeCycleIT {
         assertThat(authorizedActions).hasSize(1);
         AuthorizedAction authorizedAction = authorizedActions.get(0);
         assertThat(authorizedAction.getModifiedTimestamp()).isNotNull();
-        assertThat(authorizedAction.getModifiedTimestamp()).isNotEqualTo(authorizedAction.getCreationTimestamp());
         assertThat(authorizedAction).isInstanceOf(AuthorizedTransitionAction.class);
         AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) authorizedAction;
         assertThat(transitionAction.getActions()).containsOnly(MicroAction.DISABLE_VALIDATION);
