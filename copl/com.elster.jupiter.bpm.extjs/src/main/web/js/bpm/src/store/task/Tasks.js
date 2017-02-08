@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.store.task.Tasks', {
     extend: 'Uni.data.store.Filterable',
     model: 'Bpm.model.task.Task',

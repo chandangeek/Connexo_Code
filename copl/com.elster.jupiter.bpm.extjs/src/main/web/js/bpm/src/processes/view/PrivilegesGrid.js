@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.processes.view.PrivilegesGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     store: 'Bpm.processes.store.Privileges',

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 Ext.define('Bpm.view.task.TasksGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.bpm-tasks-grid',
