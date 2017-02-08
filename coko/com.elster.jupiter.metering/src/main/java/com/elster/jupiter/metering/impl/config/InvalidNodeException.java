@@ -66,10 +66,10 @@ class InvalidNodeException extends LocalizedException {
                 customPropertySet.getName());
     }
 
-    static InvalidNodeException customPropertyMustBeNumerical(Thesaurus thesaurus, CustomPropertySet customPropertySet, PropertySpec propertySpec) {
+    static InvalidNodeException customPropertyMustBeNumericalOrSyntheticLoadProfile(Thesaurus thesaurus, CustomPropertySet customPropertySet, PropertySpec propertySpec) {
         throw new InvalidNodeException(
                 thesaurus,
-                MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL,
+                MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL_OR_SYNTHETIC_LOAD_PROFILE,
                 propertySpec.getDisplayName(),
                 customPropertySet.getName());
     }

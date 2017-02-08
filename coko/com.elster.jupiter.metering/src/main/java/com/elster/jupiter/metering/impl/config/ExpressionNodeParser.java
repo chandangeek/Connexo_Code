@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.slp.SyntheticLoadProfile;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.units.Quantity;
@@ -175,8 +176,8 @@ public class ExpressionNodeParser {
             if (!activeCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
                 throw InvalidNodeException.customPropertySetNotVersioned(this.thesaurus, customPropertySet);
             }
-            if (!this.isNumerical(propertySpec.get())) {
-                throw InvalidNodeException.customPropertyMustBeNumerical(this.thesaurus, customPropertySet, propertySpec.get());
+            if (!this.isNumerical(propertySpec.get()) && !isSyntheticLoadProfile(propertySpec.get())) {
+                throw InvalidNodeException.customPropertyMustBeNumericalOrSyntheticLoadProfile(this.thesaurus, customPropertySet, propertySpec.get());
             }
             this.nodes.add(new CustomPropertyNodeImpl(propertySpec.get(), activeCustomPropertySet.get()));
         } else {
@@ -195,6 +196,11 @@ public class ExpressionNodeParser {
         Class valueType = propertySpec.getValueFactory().getValueType();
         return Number.class.isAssignableFrom(valueType)
                 || Quantity.class.isAssignableFrom(valueType);
+    }
+
+    private boolean isSyntheticLoadProfile(PropertySpec propertySpec) {
+        Class valueType = propertySpec.getValueFactory().getValueType();
+        return SyntheticLoadProfile.class.isAssignableFrom(valueType);
     }
 
     private void handleNullNode() {
