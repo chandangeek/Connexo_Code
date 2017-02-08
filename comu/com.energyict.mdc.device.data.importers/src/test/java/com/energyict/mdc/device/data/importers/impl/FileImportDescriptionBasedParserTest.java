@@ -6,11 +6,11 @@ package com.energyict.mdc.device.data.importers.impl;
 
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.csvimport.fields.CommonField;
+import com.elster.jupiter.fileimport.csvimport.fields.FileImportField;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
-import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
 
 import java.io.ByteArrayInputStream;

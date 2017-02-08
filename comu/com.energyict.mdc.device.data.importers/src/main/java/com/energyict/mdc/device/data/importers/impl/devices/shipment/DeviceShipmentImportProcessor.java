@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.importers.impl.devices.shipment;
 
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
@@ -13,7 +14,6 @@ import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImport
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
