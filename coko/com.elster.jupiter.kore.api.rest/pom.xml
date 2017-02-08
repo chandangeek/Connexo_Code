@@ -120,6 +120,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>security.thread</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue</artifactId>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>
@@ -194,7 +198,8 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>issue</artifactId>
+            <artifactId>datavault</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
