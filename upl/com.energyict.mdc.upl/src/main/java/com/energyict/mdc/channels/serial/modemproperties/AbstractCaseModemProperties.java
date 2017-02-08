@@ -1,4 +1,4 @@
-package com.energyict.mdc.channels.serial.modem;
+package com.energyict.mdc.channels.serial.modemproperties;
 
 /**
  * @author sva
@@ -11,6 +11,6 @@ public abstract class AbstractCaseModemProperties extends AbstractModemPropertie
      *
      * @return the address selector to use after a physical connect
      */
-    protected abstract String getAddressSelector();
+    public abstract String getAddressSelector();
 
 }

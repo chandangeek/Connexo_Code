@@ -1,4 +1,4 @@
-package com.energyict.mdc.channels.serial.modem;
+package com.energyict.mdc.channels.serial.modemproperties;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -34,49 +34,49 @@ public abstract class AbstractModemProperties {
      *
      * @return the PhoneNumber of the device
      */
-    protected abstract String getPhoneNumber();
+    public abstract String getPhoneNumber();
 
     /**
      * Getter for the prefix command to use when performing the actual dial to the modem of the device
      *
      * @return the prefix command to be used when performing the actual dial to the modem of the device
      */
-    protected abstract String getCommandPrefix();
+    public abstract String getCommandPrefix();
 
     /**
      * Getter for the timeout applicable for the connect command
      *
      * @return the timeout for the connect command
      */
-    protected abstract TemporalAmount getConnectTimeout();
+    public abstract TemporalAmount getConnectTimeout();
 
     /**
      * Getter for the delay to wait after a connect command has been received
      *
      * @return the delay to wait after a connect command has been received
      */
-    protected abstract TemporalAmount getDelayAfterConnect();
+    public abstract TemporalAmount getDelayAfterConnect();
 
     /**
      * Getter for the delay to wait before sending out the next command
      *
      * @return the delay to wait before sending out the next command
      */
-    protected abstract TemporalAmount getDelayBeforeSend();
+    public abstract TemporalAmount getDelayBeforeSend();
 
     /**
      * Getter for the timeout applicable for regular commands
      *
      * @return the timeout for regular commands
      */
-    protected abstract TemporalAmount getCommandTimeOut();
+    public abstract TemporalAmount getCommandTimeOut();
 
     /**
      * Getter for the number of attempts a command should be send to the modem
      *
      * @return the number of attempts a command should be send to the modem
      */
-    protected abstract BigDecimal getCommandTry();
+    public abstract BigDecimal getCommandTry();
 
     /**
      * Getter for the global initialization strings for this modem type
@@ -86,7 +86,7 @@ public abstract class AbstractModemProperties {
      *
      * @return the global initialization strings for this modem type
      */
-    protected abstract List<String> getGlobalModemInitStrings();
+    public abstract List<String> getGlobalModemInitStrings();
 
     /**
      * Getter for the initialization strings for this modem type
@@ -96,13 +96,13 @@ public abstract class AbstractModemProperties {
      *
      * @return the initialization strings for this modem type
      */
-    protected abstract List<String> getModemInitStrings();
+    public abstract List<String> getModemInitStrings();
 
     /**
      * Getter for the delay between DTR line toggles, which are used to disconnect the active connection.
      *
      * @return the delay between DTR line toggles
      */
-    protected abstract TemporalAmount getLineToggleDelay();
+    public abstract TemporalAmount getLineToggleDelay();
 
 }

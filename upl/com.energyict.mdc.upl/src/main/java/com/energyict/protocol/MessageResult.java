@@ -30,7 +30,7 @@ public class MessageResult {
     /**
      * Creates a new instance of MessageEntry
      */
-    MessageResult(MessageEntry messageEntry, int state, final String info) {
+    public MessageResult(MessageEntry messageEntry, int state, final String info) {
         this.messageEntry = messageEntry;
         this.state = state;
         this.info = info;
@@ -68,19 +68,19 @@ public class MessageResult {
         return new MessageResult(messageEntry, getUNKNOWN(), protocolInfo);
     }
 
-    static int getSUCCESS() {
+    public static int getSUCCESS() {
         return SUCCESS;
     }
 
-    static int getFAILED() {
+    public static int getFAILED() {
         return FAILED;
     }
 
-    static int getQUEUED() {
+    public static int getQUEUED() {
         return QUEUED;
     }
 
-    static int getUNKNOWN() {
+    public static int getUNKNOWN() {
         return UNKNOWN;
     }
 

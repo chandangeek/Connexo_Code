@@ -1,4 +1,4 @@
-package com.energyict.mdc.channels.serial.modem;
+package com.energyict.mdc.channels.serial.modemproperties;
 
 /**
  * @author sva
@@ -11,13 +11,13 @@ public abstract class AbstractAtModemProperties extends AbstractModemProperties 
      *
      * @return the address selector to use after a physical connect
      */
-    protected abstract String getAddressSelector();
+    public abstract String getAddressSelector();
 
     /**
      * Getter for the list of post dial command(s) to use
      *
      * @return the post dial command(s) to execute after a physical connect
      */
-    protected abstract String getPostDialCommands();
+    public abstract String getPostDialCommands();
 
 }

@@ -1,4 +1,4 @@
-package com.energyict.mdc.channels.serial.modem;
+package com.energyict.mdc.channels.serial.modemproperties;
 
 /**
  * @author sva

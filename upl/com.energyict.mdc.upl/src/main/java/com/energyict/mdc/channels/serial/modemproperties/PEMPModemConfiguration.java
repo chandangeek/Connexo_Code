@@ -1,4 +1,4 @@
-package com.energyict.mdc.channels.serial.modem;
+package com.energyict.mdc.channels.serial.modemproperties;
 
 
 /**
@@ -26,7 +26,7 @@ public enum PEMPModemConfiguration {
     private String connectionResponse;
     private String[] addresses;
 
-    private PEMPModemConfiguration(String key, String promptResponse, String connectionResponse, String[] addresses) {
+    PEMPModemConfiguration(String key, String promptResponse, String connectionResponse, String[] addresses) {
         this.key = key;
         this.promptResponse = promptResponse;
         this.connectionResponse = connectionResponse;

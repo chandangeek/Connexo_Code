@@ -1,4 +1,4 @@
-package com.energyict.mdc.channels.serial.modem;
+package com.energyict.mdc.channels.serial.modemproperties;
 
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -116,48 +116,48 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     @Override
-    protected String getPhoneNumber() {
+    public String getPhoneNumber() {
         return this.properties.getTypedProperty(PHONE_NUMBER_PROPERTY_NAME);
     }
 
     @Override
-    protected String getCommandPrefix() {
+    public String getCommandPrefix() {
         Object value = this.properties.getTypedProperty(MODEM_DIAL_PREFIX);
         return value != null ? (String) value : DEFAULT_MODEM_DIAL_PREFIX;
     }
 
     @Override
-    protected Duration getConnectTimeout() {
+    public Duration getConnectTimeout() {
         Object value = this.properties.getTypedProperty(CONNECT_TIMEOUT);
         return value != null ? (Duration) value : DEFAULT_CONNECT_TIMEOUT;
     }
 
     @Override
-    protected Duration getDelayAfterConnect() {
+    public Duration getDelayAfterConnect() {
         Object value = this.properties.getTypedProperty(DELAY_AFTER_CONNECT);
         return value != null ? (Duration) value : DEFAULT_DELAY_AFTER_CONNECT;
     }
 
     @Override
-    protected Duration getDelayBeforeSend() {
+    public Duration getDelayBeforeSend() {
         Object value = this.properties.getTypedProperty(DELAY_BEFORE_SEND);
         return value != null ? (Duration) value : DEFAULT_DELAY_BEFORE_SEND;
     }
 
     @Override
-    protected Duration getCommandTimeOut() {
+    public Duration getCommandTimeOut() {
         Object value = this.properties.getTypedProperty(COMMAND_TIMEOUT);
         return value != null ? (Duration) value : DEFAULT_COMMAND_TIMEOUT;
     }
 
     @Override
-    protected BigDecimal getCommandTry() {
+    public BigDecimal getCommandTry() {
         Object value = this.properties.getTypedProperty(COMMAND_TRIES);
         return value != null ? (BigDecimal) value : DEFAULT_COMMAND_TRIES;
     }
 
     @Override
-    protected List<String> getGlobalModemInitStrings() {
+    public List<String> getGlobalModemInitStrings() {
         Object value = this.properties.getTypedProperty(MODEM_GLOBAL_INIT_STRINGS);
         String globalInitStringSpecs = value != null ? (String) value : DEFAULT_MODEM_GLOBAL_INIT_STRINGS;
         if (!globalInitStringSpecs.isEmpty()) {
@@ -168,7 +168,7 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     @Override
-    protected List<String> getModemInitStrings() {
+    public List<String> getModemInitStrings() {
         Object value = this.properties.getTypedProperty(MODEM_INIT_STRINGS);
         String initStringSpecs = value != null ? (String) value : DEFAULT_MODEM_INIT_STRINGS;
         if (!initStringSpecs.isEmpty()) {
@@ -179,18 +179,18 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
     }
 
     @Override
-    protected Duration getLineToggleDelay() {
+    public Duration getLineToggleDelay() {
         Object value = this.properties.getTypedProperty(DTR_TOGGLE_DELAY);
         return value != null ? (Duration) value : DEFAULT_DTR_TOGGLE_DELAY;
     }
 
     @Override
-    protected String getAddressSelector() {
+    public String getAddressSelector() {
         Object value = this.properties.getTypedProperty(MODEM_ADDRESS_SELECTOR);
         return value != null ? (String) value : DEFAULT_MODEM_ADDRESS_SELECTOR;
     }
 
-    protected String getPostDialCommands() {
+    public String getPostDialCommands() {
         Object value = this.properties.getTypedProperty(MODEM_POST_DIAL_COMMANDS);
         return value != null ? (String) value : DEFAULT_MODEM_POST_DIAL_COMMANDS;
     }

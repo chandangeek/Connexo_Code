@@ -1,12 +1,11 @@
 package com.energyict.mdc.upl.io;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
-import com.energyict.mdc.channels.serial.modem.postdialcommand.ModemComponent;
+import com.energyict.mdc.channels.serial.modemproperties.postdialcommand.ModemComponent;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;

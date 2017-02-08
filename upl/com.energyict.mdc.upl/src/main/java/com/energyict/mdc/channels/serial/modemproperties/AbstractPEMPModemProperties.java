@@ -1,4 +1,4 @@
-package com.energyict.mdc.channels.serial.modem;
+package com.energyict.mdc.channels.serial.modemproperties;
 
 
 /**
@@ -12,6 +12,6 @@ public abstract class AbstractPEMPModemProperties extends AbstractPaknetModemPro
      *
      * @return the PEMP modem configuration
      */
-    protected abstract PEMPModemConfiguration getPEMPModemConfiguration();
+    public abstract PEMPModemConfiguration getPEMPModemConfiguration();
 
 }

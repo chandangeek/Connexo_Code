@@ -1,4 +1,4 @@
-package com.energyict.mdc.channels.serial.modem.postdialcommand;
+package com.energyict.mdc.channels.serial.modemproperties.postdialcommand;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
