@@ -1,5 +1,8 @@
 Ext.define('Dal.view.overview.HistoryGraph', {
     extend: 'Ext.panel.Panel',
+    requires: [
+        'Ext.chart.theme.Base'
+    ],
     ui: 'tile',
     alias: 'widget.history-graph',
     store: undefined,
@@ -51,7 +54,6 @@ Ext.define('Dal.view.overview.HistoryGraph', {
 
     constructColors: function () {
         var me = this;
-
 
         Ext.define('Ext.chart.theme.ColumnTheme', {
             extend: 'Ext.chart.theme.Base',
@@ -111,7 +113,6 @@ Ext.define('Dal.view.overview.HistoryGraph', {
         // remove previous chart
         me.remove(me.down('chart'), true);
         me.add(me.getChart(me.store));
-        // me.down('chart').themeAttrs.colors = ['#eb5642','#70bb52'];
         me.doLayout();
     },
 

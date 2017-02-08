@@ -1,6 +1,8 @@
 Ext.define('Dal.controller.Overview', {
     extend: 'Isu.controller.Overview',
-
+    requires: [
+        'Dal.view.overview.HistoryGraph'
+    ],
     models: [
         'Dal.model.Group'
     ],
