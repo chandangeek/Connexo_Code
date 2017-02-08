@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.alarms.impl.install;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -131,8 +132,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         issueService.createReason(ModuleConstants.ALARM_REASON, issueType,
                 TranslationKeys.ALARM_REASON, TranslationKeys.ALARM_REASON_DESCRIPTION);
         IssueType deviceAlarmType = issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
-        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType);
-        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.CREATE);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.OVERDUE);
     }
 
     private void createRelativePeriodCategory() {
