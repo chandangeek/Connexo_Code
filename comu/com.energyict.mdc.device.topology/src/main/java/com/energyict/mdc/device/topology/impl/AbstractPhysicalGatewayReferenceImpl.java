@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.domain.util.Save;
@@ -13,12 +17,6 @@ import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * Base class for {@link PhysicalGatewayReference}
- * Copyrights EnergyICT
- * Date: 10/03/14
- * Time: 09:57
- */
 public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
 
     public enum Field implements ImplField {
