@@ -13,6 +13,7 @@ Ext.define('Dxp.view.tasks.History', {
         'Dxp.view.tasks.PreviewForm',
         'Dxp.view.tasks.HistoryGrid',
         'Dxp.view.tasks.HistoryFilter',
+        'Dxp.view.tasks.SortMenu'
     ],
 
     router: null,
@@ -46,6 +47,26 @@ Ext.define('Dxp.view.tasks.History', {
             ui: 'large',
             title: Uni.I18n.translate('general.history', 'DES', 'History'),
             items: [
+                {
+                    xtype: 'filter-toolbar',
+                    title: Uni.I18n.translate('importService.filter.sort', 'DES', 'Sort'),
+                    name: 'sortitemspanel',
+                    itemId: 'des-history-sort-toolbar',
+                    emptyText: Uni.I18n.translate('general.none','DES','None'),
+                    tools: [
+                        {
+                            xtype: 'button',
+                            action: 'addSort',
+                            itemId: 'add-sort-btn',
+                            text: Uni.I18n.translate('general.history.addSort', 'DES', 'Add sort'),
+                            menu: {
+                                xtype: 'des-history-sort-menu',
+                                itemId: 'menu-history-sort',
+                                name: 'addsortitemmenu'
+                            }
+                        }
+                    ]
+                },
                 {
                     xtype: 'preview-container',
                     grid: {

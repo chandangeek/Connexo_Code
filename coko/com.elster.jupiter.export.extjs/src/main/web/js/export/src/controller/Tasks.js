@@ -240,6 +240,18 @@ Ext.define('Dxp.controller.Tasks', {
                 openInfoWindow: this.showSelectedReadingTypes,
                 showNoFoundPanel: this.showNoFoundPanel,
                 uncheckAll: this.uncheckAll
+            },
+            'des-history-sort-menu': {
+                click: this.chooseSort
+            },
+            '#des-history-sort-toolbar button[action=clear]': {
+                click: this.clearAllSorting
+            },
+            '#des-history-sort-toolbar button': {
+                closeclick: this.onSortCloseClicked
+            },
+            '#des-history-sort-toolbar #itemsContainer button': {
+                click: this.switchSortingOrder
             }
         });
     },
@@ -396,6 +408,7 @@ Ext.define('Dxp.controller.Tasks', {
             view;
 
         noSpecificExportTask ? store.getProxy().setCommonUrl() : store.getProxy().setUrl(router.arguments);
+        me.setDefaultSort();
 
         view = Ext.widget('data-export-tasks-history', {
             router: router,
@@ -406,6 +419,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         me.getApplication().fireEvent('changecontentevent', view);
         store.load();
+        me.updateSortingToolbar();
 
         if(!noSpecificExportTask){
             taskModel.load(currentTaskId, {
@@ -2667,5 +2681,148 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             grid = me.getAddReadingTypesToTaskBulk();
         grid.getUncheckAllButton().fireEvent('click', grid.getUncheckAllButton());
-    }
+    },
+
+    clearAllSorting: function (btn) {
+        var me = this,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting;
+
+        sorting = [];
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        me.updateSortingToolbarAndResults();
+    },
+
+    onSortCloseClicked: function (btn) {
+        var me = this,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+
+        if (Ext.isArray(sorting)) {
+            Ext.Array.remove(sorting, Ext.Array.findBy(sorting, function (item) {
+                return item.property === btn.sortType
+            }));
+        }
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        me.updateSortingToolbarAndResults();
+    },
+
+    switchSortingOrder: function (btn) {
+        var me = this,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
+            sortingItem;
+
+        if (Ext.isArray(sorting)) {
+            sortingItem = Ext.Array.findBy(sorting, function (item) {
+                return item.property === btn.sortType
+            });
+            if (sortingItem) {
+                if (sortingItem.direction === Uni.component.sort.model.Sort.ASC) {
+                    sortingItem.direction = Uni.component.sort.model.Sort.DESC;
+                } else {
+                    sortingItem.direction = Uni.component.sort.model.Sort.ASC;
+                }
+            }
+        }
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        me.updateSortingToolbarAndResults();
+    },
+
+    updateSortingToolbarAndResults: function() {
+        var me = this,
+            gridView = me.getHistory().down('#data-export-history-grid'),
+            store = me.getStore('Dxp.store.DataExportTasksHistory');
+
+        me.updateSortingToolbar();
+        gridView.setLoading();
+        store.load(function(records, operation, success) {
+            gridView.setLoading(false);
+        });
+    },
+
+    updateSortingToolbar: function () {
+        var me = this,
+            page = me.getHistory(),
+            sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting,
+            menuItem,
+            cls;
+
+        sortContainer.removeAll();
+        sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+
+        if (Ext.isArray(sorting)) {
+            Ext.Array.each(sorting, function (sortItem) {
+
+                if (sortItem.direction) {
+                    menuItem = me.getHistory().down('#menu-history-sort [name=' + sortItem.property + ']');
+                    cls = sortItem.direction === Uni.component.sort.model.Sort.ASC
+                        ? 'x-btn-sort-item-asc'
+                        : 'x-btn-sort-item-desc';
+
+                    sortContainer.add({
+                        xtype: 'sort-item-btn',
+                        itemId: 'history-sort-by-' + sortItem.property + '-button',
+                        text: menuItem.text,
+                        sortType: sortItem.property,
+                        sortDirection: sortItem.direction,
+                        iconCls: cls
+                    });
+                }
+            });
+        }
+    },
+
+    setDefaultSort: function () {
+        var me = this,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting = store.getProxy().extraParams['sort'];
+
+        if (sorting === undefined) { // set default filters
+            sorting = [];
+            sorting.push({
+                property: 'status',
+                direction: Uni.component.sort.model.Sort.DESC
+            });
+            sorting.push({
+                property: 'startedOn',
+                direction: Uni.component.sort.model.Sort.DESC
+            });
+            store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        }
+    },
+
+    chooseSort: function (menu, item) {
+        var me = this,
+            name = item.name,
+            store = me.getStore('Dxp.store.DataExportTasksHistory'),
+            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
+            sortingItem;
+
+        if (Ext.isArray(sorting)) {
+            sortingItem = Ext.Array.findBy(sorting, function (item) {
+                return item.property === name
+            });
+
+            if (sortingItem) {
+                return;
+            } else {
+                sorting.push({
+                    property: name,
+                    direction: Uni.component.sort.model.Sort.DESC
+                });
+            }
+        } else {
+            sorting = [
+                {
+                    property: name,
+                    direction: Uni.component.sort.model.Sort.DESC
+                }
+            ];
+        }
+        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        me.updateSortingToolbarAndResults();
+    },
 });
