@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                 {
                     ui: 'large',
                     itemId: 'device-configuration-detail-panel',
-                    title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                    title: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                     flex: 1
                 },
                 {

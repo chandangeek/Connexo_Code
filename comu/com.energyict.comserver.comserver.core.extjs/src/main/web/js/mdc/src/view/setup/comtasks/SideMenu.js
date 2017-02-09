@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.comtasks.SideMenu', {
         var me = this;
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                 itemId: 'mdc-comtask-sidemenu-overviewLink',
                 href: me.router.getRoute('administration/communicationtasks/view').buildUrl()
             },

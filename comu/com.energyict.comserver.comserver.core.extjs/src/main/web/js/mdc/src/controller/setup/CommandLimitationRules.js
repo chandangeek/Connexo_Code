@@ -135,7 +135,6 @@ Ext.define('Mdc.controller.setup.CommandLimitationRules', {
                 });
                 me.getApplication().fireEvent('loadCommandRule', commandRule);
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#mdc-commandRule-overview-panel').setTitle(Ext.String.htmlEncode(commandRule.get('name')));
                 me.goToRuleOverview = true;
                 me.commandRuleBeingEdited = commandRule;
             }

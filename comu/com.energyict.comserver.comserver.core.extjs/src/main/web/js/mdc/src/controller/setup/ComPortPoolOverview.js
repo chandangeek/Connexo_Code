@@ -61,7 +61,6 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
                 if(actionMenu)
                     actionMenu.record = record;
                 widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
-                widget.down('#comPortPool-overview-panel').setTitle(Ext.String.htmlEncode(record.get('name')));
                 me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
             },
             callback: function () {

@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                text: Uni.I18n.translate('general.details', 'MDC', 'Details'),
                 itemId: 'deviceConfigurationOverviewLink',
                 href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId
             },

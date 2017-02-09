@@ -108,7 +108,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                         protocolDetectionCombo = form.down('combobox[name=discoveryProtocolPluggableClassId]'),
                         title;
 
-                    me.getApplication().fireEvent('loadComPortPool', record);
+                    me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
 
                     title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]);
 

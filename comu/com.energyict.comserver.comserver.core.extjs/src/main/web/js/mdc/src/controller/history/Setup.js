@@ -1777,21 +1777,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                 controller: 'Mdc.controller.setup.ComServerEdit',
                                 action: 'showOnlineAddView'
                             },
-                            // edit: {
-                            //     title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
-                            //     route: '{id}/edit',
-                            //     privileges: Mdc.privileges.Communication.admin,
-                            //     controller: 'Mdc.controller.setup.ComServerEdit',
-                            //     action: 'showEditView',
-                            //     callback: function (route) {
-                            //         this.getApplication().on('loadComServer', function (record) {
-                            //             route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
-                            //             return true;
-                            //         }, {single: true});
-                            //
-                            //         return this;
-                            //     }
-                            // },
                             detail: {
                                 title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                                 route: '{id}',
@@ -1924,21 +1909,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                 controller: 'Mdc.controller.setup.ComPortPoolEdit',
                                 action: 'showOutboundAddView'
                             },
-                            // edit: {
-                            //     title: Uni.I18n.translate('general.editCommunicationPortPool', 'MDC', 'Edit communication port pool'),
-                            //     route: '{id}/edit',
-                            //     privileges: Mdc.privileges.Communication.admin,
-                            //     controller: 'Mdc.controller.setup.ComPortPoolEdit',
-                            //     action: 'showEditView',
-                            //     callback: function (route) {
-                            //         this.getApplication().on('loadComPortPool', function (record) {
-                            //             route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
-                            //             return true;
-                            //         }, {single: true});
-                            //
-                            //         return this;
-                            //     }
-                            // },
                             detail: {
                                 title: Uni.I18n.translate('general.detail', 'MDC', 'Detail'),
                                 route: '{id}',
