@@ -55,6 +55,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimation</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -169,5 +173,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

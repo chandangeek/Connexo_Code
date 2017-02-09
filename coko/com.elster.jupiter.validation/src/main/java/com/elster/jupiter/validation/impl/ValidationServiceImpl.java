@@ -103,8 +103,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class ValidationServiceImpl implements ServerValidationService, MessageSeedProvider, TranslationKeyProvider {
 
     static final String DESTINATION_NAME = "DataValidation";
-    public static final String SUBSCRIBER_NAME = "DataValidation";
+    static final String SUBSCRIBER_NAME = "DataValidation";
     public static final String VALIDATION_USER = "validation";
+
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -118,7 +119,6 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     private volatile QueryService queryService;
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
-
     private volatile KpiService kpiService;
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
@@ -133,6 +133,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     @Inject
     ValidationServiceImpl(BundleContext bundleContext, Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,
                           OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, UpgradeService upgradeService, KpiService kpiService, MetrologyConfigurationService metrologyConfigurationService, SearchService searchService) {
+        this();
         this.clock = clock;
         this.messageService = messageService;
         this.setMetrologyConfigurationService(metrologyConfigurationService);

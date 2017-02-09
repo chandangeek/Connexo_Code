@@ -4,8 +4,10 @@
 
 package com.elster.jupiter.validation.impl.kpi;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ServerValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
@@ -26,13 +28,14 @@ enum KpiType {
         }
 
         @Override
-        protected DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, Clock clock, ValidationService validationService) {
+        protected DataQualityKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, Clock clock, ValidationService validationService,
+                                                                   EstimationService estimationService, TransactionService transactionService, Logger logger) {
             DataModel dataModel = ((ServerValidationService) validationService).dataModel();
-            return new DataValidationKpiCalculator(validationService, dataModel, dataValidationKpi, clock);
+            return new DeviceDataQualityKpiCalculator(validationService, estimationService, transactionService, dataModel, dataValidationKpi, clock, logger);
         }
     };
 
-    private static final Logger LOGGER = Logger.getLogger(DataManagementKpiCalculatorHandler.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DataQualityKpiCalculatorHandler.class.getName());
 
     private static final Pattern PAYLOAD_PARSE_PATTERN = Pattern.compile("(\\w*)-(\\d*)");
 
@@ -42,10 +45,12 @@ enum KpiType {
         return this.name() + '-' + id;
     }
 
-    protected abstract DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, Clock clock, ValidationService validationService);
+    protected abstract DataQualityKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, Clock clock, ValidationService validationService,
+                                                                        EstimationService estimationService, TransactionService transactionService, Logger logger);
 
-    public static DataManagementKpiCalculator calculatorForRecurrentPayload(TaskOccurrence taskOccurrence, Clock clock,
-                                                                            ValidationService validationService, DataValidationKpiService dataValidationKpiService) {
+    public static DataQualityKpiCalculator calculatorForRecurrentPayload(TaskOccurrence taskOccurrence, Clock clock, ValidationService validationService,
+                                                                         EstimationService estimationService, DataValidationKpiService dataValidationKpiService,
+                                                                         TransactionService transactionService, Logger logger) {
         String payload = taskOccurrence.getPayLoad();
         Matcher matcher = PAYLOAD_PARSE_PATTERN.matcher(payload);
         if (matcher.matches()) {
@@ -55,8 +60,8 @@ enum KpiType {
                 Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(id);
                 return dataValidationKpi
                         .map(DataValidationKpiImpl.class::cast)
-                        .map(kpi -> kpiType.newValidationCalculator(kpi, clock, validationService))
-                        .orElseGet(() -> new DataManagementKpiDoesNotExist(LOGGER, payload));
+                        .map(kpi -> kpiType.newValidationCalculator(kpi, clock, validationService, estimationService, transactionService, logger))
+                        .orElseGet(() -> new DataQualityKpiDoesNotExist(LOGGER, payload));
             } catch (NumberFormatException e) {
                 return new PayloadContainsInvalidId(LOGGER, payload, e);
             }
@@ -64,5 +69,4 @@ enum KpiType {
             return new UnexpectedPayloadFormat(LOGGER, payload);
         }
     }
-
 }

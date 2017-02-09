@@ -131,14 +131,13 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         KpiBuilder builder = kpiService.newKpi();
         builder.interval(frequency);
         builder.timeZone(((Meter) endDevice).getZoneId());
-        Stream.of(DataValidationKpiMemberTypes.values())
-                .map(DataValidationKpiMemberTypes::fieldName)
+        Stream.of(DataQualityKpiMemberTypes.values())
+                .map(DataQualityKpiMemberTypes::fieldName)
                 .forEach(member ->
                         builder.member()
                                 .named(member + endDevice.getId())
                                 .add()
                 );
-        //builder.named("ValidationKpi_grp" + getDeviceGroup().getId() + "_dev" + id);
         DataValidationKpiChildImpl dataValidationKpiChild = DataValidationKpiChildImpl.from(dataModel, this, builder.create());
         childrenKpis.add(dataValidationKpiChild);
         return dataValidationKpiChild;
@@ -320,7 +319,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
         public void save() {
             updateFrequency();
-            DestinationSpec destination = messageService.getDestinationSpec(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION)
+            DestinationSpec destination = messageService.getDestinationSpec(DataQualityKpiCalculatorHandlerFactory.TASK_DESTINATION)
                     .get();
             RecurrentTask recurrentTask;
             Optional<RecurrentTask> defaultTask = taskService.getRecurrentTask(taskName());

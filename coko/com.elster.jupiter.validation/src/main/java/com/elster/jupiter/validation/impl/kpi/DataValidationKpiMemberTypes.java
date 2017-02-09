@@ -4,19 +4,21 @@
 
 package com.elster.jupiter.validation.impl.kpi;
 
-enum DataValidationKpiMemberTypes {
+enum DataQualityKpiMemberTypes {
     CHANNEL("CHANNEL_"),
     REGISTER("REGISTER_"),
     SUSPECT("SUSPECT_"),
-    ALLDATAVALIDATED("ALLDATAVALIDATED_"),
-    THRESHOLDVALIDATOR("THRESHOLDVALIDATOR_"),
     MISSINGVALUESVALIDATOR("MISSINGVALUESVALIDATOR_"),
-    READINGQUALITIESVALIDATOR("READINGQUALITIESVALIDATOR_"),
-    REGISTERINCREASEVALIDATOR("REGISTERINCREASEVALIDATOR_");
+    INFORMATIVE("INFORMATIVE_"),
+    ADDED("ADDED_"),
+    EDITED("EDITED_"),
+    REMOVED("REMOVED_"),
+    ESTIMATED("ESTIMATED_"),
+    CONFIRMED("CONFIRMED_");
 
     private final String javaFieldName;
 
-    DataValidationKpiMemberTypes(String javaFieldName) {
+    DataQualityKpiMemberTypes(String javaFieldName) {
         this.javaFieldName = javaFieldName;
     }
 

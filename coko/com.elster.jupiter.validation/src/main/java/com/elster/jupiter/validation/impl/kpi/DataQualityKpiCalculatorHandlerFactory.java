@@ -5,6 +5,7 @@
 package com.elster.jupiter.validation.impl.kpi;
 
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -22,8 +23,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 
-@Component(name = "com.elster.jupiter.validation.impl.kpi", service = MessageHandlerFactory.class, property = {"subscriber=" + DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, "destination=" + DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION}, immediate = true)
-public class DataValidationKpiCalculatorHandlerFactory implements MessageHandlerFactory {
+@Component(name = "com.elster.jupiter.validation.impl.kpi", service = MessageHandlerFactory.class, property = {"subscriber=" + DataQualityKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, "destination=" + DataQualityKpiCalculatorHandlerFactory.TASK_DESTINATION}, immediate = true)
+public class DataQualityKpiCalculatorHandlerFactory implements MessageHandlerFactory {
 
     public static final String TASK_DESTINATION = "ValKpiCalcTopic";
     public static final String TASK_SUBSCRIBER = "ValKpiCalc";
@@ -35,17 +36,18 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile Clock clock;
     private User user;
 
-    public DataValidationKpiCalculatorHandlerFactory() {
+    public DataQualityKpiCalculatorHandlerFactory() {
         super();
     }
 
     @Inject
-    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService,
-                                                     TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
-                                                     UserService userService, User user, Clock clock) {
+    public DataQualityKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService,
+                                                  TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
+                                                  UserService userService, User user, Clock clock) {
         this();
         this.setTaskService(taskService);
         this.setDataValidationKpiService(dataValidationKpiService);
@@ -59,10 +61,7 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     @Override
     public MessageHandler newMessageHandler() {
         return this.taskService.createMessageHandler(
-                new DataManagementKpiCalculatorHandler(
-                        dataValidationKpiService,
-                        transactionService, threadPrincipalService, validationService, clock,
-                        getUser()));
+                new DataQualityKpiCalculatorHandler(dataValidationKpiService, transactionService, threadPrincipalService, validationService, estimationService, clock, getUser()));
     }
 
     @Reference
@@ -98,6 +97,11 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     public User getUser() {

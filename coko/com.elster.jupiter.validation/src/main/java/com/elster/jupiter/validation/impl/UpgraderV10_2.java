@@ -17,7 +17,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.kpi.DataValidationKpiCalculatorHandlerFactory;
+import com.elster.jupiter.validation.impl.kpi.DataQualityKpiCalculatorHandlerFactory;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -73,7 +73,7 @@ public class UpgraderV10_2 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, VERSION);
         this.upgradeSubscriberSpecs();
 
-        createMessageHandler(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
+        createMessageHandler(DataQualityKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
         sql.add("UPDATE VAL_VALIDATIONRULESET set quality_system=2 where quality_system is null");
         sql.add("UPDATE VAL_DATAVALIDATIONTASK set quality_system=2 where quality_system is null");
 

@@ -4,12 +4,10 @@
 
 package com.elster.jupiter.validation.impl.kpi;
 
-import com.elster.jupiter.metering.EndDevice;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class PayloadContainsInvalidId implements DataManagementKpiCalculator {
+class PayloadContainsInvalidId implements DataQualityKpiCalculator {
 
     private final Logger logger;
     private final String payLoad;
@@ -23,13 +21,7 @@ class PayloadContainsInvalidId implements DataManagementKpiCalculator {
     }
 
     @Override
-    public void calculate() {
+    public void calculateAndStore() {
         this.logger.log(Level.SEVERE, "The data validation kpi identifier in the payload '" + this.payLoad + "' could not be parsed to long", this.exception);
     }
-
-    @Override
-    public void store(EndDevice endDevice) {
-        calculate();
-    }
-
 }

@@ -22,7 +22,7 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.kpi.DataValidationKpiCalculatorHandlerFactory;
+import com.elster.jupiter.validation.impl.kpi.DataQualityKpiCalculatorHandlerFactory;
 import com.elster.jupiter.validation.security.Privileges;
 
 import javax.inject.Inject;
@@ -108,7 +108,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     }
     private void createMessageHandlers() {
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        this.createMessageHandler(defaultQueueTableSpec, DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
+        this.createMessageHandler(defaultQueueTableSpec, DataQualityKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
         this.createMessageHandler(defaultQueueTableSpec, ValidationServiceImpl.DESTINATION_NAME, TranslationKeys.MESSAGE_SPEC_SUBSCRIBER);
     }
 
