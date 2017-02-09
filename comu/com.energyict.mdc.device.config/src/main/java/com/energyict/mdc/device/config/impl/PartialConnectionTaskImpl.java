@@ -16,6 +16,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.device.config.PartialConnectionTask} interface.
@@ -236,6 +238,13 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     @Override
     public ConnectionType getConnectionType () {
         return this.getPluggableClass().getConnectionType();
+    }
+
+    @Override
+    public List<PropertySpec> getConnectionTypePropertySpecs() {
+        return getConnectionType().getPropertySpecs().stream().
+                map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(()->getConfiguration().getDeviceType().getKeyAccessorTypes(), ps)).
+                collect(Collectors.toList());
     }
 
     @Override

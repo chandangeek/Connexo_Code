@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.TypedProperties;
@@ -87,6 +88,14 @@ public interface PartialConnectionTask extends HasName, HasId {
      * @return The ConnectionType
      */
     public ConnectionType getConnectionType();
+
+    /**
+     * This methods returns the property specs of the connection type. In this way, it does not differ much from calling
+     * getConnectionType().getPropertySpecs(), except that in this call the possible values of the property specs can be
+     * added for specific context: the device configuration.
+     * @return The ConnectionType's PropertySpecs with additional possible values from a device configuration context
+     */
+    public List<PropertySpec> getConnectionTypePropertySpecs();
 
     /**
      * Gets the {@link ConnectionTypePluggableClass} that knows exactly how to connect
