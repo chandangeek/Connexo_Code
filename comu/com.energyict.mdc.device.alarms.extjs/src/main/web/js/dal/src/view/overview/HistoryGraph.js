@@ -52,8 +52,10 @@ Ext.define('Dal.view.overview.HistoryGraph', {
     constructColors: function () {
         var me = this;
 
-        Ext.define('Ext.chart.theme.ColumnTheme', {
+        Ext.define('Dal.view.overview.ColumnTheme', {
+            alternateClassName: 'Ext.chart.theme.ColumnTheme',
             extend: 'Ext.chart.theme.Base',
+
             constructor: function (config) {
                 this.callParent([Ext.apply({
                     colors: me.defaultColors
