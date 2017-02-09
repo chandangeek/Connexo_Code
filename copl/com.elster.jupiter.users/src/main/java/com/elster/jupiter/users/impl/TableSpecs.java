@@ -59,11 +59,6 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
-            /* CXO-2251: replace by table.addAuditColumns -> see below
-             * table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
-             * table.addCreateTimeColumn("CREATETIME", "createTime");
-             * table.addModTimeColumn("MODTIME", "modTime");
-             */
             table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_GROUP").on(idColumn).add();
             table.unique("IDS_U_GROUP").on(nameColumn).add();
@@ -118,13 +113,8 @@ public enum TableSpecs {
             table.column("LANGUAGETAG").varChar().map("languageTag").add();
             Column userDirColumn = table.column("USER_DIRECTORY").number().notNull().add();
             table.column("Active").type("char(1)").conversion(CHAR2BOOLEAN).map("status").add();
-            table.column("LASTSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastSuccessfulLogin").add();
-            table.column("LASTUNSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastUnSuccessfulLogin").add();
-            /* CXO-2251: replace by table.addAuditColumns -> see below
-             * table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
-             * table.addCreateTimeColumn("CREATETIME", "createTime");
-             * table.addModTimeColumn("MODTIME", "modTime");
-             */
+            table.column("LASTSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastSuccessfulLogin").notAudited().add();
+            table.column("LASTUNSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastUnSuccessfulLogin").notAudited().add();
             table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_USER").on(idColumn).add();
             table.unique("USR_U_USERAUTHNAME").on(userDirColumn, authenticationNameColumn).add();
@@ -143,9 +133,6 @@ public enum TableSpecs {
             Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column applicationColumn = table.column("APPLICATION").varChar().notNull().map("applicationName").add();
             Column privilegeIdColumn = table.column("PRIVILEGENAME").varChar().notNull().map("privilegeName").add();
-            /* CXO-2251: replace by table.addAuditColumns -> see below
-             * table.addCreateTimeColumn("CREATETIME", "createTime");
-             */
             table.addAuditColumns().stream().filter(column -> !"CREATETIME".equals(column.getName())).forEach(column -> column.since(version(10, 2)));
             table
                 .primaryKey("USR_PK_PRIVILEGEINGROUP")
@@ -197,9 +184,6 @@ public enum TableSpecs {
             table.setJournalTableName("USR_USERINGROUPJRNL").since(version(10, 2));
             Column userIdColumn = table.column("USERID").number().notNull().conversion(NUMBER2LONG).map("userId").add();
             Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
-            /* CXO-2251: replace by table.addAuditColumns -> see below
-             * table.addCreateTimeColumn("CREATETIME", "createTime");
-             */
             table.addAuditColumns().stream().filter(column -> !"CREATETIME".equals(column.getName())).forEach(column -> column.since(version(10, 2)));
             table.primaryKey("USR_PK_USERINGROUP").on(userIdColumn, groupIdColumn).add();
             table
