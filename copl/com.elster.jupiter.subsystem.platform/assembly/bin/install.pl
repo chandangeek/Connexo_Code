@@ -15,7 +15,7 @@ use Archive::Zip;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20170120";
+my $INSTALL_VERSION="v20170210";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -668,11 +668,11 @@ sub activate_sso {
     if ("$ACTIVATE_SSO" eq "yes") {
         if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
             #install apache 2.2 or 2.4???
-            my $PUBLIC_KEY="to be filled in";
+            my $PUBLIC_KEY_PROPERTIES="to be filled in";
             if (-e "$CONNEXO_DIR/publicKey.txt") {
                 open(my $FH,"< $CONNEXO_DIR/publicKey.txt") or die "Could not open $CONNEXO_DIR/publicKey.txt: $!";
-                $PUBLIC_KEY=<$FH>;
-                chomp($PUBLIC_KEY);
+                $PUBLIC_KEY_PROPERTIES=<$FH>;
+                chomp($PUBLIC_KEY_PROPERTIES);
                 close($FH);
             }            
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
@@ -743,7 +743,7 @@ sub activate_sso {
             add_to_file("$CATALINA_BASE/conf/connexo.properties","");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
-            add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.sso.public.key=$PUBLIC_KEY");
+            add_to_file_if("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
 
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    system("sc config \"Apache2.4\"  start= delayed-auto");
