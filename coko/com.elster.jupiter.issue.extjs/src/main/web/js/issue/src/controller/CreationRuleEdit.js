@@ -8,7 +8,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         'Isu.store.DueinTypes',
         'Isu.store.Clipboard',
         'Isu.store.CreationRuleActionPhases',
-        'Isu.store.IssueReasons'
+        'Isu.store.CreationRuleReasons'
     ],
     views: [
         'Isu.view.creationrules.Edit'
@@ -100,7 +100,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
     loadDependencies: function (record, callback) {
         var me = this,
             templatesStore = me.getStore('Isu.store.CreationRuleTemplates'),
-            issueReasonsStore = me.getStore('Isu.store.IssueReasons');
+            issueReasonsStore = me.getStore('Isu.store.CreationRuleReasons');
 
         templatesStore.getProxy().setExtraParam('issueType', record.getId());
         templatesStore.load(callback);

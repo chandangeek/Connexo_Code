@@ -118,7 +118,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 name: 'reason',
                 fieldLabel: Uni.I18n.translate('general.title.issueReason', 'ISU', 'Issue reason'),
                 required: true,
-                store: 'Isu.store.IssueReasons',
+                store: 'Isu.store.CreationRuleReasons',
                 queryMode: 'local',
                 displayField: 'name',
                 valueField: 'id'
@@ -408,7 +408,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
 
         me.callParent(arguments);
 
-        if(reason === -1){
+        if(reason === -1 && reasonEditedValue.trim() != ''){
             var rec = {
                 id: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
                 name: reasonEditedValue.trim()
